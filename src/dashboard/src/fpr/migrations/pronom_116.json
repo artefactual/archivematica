@@ -1,0 +1,4317 @@
+[
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "a2d86b99-523e-4d92-b78c-e652c9079f4d",
+            "description": "JPEG 2000 Codestream",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "jpeg-2000-codestream"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "ebc07b09-893b-48c8-a249-6d8f6101354c",
+            "description": "Wireless Markup Language (WML) Document",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "wireless-markup-language-wml-document"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "fb8ab652-f5ac-42b7-bf55-8fbaee53c547",
+            "description": "SHA512 File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "sha512-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "de0feb62-db09-42cc-a83f-dcac22014669",
+            "description": "CHAT Transcription Format",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "chat-transcription-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9d5896e9-5ba3-45ba-aff4-b2c0924ca4b1",
+            "description": "FLExText Interlinear XML Format",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "flextext-interlinear-xml-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "3d7f0f16-7d7c-4dd4-924f-5a91bd2d0c79",
+            "description": "Multimedia Viewer Book",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "multimedia-viewer-book"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "baebcfbd-adc1-4c5f-bd31-e4a3ce06efff",
+            "description": "Praat TextGrid",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "praat-textgrid"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "651e6034-1c00-40e2-a3a9-0ba71a0b8615",
+            "description": "Transcriber AG TAG Format",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "transcriber-ag-tag-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "6b029e0d-5664-4d22-bfda-4746ca8ed061",
+            "description": "Transcriber TRS Format",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "transcriber-trs-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "107c925d-e2d2-459f-bd1a-15fed8f67868",
+            "description": "B Source Code File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "b-source-code-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "5bce282d-faf4-48c6-83ad-b5e727dda237",
+            "description": "Microsoft Access Database File",
+            "group": "7d161ac1-2879-445d-8e6d-cbc9eff5c225",
+            "slug": "microsoft-access-database-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "fb29955b-b346-4e7f-b473-8a2615888128",
+            "description": "Microsoft Access Encrypted Database File",
+            "group": "7d161ac1-2879-445d-8e6d-cbc9eff5c225",
+            "slug": "microsoft-access-encrypted-database-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "ac5d08a9-d7ef-4869-9d51-ccb586545457",
+            "description": "Raw PIMA SWIR Reflectance Spectral File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "raw-pima-swir-reflectance-spectral-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "cc5bbbf4-c495-4f88-9b07-bf82095c2380",
+            "description": "Vips Image",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "vips-image"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9f40ae1f-e6f2-465a-a031-b05cc31c666f",
+            "description": "Audio Data Transport Stream",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "audio-data-transport-stream"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "7a1dee51-ff59-4291-a901-8647e460cf11",
+            "description": "Adobe Color Book for Windows",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "adobe-color-book-for-windows"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "b6dca98a-f110-4357-8bb0-5cd699ccf126",
+            "description": "Adobe Color Swatch",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "adobe-color-swatch"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "e79157fd-00b8-49c3-9ccf-5879585a9db1",
+            "description": "Adobe Swatch Exchange",
+            "group": "00abbdd0-51b3-4162-b93a-45deb4ed8654",
+            "slug": "adobe-swatch-exchange"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "bee2da40-65d4-4c73-b16c-157109272f9c",
+            "description": "Direct Stream Digital Stream File",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "direct-stream-digital-stream-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "758a507c-3fb9-4a67-b4f5-9236e967ca67",
+            "description": "Direct Stream Digital Interchange File Format",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "direct-stream-digital-interchange-file-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "6cdac672-c2d1-488a-9dfa-a9fc6b0d11c8",
+            "description": "MacCaption File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "maccaption-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "fe8c7a22-a1b5-4048-87eb-40064c5a422a",
+            "description": "MacCaption Project",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "maccaption-project"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "3c42777d-b614-4114-9a24-a9ace41929c6",
+            "description": "Audacity Audio Block File",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "audacity-audio-block-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "a600a941-8459-4fe6-8f6e-44717fb0b378",
+            "description": "Audacity Project File",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "audacity-project-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "a96a4515-7305-4b16-8b87-a293934895ba",
+            "description": "DOCX Strict OOXML Document",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "docx-strict-ooxml-document"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "071a436d-584a-4009-8674-0cef6b00ebc7",
+            "description": "XLSX Strict OOXML Spreadsheet",
+            "group": "fea8c626-4c6d-4d34-8747-b7df5c67c17c",
+            "slug": "xlsx-strict-ooxml-spreadsheet"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9f7ce51b-53ca-46ce-99be-b1ee62210916",
+            "description": "PPTX Strict OOXML Presentation",
+            "group": "3616a69f-e9c4-4357-b366-57082cf75a3e",
+            "slug": "pptx-strict-ooxml-presentation"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "55475154-08b1-4409-a5f4-09856fb1c6fc",
+            "description": "3D Studio (DOS) 2D/3D Loft Object File",
+            "group": "8d32bf98-b569-4469-8953-10416b53b920",
+            "slug": "3d-studio-dos-2d3d-loft-object-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "da640572-2569-47c0-a352-ddf60c630c7e",
+            "description": "3D Studio (DOS) Project File",
+            "group": "8d32bf98-b569-4469-8953-10416b53b920",
+            "slug": "3d-studio-dos-project-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "62f3cda6-5d29-4a70-bb4f-6163e6026a1e",
+            "description": "ArcSoft PhotoStudio File",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "arcsoft-photostudio-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "71fc881b-87b6-45ea-bc1c-6accba17cf84",
+            "description": "ArcSoft Album and SlideShow Files for PhotoStudio and PhotoImpression",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "arcsoft-album-and-slideshow-files-for-photostudio"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "84c792ca-fcae-44e4-8d2e-b46e40c592e9",
+            "description": "GoDot 4Bit Graphics Format",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "godot-4bit-graphics-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "1f8ce5be-8730-4221-95c8-fc65cdd61f30",
+            "description": "Archiver Format",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "archiver-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "f8b38e1e-5c7f-4ebf-9206-5dada77cfd87",
+            "description": "Brio Query File",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "brio-query-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "04f1615e-b754-4b46-b582-ba500b2de61e",
+            "description": "WordPerfect Presentations",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "wordperfect-presentations"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "aaf9db8d-b8e8-45ab-8840-34f6ce2348ac",
+            "description": "Leica Project File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "leica-project-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "85d05b10-716a-435e-980d-6ca65ff96315",
+            "description": "Microsoft Publisher Packaged Document",
+            "group": "3616a69f-e9c4-4357-b366-57082cf75a3e",
+            "slug": "microsoft-publisher-packaged-document"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "709a31d2-adc3-4cbb-a3e0-08d9f9d50303",
+            "description": "WACZ",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "wacz"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "33917225-ecac-433b-8fe9-00e2195368e7",
+            "description": "Human Machine Interfaces HMI File",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "human-machine-interfaces-hmi-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "565cc087-1b41-4808-bf29-b8fbf6f301da",
+            "description": "GNU Image Manipulation Program Palette File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "gnu-image-manipulation-program-palette-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "4bad4ce2-97e8-438f-a7bc-6d3a9592831a",
+            "description": "Fountain Markup Language File",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "fountain-markup-language-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "d0d97f23-3553-4bc1-bad1-3e7785a19fcf",
+            "description": "Esri ArcMap Label file",
+            "group": "bdd21ea4-dccb-4092-a2fe-d1e51a6e5b6b",
+            "slug": "esri-arcmap-label-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "10fcb2f0-a501-4785-b93f-15d1d0fa9589",
+            "description": "Trelby Document File",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "trelby-document-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "edf5098c-0416-4f94-b058-2bdcd5bf6634",
+            "description": "General Purpose RAW",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "general-purpose-raw"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "ec0f4dc9-1095-43d4-ace9-e20601ce32ff",
+            "description": "WordPerfect Macro File",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "wordperfect-macro-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9c49ffce-d1e9-4177-b55b-d1ea2f327c99",
+            "description": "DAV Video Format",
+            "group": "f22e9c29-9d4a-429e-adaf-38f3aecaff99",
+            "slug": "dav-video-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "81a53567-8da4-4bfd-a213-eba4fbad4fd3",
+            "description": "Camtasia Recording File",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "camtasia-recording-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "7de7910f-f3ec-4f77-9d49-f52ca9a78c5c",
+            "description": "Camtasia Studio Project",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "camtasia-studio-project"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "d97c5748-8379-46a9-a090-48858977da1e",
+            "description": "Open Media Framework Interchange",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "open-media-framework-interchange"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "7fca248b-310f-4ab9-a6ef-7e775de55b55",
+            "description": "Enhanced Image Package",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "enhanced-image-package"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "ba8cda1f-033a-47d4-b432-20eccb509879",
+            "description": "Capture One Session File",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "capture-one-session-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "f8fe5302-965d-4e19-8cf6-82412a01982c",
+            "description": "Microsoft Excel Workspace File",
+            "group": "fea8c626-4c6d-4d34-8747-b7df5c67c17c",
+            "slug": "microsoft-excel-workspace-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "b80eb8af-9a82-4d8e-a081-09184c475a21",
+            "description": "dBASE Report Form Definition File",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "slug": "dbase-report-form-definition-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "283622ec-45d7-42a9-bb27-2256c9e23e53",
+            "description": "Quicken 3 Database File",
+            "group": "fea8c626-4c6d-4d34-8747-b7df5c67c17c",
+            "slug": "quicken-3-database-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "7e0d38a5-ff4c-4050-837d-93b597e3433d",
+            "description": "Adobe Illustrator CC Artwork",
+            "group": "fdf9e267-a18c-46a4-a162-b81bcba6322f",
+            "slug": "adobe-illustrator-cc-artwork"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "c60c1602-73e3-4bf1-978b-efaf77716198",
+            "description": "Adobe Illustrator CC 2020 Artwork",
+            "group": "fdf9e267-a18c-46a4-a162-b81bcba6322f",
+            "slug": "adobe-illustrator-cc-2020-artwork"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "d090f14a-4e8f-4483-baaf-b6d757743989",
+            "description": "SWiSH Movie File",
+            "group": "f22e9c29-9d4a-429e-adaf-38f3aecaff99",
+            "slug": "swish-movie-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "a261ffd0-0afb-4f1e-a95f-0b0a40757003",
+            "description": "Leapfrog Geo 3D Scene Format",
+            "group": "e8d06de7-f66c-4792-b7d4-3f17a22ab313",
+            "slug": "leapfrog-geo-3d-scene-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "989fdeb7-7aa5-4690-993a-fd63f5a71f27",
+            "description": "SPSS PC File Format",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "slug": "spss-pc-file-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "41cca819-0ec0-4278-9fa4-bb9cdf924570",
+            "description": "Yamaha PSR Disk Manager File",
+            "group": "00abbdd0-51b3-4162-b93a-45deb4ed8654",
+            "slug": "yamaha-psr-disk-manager-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "1b78a664-2796-4c15-9ffb-b4bd893dadd2",
+            "description": "Common Interface File",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "slug": "common-interface-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "f0e36d50-6b23-4f35-9aa3-3a908ead4bac",
+            "description": "Guitar Pro File",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "guitar-pro-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "292ca075-d4be-4996-9faa-0c14c0422aa9",
+            "description": "Esko ArtPro File",
+            "group": "df5d5107-c803-48ba-844d-feba093a571c",
+            "slug": "esko-artpro-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "ee9cda35-a487-48fd-aa08-576aaecc316d",
+            "description": "Maptech BSB Documentation File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "maptech-bsb-documentation-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "df265891-d004-4756-8252-727e8c0e9771",
+            "description": "HMM Packfile",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "hmm-packfile"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "0edc1da8-982a-4937-81dd-c1dbb9f6ed08",
+            "description": "GST Art File",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "gst-art-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "d4d2683e-889a-49af-ba63-58886283b422",
+            "description": "vCard",
+            "group": "00abbdd0-51b3-4162-b93a-45deb4ed8654",
+            "slug": "vcard-2"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "eda4e0b0-8fcf-484d-859e-09a35dbee579",
+            "description": "OPML File",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "opml-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9f97152c-aa9e-4484-9de7-97ff711cd85a",
+            "description": "CloudCompare Entity File",
+            "group": "8d32bf98-b569-4469-8953-10416b53b920",
+            "slug": "cloudcompare-entity-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "8d32f9ef-f24f-43ee-8cac-fec78454c784",
+            "description": "Encapsulated PostScript File Format",
+            "group": "df5d5107-c803-48ba-844d-feba093a571c",
+            "slug": "encapsulated-postscript-file-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "4848246c-13bd-4e8b-bb10-23d772a67b50",
+            "description": "Resource Interchange File Format (RIFF)",
+            "group": "f22e9c29-9d4a-429e-adaf-38f3aecaff99",
+            "slug": "resource-interchange-file-format-riff"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "b8544e20-cc2e-4e6c-8eaa-4ce41b8b4281",
+            "description": "Common Instrument File (CIF)",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "slug": "common-instrument-file-cif"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "bfcf2ee1-f57e-4521-bb52-eeb616a6e97d",
+            "description": "Open Access III Document",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "open-access-iii-document"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "a609e046-0e14-4e81-820d-121c67507622",
+            "description": "Memory Stick Voice File (MSV)",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "memory-stick-voice-file-msv"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "7dae61f0-e209-4214-aed0-6d5306f0e7cf",
+            "description": "Digital Voice File (DVF)",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "digital-voice-file-dvf"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "30ee2560-f500-4c79-a5a9-b263817d5450",
+            "description": "Memory Stick Voice File (MSV)/Digital Voice File (DVF)",
+            "group": "c94ce0e6-c275-4c09-b802-695a18b7bf2a",
+            "slug": "memory-stick-voice-file-msvdigital-voice-file-dvf"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "b2cd31a0-cb6b-43f4-97ad-a481c985747f",
+            "description": "Microsoft Agent File",
+            "group": "f22e9c29-9d4a-429e-adaf-38f3aecaff99",
+            "slug": "microsoft-agent-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "fbfb9fa7-3fb2-4538-abd2-18bf4390b311",
+            "description": "RagTime Document File",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "ragtime-document-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "5e3d6acf-30db-468b-8319-3d9fb46e223f",
+            "description": "Nokia Picture Message",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "nokia-picture-message"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "73751df7-cf22-46cd-9368-c12a853953da",
+            "description": "Ptex File Format",
+            "group": "8d32bf98-b569-4469-8953-10416b53b920",
+            "slug": "ptex-file-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "d2430ec9-5731-4241-9f28-5df897a1a81f",
+            "description": "Perfect ZX Tape (PZX) Image Format",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "perfect-zx-tape-pzx-image-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "655f00f4-a0e2-431c-9bad-f5148f74d05e",
+            "description": "RIS Citation",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "ris-citation"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "c0129a88-569e-4b63-8fb5-ac87e871b27a",
+            "description": "Mass Spectrometry Markup Language",
+            "group": "89961b53-4d5c-49e2-9910-8825d96c8640",
+            "slug": "mass-spectrometry-markup-language"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "4295c246-05b1-4e1e-9895-1bcb377a010f",
+            "description": "SGI Movie File",
+            "group": "f22e9c29-9d4a-429e-adaf-38f3aecaff99",
+            "slug": "sgi-movie-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "109b4259-bff3-4e6f-a46d-1f6082ef46e7",
+            "description": "Norton Change Directory Persistent Cache File",
+            "group": "7d161ac1-2879-445d-8e6d-cbc9eff5c225",
+            "slug": "norton-change-directory-persistent-cache-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9415f16a-4b4f-4e59-8824-579b033435a0",
+            "description": "Garmin Vehicle Images File",
+            "group": "fdf9e267-a18c-46a4-a162-b81bcba6322f",
+            "slug": "garmin-vehicle-images-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "fa12eeec-f153-493f-9a9b-30e4a27a3177",
+            "description": "Pasti Floppy Disk Image",
+            "group": "84362779-5e64-442d-9394-1d42ea961240",
+            "slug": "pasti-floppy-disk-image"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "013984c1-b3fd-407d-bb07-1ecabc4a68e1",
+            "description": "Universal Scene Description ASCII File",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "universal-scene-description-ascii-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "3e0da270-9ecf-49a9-a5ff-680212ab61d7",
+            "description": "VBM (VDC BitMap) File",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "vbm-vdc-bitmap-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "524d738a-d006-4e94-afe0-32fe0b16d38b",
+            "description": "Micrografx Icon File",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "micrografx-icon-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "454165a7-1b28-41a2-a327-ce4f58a856ad",
+            "description": "Jupiter Tesselation (JT) File",
+            "group": "8d32bf98-b569-4469-8953-10416b53b920",
+            "slug": "jupiter-tesselation-jt-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "431f452a-3499-4325-a2f7-494c5a1f79af",
+            "description": "TibetDoc Word Document",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "tibetdoc-word-document"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "299a6aec-e095-4754-af86-f63ac7f5df93",
+            "description": "Graphisoft Archicad Project",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "graphisoft-archicad-project"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "54a9bcbb-3381-4726-80b4-1a1ea786391b",
+            "description": "Graphisoft BIMx Hyper-Model",
+            "group": "289ce9cf-7991-48e4-abbe-ca373ef632cf",
+            "slug": "graphisoft-bimx-hyper-model"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "9e326168-d431-4ca8-9d75-495b1d19d192",
+            "description": "ActiveMime Object",
+            "group": "805d359a-32f0-4767-8a9c-cc14f13d8392",
+            "slug": "activemime-object"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "3b2a1b41-0944-4009-8893-0d2a97413cf8",
+            "description": "Autodesk Alias Wire Format",
+            "group": "8d32bf98-b569-4469-8953-10416b53b920",
+            "slug": "autodesk-alias-wire-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "5363979e-ffa0-4fa7-858d-f9983d3e186c",
+            "description": "BigTIFF",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "bigtiff"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "20602bed-b372-4b09-b774-b7dda857b377",
+            "description": "MetaCard Stack",
+            "group": "bdd21ea4-dccb-4092-a2fe-d1e51a6e5b6b",
+            "slug": "metacard-stack"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "68d870e3-85f6-48fa-8d14-53cb7bfeb3a0",
+            "description": "Revolution Stack",
+            "group": "bdd21ea4-dccb-4092-a2fe-d1e51a6e5b6b",
+            "slug": "revolution-stack"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "6825111e-d500-495c-b2d2-f477e870bfa6",
+            "description": "LiveCode Stack",
+            "group": "bdd21ea4-dccb-4092-a2fe-d1e51a6e5b6b",
+            "slug": "livecode-stack"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "f0cc3433-51fa-4466-ab3c-4c30fe6cc57d",
+            "description": "S-57 Electronic Navigational Chart",
+            "group": "e8d06de7-f66c-4792-b7d4-3f17a22ab313",
+            "slug": "s-57-electronic-navigational-chart"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "59a4be8a-d0f1-4541-b368-1acc9964c164",
+            "description": "PCRaster",
+            "group": "e8d06de7-f66c-4792-b7d4-3f17a22ab313",
+            "slug": "pcraster"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "bbea9747-480f-49fe-a0b7-fc12ed77b9d0",
+            "description": "Amazon Kindle eBook File",
+            "group": "873ff22f-4c71-4cfa-ad21-c6830cf1c881",
+            "slug": "amazon-kindle-ebook-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "77723283-321f-4fff-b796-c7f5c48d6782",
+            "description": "Lotus Screencam Data File",
+            "group": "f22e9c29-9d4a-429e-adaf-38f3aecaff99",
+            "slug": "lotus-screencam-data-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "784b4907-e4d6-422b-9417-0a48ae695649",
+            "description": "Auto FX PhotoGraphic Edges Image File",
+            "group": "be86edbf-f62c-431f-b549-300d23c7cd0d",
+            "slug": "auto-fx-photographic-edges-image-file"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "14c2aaa3-f96a-49d0-8e39-ae4c9a7f94c4",
+            "description": "EBU Subtitling Data Exchange Format",
+            "group": "57361413-1c3b-405d-a9c0-7d3ea381090e",
+            "slug": "ebu-subtitling-data-exchange-format"
+        }
+    },
+    {
+        "model": "fpr.format",
+        "fields": {
+            "uuid": "d81b6538-4f5e-44c0-a00d-b666d6840683",
+            "description": "Common Loudspeaker Format (CLF)",
+            "group": "9c183a8f-89b7-47cc-a6ba-4ed038cf63d5",
+            "slug": "common-loudspeaker-format-clf"
+        }
+    },
+    {
+        "model": "fpr.formatgroup",
+        "fields": {
+            "uuid": "df5d5107-c803-48ba-844d-feba093a571c",
+            "description": "Page Description",
+            "slug": "page-description"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.344Z",
+            "uuid": "fddef854-8c3b-4892-9dac-c51ae22ba76e",
+            "format": "a2d86b99-523e-4d92-b78c-e652c9079f4d",
+            "version": null,
+            "pronom_id": "fmt/1794",
+            "description": "JPEG 2000 Codestream",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "jpeg-2000-codestream"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.372Z",
+            "uuid": "d1820d1d-3517-48d9-941c-12efdaa49d87",
+            "format": "38dedbb9-8de3-43e7-9a2b-ce2cd11dd799",
+            "version": "6-11.5",
+            "pronom_id": "fmt/1795",
+            "description": "Asymetrix Toolbook File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "asymetrix-toolbook-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.398Z",
+            "uuid": "c03a618a-06f0-4d2f-a38a-c65bf7ceb94c",
+            "format": "ebc07b09-893b-48c8-a249-6d8f6101354c",
+            "version": "1.1",
+            "pronom_id": "fmt/1796",
+            "description": "Wireless Markup Language (WML) Document",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "wireless-markup-language-wml-document"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.423Z",
+            "uuid": "add93d4c-663e-40c0-89bf-4ed8f67697ee",
+            "format": "fb8ab652-f5ac-42b7-bf55-8fbaee53c547",
+            "version": null,
+            "pronom_id": "fmt/1797",
+            "description": "SHA512 File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "sha512-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.443Z",
+            "uuid": "2c9ff7b1-85ef-446a-b166-bcfb7ed5666a",
+            "format": "de0feb62-db09-42cc-a83f-dcac22014669",
+            "version": null,
+            "pronom_id": "fmt/1798",
+            "description": "CHAT Transcription Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "chat-transcription-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.465Z",
+            "uuid": "48120656-2b85-466b-861d-7aec723ea22e",
+            "format": "9d5896e9-5ba3-45ba-aff4-b2c0924ca4b1",
+            "version": null,
+            "pronom_id": "fmt/1799",
+            "description": "FLExText Interlinear XML Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "flextext-interlinear-xml-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.489Z",
+            "uuid": "49ae2640-333b-491b-bbdc-160d3049e194",
+            "format": "3d7f0f16-7d7c-4dd4-924f-5a91bd2d0c79",
+            "version": null,
+            "pronom_id": "fmt/1800",
+            "description": "Multimedia Viewer Book",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "multimedia-viewer-book"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.511Z",
+            "uuid": "dccf4216-a6e6-4c8b-a999-d82f5f580235",
+            "format": "baebcfbd-adc1-4c5f-bd31-e4a3ce06efff",
+            "version": null,
+            "pronom_id": "fmt/1801",
+            "description": "Praat TextGrid",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "praat-textgrid"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.538Z",
+            "uuid": "e1e4e7a5-5153-4073-812d-6999fae2ce9c",
+            "format": "651e6034-1c00-40e2-a3a9-0ba71a0b8615",
+            "version": null,
+            "pronom_id": "fmt/1802",
+            "description": "Transcriber AG TAG Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "transcriber-ag-tag-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.567Z",
+            "uuid": "8ff09bfa-d174-42cf-b159-433f126d18a7",
+            "format": "6b029e0d-5664-4d22-bfda-4746ca8ed061",
+            "version": null,
+            "pronom_id": "fmt/1803",
+            "description": "Transcriber TRS Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "transcriber-trs-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.591Z",
+            "uuid": "2fb3e7f4-2307-49d0-b58e-594393094a50",
+            "format": "107c925d-e2d2-459f-bd1a-15fed8f67868",
+            "version": null,
+            "pronom_id": "fmt/1804",
+            "description": "B Source Code File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "b-source-code-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.613Z",
+            "uuid": "f75a0b25-53b0-4378-93ec-ce67e08c4e94",
+            "format": "5bce282d-faf4-48c6-83ad-b5e727dda237",
+            "version": "1.0",
+            "pronom_id": "fmt/1805",
+            "description": "Microsoft Access Database File v1.0",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-access-database-file-v10"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.629Z",
+            "uuid": "ffa9ccb7-ba4f-4a86-8f14-a2dca087223f",
+            "format": "5bce282d-faf4-48c6-83ad-b5e727dda237",
+            "version": "1.1",
+            "pronom_id": "fmt/1806",
+            "description": "Microsoft Access Database File v1.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-access-database-file-v11"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.649Z",
+            "uuid": "bebb752e-acb5-4acc-bb07-638376f7dda8",
+            "format": "fb29955b-b346-4e7f-b473-8a2615888128",
+            "version": "1.0",
+            "pronom_id": "fmt/1807",
+            "description": "Microsoft Access Encrypted Database File v1.0",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-access-encrypted-database-file-v10"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.662Z",
+            "uuid": "e22b6e4e-24da-42bd-a8bc-800333140b1d",
+            "format": "fb29955b-b346-4e7f-b473-8a2615888128",
+            "version": "1.1",
+            "pronom_id": "fmt/1808",
+            "description": "Microsoft Access Encrypted Database File v1.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-access-encrypted-database-file-v11"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.676Z",
+            "uuid": "40c34d62-960c-4882-a6f7-7524c2e956d7",
+            "format": "fb29955b-b346-4e7f-b473-8a2615888128",
+            "version": "2.0",
+            "pronom_id": "fmt/1809",
+            "description": "Microsoft Access Encrypted Database File v2.0",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-access-encrypted-database-file-v20"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.697Z",
+            "uuid": "1ca8430a-717a-44fd-ab4e-363be4ffa435",
+            "format": "ac5d08a9-d7ef-4869-9d51-ccb586545457",
+            "version": null,
+            "pronom_id": "fmt/1810",
+            "description": "Raw PIMA SWIR Reflectance Spectral File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "raw-pima-swir-reflectance-spectral-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.717Z",
+            "uuid": "7029a24b-9717-4dc3-b38a-6abadbd74ae3",
+            "format": "cc5bbbf4-c495-4f88-9b07-bf82095c2380",
+            "version": null,
+            "pronom_id": "fmt/1811",
+            "description": "Vips Little-endian",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "vips-little-endian"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.738Z",
+            "uuid": "4ccfdec6-53dc-41ed-a580-82d1a6fbcab0",
+            "format": "9f40ae1f-e6f2-465a-a031-b05cc31c666f",
+            "version": null,
+            "pronom_id": "fmt/1812",
+            "description": "Audio Data Transport Stream sig.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "audio-data-transport-stream-sig1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.752Z",
+            "uuid": "eadc5312-800e-4786-a7f1-6166a8f2f316",
+            "format": "2261d5f9-f994-4503-8e99-c3ddf24b89fa",
+            "version": "3.0.0",
+            "pronom_id": "fmt/1813",
+            "description": "xdomea v.3.0.0",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "xdomea-v300"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.774Z",
+            "uuid": "1ce3699f-43f1-4467-8663-2eac3af9fe28",
+            "format": "7a1dee51-ff59-4291-a901-8647e460cf11",
+            "version": null,
+            "pronom_id": "fmt/1814",
+            "description": "Adobe Color Book for Windows",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-color-book-for-windows"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.796Z",
+            "uuid": "a25b6afc-63dd-48e7-b6d9-a0dc304180d2",
+            "format": "b6dca98a-f110-4357-8bb0-5cd699ccf126",
+            "version": null,
+            "pronom_id": "fmt/1815",
+            "description": "Adobe Color Swatch",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-color-swatch"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.818Z",
+            "uuid": "83c3c237-2286-4429-928b-273e5edf3aa7",
+            "format": "e79157fd-00b8-49c3-9ccf-5879585a9db1",
+            "version": null,
+            "pronom_id": "fmt/1816",
+            "description": "Adobe Swatch Exchange",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-swatch-exchange"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.836Z",
+            "uuid": "f3080de3-1ed5-482f-9aa0-3f2f64e55cf7",
+            "format": "bee2da40-65d4-4c73-b16c-157109272f9c",
+            "version": null,
+            "pronom_id": "fmt/1817",
+            "description": "Direct Stream Digital Stream File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "direct-stream-digital-stream-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.857Z",
+            "uuid": "fc8e120a-fcf8-48bc-946d-ece3b0992a4a",
+            "format": "758a507c-3fb9-4a67-b4f5-9236e967ca67",
+            "version": null,
+            "pronom_id": "fmt/1818",
+            "description": "Direct Stream Digital Interchange File Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "direct-stream-digital-interchange-file-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.877Z",
+            "uuid": "56d1b1f5-51ca-4d70-8783-9ceeeb95e100",
+            "format": "6cdac672-c2d1-488a-9dfa-a9fc6b0d11c8",
+            "version": "1",
+            "pronom_id": "fmt/1819",
+            "description": "MacCaption File v.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "maccaption-file-v1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.891Z",
+            "uuid": "771f36f5-1abe-4aa6-8f69-dd0d1e2c38a6",
+            "format": "6cdac672-c2d1-488a-9dfa-a9fc6b0d11c8",
+            "version": "2",
+            "pronom_id": "fmt/1820",
+            "description": "MacCaption File v.2",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "maccaption-file-v2"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.912Z",
+            "uuid": "0fec6519-22e9-4ef0-90a4-5c73ab9eaec1",
+            "format": "fe8c7a22-a1b5-4048-87eb-40064c5a422a",
+            "version": null,
+            "pronom_id": "fmt/1821",
+            "description": "MacCaption Project File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "maccaption-project-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.932Z",
+            "uuid": "ec204c7a-fd2d-4fc2-b566-51f4d6b66244",
+            "format": "3c42777d-b614-4114-9a24-a9ace41929c6",
+            "version": null,
+            "pronom_id": "fmt/1822",
+            "description": "Audacity Audio Block File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "audacity-audio-block-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.954Z",
+            "uuid": "90e56674-f565-43ac-952d-21263a26ea16",
+            "format": "a600a941-8459-4fe6-8f6e-44717fb0b378",
+            "version": "Early",
+            "pronom_id": "fmt/1823",
+            "description": "Audacity Project File (Early)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "audacity-project-file-early"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.968Z",
+            "uuid": "85f13e15-0eee-4309-92d1-988334a1bf8e",
+            "format": "a600a941-8459-4fe6-8f6e-44717fb0b378",
+            "version": "1.x",
+            "pronom_id": "fmt/1824",
+            "description": "Audacity Project File (v.1.x)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "audacity-project-file-v1x"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.982Z",
+            "uuid": "f2e181ac-45a0-4317-8e0a-58332346be95",
+            "format": "a600a941-8459-4fe6-8f6e-44717fb0b378",
+            "version": "2.x",
+            "pronom_id": "fmt/1825",
+            "description": "Audacity Project File (v.2.x)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "audacity-project-file-v2x"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.997Z",
+            "uuid": "beb72021-0292-45df-81cd-9d9c6a83983b",
+            "format": "a600a941-8459-4fe6-8f6e-44717fb0b378",
+            "version": "3.x",
+            "pronom_id": "fmt/1826",
+            "description": "Audacity Project File (v.3.x)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "audacity-project-file-v3x"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.016Z",
+            "uuid": "1ee670a9-7ff3-4c0c-9bb7-9637038e30b2",
+            "format": "a96a4515-7305-4b16-8b87-a293934895ba",
+            "version": "",
+            "pronom_id": "fmt/1827",
+            "description": "DOCX Strict OOXML Document",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "docx-strict-ooxml-document"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.037Z",
+            "uuid": "03fd58ef-855f-4e20-ba35-c42baf33afbc",
+            "format": "071a436d-584a-4009-8674-0cef6b00ebc7",
+            "version": "",
+            "pronom_id": "fmt/1828",
+            "description": "XLSX Strict OOXML Spreadsheet",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "xlsx-strict-ooxml-spreadsheet"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.058Z",
+            "uuid": "99ccbb9f-f91e-43e6-9ebc-5e4a64b2bc99",
+            "format": "9f7ce51b-53ca-46ce-99be-b1ee62210916",
+            "version": "",
+            "pronom_id": "fmt/1829",
+            "description": "PPTX Strict OOXML Presentation",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "pptx-strict-ooxml-presentation"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.078Z",
+            "uuid": "11a67f99-28ef-46a8-89a8-b0a648fe19b3",
+            "format": "55475154-08b1-4409-a5f4-09856fb1c6fc",
+            "version": null,
+            "pronom_id": "fmt/1830",
+            "description": "3D Studio (DOS) 2D/3D Loft Object File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "3d-studio-dos-2d3d-loft-object-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.098Z",
+            "uuid": "14a607bb-db5d-48bd-a7ed-ffa5f1d3b9d4",
+            "format": "da640572-2569-47c0-a352-ddf60c630c7e",
+            "version": null,
+            "pronom_id": "fmt/1831",
+            "description": "3D Studio (DOS) Project File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "3d-studio-dos-project-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.119Z",
+            "uuid": "a2cd1f2f-0002-48af-9a55-7c8a5228d287",
+            "format": "62f3cda6-5d29-4a70-bb4f-6163e6026a1e",
+            "version": null,
+            "pronom_id": "fmt/1832",
+            "description": "ArcSoft PhotoStudio File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "arcsoft-photostudio-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.146Z",
+            "uuid": "8c5f91a9-b9c0-4774-9423-8a7b6d028109",
+            "format": "71fc881b-87b6-45ea-bc1c-6accba17cf84",
+            "version": null,
+            "pronom_id": "fmt/1833",
+            "description": "ArcSoft Album and SlideShow Files for PhotoStudio and PhotoImpression",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "arcsoft-album-and-slideshow-files-for-photostudio"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.178Z",
+            "uuid": "3817cedb-0672-4550-bc32-5020c31754a2",
+            "format": "84c792ca-fcae-44e4-8d2e-b46e40c592e9",
+            "version": null,
+            "pronom_id": "fmt/1834",
+            "description": "GoDot 4Bit Graphics Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "godot-4bit-graphics-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.214Z",
+            "uuid": "e8c5b690-b79d-412b-b828-fd536891efae",
+            "format": "1f8ce5be-8730-4221-95c8-fc65cdd61f30",
+            "version": null,
+            "pronom_id": "fmt/1835",
+            "description": "Archiver Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "archiver-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.239Z",
+            "uuid": "bed4b5b0-82ac-4dce-866e-6e3bf05928dd",
+            "format": "f8b38e1e-5c7f-4ebf-9206-5dada77cfd87",
+            "version": null,
+            "pronom_id": "fmt/1836",
+            "description": "Brio Query File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "brio-query-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.266Z",
+            "uuid": "2676bb31-0d6f-4037-9f78-dbf1e3370872",
+            "format": "04f1615e-b754-4b46-b582-ba500b2de61e",
+            "version": "2",
+            "pronom_id": "fmt/1837",
+            "description": "WordPerfect Presentations v.2",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "wordperfect-presentations-v2"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.289Z",
+            "uuid": "97cbc78e-3e8b-424d-9409-b94ca8b7a428",
+            "format": "aaf9db8d-b8e8-45ab-8840-34f6ce2348ac",
+            "version": null,
+            "pronom_id": "fmt/1838",
+            "description": "Leica Project File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "leica-project-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.310Z",
+            "uuid": "40e2e5d8-0e84-4192-8ece-051d9548112f",
+            "format": "85d05b10-716a-435e-980d-6ca65ff96315",
+            "version": null,
+            "pronom_id": "fmt/1839",
+            "description": "Microsoft Publisher Packaged Document",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-publisher-packaged-document"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.329Z",
+            "uuid": "69c25e37-b2bf-4ec2-8c29-1268adc61d09",
+            "format": "709a31d2-adc3-4cbb-a3e0-08d9f9d50303",
+            "version": null,
+            "pronom_id": "fmt/1840",
+            "description": "WACZ",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "wacz"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.343Z",
+            "uuid": "11f23ed7-2bc7-423f-8339-51c67df45325",
+            "format": "263fd308-f220-4b46-b2b0-2863e1963449",
+            "version": "1.5",
+            "pronom_id": "fmt/1841",
+            "description": "DNG 1.5 (Little Endian, BOF)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "dng-15-little-endian-bof"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.360Z",
+            "uuid": "3a1af98b-18f1-4bb2-9ab7-213adf62e8b6",
+            "format": "263fd308-f220-4b46-b2b0-2863e1963449",
+            "version": "1.6",
+            "pronom_id": "fmt/1842",
+            "description": "DNG 1.6 (Little Endian, BOF)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "dng-16-little-endian-bof"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.390Z",
+            "uuid": "cb8410e1-3a34-4267-8e7f-b38a5307d39a",
+            "format": "33917225-ecac-433b-8fe9-00e2195368e7",
+            "version": null,
+            "pronom_id": "fmt/1843",
+            "description": "Human Machine Interfaces HMI File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "human-machine-interfaces-hmi-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.410Z",
+            "uuid": "d951dca4-fff3-48e6-8ffe-9ea9f0f39132",
+            "format": "565cc087-1b41-4808-bf29-b8fbf6f301da",
+            "version": null,
+            "pronom_id": "fmt/1844",
+            "description": "GNU Image Manipulation Program Palette File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "gnu-image-manipulation-program-palette-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.426Z",
+            "uuid": "581205c2-ca21-440f-8b69-1b8f6dda277d",
+            "format": "044a8d9e-e636-4d9d-9fe8-3f1cdfa99060",
+            "version": "8",
+            "pronom_id": "fmt/1845",
+            "description": "Final Draft Document v.8 onwards",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "final-draft-document-v8-onwards"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.453Z",
+            "uuid": "cbe4b3d3-c8a4-4a1a-ac34-5d3dffb8489d",
+            "format": "4bad4ce2-97e8-438f-a7bc-6d3a9592831a",
+            "version": null,
+            "pronom_id": "fmt/1846",
+            "description": "Fountain Markup Language File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "fountain-markup-language-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.472Z",
+            "uuid": "98af8d2c-7579-49c5-9284-94ef18726edf",
+            "format": "d0d97f23-3553-4bc1-bad1-3e7785a19fcf",
+            "version": null,
+            "pronom_id": "fmt/1847",
+            "description": "Esri ArcMap Label file",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "esri-arcmap-label-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.490Z",
+            "uuid": "ddd85625-73b9-41ed-802b-53215cebd920",
+            "format": "10fcb2f0-a501-4785-b93f-15d1d0fa9589",
+            "version": null,
+            "pronom_id": "fmt/1848",
+            "description": "Trelby Document File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "trelby-document-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.509Z",
+            "uuid": "a9355899-7682-4333-b1ef-43166b4d6a32",
+            "format": "edf5098c-0416-4f94-b058-2bdcd5bf6634",
+            "version": null,
+            "pronom_id": "fmt/1849",
+            "description": "General Purpose RAW (GoPro GPR)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "general-purpose-raw-gopro-gpr"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.529Z",
+            "uuid": "7c6658a6-cc9d-435e-9fb3-f669960ed132",
+            "format": "ec0f4dc9-1095-43d4-ace9-e20601ce32ff",
+            "version": null,
+            "pronom_id": "fmt/1850",
+            "description": "WordPerfect Macro File - wpm extension",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "wordperfect-macro-file-wpm-extension"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.551Z",
+            "uuid": "babfdf46-bd87-4199-8b7f-337ebbe76d28",
+            "format": "9c49ffce-d1e9-4177-b55b-d1ea2f327c99",
+            "version": null,
+            "pronom_id": "fmt/1851",
+            "description": "DAV Video Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "dav-video-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.572Z",
+            "uuid": "1ebcdab2-888d-4f29-bfce-70f0a56e1f45",
+            "format": "81a53567-8da4-4bfd-a213-eba4fbad4fd3",
+            "version": null,
+            "pronom_id": "fmt/1852",
+            "description": "Camtasia Recording File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "camtasia-recording-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.595Z",
+            "uuid": "7864b371-e882-4f6a-a236-00b47ece23e6",
+            "format": "7de7910f-f3ec-4f77-9d49-f52ca9a78c5c",
+            "version": null,
+            "pronom_id": "fmt/1853",
+            "description": "Camtasia Studio Project",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "camtasia-studio-project"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.624Z",
+            "uuid": "9a89a31f-590a-4238-9ebf-921b95e51996",
+            "format": "d97c5748-8379-46a9-a090-48858977da1e",
+            "version": "1.0",
+            "pronom_id": "fmt/1854",
+            "description": "Open Media Framework Interchange 1.0 (sig 1)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "open-media-framework-interchange-10-sig-1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.638Z",
+            "uuid": "05ce1429-62c6-4303-a166-e85ed3707099",
+            "format": "d97c5748-8379-46a9-a090-48858977da1e",
+            "version": "2.0",
+            "pronom_id": "fmt/1855",
+            "description": "Open Media Framework Interchange 2.0 (sig 1)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "open-media-framework-interchange-20-sig-1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.659Z",
+            "uuid": "73ed8c09-3c00-4494-bd55-9ee292857174",
+            "format": "7fca248b-310f-4ab9-a6ef-7e775de55b55",
+            "version": null,
+            "pronom_id": "fmt/1856",
+            "description": "Enhanced Image Package",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "enhanced-image-package"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.679Z",
+            "uuid": "d3de64ea-1cc4-40a1-ae31-28e252872add",
+            "format": "ba8cda1f-033a-47d4-b432-20eccb509879",
+            "version": null,
+            "pronom_id": "fmt/1857",
+            "description": "Capture One Session File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "capture-one-session-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.701Z",
+            "uuid": "c8fc8856-6001-4ba1-8300-2b4c59382494",
+            "format": "f8fe5302-965d-4e19-8cf6-82412a01982c",
+            "version": "5/95",
+            "pronom_id": "fmt/1858",
+            "description": "Microsoft Excel Workspace File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-excel-workspace-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.718Z",
+            "uuid": "adac6132-194a-4c8f-82b1-3af68db52088",
+            "format": "f066987f-5580-47fd-8a39-22980ad64233",
+            "version": "2.5",
+            "pronom_id": "fmt/1859",
+            "description": "Adobe Air",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-air-4"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.749Z",
+            "uuid": "1ad9e074-91a6-4df3-a5b4-c448617f790d",
+            "format": "b80eb8af-9a82-4d8e-a081-09184c475a21",
+            "version": "IV",
+            "pronom_id": "fmt/1860",
+            "description": "dBASE Report Form Definition File IV",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "dbase-report-form-definition-file-iv"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.772Z",
+            "uuid": "e4c1dd64-b727-47aa-b0a8-1838593552ab",
+            "format": "283622ec-45d7-42a9-bb27-2256c9e23e53",
+            "version": "3",
+            "pronom_id": "fmt/1861",
+            "description": "Quicken 3 database File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "quicken-3-database-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.793Z",
+            "uuid": "6b00bb83-f1d7-4077-a882-30a9469a5f6b",
+            "format": "7e0d38a5-ff4c-4050-837d-93b597e3433d",
+            "version": "17-23",
+            "pronom_id": "fmt/1862",
+            "description": "Adobe Illustrator CC Artwork 17-23",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-illustrator-cc-artwork-17-23"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.817Z",
+            "uuid": "6ae48b73-451b-4848-95b4-f64ef60bae14",
+            "format": "c60c1602-73e3-4bf1-978b-efaf77716198",
+            "version": "24-24.1",
+            "pronom_id": "fmt/1863",
+            "description": "Adobe Illustrator CC 2020 Artwork 24-24.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-illustrator-cc-2020-artwork-24-241"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.832Z",
+            "uuid": "accdee18-84db-4eb1-93ee-3fc84625d97f",
+            "format": "c60c1602-73e3-4bf1-978b-efaf77716198",
+            "version": "24.2+",
+            "pronom_id": "fmt/1864",
+            "description": "Adobe Illustrator CC 2020 Artwork 24.2+",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-illustrator-cc-2020-artwork-242"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.855Z",
+            "uuid": "cc7c5641-e2a7-4f09-aafa-db7d5740d65b",
+            "format": "d090f14a-4e8f-4483-baaf-b6d757743989",
+            "version": null,
+            "pronom_id": "fmt/1865",
+            "description": "SWiSH Movie File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "swish-movie-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.871Z",
+            "uuid": "aea5071c-ff60-43a8-9f4c-5fe45acae3f1",
+            "format": "952f4577-e723-4aa9-a4ee-bca7352c4c0f",
+            "version": "2",
+            "pronom_id": "fmt/1866",
+            "description": "Microsoft Powerpoint for Macintosh v.2",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-powerpoint-for-macintosh-v2"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.889Z",
+            "uuid": "9dab1e64-8805-452f-a3c4-629394a8cd07",
+            "format": "952f4577-e723-4aa9-a4ee-bca7352c4c0f",
+            "version": "3",
+            "pronom_id": "fmt/1867",
+            "description": "Microsoft Powerpoint for Macintosh v.3",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-powerpoint-for-macintosh-v3"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.912Z",
+            "uuid": "a1b701bc-47c6-45a1-acbc-83b13a634dae",
+            "format": "a261ffd0-0afb-4f1e-a95f-0b0a40757003",
+            "version": null,
+            "pronom_id": "fmt/1868",
+            "description": "Leapfrog Geo 3D Scene Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "leapfrog-geo-3d-scene-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.933Z",
+            "uuid": "852b348f-207f-4921-a95b-4df74f5d1563",
+            "format": "989fdeb7-7aa5-4690-993a-fd63f5a71f27",
+            "version": null,
+            "pronom_id": "fmt/1869",
+            "description": "SPSS PC File format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "spss-pc-file-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.947Z",
+            "uuid": "065f69b8-887e-4d0d-a26e-88da170909fd",
+            "format": "41cca819-0ec0-4278-9fa4-bb9cdf924570",
+            "version": null,
+            "pronom_id": "fmt/1870",
+            "description": "Yamaha PSR Disk Manager File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "yamaha-psr-disk-manager-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.968Z",
+            "uuid": "5501461b-3260-4666-8b70-b9a365ec435c",
+            "format": "1b78a664-2796-4c15-9ffb-b4bd893dadd2",
+            "version": null,
+            "pronom_id": "fmt/1871",
+            "description": "Common Interface File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "common-interface-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.990Z",
+            "uuid": "95f233a2-e80b-4167-ba34-61be2c512f15",
+            "format": "f0e36d50-6b23-4f35-9aa3-3a908ead4bac",
+            "version": "1",
+            "pronom_id": "fmt/1872",
+            "description": "Guitar Pro v1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "guitar-pro-v1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.003Z",
+            "uuid": "5cbf553f-96c9-42df-bb2c-86b398aae9b3",
+            "format": "f0e36d50-6b23-4f35-9aa3-3a908ead4bac",
+            "version": "2-5",
+            "pronom_id": "fmt/1873",
+            "description": "Guitar Pro v2-v5",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "guitar-pro-v2-v5"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.021Z",
+            "uuid": "1db53296-e61b-40d1-9e41-fcfe0a79955c",
+            "format": "292ca075-d4be-4996-9faa-0c14c0422aa9",
+            "version": null,
+            "pronom_id": "fmt/1874",
+            "description": "Esko ArtPro File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "esko-artpro-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.040Z",
+            "uuid": "5b089595-0d3f-4074-bfd2-d042c3745ff0",
+            "format": "ee9cda35-a487-48fd-aa08-576aaecc316d",
+            "version": null,
+            "pronom_id": "fmt/1875",
+            "description": "Maptech BSB Documentation File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "maptech-bsb-documentation-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.059Z",
+            "uuid": "366e0ecf-cdac-45b7-9222-6f1740958db4",
+            "format": "df265891-d004-4756-8252-727e8c0e9771",
+            "version": null,
+            "pronom_id": "fmt/1876",
+            "description": "HMM Packfile",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "hmm-packfile"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.077Z",
+            "uuid": "01623c05-2329-496a-b1ce-0f5e07a595c3",
+            "format": "0edc1da8-982a-4937-81dd-c1dbb9f6ed08",
+            "version": "1",
+            "pronom_id": "fmt/1877",
+            "description": "GST Art File v.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "gst-art-file-v1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.090Z",
+            "uuid": "b2f6f8d3-2360-437e-b273-c157a0a3514f",
+            "format": "0edc1da8-982a-4937-81dd-c1dbb9f6ed08",
+            "version": "2",
+            "pronom_id": "fmt/1878",
+            "description": "GST Art File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "gst-art-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.110Z",
+            "uuid": "14452456-e226-48f5-aa2f-9496ce960ab8",
+            "format": "d4d2683e-889a-49af-ba63-58886283b422",
+            "version": "2.1",
+            "pronom_id": "fmt/1879",
+            "description": "vCard v.2.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "vcard-v21"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.125Z",
+            "uuid": "f28fc4b4-8e5f-4986-ab32-ebc28b19ebc9",
+            "format": "d4d2683e-889a-49af-ba63-58886283b422",
+            "version": "3",
+            "pronom_id": "fmt/1880",
+            "description": "vCard v.3",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "vcard-v3"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.140Z",
+            "uuid": "e1223e4d-668e-4c2b-8839-2ad7d4793ce4",
+            "format": "d4d2683e-889a-49af-ba63-58886283b422",
+            "version": "4",
+            "pronom_id": "fmt/1881",
+            "description": "vCard v.4",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "vcard-v4"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.159Z",
+            "uuid": "c1e6b1ff-84b9-4fb8-9b17-b544e683c1a2",
+            "format": "eda4e0b0-8fcf-484d-859e-09a35dbee579",
+            "version": "1.*",
+            "pronom_id": "fmt/1882",
+            "description": "OPML File v.1.*",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "opml-file-v1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.172Z",
+            "uuid": "35e80eca-6bf5-4924-a237-88f368d58061",
+            "format": "eda4e0b0-8fcf-484d-859e-09a35dbee579",
+            "version": "2",
+            "pronom_id": "fmt/1883",
+            "description": "OPML File v.2",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "opml-file-v2"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.193Z",
+            "uuid": "71f49384-1d72-4dd2-b9f2-955b5551c07e",
+            "format": "9f97152c-aa9e-4484-9de7-97ff711cd85a",
+            "version": null,
+            "pronom_id": "fmt/1885",
+            "description": "CloudCompare Entity File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "cloudcompare-entity-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.213Z",
+            "uuid": "734470d8-01d5-4f1f-a209-3487b6d39861",
+            "format": "8d32f9ef-f24f-43ee-8cac-fec78454c784",
+            "version": "2.1",
+            "pronom_id": "fmt/1884",
+            "description": "EPS 2.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "eps-21"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.233Z",
+            "uuid": "be6f9174-dba8-45c4-8e28-2069c8386c07",
+            "format": "4848246c-13bd-4e8b-bb10-23d772a67b50",
+            "version": null,
+            "pronom_id": "fmt/1886",
+            "description": "RIFF",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "riff"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.246Z",
+            "uuid": "b77010a4-e02c-4945-a3e8-6ca7c20dee9f",
+            "format": "b8544e20-cc2e-4e6c-8eaa-4ce41b8b4281",
+            "version": "1",
+            "pronom_id": "fmt/1887",
+            "description": "CIF1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "cif1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.267Z",
+            "uuid": "0b2e3d12-52db-4279-8bf5-b14d32265ad1",
+            "format": "b8544e20-cc2e-4e6c-8eaa-4ce41b8b4281",
+            "version": "2",
+            "pronom_id": "fmt/1888",
+            "description": "CIF2",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "cif2"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.287Z",
+            "uuid": "e50a533e-ed2f-4b34-8236-b8a8bc023d51",
+            "format": "bfcf2ee1-f57e-4521-bb52-eeb616a6e97d",
+            "version": "III",
+            "pronom_id": "fmt/1889",
+            "description": "Open Access III Document",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "open-access-iii-document"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.307Z",
+            "uuid": "c3f45022-fbf8-4ef4-91dc-e4cb56c2ee60",
+            "format": "a609e046-0e14-4e81-820d-121c67507622",
+            "version": "",
+            "pronom_id": "fmt/1890",
+            "description": "MSV ADPCM",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "msv-adpcm"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.330Z",
+            "uuid": "b4c26455-bb68-43f7-95cb-a6639c8b70fb",
+            "format": "7dae61f0-e209-4214-aed0-6d5306f0e7cf",
+            "version": "TRC Codec",
+            "pronom_id": "fmt/1891",
+            "description": "DVF TRC",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "dvf-trc"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.353Z",
+            "uuid": "a32332d0-6203-4029-b3e0-f462bb849cf2",
+            "format": "30ee2560-f500-4c79-a5a9-b263817d5450",
+            "version": "LPEC Codec",
+            "pronom_id": "fmt/1892",
+            "description": "MSV/DVF LPEC",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "msvdvf-lpec"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.374Z",
+            "uuid": "624b7b3b-44db-439c-ab08-6125f52e7c2e",
+            "format": "b2cd31a0-cb6b-43f4-97ad-a481c985747f",
+            "version": null,
+            "pronom_id": "fmt/1893",
+            "description": "Microsoft Agent File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "microsoft-agent-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.395Z",
+            "uuid": "8d1f803c-e017-43fd-a2ea-db3db2a15c7c",
+            "format": "fbfb9fa7-3fb2-4538-abd2-18bf4390b311",
+            "version": "2-3",
+            "pronom_id": "fmt/1894",
+            "description": "RagTime Document File v2-3",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "ragtime-document-file-v2-3"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.402Z",
+            "uuid": "93cd6497-3a4d-4271-b77e-f4058504e7ef",
+            "format": "fbfb9fa7-3fb2-4538-abd2-18bf4390b311",
+            "version": "4-6",
+            "pronom_id": "fmt/1895",
+            "description": "RagTime Document File v4-6",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "ragtime-document-file-v4-6"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.421Z",
+            "uuid": "ed1e60e6-a05d-4972-b9c5-2832ac2e0fc0",
+            "format": "5e3d6acf-30db-468b-8319-3d9fb46e223f",
+            "version": null,
+            "pronom_id": "fmt/1896",
+            "description": "Nokia Picture Message",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "nokia-picture-message"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.439Z",
+            "uuid": "a8d733c8-21c8-4f20-a9ae-62cdc2e571b6",
+            "format": "73751df7-cf22-46cd-9368-c12a853953da",
+            "version": null,
+            "pronom_id": "fmt/1897",
+            "description": "Ptex File Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "ptex-file-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.464Z",
+            "uuid": "31fee8aa-d0cb-4a81-9b20-195179efb98b",
+            "format": "d2430ec9-5731-4241-9f28-5df897a1a81f",
+            "version": null,
+            "pronom_id": "fmt/1898",
+            "description": "Perfect ZX Tape (PZX) Image Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "perfect-zx-tape-pzx-image-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.483Z",
+            "uuid": "ab04d837-c7db-4c1e-afb2-fd9be2047bb1",
+            "format": "655f00f4-a0e2-431c-9bad-f5148f74d05e",
+            "version": null,
+            "pronom_id": "fmt/1899",
+            "description": "RIS Citation",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "ris-citation"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.505Z",
+            "uuid": "0ef5f609-b2c4-4889-8641-de2af79b2c20",
+            "format": "c0129a88-569e-4b63-8fb5-ac87e871b27a",
+            "version": null,
+            "pronom_id": "fmt/1900",
+            "description": "Mass Spectrometry Markup Language",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "mass-spectrometry-markup-language"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.527Z",
+            "uuid": "19d42cc4-eaa7-4583-aa0a-d12cbb5f6ec4",
+            "format": "4295c246-05b1-4e1e-9895-1bcb377a010f",
+            "version": null,
+            "pronom_id": "fmt/1901",
+            "description": "SGI Movie File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "sgi-movie-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.546Z",
+            "uuid": "83e56050-4fe8-49ae-a34c-3356852326fa",
+            "format": "109b4259-bff3-4e6f-a46d-1f6082ef46e7",
+            "version": null,
+            "pronom_id": "fmt/1902",
+            "description": "Norton Change Directory Persistent Cache File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "norton-change-directory-persistent-cache-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.567Z",
+            "uuid": "023d3038-e5aa-4207-b360-9abfd5c570cb",
+            "format": "9415f16a-4b4f-4e59-8824-579b033435a0",
+            "version": null,
+            "pronom_id": "fmt/1903",
+            "description": "Garmin Vehicle Images File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "garmin-vehicle-images-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.587Z",
+            "uuid": "cd3c7017-0575-4fbe-84ab-89a64d6bc31b",
+            "format": "fa12eeec-f153-493f-9a9b-30e4a27a3177",
+            "version": null,
+            "pronom_id": "fmt/1904",
+            "description": "Pasti Floppy Disk Image",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "pasti-floppy-disk-image"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.610Z",
+            "uuid": "8dfd5342-ab7b-416d-bdc5-08ece3bfcf8b",
+            "format": "013984c1-b3fd-407d-bb07-1ecabc4a68e1",
+            "version": null,
+            "pronom_id": "fmt/1905",
+            "description": "Universal Scene Description ASCII File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "universal-scene-description-ascii-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.635Z",
+            "uuid": "a4fc186d-701e-4ea7-8ed2-6cae705339fd",
+            "format": "3e0da270-9ecf-49a9-a5ff-680212ab61d7",
+            "version": null,
+            "pronom_id": "fmt/1906",
+            "description": "VBM (VDC BitMap) File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "vbm-vdc-bitmap-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.654Z",
+            "uuid": "231cc454-be4b-4d41-8c33-0f8db68a4477",
+            "format": "524d738a-d006-4e94-afe0-32fe0b16d38b",
+            "version": null,
+            "pronom_id": "fmt/1907",
+            "description": "Micrografx Icon File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "micrografx-icon-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.671Z",
+            "uuid": "aad516e7-50f3-4954-91ff-38f92fa1ab80",
+            "format": "454165a7-1b28-41a2-a327-ce4f58a856ad",
+            "version": null,
+            "pronom_id": "fmt/1908",
+            "description": "Jupiter Tesselation (JT) File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "jupiter-tesselation-jt-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.691Z",
+            "uuid": "39fa5ff0-b367-4392-963d-1111c1725d6c",
+            "format": "431f452a-3499-4325-a2f7-494c5a1f79af",
+            "version": null,
+            "pronom_id": "fmt/1909",
+            "description": "TibetDoc",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "tibetdoc"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.707Z",
+            "uuid": "e85db6d6-7f7a-4d06-993c-670f2489d919",
+            "format": "ff0065fc-fff5-491a-ae5e-d11bc0e74cd7",
+            "version": "4",
+            "pronom_id": "fmt/1910",
+            "description": "PDF/A-4",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "pdfa-4"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.722Z",
+            "uuid": "ddf25ce8-841f-4c36-bd73-bf71755acaad",
+            "format": "ff0065fc-fff5-491a-ae5e-d11bc0e74cd7",
+            "version": "4e",
+            "pronom_id": "fmt/1911",
+            "description": "PDF/A-4e variant 1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "pdfa-4e-variant-1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.741Z",
+            "uuid": "fae9bbd8-5446-4785-853a-75e9441b4938",
+            "format": "ff0065fc-fff5-491a-ae5e-d11bc0e74cd7",
+            "version": "4f",
+            "pronom_id": "fmt/1912",
+            "description": "PDF/A-4f variant 1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "pdfa-4f-variant-1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.762Z",
+            "uuid": "170071b9-538d-4373-84e4-8e83d0ebba6e",
+            "format": "299a6aec-e095-4754-af86-f63ac7f5df93",
+            "version": "17+",
+            "pronom_id": "fmt/1913",
+            "description": "Archicad Project",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "archicad-project"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.781Z",
+            "uuid": "00d987c7-a33c-4ef2-a295-4c6a660acf8a",
+            "format": "54a9bcbb-3381-4726-80b4-1a1ea786391b",
+            "version": null,
+            "pronom_id": "fmt/1914",
+            "description": "Graphisoft BIMx",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "graphisoft-bimx"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.800Z",
+            "uuid": "1a356579-c0dc-4de5-b390-6022eee2866d",
+            "format": "9e326168-d431-4ca8-9d75-495b1d19d192",
+            "version": null,
+            "pronom_id": "fmt/1915",
+            "description": "ActiveMime Object",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "activemime-object"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.820Z",
+            "uuid": "d810afed-a691-4cfd-9570-63896062098d",
+            "format": "3b2a1b41-0944-4009-8893-0d2a97413cf8",
+            "version": "7",
+            "pronom_id": "fmt/1916",
+            "description": "Autodesk Alias Wire Format v.7",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "autodesk-alias-wire-format-v7"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.833Z",
+            "uuid": "d4d49e8c-f98c-4b04-a2bc-8e4e27e458e9",
+            "format": "5363979e-ffa0-4fa7-858d-f9983d3e186c",
+            "version": null,
+            "pronom_id": "fmt/1917",
+            "description": "BigTIFF little endian",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "bigtiff-little-endian"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.854Z",
+            "uuid": "9c6b9fe2-24ff-4ba4-962d-717d18fd2c36",
+            "format": "20602bed-b372-4b09-b774-b7dda857b377",
+            "version": "2.x",
+            "pronom_id": "fmt/1918",
+            "description": "MetaCard Stack 2.x",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "metacard-stack-2x"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.879Z",
+            "uuid": "3b522e77-0437-4101-8a25-b487f47f1e7a",
+            "format": "68d870e3-85f6-48fa-8d14-53cb7bfeb3a0",
+            "version": "2.7",
+            "pronom_id": "fmt/1919",
+            "description": "Revolution Stack v2.7",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "revolution-stack-v27"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.908Z",
+            "uuid": "4941d5ad-77a3-42ac-8ea0-18dcc0ca4fbc",
+            "format": "6825111e-d500-495c-b2d2-f477e870bfa6",
+            "version": "5.5",
+            "pronom_id": "fmt/1920",
+            "description": "LiveCode Stack v5.5",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "livecode-stack-v55"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.922Z",
+            "uuid": "5ba13192-c3ca-4a68-a915-e2c5e21c981a",
+            "format": "6825111e-d500-495c-b2d2-f477e870bfa6",
+            "version": "7.0",
+            "pronom_id": "fmt/1921",
+            "description": "LiveCode Stack v7.0",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "livecode-stack-v70"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.935Z",
+            "uuid": "45a4138e-405f-44a0-801d-b37042b64b65",
+            "format": "6825111e-d500-495c-b2d2-f477e870bfa6",
+            "version": "8.0",
+            "pronom_id": "fmt/1922",
+            "description": "LiveCode Stack v8.0",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "livecode-stack-v80"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.943Z",
+            "uuid": "423b151f-8d56-4ce8-ab4e-82c137eb9bc6",
+            "format": "6825111e-d500-495c-b2d2-f477e870bfa6",
+            "version": "8.1+",
+            "pronom_id": "fmt/1923",
+            "description": "LiveCode Stack v8.1+",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "livecode-stack-v81"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.960Z",
+            "uuid": "c185328a-f7b9-4a12-afb0-d52435bd8f18",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "8 Bidi",
+            "pronom_id": "fmt/1924",
+            "description": "CorelDraw Drawing version 8 Bidi",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-version-8-bidi"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.975Z",
+            "uuid": "c0ed060f-142f-4c8f-b682-351c979c49fb",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "X6",
+            "pronom_id": "fmt/1925",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.991Z",
+            "uuid": "a6b40202-2174-4a8d-bdd5-32c26738eae7",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "X7",
+            "pronom_id": "fmt/1926",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-2"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.009Z",
+            "uuid": "e73437db-cd89-4694-9b4b-975ec4872667",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "X8",
+            "pronom_id": "fmt/1927",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-3"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.028Z",
+            "uuid": "218d814c-15d1-4e23-b323-48a41975e043",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2017",
+            "pronom_id": "fmt/1928",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-4"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.052Z",
+            "uuid": "96a773e9-b6aa-4a7c-8e23-021a015891b0",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2018",
+            "pronom_id": "fmt/1929",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-5"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.074Z",
+            "uuid": "e0ef0090-4e59-4f69-8414-2a75c54bf245",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2019",
+            "pronom_id": "fmt/1930",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-6"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.099Z",
+            "uuid": "33cfeecd-2d32-446c-8a9c-0e5df69dc535",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2020",
+            "pronom_id": "fmt/1931",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-7"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.127Z",
+            "uuid": "bed0350f-e426-4fdc-a793-a1769c09f62b",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2021",
+            "pronom_id": "fmt/1932",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-8"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.160Z",
+            "uuid": "2fb82264-49f9-41ad-a8d9-65c5cf77f9d8",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2022",
+            "pronom_id": "fmt/1933",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-9"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.190Z",
+            "uuid": "71f14fd9-faa5-4e26-8fd5-71d0e8cc3f1d",
+            "format": "ae029f61-d3f1-4252-8a13-2739a863d0e9",
+            "version": "2023",
+            "pronom_id": "fmt/1934",
+            "description": "CorelDraw Drawing",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "coreldraw-drawing-10"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.227Z",
+            "uuid": "d8d8dd93-3328-41a1-9295-d5924c6400d9",
+            "format": "f0cc3433-51fa-4466-ab3c-4c30fe6cc57d",
+            "version": "3.1",
+            "pronom_id": "fmt/1935",
+            "description": "S-57 Electronic Navigational Chart 3.1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "s-57-electronic-navigational-chart-31"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.248Z",
+            "uuid": "b35209d1-64db-47d7-8521-cf418e1a08e3",
+            "format": "59a4be8a-d0f1-4541-b368-1acc9964c164",
+            "version": null,
+            "pronom_id": "fmt/1936",
+            "description": "PCRaster",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "pcraster"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.270Z",
+            "uuid": "debb2ca6-b9b4-443a-abbb-4ddd6d9cdb96",
+            "format": "bbea9747-480f-49fe-a0b7-fc12ed77b9d0",
+            "version": null,
+            "pronom_id": "fmt/1937",
+            "description": "Amazon Kindle ebook File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "amazon-kindle-ebook-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.297Z",
+            "uuid": "0068dc7e-2383-4a12-bda9-507abd8edb6e",
+            "format": "77723283-321f-4fff-b796-c7f5c48d6782",
+            "version": "3.0, 3.1",
+            "pronom_id": "fmt/1938",
+            "description": "Lotus Screencam Data File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "lotus-screencam-data-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.336Z",
+            "uuid": "3e82eb42-ef14-4574-a311-10b902e11d74",
+            "format": "784b4907-e4d6-422b-9417-0a48ae695649",
+            "version": null,
+            "pronom_id": "fmt/1939",
+            "description": "Auto FX PhotoGraphic Edges Image File",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "auto-fx-photographic-edges-image-file"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.362Z",
+            "uuid": "b43c1bbc-5563-45da-99bc-9a2eb12901fc",
+            "format": "14c2aaa3-f96a-49d0-8e39-ae4c9a7f94c4",
+            "version": null,
+            "pronom_id": "fmt/1940",
+            "description": "EBU Subtitling Data Exchange Format",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "ebu-subtitling-data-exchange-format"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.380Z",
+            "uuid": "c755f6df-ab9a-4610-825a-b77fe08be24b",
+            "format": "03e5f908-4a64-4374-ab63-ac11e5e7ebd5",
+            "version": "CC 2023",
+            "pronom_id": "fmt/1941",
+            "description": "Adobe InDesign Document CC 2023",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-indesign-document-cc-2023"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.404Z",
+            "uuid": "db324ba4-dc19-4dca-84a3-90198067e481",
+            "format": "03e5f908-4a64-4374-ab63-ac11e5e7ebd5",
+            "version": "CC 2024",
+            "pronom_id": "fmt/1942",
+            "description": "Adobe InDesign Document CC 2024",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "adobe-indesign-document-cc-2024"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.420Z",
+            "uuid": "15a79d6e-8b47-4e67-9ce5-b5448e987a1c",
+            "format": "263fd308-f220-4b46-b2b0-2863e1963449",
+            "version": "1.7",
+            "pronom_id": "fmt/1943",
+            "description": "DNG 1.7 (Little Endian, BOF)",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "dng-17-little-endian-bof"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.443Z",
+            "uuid": "4dbe6620-c574-4989-9ede-0e9896b946be",
+            "format": "d81b6538-4f5e-44c0-a00d-b666d6840683",
+            "version": "1",
+            "pronom_id": "fmt/1944",
+            "description": "CLF1",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "clf1"
+        }
+    },
+    {
+        "model": "fpr.formatversion",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.457Z",
+            "uuid": "73b4d9ae-0a9c-4e06-944c-d8f7ee282b93",
+            "format": "d81b6538-4f5e-44c0-a00d-b666d6840683",
+            "version": "2",
+            "pronom_id": "fmt/1945",
+            "description": "CLF2",
+            "access_format": false,
+            "preservation_format": false,
+            "slug": "clf2"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.354Z",
+            "uuid": "3464d389-37f7-4304-9f01-c33fb1951b39",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "fddef854-8c3b-4892-9dac-c51ae22ba76e",
+            "command_output": ".j2k"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.407Z",
+            "uuid": "dbb86cc7-d164-4969-85c5-2b9804c7aaf2",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "c03a618a-06f0-4d2f-a38a-c65bf7ceb94c",
+            "command_output": ".wml"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.432Z",
+            "uuid": "91f1e5f4-3899-4866-975a-c4e663f1caf8",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "add93d4c-663e-40c0-89bf-4ed8f67697ee",
+            "command_output": ".sha512"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.452Z",
+            "uuid": "f0f5aeaa-b99b-4b01-a88d-1bd4c87b25f8",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "2c9ff7b1-85ef-446a-b166-bcfb7ed5666a",
+            "command_output": ".cha"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.473Z",
+            "uuid": "6abd6818-d1b4-4fec-a0f7-75295e002142",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "48120656-2b85-466b-861d-7aec723ea22e",
+            "command_output": ".flextext"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.497Z",
+            "uuid": "8295dad8-4322-44b1-8f4e-7b6c5d411300",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "49ae2640-333b-491b-bbdc-160d3049e194",
+            "command_output": ".mvb"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.523Z",
+            "uuid": "a3e266a5-1f45-4253-8d6f-a228ec06d433",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "dccf4216-a6e6-4c8b-a999-d82f5f580235",
+            "command_output": ".textgrid"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.579Z",
+            "uuid": "fa2ffb56-1c0e-483d-aef5-200d62f05375",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "8ff09bfa-d174-42cf-b159-433f126d18a7",
+            "command_output": ".trs"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.601Z",
+            "uuid": "e661f8ec-feb3-4096-8c8b-4bdcf57500f3",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "2fb3e7f4-2307-49d0-b58e-594393094a50",
+            "command_output": ".b"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.706Z",
+            "uuid": "84d8a8e8-3e47-4fa1-b11f-3bdbf56004b5",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "1ca8430a-717a-44fd-ab4e-363be4ffa435",
+            "command_output": ".fos"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.726Z",
+            "uuid": "c8e659c3-049e-48e0-b84b-2e54ea0baa93",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "7029a24b-9717-4dc3-b38a-6abadbd74ae3",
+            "command_output": ".v"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.746Z",
+            "uuid": "1a1882e4-ac6a-49c9-8141-a062dd2483d7",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "4ccfdec6-53dc-41ed-a580-82d1a6fbcab0",
+            "command_output": ".aac"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.806Z",
+            "uuid": "d70063c6-0be0-48c8-982e-00fef71010db",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "a25b6afc-63dd-48e7-b6d9-a0dc304180d2",
+            "command_output": ".aco"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.826Z",
+            "uuid": "6888252e-e3e2-4dad-8ef1-edf700595ba0",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "83c3c237-2286-4429-928b-273e5edf3aa7",
+            "command_output": ".ase"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.865Z",
+            "uuid": "e2ff0f54-9a5a-4115-a1e2-96b64d87caab",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "fc8e120a-fcf8-48bc-946d-ece3b0992a4a",
+            "command_output": ".dff"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.920Z",
+            "uuid": "2ce7294e-91d3-4fa9-bb67-f1ebf8845fd9",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "0fec6519-22e9-4ef0-90a4-5c73ab9eaec1",
+            "command_output": ".cca"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:52.990Z",
+            "uuid": "7d294f62-c9c1-45d4-bddc-f0e5e35866e2",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "f2e181ac-45a0-4317-8e0a-58332346be95",
+            "command_output": ".aup"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.005Z",
+            "uuid": "9696db06-b12b-4536-a2ea-09ef046a5638",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "beb72021-0292-45df-81cd-9d9c6a83983b",
+            "command_output": ".aup3"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.086Z",
+            "uuid": "8cf86d90-a323-49cf-b686-801a548efb93",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "11a67f99-28ef-46a8-89a8-b0a648fe19b3",
+            "command_output": ".lft"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.159Z",
+            "uuid": "e64b7c9d-a76d-47b8-8492-59086bab8430",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "8c5f91a9-b9c0-4774-9423-8a7b6d028109",
+            "command_output": ".abm"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.190Z",
+            "uuid": "f74b4386-9623-4efb-8aa3-e534a6976b67",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "3817cedb-0672-4550-bc32-5020c31754a2",
+            "command_output": ".4bt"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.227Z",
+            "uuid": "b8415e3e-56d4-4105-b27d-7c12726fc10a",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "e8c5b690-b79d-412b-b828-fd536891efae",
+            "command_output": ".a"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.252Z",
+            "uuid": "e0cb42fd-e050-4b94-9af0-c9bb308c0a6a",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "bed4b5b0-82ac-4dce-866e-6e3bf05928dd",
+            "command_output": ".bqy"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.297Z",
+            "uuid": "41e2670c-ff01-4fd3-bc85-df9af773a231",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "97cbc78e-3e8b-424d-9409-b94ca8b7a428",
+            "command_output": ".lgs"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.318Z",
+            "uuid": "e4519af2-6ec8-45b0-acc7-58ecbebe42c6",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "40e2e5d8-0e84-4192-8ece-051d9548112f",
+            "command_output": ".puz"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.336Z",
+            "uuid": "b2932c0b-26ee-472e-9b89-ffe7df234810",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "69c25e37-b2bf-4ec2-8c29-1268adc61d09",
+            "command_output": ".wacz"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.398Z",
+            "uuid": "de238628-9e35-447a-b7ee-29cc7b805d0c",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "cb8410e1-3a34-4267-8e7f-b38a5307d39a",
+            "command_output": ".hmi"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.418Z",
+            "uuid": "5dc9cac3-ae3b-442f-82a3-7c640d2bac56",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "d951dca4-fff3-48e6-8ffe-9ea9f0f39132",
+            "command_output": ".gpl"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.439Z",
+            "uuid": "5ef98f8b-2715-4b62-af51-2f1b4e280752",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "581205c2-ca21-440f-8b69-1b8f6dda277d",
+            "command_output": ".fdx"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.461Z",
+            "uuid": "4c81b42a-d092-4261-96c9-f573218bc56b",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "cbe4b3d3-c8a4-4a1a-ac34-5d3dffb8489d",
+            "command_output": ".spmd"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.479Z",
+            "uuid": "bf47da96-2bbe-42d7-b936-0e9c13a7482b",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "98af8d2c-7579-49c5-9284-94ef18726edf",
+            "command_output": ".lxp"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.498Z",
+            "uuid": "07be92ee-9595-4580-af0a-7db849186d74",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "ddd85625-73b9-41ed-802b-53215cebd920",
+            "command_output": ".trelby"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.518Z",
+            "uuid": "543f15db-2828-492b-98cb-2da95af29db2",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "a9355899-7682-4333-b1ef-43166b4d6a32",
+            "command_output": ".gpr"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.560Z",
+            "uuid": "b1055608-9e0f-4766-a4bc-13efe16f5789",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "babfdf46-bd87-4199-8b7f-337ebbe76d28",
+            "command_output": ".dav"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.581Z",
+            "uuid": "8990fbf6-a50b-442a-9d66-5555fd9a5c95",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "1ebcdab2-888d-4f29-bfce-70f0a56e1f45",
+            "command_output": ".camrec"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.604Z",
+            "uuid": "047c4ae7-376a-4102-a8fd-19b06cdbc037",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "7864b371-e882-4f6a-a236-00b47ece23e6",
+            "command_output": ".camproj"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.668Z",
+            "uuid": "519072ae-269b-4838-b629-4705808f8bd8",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "73ed8c09-3c00-4494-bd55-9ee292857174",
+            "command_output": ".eip"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.781Z",
+            "uuid": "901a8c13-60e5-4aeb-8574-1d8b04b9fc2c",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "e4c1dd64-b727-47aa-b0a8-1838593552ab",
+            "command_output": ".qst"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.863Z",
+            "uuid": "f9fd9698-549f-4a71-b34f-833b7cb562ae",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "cc7c5641-e2a7-4f09-aafa-db7d5740d65b",
+            "command_output": ".swi"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.899Z",
+            "uuid": "4c186552-6f6d-4e7d-aa67-f0cc6146d145",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "9dab1e64-8805-452f-a3c4-629394a8cd07",
+            "command_output": ".ppt"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.920Z",
+            "uuid": "6e974300-514d-424f-a129-6071a89f8c50",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "a1b701bc-47c6-45a1-acbc-83b13a634dae",
+            "command_output": ".lfsc"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:53.997Z",
+            "uuid": "6e7218ec-50c0-43b5-b979-f69cd4be25f8",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "95f233a2-e80b-4167-ba34-61be2c512f15",
+            "command_output": ".gtp"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.011Z",
+            "uuid": "03256fa3-f3c8-4136-b3e9-95f69b887ad1",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "5cbf553f-96c9-42df-bb2c-86b398aae9b3",
+            "command_output": ".gp3"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.029Z",
+            "uuid": "10b63583-9409-472d-ab8a-c2f292fd1f47",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "1db53296-e61b-40d1-9e41-fcfe0a79955c",
+            "command_output": ".ap"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.049Z",
+            "uuid": "6bcb399a-872b-41eb-aaa4-22809a0fac5c",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "5b089595-0d3f-4074-bfd2-d042c3745ff0",
+            "command_output": ".bsb"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.066Z",
+            "uuid": "d52fe2fb-e45c-46b6-9a87-e14b2d9d2cc5",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "366e0ecf-cdac-45b7-9222-6f1740958db4",
+            "command_output": ".pak"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.098Z",
+            "uuid": "b9985083-4a80-4213-80ad-ccd369d4d348",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "b2f6f8d3-2360-437e-b273-c157a0a3514f",
+            "command_output": ".art"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.254Z",
+            "uuid": "7c2054a7-605d-48b6-8994-eac8a60285b3",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "b77010a4-e02c-4945-a3e8-6ca7c20dee9f",
+            "command_output": ".ci1"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.276Z",
+            "uuid": "fe7ed803-165f-491e-8789-818667eabe8d",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "0b2e3d12-52db-4279-8bf5-b14d32265ad1",
+            "command_output": ".ci2"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.296Z",
+            "uuid": "dd950ab2-883f-4252-ade8-9d92fe52c43b",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "e50a533e-ed2f-4b34-8236-b8a8bc023d51",
+            "command_output": ".ext"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.339Z",
+            "uuid": "fd463cbe-733c-437f-92d6-64e989692a7e",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "b4c26455-bb68-43f7-95cb-a6639c8b70fb",
+            "command_output": ".dvf"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.361Z",
+            "uuid": "760bacb9-0a2a-4b86-b78c-8edde4963dee",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "a32332d0-6203-4029-b3e0-f462bb849cf2",
+            "command_output": ".msv"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.384Z",
+            "uuid": "210fd82a-7d21-4994-8180-ec07d372a0f2",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "624b7b3b-44db-439c-ab08-6125f52e7c2e",
+            "command_output": ".acs"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.410Z",
+            "uuid": "4c2fc22e-745b-4e93-a724-632603b5432d",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "93cd6497-3a4d-4271-b77e-f4058504e7ef",
+            "command_output": ".rtd"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.429Z",
+            "uuid": "f8c605d8-e57b-460d-97cb-96e06105349f",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "ed1e60e6-a05d-4972-b9c5-2832ac2e0fc0",
+            "command_output": ".npm"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.471Z",
+            "uuid": "ff2f3e5e-67fd-4acc-8204-42e6dc0e76f4",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "31fee8aa-d0cb-4a81-9b20-195179efb98b",
+            "command_output": ".pzx"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.492Z",
+            "uuid": "f17c0d9e-e0d0-4493-a6be-3e4a67f2a8c6",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "ab04d837-c7db-4c1e-afb2-fd9be2047bb1",
+            "command_output": ".ris"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.514Z",
+            "uuid": "51f6767a-1f09-4116-a1bd-e4b889dff625",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "0ef5f609-b2c4-4889-8641-de2af79b2c20",
+            "command_output": ".mxml"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.534Z",
+            "uuid": "78413357-9b73-4ed9-bd4d-011f24eafb82",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "19d42cc4-eaa7-4583-aa0a-d12cbb5f6ec4",
+            "command_output": ".mv"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.575Z",
+            "uuid": "f4959ba8-c98e-46fb-9b31-93c74dd41a4b",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "023d3038-e5aa-4207-b360-9abfd5c570cb",
+            "command_output": ".srf"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.596Z",
+            "uuid": "3e7ecb53-48f7-4b5a-bb61-02ca78af39d3",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "cd3c7017-0575-4fbe-84ab-89a64d6bc31b",
+            "command_output": ".stx"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.622Z",
+            "uuid": "10efde1e-e13c-435f-81d0-51d99d74d86c",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "8dfd5342-ab7b-416d-bdc5-08ece3bfcf8b",
+            "command_output": ".usda"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.643Z",
+            "uuid": "b383b622-c472-4570-a3a0-692b621cd566",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "a4fc186d-701e-4ea7-8ed2-6cae705339fd",
+            "command_output": ".vbm"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.661Z",
+            "uuid": "16743229-64a1-44c3-a8d6-c20d41c7802f",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "231cc454-be4b-4d41-8c33-0f8db68a4477",
+            "command_output": ".icn"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.679Z",
+            "uuid": "af721f11-0402-4ba4-9852-a0217f36fff4",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "aad516e7-50f3-4954-91ff-38f92fa1ab80",
+            "command_output": ".jt"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.770Z",
+            "uuid": "4d1e9fcb-e234-4d08-8c7c-6c92a559065e",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "170071b9-538d-4373-84e4-8e83d0ebba6e",
+            "command_output": ".pln"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.789Z",
+            "uuid": "b21baf6b-c160-45ac-b252-f218f9006d7e",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "00d987c7-a33c-4ef2-a295-4c6a660acf8a",
+            "command_output": ".bimx"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.808Z",
+            "uuid": "1a378a4a-7f0c-427a-9907-647f60416ea8",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "1a356579-c0dc-4de5-b390-6022eee2866d",
+            "command_output": ".mso"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:54.862Z",
+            "uuid": "e0ad952c-8386-4d42-b660-ab03428bf6a6",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "9c6b9fe2-24ff-4ba4-962d-717d18fd2c36",
+            "command_output": ".mc"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.257Z",
+            "uuid": "0594c58f-9006-494a-8f07-09156e8cbe09",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "b35209d1-64db-47d7-8521-cf418e1a08e3",
+            "command_output": ".csf"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.278Z",
+            "uuid": "4db4c51e-1488-4c20-b71a-a0058c4364f2",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "debb2ca6-b9b4-443a-abbb-4ddd6d9cdb96",
+            "command_output": ".azw"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.316Z",
+            "uuid": "59cf89e9-59e7-4447-8162-ff44efec8407",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "0068dc7e-2383-4a12-bda9-507abd8edb6e",
+            "command_output": ".scm"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.347Z",
+            "uuid": "630cd30c-202e-4061-9d04-9beff9bb5a8c",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "3e82eb42-ef14-4574-a311-10b902e11d74",
+            "command_output": ".afx"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.413Z",
+            "uuid": "ed9b0f77-188c-4fc6-940c-66c263a918d8",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "db324ba4-dc19-4dca-84a3-90198067e481",
+            "command_output": ".indd"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.452Z",
+            "uuid": "bb32e21d-4a71-46fe-b67a-2602a63ee51c",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "4dbe6620-c574-4989-9ede-0e9896b946be",
+            "command_output": ".cf1"
+        }
+    },
+    {
+        "model": "fpr.idrule",
+        "fields": {
+            "replaces": null,
+            "enabled": true,
+            "lastmodified": "2024-02-03T21:34:55.472Z",
+            "uuid": "dd40f6e6-80ae-443a-88d3-5c4b860fcbd7",
+            "command": "8546b624-7894-4201-8df6-f239d5e0d5ba",
+            "format": "73b4d9ae-0a9c-4e06-944c-d8f7ee282b93",
+            "command_output": ".cf2"
+        }
+    }
+]

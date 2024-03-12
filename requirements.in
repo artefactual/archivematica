@@ -21,7 +21,7 @@ jsonschema
 lazy-paged-sequence
 lxml
 metsrw
-opf-fido
+git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca#opf-fido
 prometheus_client
 python-dateutil
 requests

@@ -151,7 +151,7 @@ olefile==0.47
     # via
     #   -r requirements.txt
     #   opf-fido
-opf-fido==1.6.1
+opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
 packaging==23.2
     # via
