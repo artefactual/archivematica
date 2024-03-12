@@ -144,7 +144,7 @@ ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 
-FROM base-builder as base
+FROM base-builder as base-mcp-client
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -216,7 +216,7 @@ COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-mcp-client
+FROM base-mcp-client AS archivematica-mcp-client
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/src/MCPClient/lib/:/src/src/MCPClient/lib/clientScripts:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
@@ -233,7 +233,53 @@ ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/lib/archivematicaCli
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-mcp-server
+FROM base-builder as base-others
+
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG PYENV_DIR=/pyenv
+
+RUN set -ex \
+	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
+	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.16.x.gpg] http://packages.archivematica.org/1.16.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
+	&& curl --retry 3 -so /tmp/repo-mediaarea_1.0-21_all.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb \
+	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		coreutils \
+		g++ \
+		gcc \
+		gettext \
+		libffi-dev \
+		libldap2-dev \
+		libmysqlclient-dev \
+		libsasl2-dev \
+		libssl-dev \
+		libxml2-dev \
+		libxslt1-dev \
+		logapp \
+		nfs-common \
+		p7zip-full \
+		pbzip2 \
+		rsync \
+		tree \
+		uuid \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN set -ex \
+	&& groupadd --gid ${GROUP_ID} --system archivematica \
+	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
+	&& mkdir -p /var/archivematica/sharedDirectory \
+	&& chown -R archivematica:archivematica /var/archivematica
+
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
+
+
+FROM base-others AS archivematica-mcp-server
 
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
@@ -242,7 +288,7 @@ ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/lib/archivematicaMCP
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-dashboard
+FROM base-others AS archivematica-dashboard
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
