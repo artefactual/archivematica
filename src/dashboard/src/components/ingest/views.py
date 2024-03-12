@@ -27,7 +27,6 @@ import elasticSearchFunctions
 import requests
 import storageService as storage_service
 from archivematicaFunctions import b64encode_string
-from archivematicaFunctions import escape
 from components import advanced_search
 from components import decorators
 from components import helpers
@@ -394,7 +393,6 @@ def ingest_normalization_report(request, uuid, current_page=None):
 
     objects = getNormalizationReportQuery(sipUUID=uuid)
     for o in objects:
-        o["location"] = escape(o["location"])
         (
             o["preservation_derivative_validation_attempted"],
             o["preservation_derivative_validation_failed"],
