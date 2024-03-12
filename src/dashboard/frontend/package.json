@@ -31,7 +31,7 @@
   },
   "scripts": {
     "extract-messages": "angular-gettext-cli --files \"./app/**/*.+(js|html)\" --dest \"./app/locale/extract.pot\" --marker-name \"i18n\"",
-    "prepare": "webpack --progress --entry ./app.js",
+    "prepare": "webpack --entry ./app.js",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000 -c-1",
     "pretest": "npm install",
@@ -56,5 +56,10 @@
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "restangular": "^1.6.1"
+  },
+  "overrides": {
+    "angular-gettext-tools": {
+      "cheerio": "^1.0.0-rc.12"
+    }
   }
 }
