@@ -31,7 +31,7 @@
   },
   "scripts": {
     "extract-messages": "angular-gettext-cli --files \"./app/**/*.+(js|html)\" --dest \"./app/locale/extract.pot\" --marker-name \"i18n\"",
-    "prepare": "webpack --progress --entry ./app.js",
+    "prepare": "webpack --entry ./app.js",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000 -c-1",
     "pretest": "npm install",
