@@ -15,6 +15,7 @@ sets.
 """
 import json
 import os
+from typing import Dict
 
 from django.conf import settings as django_settings
 from jsonschema import FormatChecker
@@ -33,7 +34,7 @@ ASSETS_DIR = os.path.join(
 DEFAULT_WORKFLOW = os.path.join(ASSETS_DIR, "workflow.json")
 
 
-def _invert_job_statuses():
+def _invert_job_statuses() -> Dict[str, str]:
     """Return an inverted dict of job statuses, i.e. indexed by labels."""
     statuses = {}
     for status in Job.STATUSES:

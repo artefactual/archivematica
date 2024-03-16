@@ -26,6 +26,7 @@ import logging
 import os
 import signal
 import threading
+from typing import Optional
 
 import django
 
@@ -71,7 +72,7 @@ def watched_dir_handler(package_queue, path, watched_dir):
     package_queue.schedule_job(next(job_chain))
 
 
-def main(shutdown_event=None):
+def main(shutdown_event: Optional[threading.Event] = None) -> None:
     logger.info("This PID: %s", os.getpid())
     logger.info("User: %s", getpass.getuser())
 

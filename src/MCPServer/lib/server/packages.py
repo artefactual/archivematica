@@ -6,6 +6,7 @@ import logging
 import os
 from pathlib import Path
 from tempfile import mkdtemp
+from typing import Any
 from uuid import UUID
 from uuid import uuid4
 
@@ -25,7 +26,7 @@ logger = logging.getLogger("archivematica.mcp.server.packages")
 StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link")
 
 
-def _get_setting(name):
+def _get_setting(name: str) -> Any:
     """Retrieve a Django setting decoded as a unicode string."""
     return getattr(settings, name)
 
