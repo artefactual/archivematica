@@ -23,6 +23,8 @@ import logging
 import os
 import re
 import uuid
+from typing import Any
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -65,14 +67,16 @@ class UUIDField(models.UUIDField):
     VARCHAR(36) columns instead.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs["max_length"] = 36
         models.Field.__init__(self, *args, **kwargs)
 
-    def db_type(self, connection):
+    def db_type(self, connection: Any) -> str:
         return "varchar(%s)" % self.max_length
 
-    def get_db_prep_value(self, value, connection, prepared=False):
+    def get_db_prep_value(
+        self, value: Optional[Any], connection: Any, prepared: bool = False
+    ) -> Optional[Any]:
         if value is None:
             return None
         if not isinstance(value, uuid.UUID):

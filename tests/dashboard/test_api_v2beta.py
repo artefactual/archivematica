@@ -14,20 +14,20 @@ TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json
 
 
 class MCPClientMock:
-    def __init__(self, fails=False):
+    def __init__(self, fails: bool = False) -> None:
         self.fails = fails
 
     def create_package(
         self,
-        name,
-        type_,
-        accession,
-        access_system_id,
-        path,
-        metadata_set_id,
-        auto_approve=True,
-        wait_until_complete=False,
-    ):
+        name: str,
+        type_: str,
+        accession: str,
+        access_system_id: str,
+        path: str,
+        metadata_set_id: str,
+        auto_approve: bool = True,
+        wait_until_complete: bool = False,
+    ) -> str:
         if self.fails:
             raise Exception("Something bad happened!")
         return "59402c61-3aba-4af7-966a-996073c0601d"
