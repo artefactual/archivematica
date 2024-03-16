@@ -42,6 +42,12 @@ repos:
   - id: mypy
     additional_dependencies:
     - types-all==1.0.0
+    exclude: |
+      (?x)^(
+        src/dashboard/install/dashboard.gunicorn-config\.py |
+        src/dashboard/frontend/tools/extract_features\.py |
+        src/dashboard/src/fpr/migrations-data/mc_validate_cmd\.py
+      )
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.39.0
   hooks:

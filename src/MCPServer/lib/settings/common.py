@@ -246,7 +246,7 @@ LOGGING = {
 
 if os.path.isfile(LOGGING_CONFIG_FILE):
     with open(LOGGING_CONFIG_FILE) as f:
-        LOGGING = logging.config.dictConfig(json.load(f))
+        logging.config.dictConfig(json.load(f))
 else:
     logging.config.dictConfig(LOGGING)
 

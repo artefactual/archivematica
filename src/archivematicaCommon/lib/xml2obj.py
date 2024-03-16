@@ -1,9 +1,10 @@
 import re
 import xml.sax.handler
-from collections import defaultdict
+from typing import Any
+from typing import DefaultDict
 
 
-class Tree(defaultdict):
+class Tree(DefaultDict[Any, Any]):
     def __init__(self, value=None):
         super().__init__(Tree)
         self.value = value

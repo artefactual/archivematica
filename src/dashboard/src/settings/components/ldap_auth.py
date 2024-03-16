@@ -95,7 +95,7 @@ if environ.get("AUTH_LDAP_TLS_KEYFILE", None):
         "AUTH_LDAP_TLS_KEYFILE"
     )
 if environ.get("AUTH_LDAP_TLS_REQUIRE_CERT", None):
-    require_cert = environ.get("AUTH_LDAP_TLS_REQUIRE_CERT").lower()
+    require_cert = environ.get("AUTH_LDAP_TLS_REQUIRE_CERT", "").lower()
     if require_cert == "never":
         AUTH_LDAP_GLOBAL_OPTIONS[ldap.OPT_X_TLS_REQUIRE_CERT] = ldap.OPT_X_TLS_NEVER
     elif require_cert == "allow":

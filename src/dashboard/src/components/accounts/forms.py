@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django import forms
-from django.contrib.auth.forms import UserChangeForm
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserChangeForm as DjangoUserChangeForm
+from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import password_validators_help_text_html
 from django.contrib.auth.password_validation import validate_password
@@ -25,7 +25,7 @@ from django.utils.translation import gettext as _
 from main.models import UserProfile
 
 
-class UserCreationForm(UserCreationForm):
+class UserCreationForm(DjangoUserCreationForm):
     email = forms.EmailField(required=True)
     is_superuser = forms.BooleanField(label="Administrator", required=False)
 
@@ -68,7 +68,7 @@ class UserCreationForm(UserCreationForm):
                 self.add_error("password1", error)
 
 
-class UserChangeForm(UserChangeForm):
+class UserChangeForm(DjangoUserChangeForm):
     error_messages = {
         "password_mismatch": _(
             "The two password fields didn’t match. Enter the same password as before, for verification."

@@ -134,12 +134,9 @@ import argparse
 import configparser
 import os
 
-
-try:
-    from jinja2 import Template
-except ImportError:
-    from django.template import Context, Template
 import requests
+from django.template import Context
+from django.template import Template
 
 
 # Parameters required when requesting the binding of a handle PID.

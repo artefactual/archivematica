@@ -18,7 +18,6 @@
 different Archivematica modules.
 """
 import base64
-import collections
 import errno
 import glob
 import hashlib
@@ -28,6 +27,8 @@ import pprint
 import re
 from itertools import zip_longest
 from pathlib import Path
+from typing import Any
+from typing import OrderedDict
 from uuid import uuid4
 
 from amclient import AMClient
@@ -95,7 +96,7 @@ def setup_amclient():
     return client
 
 
-class OrderedListsDict(collections.OrderedDict):
+class OrderedListsDict(OrderedDict[Any, Any]):
     """
     OrderedDict where all keys are lists, and elements are appended
     automatically.

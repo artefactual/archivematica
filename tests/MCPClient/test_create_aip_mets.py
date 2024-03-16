@@ -26,9 +26,6 @@ THIS_DIR = pathlib.Path(__file__).parent
 class TestNormativeStructMap(TempDirMixin, TestCase):
     """Test creation of normative structMap."""
 
-    fixture_files = []
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
-
     def setUp(self):
         super().setUp()
         self.sip_dir = self.tmpdir / "sip"

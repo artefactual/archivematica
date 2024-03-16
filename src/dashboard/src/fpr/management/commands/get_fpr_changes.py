@@ -1,10 +1,12 @@
 import itertools
 import json
+from typing import Any
+from typing import Dict
 
 from django.core.management.base import BaseCommand
 
 
-class frozendict(dict):
+class frozendict(Dict[Any, Any]):
     def __hash__(self):
         return hash((frozenset(self), frozenset(self.values())))
 
