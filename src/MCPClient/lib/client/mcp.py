@@ -13,7 +13,7 @@ from client.pool import WorkerPool
 logger = logging.getLogger("archivematica.mcp.client")
 
 
-def main():
+def main() -> None:
     metrics.start_prometheus_server()
 
     # Use local XML schemas for validation.

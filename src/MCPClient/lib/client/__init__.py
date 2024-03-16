@@ -4,7 +4,7 @@ import shutil
 import tempfile
 
 
-def configure_prometheus_multiproc_dir():
+def configure_prometheus_multiproc_dir() -> str:
     """Create the Prometheus multi-process directory.
 
     Ensure that the multi-process directory exists. Use a temporary directory

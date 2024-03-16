@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any
 
 import json_metadata_to_csv
 from client.job import Job
@@ -68,7 +69,7 @@ KEYS_VALS_VARY_SECOND_ROW = [
 ]
 
 
-def _list2csvrow(list_):
+def _list2csvrow(list_: Any) -> str:
     return ",".join([e or "" for e in list_]) + "\n"
 
 
