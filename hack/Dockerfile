@@ -151,6 +151,158 @@ ARG GROUP_ID=1000
 ARG PYENV_DIR=/pyenv
 
 RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		coreutils \
+		clamav \
+		libldap2-dev \
+		libsasl2-dev \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN set -ex \
+	&& groupadd --gid ${GROUP_ID} --system archivematica \
+	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
+	&& mkdir -p /var/archivematica/sharedDirectory \
+	&& chown -R archivematica:archivematica /var/archivematica
+
+# Download ClamAV virus signatures
+RUN freshclam --quiet
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
+
+# -----------------------------------------------------------------------------
+
+FROM base AS archivematica-mcp-client
+
+USER root
+
+RUN set -ex \
+	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
+	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.16.x.gpg] http://packages.archivematica.org/1.16.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
+	&& curl --retry 3 -so /tmp/repo-mediaarea_1.0-21_all.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb \
+	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		atool \
+		bulk-extractor \
+		ffmpeg \
+		fits \
+		gearman \
+		ghostscript \
+		hashdeep \
+		imagemagick \
+		inkscape \
+		jhove \
+		libimage-exiftool-perl \
+		logapp \
+		md5deep \
+		nailgun \
+		mediaconch \
+		mediainfo \
+		nfs-common \
+		openjdk-8-jre-headless \
+		p7zip-full \
+		pbzip2 \
+		pst-utils \
+		rsync \
+		siegfried \
+		sleuthkit \
+		tesseract-ocr \
+		tree \
+		unrar-free \
+		uuid \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+USER archivematica
+
+ENV DJANGO_SETTINGS_MODULE settings.common
+ENV PYTHONPATH /src/src/MCPClient/lib/:/src/src/MCPClient/lib/clientScripts:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
+ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES /src/src/MCPClient/lib/archivematicaClientModules
+ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY /src/src/MCPClient/lib/assets/
+ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/src/MCPClient/lib/clientScripts/
+
+# Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
+# files being available in this image (e.g. see https://git.io/vA1wF).
+COPY --link src/archivematicaCommon/lib/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
+COPY --link src/archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
+
+ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/lib/archivematicaClient.py"]
+
+# -----------------------------------------------------------------------------
+
+FROM base AS archivematica-mcp-server
+
+ENV DJANGO_SETTINGS_MODULE settings.common
+ENV PYTHONPATH /src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
+
+ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/lib/archivematicaMCP.py"]
+
+# -----------------------------------------------------------------------------
+
+FROM base AS archivematica-dashboard
+
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG PYTHON_VERSION=3.9
+
+USER root
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		gcc \
+		g++ \
+		gettext \
+		libffi-dev \
+		libxml2-dev \
+		libxslt1-dev \
+		unar \
+		libssl-dev \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN set -ex \
+	&& internalDirs=' \
+		/src/src/dashboard/frontend \
+		/src/src/dashboard/src/static \
+		/src/src/dashboard/src/media \
+	' \
+	&& mkdir -p $internalDirs \
+	&& chown -R archivematica $internalDirs
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/dashboard/src/media/js/ /src/src/dashboard/src/media/js
+
+WORKDIR /src/src/dashboard/src
+
+ENV DJANGO_SETTINGS_MODULE settings.local
+ENV PYTHONPATH /src/src/dashboard/src/:/src/src/archivematicaCommon/lib/
+ENV AM_GUNICORN_BIND 0.0.0.0:8000
+ENV AM_GUNICORN_CHDIR /src/src/dashboard/src
+ENV FORWARDED_ALLOW_IPS *
+
+RUN set -ex \
+	&& ./manage.py collectstatic --noinput --clear \
+	&& ./manage.py compilemessages
+
+ENV DJANGO_SETTINGS_MODULE settings.production
+
+EXPOSE 8000
+
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/dashboard/install/dashboard.gunicorn-config.py", "wsgi:application"]
+
+# -----------------------------------------------------------------------------
+
+FROM base-builder as archivematica-tests
+
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG PYENV_DIR=/pyenv
+
+RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
 	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.16.x.gpg] http://packages.archivematica.org/1.16.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
 	&& curl --retry 3 -so /tmp/repo-mediaarea_1.0-21_all.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb \
@@ -214,77 +366,6 @@ USER archivematica
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
 COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
-
-# -----------------------------------------------------------------------------
-
-FROM base AS archivematica-mcp-client
-
-ENV DJANGO_SETTINGS_MODULE settings.common
-ENV PYTHONPATH /src/src/MCPClient/lib/:/src/src/MCPClient/lib/clientScripts:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
-ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES /src/src/MCPClient/lib/archivematicaClientModules
-ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY /src/src/MCPClient/lib/assets/
-ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/src/MCPClient/lib/clientScripts/
-
-# Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
-# files being available in this image (e.g. see https://git.io/vA1wF).
-COPY --link src/archivematicaCommon/lib/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
-COPY --link src/archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
-
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/lib/archivematicaClient.py"]
-
-# -----------------------------------------------------------------------------
-
-FROM base AS archivematica-mcp-server
-
-ENV DJANGO_SETTINGS_MODULE settings.common
-ENV PYTHONPATH /src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
-
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/lib/archivematicaMCP.py"]
-
-# -----------------------------------------------------------------------------
-
-FROM base AS archivematica-dashboard
-
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-ARG PYTHON_VERSION=3.9
-
-USER root
-
-RUN set -ex \
-	&& internalDirs=' \
-		/src/src/dashboard/frontend \
-		/src/src/dashboard/src/static \
-		/src/src/dashboard/src/media \
-	' \
-	&& mkdir -p $internalDirs \
-	&& chown -R archivematica $internalDirs
-
-USER archivematica
-
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/dashboard/src/media/js/ /src/src/dashboard/src/media/js
-
-WORKDIR /src/src/dashboard/src
-
-ENV DJANGO_SETTINGS_MODULE settings.local
-ENV PYTHONPATH /src/src/dashboard/src/:/src/src/archivematicaCommon/lib/
-ENV AM_GUNICORN_BIND 0.0.0.0:8000
-ENV AM_GUNICORN_CHDIR /src/src/dashboard/src
-ENV FORWARDED_ALLOW_IPS *
-
-RUN set -ex \
-	&& ./manage.py collectstatic --noinput --clear \
-	&& ./manage.py compilemessages
-
-ENV DJANGO_SETTINGS_MODULE settings.production
-
-EXPOSE 8000
-
-ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/dashboard/install/dashboard.gunicorn-config.py", "wsgi:application"]
-
-# -----------------------------------------------------------------------------
-
-FROM base AS archivematica-tests
 
 # -----------------------------------------------------------------------------
 
