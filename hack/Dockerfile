@@ -190,6 +190,7 @@ RUN set -ex \
 		p7zip-full \
 		pbzip2 \
 		pst-utils \
+		python3-lxml \
 		rsync \
 		siegfried \
 		sleuthkit \
