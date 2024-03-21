@@ -20,7 +20,7 @@ sql:
       out: mysql/sqlcmysql
       options:
         package: sqlcmysql
-        emit_interface: true
+        emit_interface: false
         emit_prepared_queries: true
         emit_empty_slices: true
         emit_result_struct_pointers: true

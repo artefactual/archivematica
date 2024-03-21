@@ -56,7 +56,7 @@ func (s *Server) Run() error {
 	}
 
 	s.logger.V(1).Info("Creating database store.")
-	s.store, err = store.Create(s.logger.WithName("store"), s.config.db.driver, s.config.db.dsn)
+	s.store, err = store.New(s.logger.WithName("store"), s.config.db.driver, s.config.db.dsn)
 	if err != nil {
 		return fmt.Errorf("error creating database store: %v", err)
 	}
@@ -66,11 +66,7 @@ func (s *Server) Run() error {
 		ctx, cancel := context.WithTimeout(s.ctx, time.Second*10)
 		defer cancel()
 
-		err = errors.Join(err, s.store.CleanUpActiveTasks(ctx))
-		err = errors.Join(err, s.store.CleanUpActiveTransfers(ctx))
-		err = errors.Join(err, s.store.CleanUpAwaitingJobs(ctx))
-		err = errors.Join(err, s.store.CleanUpActiveSIPs(ctx))
-		err = errors.Join(err, s.store.CleanUpActiveJobs(ctx))
+		err = s.store.RemoveTransientData(ctx)
 	}
 	if err != nil {
 		return fmt.Errorf("error cleaning up database: %v", err)

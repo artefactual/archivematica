@@ -25,3 +25,9 @@ SELECT microServiceChainLink FROM UnitVariables WHERE unitType = ? AND unitUUID 
 -- name: CreateWorkflowUnitVariable :exec
 INSERT INTO UnitVariables (unitType, unitUUID, variable, variableValue, microServiceChainLink) VALUES (?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE variableValue = VALUES(variableValue), microServiceChainLink = VALUES(microServiceChainLink);
+
+-- name: GetLock :one
+SELECT COALESCE(GET_LOCK('lock', 0), 0);
+
+-- name: ReleaseLock :one
+SELECT RELEASE_LOCK('lock');

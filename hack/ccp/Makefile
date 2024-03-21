@@ -33,8 +33,6 @@ PACKAGES := $(shell go list ./...)
 TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
 
-export PATH:=$(GOBIN):$(PATH)
-
 env: # @HELP Print Go env variables.
 env:
 	go env
