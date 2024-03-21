@@ -436,7 +436,7 @@ Further content comes after a blank line.
 [PEP8]: https://www.python.org/dev/peps/pep-0008/
 [Black]: https://github.com/ambv/black
 [flake8]: https://pypi.python.org/pypi/flake8
-[continuous integration system]: https://travis-ci.org/artefactual/archivematica
+[continuous integration system]: https://github.com/artefactual/archivematica/actions
 [Pylint]: https://www.pylint.org/
 [docstrings]: https://en.wikipedia.org/wiki/Docstring#Python
 [PEP 257]: https://www.python.org/dev/peps/pep-0257/
