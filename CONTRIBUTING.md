@@ -77,10 +77,8 @@ new features in the [Archivematica Issues repo]. This is also where Artefactual
 staff record upcoming enhancements when they have been sponsored for inclusion
 either by Artefactual Systems or by a client.
 
-Please feel free also to use the [Issues repo wiki] as a space for gathering and
-collaborating on ideas. If you are not already a member of the
-Archivematica repo (required for editing the wiki), file an issue there with
-the title "Request membership."
+Please feel free also to use the [Archivematica Issues repo] as a space for
+gathering and collaborating on ideas.
 
 ## Submitting code changes
 
@@ -422,15 +420,14 @@ Further content comes after a blank line.
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
 [user]: https://groups.google.com/forum/#!forum/archivematica
-[Issues repo wiki]: https://github.com/archivematica/Issues/wiki
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
 [code snippets]: https://help.github.com/articles/creating-a-permanent-link-to-a-code-snippet/
-[development installation]: https://wiki.archivematica.org/Getting_started#Installation
+[development installation]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md
 [GitHub]: https://github.com/
 [guide]: https://help.github.com/articles/fork-a-repo
 [excellent]: https://help.github.com/articles/using-pull-requests
 [Line comment]: http://i.imgur.com/FsWppGN.png
-[code review guidelines]: code_review.md
+[code review guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/code_review.md
 [interactive rebase feature]: http://www.git-scm.com/book/en/Git-Tools-Rewriting-History
 [Contributor's Agreement]: https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf
 [Apache Foundation]: http://apache.org
@@ -439,14 +436,14 @@ Further content comes after a blank line.
 [PEP8]: https://www.python.org/dev/peps/pep-0008/
 [Black]: https://github.com/ambv/black
 [flake8]: https://pypi.python.org/pypi/flake8
-[continuous integration system]: https://travis-ci.org/artefactual/archivematica
+[continuous integration system]: https://github.com/artefactual/archivematica/actions
 [Pylint]: https://www.pylint.org/
 [docstrings]: https://en.wikipedia.org/wiki/Docstring#Python
 [PEP 257]: https://www.python.org/dev/peps/pep-0257/
 [Sphinx-compatible docstrings]: http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions
 [examples]: http://sphinx-doc.org/domains.html#info-field-lists
 [attributes to use]: http://sphinx-doc.org/domains.html#the-python-domain
-[unittest]: https://docs.python.org/2/library/unittest.html
+[unittest]: https://docs.python.org/3.9/library/unittest.html
 [py.test]: http://pytest.org
 [TestCase]: https://docs.djangoproject.com/en/1.8/topics/testing/tools/#django.test.TestCase
 [VCR.py]: https://github.com/kevin1024/vcrpy
