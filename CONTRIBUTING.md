@@ -422,7 +422,7 @@ Further content comes after a blank line.
 [user]: https://groups.google.com/forum/#!forum/archivematica
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
 [code snippets]: https://help.github.com/articles/creating-a-permanent-link-to-a-code-snippet/
-[development installation]: https://wiki.archivematica.org/Getting_started#Installation
+[development installation]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md
 [GitHub]: https://github.com/
 [guide]: https://help.github.com/articles/fork-a-repo
 [excellent]: https://help.github.com/articles/using-pull-requests
