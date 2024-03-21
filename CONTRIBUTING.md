@@ -427,7 +427,7 @@ Further content comes after a blank line.
 [guide]: https://help.github.com/articles/fork-a-repo
 [excellent]: https://help.github.com/articles/using-pull-requests
 [Line comment]: http://i.imgur.com/FsWppGN.png
-[code review guidelines]: code_review.md
+[code review guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/code_review.md
 [interactive rebase feature]: http://www.git-scm.com/book/en/Git-Tools-Rewriting-History
 [Contributor's Agreement]: https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf
 [Apache Foundation]: http://apache.org
