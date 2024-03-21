@@ -15,7 +15,7 @@ identifiers:
   - type: url
     value: 'https://phaidra.univie.ac.at/o:185511'
   - type: swh
-    value: 'swh:1:dir:43667e3038bc28d55cd3b458a38fb6eb019f16b8'
+    value: 'swh:1:dir:58f29939b1d3947eb1551930dec41dd6dd3398d3'
 repository-code: 'https://github.com/artefactual/archivematica'
 url: 'https://www.archivematica.org'
 repository: 'https://github.com/archivematica'
