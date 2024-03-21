@@ -78,9 +78,7 @@ staff record upcoming enhancements when they have been sponsored for inclusion
 either by Artefactual Systems or by a client.
 
 Please feel free also to use the [Archivematica Issues repo] as a space for
-gathering and collaborating on ideas. If you are not already a member of the
-Archivematica repo (required for editing the wiki), file an issue there with
-the title "Request membership."
+gathering and collaborating on ideas.
 
 ## Submitting code changes
 
