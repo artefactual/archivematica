@@ -77,8 +77,8 @@ new features in the [Archivematica Issues repo]. This is also where Artefactual
 staff record upcoming enhancements when they have been sponsored for inclusion
 either by Artefactual Systems or by a client.
 
-Please feel free also to use the [Issues repo wiki] as a space for gathering and
-collaborating on ideas. If you are not already a member of the
+Please feel free also to use the [Archivematica Issues repo] as a space for
+gathering and collaborating on ideas. If you are not already a member of the
 Archivematica repo (required for editing the wiki), file an issue there with
 the title "Request membership."
 
@@ -422,7 +422,6 @@ Further content comes after a blank line.
 [mailing list]: https://groups.google.com/forum/#!forum/archivematica
 [Archivematica Issues repo]: https://github.com/archivematica/Issues
 [user]: https://groups.google.com/forum/#!forum/archivematica
-[Issues repo wiki]: https://github.com/archivematica/Issues/wiki
 [files]: https://help.github.com/articles/getting-permanent-links-to-files/
 [code snippets]: https://help.github.com/articles/creating-a-permanent-link-to-a-code-snippet/
 [development installation]: https://wiki.archivematica.org/Getting_started#Installation
