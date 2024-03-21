@@ -443,7 +443,7 @@ Further content comes after a blank line.
 [Sphinx-compatible docstrings]: http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions
 [examples]: http://sphinx-doc.org/domains.html#info-field-lists
 [attributes to use]: http://sphinx-doc.org/domains.html#the-python-domain
-[unittest]: https://docs.python.org/2/library/unittest.html
+[unittest]: https://docs.python.org/3.9/library/unittest.html
 [py.test]: http://pytest.org
 [TestCase]: https://docs.djangoproject.com/en/1.8/topics/testing/tools/#django.test.TestCase
 [VCR.py]: https://github.com/kevin1024/vcrpy
