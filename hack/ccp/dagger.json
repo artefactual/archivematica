@@ -1,0 +1,12 @@
+{
+  "name": "CCP",
+  "sdk": "go",
+  "dependencies": [
+    {
+      "name": "golangci-lint",
+      "source": "github.com/sagikazarmark/daggerverse/golangci-lint@40057665476af62e617cc8def9ef5a87735264a9"
+    }
+  ],
+  "source": "hack/dagger",
+  "engineVersion": "v0.10.2"
+}
