@@ -45,6 +45,16 @@ CONFIG_MAPPING = {
         "option": "shared_directory",
         "type": "string",
     },
+    "csrf_trusted_origins": {
+        "section": "Dashboard",
+        "option": "csrf_trusted_origins",
+        "type": "string",
+    },
+    "use_x_forwarded_host": {
+        "section": "Dashboard",
+        "option": "use_x_forwarded_host",
+        "type": "boolean",
+    },
     "watch_directory": {
         "section": "Dashboard",
         "option": "watch_directory",
@@ -189,6 +199,8 @@ password_disable_complexity_validation = False
 shibboleth_authentication = False
 cas_authentication = False
 ldap_authentication = False
+csrf_trusted_origins =
+use_x_forwarded_host = False
 oidc_authentication = False
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
@@ -245,6 +257,15 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# Fetch the 'csrf_trusted_origins' configuration, split by comma, or default to an empty list
+CSRF_TRUSTED_ORIGINS = (
+    config.get("csrf_trusted_origins", "").strip().split(",")
+    if config.get("csrf_trusted_origins", "").strip()
+    else []
+)
+
+USE_X_FORWARDED_HOST = config.get("use_x_forwarded_host")
 
 # Lets us know whether we're behind an HTTPS connection
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
