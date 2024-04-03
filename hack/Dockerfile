@@ -19,6 +19,7 @@ ENV PYTHONUNBUFFERED 1
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
+		# coreutils \
 		ca-certificates \
 		curl \
 		git \
@@ -149,12 +150,6 @@ FROM base-builder as base
 ARG USER_ID
 ARG GROUP_ID
 ARG PYENV_DIR
-
-RUN set -ex \
-	&& apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		coreutils \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN set -ex \
 	&& groupadd --gid ${GROUP_ID} --system archivematica \
@@ -316,6 +311,11 @@ RUN set -ex \
 		rsync \
 		unar \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
 # -----------------------------------------------------------------------------
 
