@@ -146,17 +146,14 @@ ENTRYPOINT ["npm", "run", "test-single-run"]
 
 FROM base-builder as base
 
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-ARG PYENV_DIR=/pyenv
+ARG USER_ID
+ARG GROUP_ID
+ARG PYENV_DIR
 
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		coreutils \
-		clamav \
-		libldap2-dev \
-		libsasl2-dev \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN set -ex \
@@ -164,9 +161,6 @@ RUN set -ex \
 	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
 	&& mkdir -p /var/archivematica/sharedDirectory \
 	&& chown -R archivematica:archivematica /var/archivematica
-
-# Download ClamAV virus signatures
-RUN freshclam --quiet
 
 USER archivematica
 
@@ -186,6 +180,7 @@ RUN set -ex \
 	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
+		clamav \
 		atool \
 		bulk-extractor \
 		ffmpeg \
@@ -215,6 +210,9 @@ RUN set -ex \
 		unrar-free \
 		uuid \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+# Download ClamAV virus signatures
+RUN freshclam --quiet
 
 USER archivematica
 
@@ -298,9 +296,9 @@ ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/das
 
 FROM base-builder as archivematica-tests
 
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-ARG PYENV_DIR=/pyenv
+ARG USER_ID
+ARG GROUP_ID
+ARG PYENV_DIR
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
@@ -309,63 +307,16 @@ RUN set -ex \
 	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		atool \
-		bulk-extractor \
-		clamav \
-		coreutils \
-		ffmpeg \
-		fits \
-		g++ \
 		gcc \
-		gearman \
-		gettext \
-		ghostscript \
-		hashdeep \
-		imagemagick \
-		inkscape \
-		jhove \
-		libffi-dev \
-		libimage-exiftool-perl \
-		libldap2-dev \
-		libmysqlclient-dev \
-		libsasl2-dev \
-		libssl-dev \
-		libxml2-dev \
-		libxslt1-dev \
-		logapp \
-		md5deep \
-		mediaconch \
-		mediainfo \
-		nailgun \
-		nfs-common \
-		openjdk-8-jre-headless \
+		media-types \
 		p7zip-full \
 		pbzip2 \
 		pst-utils \
 		python3-lxml \
 		rsync \
-		siegfried \
-		sleuthkit \
-		tesseract-ocr \
-		tree \
 		unar \
-		unrar-free \
-		uuid \
+		tox \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-RUN set -ex \
-	&& groupadd --gid ${GROUP_ID} --system archivematica \
-	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
-	&& mkdir -p /var/archivematica/sharedDirectory \
-	&& chown -R archivematica:archivematica /var/archivematica
-
-# Download ClamAV virus signatures
-RUN freshclam --quiet
-
-USER archivematica
-
-COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
-COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
 # -----------------------------------------------------------------------------
 
