@@ -1,8 +1,13 @@
 name: "Push images to Docker Hub"
-on: workflow_dispatch
+#on: workflow_dispatch
+on:
+  push:
+    branches:
+      - "qa/**"
+      - "stable/**"
 jobs:
   build:
-    name: "Builds images and push them to Docker Hub"
+    name: "Build and push images"
     runs-on: "ubuntu-22.04"
     steps:
       - name: "Check out repository"
@@ -26,7 +31,7 @@ jobs:
           file: ./hack/Dockerfile
           target: "archivematica-dashboard"
           tags: artefactual/archivematica-dashboard:latest
-      - name: "Build and Push MCP-client"
+      - name: "Build and Push MCPClient"
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -35,7 +40,7 @@ jobs:
           file: ./hack/Dockerfile
           target: "archivematica-mcp-client"
           tags: artefactual/archivematica-mcp-client:latest
-      - name: "Build and Push MCP-server"
+      - name: "Build and Push MCPServer"
         uses: docker/build-push-action@v5
         with:
           context: .
