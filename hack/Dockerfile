@@ -315,7 +315,6 @@ RUN set -ex \
 		python3-lxml \
 		rsync \
 		unar \
-		tox \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 # -----------------------------------------------------------------------------
