@@ -3,8 +3,7 @@ name: "Push images to Docker Hub"
 on:
   push:
     branches:
-      - "qa/**"
-      - "stable/**"
+      - "dev/trim-dockerfile"
 jobs:
   build:
     name: "Build and push images"
