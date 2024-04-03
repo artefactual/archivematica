@@ -1,9 +1,5 @@
 name: "Push images to Docker Hub"
-#on: workflow_dispatch
-on:
-  push:
-    branches:
-      - "dev/trim-dockerfile"
+on: workflow_dispatch
 jobs:
   build:
     name: "Build and push images"
