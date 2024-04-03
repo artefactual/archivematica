@@ -19,7 +19,6 @@ ENV PYTHONUNBUFFERED 1
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		# coreutils \
 		ca-certificates \
 		curl \
 		git \
