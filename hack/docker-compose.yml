@@ -39,13 +39,6 @@ services:
     ports:
       - "127.0.0.1:62001:3306"
 
-  gearmand:
-    image: "artefactual/gearmand:1.1.18-alpine"
-    command: "--queue-type=builtin"
-    user: "gearman"
-    ports:
-      - "127.0.0.1:62004:4730"
-
   nginx:
     image: "nginx:stable-alpine"
     volumes:
@@ -56,33 +49,25 @@ services:
       - "62080:80"
       - "62081:8000"
 
-  archivematica-mcp-server:
+  archivematica-ccp:
     build:
-      context: "../"
-      dockerfile: "hack/Dockerfile"
+      context: "ccp"
+      dockerfile: "Dockerfile"
       args:
-        TARGET: "archivematica-mcp-server"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        UBUNTU_VERSION: ${UBUNTU_VERSION:-22.04}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
+    restart: "on-failure"
     environment:
-      DJANGO_SECRET_KEY: "12345"
-      DJANGO_SETTINGS_MODULE: "settings.common"
-      ARCHIVEMATICA_MCPSERVER_CLIENT_USER: "archivematica"
-      ARCHIVEMATICA_MCPSERVER_CLIENT_PASSWORD: "demo"
-      ARCHIVEMATICA_MCPSERVER_CLIENT_HOST: "mysql"
-      ARCHIVEMATICA_MCPSERVER_CLIENT_DATABASE: "MCP"
-      ARCHIVEMATICA_MCPSERVER_MCPSERVER_MCPARCHIVEMATICASERVER: "gearmand:4730"
-      ARCHIVEMATICA_MCPSERVER_SEARCH_ENABLED: "false"
-      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT: "7999"
-      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+      - "CCP_SHARED_DIR=/var/archivematica/sharedDirectory"
+      - "CCP_DB_DRIVER=mysql"
+      - "CCP_DB_DSN=root:12345@tcp(mysql:3306)/MCP"
+      - "CCP_API_ADMIN_LISTEN=:8000"
     volumes:
-      - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
     links:
       - "mysql"
-      - "gearmand"
+    ports:
+      - "62030:8000"
 
   archivematica-mcp-client:
     build:
@@ -101,7 +86,7 @@ services:
       ARCHIVEMATICA_MCPCLIENT_CLIENT_PASSWORD: "demo"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_HOST: "mysql"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_DATABASE: "MCP"
-      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER: "gearmand:4730"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER: "archivematica-ccp:4730"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SEARCH_ENABLED: "false"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CAPTURE_CLIENT_SCRIPT_OUTPUT: "${AM_CAPTURE_CLIENT_SCRIPT_OUTPUT:-true}"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT: "7999"
@@ -113,7 +98,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
     links:
       - "mysql"
-      - "gearmand"
+      - "archivematica-ccp"
       - "archivematica-storage-service"
 
   archivematica-dashboard:
@@ -132,7 +117,7 @@ services:
       AM_GUNICORN_RELOAD: "true"
       AM_GUNICORN_RELOAD_ENGINE: "auto"
       DJANGO_SETTINGS_MODULE: "settings.local"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "archivematica-ccp:4730"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED: "1"
       ARCHIVEMATICA_DASHBOARD_CLIENT_USER: "archivematica"
       ARCHIVEMATICA_DASHBOARD_CLIENT_PASSWORD: "demo"
@@ -144,7 +129,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
     links:
       - "mysql"
-      - "gearmand"
+      - "archivematica-ccp"
       - "archivematica-storage-service"
 
   archivematica-storage-service:

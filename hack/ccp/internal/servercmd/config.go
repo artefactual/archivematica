@@ -4,7 +4,6 @@ import (
 	"io"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/admin"
-	"github.com/artefactual/archivematica/hack/ccp/internal/api/scheduler"
 	"github.com/artefactual/archivematica/hack/ccp/internal/rootcmd"
 )
 
@@ -15,6 +14,7 @@ type Config struct {
 	workflow   string
 	db         databaseConfig
 	api        apiConfig
+	gearmin    gearminConfig
 }
 
 type databaseConfig struct {
@@ -23,6 +23,9 @@ type databaseConfig struct {
 }
 
 type apiConfig struct {
-	admin     admin.Config
-	scheduler scheduler.Config
+	admin admin.Config
+}
+
+type gearminConfig struct {
+	addr string
 }

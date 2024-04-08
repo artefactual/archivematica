@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/peterbourgon/ff/v3 v3.4.0
 	github.com/rs/cors v1.10.1
+	github.com/sevein/gearmin v0.0.0-20240408101700-e9e67e87fb0e
 	github.com/tailscale/hujson v0.0.0-20221223112325-20486734a56a
 	go.artefactual.dev/tools v0.8.0
 	go.uber.org/goleak v1.3.0

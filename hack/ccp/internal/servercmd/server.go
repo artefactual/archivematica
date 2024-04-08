@@ -8,25 +8,35 @@ import (
 	"time"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/admin"
-	"github.com/artefactual/archivematica/hack/ccp/internal/api/scheduler"
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/gohugoio/hugo/watcher"
+	"github.com/sevein/gearmin"
 )
 
 type Server struct {
-	logger     logr.Logger
-	ctx        context.Context
-	cancel     context.CancelFunc
-	config     *Config
-	store      store.Store
+	logger logr.Logger
+	ctx    context.Context
+	cancel context.CancelFunc
+	config *Config
+
+	// Data store.
+	store store.Store
+
+	// Embedded job server compatible with Gearman.
+	gearman *gearmin.Server
+
+	// Filesystem watcher.
+	watcher *watcher.Batcher
+
+	// Workflow processor.
 	controller *controller.Controller
-	watcher    *watcher.Batcher
-	admin      *admin.Server
-	scheduler  *scheduler.Server
+
+	// Admin API.
+	admin *admin.Server
 }
 
 func NewServer(logger logr.Logger, config *Config) *Server {
@@ -102,10 +112,10 @@ func (s *Server) Run() error {
 		return fmt.Errorf("error creating admin API: %v", err)
 	}
 
-	s.logger.V(1).Info("Creating scheduler API.")
-	s.scheduler = scheduler.New(s.logger.WithName("api.scheduler"), s.config.api.scheduler)
-	if err := s.scheduler.Run(); err != nil {
-		return fmt.Errorf("error creating scheduler API: %v", err)
+	s.logger.V(1).Info("Creating Gearman job server.")
+	s.gearman = gearmin.NewServer(gearmin.Config{ListenAddr: s.config.gearmin.addr})
+	if err := s.gearman.Start(); err != nil {
+		return fmt.Errorf("error creating Gearmin job server: %v", err)
 	}
 
 	s.logger.V(1).Info("Ready.")
@@ -136,9 +146,7 @@ func (s *Server) Close() error {
 		errs = errors.Join(errs, s.admin.Close())
 	}
 
-	if s.scheduler != nil {
-		errs = errors.Join(errs, s.scheduler.Close())
-	}
+	s.gearman.Stop()
 
 	return errs
 }
