@@ -12,6 +12,7 @@ import (
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-logr/logr"
+	"github.com/sevein/gearmin"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -21,6 +22,9 @@ type Controller struct {
 	logger logr.Logger
 
 	store store.Store
+
+	// Embedded job server compatible with Gearman.
+	gearman *gearmin.Server
 
 	// wf is the workflow document.
 	wf *workflow.Document
@@ -51,10 +55,11 @@ type Controller struct {
 	closeOnce sync.Once
 }
 
-func New(logger logr.Logger, store store.Store, wf *workflow.Document, sharedDir, watchedDir string) *Controller {
+func New(logger logr.Logger, store store.Store, gearman *gearmin.Server, wf *workflow.Document, sharedDir, watchedDir string) *Controller {
 	c := &Controller{
 		logger:         logger,
 		store:          store,
+		gearman:        gearman,
 		wf:             wf,
 		sharedDir:      sharedDir,
 		watchedDir:     watchedDir,
@@ -158,7 +163,7 @@ func (c *Controller) pick() {
 		defer c.deactivate(current)
 
 		logger.Info("Processing started.")
-		err := NewIterator(logger, c.wf, current).Process(c.groupCtx) // Block.
+		err := NewIterator(logger, c.gearman, c.wf, current).Process(c.groupCtx) // Block.
 		if err != nil {
 			logger.Info("Processing failed.", "err", err)
 		} else {

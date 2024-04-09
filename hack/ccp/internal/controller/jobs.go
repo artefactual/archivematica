@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"github.com/sevein/gearmin"
 )
 
 // job is an executable unit that wraps a workflow chain link.
@@ -166,27 +167,36 @@ func (l *updateContextDecisionJob) exec(ctx context.Context) (uuid.UUID, error) 
 // Manager: linkTaskManagerDirectories.
 // Class: DirectoryClientScriptJob(DecisionJob).
 type directoryClientScriptJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
-	config *workflow.LinkStandardTaskConfig
+	logger  logr.Logger
+	gearman *gearmin.Server
+	p       *Package
+	wl      *workflow.Link
+	config  *workflow.LinkStandardTaskConfig
 }
 
-func newDirectoryClientScriptJob(logger logr.Logger, p *Package, wl *workflow.Link) (*directoryClientScriptJob, error) {
+func newDirectoryClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p *Package, wl *workflow.Link) (*directoryClientScriptJob, error) {
 	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &directoryClientScriptJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
-		config: &config,
+		logger:  logger,
+		gearman: gearman,
+		p:       p,
+		wl:      wl,
+		config:  &config,
 	}, nil
 }
 
 func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
+	data, err := submitJob(ctx, l.gearman, l.config.Execute, []byte("todo-args"))
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	l.logger.V(1).Info("data", data)
+
 	return uuid.Nil, nil
 }
 
@@ -195,23 +205,25 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 // Manager: linkTaskManagerFiles.
 // Class: FilesClientScriptJob(DecisionJob).
 type filesClientScriptJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
-	config *workflow.LinkStandardTaskConfig
+	logger  logr.Logger
+	gearman *gearmin.Server
+	p       *Package
+	wl      *workflow.Link
+	config  *workflow.LinkStandardTaskConfig
 }
 
-func newFilesClientScriptJob(logger logr.Logger, p *Package, wl *workflow.Link) (*filesClientScriptJob, error) {
+func newFilesClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p *Package, wl *workflow.Link) (*filesClientScriptJob, error) {
 	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &filesClientScriptJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
-		config: &config,
+		logger:  logger,
+		gearman: gearman,
+		p:       p,
+		wl:      wl,
+		config:  &config,
 	}, nil
 }
 
@@ -224,23 +236,25 @@ func (l *filesClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
 // Manager: linkTaskManagerGetMicroserviceGeneratedListInStdOut.
 // Class: OutputClientScriptJob(DecisionJob).
 type outputClientScriptJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
-	config *workflow.LinkStandardTaskConfig
+	logger  logr.Logger
+	gearman *gearmin.Server
+	p       *Package
+	wl      *workflow.Link
+	config  *workflow.LinkStandardTaskConfig
 }
 
-func newOutputClientScriptJob(logger logr.Logger, p *Package, wl *workflow.Link) (*outputClientScriptJob, error) {
+func newOutputClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p *Package, wl *workflow.Link) (*outputClientScriptJob, error) {
 	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &outputClientScriptJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
-		config: &config,
+		logger:  logger,
+		gearman: gearman,
+		p:       p,
+		wl:      wl,
+		config:  &config,
 	}, nil
 }
 
@@ -304,4 +318,41 @@ func newGetUnitVarLinkJob(logger logr.Logger, p *Package, wl *workflow.Link) (*g
 
 func (l *getUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
 	return l.config.ChainID, nil
+}
+
+func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, data []byte) ([]byte, error) {
+	var (
+		ret  []byte
+		err  error
+		done = make(chan struct{})
+	)
+
+	gearman.Submit(
+		&gearmin.JobRequest{
+			FuncName:   funcName,
+			Data:       data,
+			Background: false,
+			Callback: func(update gearmin.JobUpdate) {
+				switch update.Type {
+				case gearmin.JobUpdateTypeComplete:
+					ret = update.Data
+					done <- struct{}{}
+				case gearmin.JobUpdateTypeException:
+					ret = update.Data
+					err = errors.New("failed")
+					done <- struct{}{}
+				case gearmin.JobUpdateTypeFail:
+					err = errors.New("failed")
+					done <- struct{}{}
+				}
+			},
+		},
+	)
+
+	select {
+	case <-done:
+		return ret, err
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 }

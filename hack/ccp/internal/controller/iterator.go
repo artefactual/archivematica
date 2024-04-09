@@ -9,6 +9,7 @@ import (
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"github.com/sevein/gearmin"
 )
 
 var errWait = errors.New("wait")
@@ -16,6 +17,8 @@ var errWait = errors.New("wait")
 // Iterator carries a package through all its workflow.
 type Iterator struct {
 	logger logr.Logger
+
+	gearman *gearmin.Server
 
 	wf *workflow.Document
 
@@ -28,9 +31,10 @@ type Iterator struct {
 	waitCh chan waitSignal
 }
 
-func NewIterator(logger logr.Logger, wf *workflow.Document, p *Package) *Iterator {
+func NewIterator(logger logr.Logger, gearman *gearmin.Server, wf *workflow.Document, p *Package) *Iterator {
 	iter := &Iterator{
 		logger:  logger,
+		gearman: gearman,
 		wf:      wf,
 		p:       p,
 		startAt: p.watchedAt.ChainID,
@@ -120,11 +124,11 @@ func (i *Iterator) buildJob(wl *workflow.Link) (j job, err error) {
 
 	// Executable jobs - dispatched to the worker pool.
 	case "linkTaskManagerDirectories":
-		j, err = newDirectoryClientScriptJob(i.logger, i.p, wl)
+		j, err = newDirectoryClientScriptJob(i.logger, i.gearman, i.p, wl)
 	case "linkTaskManagerFiles":
-		j, err = newFilesClientScriptJob(i.logger, i.p, wl)
+		j, err = newFilesClientScriptJob(i.logger, i.gearman, i.p, wl)
 	case "linkTaskManagerGetMicroserviceGeneratedListInStdOut":
-		j, err = newOutputClientScriptJob(i.logger, i.p, wl)
+		j, err = newOutputClientScriptJob(i.logger, i.gearman, i.p, wl)
 
 	// Local jobs - executed directly.
 	case "linkTaskManagerSetUnitVariable":

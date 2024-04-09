@@ -189,10 +189,8 @@ github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd h1:CmH9+J6ZSsIjUK
 github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd/go.mod h1:hPqNNc0+uJM6H+SuU8sEs5K5IQeKccPqeSjfgcKGgPk=
 github.com/sanity-io/litter v1.5.5 h1:iE+sBxPBzoK6uaEP5Lt3fHNgpKcHXc/A2HGETy0uJQo=
 github.com/sanity-io/litter v1.5.5/go.mod h1:9gzJgR2i4ZpjZHsKvUXIRQVk7P+yM3e+jAF7bU2UI5U=
-github.com/sevein/gearmin v0.0.0-20240408101214-224cafc20e98 h1:Wfvp0JpEiYH+D5ySKbRtsRslaCeO7fkMcwpe8Le/YYw=
-github.com/sevein/gearmin v0.0.0-20240408101214-224cafc20e98/go.mod h1:JZe1OqGFsCTF1LO/GwebkDgnLUh8QFrQCK1hbGNEwto=
-github.com/sevein/gearmin v0.0.0-20240408101700-e9e67e87fb0e h1:hGpOb9hoVkrm/S7zgncYo4UJSo1uJuPVZ7QB1wQdQ1Y=
-github.com/sevein/gearmin v0.0.0-20240408101700-e9e67e87fb0e/go.mod h1:JZe1OqGFsCTF1LO/GwebkDgnLUh8QFrQCK1hbGNEwto=
+github.com/sevein/gearmin v0.0.0-20240409101021-06cd8073c027 h1:SewsSmmxp/WlGvtYtqYRz00aikk+2HSvTJLb9vd5YMk=
+github.com/sevein/gearmin v0.0.0-20240409101021-06cd8073c027/go.mod h1:JZe1OqGFsCTF1LO/GwebkDgnLUh8QFrQCK1hbGNEwto=
 github.com/spf13/afero v1.11.0 h1:WJQKhtpdm3v2IzqG8VMqrr6Rf3UYpEF239Jy9wNepM8=
 github.com/spf13/afero v1.11.0/go.mod h1:GH9Y3pIexgf1MTIWtNGyogA5MwRIDXGUr+hbWNoBjkY=
 github.com/spf13/cast v1.6.0 h1:GEiTHELF+vaR5dhz3VqZfFSzZjYbgeKDpBxQVS4GYJ0=

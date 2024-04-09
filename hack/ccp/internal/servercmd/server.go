@@ -96,7 +96,7 @@ func (s *Server) Run() error {
 	watchedDir := filepath.Join(s.config.sharedDir, "watchedDirectories")
 
 	s.logger.V(1).Info("Creating controller.")
-	s.controller = controller.New(s.logger.WithName("controller"), s.store, wf, s.config.sharedDir, watchedDir)
+	s.controller = controller.New(s.logger.WithName("controller"), s.store, s.gearman, wf, s.config.sharedDir, watchedDir)
 	if err := s.controller.Run(); err != nil {
 		return fmt.Errorf("error creating controller: %v", err)
 	}
