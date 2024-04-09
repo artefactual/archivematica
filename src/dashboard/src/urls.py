@@ -29,14 +29,14 @@ urlpatterns = [
     re_path(
         r"^(?P<unit_type>transfer|ingest)/", include("components.unit.urls")
     ),  # URLs common to transfer & ingest
-    re_path(
-        r"^transfer/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
+    path(
+        "transfer/<uuid:uuid>/rights/",
         include("components.rights.transfer_urls"),
     ),
     path("transfer/", include("components.transfer.urls")),
     path("appraisal/", include("components.appraisal.urls")),
-    re_path(
-        r"^ingest/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
+    path(
+        "ingest/<uuid:uuid>/rights/",
         include("components.rights.ingest_urls"),
     ),
     path("ingest/", include("components.ingest.urls")),

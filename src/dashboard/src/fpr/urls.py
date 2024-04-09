@@ -2,15 +2,11 @@ from django.urls import path
 from django.urls import re_path
 from fpr import views
 
-UUID_REGEX = r"[\w]{8}(-[\w]{4}){3}-[\w]{12}"
-
 app_name = "fpr"
 urlpatterns = [
     path("", views.home, name="fpr_index"),
     re_path(
-        r"^(?P<category>format|formatgroup|idrule|idcommand|fprule|fpcommand)/(?P<uuid>"
-        + UUID_REGEX
-        + ")/toggle_enabled/$",
+        r"^(?P<category>format|formatgroup|idrule|idcommand|fprule|fpcommand)/<uuid:uuid>/toggle_enabled/$",
         views.toggle_enabled,
         name="toggle_enabled",
     ),
@@ -43,105 +39,103 @@ urlpatterns = [
     # Format groups
     path("formatgroup/", views.formatgroup_list, name="formatgroup_list"),
     path("formatgroup/create/", views.formatgroup_edit, name="formatgroup_create"),
-    re_path(
-        r"^formatgroup/(?P<slug>[-\w]+)/$",
+    path(
+        "formatgroup/<slug:slug>/",
         views.formatgroup_edit,
         name="formatgroup_edit",
     ),
-    re_path(
-        r"^formatgroup/delete/(?P<slug>[-\w]+)/$",
+    path(
+        "formatgroup/delete/<slug:slug>/",
         views.formatgroup_delete,
         name="formatgroup_delete",
     ),
     # ID Tools
     path("idtool/", views.idtool_list, name="idtool_list"),
     path("idtool/create/", views.idtool_edit, name="idtool_create"),
-    re_path(r"^idtool/(?P<slug>[-\w]+)/$", views.idtool_detail, name="idtool_detail"),
-    re_path(r"^idtool/(?P<slug>[-\w]+)/edit/$", views.idtool_edit, name="idtool_edit"),
+    path("idtool/<slug:slug>/", views.idtool_detail, name="idtool_detail"),
+    path("idtool/<slug:slug>/edit/", views.idtool_edit, name="idtool_edit"),
     # ID Rules
     path("idrule/", views.idrule_list, name="idrule_list"),
     path("idrule/create/", views.idrule_edit, name="idrule_create"),
-    re_path(
-        r"^idrule/(?P<uuid>" + UUID_REGEX + ")/edit/$",
+    path(
+        "idrule/<uuid:uuid>/edit/",
         views.idrule_edit,
         name="idrule_edit",
     ),
-    re_path(
-        r"^idrule/(?P<uuid>" + UUID_REGEX + ")/$",
+    path(
+        "idrule/<uuid:uuid>/",
         views.idrule_detail,
         name="idrule_detail",
     ),
-    re_path(
-        r"^idrule/(?P<uuid>" + UUID_REGEX + ")/delete/$",
+    path(
+        "idrule/<uuid:uuid>/delete/",
         views.idrule_delete,
         name="idrule_delete",
     ),
     # ID Commands
     path("idcommand/", views.idcommand_list, name="idcommand_list"),
     path("idcommand/create/", views.idcommand_edit, name="idcommand_create"),
-    re_path(
-        r"^idcommand/(?P<uuid>" + UUID_REGEX + ")/$",
+    path(
+        "idcommand/<uuid:uuid>/",
         views.idcommand_detail,
         name="idcommand_detail",
     ),
-    re_path(
-        r"^idcommand/(?P<uuid>" + UUID_REGEX + ")/edit/$",
+    path(
+        "idcommand/<uuid:uuid>/edit/",
         views.idcommand_edit,
         name="idcommand_edit",
     ),
-    re_path(
-        r"^idcommand/(?P<uuid>" + UUID_REGEX + ")/delete/$",
+    path(
+        "idcommand/<uuid:uuid>/delete/",
         views.idcommand_delete,
         name="idcommand_delete",
     ),
     # FP Rules
-    re_path(
-        r"^fprule/(?P<uuid>" + UUID_REGEX + ")/$",
+    path(
+        "fprule/<uuid:uuid>/",
         views.fprule_detail,
         name="fprule_detail",
     ),
     path("fprule/create/", views.fprule_edit, name="fprule_create"),
     path("fprule/", views.fprule_list, name="fprule_list"),
-    re_path(r"^fprule/(?P<usage>[-\w]+)/$", views.fprule_list, name="fprule_list"),
-    re_path(
-        r"^fprule/(?P<uuid>" + UUID_REGEX + ")/edit/$",
+    path("fprule/<usage>/", views.fprule_list, name="fprule_list"),
+    path(
+        "fprule/<uuid:uuid>/edit/",
         views.fprule_edit,
         name="fprule_edit",
     ),
-    re_path(
-        r"^fprule/(?P<uuid>" + UUID_REGEX + ")/delete/$",
+    path(
+        "fprule/<uuid:uuid>/delete/",
         views.fprule_delete,
         name="fprule_delete",
     ),
     # FP Tools
     path("fptool/", views.fptool_list, name="fptool_list"),
     path("fptool/create/", views.fptool_edit, name="fptool_create"),
-    re_path(r"^fptool/(?P<slug>[-\w]+)/$", views.fptool_detail, name="fptool_detail"),
-    re_path(r"^fptool/(?P<slug>[-\w]+)/edit/$", views.fptool_edit, name="fptool_edit"),
+    path("fptool/<slug>)/", views.fptool_detail, name="fptool_detail"),
+    path("fptool/<slug>/edit/", views.fptool_edit, name="fptool_edit"),
     # FP Commands
-    re_path(
-        r"^fpcommand/(?P<uuid>" + UUID_REGEX + ")/$",
+    path(
+        "fpcommand/<uuid:uuid>/",
         views.fpcommand_detail,
         name="fpcommand_detail",
     ),
     path("fpcommand/create/", views.fpcommand_edit, name="fpcommand_create"),
-    re_path(
-        r"^fpcommand/(?P<usage>[-\w]+)/$", views.fpcommand_list, name="fpcommand_list"
-    ),
+    path("fpcommand/<usage>/", views.fpcommand_list, name="fpcommand_list"),
     path("fpcommand/", views.fpcommand_list, name="fpcommand_list"),
-    re_path(
-        r"^fpcommand/(?P<uuid>" + UUID_REGEX + ")/edit/$",
+    path(
+        "fpcommand/<uuid:uuid>/edit/",
         views.fpcommand_edit,
         name="fpcommand_edit",
     ),
-    re_path(
-        r"^fpcommand/(?P<uuid>" + UUID_REGEX + ")/delete/$",
+    path(
+        "fpcommand/<uuid:uuid>/delete/",
         views.fpcommand_delete,
         name="fpcommand_delete",
     ),
     # Revisions
-    re_path(
-        r"^revisions/(?P<entity_name>[-\w]+)/(?P<uuid>" + UUID_REGEX + ")/$",
+    path(
+        "revisions/<entity_name>/<uuid:uuid>/",
         views.revision_list,
         name="revision_list",
     ),

@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from django.conf import settings
 from django.urls import path
 from django.urls import re_path
 from main import views
@@ -34,8 +33,8 @@ urlpatterns = [
     # Forbidden
     path("forbidden/", views.forbidden, name="forbidden"),
     # Jobs and tasks (is part of ingest)
-    re_path(r"tasks/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.tasks),
-    re_path(r"task/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.task, name="task"),
+    path("tasks/<uuid:uuid>/", views.tasks),
+    path("task/<uuid:uuid>/", views.task, name="task"),
     # Access
     path("access/", views.access_list, name="access_index"),
     path("access/<int:id>/delete/", views.access_delete, name="access_delete"),

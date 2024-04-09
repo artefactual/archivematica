@@ -174,7 +174,7 @@ def get_unit_status(unit_uuid, unit_type):
     SIP UUID is populated only if the unit_type was unitTransfer and status is
     COMPLETE.  Otherwise, it is None.
 
-    :param str unit_uuid: UUID of the SIP or Transfer
+    :param uuid unit_uuid: UUID of the SIP or Transfer
     :param str unit_type: unitSIP or unitTransfer
     :return: Dict with status info.
     """
@@ -258,9 +258,7 @@ def status(request, unit_uuid, unit_type):
         response["type"] = "SIP"
 
     if unit is None:
-        response["message"] = "Cannot fetch {} with UUID {}".format(
-            unit_type, unit_uuid
-        )
+        response["message"] = f"Cannot fetch {unit_type} with UUID {unit_uuid}"
         response["error"] = True
         return django.http.HttpResponseBadRequest(  # 400
             json.dumps(response), content_type="application/json"
@@ -270,12 +268,12 @@ def status(request, unit_uuid, unit_type):
         SHARED_PATH_TEMPLATE_VAL, SHARED_DIRECTORY_ROOT, 1
     )
     response["directory"] = os.path.basename(os.path.normpath(directory))
-    response["name"] = response["directory"].replace("-" + unit_uuid, "", 1)
+    response["name"] = response["directory"].replace(f"-{unit_uuid}", "", 1)
     response["uuid"] = str(unit_uuid)
 
     # Get status (including new SIP uuid, current microservice)
     try:
-        status_info = get_unit_status(str(unit_uuid), unit_type)
+        status_info = get_unit_status(unit_uuid, unit_type)
     except IndexError as err:
         msg = f"Unable to determine the status of the unit {unit_uuid}"
         LOGGER.error("%s (%s)", msg, err)

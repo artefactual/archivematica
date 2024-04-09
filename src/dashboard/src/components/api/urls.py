@@ -28,8 +28,8 @@ urlpatterns = [
     re_path(
         r"transfer/completed", views.completed_transfers, name="completed_transfers"
     ),
-    re_path(
-        r"transfer/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
+    path(
+        "transfer/status/<uuid:unit_uuid>/",
         views.status,
         {"unit_type": "unitTransfer"},
         name="transfer_status",
@@ -43,8 +43,8 @@ urlpatterns = [
         {"target": "transfer"},
         name="transfer_reingest",
     ),
-    re_path(
-        r"ingest/status/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
+    path(
+        "ingest/status/<uuid:unit_uuid>/",
         views.status,
         {"unit_type": "unitSIP"},
         name="ingest_status",
@@ -98,13 +98,13 @@ urlpatterns = [
     ),
     re_path(r"v2beta/package", views.package),
     re_path(r"v2beta/validate/([-\w]+)", views.validate, name="v2beta_validate"),
-    re_path(
-        r"v2beta/jobs/(?P<unit_uuid>" + settings.UUID_REGEX + ")",
+    path(
+        "v2beta/jobs/<uuid:unit_uuid>",
         views.unit_jobs,
         name="v2beta_jobs",
     ),
-    re_path(
-        r"v2beta/task/(?P<task_uuid>" + settings.UUID_REGEX + ")",
+    path(
+        "v2beta/task/<uuid:task_uuid>",
         views.task,
         name="v2beta_task",
     ),
