@@ -30,7 +30,8 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 	fs.StringVar(&cfg.workflow, "workflow", "", "Workflow document")
 	fs.StringVar(&cfg.db.driver, "db.driver", "", "Database driver")
 	fs.StringVar(&cfg.db.dsn, "db.dsn", "", "Database DSN")
-	fs.StringVar(&cfg.api.admin.Listen, "api.admin.listen", "", "Admin API listen address")
+	fs.StringVar(&cfg.api.admin.Addr, "api.admin.addr", "", "Admin API listen address")
+	fs.StringVar(&cfg.gearmin.addr, "gearmin.addr", ":4730", "Gearmin job server listen address")
 
 	rootConfig.RegisterFlags(fs)
 

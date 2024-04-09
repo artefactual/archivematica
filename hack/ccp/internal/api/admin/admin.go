@@ -56,7 +56,7 @@ func (s *Server) Run() error {
 	))
 
 	s.server = &http.Server{
-		Addr: s.config.Listen,
+		Addr: s.config.Addr,
 		Handler: h2c.NewHandler(
 			corsutil.New().Handler(mux),
 			&http2.Server{},
@@ -68,7 +68,7 @@ func (s *Server) Run() error {
 	}
 
 	var err error
-	if s.ln, err = net.Listen("tcp", s.config.Listen); err != nil {
+	if s.ln, err = net.Listen("tcp", s.config.Addr); err != nil {
 		return err
 	}
 

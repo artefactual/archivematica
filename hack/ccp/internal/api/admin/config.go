@@ -1,5 +1,5 @@
 package admin
 
 type Config struct {
-	Listen string
+	Addr string
 }
