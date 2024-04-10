@@ -1,7 +1,6 @@
 import functools
 import logging
 import multiprocessing
-import pickle
 
 import gearman
 from client import metrics
@@ -11,23 +10,14 @@ from client.utils import parse_command_line
 from client.utils import replace_task_arguments
 from client.worker import run_task
 from django.conf import settings
+from gearman_encoder import JSONDataEncoder
 
 
 logger = logging.getLogger("archivematica.mcp.client.gearman")
 
 
-class PickleDataEncoder(gearman.DataEncoder):
-    @classmethod
-    def encode(cls, encodable_object):
-        return pickle.dumps(encodable_object, protocol=0)
-
-    @classmethod
-    def decode(cls, decodable_bytes):
-        return pickle.loads(decodable_bytes)
-
-
 class MCPGearmanWorker(gearman.GearmanWorker):
-    data_encoder = PickleDataEncoder
+    data_encoder = JSONDataEncoder
 
     def __init__(
         self, hosts, client_scripts, shutdown_event=None, max_jobs_to_process=None
