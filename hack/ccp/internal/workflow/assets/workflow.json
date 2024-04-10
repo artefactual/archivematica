@@ -341,12 +341,13 @@
     },
     "4500f34e-f004-4ccf-8720-5c38d0be2254": {
       "description": {
-        "en": "Do not store",
-        "es": "No almacenar",
-        "fr": "Ne pas stocker",
-        "no": "Ikke lagre",
-        "pt_BR": "Não armazene",
-        "sv": "Lagra inte"
+        "en": "Reject DIP",
+        "es": "Rechazar DIP",
+        "fr": "Rejeter le DIP",
+        "ja": "DIPを拒否",
+        "no": "Avvis DIP",
+        "pt_BR": "Rejeitar DIP",
+        "sv": "Förkasta DIP"
       },
       "link_id": "f8ee488b-5667-4417-ae15-bed9e42ee97d"
     },
@@ -371,6 +372,18 @@
         "sv": "Ladda upp DIP till CONTENTdm"
       },
       "link_id": "f12ece2c-fb7e-44de-ba87-7e3c5b6feb74"
+    },
+    "54f94986-5300-4116-9b6c-d362fe7ab49b": {
+      "description": {
+        "en": "storeDIP",
+        "es": "Almacenar DIP",
+        "fr": "Stocker le DIP",
+        "ja": "DIPを蓄える",
+        "no": "Lagre DIP",
+        "pt_BR": "armazenarDIP",
+        "sv": "Lagra DIP"
+      },
+      "link_id": "5e58066d-e113-4383-b20b-f301ed4d751c"
     },
     "55fa7084-3b64-48ca-be64-08949227f85d": {
       "description": {
@@ -969,12 +982,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to compressionAIPDecisions directory",
@@ -984,8 +992,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -1004,8 +1011,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%attachments/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
         "execute": "changeObjectNames_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/attachments",
         "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
         "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
@@ -1131,7 +1136,6 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Prepare AIP",
         "es": "Preparar AIP",
@@ -1237,7 +1241,6 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Prepare AIP",
         "es": "Preparar AIP",
@@ -1251,12 +1254,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\"",
-        "execute": "checkTransferDirectoryForObjects_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "checkTransferDirectoryForObjects_v0.0"
       },
       "description": {
         "en": "Check transfer directory for objects",
@@ -1290,11 +1288,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "characterizeFile_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/metadata/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/metadata/"
       },
       "description": {
         "en": "Characterize and extract metadata on metadata files",
@@ -1326,12 +1320,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"Standard\"",
-        "execute": "archivematicaSetTransferType_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaSetTransferType_v0.0"
       },
       "description": {
         "en": "Set transfer type: Standard",
@@ -1417,11 +1406,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for thumbnails",
@@ -1461,11 +1446,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for thumbnails",
@@ -1504,12 +1485,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPName%-%SIPUUID%\"",
-        "execute": "copySubmissionDocs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copySubmissionDocs_v0.0"
       },
       "description": {
         "en": "Copy submission documentation",
@@ -1542,11 +1518,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for thumbnails",
@@ -1585,12 +1557,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"Dataverse\"",
-        "execute": "archivematicaSetTransferType_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaSetTransferType_v0.0"
       },
       "description": {
         "en": "Set transfer type: Dataverse",
@@ -1618,12 +1585,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -1655,12 +1617,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "restructureForCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureForCompliance_v0.0"
       },
       "description": {
         "en": "Attempt restructure for compliance",
@@ -1707,7 +1664,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -1723,12 +1679,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/%processingConfiguration%ProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default Transfer processingMCP.xml",
@@ -1756,12 +1707,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to the rejected directory",
@@ -1772,12 +1718,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Reject AIP",
         "es": "Rechazar AIP",
@@ -1793,12 +1737,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -1828,8 +1767,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/attachments",
         "stderr_file": "%SIPLogsDirectory%fileFormatIdentification.log",
         "stdout_file": "%SIPLogsDirectory%fileFormatIdentification.log"
@@ -1864,12 +1801,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -1899,12 +1831,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\"",
-        "execute": "trimRestructureForCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "trimRestructureForCompliance_v0.0"
       },
       "description": {
         "en": "Restructure TRIM for compliance",
@@ -1932,12 +1859,7 @@
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\" \"%sharedPath%\" \"preservation\"",
-        "execute": "policyCheck_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "policyCheck_v0.0"
       },
       "description": {
         "en": "Policy checks for preservation derivatives",
@@ -1972,11 +1894,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPDirectory%\" \"%fileUUID%\"",
         "execute": "examineContents_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Examine contents",
@@ -2011,11 +1929,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPLogsDirectory%fileMeta/%fileUUID%.xml\" \"%date%\" \"%taskUUID%\" \"%fileUUID%\" \"%fileGrpUse%\"",
         "execute": "FITS_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/manualNormalization/preservation",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/manualNormalization/preservation"
       },
       "description": {
         "en": "Run FITS on manual normalized preservation files",
@@ -2045,8 +1959,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%objects/submissionDocumentation/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"SIPDirectory\" \"sip_id\" \"%SIPDirectory%\"",
         "execute": "changeObjectNames_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/submissionDocumentation",
         "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
         "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
@@ -2078,12 +1990,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%processingMCP.xml\" \"%SIPDirectory%DIP/processingMCP.xml\"",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Copy preconfigured choice XML to DIP directory",
@@ -2115,12 +2022,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "createAIC_METS_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createAIC_METS_v1.0"
       },
       "description": {
         "en": "Create AIC METS file",
@@ -2165,7 +2067,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Policy checks for derivatives",
         "fr": "Vérifications de politique sur les copies",
@@ -2194,7 +2095,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -2210,12 +2110,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Rename with transfer UUID",
@@ -2305,11 +2200,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\"",
         "execute": "manualNormalizationIdentifyFilesIncluded_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/manualNormalization/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/manualNormalization/"
       },
       "description": {
         "en": "Identify manually normalized files",
@@ -2341,12 +2232,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" \"%SIPName%\" \"%SIPUUID%\" \"%processingDirectory%\" \"%sharedPath%watchedDirectories/system/autoProcessSIP/\" \"%sharedPath%\"",
-        "execute": "createSIPsfromTRIMTransferContainers_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createSIPsfromTRIMTransferContainers_v0.0"
       },
       "description": {
         "en": "Create SIPs from TRIM transfer containers",
@@ -2359,8 +2245,7 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -2380,12 +2265,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%metadata/submissionDocumentation\" \"%SIPDirectory%objects/submissionDocumentation\"",
-        "execute": "moveOrMerge_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveOrMerge_v0.0"
       },
       "description": {
         "en": "Move submission documentation into objects directory",
@@ -2416,11 +2296,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for thumbnails",
@@ -2459,12 +2335,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--amdSec --baseDirectoryPath \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\" --sipType \"%SIPType%\" --createNormativeStructmap",
-        "execute": "createMETS_v2.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createMETS_v2.0"
       },
       "description": {
         "en": "Generate METS.xml document",
@@ -2529,12 +2400,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"reject\" \"%SIPUUID%\"",
-        "execute": "failedSIPCleanup_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "failedSIPCleanup_v1.0"
       },
       "description": {
         "en": "Cleanup rejected SIP",
@@ -2568,12 +2434,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/rights.csv\"",
-        "execute": "rightsFromCSV_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "rightsFromCSV_v0.0"
       },
       "description": {
         "en": "Load rights",
@@ -2604,12 +2465,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/file_labels.csv\"",
-        "execute": "loadLabelsFromCSV_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "loadLabelsFromCSV_v0.0"
       },
       "description": {
         "en": "Load labels from metadata/file_labels.csv",
@@ -2640,12 +2496,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"TRIM\"",
-        "execute": "archivematicaSetTransferType_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaSetTransferType_v0.0"
       },
       "description": {
         "en": "Set transfer type: TRIM",
@@ -2675,11 +2526,8 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
         "execute": "archivematicaClamscan_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/submissionDocumentation",
-        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt",
-        "stdout_file": null
+        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
       },
       "description": {
         "en": "Scan for viruses in submission documentation",
@@ -2709,11 +2557,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
         "execute": "archivematicaClamscan_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt",
-        "stdout_file": null
+        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
       },
       "description": {
         "en": "Scan for viruses in directories",
@@ -2746,10 +2590,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%transferDirectory%\" \"%date%\" \"%taskUUID%\" \"%DeletePackage%\"",
         "execute": "extractContents_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
         "stdout_file": "%SIPLogsDirectory%extractContents.log"
       },
       "description": {
@@ -2783,12 +2623,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--SIPDirectory \"%SIPDirectory%\" --serviceDirectory \"objects/service/\" --objectsDirectory \"objects/\" --SIPUUID \"%SIPUUID%\" --date \"%date%\"",
-        "execute": "checkForServiceDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "checkForServiceDirectory_v0.0"
       },
       "description": {
         "en": "Check for Service directory",
@@ -2830,7 +2665,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -2847,11 +2681,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/submissionDocumentation",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/submissionDocumentation"
       },
       "description": {
         "en": "Identify file format",
@@ -2882,8 +2712,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "16415d2f-5642-496d-a46d-00028ef6eb0a",
-        "variable": "loadOptionsToCreateSIP",
-        "variable_value": null
+        "variable": "loadOptionsToCreateSIP"
       },
       "description": {
         "en": "Set TRIM options to create SIPs",
@@ -2911,12 +2740,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%AIPsStore%\" \"%SIPDirectory%%AIPFilename%\" \"%SIPUUID%\" \"%SIPName%\" \"%SIPType%\"",
-        "execute": "storeAIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "storeAIP_v0.0"
       },
       "description": {
         "en": "Store the AIP",
@@ -2947,12 +2771,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "verifySIPCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifySIPCompliance_v0.0"
       },
       "description": {
         "en": "Verify SIP compliance",
@@ -2984,12 +2803,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/%processingConfiguration%ProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default Transfer processingMCP.xml",
@@ -3017,8 +2831,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "9ec31d55-f053-4695-b86d-8c2a8abdb0fc",
-        "variable": "linkToConvertDataverseStructure",
-        "variable_value": null
+        "variable": "linkToConvertDataverseStructure"
       },
       "description": {
         "en": "Set convert Dataverse structure flag"
@@ -3044,12 +2857,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%date%\"",
-        "execute": "trimCreateRightsEntries_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "trimCreateRightsEntries_v0.0"
       },
       "description": {
         "en": "Create rights to flag closed AIPS.",
@@ -3078,11 +2886,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
         "execute": "archivematicaClamscan_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt",
-        "stdout_file": null
+        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
       },
       "description": {
         "en": "Scan for viruses in attachments",
@@ -3115,8 +2919,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/attachments",
         "stderr_file": "%SIPLogsDirectory%fileFormatIdentification.log",
         "stdout_file": "%SIPLogsDirectory%fileFormatIdentification.log"
@@ -3175,12 +2977,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Rename with transfer UUID",
@@ -3210,8 +3007,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\" --disable-reidentify",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%fileFormatIdentification.log",
         "stdout_file": "%SIPLogsDirectory%fileFormatIdentification.log"
@@ -3247,8 +3042,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
         "execute": "changeObjectNames_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
         "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
@@ -3281,12 +3074,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"Dspace\"",
-        "execute": "archivematicaSetTransferType_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaSetTransferType_v0.0"
       },
       "description": {
         "en": "Set transfer type: DSpace",
@@ -3316,12 +3104,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to objects",
@@ -3356,11 +3139,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\" \"%sharedPath%\" \"access\"",
         "execute": "validateFile_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "DIP/objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "DIP/objects/"
       },
       "description": {
         "en": "Validate access derivatives",
@@ -3396,12 +3175,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -3432,12 +3206,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to objects",
@@ -3472,11 +3241,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%taskUUID%\" \"%fileUUID%\"",
         "execute": "transcribeFile_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Transcribe",
@@ -3528,12 +3293,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects/submissionDocumentation\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to submissionDocumentation",
@@ -3579,7 +3339,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Store AIP",
         "fr": "Stocker l’AIP",
@@ -3595,8 +3354,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\" --disable-reidentify",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%fileFormatIdentification.log",
         "stdout_file": "%SIPLogsDirectory%fileFormatIdentification.log"
@@ -3631,12 +3388,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%uploadedDIPs/\"",
-        "execute": "move_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "move_v0.0"
       },
       "description": {
         "en": "Move to the uploadedDIPs directory",
@@ -3646,12 +3398,10 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": "5e58066d-e113-4383-b20b-f301ed4d751c"
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Upload DIP",
         "es": "Subir DIP",
@@ -3667,8 +3417,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "5c459c1a-f998-404d-a0dd-808709510b72",
-        "variable": "linkAfterAutoRestructureForCompliance",
-        "variable_value": null
+        "variable": "linkAfterAutoRestructureForCompliance"
       },
       "description": {
         "en": "Designate to process as a standard transfer",
@@ -3701,7 +3450,6 @@
         "arguments": "\"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
         "execute": "verifyChecksumsInFileSecOfDspaceMETSFiles_v0.0",
         "filter_file_end": "mets.xml",
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%verifyChecksumsInFileSecOfDSpaceMETSFiles.log",
         "stdout_file": "%SIPLogsDirectory%verifyChecksumsInFileSecOfDSpaceMETSFiles.log"
@@ -3734,11 +3482,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "characterizeFile_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Characterize and extract metadata",
@@ -3772,12 +3516,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --basePath \"%SIPDirectory%\" --xmlFile \"%SIPDirectory%\"metadata/submissionDocumentation/METS.xml --basePathString \"transferDirectory\"",
-        "execute": "createTransferMETS_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createTransferMETS_v1.0"
       },
       "description": {
         "en": "Generate METS.xml document",
@@ -3811,12 +3550,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -3848,12 +3582,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "restructureBagAIPToSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureBagAIPToSIP_v0.0"
       },
       "description": {
         "en": "Restructure from bag AIP to SIP directory format",
@@ -3883,12 +3612,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"%processingDirectory%\" \"%sharedPath%\" --bag",
-        "execute": "extractZippedTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "extractZippedTransfer_v0.0"
       },
       "description": {
         "en": "Extract zipped bag transfer",
@@ -3920,12 +3644,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to the rejected directory",
@@ -3936,12 +3655,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Reject transfer",
         "es": "Rechazar transferencia",
@@ -3957,12 +3674,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "parseMETStoDB_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "parseMETStoDB_v1.0"
       },
       "description": {
         "en": "Populate database with reingested AIP data",
@@ -3993,11 +3705,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "characterizeFile_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/submissionDocumentation",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/submissionDocumentation"
       },
       "description": {
         "en": "Characterize and extract metadata on submission documentation",
@@ -4029,12 +3737,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to the rejected directory",
@@ -4045,12 +3748,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Reject SIP",
         "es": "Rechazar SIP",
@@ -4066,8 +3767,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "09b85517-e5f5-415b-a950-1a60ee285242",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -4081,7 +3781,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -4096,12 +3795,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -4133,8 +3827,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "fba1fd92-150a-4969-84fb-f2c6097855cf",
-        "variable": "linkToParseDataverseMETS",
-        "variable_value": null
+        "variable": "linkToParseDataverseMETS"
       },
       "description": {
         "en": "Set parse Dataverse METS flag"
@@ -4160,12 +3853,7 @@
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
         "arguments": "--eventType \"removal from backlog\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-        "execute": "createEvent_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createEvent_v0.0"
       },
       "description": {
         "en": "Create removal from backlog PREMIS events",
@@ -4197,12 +3885,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to objects",
@@ -4236,12 +3919,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%failed/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to the failed directory",
@@ -4252,12 +3930,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Failed transfer",
         "es": "Transferencia fallida",
@@ -4273,12 +3949,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%thumbnails\" \"%SIPDirectory%DIP\"",
-        "execute": "copyThumbnailsToDIPDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copyThumbnailsToDIPDirectory_v0.0"
       },
       "description": {
         "en": "Copy thumbnails to DIP directory",
@@ -4305,6 +3976,36 @@
         "sv": "Förbered DIP"
       }
     },
+    "379a4cba-b43c-45fb-88e9-7e0322107080": {
+      "config": {
+        "@manager": "linkTaskManagerDirectories",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"%SIPDirectory%\"",
+        "execute": "removeDirectories_v0.0"
+      },
+      "description": {
+        "en": "Remove the processing directory",
+        "no": "Fjern prosesseringsmappen",
+        "pt_BR": "Remova o diretório de processamento",
+        "sv": "Radera bearbetningsmappen"
+      },
+      "end": true,
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully"
+        }
+      },
+      "fallback_job_status": "Failed",
+      "group": {
+        "en": "Upload DIP",
+        "es": "Subir DIP",
+        "fr": "Télécharger le DIP",
+        "ja": "DIPをアップロード",
+        "no": "Last opp DIP",
+        "pt_BR": "Carregar DIP",
+        "sv": "Ladda upp DIP"
+      }
+    },
     "390d6507-5029-4dae-bcd4-ce7178c9b560": {
       "config": {
         "@manager": "linkTaskManagerChoice",
@@ -4319,7 +4020,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Scan for viruses",
         "fr": "Lancer l’antivirus",
@@ -4334,12 +4034,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" \"%SIPName%\" \"%SIPUUID%\" \"%processingDirectory%\" \"%sharedPath%watchedDirectories/system/autoProcessSIP/\" \"%sharedPath%\"",
-        "execute": "createSIPfromTransferObjects_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createSIPfromTransferObjects_v0.0"
       },
       "description": {
         "en": "Create SIP from transfer objects",
@@ -4353,12 +4048,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Create SIP from Transfer",
         "es": "Crear SIP a partir de la transferencia",
@@ -4374,12 +4067,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--uuid \"%SIPUUID%\"",
-        "execute": "normalizeReport_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "normalizeReport_v0.0"
       },
       "description": {
         "en": "Normalization report",
@@ -4411,12 +4099,7 @@
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\" \"%sharedPath%\" \"access\"",
-        "execute": "policyCheck_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "policyCheck_v0.0"
       },
       "description": {
         "en": "Policy checks for access derivatives",
@@ -4450,12 +4133,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"",
-        "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignFileUUIDs_v0.0"
       },
       "description": {
         "en": "Assign file UUIDs to objects",
@@ -4489,12 +4167,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "bagit_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "bagit_v0.0"
       },
       "description": {
         "en": "Prepare AIP",
@@ -4524,12 +4197,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%%AIPFilename%\"",
-        "execute": "verifyAIP_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifyAIP_v1.0"
       },
       "description": {
         "en": "Verify AIP",
@@ -4562,12 +4230,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -4599,12 +4262,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -4634,12 +4292,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "verifyTransferCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifyTransferCompliance_v0.0"
       },
       "description": {
         "en": "Verify transfer compliance",
@@ -4669,12 +4322,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%metadata/OCRfiles\" \"%SIPDirectory%DIP\"",
-        "execute": "copyRecursive_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copyRecursive_v0.0"
       },
       "description": {
         "en": "Copy OCR data to DIP directory",
@@ -4707,11 +4355,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "preservation \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for preservation",
@@ -4751,8 +4395,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "0e41c244-6c3e-46b9-a554-65e66e5c9324",
-        "variable": "fileIDcommand-transfer",
-        "variable_value": null
+        "variable": "fileIDcommand-transfer"
       },
       "description": {
         "en": "Set files to identify",
@@ -4796,7 +4439,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -4812,12 +4454,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "verifyTransferCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifyTransferCompliance_v0.0"
       },
       "description": {
         "en": "Verify transfer compliance",
@@ -4847,12 +4484,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/%processingConfiguration%ProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default Transfer processingMCP.xml",
@@ -4883,12 +4515,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%DIP/\" \"%SIPDirectory%DIP/objects/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create DIP directory",
@@ -4921,12 +4548,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%metadata/submissionDocumentation\"",
-        "execute": "checkForSubmissionDocumenation_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "checkForSubmissionDocumenation_v0.0"
       },
       "description": {
         "en": "Check for submission documentation",
@@ -4957,12 +4579,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%SIPType%\" \"%AIPsStore%\" ",
-        "execute": "indexAIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "indexAIP_v0.0"
       },
       "description": {
         "en": "Index AIP",
@@ -5049,7 +4666,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -5064,12 +4680,7 @@
         "@manager": "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
         "@model": "StandardTaskConfig",
         "arguments": "",
-        "execute": "getAipStorageLocations_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "getAipStorageLocations_v0.0"
       },
       "description": {
         "en": "Retrieve AIP Storage Locations",
@@ -5100,8 +4711,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "8ce130d4-3f7e-46ec-868a-505cf9033d96",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -5115,7 +4725,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -5131,9 +4740,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --use \"submissionDocumentation\" --filterSubdir \"objects/submissionDocumentation\"",
         "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
         "stderr_file": "%SIPLogsDirectory%FileUUIDsError.log",
         "stdout_file": "%SIPLogsDirectory%FileUUIDs.log"
       },
@@ -5167,12 +4773,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" -o \"%SIPDirectory%metadata/directory_tree.txt\"",
-        "execute": "createDirectoryTree_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectoryTree_v0.0"
       },
       "description": {
         "en": "Save directory tree",
@@ -5203,12 +4804,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "removeHiddenFilesAndDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "removeHiddenFilesAndDirectories_v0.0"
       },
       "description": {
         "en": "Remove hidden files and directories",
@@ -5238,9 +4834,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects\"",
         "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
         "stderr_file": "%SIPLogsDirectory%FileUUIDsError.log",
         "stdout_file": "%SIPLogsDirectory%FileUUIDs.log"
       },
@@ -5276,12 +4869,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%clientAssetsDirectory%README/README.html\" \"%SIPDirectory%README.html\"",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Add README file",
@@ -5311,12 +4899,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--baseDirectoryPath \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\"",
-        "execute": "createMETS_v2.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createMETS_v2.0"
       },
       "description": {
         "en": "Generate METS.xml document",
@@ -5349,12 +4932,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" --include-dirs \"%AssignUUIDsToDirectories%\"",
-        "execute": "assignUUIDsToDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignUUIDsToDirectories_v0.0"
       },
       "description": {
         "en": "Assign UUIDs to directories",
@@ -5386,12 +4964,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"%processingDirectory%\" \"%sharedPath%\"",
-        "execute": "extractZippedTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "extractZippedTransfer_v0.0"
       },
       "description": {
         "en": "Extract zipped transfer",
@@ -5423,12 +4996,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/.\"  \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to metadata reminder",
@@ -5438,8 +5006,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -5459,12 +5026,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/createTree/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to generate transfer tree",
@@ -5474,8 +5036,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -5494,12 +5055,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -5545,7 +5101,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Generate transfer structure report",
         "fr": "Générer un rapport de structure de transfert ",
@@ -5560,12 +5115,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --sipPath \"%SIPDirectory%\"",
-        "execute": "dipGenerationHelper",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "dipGenerationHelper"
       },
       "description": {
         "en": "Pre-processing for DIP generation",
@@ -5596,8 +5146,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--fileUUID \"%fileUUID%\" --inputFile \"%relativeLocation%\" --sipDirectory \"%SIPDirectory%\"",
         "execute": "removeFilesWithoutPresmisMetadata_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/",
         "stderr_file": "%SIPLogsDirectory%removedFilesWithNoPremisMetadata.log",
         "stdout_file": "%SIPLogsDirectory%removedFilesWithNoPremisMetadata.log"
@@ -5630,11 +5178,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\" \"%sharedPath%\" \"preservation\"",
         "execute": "validateFile_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Validate preservation derivatives",
@@ -5671,11 +5215,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"access\" \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"service\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/service",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/service"
       },
       "description": {
         "en": "Normalize service files for access",
@@ -5730,7 +5270,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Failed transfer compliance",
         "fr": "Échec de la mise en conformité du transfert",
@@ -5744,12 +5283,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -5778,8 +5312,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "8ba83807-2832-4e41-843c-2e55ad10ea0b",
-        "variable": "reNormalize",
-        "variable_value": null
+        "variable": "reNormalize"
       },
       "description": {
         "en": "Set remove preservation and access normalized files to renormalize link.",
@@ -5809,12 +5342,7 @@
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\"",
-        "execute": "removeUnneededFiles_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "removeUnneededFiles_v0.0"
       },
       "description": {
         "en": "Remove unneeded files",
@@ -5843,12 +5371,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\"",
-        "execute": "verifychecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifychecksum_v0.0"
       },
       "description": {
         "en": "Verify metadata directory checksums",
@@ -5892,7 +5415,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Upload DIP",
         "es": "Subir DIP",
@@ -5908,12 +5430,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -5943,12 +5460,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "775 \"%SIPDirectory%%AIPFilename%\"",
-        "execute": "setFilePermission_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "setFilePermission_v0.0"
       },
       "description": {
         "en": "Set bag file permissions",
@@ -5978,12 +5490,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "determineAIPVersionKeyExitCode_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "determineAIPVersionKeyExitCode_v0.0"
       },
       "description": {
         "en": "Determine processing path for this AIP version",
@@ -6014,12 +5521,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%DIP\" \"%sharedPath%watchedDirectories/uploadDIP/%SIPDirectoryBasename%\"",
-        "execute": "move_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "move_v0.0"
       },
       "description": {
         "en": "Generate DIP",
@@ -6051,12 +5553,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/activeTransfers/Dspace/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Failed compliance. See output in dashboard. Transfer moved back to activeTransfers.",
@@ -6067,7 +5564,6 @@
       "end": true,
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Include default Transfer processingMCP.xml",
         "no": "Inkluder standardoverførings processingMCP.xml",
@@ -6080,12 +5576,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--unitType \"%unitType%\" --unitIdentifier \"%SIPUUID%\" --unitName \"%SIPName%\"",
-        "execute": "emailFailReport_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "emailFailReport_v0.0"
       },
       "description": {
         "en": "Email fail report",
@@ -6118,8 +5609,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "0a6558cf-cf5f-4646-977e-7d6b4fde47e8",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -6133,7 +5623,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -6148,12 +5637,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -6183,12 +5667,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
-        "execute": "removeDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "removeDirectories_v0.0"
       },
       "description": {
         "en": "Remove bagged files",
@@ -6248,12 +5727,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" --include-dirs \"%AssignUUIDsToDirectories%\"",
-        "execute": "assignUUIDsToDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignUUIDsToDirectories_v0.0"
       },
       "description": {
         "en": "Assign UUIDs to directories",
@@ -6289,12 +5763,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--url=\"%url%\" --email=\"%email%\" --password=\"%password%\" --uuid=\"%SIPUUID%\" --debug=\"%debug%\" --version=\"%version%\" --rsync-command=\"%rsync_command%\" --rsync-target=\"%rsync_target%\"",
-        "execute": "upload-qubit_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "upload-qubit_v0.0"
       },
       "description": {
         "en": "Upload DIP",
@@ -6327,13 +5796,8 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%DIPsStore%\" \"%watchDirectoryPath%uploadedDIPs/%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%SIPName%\" \"DIP\"",
-        "execute": "storeAIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "arguments": "\"%DIPsStore%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%SIPName%\" \"DIP\"",
+        "execute": "storeAIP_v0.0"
       },
       "description": {
         "en": "Store DIP",
@@ -6344,11 +5808,10 @@
         "pt_BR": "Armazenar DIP",
         "sv": "Lagra DIP"
       },
-      "end": true,
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": null
+          "link_id": "379a4cba-b43c-45fb-88e9-7e0322107080"
         }
       },
       "fallback_job_status": "Failed",
@@ -6369,9 +5832,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects\"",
         "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
         "stderr_file": "%SIPLogsDirectory%FileUUIDsError.log",
         "stdout_file": "%SIPLogsDirectory%FileUUIDs.log"
       },
@@ -6407,12 +5867,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "parseExternalMETS",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "parseExternalMETS"
       },
       "description": {
         "en": "Parse external METS",
@@ -6442,12 +5897,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--SIPDirectory \"%SIPDirectory%\" --accessDirectory \"objects/access/\" --objectsDirectory \"objects/\" --DIPDirectory \"DIP\" --SIPUUID \"%SIPUUID%\" --date \"%date%\"",
-        "execute": "checkForAccessDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "checkForAccessDirectory_v0.0"
       },
       "description": {
         "en": "Check for Access directory",
@@ -6484,12 +5934,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -6519,12 +5964,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -6556,12 +5996,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Rename with transfer UUID",
@@ -6590,12 +6025,7 @@
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\" \"%sharedPath%\" \"original\"",
-        "execute": "policyCheck_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "policyCheck_v0.0"
       },
       "description": {
         "en": "Policy checks for originals",
@@ -6629,7 +6059,6 @@
       "config": {
         "@manager": "linkTaskManagerUnitVariableLinkPull",
         "@model": "TaskConfigUnitVariableLinkPull",
-        "chain_id": null,
         "variable": "normalizationThumbnailProcessing"
       },
       "description": {
@@ -6639,7 +6068,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -6654,12 +6082,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -6689,12 +6112,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -6724,12 +6142,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -6772,7 +6185,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Validation",
         "es": "Validación",
@@ -6787,8 +6199,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "cb8e5706-e73f-472f-ad9b-d1236af8095f",
-        "variable": "resumeAfterNormalizationFileIdentificationToolSelected",
-        "variable_value": null
+        "variable": "resumeAfterNormalizationFileIdentificationToolSelected"
       },
       "description": {
         "en": "Grant normalization options for no pre-existing DIP",
@@ -6818,12 +6229,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%%SIPName%-%SIPUUID%\" \"%SIPLogsDirectory%\" \"%SIPObjectsDirectory%\" \"%SIPDirectory%thumbnails/\"",
-        "execute": "removeDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "removeDirectories_v0.0"
       },
       "description": {
         "en": "Remove bagged files",
@@ -6867,7 +6273,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -6882,12 +6287,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "manualNormalizationRemoveMNDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "manualNormalizationRemoveMNDirectories_v0.0"
       },
       "description": {
         "en": "Remove empty manual normalization directories",
@@ -6917,10 +6317,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%sharedPath%\"",
         "execute": "bindPIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
         "stdout_file": "%SIPLogsDirectory%handles.log"
       },
       "description": {
@@ -6952,11 +6348,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\"",
         "execute": "manualNormalizationCheckForManualNormalizationDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/manualNormalization/preservation",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/manualNormalization/preservation"
       },
       "description": {
         "en": "Check for manual normalized files",
@@ -7045,12 +6437,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%DIP/\" \"%SIPDirectory%DIP/objects/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create DIP directory",
@@ -7083,12 +6470,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%DIP/\" \"%SIPDirectory%DIP/objects/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create DIP directory",
@@ -7121,12 +6503,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/storeAIP/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to the store AIP approval directory",
@@ -7136,12 +6513,10 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Store AIP",
         "fr": "Stocker l’AIP",
@@ -7156,12 +6531,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\"",
-        "execute": "verifychecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifychecksum_v0.0"
       },
       "description": {
         "en": "Verify metadata directory checksums",
@@ -7191,12 +6561,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Rename with transfer UUID",
@@ -7226,12 +6591,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "restructureForComplianceSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureForComplianceSIP_v0.0"
       },
       "description": {
         "en": "Attempt restructure for compliance",
@@ -7265,11 +6625,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
         "execute": "archivematicaClamscan_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Scan for viruses on extracted files",
@@ -7300,12 +6656,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--unitType \"%unitType%\" --unitIdentifier \"%SIPUUID%\" --unitName \"%SIPName%\"",
-        "execute": "emailFailReport_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "emailFailReport_v0.0"
       },
       "description": {
         "en": "Email fail report",
@@ -7338,12 +6689,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%clientAssetsDirectory%README/TRANSFER_README.html\" \"%SIPDirectory%README.html\"",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Add README file",
@@ -7384,7 +6730,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Scan for viruses",
         "fr": "Lancer l’antivirus",
@@ -7427,7 +6772,6 @@
       "config": {
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
-        "chain_id": null,
         "variable": "normalize_v1.0",
         "variable_value": "{'filterSubDir':'objects/attachments'}"
       },
@@ -7459,12 +6803,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%failed/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to the failed directory",
@@ -7475,12 +6814,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Failed SIP",
         "es": "SIP fallido",
@@ -7506,7 +6843,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Transcribe SIP contents",
         "fr": "Transcrire le contenu du SIP",
@@ -7519,7 +6855,6 @@
       "config": {
         "@manager": "linkTaskManagerUnitVariableLinkPull",
         "@model": "TaskConfigUnitVariableLinkPull",
-        "chain_id": null,
         "variable": "resumeAfterNormalizationFileIdentificationToolSelected"
       },
       "description": {
@@ -7530,7 +6865,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -7545,12 +6879,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "setMaildirFileGrpUseAndFileIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "setMaildirFileGrpUseAndFileIDs_v0.0"
       },
       "description": {
         "en": "Set file group use and fileIDs for maildir AIP",
@@ -7589,7 +6918,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Process metadata directory",
         "es": "Procesar directorio de metadatos",
@@ -7604,11 +6932,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\"",
         "execute": "declarepids_v0.0",
-        "filter_file_end": "",
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_file_end": ""
       },
       "description": {
         "en": "Load persistent identifiers from external file",
@@ -7635,12 +6959,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
-        "execute": "archivematicaVerifyMets_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaVerifyMets_v0.0"
       },
       "description": {
         "en": "Verify mets_structmap.xml compliance",
@@ -7671,10 +6990,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\"",
         "execute": "bindPID_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
         "stdout_file": "%SIPLogsDirectory%handles.log"
       },
       "description": {
@@ -7769,12 +7084,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%date%\"",
-        "execute": "trimVerifyChecksums_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "trimVerifyChecksums_v0.0"
       },
       "description": {
         "en": "Verify TRIM checksums",
@@ -7802,12 +7112,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "restructureForCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureForCompliance_v0.0"
       },
       "description": {
         "en": "Attempt restructure for compliance",
@@ -7839,12 +7144,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/activeTransfers/standardTransfer/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move transfer back to activeTransfers directory.",
@@ -7856,12 +7156,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Failed transfer compliance",
         "fr": "Échec de la mise en conformité du transfert",
@@ -7875,12 +7173,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--SIPDirectory \"%SIPDirectory%\" --SIPUUID \"%SIPUUID%\" --preservation --thumbnails --access",
-        "execute": "retryNormalizeRemoveNormalized_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "retryNormalizeRemoveNormalized_v0.0"
       },
       "description": {
         "en": "Remove preservation and access normalized files to renormalize.",
@@ -7911,11 +7204,8 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
         "execute": "archivematicaClamscan_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/metadata",
-        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt",
-        "stdout_file": null
+        "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
       },
       "description": {
         "en": "Scan for viruses in metadata",
@@ -7946,8 +7236,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "e950cd98-574b-4e57-9ef8-c2231e1ce451",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -7961,7 +7250,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -7976,12 +7264,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/metadata.json\"",
-        "execute": "jsonMetadataToCSV_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "jsonMetadataToCSV_v0.0"
       },
       "description": {
         "en": "Process transfer JSON metadata",
@@ -8025,7 +7308,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Policy checks for derivatives",
         "fr": "Vérifications de politique sur les copies",
@@ -8040,11 +7322,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for thumbnails",
@@ -8084,11 +7362,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "preservation \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for preservation",
@@ -8156,12 +7430,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--SIPDirectory \"%SIPDirectory%\" --SIPUUID \"%SIPUUID%\" --preservation --thumbnails",
-        "execute": "retryNormalizeRemoveNormalized_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "retryNormalizeRemoveNormalized_v0.0"
       },
       "description": {
         "en": "Remove preservation normalized files to renormalize.",
@@ -8193,10 +7462,7 @@
         "arguments": "\"%fileUUID%\"",
         "execute": "identifyDspaceMETSFiles_v0.0",
         "filter_file_end": "mets.xml",
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Identify DSpace mets files",
@@ -8226,12 +7492,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -8263,11 +7524,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%fileUUID%\" \"%relativeLocation%\" \"%date%\"",
         "execute": "manualNormalizationCreateMetadataAndRestructure_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/manualNormalization/preservation",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/manualNormalization/preservation"
       },
       "description": {
         "en": "Relate manual normalized preservation files to the original files",
@@ -8296,12 +7553,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-d \"%SIPDirectory%%AIPFilename%\"",
-        "execute": "test_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "test_v0.0"
       },
       "description": {
         "en": "Check if AIP is a file or directory",
@@ -8353,7 +7605,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Upload DIP",
         "es": "Subir DIP",
@@ -8399,10 +7650,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%transferDirectory%\" \"%date%\" \"%taskUUID%\" \"%DeletePackage%\"",
         "execute": "extractContents_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
         "stdout_file": "%SIPLogsDirectory%extractContents.log"
       },
       "description": {
@@ -8436,12 +7683,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" --include-dirs \"%AssignUUIDsToDirectories%\"",
-        "execute": "assignUUIDsToDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignUUIDsToDirectories_v0.0"
       },
       "description": {
         "en": "Assign UUIDs to directories",
@@ -8470,12 +7712,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%relativeLocation%metadata/dc.json\"",
-        "execute": "loadDublinCore_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "loadDublinCore_v0.0"
       },
       "description": {
         "en": "Load Dublin Core metadata from disk",
@@ -8516,7 +7753,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Process submission documentation",
         "fr": "Traiter la documentation de soumission",
@@ -8545,7 +7781,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -8561,8 +7796,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "8de9fe10-932f-4151-88b0-b50cf271e156",
-        "variable": "reNormalize",
-        "variable_value": null
+        "variable": "reNormalize"
       },
       "description": {
         "en": "Set remove preservation normalized files to renormalize link.",
@@ -8592,12 +7826,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -8628,12 +7857,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --use \"preservation\" --filterSubdir \"objects/manualNormalization/preservation\"",
-        "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignFileUUIDs_v0.0"
       },
       "description": {
         "en": "Assign UUIDs to manual normalized preservation files",
@@ -8664,12 +7888,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "convertDataverseStructure_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "convertDataverseStructure_v0.0"
       },
       "description": {
         "en": "Convert Dataverse structure",
@@ -8728,11 +7947,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --filePath \"%relativeLocation%\"",
         "execute": "manualNormalizationMoveAccessFilesToDIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/manualNormalization/access",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/manualNormalization/access"
       },
       "description": {
         "en": "Move access files to DIP",
@@ -8762,12 +7977,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolIngest/.\"  \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to select file ID tool",
@@ -8777,8 +7987,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -8810,7 +8019,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Bind PIDs",
         "fr": "Lier les PIDs",
@@ -8825,11 +8033,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\" \"%date%\" \"%sharedPath%\" \"%unitType%\"",
         "execute": "changeSIPName_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": "%SIPLogsDirectory%SIPnameCleanup.log",
-        "stdout_file": null
+        "stderr_file": "%SIPLogsDirectory%SIPnameCleanup.log"
       },
       "description": {
         "en": "Change transfer name",
@@ -8860,11 +8064,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\" \"%date%\" \"%sharedPath%\" \"%unitType%\"",
         "execute": "changeSIPName_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": "%SIPLogsDirectory%SIPnameCleanup.log",
-        "stdout_file": null
+        "stderr_file": "%SIPLogsDirectory%SIPnameCleanup.log"
       },
       "description": {
         "en": "Change SIP name",
@@ -8895,11 +8095,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "validateFile_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Validate formats",
@@ -8932,11 +8128,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\" \"%sharedPath%\" \"access\"",
         "execute": "validateFile_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "DIP/objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "DIP/objects/"
       },
       "description": {
         "en": "Validate access derivatives",
@@ -8975,7 +8167,6 @@
       "config": {
         "@manager": "linkTaskManagerUnitVariableLinkPull",
         "@model": "TaskConfigUnitVariableLinkPull",
-        "chain_id": null,
         "variable": "linkAfterAutoRestructureForCompliance"
       },
       "description": {
@@ -9000,12 +8191,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "restructureForCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureForCompliance_v0.0"
       },
       "description": {
         "en": "Attempt restructure for compliance",
@@ -9038,8 +8224,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\" --disable-reidentify",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%fileFormatIdentification.log",
         "stdout_file": "%SIPLogsDirectory%fileFormatIdentification.log"
@@ -9090,7 +8274,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve SIP creation",
         "es": "Aprobar creación de SIP",
@@ -9106,12 +8289,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\" \"%jobCreatedDate%\"",
-        "execute": "moveToBacklog_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveToBacklog_v1.0"
       },
       "description": {
         "en": "Move transfer to backlog",
@@ -9123,8 +8301,7 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -9159,7 +8336,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Examine contents",
         "es": "Examinar contenidos",
@@ -9175,12 +8351,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%METS.%SIPUUID%.xml\" \"%SIPDirectory%DIP/METS.%SIPUUID%.xml\"",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Copy METS to DIP directory",
@@ -9212,12 +8383,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"reject\" \"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "failedTransferCleanup",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "failedTransferCleanup"
       },
       "description": {
         "en": "Cleanup rejected transfer",
@@ -9262,8 +8428,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -9283,12 +8448,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" --include-dirs \"%AssignUUIDsToDirectories%\"",
-        "execute": "assignUUIDsToDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignUUIDsToDirectories_v0.0"
       },
       "description": {
         "en": "Assign UUIDs to directories",
@@ -9317,12 +8477,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/metadata.json\"",
-        "execute": "jsonMetadataToCSV_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "jsonMetadataToCSV_v0.0"
       },
       "description": {
         "en": "Process JSON metadata",
@@ -9351,7 +8506,6 @@
       "config": {
         "@manager": "linkTaskManagerUnitVariableLinkPull",
         "@model": "TaskConfigUnitVariableLinkPull",
-        "chain_id": null,
         "variable": "reNormalize"
       },
       "description": {
@@ -9364,12 +8518,10 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -9384,12 +8536,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -9420,8 +8567,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%objects/metadata/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"SIPDirectory\" \"sip_id\" \"%SIPDirectory%\"",
         "execute": "changeObjectNames_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/metadata",
         "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
         "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
@@ -9454,11 +8599,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%IDCommand%\" \"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "identifyFileFormat_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/metadata/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/metadata/"
       },
       "description": {
         "en": "Identify file format of metadata files",
@@ -9490,11 +8631,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"%date%\"",
         "execute": "extractMaildirAttachments_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Extract attachments",
@@ -9526,12 +8663,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"fail\" \"%SIPUUID%\"",
-        "execute": "failedSIPCleanup_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "failedSIPCleanup_v1.0"
       },
       "description": {
         "en": "Cleanup failed SIP",
@@ -9564,13 +8696,7 @@
       "config": {
         "@manager": "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList",
         "@model": "StandardTaskConfig",
-        "arguments": null,
-        "execute": "%AIPsStore%",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "%AIPsStore%"
       },
       "description": {
         "en": "Store AIP location",
@@ -9587,7 +8713,6 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Store AIP",
         "fr": "Stocker l’AIP",
@@ -9602,8 +8727,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "180ae3d0-aa6c-4ed4-ab94-d0a2121e7f21",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -9617,7 +8741,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -9632,12 +8755,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "isMaildirAIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "isMaildirAIP_v0.0"
       },
       "description": {
         "en": "Check if SIP is from Maildir Transfer",
@@ -9672,12 +8790,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -9706,12 +8819,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects/metadata\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to metadata",
@@ -9743,12 +8851,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\"",
-        "execute": "postStoreAIPHook_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "postStoreAIPHook_v1.0"
       },
       "description": {
         "en": "Clean up after storing AIP",
@@ -9780,12 +8883,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\"",
-        "execute": "hasPackages_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "hasPackages_v0.0"
       },
       "description": {
         "en": "Determine if transfer contains packages",
@@ -9806,7 +8904,6 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -9837,7 +8934,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -9869,7 +8965,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Create SIP from Transfer",
         "es": "Crear SIP a partir de la transferencia",
@@ -9885,12 +8980,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/system/autoRestructureForCompliance/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Failed compliance.",
@@ -9901,12 +8991,10 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Failed transfer compliance",
         "fr": "Échec de la mise en conformité du transfert",
@@ -9921,11 +9009,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "access \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for access",
@@ -9966,11 +9050,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPLogsDirectory%fileMeta/%fileUUID%.xml\" \"%date%\" \"%taskUUID%\" \"%fileUUID%\" \"%fileGrpUse%\"",
         "execute": "FITS_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/attachments",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/attachments"
       },
       "description": {
         "en": "Characterize and extract metadata for attachments",
@@ -10004,12 +9084,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\"",
-        "execute": "hasPackages_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "hasPackages_v0.0"
       },
       "description": {
         "en": "Determine if transfer still contains packages",
@@ -10110,12 +9185,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "fileToFolder_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "fileToFolder_v1.0"
       },
       "description": {
         "en": "Check if file or folder",
@@ -10148,8 +9218,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "removeUnneededFiles_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%removeUnneededFiles.log",
         "stdout_file": "%SIPLogsDirectory%removeUnneededFiles.log"
@@ -10182,7 +9250,6 @@
       "config": {
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
-        "chain_id": null,
         "variable": "identifyFileFormat_v0.0",
         "variable_value": "{'filterSubDir':'objects/attachments'}"
       },
@@ -10214,12 +9281,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -10249,12 +9311,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/approveNormalization/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to approve normalization directory",
@@ -10264,12 +9321,10 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -10296,8 +9351,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -10316,12 +9370,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
-        "execute": "changeObjectNames_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "changeObjectNames_v0.0"
       },
       "description": {
         "en": "Change extracted objects' file and directory names",
@@ -10352,8 +9401,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "f6fdd1a7-f0c5-4631-b5d3-19421155bd7a",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -10367,7 +9415,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -10382,12 +9429,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to objects",
@@ -10422,8 +9464,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPObjectsDirectory%attachments/\" \"%SIPUUID%\" \"%date%\" \"%taskUUID%\" \"transferDirectory\" \"transfer_id\" \"%SIPDirectory%\"",
         "execute": "changeObjectNames_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/attachments",
         "stderr_file": "%SIPLogsDirectory%filenameChanges.log",
         "stdout_file": "%SIPLogsDirectory%filenameChanges.log"
@@ -10456,12 +9496,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPName%\" \"%SIPDirectory%\" \"%date%\"",
-        "execute": "trimVerifyManifest_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "trimVerifyManifest_v0.0"
       },
       "description": {
         "en": "Verify TRIM manifest",
@@ -10509,7 +9544,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -10524,12 +9558,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/extractPackagesChoice/.\"  \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to extract packages",
@@ -10540,8 +9569,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -10561,12 +9589,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--amdSec --baseDirectoryPath \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%METS.%SIPUUID%.xml\" --sipType \"%SIPType%\"",
-        "execute": "createMETS_v2.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createMETS_v2.0"
       },
       "description": {
         "en": "Generate METS.xml document",
@@ -10598,13 +9621,7 @@
       "config": {
         "@manager": "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList",
         "@model": "StandardTaskConfig",
-        "arguments": null,
-        "execute": "%DIPsStore%",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "%DIPsStore%"
       },
       "description": {
         "en": "Store DIP location",
@@ -10637,12 +9654,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -10672,12 +9684,7 @@
         "@manager": "linkTaskManagerGetMicroserviceGeneratedListInStdOut",
         "@model": "StandardTaskConfig",
         "arguments": "DS",
-        "execute": "getAipStorageLocations_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "getAipStorageLocations_v0.0"
       },
       "description": {
         "en": "Retrieve DIP Storage Locations",
@@ -10709,12 +9716,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%clientAssetsDirectory%mets/mets.xsd\"",
-        "execute": "archivematicaVerifyMets_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaVerifyMets_v0.0"
       },
       "description": {
         "en": "Verify mets_structmap.xml compliance",
@@ -10755,7 +9757,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Generate AIP METS",
         "fr": "Générer un AIP METS",
@@ -10772,10 +9773,7 @@
         "arguments": "\"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\"",
         "execute": "identifyDspaceFiles_v0.0",
         "filter_file_end": "mets.xml",
-        "filter_file_start": null,
-        "filter_subdir": "objects",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects"
       },
       "description": {
         "en": "Identify DSpace text files",
@@ -10805,12 +9803,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/.\"  \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to select file ID tool",
@@ -10820,8 +9813,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -10840,12 +9832,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums and file sizes to objects",
@@ -10876,12 +9863,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/SIPCreation/completedTransfers/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to SIP creation directory for completed transfers",
@@ -10891,12 +9873,10 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Complete transfer",
         "es": "Completar transferencia",
@@ -10912,12 +9892,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default SIP processingMCP.xml",
@@ -10946,12 +9921,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -10980,12 +9950,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%clientAssetsDirectory%premis/premis.xsd\" \"%SIPDirectory%metadata/premis.xml\"",
-        "execute": "loadPREMISEventsFromXML_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "loadPREMISEventsFromXML_v1.0"
       },
       "description": {
         "en": "Load PREMIS events from metadata/premis.xml"
@@ -11013,12 +9978,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%AIPCompressionAlgorithm%\" \"%AIPCompressionLevel%\" \"%SIPDirectory%\" \"%SIPName%\" \"%SIPUUID%\"",
-        "execute": "compressAIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "compressAIP_v0.0"
       },
       "description": {
         "en": "Compress AIP",
@@ -11050,12 +10010,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "removeDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "removeDirectories_v0.0"
       },
       "description": {
         "en": "Remove the processing directory",
@@ -11066,12 +10021,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Store AIP",
         "fr": "Stocker l’AIP",
@@ -11143,8 +10096,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "092b47db-6f77-4072-aed3-eb248ab69e9c",
-        "variable": "normalizationThumbnailProcessing",
-        "variable_value": null
+        "variable": "normalizationThumbnailProcessing"
       },
       "description": {
         "en": "Set normalize path",
@@ -11158,7 +10110,6 @@
         }
       },
       "fallback_job_status": "Completed successfully",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -11173,12 +10124,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"Maildir\"",
-        "execute": "archivematicaSetTransferType_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "archivematicaSetTransferType_v0.0"
       },
       "description": {
         "en": "Set transfer type: Maildir",
@@ -11208,12 +10154,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/workFlowDecisions/examineContentsChoice/.\"  \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to examine contents",
@@ -11223,8 +10164,7 @@
       },
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
@@ -11245,8 +10185,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--fileUUID \"%fileUUID%\" --inputFile \"%relativeLocation%\" --sipDirectory \"%SIPDirectory%\"",
         "execute": "removeFilesWithoutPresmisMetadata_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/",
         "stderr_file": "%SIPLogsDirectory%removedFilesWithNoPremisMetadata.log",
         "stdout_file": "%SIPLogsDirectory%removedFilesWithNoPremisMetadata.log"
@@ -11279,12 +10217,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --xmlFile \"%SIPDirectory%\"metadata/transfer_metadata.xml",
-        "execute": "createTransferMetadata_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createTransferMetadata_v0.0"
       },
       "description": {
         "en": "Create transfer metadata XML",
@@ -11301,7 +10234,6 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Complete transfer",
         "es": "Completar transferencia",
@@ -11318,8 +10250,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--fileUUID \"%fileUUID%\" --inputFile \"%relativeLocation%\" --sipDirectory \"%SIPDirectory%\"",
         "execute": "removeFilesWithoutPresmisMetadata_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects/",
         "stderr_file": "%SIPLogsDirectory%removedFilesWithNoPremisMetadata.log",
         "stdout_file": "%SIPLogsDirectory%removedFilesWithNoPremisMetadata.log"
@@ -11353,9 +10283,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects\"",
         "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
         "stderr_file": "%SIPLogsDirectory%FileUUIDsError.log",
         "stdout_file": "%SIPLogsDirectory%FileUUIDs.log"
       },
@@ -11392,9 +10319,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "--sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --use \"metadata\" --filterSubdir \"objects/metadata\" --disable-update-filegrpuse",
         "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
         "stderr_file": "%SIPLogsDirectory%FileUUIDsError.log",
         "stdout_file": "%SIPLogsDirectory%FileUUIDs.log"
       },
@@ -11444,7 +10368,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Normalize",
         "es": "Normalizar",
@@ -11474,7 +10397,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -11490,12 +10412,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default SIP processingMCP.xml",
@@ -11581,8 +10498,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "removeUnneededFiles_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%removeUnneededFiles.log",
         "stdout_file": "%SIPLogsDirectory%removeUnneededFiles.log"
@@ -11616,8 +10531,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "7509e7dc-1e1b-4dce-8d21-e130515fce73",
-        "variable": "resumeAfterNormalizationFileIdentificationToolSelected",
-        "variable_value": null
+        "variable": "resumeAfterNormalizationFileIdentificationToolSelected"
       },
       "description": {
         "en": "Grant normalization options for pre-existing DIP",
@@ -11647,12 +10561,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/%processingConfiguration%ProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default Transfer processingMCP.xml",
@@ -11680,12 +10589,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Rename SIP directory with SIP UUID",
@@ -11715,12 +10619,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%metadata\" \"%SIPDirectory%objects/metadata\"",
-        "execute": "moveOrMerge_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveOrMerge_v0.0"
       },
       "description": {
         "en": "Move metadata to objects directory",
@@ -11750,12 +10649,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "isMaildirAIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "isMaildirAIP_v0.0"
       },
       "description": {
         "en": "Is maildir AIP",
@@ -11790,12 +10684,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--transferUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\"",
-        "execute": "assignFileUUIDs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignFileUUIDs_v0.0"
       },
       "description": {
         "en": "Assign file UUIDs to objects",
@@ -11826,12 +10715,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%relativeLocation%metadata/dc.json\"",
-        "execute": "saveDublinCore_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "saveDublinCore_v0.0"
       },
       "description": {
         "en": "Serialize Dublin Core metadata to disk",
@@ -11862,12 +10746,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%\" --sipUUID \"%SIPUUID%\" --sipDirectory \"%SIPDirectory%\" --eventIdentifierUUID \"%taskUUID%\" --date \"%date%\" --filterSubdir \"objects/manualNormalization/preservation\"",
-        "execute": "updateSizeAndChecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "updateSizeAndChecksum_v0.0"
       },
       "description": {
         "en": "Assign checksums to manual normalized preservation files",
@@ -11899,12 +10778,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"fail\" \"%SIPUUID%\" \"%SIPDirectory%\"",
-        "execute": "failedTransferCleanup",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "failedTransferCleanup"
       },
       "description": {
         "en": "Cleanup failed Transfer",
@@ -11939,11 +10813,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"service\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/service",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/service"
       },
       "description": {
         "en": "Normalize service files for thumbnails",
@@ -11982,12 +10852,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "restructureForCompliance_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureForCompliance_v0.0"
       },
       "description": {
         "en": "Attempt restructure for compliance",
@@ -12043,12 +10908,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--sipDirectory \"%SIPDirectory%\" --sipUUID \"%SIPUUID%\" --sharedPath \"%sharedPath%\"",
-        "execute": "copyTransfersMetadataAndLogs_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copyTransfersMetadataAndLogs_v0.0"
       },
       "description": {
         "en": "Copy transfers metadata and logs",
@@ -12079,7 +10939,9 @@
       "config": {
         "@manager": "linkTaskManagerChoice",
         "@model": "MicroServiceChainChoice",
-        "chain_choices": ["5727faac-88af-40e8-8c10-268644b0142d"]
+        "chain_choices": [
+          "5727faac-88af-40e8-8c10-268644b0142d"
+        ]
       },
       "description": {
         "en": "Reminder: add metadata if desired",
@@ -12091,7 +10953,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Add final metadata",
         "es": "Añadir metadatos finales",
@@ -12107,12 +10968,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%%SIPName%-%SIPUUID%\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Rename with transfer UUID",
@@ -12143,11 +10999,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"access\" \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for access",
@@ -12187,12 +11039,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -12221,12 +11068,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%sharedPath%watchedDirectories/SIPCreation/SIPsUnderConstruction/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveSIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveSIP_v0.0"
       },
       "description": {
         "en": "Failed compliance. See output in dashboard. SIP moved back to SIPsUnderConstruction",
@@ -12237,12 +11079,10 @@
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Failed compliance",
         "fr": "Échec de la mise en conformité",
@@ -12312,12 +11152,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "verifyAndRestructureTransferBag_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifyAndRestructureTransferBag_v0.0"
       },
       "description": {
         "en": "Verify bag, and restructure for compliance",
@@ -12348,12 +11183,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--uuid=\"%SIPUUID%\" --dipDir \"%SIPDirectory%\"",
-        "execute": "restructureDIPForContentDMUpload_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureDIPForContentDMUpload_v0.0"
       },
       "description": {
         "en": "Restructure DIP for CONTENTdm upload",
@@ -12430,7 +11260,6 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -12446,12 +11275,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%SIPUUID%\"",
-        "execute": "verifychecksum_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "verifychecksum_v0.0"
       },
       "description": {
         "en": "Verify metadata directory checksums",
@@ -12481,12 +11305,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-d \"%SIPDirectory%DIP\"",
-        "execute": "test_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "test_v0.0"
       },
       "description": {
         "en": "Check if DIP should be generated",
@@ -12521,8 +11340,7 @@
         "@manager": "linkTaskManagerSetUnitVariable",
         "@model": "TaskConfigSetUnitVariable",
         "chain_id": "2fd123ea-196f-4c9c-95c0-117aa65ed9c6",
-        "variable": "postExtractSpecializedProcessing",
-        "variable_value": null
+        "variable": "postExtractSpecializedProcessing"
       },
       "description": {
         "en": "Set specialized processing link",
@@ -12551,12 +11369,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"reject\" \"%SIPUUID%\"",
-        "execute": "failedSIPCleanup_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "failedSIPCleanup_v1.0"
       },
       "description": {
         "en": "Cleanup rejected SIP",
@@ -12590,12 +11403,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%relativeLocation%metadata/dc.json\"",
-        "execute": "saveDublinCore_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "saveDublinCore_v0.0"
       },
       "description": {
         "en": "Serialize Dublin Core metadata to disk",
@@ -12626,12 +11434,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "-m 770 \"%SIPDirectory%thumbnails/\"",
-        "execute": "createDirectory_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "createDirectory_v0.0"
       },
       "description": {
         "en": "Create thumbnails directory",
@@ -12664,8 +11467,6 @@
         "@model": "StandardTaskConfig",
         "arguments": "\"%relativeLocation%\" \"%fileUUID%\"",
         "execute": "removeUnneededFiles_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
         "filter_subdir": "objects",
         "stderr_file": "%SIPLogsDirectory%removeUnneededFiles.log",
         "stdout_file": "%SIPLogsDirectory%removeUnneededFiles.log"
@@ -12696,12 +11497,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%SIPDirectory%metadata/submissionDocumentation\" \"%sharedPath%\"",
-        "execute": "copyTransferSubmissionDocumentation_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copyTransferSubmissionDocumentation_v0.0"
       },
       "description": {
         "en": "Copy transfer submission documentation",
@@ -12748,7 +11544,6 @@
       },
       "exit_codes": {},
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Approve transfer",
         "es": "Aprobar transferencia",
@@ -12765,11 +11560,7 @@
         "@model": "StandardTaskConfig",
         "arguments": "thumbnail \"%fileUUID%\" \"%relativeLocation%\" \"%SIPDirectory%\" \"%SIPUUID%\" \"%taskUUID%\" \"original\" --thumbnail_mode \"%ThumbnailMode%\"",
         "execute": "normalize_v1.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": "objects/",
-        "stderr_file": null,
-        "stdout_file": null
+        "filter_subdir": "objects/"
       },
       "description": {
         "en": "Normalize for thumbnails",
@@ -12808,12 +11599,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -12841,12 +11627,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/%processingConfiguration%ProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default Transfer processingMCP.xml",
@@ -12873,29 +11654,22 @@
       "config": {
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%\" \"%watchDirectoryPath%uploadedDIPs/\"",
-        "execute": "handleUnstoredDIP_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "arguments": "\"%SIPDirectory%\" \"%rejectedDirectory%DIP-%SIPDirectoryBasename%\"",
+        "execute": "move_v0.0"
       },
       "description": {
-        "en": "Handle unstored DIP",
-        "no": "Håndter av-lagret DIP",
-        "pt_BR": "Controlar DIP não armazenado",
-        "sv": "Hantera icke lagrade DIP:ar"
+        "en": "Move to the rejected directory",
+        "no": "Flytt til den avviste mappen",
+        "pt_BR": "Mover para o diretório rejeitado",
+        "sv": "Flytta till den avslagna mappen"
       },
       "end": true,
       "exit_codes": {
         "0": {
-          "job_status": "Completed successfully",
-          "link_id": null
+          "job_status": "Completed successfully"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": null,
       "group": {
         "en": "Upload DIP",
         "es": "Subir DIP",
@@ -12911,12 +11685,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "storeFileModificationDates_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "storeFileModificationDates_v0.0"
       },
       "description": {
         "en": "Store file modification dates",
@@ -12948,12 +11717,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\" --include-dirs \"%AssignUUIDsToDirectories%\"",
-        "execute": "assignUUIDsToDirectories_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "assignUUIDsToDirectories_v0.0"
       },
       "description": {
         "en": "Assign UUIDs to directories",
@@ -12982,12 +11746,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%SIPUUID%\"",
-        "execute": "parseDataverse_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "parseDataverse_v0.0"
       },
       "description": {
         "en": "Parse Dataverse METS XML",
@@ -13012,12 +11771,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\" \"%processingDirectory%.\" \"%SIPUUID%\" \"%sharedPath%\"",
-        "execute": "moveTransfer_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "moveTransfer_v0.0"
       },
       "description": {
         "en": "Move to processing directory",
@@ -13046,12 +11800,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%SIPDirectory%\"",
-        "execute": "restructureForComplianceMaildir_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "restructureForComplianceMaildir_v0.0"
       },
       "description": {
         "en": "Attempt restructure for compliance",
@@ -13083,12 +11832,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "\"%sharedPath%sharedMicroServiceTasksConfigs/processingMCPConfigs/defaultProcessingMCP.xml\" \"%SIPDirectory%processingMCP.xml\" -n",
-        "execute": "copy_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "copy_v0.0"
       },
       "description": {
         "en": "Include default SIP processingMCP.xml",
@@ -13118,12 +11862,7 @@
         "@manager": "linkTaskManagerDirectories",
         "@model": "StandardTaskConfig",
         "arguments": "--base-url \"%base_url%\" --user \"%user%\" --passwd \"%passwd%\" --dip_location \"%SIPDirectory%\" --dip_name \"%SIPName%\" --dip_uuid \"%SIPUUID%\" --restrictions \"%restrictions%\" --object_type \"%object_type%\" --xlink_actuate \"%xlink_actuate%\" --xlink_show \"%xlink_show%\" --use_statement \"%use_statement%\" --uri_prefix \"%uri_prefix%\" --access_conditions \"%access_conditions%\" --use_conditions \"%use_conditions%\" --inherit_notes \"%inherit_notes%\"",
-        "execute": "upload-archivesspace_v0.0",
-        "filter_file_end": null,
-        "filter_file_start": null,
-        "filter_subdir": null,
-        "stderr_file": null,
-        "stdout_file": null
+        "execute": "upload-archivesspace_v0.0"
       },
       "description": {
         "en": "Upload to ArchivesSpace",
@@ -13182,6 +11921,12 @@
       "chain_id": "28a4322d-b8a5-4bae-b2dd-71cc9ff99e73",
       "only_dirs": true,
       "path": "/uploadDIP/",
+      "unit_type": "DIP"
+    },
+    {
+      "chain_id": "54f94986-5300-4116-9b6c-d362fe7ab49b",
+      "only_dirs": true,
+      "path": "/uploadedDIPs/",
       "unit_type": "DIP"
     },
     {
