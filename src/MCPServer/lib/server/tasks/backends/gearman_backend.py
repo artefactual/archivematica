@@ -3,7 +3,6 @@ Gearman task backend. Submits `Task` objects to gearman for processing,
 and returns results.
 """
 import logging
-import pickle
 import uuid
 
 from django.conf import settings
@@ -11,6 +10,7 @@ from gearman import GearmanClient
 from gearman.constants import JOB_COMPLETE
 from gearman.constants import JOB_FAILED
 from gearman.constants import JOB_UNKNOWN
+from gearman_encoder import JSONDataEncoder
 from server import metrics
 from server.tasks.backends.base import TaskBackend
 from server.tasks.task import Task
@@ -24,6 +24,8 @@ class MCPGearmanClient(GearmanClient):
     Client that adds `wait_until_any_job_completed`, so that we can poll a bit
     more efficiently.
     """
+
+    data_encoder = JSONDataEncoder
 
     def wait_until_any_job_completed(self, job_requests, poll_timeout=None):
         """
@@ -55,8 +57,8 @@ class MCPGearmanClient(GearmanClient):
 class GearmanTaskBackend(TaskBackend):
     """Submits tasks to MCPClient via Gearman.
 
-    Tasks are batched into BATCH_SIZE groups (default 128), pickled and sent to
-    MCPClient. This adds some complexity but saves a lot of overhead.
+    Tasks are batched into BATCH_SIZE groups (default 128), serialized and sent
+    to MCPClient. This adds some complexity but saves a lot of overhead.
     """
 
     # The number of files we'll pack into each MCP Client job.  Chosen somewhat
@@ -204,11 +206,9 @@ class GearmanTaskBatch:
             task_uuid = str(task.uuid)
             data["tasks"][task_uuid] = self.serialize_task(task)
 
-        pickled_data = pickle.dumps(data, protocol=0)
-
         self.pending = client.submit_job(
             task=job.name.encode(),
-            data=pickled_data,
+            data=data,
             unique=str(self.uuid).encode(),
             wait_until_complete=False,
             background=False,
@@ -222,7 +222,7 @@ class GearmanTaskBatch:
         elif not self.pending.result:
             raise ValueError("Unexpected empty result from Gearman job")
 
-        job_result = pickle.loads(self.pending.result)
+        job_result = self.pending.result
 
         try:
             return job_result["task_results"]

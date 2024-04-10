@@ -1,5 +1,4 @@
 import math
-import pickle
 import uuid
 
 import gearman
@@ -45,7 +44,7 @@ def format_gearman_request(tasks):
             "wants_output": task.wants_output,
         }
 
-    return pickle.dumps(request, protocol=0)
+    return request
 
 
 def format_gearman_response(task_results):
@@ -55,7 +54,7 @@ def format_gearman_response(task_results):
         task_uuid = str(task_uuid)
         response["task_results"][task_uuid] = task_data
 
-    return pickle.dumps(response, protocol=0)
+    return response
 
 
 def test_gearman_task_submission(simple_job, simple_task, mocker):
@@ -72,8 +71,7 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
     submit_job_kwargs = mock_client.return_value.submit_job.call_args[1]
 
     assert submit_job_kwargs["task"] == simple_job.name.encode()
-    # Comparing pickled strings is fragile, so compare the python version
-    assert pickle.loads(submit_job_kwargs["data"]) == pickle.loads(task_data)
+    assert submit_job_kwargs["data"] == task_data
     try:
         uuid.UUID(submit_job_kwargs["unique"].decode())
     except ValueError:
@@ -146,7 +144,7 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
 
     def mock_jobs_completed(*args):
         job_request.state = gearman.JOB_FAILED
-        job_request.exception = pickle.dumps(Exception("Error!"), protocol=0)
+        job_request.exception = Exception("Error!")
 
         return [job_request]
 
