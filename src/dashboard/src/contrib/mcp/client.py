@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import logging
-import pickle
 
 import gearman
 from django.conf import settings
 from django.utils.translation import get_language
+from gearman_encoder import JSONDataEncoder
 from main.models import Job
 
 
@@ -61,7 +61,7 @@ class TimeoutError(RPCGearmanClientError):
     """Deadline exceeded.
 
     >> response = client.submit_job(
-           "doSomething", cPickle.dumps(data, protocol=0),
+           "doSomething", data,
            background=False, wait_until_complete=True,
            poll_timeout=INFLIGHT_POLL_TIMEOUT)
        if response.state == gearman.JOB_CREATED:
@@ -82,6 +82,10 @@ class NoJobFoundError(RPCGearmanClientError):
         if message is None:
             message = "No job was found"
         super().__init__(message)
+
+
+class GearmanClient(gearman.GearmanClient):
+    data_encoder = JSONDataEncoder
 
 
 INFLIGHT_POLL_TIMEOUT = 30.0
@@ -107,10 +111,10 @@ class MCPClient:
             data = b""
         elif "user_id" not in data:
             data["user_id"] = self.user.id
-        client = gearman.GearmanClient([self.server])
+        client = GearmanClient([self.server])
         response = client.submit_job(
             ability.encode(),
-            pickle.dumps(data, protocol=0),
+            data,
             background=False,
             wait_until_complete=True,
             poll_timeout=timeout,
@@ -120,20 +124,20 @@ class MCPClient:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
             raise RPCError(f"{ability} failed (check the logs)")
-        payload = pickle.loads(response.result)
+        payload = response.result
         if isinstance(payload, dict) and payload.get("error", False):
             raise RPCServerError(payload)
         return payload
 
     def execute(self, uuid, choice):
-        gm_client = gearman.GearmanClient([self.server])
+        gm_client = GearmanClient([self.server])
         data = {}
         data["jobUUID"] = uuid
         data["chain"] = choice
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job(b"approveJob", pickle.dumps(data, protocol=0))
+        gm_client.submit_job(b"approveJob", data)
         gm_client.shutdown()
         return
 
@@ -153,12 +157,13 @@ class MCPClient:
             self.execute(item.pk, choice)
 
     def list(self):
-        gm_client = gearman.GearmanClient([self.server])
+        gm_client = GearmanClient([self.server])
         completed_job_request = gm_client.submit_job(
-            b"getJobsAwaitingApproval", pickle.dumps({}, protocol=0)
+            b"getJobsAwaitingApproval",
+            {},
         )
         if completed_job_request.state == gearman.JOB_COMPLETE:
-            return pickle.loads(completed_job_request.result)
+            return completed_job_request.result
         elif completed_job_request.state == gearman.JOB_FAILED:
             raise RPCError("getJobsAwaitingApproval failed (check MCPServer logs)")
 

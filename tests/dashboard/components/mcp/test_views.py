@@ -1,5 +1,3 @@
-import pickle as pickle
-
 from components.mcp import views
 from django.urls import reverse
 from externals import xmltodict
@@ -45,14 +43,12 @@ def test_list(mocker, rf, admin_user):
         "contrib.mcp.client.gearman.JOB_COMPLETE",
     )
     mocker.patch(
-        "gearman.GearmanClient",
+        "contrib.mcp.client.GearmanClient",
         return_value=mocker.Mock(
             **{
                 "submit_job.return_value": mocker.Mock(
                     state=job_complete,
-                    result=pickle.dumps(
-                        MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT.encode()
-                    ),
+                    result=MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT,
                 )
             }
         ),
