@@ -1,7 +1,6 @@
 import json
 import os
 import pathlib
-import pickle
 import uuid
 from unittest import mock
 
@@ -91,10 +90,10 @@ class TestIngest(TestCase):
 
     def test_ingest_upload_get(self):
         sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        access_target = {"target": "description-slug"}
+        access_target = "description-slug"
         Access.objects.create(
             sipuuid=sip_uuid,
-            target=pickle.dumps(access_target, protocol=0).decode(),
+            target=access_target,
         )
 
         response = self.client.get(
@@ -102,26 +101,26 @@ class TestIngest(TestCase):
         )
 
         assert response.status_code == 200
-        assert json.loads(response.content) == access_target
+        assert json.loads(response.content)["target"] == access_target
 
     def test_ingest_upload_post(self):
         sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        access_target = {"target": "description-slug"}
+        access_target = "description-slug"
 
         # Check there is no Access object associated with the SIP yet.
         assert Access.objects.filter(sipuuid=sip_uuid).count() == 0
 
         response = self.client.post(
             reverse("ingest:ingest_upload", args=[sip_uuid]),
-            data=access_target,
+            data={"target": access_target},
         )
         assert response.status_code == 200
         assert json.loads(response.content) == {"ready": True}
 
         # An Access object was created for the SIP with the right target.
-        assert Access.objects.filter(sipuuid=sip_uuid).count() == 1
-        access = Access.objects.get(sipuuid=sip_uuid)
-        assert pickle.loads(access.target.encode()) == access_target
+        assert (
+            Access.objects.filter(sipuuid=sip_uuid, target=access_target).count() == 1
+        )
 
 
 def _assert_file_node_properties_match_record(file_node, record):

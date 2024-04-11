@@ -1,5 +1,4 @@
 import os
-import pickle as pickle
 import uuid
 
 import pytest
@@ -43,7 +42,7 @@ def job(sip, tmp_path):
 def access(db, sip):
     return models.Access.objects.create(
         sipuuid=sip.uuid,
-        target=pickle.dumps({"target": "atom-description-id"}, protocol=0).decode(),
+        target="atom-description-id",
     )
 
 
@@ -73,7 +72,7 @@ def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
     assert access.statuscode == 14
     assert access.resource == f"{opts.url}/atom-description-id"
     assert access.status == "Deposited synchronously"
-    assert pickle.loads(access.target.encode()) == {"target": "atom-description-id"}
+    assert access.target == "atom-description-id"
 
 
 def test_first_run(db, mocker, mcp_job, job, transfer, sip):
@@ -102,4 +101,4 @@ def test_first_run(db, mocker, mcp_job, job, transfer, sip):
     assert access.statuscode == 14
     assert access.resource == f"{opts.url}/atom-description-id"
     assert access.status == "Deposited synchronously"
-    assert pickle.loads(access.target.encode()) == {"target": "atom-description-id"}
+    assert access.target == "atom-description-id"
