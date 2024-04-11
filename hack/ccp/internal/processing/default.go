@@ -9,8 +9,8 @@ import (
 )
 
 var builtinConfigs = map[string]ProcessingConfig{
-	"default":   defaultConfig,
-	"automated": automatedConfig,
+	"default":   DefaultConfig,
+	"automated": AutomatedConfig,
 }
 
 func InstallBuiltinConfigs(path string) error {
@@ -31,7 +31,7 @@ func InstallBuiltinConfigs(path string) error {
 	return errs
 }
 
-var defaultConfig = ProcessingConfig{
+var DefaultConfig = ProcessingConfig{
 	Choices: Choices{
 		Choices: []Choice{
 			{
@@ -123,7 +123,7 @@ var defaultConfig = ProcessingConfig{
 	},
 }
 
-var automatedConfig = ProcessingConfig{
+var AutomatedConfig = ProcessingConfig{
 	Choices: Choices{
 		Choices: []Choice{
 			{

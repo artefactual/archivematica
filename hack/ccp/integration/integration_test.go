@@ -1,7 +1,6 @@
 package integration_test
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -41,7 +40,7 @@ func TestServerCmd(t *testing.T) {
 			"--gearmin.addr=:4730",
 		}
 
-		cmd := servercmd.New(&rootcmd.Config{}, bytes.NewBuffer([]byte{}))
+		cmd := servercmd.New(&rootcmd.Config{}, os.Stdout)
 		assert.NilError(t, cmd.Parse(args))
 
 		done := make(chan error)

@@ -36,6 +36,16 @@ func (p *Package) String() string {
 }
 
 func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, error) {
+	li := linkID.String()
+
+	// TODO: automate "Approve standard transfer" until we can submit decisions.
+	if li == "0c94e6b5-4714-4bec-82c8-e187e0c04d77" {
+		return &processing.Choice{
+			AppliesTo: "0c94e6b5-4714-4bec-82c8-e187e0c04d77",
+			GoToChain: "b4567e89-9fea-4256-99f5-a88987026488",
+		}, nil
+	}
+
 	f, err := os.Open(filepath.Join(p.path, "processingMCP.xml"))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -50,9 +60,22 @@ func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, err
 		return nil, err
 	}
 
+	var match *processing.Choice
 	for _, choice := range choices {
-		if choice.AppliesTo == linkID.String() {
-			return &choice, nil
+		if choice.AppliesTo == li {
+			match = &choice
+			break
+		}
+	}
+
+	// Resort to automated config.
+	// TODO: allow user to choose the system processing config to use.
+	if match == nil {
+		for _, choice := range processing.AutomatedConfig.Choices.Choices {
+			if choice.AppliesTo == li {
+				match = &choice
+				break
+			}
 		}
 	}
 

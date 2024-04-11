@@ -10,6 +10,8 @@ package controller
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
@@ -96,15 +98,13 @@ func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 		}
 	}
 
-	// Build decision options.
+	// Build decision point and await resolution.
 	opts := make([]option, len(l.config.Choices))
 	for i, item := range l.config.Choices {
 		opts[i] = option(item.String())
 	}
-
-	// Wait for decision resolution.
 	if decision, err := l.p.AwaitDecision(ctx, opts); err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, fmt.Errorf("await decision: %v", err)
 	} else {
 		return decision.uuid(), nil
 	}
@@ -327,12 +327,16 @@ func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, da
 		done = make(chan struct{})
 	)
 
+	// MCPClient appears to use lowercase only.
+	funcName = strings.ToLower(funcName)
+
 	gearman.Submit(
 		&gearmin.JobRequest{
 			FuncName:   funcName,
 			Data:       data,
 			Background: false,
 			Callback: func(update gearmin.JobUpdate) {
+				fmt.Println(update)
 				switch update.Type {
 				case gearmin.JobUpdateTypeComplete:
 					ret = update.Data

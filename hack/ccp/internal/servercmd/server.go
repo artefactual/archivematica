@@ -87,13 +87,21 @@ func (s *Server) Run() error {
 		return fmt.Errorf("error creating shared directories: %v", err)
 	}
 
-	processingConfigsDir := filepath.Join(s.config.sharedDir, "sharedMicroServiceTasksConfigs/processingMCPConfigs")
+	var (
+		processingConfigsDir = filepath.Join(s.config.sharedDir, "sharedMicroServiceTasksConfigs/processingMCPConfigs")
+		watchedDir           = filepath.Join(s.config.sharedDir, "watchedDirectories")
+	)
+
 	s.logger.V(1).Info("Creating default processing configurations.", "path", processingConfigsDir)
 	if err := processing.InstallBuiltinConfigs(processingConfigsDir); err != nil {
 		return fmt.Errorf("error creating default processing configurations: %v", err)
 	}
 
-	watchedDir := filepath.Join(s.config.sharedDir, "watchedDirectories")
+	s.logger.V(1).Info("Creating Gearman job server.")
+	s.gearman = gearmin.NewServer(gearmin.Config{ListenAddr: s.config.gearmin.addr})
+	if err := s.gearman.Start(); err != nil {
+		return fmt.Errorf("error creating Gearmin job server: %v", err)
+	}
 
 	s.logger.V(1).Info("Creating controller.")
 	s.controller = controller.New(s.logger.WithName("controller"), s.store, s.gearman, wf, s.config.sharedDir, watchedDir)
@@ -110,12 +118,6 @@ func (s *Server) Run() error {
 	s.admin = admin.New(s.logger.WithName("api.admin"), s.config.api.admin, s.controller)
 	if err := s.admin.Run(); err != nil {
 		return fmt.Errorf("error creating admin API: %v", err)
-	}
-
-	s.logger.V(1).Info("Creating Gearman job server.")
-	s.gearman = gearmin.NewServer(gearmin.Config{ListenAddr: s.config.gearmin.addr})
-	if err := s.gearman.Start(); err != nil {
-		return fmt.Errorf("error creating Gearmin job server: %v", err)
 	}
 
 	s.logger.V(1).Info("Ready.")
