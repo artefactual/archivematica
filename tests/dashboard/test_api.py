@@ -910,14 +910,18 @@ def test_start_transfer_api_decodes_paths(mocker, admin_client):
 
 
 def test_reingest_approve(mocker, admin_client):
-    mocker.patch("contrib.mcp.client.pickle")
     job_complete = mocker.patch(
         "contrib.mcp.client.gearman.JOB_COMPLETE",
     )
     mocker.patch(
-        "gearman.GearmanClient",
+        "contrib.mcp.client.GearmanClient",
         return_value=mocker.Mock(
-            **{"submit_job.return_value": mocker.Mock(state=job_complete)}
+            **{
+                "submit_job.return_value": mocker.Mock(
+                    state=job_complete,
+                    result=None,
+                )
+            }
         ),
     )
     helpers.set_setting("dashboard_uuid", "test-uuid")
@@ -1075,7 +1079,7 @@ def test_approve_transfer_failures(post_data, expected_error, admin_client, mock
     helpers.set_setting("dashboard_uuid", "test-uuid")
 
     # Simulate an unhandled error when calling Gearman.
-    mocker.patch("contrib.mcp.client.MCPClient", side_effect=Exception())
+    mocker.patch("contrib.mcp.client.GearmanClient", side_effect=Exception())
 
     response = admin_client.post(reverse("api:approve_transfer"), post_data)
 
@@ -1090,14 +1094,18 @@ def test_approve_transfer(admin_client, mocker):
     # Simulate a dashboard <-> Gearman <-> MCPServer interaction.
     # The MCPServer approveTransferByPath RPC method returns a UUID.
     transfer_uuid = uuid.uuid4()
-    mocker.patch("contrib.mcp.client.pickle.loads", side_effect=[transfer_uuid])
     job_complete = mocker.patch(
         "contrib.mcp.client.gearman.JOB_COMPLETE",
     )
     mocker.patch(
-        "gearman.GearmanClient",
+        "contrib.mcp.client.GearmanClient",
         return_value=mocker.Mock(
-            **{"submit_job.return_value": mocker.Mock(state=job_complete)}
+            **{
+                "submit_job.return_value": mocker.Mock(
+                    state=job_complete,
+                    result=transfer_uuid,
+                )
+            }
         ),
     )
 
