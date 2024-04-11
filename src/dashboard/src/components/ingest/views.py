@@ -17,7 +17,6 @@
 import json
 import logging
 import os
-import pickle
 import re
 import shutil
 import uuid
@@ -323,19 +322,16 @@ def ingest_upload(request, uuid):
                 access = models.Access.objects.get(sipuuid=uuid)
             except Exception:
                 access = models.Access(sipuuid=uuid)
-            access.target = pickle.dumps(
-                {"target": request.POST["target"]}, protocol=0
-            ).decode()
+            access.target = request.POST["target"]
             access.save()
             response = {"ready": True}
             return helpers.json_response(response)
     elif request.method == "GET":
         try:
             access = models.Access.objects.get(sipuuid=uuid)
-            data = pickle.loads(access.target.encode())
         except Exception:
             raise Http404
-        return helpers.json_response(data)
+        return helpers.json_response({"target": access.target})
 
     return HttpResponseNotAllowed(["GET", "POST"])
 
