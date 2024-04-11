@@ -190,14 +190,22 @@ func newDirectoryClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p 
 }
 
 func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
-	data, err := submitJob(ctx, l.gearman, l.config.Execute, []byte("todo-args"))
+	data, err := submitJob(ctx, l.gearman, l.config.Execute, []byte(`{
+		"tasks": {
+			"09fdf5bb-3361-4323-9bd7-234fbc9b6517": {
+				"task_uuid": "09fdf5bb-3361-4323-9bd7-234fbc9b6517",
+				"createdDate": "2024-04-11 16:59:51.628962",
+				"arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/.\" \"%SIPUUID%\" \"%sharedPath%\"",
+				"wants_output": true
+			}
+		}
+	}`))
+	l.logger.Info("Job executed.", "data", string(data), "err", err)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	l.logger.V(1).Info("data", data)
-
-	return uuid.Nil, nil
+	return *l.wl.FallbackLinkID, nil
 }
 
 // Job.
@@ -336,7 +344,6 @@ func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, da
 			Data:       data,
 			Background: false,
 			Callback: func(update gearmin.JobUpdate) {
-				fmt.Println(update)
 				switch update.Type {
 				case gearmin.JobUpdateTypeComplete:
 					ret = update.Data

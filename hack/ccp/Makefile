@@ -92,6 +92,10 @@ sqlc: # @HELP SQLC
 sqlc: $(SQLC)
 	sqlc
 
+push:
+	docker compose up -d --force-recreate --build --no-deps archivematica-ccp
+	docker compose restart --no-deps archivematica-mcp-client
+
 help: # @HELP Print this message.
 help:
 	echo "TARGETS:"
