@@ -10,7 +10,6 @@ import calendar
 import configparser
 import inspect
 import logging
-import pickle
 import re
 import time
 from collections import OrderedDict
@@ -22,6 +21,7 @@ from dbconns import auto_close_old_connections
 from django.conf import settings as django_settings
 from django.db import connection
 from gearman import GearmanWorker
+from gearman_encoder import JSONDataEncoder
 from lxml import etree
 from main.models import Job
 from main.models import SIP
@@ -94,6 +94,8 @@ class RPCServer(GearmanWorker):
        data sent by the client.
 
     """
+
+    data_encoder = JSONDataEncoder
 
     # Regular expression to match handler configurations in method docstrings.
     ability_regex = re.compile(
@@ -168,10 +170,9 @@ class RPCServer(GearmanWorker):
         def wrap(worker, job):
             args = [worker, job]
             if opts["expect_payload"]:
-                payload = pickle.loads(job.data)
-                if not isinstance(payload, dict):
+                if not isinstance(job.data, dict):
                     raise UnexpectedPayloadError("Payload is not a dictionary")
-                args.append(payload)
+                args.append(job.data)
             try:
                 resp = handler(*args)
             except Exception as err:
@@ -186,7 +187,7 @@ class RPCServer(GearmanWorker):
                 if opts["raise_exc"]:
                     raise  # So GearmanWorker knows that it failed.
                 resp = {"error": True, "handler": name, "message": str(err)}
-            return pickle.dumps(resp, protocol=0)
+            return resp
 
         return wrap
 
