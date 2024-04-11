@@ -38,6 +38,8 @@ services:
       - "mysql_data:/var/lib/mysql"
     ports:
       - "127.0.0.1:62001:3306"
+    cap_add:
+      - "SYS_NICE"
 
   nginx:
     image: "nginx:stable-alpine"
