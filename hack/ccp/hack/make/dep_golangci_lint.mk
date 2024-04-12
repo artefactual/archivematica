@@ -5,7 +5,7 @@ $(call _assert_var,UNAME_ARCH)
 $(call _assert_var,CACHE_VERSIONS)
 $(call _assert_var,CACHE_BIN)
 
-GOLANGCI_LINT_VERSION ?= 1.54.2
+GOLANGCI_LINT_VERSION ?= 1.57.2
 
 ARCH := $(UNAME_ARCH)
 ifeq ($(UNAME_ARCH),x86_64)
