@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from components.api import views
-from django.conf import settings
 from django.urls import path
 from django.urls import re_path
 
@@ -52,11 +51,16 @@ urlpatterns = [
     re_path(
         r"ingest/waiting", views.waiting_for_user_input, name="waiting_for_user_input"
     ),
-    re_path(
-        r"^(?P<unit_type>transfer|ingest)/(?P<unit_uuid>"
-        + settings.UUID_REGEX
-        + ")/delete/",
+    path(
+        "<unit_type>/<uuid:unit_uuid>/delete/",
         views.mark_hidden,
+        {"unit_type": "transfer"},
+        name="mark_hidden",
+    ),
+    path(
+        "<unit_type>/<uuid:unit_uuid>/delete/",
+        views.mark_hidden,
+        {"unit_type": "ingest"},
         name="mark_hidden",
     ),
     re_path(
