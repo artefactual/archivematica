@@ -10,7 +10,7 @@ import (
 	"github.com/sevein/gearmin"
 )
 
-func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, tasks *tasks) (ret []byte, err error) {
+func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, tasks *tasks) (res *taskResults, err error) {
 	defer func() {
 		err = fmt.Errorf("submitJob: %v", err)
 	}()
@@ -34,10 +34,10 @@ func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, ta
 			Callback: func(update gearmin.JobUpdate) {
 				switch update.Type {
 				case gearmin.JobUpdateTypeComplete:
-					ret = update.Data
+					err = json.Unmarshal(update.Data, res)
 					done <- struct{}{}
 				case gearmin.JobUpdateTypeException:
-					ret = update.Data
+					// TODO: encode update.Data into the error.
 					err = errors.New("failed: JobUpdateTypeException")
 					done <- struct{}{}
 				case gearmin.JobUpdateTypeFail:
@@ -50,7 +50,7 @@ func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, ta
 
 	select {
 	case <-done:
-		return ret, err
+		return res, err
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	}

@@ -184,7 +184,7 @@ func newDirectoryClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p 
 }
 
 func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
-	data, err := submitJob(ctx, l.gearman, l.config.Execute, &tasks{
+	res, err := submitJob(ctx, l.gearman, l.config.Execute, &tasks{
 		Tasks: map[uuid.UUID]*task{
 			uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"): {
 				ID:          uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"),
@@ -195,7 +195,7 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		},
 	})
 
-	l.logger.Info("Job executed.", "data", string(data), "err", err)
+	l.logger.Info("Job executed.", "results", res, "err", err)
 	if err != nil {
 		return uuid.Nil, err
 	}
