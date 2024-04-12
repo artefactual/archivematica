@@ -3,7 +3,7 @@ $(call _conditional_include,$(MAKEDIR)/base.mk)
 $(call _assert_var,CACHE_VERSIONS)
 $(call _assert_var,CACHE_BIN)
 
-SQLC_VERSION ?= 1.25.0
+SQLC_VERSION ?= 1.26.0
 
 SQLC := $(CACHE_VERSIONS)/sqlc/$(SQLC_VERSION)
 $(SQLC):
