@@ -15,6 +15,7 @@ else
 endif
 
 include hack/make/bootstrap.mk
+include hack/make/dep_buf.mk
 include hack/make/dep_golangci_lint.mk
 include hack/make/dep_gotestsum.mk
 include hack/make/dep_mockgen.mk
@@ -66,6 +67,9 @@ test-race:
 test-ci: # @HELP Run all tests in CI with coverage and the race detector.
 test-ci:
 	$(MAKE) test GOTEST_FLAGS="-race -coverprofile=covreport -covermode=atomic"
+
+buf: $(BUF)
+	which buf
 
 list-tested-packages: # @HELP Print a list of packages being tested.
 list-tested-packages:

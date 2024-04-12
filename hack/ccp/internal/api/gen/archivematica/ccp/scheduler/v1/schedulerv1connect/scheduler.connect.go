@@ -5,10 +5,10 @@
 package schedulerv1connect
 
 import (
+	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/scheduler/v1"
-	connect_go "github.com/bufbuild/connect-go"
+	v1 "github.com/artefactual/archivematica/hack/ccp/internal/api/gen/archivematica/ccp/scheduler/v1"
 	http "net/http"
 	strings "strings"
 )
@@ -18,7 +18,7 @@ import (
 // generated with a version of connect newer than the one compiled into your binary. You can fix the
 // problem by either regenerating this code with an older version of connect or updating the connect
 // version compiled into your binary.
-const _ = connect_go.IsAtLeastVersion0_1_0
+const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// SchedulerServiceName is the fully-qualified name of the SchedulerService service.
@@ -37,10 +37,16 @@ const (
 	SchedulerServiceWorkProcedure = "/archivematica.ccp.scheduler.v1.SchedulerService/Work"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	schedulerServiceServiceDescriptor    = v1.File_archivematica_ccp_scheduler_v1_scheduler_proto.Services().ByName("SchedulerService")
+	schedulerServiceWorkMethodDescriptor = schedulerServiceServiceDescriptor.Methods().ByName("Work")
+)
+
 // SchedulerServiceClient is a client for the archivematica.ccp.scheduler.v1.SchedulerService
 // service.
 type SchedulerServiceClient interface {
-	Work(context.Context) *connect_go.BidiStreamForClient[v1.WorkRequest, v1.WorkResponse]
+	Work(context.Context) *connect.BidiStreamForClient[v1.WorkRequest, v1.WorkResponse]
 }
 
 // NewSchedulerServiceClient constructs a client for the
@@ -51,31 +57,32 @@ type SchedulerServiceClient interface {
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
-func NewSchedulerServiceClient(httpClient connect_go.HTTPClient, baseURL string, opts ...connect_go.ClientOption) SchedulerServiceClient {
+func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) SchedulerServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &schedulerServiceClient{
-		work: connect_go.NewClient[v1.WorkRequest, v1.WorkResponse](
+		work: connect.NewClient[v1.WorkRequest, v1.WorkResponse](
 			httpClient,
 			baseURL+SchedulerServiceWorkProcedure,
-			opts...,
+			connect.WithSchema(schedulerServiceWorkMethodDescriptor),
+			connect.WithClientOptions(opts...),
 		),
 	}
 }
 
 // schedulerServiceClient implements SchedulerServiceClient.
 type schedulerServiceClient struct {
-	work *connect_go.Client[v1.WorkRequest, v1.WorkResponse]
+	work *connect.Client[v1.WorkRequest, v1.WorkResponse]
 }
 
 // Work calls archivematica.ccp.scheduler.v1.SchedulerService.Work.
-func (c *schedulerServiceClient) Work(ctx context.Context) *connect_go.BidiStreamForClient[v1.WorkRequest, v1.WorkResponse] {
+func (c *schedulerServiceClient) Work(ctx context.Context) *connect.BidiStreamForClient[v1.WorkRequest, v1.WorkResponse] {
 	return c.work.CallBidiStream(ctx)
 }
 
 // SchedulerServiceHandler is an implementation of the
 // archivematica.ccp.scheduler.v1.SchedulerService service.
 type SchedulerServiceHandler interface {
-	Work(context.Context, *connect_go.BidiStream[v1.WorkRequest, v1.WorkResponse]) error
+	Work(context.Context, *connect.BidiStream[v1.WorkRequest, v1.WorkResponse]) error
 }
 
 // NewSchedulerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -83,19 +90,26 @@ type SchedulerServiceHandler interface {
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
-func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect_go.HandlerOption) (string, http.Handler) {
-	mux := http.NewServeMux()
-	mux.Handle(SchedulerServiceWorkProcedure, connect_go.NewBidiStreamHandler(
+func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	schedulerServiceWorkHandler := connect.NewBidiStreamHandler(
 		SchedulerServiceWorkProcedure,
 		svc.Work,
-		opts...,
-	))
-	return "/archivematica.ccp.scheduler.v1.SchedulerService/", mux
+		connect.WithSchema(schedulerServiceWorkMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/archivematica.ccp.scheduler.v1.SchedulerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case SchedulerServiceWorkProcedure:
+			schedulerServiceWorkHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
 }
 
 // UnimplementedSchedulerServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSchedulerServiceHandler struct{}
 
-func (UnimplementedSchedulerServiceHandler) Work(context.Context, *connect_go.BidiStream[v1.WorkRequest, v1.WorkResponse]) error {
-	return connect_go.NewError(connect_go.CodeUnimplemented, errors.New("archivematica.ccp.scheduler.v1.SchedulerService.Work is not implemented"))
+func (UnimplementedSchedulerServiceHandler) Work(context.Context, *connect.BidiStream[v1.WorkRequest, v1.WorkResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("archivematica.ccp.scheduler.v1.SchedulerService.Work is not implemented"))
 }

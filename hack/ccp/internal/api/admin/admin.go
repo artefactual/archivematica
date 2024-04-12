@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bufbuild/connect-go"
-	grpchealth "github.com/bufbuild/connect-grpchealth-go"
-	grpcreflect "github.com/bufbuild/connect-grpcreflect-go"
+	"connectrpc.com/connect"
+	"connectrpc.com/grpchealth"
+	"connectrpc.com/grpcreflect"
 	"github.com/go-logr/logr"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/corsutil"
+	adminv1 "github.com/artefactual/archivematica/hack/ccp/internal/api/gen/archivematica/ccp/admin/v1"
+	"github.com/artefactual/archivematica/hack/ccp/internal/api/gen/archivematica/ccp/admin/v1/adminv1connect"
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
-	adminv1 "github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/admin/v1"
-	"github.com/artefactual/archivematica/hack/ccp/internal/gen/archivematica/ccp/admin/v1/adminv1connect"
 )
 
 type Server struct {

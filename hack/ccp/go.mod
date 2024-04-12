@@ -3,7 +3,7 @@ module github.com/artefactual/archivematica/hack/ccp
 go 1.22.1
 
 require (
-	github.com/bufbuild/connect-go v1.10.0
+	connectrpc.com/connect v1.16.0
 	github.com/bufbuild/connect-grpchealth-go v1.1.1
 	github.com/bufbuild/connect-grpcreflect-go v1.1.0
 	github.com/fsnotify/fsnotify v1.7.0
@@ -19,15 +19,18 @@ require (
 	go.uber.org/goleak v1.3.0
 	golang.org/x/net v0.22.0
 	golang.org/x/sync v0.6.0
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 	gotest.tools/v3 v3.5.1
 )
 
 require (
+	connectrpc.com/grpchealth v1.3.0 // indirect
+	connectrpc.com/grpcreflect v1.2.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bep/godartsass v1.2.0 // indirect
 	github.com/bep/godartsass/v2 v2.0.0 // indirect
 	github.com/bep/golibsass v1.1.1 // indirect
+	github.com/bufbuild/connect-go v1.10.0 // indirect
 	github.com/cli/safeexec v1.0.1 // indirect
 	github.com/go-logr/zapr v1.2.4 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
