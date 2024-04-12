@@ -10,7 +10,7 @@ import (
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
 
-	sqlc "github.com/artefactual/archivematica/hack/ccp/sqlc/mysql/sqlcmysql"
+	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 )
 
 func connectToMySQL(logger logr.Logger, dsn string) (*sql.DB, error) {

@@ -17,7 +17,7 @@ sql:
       managed: true
     codegen:
     - plugin: golang
-      out: mysql/sqlcmysql
+      out: ../internal/store/sqlcmysql
       options:
         package: sqlcmysql
         emit_interface: false

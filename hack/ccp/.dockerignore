@@ -1,7 +1,6 @@
 **
 !cmd
 !internal
-!sqlc/mysql/sqlcmysql
 !go.mod
 !go.sum
 !main.go
