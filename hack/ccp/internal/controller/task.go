@@ -2,13 +2,22 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type tasks struct {
-	Tasks []*task `json:"tasks"`
+	Tasks map[uuid.UUID]*task `json:"tasks"`
+}
+
+func (t tasks) MarshalJSON() ([]byte, error) {
+	if len(t.Tasks) == 0 {
+		return nil, errors.New("map is empty")
+	}
+	type alias tasks
+	return json.Marshal(&struct{ *alias }{alias: (*alias)(&t)})
 }
 
 type task struct {

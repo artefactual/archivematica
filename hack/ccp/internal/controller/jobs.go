@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
+	"time"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
@@ -183,16 +183,17 @@ func newDirectoryClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p 
 }
 
 func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
-	data, err := submitJob(ctx, l.gearman, l.config.Execute, []byte(`{
-		"tasks": {
-			"09fdf5bb-3361-4323-9bd7-234fbc9b6517": {
-				"task_uuid": "09fdf5bb-3361-4323-9bd7-234fbc9b6517",
-				"createdDate": "2024-04-11 16:59:51.628962",
-				"arguments": "\"%SIPDirectory%\" \"%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-				"wants_output": true
-			}
-		}
-	}`))
+	data, err := submitJob(ctx, l.gearman, l.config.Execute, &tasks{
+		Tasks: map[uuid.UUID]*task{
+			uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"): {
+				ID:          uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"),
+				CreatedAt:   mcpTime{time.Date(2024, time.April, 12, 5, 40, 20, 0, time.UTC)},
+				Args:        "\"%SIPDirectory%\" \"%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/.\" \"%SIPUUID%\" \"%sharedPath%\"",
+				WantsOutput: true,
+			},
+		},
+	})
+
 	l.logger.Info("Job executed.", "data", string(data), "err", err)
 	if err != nil {
 		return uuid.Nil, err
@@ -319,44 +320,4 @@ func newGetUnitVarLinkJob(logger logr.Logger, p *Package, wl *workflow.Link) (*g
 
 func (l *getUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
 	return l.config.ChainID, nil
-}
-
-func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, data []byte) ([]byte, error) {
-	var (
-		ret  []byte
-		err  error
-		done = make(chan struct{})
-	)
-
-	// MCPClient appears to use lowercase only.
-	funcName = strings.ToLower(funcName)
-
-	gearman.Submit(
-		&gearmin.JobRequest{
-			FuncName:   funcName,
-			Data:       data,
-			Background: false,
-			Callback: func(update gearmin.JobUpdate) {
-				switch update.Type {
-				case gearmin.JobUpdateTypeComplete:
-					ret = update.Data
-					done <- struct{}{}
-				case gearmin.JobUpdateTypeException:
-					ret = update.Data
-					err = errors.New("failed")
-					done <- struct{}{}
-				case gearmin.JobUpdateTypeFail:
-					err = errors.New("failed")
-					done <- struct{}{}
-				}
-			},
-		},
-	)
-
-	select {
-	case <-done:
-		return ret, err
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	}
 }
