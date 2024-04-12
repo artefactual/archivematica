@@ -13,7 +13,6 @@ import (
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/admin"
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
-	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
@@ -93,9 +92,9 @@ func (s *Server) Run() error {
 		watchedDir           = filepath.Join(s.config.sharedDir, "watchedDirectories")
 	)
 
-	s.logger.V(1).Info("Creating default processing configurations.", "path", processingConfigsDir)
-	if err := processing.InstallBuiltinConfigs(processingConfigsDir); err != nil {
-		return fmt.Errorf("error creating default processing configurations: %v", err)
+	s.logger.V(1).Info("Creating built-in processing configurations.", "path", processingConfigsDir)
+	if err := workflow.InstallBuiltinConfigs(processingConfigsDir); err != nil {
+		return fmt.Errorf("error creating built-in processing configurations: %v", err)
 	}
 
 	s.logger.V(1).Info("Creating Gearman job server.")

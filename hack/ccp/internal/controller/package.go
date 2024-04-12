@@ -10,7 +10,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
@@ -36,12 +35,12 @@ func (p *Package) String() string {
 	return p.name
 }
 
-func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, error) {
+func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*workflow.Choice, error) {
 	li := linkID.String()
 
 	// TODO: automate "Approve standard transfer" until we can submit decisions.
 	if li == "0c94e6b5-4714-4bec-82c8-e187e0c04d77" {
-		return &processing.Choice{
+		return &workflow.Choice{
 			AppliesTo: "0c94e6b5-4714-4bec-82c8-e187e0c04d77",
 			GoToChain: "b4567e89-9fea-4256-99f5-a88987026488",
 		}, nil
@@ -56,12 +55,12 @@ func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, err
 	}
 
 	// TODO: this could be cached if the file isn't going to change.
-	choices, err := processing.ParseConfig(f)
+	choices, err := workflow.ParseConfig(f)
 	if err != nil {
 		return nil, err
 	}
 
-	var match *processing.Choice
+	var match *workflow.Choice
 	for _, choice := range choices {
 		if choice.AppliesTo == li {
 			match = &choice
@@ -72,7 +71,7 @@ func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, err
 	// Resort to automated config.
 	// TODO: allow user to choose the system processing config to use.
 	if match == nil {
-		for _, choice := range processing.AutomatedConfig.Choices.Choices {
+		for _, choice := range workflow.AutomatedConfig.Choices.Choices {
 			if choice.AppliesTo == li {
 				match = &choice
 				break
