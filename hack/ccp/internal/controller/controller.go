@@ -8,12 +8,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/store"
-	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-logr/logr"
 	"github.com/sevein/gearmin"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/store"
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
 const maxConcurrentPackages = 2

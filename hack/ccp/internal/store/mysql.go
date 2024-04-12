@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	sqlc "github.com/artefactual/archivematica/hack/ccp/sqlc/mysql/sqlcmysql"
-
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
+
+	sqlc "github.com/artefactual/archivematica/hack/ccp/sqlc/mysql/sqlcmysql"
 )
 
 func connectToMySQL(logger logr.Logger, dsn string) (*sql.DB, error) {

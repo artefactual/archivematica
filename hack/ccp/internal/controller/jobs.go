@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/sevein/gearmin"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
 // job is an executable unit that wraps a workflow chain link.

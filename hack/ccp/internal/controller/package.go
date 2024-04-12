@@ -8,9 +8,10 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
-	"github.com/google/uuid"
 )
 
 type Package struct {
@@ -79,7 +80,7 @@ func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*processing.Choice, err
 		}
 	}
 
-	return nil, nil
+	return match, nil
 }
 
 // Decide resolves an awaiting decision.

@@ -8,11 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/rootcmd"
-	"github.com/artefactual/archivematica/hack/ccp/internal/servercmd"
 	"go.uber.org/goleak"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/rootcmd"
+	"github.com/artefactual/archivematica/hack/ccp/internal/servercmd"
 )
 
 func TestMain(m *testing.M) {

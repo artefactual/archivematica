@@ -3,9 +3,10 @@ package workflow_test
 import (
 	"testing"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
 func TestDecodeWorkflow(t *testing.T) {

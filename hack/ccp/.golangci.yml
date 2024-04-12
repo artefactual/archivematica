@@ -1,0 +1,38 @@
+run:
+  deadline: 60s
+
+linters:
+  enable:
+    - misspell
+    - gofumpt
+    - gci
+    - unparam
+    - gosec
+
+issues:
+  exclude-dirs:
+    - hack
+    - proto
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+
+linters-settings:
+  gci:
+    no-inline-comments: true
+    no-prefix-comments: false
+    sections:
+      - standard
+      - default
+      - prefix(github.com/artefactual/archivematica/hack/ccp)
+    section-separators:
+      - newLine
+  gofumpt:
+    extra-rules: true
+  gosec:
+    exclude-generated: false
+    severity: low
+    confidence: low
+    excludes:
+      - G601 # does not apply to go1.22+

@@ -1,9 +1,9 @@
 package wb
 
 import (
-	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
-
 	"github.com/google/uuid"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
 type WorkflowBuilder struct {

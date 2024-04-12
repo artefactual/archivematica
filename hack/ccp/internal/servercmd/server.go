@@ -7,14 +7,15 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/go-logr/logr"
+	"github.com/gohugoio/hugo/watcher"
+	"github.com/sevein/gearmin"
+
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/admin"
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
 	"github.com/artefactual/archivematica/hack/ccp/internal/processing"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
-	"github.com/go-logr/logr"
-	"github.com/gohugoio/hugo/watcher"
-	"github.com/sevein/gearmin"
 )
 
 type Server struct {

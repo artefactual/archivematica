@@ -6,10 +6,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
-	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/gohugoio/hugo/watcher"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
 func watch(logger logr.Logger, ctrl *controller.Controller, wf *workflow.Document, path string) (*watcher.Batcher, error) {
