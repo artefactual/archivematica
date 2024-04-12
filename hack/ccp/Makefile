@@ -21,6 +21,14 @@ include hack/make/dep_mockgen.mk
 include hack/make/dep_sqlc.mk
 include hack/make/dep_tparse.mk
 
+# Lazy-evaluated list of tools.
+TOOLS = $(BUF) \
+	$(GOLANGCI_LINT) \
+	$(GOTESTSUM) \
+	$(MOCKGEN) \
+	$(SQLC) \
+	$(TPARSE)
+
 define NEWLINE
 
 
@@ -32,6 +40,9 @@ IGNORED_PACKAGES := \
 PACKAGES := $(shell go list ./...)
 TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
+
+tools: # @HELP Install tools.
+tools: $(TOOLS)
 
 env: # @HELP Print Go env variables.
 env:
