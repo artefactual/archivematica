@@ -1,10 +1,3 @@
-// Types of jobs:
-//   - Decision jobs:
-//     outputDecisionJob, nextChainDecisionJob, updateContextDecisionJob.
-//   - Client jobs:
-//     directoryClientScriptJob, filesClientScriptJob, outputClientScriptJob
-//   - Local jobs:
-//     setUnitVarLinkJob, getUnitVarLinkJob
 package controller
 
 import (
