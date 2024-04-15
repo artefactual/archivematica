@@ -8,6 +8,7 @@ package sqlcmysql
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	uuid "github.com/google/uuid"
 )
@@ -67,16 +68,39 @@ func (q *Queries) CleanUpTasksWithAwaitingJobs(ctx context.Context) error {
 }
 
 const createJob = `-- name: CreateJob :exec
-INSERT INTO Jobs (jobUUID, jobType) VALUES (?, ?)
+INSERT INTO Jobs (jobUUID, jobType, createdTime, createdTimeDec, directory, SIPUUID, unitType, currentStep, microserviceGroup, hidden, MicroServiceChainLinksPK, subJobOf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateJobParams struct {
-	ID   uuid.UUID
-	Type string
+	ID                       uuid.UUID
+	Type                     string
+	CreatedAt                time.Time
+	Createdtimedec           string
+	Directory                string
+	SIPID                    uuid.UUID
+	Unittype                 string
+	Currentstep              int32
+	Microservicegroup        string
+	Hidden                   bool
+	Microservicechainlinkspk sql.NullString
+	Subjobof                 string
 }
 
 func (q *Queries) CreateJob(ctx context.Context, arg *CreateJobParams) error {
-	_, err := q.exec(ctx, q.createJobStmt, createJob, arg.ID, arg.Type)
+	_, err := q.exec(ctx, q.createJobStmt, createJob,
+		arg.ID,
+		arg.Type,
+		arg.CreatedAt,
+		arg.Createdtimedec,
+		arg.Directory,
+		arg.SIPID,
+		arg.Unittype,
+		arg.Currentstep,
+		arg.Microservicegroup,
+		arg.Hidden,
+		arg.Microservicechainlinkspk,
+		arg.Subjobof,
+	)
 	return err
 }
 
@@ -141,4 +165,18 @@ func (q *Queries) ReleaseLock(ctx context.Context) (bool, error) {
 	var release_lock bool
 	err := row.Scan(&release_lock)
 	return release_lock, err
+}
+
+const updateJobStatus = `-- name: UpdateJobStatus :exec
+UPDATE Jobs SET currentStep = ? WHERE Jobs.jobUUID = ?
+`
+
+type UpdateJobStatusParams struct {
+	Currentstep int32
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateJobStatus(ctx context.Context, arg *UpdateJobStatusParams) error {
+	_, err := q.exec(ctx, q.updateJobStatusStmt, updateJobStatus, arg.Currentstep, arg.ID)
+	return err
 }

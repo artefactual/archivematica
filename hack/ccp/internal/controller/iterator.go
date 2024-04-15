@@ -112,45 +112,10 @@ func (i *Iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 }
 
 // buildJob configures a workflow job given the workflow chain link definition.
-func (i *Iterator) buildJob(wl *workflow.Link) (j job, err error) {
-	switch wl.Manager {
-
-	// Decision jobs - handles workflow decision points.
-	case "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList":
-		logger := i.logger.WithName("outputDecisionJob")
-		j, err = newOutputDecisionJob(logger, i.p, wl)
-	case "linkTaskManagerChoice":
-		logger := i.logger.WithName("nextChainDecisionJob")
-		j, err = newNextChainDecisionJob(logger, i.p, wl)
-	case "linkTaskManagerReplacementDicFromChoice":
-		logger := i.logger.WithName("updateContextDecisionJob")
-		j, err = newUpdateContextDecisionJob(logger, i.p, wl)
-
-	// Executable jobs - dispatched to the worker pool.
-	case "linkTaskManagerDirectories":
-		logger := i.logger.WithName("directoryClientScriptJob")
-		j, err = newDirectoryClientScriptJob(logger, i.gearman, i.p, wl)
-	case "linkTaskManagerFiles":
-		logger := i.logger.WithName("filesClientScriptJob")
-		j, err = newFilesClientScriptJob(logger, i.gearman, i.p, wl)
-	case "linkTaskManagerGetMicroserviceGeneratedListInStdOut":
-		logger := i.logger.WithName("outputClientScriptJob")
-		j, err = newOutputClientScriptJob(logger, i.gearman, i.p, wl)
-
-	// Local jobs - executed directly.
-	case "linkTaskManagerSetUnitVariable":
-		logger := i.logger.WithName("setUnitVarLinkJob")
-		j, err = newSetUnitVarLinkJob(logger, i.p, wl)
-	case "linkTaskManagerUnitVariableLinkPull":
-		logger := i.logger.WithName("getUnitVarLinkJob")
-		j, err = newGetUnitVarLinkJob(logger, i.p, wl)
-
-	default:
-		err = fmt.Errorf("unknown job manager: %q", wl.Manager)
-	}
-
+func (i *Iterator) buildJob(wl *workflow.Link) (*job, error) {
+	j, err := newJob(i.logger.WithName("job"), i.p, i.gearman, wl)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("build job: %v")
 	}
 
 	return j, nil

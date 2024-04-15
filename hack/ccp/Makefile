@@ -103,9 +103,12 @@ deps:
 	$(foreach DEP,$(DIRECT_DEPENDENCIES),@go get $(DEP)$(NEWLINE))
 	@go mod tidy
 
-sqlc: # @HELP SQLC
-sqlc: $(SQLC)
-	sqlc
+gen: # @HELP Generage code.
+gen: gen-sqlc
+
+gen-sqlc: # @HELP Generate sqlc code.
+gen-sqlc: $(SQLC)
+	sqlc generate --file=$(CURDIR)/sqlc/sqlc.yaml
 
 push: # @HELP Push new build of CCP to development environment.
 	docker compose up -d --force-recreate --build --no-deps archivematica-ccp

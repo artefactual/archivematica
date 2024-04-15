@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 
 	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 )
@@ -104,6 +105,39 @@ func (s *mysqlStoreImpl) RemoveTransientData(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// CreateJob ...
+func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobParams) (err error) {
+	defer func() { err = fmt.Errorf("CreateJob: %v", err) }()
+
+	conn, _ := s.pool.Conn(ctx)
+	defer conn.Close()
+
+	q := sqlc.New(conn)
+
+	return q.CreateJob(ctx, params)
+}
+
+// UpdateJobStatus ...
+//
+// - 0: (STATUS_UNKNOWN, _("Unknown")),
+// - 1: (STATUS_AWAITING_DECISION, _("Awaiting decision")),
+// - 2: (STATUS_COMPLETED_SUCCESSFULLY, _("Completed successfully")),
+// - 3: (STATUS_EXECUTING_COMMANDS, _("Executing command(s)")),
+// - 4: (STATUS_FAILED, _("Failed")),
+func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, status int) (err error) {
+	defer func() { err = fmt.Errorf("UpdateJobStatus: %v", err) }()
+
+	conn, _ := s.pool.Conn(ctx)
+	defer conn.Close()
+
+	q := sqlc.New(conn)
+
+	return q.UpdateJobStatus(ctx, &sqlc.UpdateJobStatusParams{
+		ID:          id,
+		Currentstep: int32(status),
+	})
 }
 
 func (s *mysqlStoreImpl) Running() bool {

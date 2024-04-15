@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"strings"
 
+	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 	"github.com/go-logr/logr"
+	"github.com/google/uuid"
 )
 
 type Store interface {
 	RemoveTransientData(context.Context) error
+	CreateJob(context.Context, *sqlc.CreateJobParams) error
+	UpdateJobStatus(context.Context, uuid.UUID, int) error
 
 	Running() bool
 	Close() error

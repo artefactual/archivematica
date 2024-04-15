@@ -1,20 +1,45 @@
 package integration_test
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"go.uber.org/goleak"
+	"golang.org/x/exp/slices"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/rootcmd"
 	"github.com/artefactual/archivematica/hack/ccp/internal/servercmd"
 )
+
+var (
+	useCompose = getEnvBool("USE_COMPOSE", "no")
+	useStdout  = getEnvBool("USE_STDOUT", "yes")
+)
+
+func getEnv(name, fallback string) string {
+	const prefix = "CCP_INTEGRATION"
+	v := os.Getenv(fmt.Sprintf("%s_%s", prefix, name))
+	if v == "" {
+		return fallback
+	}
+	return v
+}
+
+func getEnvBool(name, fallback string) bool {
+	if v := getEnv(name, fallback); slices.Contains([]string{"yes", "1", "on", "true"}, v) {
+		return true
+	} else {
+		return false
+	}
+}
 
 func TestMain(m *testing.M) {
 	goleak.VerifyTestMain(m)
@@ -29,19 +54,26 @@ func TestServerCmd(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		t.Cleanup(cancel)
 
+		dsn := useMySQL(t)
+
 		sharedDir := fs.NewDir(t, "servercmd")
 
 		args := []string{
 			"-v=10",
 			"--debug",
 			"--db.driver=mysql",
-			"--db.dsn=root:12345@tcp(127.0.0.1:62001)/MCP",
+			"--db.dsn=" + dsn,
 			"--api.admin.addr=:22300",
 			"--shared-dir=" + sharedDir.Path(),
 			"--gearmin.addr=:4730",
 		}
 
-		cmd := servercmd.New(&rootcmd.Config{}, os.Stdout)
+		var stdout io.Writer = bytes.NewBuffer([]byte{})
+		if useStdout {
+			stdout = os.Stdout
+		}
+
+		cmd := servercmd.New(&rootcmd.Config{}, stdout)
 		assert.NilError(t, cmd.Parse(args))
 
 		done := make(chan error)

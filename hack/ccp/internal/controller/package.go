@@ -196,32 +196,70 @@ type unit interface {
 	hydrate(ctx context.Context) error
 	reload(ctx context.Context) error
 	replacements() replacementMapping
+	unitVariableType() string // DIP, ...
+	jobUnitType() string      // unitDIP, ...
 
-	// Props...
+	// Missing...
 	// REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
-	// UNIT_VARIABLE_TYPE = "DIP"
-	// JOB_UNIT_TYPE = "unitDIP"
 }
 
 type Transfer struct {
 	p *Package
 }
 
-func (u *Transfer) hydrate(ctx context.Context) error { return nil }
-func (u *Transfer) reload(ctx context.Context) error  { return nil }
-func (u *Transfer) replacements() replacementMapping  { return nil }
+var _ unit = (*Transfer)(nil)
+
+func (u *Transfer) hydrate(ctx context.Context) error {
+	return nil
+}
+
+func (u *Transfer) reload(ctx context.Context) error {
+	return nil
+}
+
+func (u *Transfer) replacements() replacementMapping {
+	return nil
+}
+
+func (u *Transfer) unitVariableType() string {
+	return "Transfer"
+}
+
+func (u *Transfer) jobUnitType() string {
+	return "unitTransfer"
+}
 
 type SIP struct {
 	p *Package
 }
 
-func (u *SIP) hydrate(ctx context.Context) error { return nil }
-func (u *SIP) reload(ctx context.Context) error  { return nil }
-func (u *SIP) replacements() replacementMapping  { return nil }
+var _ unit = (*SIP)(nil)
+
+func (u *SIP) hydrate(ctx context.Context) error {
+	return nil
+}
+
+func (u *SIP) reload(ctx context.Context) error {
+	return nil
+}
+
+func (u *SIP) replacements() replacementMapping {
+	return nil
+}
+
+func (u *SIP) unitVariableType() string {
+	return "SIP"
+}
+
+func (u *SIP) jobUnitType() string {
+	return "unitSIP"
+}
 
 type DIP struct {
 	p *Package
 }
+
+var _ unit = (*DIP)(nil)
 
 func (u *DIP) hydrate(ctx context.Context) error {
 	return nil
@@ -233,6 +271,14 @@ func (u *DIP) reload(ctx context.Context) error {
 
 func (u *DIP) replacements() replacementMapping {
 	return nil
+}
+
+func (u *DIP) unitVariableType() string {
+	return "DIP"
+}
+
+func (u *DIP) jobUnitType() string {
+	return "unitDIP"
 }
 
 type decision struct {

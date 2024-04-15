@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -10,35 +11,112 @@ import (
 	"github.com/google/uuid"
 	"github.com/sevein/gearmin"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
-// job is an executable unit that wraps a workflow chain link.
-type job interface {
+type job struct {
+	id        uuid.UUID
+	createdAt time.Time
+
+	logger  logr.Logger
+	p       *Package
+	wl      *workflow.Link
+	gearman *gearmin.Server
+	jobRunner
+}
+
+type jobRunner interface {
 	exec(context.Context) (uuid.UUID, error)
 }
 
-// Job.
+func newJob(logger logr.Logger, p *Package, gearman *gearmin.Server, wl *workflow.Link) (*job, error) {
+	j := &job{
+		id:        uuid.New(),
+		createdAt: time.Now().UTC(),
+		p:         p,
+		wl:        wl,
+		gearman:   gearman,
+	}
+
+	var err error
+	switch wl.Manager {
+
+	// Decision jobs - handles workflow decision points.
+	case "linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList":
+		j.logger = logger.WithName("outputDecisionJob")
+		j.jobRunner, err = newOutputDecisionJob(j)
+	case "linkTaskManagerChoice":
+		j.logger = logger.WithName("nextChainDecisionJob")
+		j.jobRunner, err = newNextChainDecisionJob(j)
+	case "linkTaskManagerReplacementDicFromChoice":
+		j.logger = logger.WithName("updateContextDecisionJob")
+		j.jobRunner, err = newUpdateContextDecisionJob(j)
+
+	// Executable jobs - dispatched to the worker pool.
+	case "linkTaskManagerDirectories":
+		j.logger = logger.WithName("directoryClientScriptJob")
+		j.jobRunner, err = newDirectoryClientScriptJob(j)
+	case "linkTaskManagerFiles":
+		j.logger = logger.WithName("filesClientScriptJob")
+		j.jobRunner, err = newFilesClientScriptJob(j)
+	case "linkTaskManagerGetMicroserviceGeneratedListInStdOut":
+		j.logger = logger.WithName("outputClientScriptJob")
+		j.jobRunner, err = newOutputClientScriptJob(j)
+
+	// Local jobs - executed directly.
+	case "linkTaskManagerSetUnitVariable":
+		j.logger = logger.WithName("setUnitVarLinkJob")
+		j.jobRunner, err = newSetUnitVarLinkJob(j)
+	case "linkTaskManagerUnitVariableLinkPull":
+		j.logger = logger.WithName("getUnitVarLinkJob")
+		j.jobRunner, err = newGetUnitVarLinkJob(j)
+
+	default:
+		err = fmt.Errorf("unknown job manager: %q", wl.Manager)
+	}
+
+	return j, err
+}
+
+func (j *job) save(ctx context.Context) error {
+	return j.p.store.CreateJob(ctx, &sqlcmysql.CreateJobParams{
+		ID:             j.id,
+		Type:           j.wl.Description.String(),
+		CreatedAt:      j.createdAt,
+		Createdtimedec: fmt.Sprintf("%.9f", float64(j.createdAt.Nanosecond())/1e9),
+		// Directory: string,        '%sharedPath%currentlyProcessing/FOOBAR2-1fa48af6-8ec0-4ce5-b282-3150fa5f0cbe/',
+		SIPID:             j.p.id,
+		Unittype:          j.p.jobUnitType(),
+		Currentstep:       3,
+		Microservicegroup: j.wl.Group.String(),
+		Hidden:            false,
+		Microservicechainlinkspk: sql.NullString{
+			String: j.wl.ID.String(),
+			Valid:  true,
+		},
+	})
+}
+
+// outputDecisionJob.
 //
 // Manager: linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList.
 // Class: OutputDecisionJob(DecisionJob).
 type outputDecisionJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
+	j      *job
 	config *workflow.LinkStandardTaskConfig
 }
 
-func newOutputDecisionJob(logger logr.Logger, p *Package, wl *workflow.Link) (*outputDecisionJob, error) {
-	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
+var _ jobRunner = (*outputDecisionJob)(nil)
+
+func newOutputDecisionJob(j *job) (*outputDecisionJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &outputDecisionJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
+		j:      j,
 		config: &config,
 	}, nil
 }
@@ -47,7 +125,7 @@ func (l *outputDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	return uuid.Nil, nil
 }
 
-// Job.
+// nextChainDecisionJob.
 //
 // 1. Reload *Package (pull state from db into memory since it can be changed by client scripts).
 // 2. Persist job in database: https://github.com/artefactual/archivematica/blob/fbda1a91d6dff086e7124fa1d7a3c7953d8755bb/src/MCPServer/lib/server/jobs/base.py#L76.
@@ -58,35 +136,33 @@ func (l *outputDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 // Manager: linkTaskManagerChoice.
 // Class: NextChainDecisionJob(DecisionJob).
 type nextChainDecisionJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
+	j      *job
 	config *workflow.LinkMicroServiceChainChoice
 }
 
-func newNextChainDecisionJob(logger logr.Logger, p *Package, wl *workflow.Link) (*nextChainDecisionJob, error) {
-	config, ok := wl.Config.(workflow.LinkMicroServiceChainChoice)
+var _ jobRunner = (*nextChainDecisionJob)(nil)
+
+func newNextChainDecisionJob(j *job) (*nextChainDecisionJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkMicroServiceChainChoice)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &nextChainDecisionJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
+		j:      j,
 		config: &config,
 	}, nil
 }
 
 func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	// When we have a preconfigured choice.
-	choice, err := l.p.PreconfiguredChoice(l.wl.ID)
+	choice, err := l.j.p.PreconfiguredChoice(l.j.wl.ID)
 	if err != nil {
 		return uuid.Nil, err
 	}
 	if choice != nil {
 		if ret, err := uuid.Parse(choice.GoToChain); err != nil {
-			l.logger.Info("Preconfigured choice is not a valid UUID.", "choice", choice.GoToChain, "err", err)
+			l.j.logger.Info("Preconfigured choice is not a valid UUID.", "choice", choice.GoToChain, "err", err)
 		} else {
 			return ret, nil
 		}
@@ -97,7 +173,7 @@ func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	for i, item := range l.config.Choices {
 		opts[i] = option(item.String())
 	}
-	if decision, err := l.p.AwaitDecision(ctx, opts); err != nil {
+	if decision, err := l.j.p.AwaitDecision(ctx, opts); err != nil {
 		return uuid.Nil, fmt.Errorf("await decision: %v", err)
 	} else {
 		return decision.uuid(), nil
@@ -109,11 +185,11 @@ func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 // Manager: linkTaskManagerReplacementDicFromChoice (14 matches).
 // Class: UpdateContextDecisionJob(DecisionJob) (decisions.py).
 type updateContextDecisionJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
+	j      *job
 	config *workflow.LinkMicroServiceChoiceReplacementDic
 }
+
+var _ jobRunner = (*updateContextDecisionJob)(nil)
 
 // nolint: unused
 var updateContextDecisionJobChoiceMapping = map[string]string{
@@ -134,57 +210,59 @@ var updateContextDecisionJobChoiceMapping = map[string]string{
 	"dc0ee6b6-ed5f-42a3-bc8f-c9c7ead03ed1": "891f60d0-1ba8-48d3-b39e-dd0934635d29",
 }
 
-func newUpdateContextDecisionJob(logger logr.Logger, p *Package, wl *workflow.Link) (*updateContextDecisionJob, error) {
-	config, ok := wl.Config.(workflow.LinkMicroServiceChoiceReplacementDic)
+func newUpdateContextDecisionJob(j *job) (*updateContextDecisionJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkMicroServiceChoiceReplacementDic)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &updateContextDecisionJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
+		j:      j,
 		config: &config,
 	}, nil
 }
 
 func (l *updateContextDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
-	id := l.wl.ExitCodes[0].LinkID
+	id := l.j.wl.ExitCodes[0].LinkID
 	if id == nil || *id == uuid.Nil {
 		return uuid.Nil, errors.New("ops")
 	}
 	return *id, nil
 }
 
-// Job.
+// directoryClientScriptJob.
 //
 // Manager: linkTaskManagerDirectories.
 // Class: DirectoryClientScriptJob(DecisionJob).
 type directoryClientScriptJob struct {
-	logger  logr.Logger
-	gearman *gearmin.Server
-	p       *Package
-	wl      *workflow.Link
-	config  *workflow.LinkStandardTaskConfig
+	j      *job
+	config *workflow.LinkStandardTaskConfig
 }
 
-func newDirectoryClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p *Package, wl *workflow.Link) (*directoryClientScriptJob, error) {
-	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
+var _ jobRunner = (*directoryClientScriptJob)(nil)
+
+func newDirectoryClientScriptJob(j *job) (*directoryClientScriptJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &directoryClientScriptJob{
-		logger:  logger,
-		gearman: gearman,
-		p:       p,
-		wl:      wl,
-		config:  &config,
+		j:      j,
+		config: &config,
 	}, nil
 }
 
 func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
-	res, err := submitJob(ctx, l.gearman, l.config.Execute, &tasks{
+	if err := l.j.p.reload(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("reload: %v", err)
+	}
+
+	if err := l.j.save(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("save: %v", err)
+	}
+
+	res, err := submitJob(ctx, l.j.gearman, l.config.Execute, &tasks{
 		Tasks: map[uuid.UUID]*task{
 			uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"): {
 				ID:          uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"),
@@ -195,38 +273,34 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		},
 	})
 
-	l.logger.Info("Job executed.", "results", res, "err", err)
+	l.j.logger.Info("Job executed.", "results", res, "err", err)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
-	return *l.wl.FallbackLinkID, nil
+	return *l.j.wl.FallbackLinkID, nil
 }
 
-// Job.
+// filesClientScriptJob.
 //
 // Manager: linkTaskManagerFiles.
 // Class: FilesClientScriptJob(DecisionJob).
 type filesClientScriptJob struct {
-	logger  logr.Logger
-	gearman *gearmin.Server
-	p       *Package
-	wl      *workflow.Link
-	config  *workflow.LinkStandardTaskConfig
+	j      *job
+	config *workflow.LinkStandardTaskConfig
 }
 
-func newFilesClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p *Package, wl *workflow.Link) (*filesClientScriptJob, error) {
-	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
+var _ jobRunner = (*filesClientScriptJob)(nil)
+
+func newFilesClientScriptJob(j *job) (*filesClientScriptJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &filesClientScriptJob{
-		logger:  logger,
-		gearman: gearman,
-		p:       p,
-		wl:      wl,
-		config:  &config,
+		j:      j,
+		config: &config,
 	}, nil
 }
 
@@ -234,30 +308,26 @@ func (l *filesClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
 	return uuid.Nil, nil
 }
 
-// Job.
+// outputClientScriptJob.
 //
 // Manager: linkTaskManagerGetMicroserviceGeneratedListInStdOut.
 // Class: OutputClientScriptJob(DecisionJob).
 type outputClientScriptJob struct {
-	logger  logr.Logger
-	gearman *gearmin.Server
-	p       *Package
-	wl      *workflow.Link
-	config  *workflow.LinkStandardTaskConfig
+	j      *job
+	config *workflow.LinkStandardTaskConfig
 }
 
-func newOutputClientScriptJob(logger logr.Logger, gearman *gearmin.Server, p *Package, wl *workflow.Link) (*outputClientScriptJob, error) {
-	config, ok := wl.Config.(workflow.LinkStandardTaskConfig)
+var _ jobRunner = (*outputClientScriptJob)(nil)
+
+func newOutputClientScriptJob(j *job) (*outputClientScriptJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkStandardTaskConfig)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &outputClientScriptJob{
-		logger:  logger,
-		gearman: gearman,
-		p:       p,
-		wl:      wl,
-		config:  &config,
+		j:      j,
+		config: &config,
 	}, nil
 }
 
@@ -270,22 +340,20 @@ func (l *outputClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
 // Manager: linkTaskManagerSetUnitVariable.
 // Class: SetUnitVarLinkJob(DecisionJob) (decisions.py).
 type setUnitVarLinkJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
+	j      *job
 	config *workflow.LinkTaskConfigSetUnitVariable
 }
 
-func newSetUnitVarLinkJob(logger logr.Logger, p *Package, wl *workflow.Link) (*setUnitVarLinkJob, error) {
-	config, ok := wl.Config.(workflow.LinkTaskConfigSetUnitVariable)
+var _ jobRunner = (*setUnitVarLinkJob)(nil)
+
+func newSetUnitVarLinkJob(j *job) (*setUnitVarLinkJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkTaskConfigSetUnitVariable)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &setUnitVarLinkJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
+		j:      j,
 		config: &config,
 	}, nil
 }
@@ -299,22 +367,20 @@ func (l *setUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
 // Manager: linkTaskManagerUnitVariableLinkPull.
 // Class: GetUnitVarLinkJob(DecisionJob) (decisions.py).
 type getUnitVarLinkJob struct {
-	logger logr.Logger
-	p      *Package
-	wl     *workflow.Link
+	j      *job
 	config *workflow.LinkTaskConfigUnitVariableLinkPull
 }
 
-func newGetUnitVarLinkJob(logger logr.Logger, p *Package, wl *workflow.Link) (*getUnitVarLinkJob, error) {
-	config, ok := wl.Config.(workflow.LinkTaskConfigUnitVariableLinkPull)
+var _ jobRunner = (*getUnitVarLinkJob)(nil)
+
+func newGetUnitVarLinkJob(j *job) (*getUnitVarLinkJob, error) {
+	config, ok := j.wl.Config.(workflow.LinkTaskConfigUnitVariableLinkPull)
 	if !ok {
 		return nil, errors.New("invalid config")
 	}
 
 	return &getUnitVarLinkJob{
-		logger: logger,
-		p:      p,
-		wl:     wl,
+		j:      j,
 		config: &config,
 	}, nil
 }

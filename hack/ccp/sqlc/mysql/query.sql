@@ -1,5 +1,8 @@
 -- name: CreateJob :exec
-INSERT INTO Jobs (jobUUID, jobType) VALUES (?, ?);
+INSERT INTO Jobs (jobUUID, jobType, createdTime, createdTimeDec, directory, SIPUUID, unitType, currentStep, microserviceGroup, hidden, MicroServiceChainLinksPK, subJobOf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- name: UpdateJobStatus :exec
+UPDATE Jobs SET currentStep = ? WHERE Jobs.jobUUID = ?;
 
 -- name: CleanUpTasksWithAwaitingJobs :exec
 DELETE FROM Tasks WHERE jobuuid IN (SELECT jobUUID FROM Jobs WHERE currentStep = 1);
