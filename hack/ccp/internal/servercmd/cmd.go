@@ -53,6 +53,8 @@ func New(rootConfig *rootcmd.Config, out io.Writer) *ffcli.Command {
 func (c *Config) Exec(ctx context.Context, args []string) error {
 	logger := log.New(c.out, log.WithDebug(c.rootConfig.Debug), log.WithLevel(c.rootConfig.Verbosity))
 	defer log.Sync(logger)
+
+	logger = logger.WithName("server")
 	logger.Info("Starting...",
 		"version", "TODO", "commit", "TODO",
 		"pid", os.Getpid(), "go", runtime.Version(),

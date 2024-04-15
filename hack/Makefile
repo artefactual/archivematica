@@ -188,10 +188,7 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 				install --no-package-lock
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
-	docker compose restart --no-deps archivematica-mcp-server
-	docker compose restart --no-deps archivematica-mcp-client
-	docker compose restart --no-deps archivematica-dashboard
-	docker compose restart --no-deps archivematica-storage-service
+	docker compose restart --no-deps archivematica-mcp-client archivematica-dashboard archivematica-storage-service
 
 compile-requirements-am:  ## Run pip-compile for Archivematica
 	docker compose run --workdir /src \
@@ -251,6 +248,9 @@ upgrade-requirements-amauat: test-at-build  ## Run pip-upgrade for AMAUATs
 
 db:  ## Connect to the MySQL server using the CLI.
 	docker compose exec mysql mysql -hlocalhost -uroot -p12345
+
+dbdump:  ## Dump database.
+	@docker-compose exec mysql mysqldump -hlocalhost -uroot -p12345 MCP
 
 dbschemadump:  ## Dump shema.
 	@docker-compose exec mysql mysqldump -hlocalhost -uroot -p12345 --no-data --skip-add-drop-table MCP

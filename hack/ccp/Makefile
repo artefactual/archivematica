@@ -107,9 +107,9 @@ sqlc: # @HELP SQLC
 sqlc: $(SQLC)
 	sqlc
 
-push:
+push: # @HELP Push new build of CCP to development environment.
 	docker compose up -d --force-recreate --build --no-deps archivematica-ccp
-	docker compose restart --no-deps archivematica-mcp-client
+	docker compose restart --no-deps archivematica-mcp-client archivematica-dashboard
 
 help: # @HELP Print this message.
 help:
