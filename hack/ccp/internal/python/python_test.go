@@ -3,8 +3,9 @@ package python_test
 import (
 	"testing"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/python"
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/python"
 )
 
 const literal = `{'filterSubDir':'objects/attachments', "1": "2"}`

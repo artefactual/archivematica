@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+
+	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 )
 
 type Store interface {

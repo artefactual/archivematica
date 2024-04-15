@@ -64,7 +64,7 @@ func (t *task) writeOutput() (err error) {
 		err = errors.Join(err, t.writeFile(t.stderrFilePath, t.stderr))
 	}
 
-	return nil
+	return err
 }
 
 func (t *task) writeFile(path, contents string) error {
