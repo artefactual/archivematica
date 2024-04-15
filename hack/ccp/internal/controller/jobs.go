@@ -99,7 +99,7 @@ func (j *job) save(ctx context.Context) error {
 }
 
 func (j *job) markAwaitingDecision(ctx context.Context) error {
-	err := j.p.store.UpdateJobStatus(ctx, j.id, 1)
+	err := j.p.store.UpdateJobStatus(ctx, j.id, "STATUS_AWAITING_DECISION")
 	if err != nil {
 		return fmt.Errorf("mark awaiting decision: %v", err)
 	}
@@ -108,9 +108,25 @@ func (j *job) markAwaitingDecision(ctx context.Context) error {
 }
 
 func (j *job) markComplete(ctx context.Context) error {
-	err := j.p.store.UpdateJobStatus(ctx, j.id, 2)
+	err := j.p.store.UpdateJobStatus(ctx, j.id, "STATUS_COMPLETED_SUCCESSFULLY")
 	if err != nil {
 		return fmt.Errorf("mark complete: %v", err)
+	}
+
+	return nil
+}
+
+func (j *job) updateStatusFromExitCode(ctx context.Context, code int) error {
+	status := ""
+	if ec, ok := j.wl.ExitCodes[code]; ok {
+		status = ec.JobStatus
+	} else {
+		status = j.wl.FallbackJobStatus
+	}
+
+	err := j.p.store.UpdateJobStatus(ctx, j.id, status)
+	if err != nil {
+		return fmt.Errorf("update job status from exit code: %v", err)
 	}
 
 	return nil

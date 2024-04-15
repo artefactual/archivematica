@@ -13,7 +13,7 @@ import (
 type Store interface {
 	RemoveTransientData(context.Context) error
 	CreateJob(context.Context, *sqlc.CreateJobParams) error
-	UpdateJobStatus(context.Context, uuid.UUID, int) error
+	UpdateJobStatus(context.Context, uuid.UUID, string) error
 
 	Running() bool
 	Close() error

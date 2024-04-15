@@ -120,14 +120,24 @@ func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobPa
 }
 
 // UpdateJobStatus ...
-//
-// - 0: (STATUS_UNKNOWN, _("Unknown")),
-// - 1: (STATUS_AWAITING_DECISION, _("Awaiting decision")),
-// - 2: (STATUS_COMPLETED_SUCCESSFULLY, _("Completed successfully")),
-// - 3: (STATUS_EXECUTING_COMMANDS, _("Executing command(s)")),
-// - 4: (STATUS_FAILED, _("Failed")),
-func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, status int) (err error) {
+func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) (err error) {
 	defer func() { err = fmt.Errorf("UpdateJobStatus: %v", err) }()
+
+	var step int32
+	switch status {
+	case "Unknown", "STATUS_UNKNOWN", "":
+		step = 0
+	case "Awaiting decision", "STATUS_AWAITING_DECISION":
+		step = 1
+	case "Completed successfully", "STATUS_COMPLETED_SUCCESSFULLY":
+		step = 2
+	case "Executing command(s)", "STATUS_EXECUTING_COMMANDS":
+		step = 3
+	case "Failed", "STATUS_FAILED":
+		step = 4
+	default:
+		return fmt.Errorf("unknown status: %q", status)
+	}
 
 	conn, _ := s.pool.Conn(ctx)
 	defer conn.Close()
@@ -136,7 +146,7 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 
 	return q.UpdateJobStatus(ctx, &sqlc.UpdateJobStatusParams{
 		ID:          id,
-		Currentstep: int32(status),
+		Currentstep: step,
 	})
 }
 
