@@ -4,8 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
+	"iter"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -139,6 +142,52 @@ func (p *Package) AwaitDecision(ctx context.Context, opts []option) (option, err
 // Decision provides the current awaiting decision.
 func (p *Package) Decision() []option {
 	return p.decision.decision()
+}
+
+// Files iterates over all files associated with the package or that should be
+// associated with a package, i.e. it first yields files based on database
+// records verified to exist on the filesystem, then yields additional files
+// found through filesystem traversal that meet specified filters.
+//
+// Parameters:
+//   - filterFilenameStart: the function filters files whose names start with
+//     the specified prefix.
+//   - filterFilenameEnd: the function filters files whose names end with
+//     the specified suffix.
+//   - filterSubdir: the function limits the search to files within
+//     the specified subdirectory.
+//
+// TODO: https://github.com/artefactual/archivematica/blob/95a1daba07a1037dccaf628428fb3b39b795b75e/src/MCPServer/lib/server/packages.py#L649-L700
+func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir string) iter.Seq2[replacementMapping, error] {
+	filesReturnedAlready := map[string]struct{}{}
+	return func(yield func(replacementMapping, error) bool) {
+		if false {
+			yield(map[string]string{}, nil)
+		}
+		err := filepath.WalkDir(p.base, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			fname := d.Name()
+			if filterFilenameStart != "" && !strings.HasPrefix(fname, filterFilenameStart) {
+				return nil
+			}
+			if filterFilenameStart != "" && !strings.HasPrefix(fname, filterFilenameStart) {
+				return nil
+			}
+			if _, ok := filesReturnedAlready[path]; !ok {
+				yield(map[string]string{
+					"%relativeLocation": path,
+					"%fileUUID%":        "",
+					"%fileGrpUse%":      "",
+				}, nil)
+			}
+			return nil
+		})
+		if err != nil {
+			yield(nil, err)
+		}
+	}
 }
 
 type replacementMapping map[string]string
