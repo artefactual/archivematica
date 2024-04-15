@@ -98,6 +98,24 @@ func (j *job) save(ctx context.Context) error {
 	})
 }
 
+func (j *job) markAwaitingDecision(ctx context.Context) error {
+	err := j.p.store.UpdateJobStatus(ctx, j.id, 1)
+	if err != nil {
+		return fmt.Errorf("mark awaiting decision: %v", err)
+	}
+
+	return nil
+}
+
+func (j *job) markComplete(ctx context.Context) error {
+	err := j.p.store.UpdateJobStatus(ctx, j.id, 2)
+	if err != nil {
+		return fmt.Errorf("mark complete: %v", err)
+	}
+
+	return nil
+}
+
 // outputDecisionJob.
 //
 // Manager: linkTaskManagerGetUserChoiceFromMicroserviceGeneratedList.
