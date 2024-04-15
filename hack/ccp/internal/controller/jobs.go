@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -18,12 +19,16 @@ import (
 type job struct {
 	id        uuid.UUID
 	createdAt time.Time
-
-	logger  logr.Logger
-	p       *Package
-	wl      *workflow.Link
-	gearman *gearmin.Server
+	logger    logr.Logger
+	p         *Package
+	wl        *workflow.Link
+	gearman   *gearmin.Server
+	jobCtx    jobContext
 	jobRunner
+}
+
+type jobContext struct {
+	replacements map[string]replacement
 }
 
 type jobRunner interface {
@@ -130,6 +135,18 @@ func (j *job) updateStatusFromExitCode(ctx context.Context, code int) error {
 	}
 
 	return nil
+}
+
+func (j *job) replaceValues(cmd string, replacements replacementMapping) string {
+	if cmd == "" {
+		return ""
+	}
+
+	for k, v := range replacements {
+		cmd = strings.Replace(cmd, k, v.escape(), -1)
+	}
+
+	return cmd
 }
 
 // outputDecisionJob.
@@ -296,19 +313,26 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	res, err := submitJob(ctx, l.j.gearman, l.config.Execute, &tasks{
-		Tasks: map[uuid.UUID]*task{
-			uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"): {
-				ID:          uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517"),
-				CreatedAt:   mcpTime{time.Date(2024, time.April, 12, 5, 40, 20, 0, time.UTC)},
-				Args:        "\"%SIPDirectory%\" \"%watchDirectoryPath%workFlowDecisions/compressionAIPDecisions/.\" \"%SIPUUID%\" \"%sharedPath%\"",
-				WantsOutput: true,
-			},
-		},
-	})
+	replacements := l.j.p.unit.replacements(l.config.FilterSubdir)
+	replacements.withContext(l.j.jobCtx)
+
+	args := l.j.replaceValues(l.config.Arguments, replacements)
+	stdout := l.j.replaceValues(l.config.StdoutFile, replacements)
+	stderr := l.j.replaceValues(l.config.StderrFile, replacements)
+
+	tt := &tasks{}
+	tt.add(l.j.jobCtx, args, false, stdout, stderr)
+
+	res, err := submitJob(ctx, l.j.gearman, l.config.Execute, tt)
 
 	l.j.logger.Info("Job executed.", "results", res, "err", err)
 	if err != nil {
+		return uuid.Nil, err
+	}
+
+	task := res.Results[uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517")]
+
+	if err := l.j.updateStatusFromExitCode(ctx, task.ExitCode); err != nil {
 		return uuid.Nil, err
 	}
 

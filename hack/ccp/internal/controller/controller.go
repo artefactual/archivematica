@@ -135,7 +135,7 @@ func (c *Controller) queue(path string, wd *workflow.WatchedDirectory) {
 	defer cancel()
 
 	logger := c.logger.WithName("package").WithValues("wd", wd.Path, "path", path)
-	p, err := NewPackage(ctx, logger, c.store, path, wd)
+	p, err := NewPackage(ctx, logger, c.store, path, c.sharedDir, wd)
 	if err != nil {
 		return
 	}

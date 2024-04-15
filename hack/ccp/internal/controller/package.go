@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"iter"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,12 +29,13 @@ type Package struct {
 	base      string
 	name      string
 	isDir     bool
+	sharedDir string
 	watchedAt *workflow.WatchedDirectory
 	decision  decision
 	unit
 }
 
-func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path string, wd *workflow.WatchedDirectory) (*Package, error) {
+func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path, sharedDir string, wd *workflow.WatchedDirectory) (*Package, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
 		return nil, fmt.Errorf("stat: %v", err)
@@ -48,16 +50,17 @@ func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path
 		base:      base,
 		name:      name,
 		isDir:     fi.IsDir(),
+		sharedDir: sharedDir,
 		watchedAt: wd,
 	}
 
 	switch {
 	case wd.UnitType == "SIP" && p.isDir:
-		p.unit = &SIP{p}
+		p.unit = &SIP{p: p}
 	case wd.UnitType == "DIP" && p.isDir:
-		p.unit = &DIP{p}
+		p.unit = &DIP{p: p}
 	case wd.UnitType == "Transfer":
-		p.unit = &Transfer{p}
+		p.unit = &Transfer{p: p}
 	default:
 		return nil, fmt.Errorf("unexpected type given for file %q", path)
 	}
@@ -162,7 +165,7 @@ func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir str
 	filesReturnedAlready := map[string]struct{}{}
 	return func(yield func(replacementMapping, error) bool) {
 		if false {
-			yield(map[string]string{}, nil)
+			yield(map[string]replacement{}, nil)
 		}
 		err := filepath.WalkDir(p.base, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -176,10 +179,10 @@ func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir str
 				return nil
 			}
 			if _, ok := filesReturnedAlready[path]; !ok {
-				yield(map[string]string{
-					"%relativeLocation": path,
-					"%fileUUID%":        "",
-					"%fileGrpUse%":      "",
+				yield(map[string]replacement{
+					"%relativeLocation": replacement(path),
+					"%fileUUID%":        replacement(""),
+					"%fileGrpUse%":      replacement(""),
 				}, nil)
 			}
 			return nil
@@ -190,21 +193,47 @@ func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir str
 	}
 }
 
-type replacementMapping map[string]string
+func (p *Package) replacements() replacementMapping {
+	return map[string]replacement{
+		"%tmpDirectory%":        replacement(filepath.Join(p.sharedDir, "tmp")),
+		"%processingDirectory%": replacement(filepath.Join(p.sharedDir, "currentlyProcessing")),
+		"%watchDirectoryPath%":  replacement(filepath.Join(p.sharedDir, "watchedDirectories")),
+		"%rejectedDirectory%":   replacement(filepath.Join(p.sharedDir, "rejected")),
+	}
+}
+
+type replacement string
+
+// escape special characters like slashes, quotes, and backticks.
+func (r replacement) escape() string {
+	v := string(r)
+	v = strings.ReplaceAll(v, "\\", "\\\\")
+	v = strings.ReplaceAll(v, "\"", "\\\"")
+	v = strings.ReplaceAll(v, "`", "\\`")
+	return v
+}
+
+type replacementMapping map[string]replacement
+
+func (rm replacementMapping) withContext(ctx jobContext) {
+	maps.Copy(ctx.replacements, rm)
+}
 
 type unit interface {
 	hydrate(ctx context.Context) error
 	reload(ctx context.Context) error
-	replacements() replacementMapping
-	unitVariableType() string // DIP, ...
-	jobUnitType() string      // unitDIP, ...
-
-	// Missing...
-	// REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
+	markProcessing(ctx context.Context) error
+	markDone(ctx context.Context) error
+	replacements(filterSubdirPath string) replacementMapping
+	replacementPath() string
+	unitVariableType() string
+	jobUnitType() string
 }
 
 type Transfer struct {
-	p *Package
+	p                       *Package
+	currentPath             string
+	processingConfiguration string
 }
 
 var _ unit = (*Transfer)(nil)
@@ -214,11 +243,36 @@ func (u *Transfer) hydrate(ctx context.Context) error {
 }
 
 func (u *Transfer) reload(ctx context.Context) error {
+	// transfer = models.Transfer.objects.get(uuid=self.uuid)
+	// self.current_path = transfer.currentlocation
+	// self.processing_configuration = transfer.processing_configuration
 	return nil
 }
 
-func (u *Transfer) replacements() replacementMapping {
+func (u *Transfer) markProcessing(ctx context.Context) error {
+	// def queryset(self): return models.Transfer.objects.filter(pk=self.uuid)
 	return nil
+}
+
+func (u *Transfer) markDone(ctx context.Context) error {
+	// def queryset(self): return models.Transfer.objects.filter(pk=self.uuid)
+	return nil
+}
+
+func (u *Transfer) replacements(filterSubdirPath string) replacementMapping {
+	mapping := u.p.replacements()
+	maps.Copy(mapping, baseReplacements(u.p, u.currentPath))
+	maps.Copy(mapping, map[string]replacement{
+		u.replacementPath():        replacement(u.currentPath),
+		"%unitType%":               replacement(u.unitVariableType()),
+		"%processingConfiguration": replacement(u.processingConfiguration),
+	})
+
+	return mapping
+}
+
+func (u *Transfer) replacementPath() string {
+	return "%transferDirectory%"
 }
 
 func (u *Transfer) unitVariableType() string {
@@ -230,7 +284,10 @@ func (u *Transfer) jobUnitType() string {
 }
 
 type SIP struct {
-	p *Package
+	p           *Package
+	currentPath string
+	aipFilename string
+	sipType     string
 }
 
 var _ unit = (*SIP)(nil)
@@ -240,11 +297,36 @@ func (u *SIP) hydrate(ctx context.Context) error {
 }
 
 func (u *SIP) reload(ctx context.Context) error {
+	// sip = models.SIP.objects.get(uuid=self.uuid)
+	// self.current_path = sip.currentpath
+	// self.aip_filename = sip.aip_filename or ""
+	// self.sip_type = sip.sip_type
 	return nil
 }
 
-func (u *SIP) replacements() replacementMapping {
+func (u *SIP) markProcessing(ctx context.Context) error {
+	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
 	return nil
+}
+
+func (u *SIP) markDone(ctx context.Context) error {
+	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
+	return nil
+}
+
+func (u *SIP) replacements(filterSubdirPath string) replacementMapping {
+	mapping := u.p.replacements()
+	maps.Copy(mapping, baseReplacements(u.p, u.currentPath))
+	maps.Copy(mapping, map[string]replacement{
+		"%unitType%":   replacement(u.unitVariableType()),
+		"%AIPFilename": replacement(u.aipFilename),
+		"%SIPType%":    replacement(u.sipType),
+	})
+	return mapping
+}
+
+func (u *SIP) replacementPath() string {
+	return "%SIPDirectory%"
 }
 
 func (u *SIP) unitVariableType() string {
@@ -256,7 +338,8 @@ func (u *SIP) jobUnitType() string {
 }
 
 type DIP struct {
-	p *Package
+	p           *Package
+	currentPath string
 }
 
 var _ unit = (*DIP)(nil)
@@ -269,8 +352,33 @@ func (u *DIP) reload(ctx context.Context) error {
 	return nil // No-op.
 }
 
-func (u *DIP) replacements() replacementMapping {
+func (u *DIP) markProcessing(ctx context.Context) error {
+	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
 	return nil
+}
+
+func (u *DIP) markDone(ctx context.Context) error {
+	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
+	return nil
+}
+
+func (u *DIP) replacements(filterSubdirPath string) replacementMapping {
+	mapping := u.p.replacements()
+	maps.Copy(mapping, baseReplacements(u.p, u.currentPath))
+	maps.Copy(mapping, map[string]replacement{
+		"%unitType%": replacement(u.unitVariableType()),
+	})
+	if filterSubdirPath != "" {
+		mapping["%relativeLocation%"] = replacement(
+			strings.Replace(filterSubdirPath, "%sharedPath%", u.p.sharedDir, 1),
+		)
+	}
+
+	return mapping
+}
+
+func (u *DIP) replacementPath() string {
+	return "%SIPDirectory%"
 }
 
 func (u *DIP) unitVariableType() string {
@@ -340,4 +448,22 @@ func (do option) uuid() uuid.UUID {
 		return uuid.Nil
 	}
 	return id
+}
+
+func dirBasename(path string) string {
+	abs, _ := filepath.Abs(path)
+	return filepath.Base(abs)
+}
+
+// Replacements needed by all unit types.
+func baseReplacements(p *Package, currentPath string) replacementMapping {
+	return map[string]replacement{
+		"%SIPUUID%":              replacement(p.id.String()),
+		"%SIPName%":              replacement(p.name),
+		"%SIPLogsDirectory%":     replacement(filepath.Join(currentPath, "logs") + string(filepath.Separator)),
+		"%SIPObjectsDirectory%":  replacement(filepath.Join(currentPath, "objects") + string(filepath.Separator)),
+		"%SIPDirectory%":         replacement(currentPath),
+		"%SIPDirectoryBasename%": replacement(dirBasename(currentPath)),
+		"%relativeLocation%":     replacement(strings.Replace(currentPath, "%sharedPath%", p.sharedDir, 1)),
+	}
 }

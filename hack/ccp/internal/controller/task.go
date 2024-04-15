@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,11 +22,69 @@ func (t tasks) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct{ *alias }{alias: (*alias)(&t)})
 }
 
+func (tt tasks) add(jobCtx jobContext, args string, wantsOutput bool, stdoutFilePath, stderrFilePath string) {
+	t := &task{
+		ID:             uuid.New(),
+		CreatedAt:      mcpTime{time.Now().UTC()},
+		Args:           args,
+		stdoutFilePath: stdoutFilePath,
+		stderrFilePath: stderrFilePath,
+		jobCtx:         jobCtx,
+	}
+
+	if wantsOutput || stdoutFilePath != "" || stderrFilePath != "" {
+		t.WantsOutput = true
+	}
+
+	tt.Tasks[t.ID] = t
+}
+
 type task struct {
 	ID          uuid.UUID `json:"task_uuid"`
 	CreatedAt   mcpTime   `json:"createdDate"`
 	Args        string    `json:"arguments"`
 	WantsOutput bool      `json:"wants_output"`
+
+	jobCtx         jobContext
+	stdoutFilePath string
+	stdout         string
+	stderrFilePath string
+	stderr         string
+	exitCode       *int
+	completedAt    time.Time
+}
+
+// writeOutput writes the stdout/stderr we got from MCPClient out to files if
+// necessary.
+func (t *task) writeOutput() (err error) {
+	if t.stdoutFilePath != "" && t.stdout != "" {
+		err = errors.Join(err, t.writeFile(t.stdoutFilePath, t.stdout))
+	}
+	if t.stderrFilePath != "" && t.stderr != "" {
+		err = errors.Join(err, t.writeFile(t.stderrFilePath, t.stderr))
+	}
+
+	return nil
+}
+
+func (t *task) writeFile(path, contents string) error {
+	const mode = 0o750
+
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, mode)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := file.Write([]byte(contents)); err != nil {
+		return err
+	}
+
+	if err := os.Chmod(path, mode); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type taskResults struct {

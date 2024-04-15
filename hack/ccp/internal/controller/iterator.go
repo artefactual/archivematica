@@ -115,7 +115,7 @@ func (i *Iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 func (i *Iterator) buildJob(wl *workflow.Link) (*job, error) {
 	j, err := newJob(i.logger.WithName("job"), i.p, i.gearman, wl)
 	if err != nil {
-		return nil, fmt.Errorf("build job: %v")
+		return nil, fmt.Errorf("build job: %v", err)
 	}
 
 	return j, nil
