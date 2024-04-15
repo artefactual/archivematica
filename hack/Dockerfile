@@ -203,6 +203,7 @@ RUN set -ex \
 		tree \
 		unrar-free \
 		uuid \
+		ssh \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 # Download ClamAV virus signatures
