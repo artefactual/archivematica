@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := help
 
 # Paths for Docker named volumes
-AM_PIPELINE_DATA ?= $(HOME)/.am/am-pipeline-data
-SS_LOCATION_DATA ?= $(HOME)/.am/ss-location-data
+AM_PIPELINE_DATA ?= $(HOME)/.ccp/am-pipeline-data
+SS_LOCATION_DATA ?= $(HOME)/.ccp/ss-location-data
 
 CALLER_UID=$(shell id -u)
 CALLER_GID=$(shell id -g)
@@ -78,13 +78,13 @@ create-volumes:  ## Create external data volumes.
 		--opt type=none \
 		--opt o=bind \
 		--opt device=$(AM_PIPELINE_DATA) \
-			am-pipeline-data
+			ccp-am-pipeline-data
 	mkdir -p ${SS_LOCATION_DATA}
 	docker volume create \
 		--opt type=none \
 		--opt o=bind \
 		--opt device=$(SS_LOCATION_DATA) \
-			ss-location-data
+			ccp-ss-location-data
 	# This workaround prevents Docker from creating this directory structure
 	# inside the external SS_LOCATION_DATA volume directory assigning root as
 	# the owner of some parts of it.

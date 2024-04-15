@@ -1,5 +1,5 @@
 ---
-name: am
+name: ccp
 
 volumes:
 
@@ -15,11 +15,11 @@ volumes:
   # host - the expectation being that these directories are actually mounted
   # filesystems from elsewhere.
   archivematica_pipeline_data:
-    name: "am-pipeline-data"
+    name: "ccp-am-pipeline-data"
     external: true
 
   archivematica_storage_service_location_data:
-    name: "ss-location-data"
+    name: "ccp-ss-location-data"
     external: true
 
 
