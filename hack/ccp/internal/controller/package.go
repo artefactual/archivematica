@@ -3,32 +3,67 @@ package controller
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"sync/atomic"
 
+	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
+// A Package can be a Transfer, a SIP, or a DIP.
 type Package struct {
+	logger    logr.Logger
+	store     store.Store
+	id        uuid.UUID
 	path      string
 	base      string
 	name      string
+	isDir     bool
 	watchedAt *workflow.WatchedDirectory
 	decision  decision
+	unit
 }
 
-func NewPackage(path string, wd *workflow.WatchedDirectory) *Package {
+func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path string, wd *workflow.WatchedDirectory) (*Package, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("stat: %v", err)
+	}
+
 	base, name := filepath.Split(path)
-	return &Package{
+
+	p := &Package{
+		logger:    logger,
+		store:     store,
 		path:      path,
 		base:      base,
 		name:      name,
+		isDir:     fi.IsDir(),
 		watchedAt: wd,
 	}
+
+	switch {
+	case wd.UnitType == "SIP" && p.isDir:
+		p.unit = &SIP{p}
+	case wd.UnitType == "DIP" && p.isDir:
+		p.unit = &DIP{p}
+	case wd.UnitType == "Transfer":
+		p.unit = &Transfer{p}
+	default:
+		return nil, fmt.Errorf("unexpected type given for file %q", path)
+	}
+
+	if err := p.hydrate(ctx); err != nil {
+		return nil, fmt.Errorf("hydrate: %v", err)
+	}
+
+	return p, nil
 }
 
 func (p *Package) String() string {
@@ -104,6 +139,51 @@ func (p *Package) AwaitDecision(ctx context.Context, opts []option) (option, err
 // Decision provides the current awaiting decision.
 func (p *Package) Decision() []option {
 	return p.decision.decision()
+}
+
+type replacementMapping map[string]string
+
+type unit interface {
+	hydrate(ctx context.Context) error
+	reload(ctx context.Context) error
+	replacements() replacementMapping
+
+	// Props...
+	// REPLACEMENT_PATH_STRING = r"%SIPDirectory%"
+	// UNIT_VARIABLE_TYPE = "DIP"
+	// JOB_UNIT_TYPE = "unitDIP"
+}
+
+type Transfer struct {
+	p *Package
+}
+
+func (u *Transfer) hydrate(ctx context.Context) error { return nil }
+func (u *Transfer) reload(ctx context.Context) error  { return nil }
+func (u *Transfer) replacements() replacementMapping  { return nil }
+
+type SIP struct {
+	p *Package
+}
+
+func (u *SIP) hydrate(ctx context.Context) error { return nil }
+func (u *SIP) reload(ctx context.Context) error  { return nil }
+func (u *SIP) replacements() replacementMapping  { return nil }
+
+type DIP struct {
+	p *Package
+}
+
+func (u *DIP) hydrate(ctx context.Context) error {
+	return nil
+}
+
+func (u *DIP) reload(ctx context.Context) error {
+	return nil // No-op.
+}
+
+func (u *DIP) replacements() replacementMapping {
+	return nil
 }
 
 type decision struct {

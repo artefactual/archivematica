@@ -131,11 +131,18 @@ func (c *Controller) handle(path string) error {
 }
 
 func (c *Controller) queue(path string, wd *workflow.WatchedDirectory) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	ctx, cancel := context.WithTimeout(c.groupCtx, time.Minute)
+	defer cancel()
 
-	p := NewPackage(path, wd)
+	logger := c.logger.WithName("package").WithValues("wd", wd.Path, "path", path)
+	p, err := NewPackage(ctx, logger, c.store, path, wd)
+	if err != nil {
+		return
+	}
+
+	c.mu.Lock()
 	c.queuedPackages = append(c.queuedPackages, p)
+	c.mu.Unlock()
 }
 
 func (c *Controller) pick() {
