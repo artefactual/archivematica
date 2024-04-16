@@ -254,7 +254,7 @@ six==1.16.0
     #   opf-fido
     #   python-cas
     #   python-dateutil
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements.txt
     #   django
@@ -296,7 +296,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==6.2
+zope-interface==6.3
     # via
     #   -r requirements.txt
     #   gevent
@@ -304,7 +304,7 @@ zope-interface==6.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.0
     # via pip-tools
-setuptools==69.2.0
+setuptools==69.5.1
     # via
     #   -r requirements.txt
     #   pip-tools
