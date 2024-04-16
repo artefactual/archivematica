@@ -104,6 +104,20 @@ func (q *Queries) CreateJob(ctx context.Context, arg *CreateJobParams) error {
 	return err
 }
 
+const createTransfer = `-- name: CreateTransfer :exec
+INSERT INTO Transfers (transferUUID, currentLocation) VALUES (?, ?)
+`
+
+type CreateTransferParams struct {
+	Transferuuid    uuid.UUID
+	Currentlocation string
+}
+
+func (q *Queries) CreateTransfer(ctx context.Context, arg *CreateTransferParams) error {
+	_, err := q.exec(ctx, q.createTransferStmt, createTransfer, arg.Transferuuid, arg.Currentlocation)
+	return err
+}
+
 const createWorkflowUnitVariable = `-- name: CreateWorkflowUnitVariable :exec
 INSERT INTO UnitVariables (unitType, unitUUID, variable, variableValue, microServiceChainLink) VALUES (?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE variableValue = VALUES(variableValue), microServiceChainLink = VALUES(microServiceChainLink)
@@ -139,6 +153,33 @@ func (q *Queries) GetLock(ctx context.Context) (interface{}, error) {
 	return coalesce, err
 }
 
+const readTransferLocation = `-- name: ReadTransferLocation :one
+SELECT transferUUID, currentLocation FROM Transfers WHERE transferUUID = ?
+`
+
+type ReadTransferLocationRow struct {
+	Transferuuid    uuid.UUID
+	Currentlocation string
+}
+
+func (q *Queries) ReadTransferLocation(ctx context.Context, transferuuid uuid.UUID) (*ReadTransferLocationRow, error) {
+	row := q.queryRow(ctx, q.readTransferLocationStmt, readTransferLocation, transferuuid)
+	var i ReadTransferLocationRow
+	err := row.Scan(&i.Transferuuid, &i.Currentlocation)
+	return &i, err
+}
+
+const readTransferWithLocation = `-- name: ReadTransferWithLocation :one
+SELECT transferUUID FROM Transfers WHERE currentLocation = ?
+`
+
+func (q *Queries) ReadTransferWithLocation(ctx context.Context, currentlocation string) (uuid.UUID, error) {
+	row := q.queryRow(ctx, q.readTransferWithLocationStmt, readTransferWithLocation, currentlocation)
+	var transferuuid uuid.UUID
+	err := row.Scan(&transferuuid)
+	return transferuuid, err
+}
+
 const readWorkflowUnitVariable = `-- name: ReadWorkflowUnitVariable :one
 SELECT microServiceChainLink FROM UnitVariables WHERE unitType = ? AND unitUUID = ? AND variable = ?
 `
@@ -168,7 +209,7 @@ func (q *Queries) ReleaseLock(ctx context.Context) (bool, error) {
 }
 
 const updateJobStatus = `-- name: UpdateJobStatus :exec
-UPDATE Jobs SET currentStep = ? WHERE Jobs.jobUUID = ?
+UPDATE Jobs SET currentStep = ? WHERE jobUUID = ?
 `
 
 type UpdateJobStatusParams struct {
@@ -178,5 +219,19 @@ type UpdateJobStatusParams struct {
 
 func (q *Queries) UpdateJobStatus(ctx context.Context, arg *UpdateJobStatusParams) error {
 	_, err := q.exec(ctx, q.updateJobStatusStmt, updateJobStatus, arg.Currentstep, arg.ID)
+	return err
+}
+
+const updateTransferLocation = `-- name: UpdateTransferLocation :exec
+UPDATE Transfers SET currentLocation = ? WHERE transferUUID = ?
+`
+
+type UpdateTransferLocationParams struct {
+	Currentlocation string
+	Transferuuid    uuid.UUID
+}
+
+func (q *Queries) UpdateTransferLocation(ctx context.Context, arg *UpdateTransferLocationParams) error {
+	_, err := q.exec(ctx, q.updateTransferLocationStmt, updateTransferLocation, arg.Currentlocation, arg.Transferuuid)
 	return err
 }

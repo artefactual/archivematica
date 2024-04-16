@@ -45,11 +45,20 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createJobStmt, err = db.PrepareContext(ctx, createJob); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateJob: %w", err)
 	}
+	if q.createTransferStmt, err = db.PrepareContext(ctx, createTransfer); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateTransfer: %w", err)
+	}
 	if q.createWorkflowUnitVariableStmt, err = db.PrepareContext(ctx, createWorkflowUnitVariable); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateWorkflowUnitVariable: %w", err)
 	}
 	if q.getLockStmt, err = db.PrepareContext(ctx, getLock); err != nil {
 		return nil, fmt.Errorf("error preparing query GetLock: %w", err)
+	}
+	if q.readTransferLocationStmt, err = db.PrepareContext(ctx, readTransferLocation); err != nil {
+		return nil, fmt.Errorf("error preparing query ReadTransferLocation: %w", err)
+	}
+	if q.readTransferWithLocationStmt, err = db.PrepareContext(ctx, readTransferWithLocation); err != nil {
+		return nil, fmt.Errorf("error preparing query ReadTransferWithLocation: %w", err)
 	}
 	if q.readWorkflowUnitVariableStmt, err = db.PrepareContext(ctx, readWorkflowUnitVariable); err != nil {
 		return nil, fmt.Errorf("error preparing query ReadWorkflowUnitVariable: %w", err)
@@ -59,6 +68,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.updateJobStatusStmt, err = db.PrepareContext(ctx, updateJobStatus); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateJobStatus: %w", err)
+	}
+	if q.updateTransferLocationStmt, err = db.PrepareContext(ctx, updateTransferLocation); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateTransferLocation: %w", err)
 	}
 	return &q, nil
 }
@@ -100,6 +112,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createJobStmt: %w", cerr)
 		}
 	}
+	if q.createTransferStmt != nil {
+		if cerr := q.createTransferStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createTransferStmt: %w", cerr)
+		}
+	}
 	if q.createWorkflowUnitVariableStmt != nil {
 		if cerr := q.createWorkflowUnitVariableStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createWorkflowUnitVariableStmt: %w", cerr)
@@ -108,6 +125,16 @@ func (q *Queries) Close() error {
 	if q.getLockStmt != nil {
 		if cerr := q.getLockStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getLockStmt: %w", cerr)
+		}
+	}
+	if q.readTransferLocationStmt != nil {
+		if cerr := q.readTransferLocationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing readTransferLocationStmt: %w", cerr)
+		}
+	}
+	if q.readTransferWithLocationStmt != nil {
+		if cerr := q.readTransferWithLocationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing readTransferWithLocationStmt: %w", cerr)
 		}
 	}
 	if q.readWorkflowUnitVariableStmt != nil {
@@ -123,6 +150,11 @@ func (q *Queries) Close() error {
 	if q.updateJobStatusStmt != nil {
 		if cerr := q.updateJobStatusStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateJobStatusStmt: %w", cerr)
+		}
+	}
+	if q.updateTransferLocationStmt != nil {
+		if cerr := q.updateTransferLocationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateTransferLocationStmt: %w", cerr)
 		}
 	}
 	return err
@@ -171,11 +203,15 @@ type Queries struct {
 	cleanUpAwaitingJobsStmt          *sql.Stmt
 	cleanUpTasksWithAwaitingJobsStmt *sql.Stmt
 	createJobStmt                    *sql.Stmt
+	createTransferStmt               *sql.Stmt
 	createWorkflowUnitVariableStmt   *sql.Stmt
 	getLockStmt                      *sql.Stmt
+	readTransferLocationStmt         *sql.Stmt
+	readTransferWithLocationStmt     *sql.Stmt
 	readWorkflowUnitVariableStmt     *sql.Stmt
 	releaseLockStmt                  *sql.Stmt
 	updateJobStatusStmt              *sql.Stmt
+	updateTransferLocationStmt       *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -189,10 +225,14 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		cleanUpAwaitingJobsStmt:          q.cleanUpAwaitingJobsStmt,
 		cleanUpTasksWithAwaitingJobsStmt: q.cleanUpTasksWithAwaitingJobsStmt,
 		createJobStmt:                    q.createJobStmt,
+		createTransferStmt:               q.createTransferStmt,
 		createWorkflowUnitVariableStmt:   q.createWorkflowUnitVariableStmt,
 		getLockStmt:                      q.getLockStmt,
+		readTransferLocationStmt:         q.readTransferLocationStmt,
+		readTransferWithLocationStmt:     q.readTransferWithLocationStmt,
 		readWorkflowUnitVariableStmt:     q.readWorkflowUnitVariableStmt,
 		releaseLockStmt:                  q.releaseLockStmt,
 		updateJobStatusStmt:              q.updateJobStatusStmt,
+		updateTransferLocationStmt:       q.updateTransferLocationStmt,
 	}
 }

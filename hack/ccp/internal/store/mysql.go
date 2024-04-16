@@ -107,7 +107,6 @@ func (s *mysqlStoreImpl) RemoveTransientData(ctx context.Context) error {
 	return nil
 }
 
-// CreateJob ...
 func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobParams) (err error) {
 	defer func() { err = fmt.Errorf("CreateJob: %v", err) }()
 
@@ -119,7 +118,6 @@ func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobPa
 	return q.CreateJob(ctx, params)
 }
 
-// UpdateJobStatus ...
 func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) (err error) {
 	defer func() { err = fmt.Errorf("UpdateJobStatus: %v", err) }()
 
@@ -148,6 +146,90 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 		ID:          id,
 		Currentstep: step,
 	})
+}
+
+func (s *mysqlStoreImpl) UpsertTransfer(ctx context.Context, id uuid.UUID, path string) (_ bool, err error) {
+	defer func() { err = fmt.Errorf("UpsertTransfer: %v", err) }()
+
+	conn, _ := s.pool.Conn(ctx)
+	defer conn.Close()
+
+	tx, err := conn.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return false, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	q := sqlc.New(conn).WithTx(tx)
+
+	r, err := q.ReadTransferLocation(ctx, id)
+
+	// Return an error as we've failed to read the transfer.
+	if err != nil && err != sql.ErrNoRows {
+		return false, fmt.Errorf("read transfer: %v", err)
+	}
+
+	// Create the transfer as it has not been created yet.
+	if err == sql.ErrNoRows {
+		if err := q.CreateTransfer(ctx, &sqlc.CreateTransferParams{
+			Transferuuid:    id,
+			Currentlocation: path,
+		}); err != nil {
+			return false, fmt.Errorf("create transfer: %v", err)
+		} else {
+			return true, tx.Commit()
+		}
+	}
+
+	// Update current location if needed.
+	if r.Currentlocation == path {
+		return false, nil
+	}
+	if err := q.UpdateTransferLocation(ctx, &sqlc.UpdateTransferLocationParams{
+		Transferuuid:    id,
+		Currentlocation: path,
+	}); err != nil {
+		return false, fmt.Errorf("update transfer: %v", err)
+	}
+
+	return false, tx.Commit()
+}
+
+func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uuid.UUID, _ bool, err error) {
+	defer func() { err = fmt.Errorf("EnsureTransfer: %v", err) }()
+
+	conn, _ := s.pool.Conn(ctx)
+	defer conn.Close()
+
+	tx, err := conn.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return uuid.Nil, false, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	q := sqlc.New(conn).WithTx(tx)
+
+	id, err := q.ReadTransferWithLocation(ctx, path)
+
+	// Return an error as we've failed to read the transfer.
+	if err != nil && err != sql.ErrNoRows {
+		return uuid.Nil, false, fmt.Errorf("read transfer: %v", err)
+	}
+
+	// Create the transfer as it has not been created yet.
+	if err == sql.ErrNoRows {
+		id := uuid.New()
+		if err := q.CreateTransfer(ctx, &sqlc.CreateTransferParams{
+			Transferuuid:    id,
+			Currentlocation: path,
+		}); err != nil {
+			return uuid.Nil, false, fmt.Errorf("create transfer: %v", err)
+		} else {
+			return id, true, tx.Commit()
+		}
+	}
+
+	return id, false, nil
 }
 
 func (s *mysqlStoreImpl) Running() bool {

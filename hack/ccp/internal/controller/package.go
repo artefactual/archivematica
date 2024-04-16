@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"iter"
 	"maps"
 	"os"
 	"path/filepath"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"iter"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
@@ -55,17 +55,17 @@ func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path
 	}
 
 	switch {
+	case wd.UnitType == "Transfer":
+		p.unit = &Transfer{p: p}
 	case wd.UnitType == "SIP" && p.isDir:
 		p.unit = &SIP{p: p}
 	case wd.UnitType == "DIP" && p.isDir:
 		p.unit = &DIP{p: p}
-	case wd.UnitType == "Transfer":
-		p.unit = &Transfer{p: p}
 	default:
-		return nil, fmt.Errorf("unexpected type given for file %q", path)
+		return nil, fmt.Errorf("unexpected type given for file %q (dir: %t)", path, p.isDir)
 	}
 
-	if err := p.hydrate(ctx); err != nil {
+	if err := p.hydrate(ctx, path, wd.Path); err != nil {
 		return nil, fmt.Errorf("hydrate: %v", err)
 	}
 
@@ -220,7 +220,7 @@ func (rm replacementMapping) withContext(ctx jobContext) {
 }
 
 type unit interface {
-	hydrate(ctx context.Context) error
+	hydrate(ctx context.Context, path, watchedDir string) error
 	reload(ctx context.Context) error
 	markProcessing(ctx context.Context) error
 	markDone(ctx context.Context) error
@@ -238,7 +238,35 @@ type Transfer struct {
 
 var _ unit = (*Transfer)(nil)
 
-func (u *Transfer) hydrate(ctx context.Context) error {
+func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
+	path = strings.Replace(path, "%sharedPath%", u.p.sharedDir, 1)
+
+	id, err := uuidFromPath(path)
+	if err != nil {
+		return fmt.Errorf("read UUID from path: %v", err)
+	}
+
+	created := true
+
+	// Ensure that a Transfer is either created or updated. The strategy differs
+	// depending on whether we know both its identifier and location, or only
+	// the latter.
+	if id != uuid.Nil {
+		var opErr error
+		created, opErr = u.p.store.UpsertTransfer(ctx, id, path)
+		if opErr != nil {
+			return opErr
+		}
+	} else {
+		var opErr error
+		id, created, opErr = u.p.store.EnsureTransfer(ctx, path)
+		if opErr != nil {
+			return opErr
+		}
+	}
+
+	u.p.logger.V(1).Info("Transfer hydrated.", "created", created, "id", id, "path", path)
+
 	return nil
 }
 
@@ -292,7 +320,7 @@ type SIP struct {
 
 var _ unit = (*SIP)(nil)
 
-func (u *SIP) hydrate(ctx context.Context) error {
+func (u *SIP) hydrate(ctx context.Context, path, watchedDir string) error {
 	return nil
 }
 
@@ -344,7 +372,7 @@ type DIP struct {
 
 var _ unit = (*DIP)(nil)
 
-func (u *DIP) hydrate(ctx context.Context) error {
+func (u *DIP) hydrate(ctx context.Context, path, watchedDir string) error {
 	return nil
 }
 
@@ -466,4 +494,16 @@ func baseReplacements(p *Package, currentPath string) replacementMapping {
 		"%SIPDirectoryBasename%": replacement(dirBasename(currentPath)),
 		"%relativeLocation%":     replacement(strings.Replace(currentPath, "%sharedPath%", p.sharedDir, 1)),
 	}
+}
+
+func uuidFromPath(path string) (uuid.UUID, error) {
+	path = strings.TrimRight(path, "/")
+	if len(path) < 36 {
+		return uuid.Nil, fmt.Errorf("path is too short")
+	}
+	id, err := uuid.Parse(path[len(path)-36:])
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return id, nil
 }

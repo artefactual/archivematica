@@ -2,7 +2,22 @@
 INSERT INTO Jobs (jobUUID, jobType, createdTime, createdTimeDec, directory, SIPUUID, unitType, currentStep, microserviceGroup, hidden, MicroServiceChainLinksPK, subJobOf) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: UpdateJobStatus :exec
-UPDATE Jobs SET currentStep = ? WHERE Jobs.jobUUID = ?;
+UPDATE Jobs SET currentStep = ? WHERE jobUUID = ?;
+
+-- name: ReadTransferLocation :one
+SELECT transferUUID, currentLocation FROM Transfers WHERE transferUUID = ?;
+
+-- name: ReadTransferWithLocation :one
+SELECT transferUUID FROM Transfers WHERE currentLocation = ?;
+
+-- name: UpdateTransferLocation :exec
+UPDATE Transfers SET currentLocation = ? WHERE transferUUID = ?;
+
+-- name: CreateTransfer :exec
+INSERT INTO Transfers (transferUUID, currentLocation) VALUES (?, ?);
+
+-- nane: UpdateTransferStatus :exec
+UPDATE Transfers SET status = ? WHERE transferUUID = ?;
 
 -- name: CleanUpTasksWithAwaitingJobs :exec
 DELETE FROM Tasks WHERE jobuuid IN (SELECT jobUUID FROM Jobs WHERE currentStep = 1);

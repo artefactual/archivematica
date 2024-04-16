@@ -12,9 +12,18 @@ import (
 )
 
 type Store interface {
-	RemoveTransientData(context.Context) error
-	CreateJob(context.Context, *sqlc.CreateJobParams) error
-	UpdateJobStatus(context.Context, uuid.UUID, string) error
+	RemoveTransientData(ctx context.Context) error
+	CreateJob(ctx context.Context, params *sqlc.CreateJobParams) error
+	UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) error
+
+	// UpsertTransfer checks for a Transfer using the specified UUID. It updates
+	// the current location if the Transfer exists, or it creates a new Transfer
+	// with the provided UUID and location if it does not exist.
+	UpsertTransfer(ctx context.Context, id uuid.UUID, path string) (created bool, err error)
+
+	// EnsureTransfer checks if a Transfer exists at the given location; creates
+	// a new Transfer with a new UUID otherwise.
+	EnsureTransfer(ctx context.Context, path string) (id uuid.UUID, created bool, err error)
 
 	Running() bool
 	Close() error
