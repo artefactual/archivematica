@@ -1,21 +1,20 @@
 from components.file import views
-from django.conf import settings
-from django.urls import re_path
+from django.urls import path
 
 app_name = "file"
 urlpatterns = [
-    re_path(
-        r"(?P<fileuuid>" + settings.UUID_REGEX + ")/$",
+    path(
+        "<uuid:fileuuid>/",
         views.file_details,
         name="file_details",
     ),
-    re_path(
-        r"(?P<fileuuid>" + settings.UUID_REGEX + ")/tags/$",
+    path(
+        "<uuid:fileuuid>/tags/",
         views.TransferFileTags.as_view(),
         name="transfer_file_tags",
     ),
-    re_path(
-        r"(?P<fileuuid>" + settings.UUID_REGEX + ")/bulk_extractor/$",
+    path(
+        "<uuid:fileuuid>/bulk_extractor/",
         views.bulk_extractor,
         name="bulk_extractor",
     ),
