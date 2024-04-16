@@ -112,12 +112,7 @@ func (s *mysqlStoreImpl) RemoveTransientData(ctx context.Context) (err error) {
 func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobParams) (err error) {
 	defer wrap(&err, "CreateJob")
 
-	conn, _ := s.pool.Conn(ctx)
-	defer conn.Close()
-
-	q := sqlc.New(conn)
-
-	return q.CreateJob(ctx, params)
+	return s.queries.CreateJob(ctx, params)
 }
 
 func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) (err error) {
@@ -139,12 +134,7 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 		return fmt.Errorf("unknown status: %q", status)
 	}
 
-	conn, _ := s.pool.Conn(ctx)
-	defer conn.Close()
-
-	q := sqlc.New(conn)
-
-	return q.UpdateJobStatus(ctx, &sqlc.UpdateJobStatusParams{
+	return s.queries.UpdateJobStatus(ctx, &sqlc.UpdateJobStatusParams{
 		ID:          id,
 		Currentstep: step,
 	})
@@ -153,16 +143,13 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 func (s *mysqlStoreImpl) UpsertTransfer(ctx context.Context, id uuid.UUID, path string) (_ bool, err error) {
 	defer wrap(&err, "UpdateTransfer(%s, %s)", id, path)
 
-	conn, _ := s.pool.Conn(ctx)
-	defer conn.Close()
-
-	tx, err := conn.BeginTx(ctx, &sql.TxOptions{})
+	tx, err := s.pool.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return false, err
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	q := sqlc.New(conn).WithTx(tx)
+	q := s.queries.WithTx(tx)
 
 	r, err := q.ReadTransferLocation(ctx, id)
 
@@ -200,16 +187,13 @@ func (s *mysqlStoreImpl) UpsertTransfer(ctx context.Context, id uuid.UUID, path 
 func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uuid.UUID, _ bool, err error) {
 	defer wrap(&err, "EnsureTransfer(%s)", path)
 
-	conn, _ := s.pool.Conn(ctx)
-	defer conn.Close()
-
-	tx, err := conn.BeginTx(ctx, &sql.TxOptions{})
+	tx, err := s.pool.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return uuid.Nil, false, err
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	q := sqlc.New(conn).WithTx(tx)
+	q := s.queries.WithTx(tx)
 
 	id, err := q.ReadTransferWithLocation(ctx, path)
 
