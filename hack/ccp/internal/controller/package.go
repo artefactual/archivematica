@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"iter"
 	"maps"
 	"os"
 	"path/filepath"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"iter"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
@@ -240,12 +240,7 @@ var _ unit = (*Transfer)(nil)
 
 func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
 	path = strings.Replace(path, "%sharedPath%", u.p.sharedDir, 1)
-
-	id, err := uuidFromPath(path)
-	if err != nil {
-		return fmt.Errorf("read UUID from path: %v", err)
-	}
-
+	id := uuidFromPath(path)
 	created := true
 
 	// Ensure that a Transfer is either created or updated. The strategy differs
@@ -265,7 +260,7 @@ func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
 		}
 	}
 
-	u.p.logger.V(1).Info("Transfer hydrated.", "created", created, "id", id, "path", path)
+	u.p.logger.V(1).Info("Transfer hydrated.", "created", created, "id", id)
 
 	return nil
 }
@@ -496,14 +491,14 @@ func baseReplacements(p *Package, currentPath string) replacementMapping {
 	}
 }
 
-func uuidFromPath(path string) (uuid.UUID, error) {
+func uuidFromPath(path string) uuid.UUID {
 	path = strings.TrimRight(path, "/")
 	if len(path) < 36 {
-		return uuid.Nil, fmt.Errorf("path is too short")
+		return uuid.Nil
 	}
 	id, err := uuid.Parse(path[len(path)-36:])
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil
 	}
-	return id, nil
+	return id
 }

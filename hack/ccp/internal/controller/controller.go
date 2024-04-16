@@ -137,6 +137,7 @@ func (c *Controller) queue(path string, wd *workflow.WatchedDirectory) {
 	logger := c.logger.WithName("package").WithValues("wd", wd.Path, "path", path)
 	p, err := NewPackage(ctx, logger, c.store, path, c.sharedDir, wd)
 	if err != nil {
+		logger.Error(err, "Failed to create new package.")
 		return
 	}
 

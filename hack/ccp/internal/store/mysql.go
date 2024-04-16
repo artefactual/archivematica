@@ -71,7 +71,9 @@ func newMySQLStore(logger logr.Logger, pool *sql.DB) (*mysqlStoreImpl, error) {
 	}, nil
 }
 
-func (s *mysqlStoreImpl) RemoveTransientData(ctx context.Context) error {
+func (s *mysqlStoreImpl) RemoveTransientData(ctx context.Context) (err error) {
+	defer wrap(&err, "RemoveTransientData")
+
 	conn, _ := s.pool.Conn(ctx)
 	defer conn.Close()
 
@@ -108,7 +110,7 @@ func (s *mysqlStoreImpl) RemoveTransientData(ctx context.Context) error {
 }
 
 func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobParams) (err error) {
-	defer func() { err = fmt.Errorf("CreateJob: %v", err) }()
+	defer wrap(&err, "CreateJob")
 
 	conn, _ := s.pool.Conn(ctx)
 	defer conn.Close()
@@ -119,7 +121,7 @@ func (s *mysqlStoreImpl) CreateJob(ctx context.Context, params *sqlc.CreateJobPa
 }
 
 func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) (err error) {
-	defer func() { err = fmt.Errorf("UpdateJobStatus: %v", err) }()
+	defer wrap(&err, "UpdateJobStatus(%s, %s)", id, status)
 
 	var step int32
 	switch status {
@@ -149,7 +151,7 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 }
 
 func (s *mysqlStoreImpl) UpsertTransfer(ctx context.Context, id uuid.UUID, path string) (_ bool, err error) {
-	defer func() { err = fmt.Errorf("UpsertTransfer: %v", err) }()
+	defer wrap(&err, "UpdateTransfer(%s, %s)", id, path)
 
 	conn, _ := s.pool.Conn(ctx)
 	defer conn.Close()
@@ -196,7 +198,7 @@ func (s *mysqlStoreImpl) UpsertTransfer(ctx context.Context, id uuid.UUID, path 
 }
 
 func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uuid.UUID, _ bool, err error) {
-	defer func() { err = fmt.Errorf("EnsureTransfer: %v", err) }()
+	defer wrap(&err, "EnsureTransfer(%s)", path)
 
 	conn, _ := s.pool.Conn(ctx)
 	defer conn.Close()
@@ -216,6 +218,15 @@ func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uui
 		return uuid.Nil, false, fmt.Errorf("read transfer: %v", err)
 	}
 
+	commit := func(tx *sql.Tx) error {
+		err := tx.Commit()
+		if err != nil {
+			return fmt.Errorf("commit: %v", nil)
+		}
+
+		return nil
+	}
+
 	// Create the transfer as it has not been created yet.
 	if err == sql.ErrNoRows {
 		id := uuid.New()
@@ -225,7 +236,7 @@ func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uui
 		}); err != nil {
 			return uuid.Nil, false, fmt.Errorf("create transfer: %v", err)
 		} else {
-			return id, true, tx.Commit()
+			return id, true, commit(tx)
 		}
 	}
 
@@ -248,4 +259,10 @@ func (s *mysqlStoreImpl) Close() error {
 	}
 
 	return err
+}
+
+func wrap(errp *error, format string, args ...any) {
+	if *errp != nil {
+		*errp = fmt.Errorf("%s: %v", fmt.Sprintf(format, args...), *errp)
+	}
 }
