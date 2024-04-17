@@ -264,6 +264,7 @@ func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
 		}
 	}
 
+	u.p.id = id
 	u.p.logger.V(1).Info("Transfer hydrated.", "created", created, "id", id)
 
 	return nil
