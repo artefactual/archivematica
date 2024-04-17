@@ -100,7 +100,7 @@ greenlet==3.0.3
     # via
     #   -r requirements.txt
     #   gevent
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via -r requirements.txt
 idna==3.7
     # via
@@ -281,7 +281,7 @@ urllib3==2.2.1
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.25.1
+virtualenv==20.25.2
     # via tox
 wheel==0.43.0
     # via pip-tools
