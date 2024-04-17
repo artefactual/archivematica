@@ -227,6 +227,39 @@ func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uui
 	return id, false, nil
 }
 
+func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, packageType, name string) (vars []UnitVar, err error) {
+	defer wrap(&err, "ReadUnitVars(%s, %s)", packageType, name)
+
+	ret, err := s.queries.ReadUnitVars(ctx, &sqlc.ReadUnitVarsParams{
+		Unituuid: id,
+		Variable: sql.NullString{
+			String: name,
+			Valid:  true,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range ret {
+		if packageType != "" && packageType != item.Unittype.String {
+			continue // Filter by package type if requested.
+		}
+		uv := UnitVar{}
+		if item.Variablevalue.Valid {
+			uv.Value = &item.Variablevalue.String
+		}
+		if item.Microservicechainlink.Valid {
+			if linkID, err := uuid.Parse(item.Microservicechainlink.String); err == nil {
+				uv.LinkID = &linkID
+			}
+		}
+		vars = append(vars, uv)
+	}
+
+	return vars, nil
+}
+
 func (s *mysqlStoreImpl) Running() bool {
 	return s != nil
 }

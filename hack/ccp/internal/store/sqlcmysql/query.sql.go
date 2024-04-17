@@ -180,21 +180,50 @@ func (q *Queries) ReadTransferWithLocation(ctx context.Context, currentlocation 
 	return transferuuid, err
 }
 
-const readWorkflowUnitVariable = `-- name: ReadWorkflowUnitVariable :one
-SELECT microServiceChainLink FROM UnitVariables WHERE unitType = ? AND unitUUID = ? AND variable = ?
+const readUnitVars = `-- name: ReadUnitVars :many
+SELECT unitType, unitUUID, variable, variableValue, microServiceChainLink FROM UnitVariables WHERE unitUUID = ? AND variable = ?
 `
 
-type ReadWorkflowUnitVariableParams struct {
-	Unittype sql.NullString
+type ReadUnitVarsParams struct {
 	Unituuid uuid.UUID
 	Variable sql.NullString
 }
 
-func (q *Queries) ReadWorkflowUnitVariable(ctx context.Context, arg *ReadWorkflowUnitVariableParams) (sql.NullString, error) {
-	row := q.queryRow(ctx, q.readWorkflowUnitVariableStmt, readWorkflowUnitVariable, arg.Unittype, arg.Unituuid, arg.Variable)
-	var microservicechainlink sql.NullString
-	err := row.Scan(&microservicechainlink)
-	return microservicechainlink, err
+type ReadUnitVarsRow struct {
+	Unittype              sql.NullString
+	Unituuid              uuid.UUID
+	Variable              sql.NullString
+	Variablevalue         sql.NullString
+	Microservicechainlink sql.NullString
+}
+
+func (q *Queries) ReadUnitVars(ctx context.Context, arg *ReadUnitVarsParams) ([]*ReadUnitVarsRow, error) {
+	rows, err := q.query(ctx, q.readUnitVarsStmt, readUnitVars, arg.Unituuid, arg.Variable)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ReadUnitVarsRow{}
+	for rows.Next() {
+		var i ReadUnitVarsRow
+		if err := rows.Scan(
+			&i.Unittype,
+			&i.Unituuid,
+			&i.Variable,
+			&i.Variablevalue,
+			&i.Microservicechainlink,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const releaseLock = `-- name: ReleaseLock :one

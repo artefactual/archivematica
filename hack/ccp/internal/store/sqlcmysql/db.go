@@ -60,8 +60,8 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.readTransferWithLocationStmt, err = db.PrepareContext(ctx, readTransferWithLocation); err != nil {
 		return nil, fmt.Errorf("error preparing query ReadTransferWithLocation: %w", err)
 	}
-	if q.readWorkflowUnitVariableStmt, err = db.PrepareContext(ctx, readWorkflowUnitVariable); err != nil {
-		return nil, fmt.Errorf("error preparing query ReadWorkflowUnitVariable: %w", err)
+	if q.readUnitVarsStmt, err = db.PrepareContext(ctx, readUnitVars); err != nil {
+		return nil, fmt.Errorf("error preparing query ReadUnitVars: %w", err)
 	}
 	if q.releaseLockStmt, err = db.PrepareContext(ctx, releaseLock); err != nil {
 		return nil, fmt.Errorf("error preparing query ReleaseLock: %w", err)
@@ -137,9 +137,9 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing readTransferWithLocationStmt: %w", cerr)
 		}
 	}
-	if q.readWorkflowUnitVariableStmt != nil {
-		if cerr := q.readWorkflowUnitVariableStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing readWorkflowUnitVariableStmt: %w", cerr)
+	if q.readUnitVarsStmt != nil {
+		if cerr := q.readUnitVarsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing readUnitVarsStmt: %w", cerr)
 		}
 	}
 	if q.releaseLockStmt != nil {
@@ -208,7 +208,7 @@ type Queries struct {
 	getLockStmt                      *sql.Stmt
 	readTransferLocationStmt         *sql.Stmt
 	readTransferWithLocationStmt     *sql.Stmt
-	readWorkflowUnitVariableStmt     *sql.Stmt
+	readUnitVarsStmt                 *sql.Stmt
 	releaseLockStmt                  *sql.Stmt
 	updateJobStatusStmt              *sql.Stmt
 	updateTransferLocationStmt       *sql.Stmt
@@ -230,7 +230,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getLockStmt:                      q.getLockStmt,
 		readTransferLocationStmt:         q.readTransferLocationStmt,
 		readTransferWithLocationStmt:     q.readTransferWithLocationStmt,
-		readWorkflowUnitVariableStmt:     q.readWorkflowUnitVariableStmt,
+		readUnitVarsStmt:                 q.readUnitVarsStmt,
 		releaseLockStmt:                  q.releaseLockStmt,
 		updateJobStatusStmt:              q.updateJobStatusStmt,
 		updateTransferLocationStmt:       q.updateTransferLocationStmt,

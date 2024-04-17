@@ -25,6 +25,13 @@ type Store interface {
 	// a new Transfer with a new UUID otherwise.
 	EnsureTransfer(ctx context.Context, path string) (id uuid.UUID, created bool, err error)
 
+	// ReadUnitVars retrieves a list of package variables associated with a
+	// specific package identified by its type and UUID. It filters the
+	// variables based on the provided name. If name is an empty string, it
+	// returns all variables for the specified package. If name is provided,
+	// only variables matching this name are returned.
+	ReadUnitVars(ctx context.Context, id uuid.UUID, packageType string, name string) ([]UnitVar, error)
+
 	Running() bool
 	Close() error
 }
@@ -50,4 +57,10 @@ func New(logger logr.Logger, driver, dsn string) (Store, error) {
 	}
 
 	return store, nil
+}
+
+type UnitVar struct {
+	Name   string
+	Value  *string
+	LinkID *uuid.UUID
 }

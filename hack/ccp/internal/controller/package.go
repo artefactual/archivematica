@@ -13,9 +13,11 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/elliotchance/orderedmap/v2"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/python"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
@@ -31,6 +33,7 @@ type Package struct {
 	isDir     bool
 	sharedDir string
 	watchedAt *workflow.WatchedDirectory
+	ctx       packageContext
 	decision  decision
 	unit
 }
@@ -200,6 +203,10 @@ func (p *Package) replacements() replacementMapping {
 		"%watchDirectoryPath%":  replacement(filepath.Join(p.sharedDir, "watchedDirectories")),
 		"%rejectedDirectory%":   replacement(filepath.Join(p.sharedDir, "rejected")),
 	}
+}
+
+func (p *Package) context(ctx context.Context) (*packageContext, error) {
+	return loadContext(ctx, p)
 }
 
 type replacement string
@@ -501,4 +508,42 @@ func uuidFromPath(path string) uuid.UUID {
 		return uuid.Nil
 	}
 	return id
+}
+
+// packagecontext tracks choices made previously while processing.
+type packageContext struct {
+	// We're using an ordered map to mimic PackageContext's use of OrderedDict.
+	// It may not be necessary after all.
+	*orderedmap.OrderedMap[string, string]
+}
+
+func loadContext(ctx context.Context, p *Package) (*packageContext, error) {
+	pCtx := &packageContext{
+		orderedmap.NewOrderedMap[string, string](),
+	}
+
+	// TODO: we shouldn't need one UnitVariable per chain, with all the same values.
+	vars, err := p.store.ReadUnitVars(ctx, p.id, p.unitVariableType(), "replacementDict")
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range vars {
+		if item.Value == nil {
+			continue
+		}
+		m, err := python.EvalMap(*item.Value)
+		if err != nil {
+			p.logger.Error(err, "Failed to eval unit variable value %q.", *item.Value)
+			continue
+		}
+		for k, v := range m {
+			pCtx.Set(k, v)
+		}
+	}
+
+	return pCtx, nil
+}
+
+func (ctx *packageContext) copy() *orderedmap.OrderedMap[string, string] {
+	return ctx.Copy()
 }
