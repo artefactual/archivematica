@@ -116,6 +116,20 @@ variables or in the gunicorn configuration file.
   - **Type:** `string`
   - :red_circle: **Mandatory!**
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_TRUSTED_ORIGINS`**:
+  - **Description:** a comma separated list of trusted origins for unsafe
+    requests (e.g. POST). Must include the schema, e.g:
+    `"https://example.com,https://example2.com"`. <https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins>
+  - **Type:** `string`
+  - **Default:** `""`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_USE_X_FORWARDED_HOST`**:
+  - **Description:** a boolean that specifies whether to use the
+    X-Forwarded-Host header in preference to the Host header. This should only
+    be enabled if a proxy which sets this header is in use. <https://docs.djangoproject.com/en/dev/ref/settings/#use-x-forwarded-host>
+  - **Type:** `boolean`
+  - **Defalt:** `false`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_DJANGO_SECRET_KEY`**:
   - **Description:** a secret key used for cryptographic signing. See [SECRET_KEY]
     for more details.
