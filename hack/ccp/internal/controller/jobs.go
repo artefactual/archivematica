@@ -20,25 +20,22 @@ type job struct {
 	id        uuid.UUID
 	createdAt time.Time
 	logger    logr.Logger
+	chain     *chain
 	p         *Package
 	wl        *workflow.Link
 	gearman   *gearmin.Server
-	jobCtx    jobContext
 	jobRunner
-}
-
-type jobContext struct {
-	replacements map[string]replacement
 }
 
 type jobRunner interface {
 	exec(context.Context) (uuid.UUID, error)
 }
 
-func newJob(logger logr.Logger, p *Package, gearman *gearmin.Server, wl *workflow.Link) (*job, error) {
+func newJob(logger logr.Logger, chain *chain, p *Package, gearman *gearmin.Server, wl *workflow.Link) (*job, error) {
 	j := &job{
 		id:        uuid.New(),
 		createdAt: time.Now().UTC(),
+		chain:     chain,
 		p:         p,
 		wl:        wl,
 		gearman:   gearman,
@@ -143,7 +140,7 @@ func (j *job) replaceValues(cmd string, replacements replacementMapping) string 
 	}
 
 	for k, v := range replacements {
-		cmd = strings.Replace(cmd, k, v.escape(), -1)
+		cmd = strings.ReplaceAll(cmd, k, v.escape())
 	}
 
 	return cmd
@@ -314,16 +311,16 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 	}
 
 	replacements := l.j.p.unit.replacements(l.config.FilterSubdir)
-	replacements.withContext(l.j.jobCtx)
+	replacements.withContext(l.j.chain.ctx)
 
 	args := l.j.replaceValues(l.config.Arguments, replacements)
 	stdout := l.j.replaceValues(l.config.StdoutFile, replacements)
 	stderr := l.j.replaceValues(l.config.StderrFile, replacements)
 
-	tt := &tasks{}
-	tt.add(l.j.jobCtx, args, false, stdout, stderr)
+	tt := &tasks{Tasks: map[uuid.UUID]*task{}}
+	tt.add(l.j.chain.ctx, args, false, stdout, stderr)
 
-	res, err := submitJob(ctx, l.j.gearman, l.config.Execute, tt)
+	res, err := submitJob(ctx, l.j.logger, l.j.gearman, l.config.Execute, tt)
 
 	l.j.logger.Info("Job executed.", "results", res, "err", err)
 	if err != nil {

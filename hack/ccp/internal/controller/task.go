@@ -22,14 +22,14 @@ func (t tasks) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&struct{ *alias }{alias: (*alias)(&t)})
 }
 
-func (tt tasks) add(jobCtx jobContext, args string, wantsOutput bool, stdoutFilePath, stderrFilePath string) {
+func (tt tasks) add(pCtx *packageContext, args string, wantsOutput bool, stdoutFilePath, stderrFilePath string) {
 	t := &task{
 		ID:             uuid.New(),
 		CreatedAt:      mcpTime{time.Now().UTC()},
 		Args:           args,
 		stdoutFilePath: stdoutFilePath,
 		stderrFilePath: stderrFilePath,
-		jobCtx:         jobCtx,
+		pCtx:           pCtx,
 	}
 
 	if wantsOutput || stdoutFilePath != "" || stderrFilePath != "" {
@@ -45,7 +45,7 @@ type task struct {
 	Args        string    `json:"arguments"`
 	WantsOutput bool      `json:"wants_output"`
 
-	jobCtx         jobContext
+	pCtx           *packageContext
 	stdoutFilePath string
 	stdout         string
 	stderrFilePath string

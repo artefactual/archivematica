@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
 )
@@ -40,7 +41,7 @@ func TestTasksEncoding(t *testing.T) {
 		err := json.Unmarshal([]byte(encoded), &ts)
 
 		assert.NilError(t, err)
-		assert.DeepEqual(t, ts, decoded)
+		assert.DeepEqual(t, ts, decoded, cmpopts.IgnoreUnexported(task{}))
 	})
 }
 

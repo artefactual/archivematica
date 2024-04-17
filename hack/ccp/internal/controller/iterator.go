@@ -15,8 +15,13 @@ import (
 
 var errWait = errors.New("wait")
 
-// Iterator carries a package through all its workflow.
-type Iterator struct {
+type chain struct {
+	doc *workflow.Chain
+	ctx *packageContext
+}
+
+// iterator carries a package through all its workflow.
+type iterator struct {
 	logger logr.Logger
 
 	gearman *gearmin.Server
@@ -27,13 +32,13 @@ type Iterator struct {
 
 	startAt uuid.UUID
 
-	chain *workflow.Chain
+	chain *chain
 
 	waitCh chan waitSignal
 }
 
-func NewIterator(logger logr.Logger, gearman *gearmin.Server, wf *workflow.Document, p *Package) *Iterator {
-	iter := &Iterator{
+func NewIterator(logger logr.Logger, gearman *gearmin.Server, wf *workflow.Document, p *Package) *iterator {
+	iter := &iterator{
 		logger:  logger,
 		gearman: gearman,
 		wf:      wf,
@@ -45,44 +50,54 @@ func NewIterator(logger logr.Logger, gearman *gearmin.Server, wf *workflow.Docum
 	return iter
 }
 
-func (i *Iterator) Process(ctx context.Context) error {
+func (i *iterator) Process(ctx context.Context) error {
 	next := i.startAt
 
 	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			n, err := i.runJob(ctx, next)
-			if err == io.EOF {
-				return nil
-			}
-			if err == errWait {
-				nnn, waitErr := i.wait(ctx) // puts the loop on hold.
-				if waitErr != nil {
-					return waitErr
-				}
-				next = nnn
-				continue
-			}
-			if err != nil {
-				return err
-			}
-			next = n
+		if err := ctx.Err(); err != nil {
+			return err
 		}
+
+		// If we're starting a new chain.
+		if ch, ok := i.wf.Chains[next]; ok {
+			i.logger.Info("Starting new chain.", "id", ch.ID, "desc", ch.Description)
+			i.chain = &chain{doc: ch}
+			if pCtx, err := loadContext(ctx, i.p); err != nil {
+				return fmt.Errorf("load context: %v", err)
+			} else {
+				i.chain.ctx = pCtx
+			}
+			next = ch.LinkID
+			continue
+		}
+
+		if i.chain == nil {
+			return fmt.Errorf("can't process a job without a chain")
+		}
+
+		n, err := i.runJob(ctx, next)
+		if err == io.EOF {
+			return nil
+		}
+		if err == errWait {
+			choice, waitErr := i.wait(ctx) // puts the loop on hold.
+			if waitErr != nil {
+				return fmt.Errorf("wait: %v", waitErr)
+			}
+			next = choice
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("run job: %v", err)
+		}
+		next = n
 	}
 }
 
 // runJob processes a job given the identifier of a workflow chain or link.
-func (i *Iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
-	if chain, ok := i.wf.Chains[id]; ok {
-		i.logger.Info("Processing job.", "type", "chain", "id", id, "desc", chain.Description["en"])
-		i.chain = chain
-		return chain.LinkID, nil
-	}
-
+func (i *iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
 	wl, ok := i.wf.Links[id]
-	i.logger.Info("Processing job.", "type", "link", "id", id, "desc", wl.Description, "manager", wl.Manager)
+	i.logger.Info("Processing job.", "type", "link", "linkID", id, "desc", wl.Description, "manager", wl.Manager)
 	if !ok {
 		return uuid.Nil, fmt.Errorf("link %s couldn't be found", id)
 	}
@@ -112,8 +127,8 @@ func (i *Iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 }
 
 // buildJob configures a workflow job given the workflow chain link definition.
-func (i *Iterator) buildJob(wl *workflow.Link) (*job, error) {
-	j, err := newJob(i.logger.WithName("job"), i.p, i.gearman, wl)
+func (i *iterator) buildJob(wl *workflow.Link) (*job, error) {
+	j, err := newJob(i.logger.WithName("job"), i.chain, i.p, i.gearman, wl)
 	if err != nil {
 		return nil, fmt.Errorf("build job: %v", err)
 	}
@@ -121,7 +136,7 @@ func (i *Iterator) buildJob(wl *workflow.Link) (*job, error) {
 	return j, nil
 }
 
-func (i *Iterator) wait(ctx context.Context) (uuid.UUID, error) {
+func (i *iterator) wait(ctx context.Context) (uuid.UUID, error) {
 	i.logger.Info("Package is now on hold.")
 
 	select {

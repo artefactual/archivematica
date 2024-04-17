@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/sevein/gearmin"
 	"gotest.tools/v3/assert"
@@ -16,7 +17,7 @@ func TestSubmitJob(t *testing.T) {
 	t.Run("Rejects nil tasks", func(t *testing.T) {
 		t.Parallel()
 
-		ret, err := submitJob(context.Background(), &gearmin.Server{}, "fn", nil)
+		ret, err := submitJob(context.Background(), logr.Discard(), &gearmin.Server{}, "fn", nil)
 
 		assert.Assert(t, ret == nil)
 		assert.Error(t, err, "submitJob: tasks is nil")
@@ -25,7 +26,7 @@ func TestSubmitJob(t *testing.T) {
 	t.Run("Rejects empty tasks", func(t *testing.T) {
 		t.Parallel()
 
-		ret, err := submitJob(context.Background(), &gearmin.Server{}, "fn", &tasks{})
+		ret, err := submitJob(context.Background(), logr.Discard(), &gearmin.Server{}, "fn", &tasks{})
 
 		assert.Assert(t, ret == nil)
 		assert.Error(t, err, "submitJob: marshal tasks: json: error calling MarshalJSON for type *controller.tasks: map is empty")
@@ -41,6 +42,7 @@ func TestSubmitJob(t *testing.T) {
 
 		ret, err := submitJob(
 			ctx,
+			logr.Discard(),
 			gearmin,
 			"fn",
 			&tasks{

@@ -33,7 +33,6 @@ type Package struct {
 	isDir     bool
 	sharedDir string
 	watchedAt *workflow.WatchedDirectory
-	ctx       packageContext
 	decision  decision
 	unit
 }
@@ -205,10 +204,6 @@ func (p *Package) replacements() replacementMapping {
 	}
 }
 
-func (p *Package) context(ctx context.Context) (*packageContext, error) {
-	return loadContext(ctx, p)
-}
-
 type replacement string
 
 // escape special characters like slashes, quotes, and backticks.
@@ -222,8 +217,10 @@ func (r replacement) escape() string {
 
 type replacementMapping map[string]replacement
 
-func (rm replacementMapping) withContext(ctx jobContext) {
-	maps.Copy(ctx.replacements, rm)
+func (rm replacementMapping) withContext(pCtx *packageContext) {
+	for el := pCtx.Front(); el != nil; el = el.Next() {
+		rm[el.Key] = rm[el.Value]
+	}
 }
 
 type unit interface {
@@ -510,7 +507,7 @@ func uuidFromPath(path string) uuid.UUID {
 	return id
 }
 
-// packagecontext tracks choices made previously while processing.
+// packageContext tracks choices made previously while processing.
 type packageContext struct {
 	// We're using an ordered map to mimic PackageContext's use of OrderedDict.
 	// It may not be necessary after all.
@@ -540,6 +537,12 @@ func loadContext(ctx context.Context, p *Package) (*packageContext, error) {
 			pCtx.Set(k, v)
 		}
 	}
+
+	kvs := []any{"len", pCtx.Len()}
+	for el := pCtx.Front(); el != nil; el = el.Next() {
+		kvs = append(kvs, fmt.Sprintf("var:%s", el.Key), el.Value)
+	}
+	p.logger.V(2).Info("Package context loaded from the database.", kvs...)
 
 	return pCtx, nil
 }

@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-logr/logr"
 	"github.com/sevein/gearmin"
 )
 
-func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, tasks *tasks) (res *taskResults, err error) {
+func submitJob(ctx context.Context, logger logr.Logger, gearman *gearmin.Server, funcName string, tasks *tasks) (res *taskResults, err error) {
 	defer func() {
 		err = fmt.Errorf("submitJob: %v", err)
 	}()
@@ -22,6 +23,8 @@ func submitJob(ctx context.Context, gearman *gearmin.Server, funcName string, ta
 	if err != nil {
 		return nil, fmt.Errorf("marshal tasks: %v", err)
 	}
+
+	logger.V(2).Info("Submitting job to the server.", "data", string(data))
 
 	done := make(chan struct{})
 
