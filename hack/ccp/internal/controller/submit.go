@@ -11,9 +11,11 @@ import (
 	"github.com/sevein/gearmin"
 )
 
-func submitJob(ctx context.Context, logger logr.Logger, gearman *gearmin.Server, funcName string, tasks *tasks) (res *taskResults, err error) {
+func submitJob(ctx context.Context, logger logr.Logger, gearman *gearmin.Server, funcName string, tasks *tasks) (_ *taskResults, err error) {
 	defer func() {
-		err = fmt.Errorf("submitJob: %v", err)
+		if err != nil {
+			err = fmt.Errorf("submitJob: %v", err)
+		}
 	}()
 
 	if tasks == nil {
@@ -27,6 +29,7 @@ func submitJob(ctx context.Context, logger logr.Logger, gearman *gearmin.Server,
 	logger.V(2).Info("Submitting job to the server.", "data", string(data))
 
 	done := make(chan struct{})
+	res := &taskResults{}
 
 	gearman.Submit(
 		&gearmin.JobRequest{

@@ -83,11 +83,11 @@ func newJob(logger logr.Logger, chain *chain, pkg *Package, gearman *gearmin.Ser
 
 func (j *job) save(ctx context.Context) error {
 	return j.pkg.store.CreateJob(ctx, &sqlcmysql.CreateJobParams{
-		ID:             j.id,
-		Type:           j.wl.Description.String(),
-		CreatedAt:      j.createdAt,
-		Createdtimedec: fmt.Sprintf("%.9f", float64(j.createdAt.Nanosecond())/1e9),
-		// Directory: string,        '%sharedPath%currentlyProcessing/FOOBAR2-1fa48af6-8ec0-4ce5-b282-3150fa5f0cbe/',
+		ID:                j.id,
+		Type:              j.wl.Description.String(),
+		CreatedAt:         j.createdAt,
+		Createdtimedec:    fmt.Sprintf("%.9f", float64(j.createdAt.Nanosecond())/1e9),
+		Directory:         j.pkg.PathForDB(),
 		SIPID:             j.pkg.id,
 		Unittype:          j.pkg.jobUnitType(),
 		Currentstep:       3,
@@ -324,16 +324,13 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 
 	tt := &tasks{Tasks: map[uuid.UUID]*task{}}
 	tt.add(l.j.chain.ctx, args, false, stdout, stderr)
-
 	res, err := submitJob(ctx, l.j.logger, l.j.gearman, l.config.Execute, tt)
-
 	l.j.logger.Info("Job executed.", "results", res, "err", err)
 	if err != nil {
 		return uuid.Nil, err
 	}
 
 	task := res.Results[uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517")]
-
 	if err := l.j.updateStatusFromExitCode(ctx, task.ExitCode); err != nil {
 		return uuid.Nil, err
 	}
