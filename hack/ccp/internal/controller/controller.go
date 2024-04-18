@@ -189,7 +189,7 @@ func (c *Controller) deactivate(p *Package) {
 	defer c.mu.Unlock()
 
 	for i, item := range c.activePackages {
-		if item.name == p.name {
+		if item.id == p.id {
 			c.activePackages = append(c.activePackages[:i], c.activePackages[i+1:]...)
 			break
 		}

@@ -140,6 +140,20 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 	})
 }
 
+func (s *mysqlStoreImpl) ReadTransferLocation(ctx context.Context, id uuid.UUID) (loc string, err error) {
+	defer wrap(&err, "ReadTransferLocation(%s)", id)
+
+	ret, err := s.queries.ReadTransferLocation(ctx, id)
+	if err == sql.ErrNoRows {
+		return "", ErrNotFound
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return ret.Currentlocation, nil
+}
+
 func (s *mysqlStoreImpl) UpsertTransfer(ctx context.Context, id uuid.UUID, path string) (_ bool, err error) {
 	defer wrap(&err, "UpdateTransfer(%s, %s)", id, path)
 
@@ -237,6 +251,9 @@ func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, package
 			Valid:  true,
 		},
 	})
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -426,7 +443,17 @@ func (s *mysqlStoreImpl) Close() error {
 }
 
 func wrap(errp *error, format string, args ...any) {
-	if *errp != nil {
-		*errp = fmt.Errorf("%s: %v", fmt.Sprintf(format, args...), *errp)
+	if *errp == nil {
+		return
 	}
+	var (
+		errfmt  string
+		message = fmt.Sprintf(format, args...)
+	)
+	if *errp == ErrNotFound {
+		errfmt = "%s: %w"
+	} else {
+		errfmt = "%s: %v"
+	}
+	*errp = fmt.Errorf(errfmt, message, *errp)
 }

@@ -19,6 +19,9 @@ type Store interface {
 	CreateJob(ctx context.Context, params *sqlc.CreateJobParams) error
 	UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) error
 
+	// ReadTransferLocation returns the current path of a Transfer.
+	ReadTransferLocation(ctx context.Context, id uuid.UUID) (loc string, err error)
+
 	// UpsertTransfer checks for a Transfer using the specified UUID. It updates
 	// the current location if the Transfer exists, or it creates a new Transfer
 	// with the provided UUID and location if it does not exist.

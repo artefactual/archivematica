@@ -21,7 +21,7 @@ type job struct {
 	createdAt time.Time
 	logger    logr.Logger
 	chain     *chain
-	p         *Package
+	pkg       *Package
 	wl        *workflow.Link
 	gearman   *gearmin.Server
 	jobRunner
@@ -31,12 +31,12 @@ type jobRunner interface {
 	exec(context.Context) (uuid.UUID, error)
 }
 
-func newJob(logger logr.Logger, chain *chain, p *Package, gearman *gearmin.Server, wl *workflow.Link) (*job, error) {
+func newJob(logger logr.Logger, chain *chain, pkg *Package, gearman *gearmin.Server, wl *workflow.Link) (*job, error) {
 	j := &job{
 		id:        uuid.New(),
 		createdAt: time.Now().UTC(),
 		chain:     chain,
-		p:         p,
+		pkg:       pkg,
 		wl:        wl,
 		gearman:   gearman,
 	}
@@ -82,14 +82,14 @@ func newJob(logger logr.Logger, chain *chain, p *Package, gearman *gearmin.Serve
 }
 
 func (j *job) save(ctx context.Context) error {
-	return j.p.store.CreateJob(ctx, &sqlcmysql.CreateJobParams{
+	return j.pkg.store.CreateJob(ctx, &sqlcmysql.CreateJobParams{
 		ID:             j.id,
 		Type:           j.wl.Description.String(),
 		CreatedAt:      j.createdAt,
 		Createdtimedec: fmt.Sprintf("%.9f", float64(j.createdAt.Nanosecond())/1e9),
 		// Directory: string,        '%sharedPath%currentlyProcessing/FOOBAR2-1fa48af6-8ec0-4ce5-b282-3150fa5f0cbe/',
-		SIPID:             j.p.id,
-		Unittype:          j.p.jobUnitType(),
+		SIPID:             j.pkg.id,
+		Unittype:          j.pkg.jobUnitType(),
 		Currentstep:       3,
 		Microservicegroup: j.wl.Group.String(),
 		Hidden:            false,
@@ -101,7 +101,7 @@ func (j *job) save(ctx context.Context) error {
 }
 
 func (j *job) markAwaitingDecision(ctx context.Context) error {
-	err := j.p.store.UpdateJobStatus(ctx, j.id, "STATUS_AWAITING_DECISION")
+	err := j.pkg.store.UpdateJobStatus(ctx, j.id, "STATUS_AWAITING_DECISION")
 	if err != nil {
 		return fmt.Errorf("mark awaiting decision: %v", err)
 	}
@@ -110,7 +110,7 @@ func (j *job) markAwaitingDecision(ctx context.Context) error {
 }
 
 func (j *job) markComplete(ctx context.Context) error {
-	err := j.p.store.UpdateJobStatus(ctx, j.id, "STATUS_COMPLETED_SUCCESSFULLY")
+	err := j.pkg.store.UpdateJobStatus(ctx, j.id, "STATUS_COMPLETED_SUCCESSFULLY")
 	if err != nil {
 		return fmt.Errorf("mark complete: %v", err)
 	}
@@ -126,7 +126,7 @@ func (j *job) updateStatusFromExitCode(ctx context.Context, code int) error {
 		status = j.wl.FallbackJobStatus
 	}
 
-	err := j.p.store.UpdateJobStatus(ctx, j.id, status)
+	err := j.pkg.store.UpdateJobStatus(ctx, j.id, status)
 	if err != nil {
 		return fmt.Errorf("update job status from exit code: %v", err)
 	}
@@ -205,7 +205,7 @@ func newNextChainDecisionJob(j *job) (*nextChainDecisionJob, error) {
 
 func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	// When we have a preconfigured choice.
-	choice, err := l.j.p.PreconfiguredChoice(l.j.wl.ID)
+	choice, err := l.j.pkg.PreconfiguredChoice(l.j.wl.ID)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -222,7 +222,7 @@ func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	for i, item := range l.config.Choices {
 		opts[i] = option(item.String())
 	}
-	if decision, err := l.j.p.AwaitDecision(ctx, opts); err != nil {
+	if decision, err := l.j.pkg.AwaitDecision(ctx, opts); err != nil {
 		return uuid.Nil, fmt.Errorf("await decision: %v", err)
 	} else {
 		return decision.uuid(), nil
@@ -308,14 +308,14 @@ func newDirectoryClientScriptJob(j *job) (*directoryClientScriptJob, error) {
 }
 
 func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
-	if err := l.j.p.reload(ctx); err != nil {
+	if err := l.j.pkg.reload(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("reload: %v", err)
 	}
 	if err := l.j.save(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	replacements := l.j.p.unit.replacements(l.config.FilterSubdir)
+	replacements := l.j.pkg.unit.replacements(l.config.FilterSubdir)
 	replacements.withContext(l.j.chain.ctx)
 
 	args := l.j.replaceValues(l.config.Arguments, replacements)
@@ -420,7 +420,7 @@ func newSetUnitVarLinkJob(j *job) (*setUnitVarLinkJob, error) {
 }
 
 func (l *setUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
-	if err := l.j.p.saveLinkID(ctx, l.config.Variable, l.config.ChainID); err != nil {
+	if err := l.j.pkg.saveLinkID(ctx, l.config.Variable, l.config.ChainID); err != nil {
 		return uuid.Nil, err
 	}
 
@@ -456,14 +456,14 @@ func newGetUnitVarLinkJob(j *job) (*getUnitVarLinkJob, error) {
 }
 
 func (l *getUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
-	if err := l.j.p.reload(ctx); err != nil {
+	if err := l.j.pkg.reload(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("reload: %v", err)
 	}
 	if err := l.j.save(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	linkID, err := l.j.p.store.ReadUnitLinkID(ctx, l.j.p.id, l.j.p.unitVariableType(), l.config.Variable)
+	linkID, err := l.j.pkg.store.ReadUnitLinkID(ctx, l.j.pkg.id, l.j.pkg.unitVariableType(), l.config.Variable)
 	if err == sql.ErrNoRows {
 		return l.config.ChainID, nil
 	}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"iter"
 	"maps"
 	"os"
 	"path/filepath"
@@ -15,7 +16,6 @@ import (
 	"github.com/elliotchance/orderedmap/v2"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"iter"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/python"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
@@ -24,17 +24,31 @@ import (
 
 // A Package can be a Transfer, a SIP, or a DIP.
 type Package struct {
-	logger    logr.Logger
-	store     store.Store
-	id        uuid.UUID
-	path      string
-	base      string
-	name      string
-	isDir     bool
+	logger logr.Logger
+
+	// Datastore.
+	store store.Store
+
+	// Path of the shared directory.
 	sharedDir string
-	watchedAt *workflow.WatchedDirectory
-	decision  decision
+
+	// The underlying package type.
 	unit
+
+	// Identifier, populated by hydrate().
+	id uuid.UUID
+
+	// Current path, populated by hydrate().
+	path string
+
+	// Whether the package was submitted as a directory.
+	isDir bool
+
+	// Watched directory workflow document.
+	watchedAt *workflow.WatchedDirectory
+
+	// User decisinon manager
+	decision decision
 }
 
 func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path, sharedDir string, wd *workflow.WatchedDirectory) (*Package, error) {
@@ -43,14 +57,10 @@ func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path
 		return nil, fmt.Errorf("stat: %v", err)
 	}
 
-	base, name := filepath.Split(path)
-
 	p := &Package{
 		logger:    logger,
 		store:     store,
 		path:      path,
-		base:      base,
-		name:      name,
 		isDir:     fi.IsDir(),
 		sharedDir: sharedDir,
 		watchedAt: wd,
@@ -58,11 +68,11 @@ func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path
 
 	switch {
 	case wd.UnitType == "Transfer":
-		p.unit = &Transfer{p: p}
+		p.unit = &Transfer{pkg: p}
 	case wd.UnitType == "SIP" && p.isDir:
-		p.unit = &SIP{p: p}
+		p.unit = &SIP{pkg: p}
 	case wd.UnitType == "DIP" && p.isDir:
-		p.unit = &DIP{p: p}
+		p.unit = &DIP{pkg: p}
 	default:
 		return nil, fmt.Errorf("unexpected type given for file %q (dir: %t)", path, p.isDir)
 	}
@@ -74,8 +84,29 @@ func NewPackage(ctx context.Context, logger logr.Logger, store store.Store, path
 	return p, nil
 }
 
+// Path returns the real (no share dir vars) path to the package.
+func (p *Package) Path() string {
+	return strings.Replace(p.path, "%sharedPath%", p.sharedDir, 1)
+}
+
+func (p *Package) UpdatePath(path string) {
+	p.path = strings.Replace(p.path, "%sharedPath%", p.sharedDir, 1)
+}
+
+// PathForDB returns the path to the package, as stored in the database.
+func (p *Package) PathForDB() string {
+	return strings.Replace(p.path, p.sharedDir, "%sharedPath%", 1)
+}
+
+// Name returns the package name derived from its dirname.
+func (p *Package) Name() string {
+	name := filepath.Base(filepath.Clean(p.Path()))
+	return strings.Replace(name, "-"+p.id.String(), "", 1)
+}
+
+// String implements fmt.Stringer.
 func (p *Package) String() string {
-	return p.name
+	return p.Name()
 }
 
 func (p *Package) PreconfiguredChoice(linkID uuid.UUID) (*workflow.Choice, error) {
@@ -169,7 +200,7 @@ func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir str
 		if false {
 			yield(map[string]replacement{}, nil)
 		}
-		err := filepath.WalkDir(p.base, func(path string, d fs.DirEntry, err error) error {
+		err := filepath.WalkDir(p.Path(), func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
@@ -197,10 +228,10 @@ func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir str
 
 func (p *Package) replacements() replacementMapping {
 	return map[string]replacement{
-		"%tmpDirectory%":        replacement(filepath.Join(p.sharedDir, "tmp")),
-		"%processingDirectory%": replacement(filepath.Join(p.sharedDir, "currentlyProcessing")),
-		"%watchDirectoryPath%":  replacement(filepath.Join(p.sharedDir, "watchedDirectories")),
-		"%rejectedDirectory%":   replacement(filepath.Join(p.sharedDir, "rejected")),
+		"%tmpDirectory%":        replacement(joinPath(p.sharedDir, "tmp", "")),
+		"%processingDirectory%": replacement(joinPath(p.sharedDir, "currentlyProcessing", "")),
+		"%watchDirectoryPath%":  replacement(joinPath(p.sharedDir, "watchedDirectories", "")),
+		"%rejectedDirectory%":   replacement(joinPath(p.sharedDir, "rejected", "")),
 	}
 }
 
@@ -225,10 +256,23 @@ type replacement string
 // escape special characters like slashes, quotes, and backticks.
 func (r replacement) escape() string {
 	v := string(r)
+
+	// Escape backslashes first
 	v = strings.ReplaceAll(v, "\\", "\\\\")
-	v = strings.ReplaceAll(v, "\"", "\\\"")
-	v = strings.ReplaceAll(v, "`", "\\`")
-	return v
+
+	var escaped string
+	for _, char := range v {
+		switch char {
+		case '\\':
+			escaped += "\\\\"
+		case '"', '`':
+			escaped += "\\" + string(char)
+		default:
+			escaped += string(char)
+		}
+	}
+
+	return escaped
 }
 
 type replacementMapping map[string]replacement
@@ -251,15 +295,14 @@ type unit interface {
 }
 
 type Transfer struct {
-	p                       *Package
-	currentPath             string
+	pkg                     *Package
 	processingConfiguration string
 }
 
 var _ unit = (*Transfer)(nil)
 
 func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
-	path = strings.Replace(path, "%sharedPath%", u.p.sharedDir, 1)
+	path = strings.Replace(path, "%sharedPath%", u.pkg.sharedDir, 1)
 	id := uuidFromPath(path)
 	created := false
 
@@ -268,28 +311,41 @@ func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
 	// the latter.
 	if id != uuid.Nil {
 		var opErr error
-		created, opErr = u.p.store.UpsertTransfer(ctx, id, path)
+		created, opErr = u.pkg.store.UpsertTransfer(ctx, id, path)
 		if opErr != nil {
 			return opErr
 		}
 	} else {
 		var opErr error
-		id, created, opErr = u.p.store.EnsureTransfer(ctx, path)
+		id, created, opErr = u.pkg.store.EnsureTransfer(ctx, path)
 		if opErr != nil {
 			return opErr
 		}
 	}
 
-	u.p.id = id
-	u.p.logger.V(1).Info("Transfer hydrated.", "created", created, "id", id)
+	u.pkg.id = id
+	u.pkg.path = path
+	u.pkg.logger.V(1).Info("Transfer hydrated.", "created", created, "id", id)
 
 	return nil
 }
 
 func (u *Transfer) reload(ctx context.Context) error {
-	// transfer = models.Transfer.objects.get(uuid=self.uuid)
-	// self.current_path = transfer.currentlocation
-	// self.processing_configuration = transfer.processing_configuration
+	path, err := u.pkg.store.ReadTransferLocation(ctx, u.pkg.id)
+	if err != nil {
+		return err
+	}
+	u.pkg.UpdatePath(path)
+
+	name, err := u.pkg.store.ReadUnitVar(ctx, u.pkg.id, u.unitVariableType(), "processingConfiguration")
+	if errors.Is(err, store.ErrNotFound) {
+		u.processingConfiguration = "default"
+	} else if err != nil {
+		return err
+	} else {
+		u.processingConfiguration = name
+	}
+
 	return nil
 }
 
@@ -304,10 +360,10 @@ func (u *Transfer) markDone(ctx context.Context) error {
 }
 
 func (u *Transfer) replacements(filterSubdirPath string) replacementMapping {
-	mapping := u.p.replacements()
-	maps.Copy(mapping, baseReplacements(u.p, u.currentPath))
+	mapping := u.pkg.replacements()
+	maps.Copy(mapping, baseReplacements(u.pkg))
 	maps.Copy(mapping, map[string]replacement{
-		u.replacementPath():        replacement(u.currentPath),
+		u.replacementPath():        replacement(u.pkg.Path()),
 		"%unitType%":               replacement(u.unitVariableType()),
 		"%processingConfiguration": replacement(u.processingConfiguration),
 	})
@@ -328,8 +384,7 @@ func (u *Transfer) jobUnitType() string {
 }
 
 type SIP struct {
-	p           *Package
-	currentPath string
+	pkg         *Package
 	aipFilename string
 	sipType     string
 }
@@ -359,8 +414,8 @@ func (u *SIP) markDone(ctx context.Context) error {
 }
 
 func (u *SIP) replacements(filterSubdirPath string) replacementMapping {
-	mapping := u.p.replacements()
-	maps.Copy(mapping, baseReplacements(u.p, u.currentPath))
+	mapping := u.pkg.replacements()
+	maps.Copy(mapping, baseReplacements(u.pkg))
 	maps.Copy(mapping, map[string]replacement{
 		"%unitType%":   replacement(u.unitVariableType()),
 		"%AIPFilename": replacement(u.aipFilename),
@@ -382,8 +437,7 @@ func (u *SIP) jobUnitType() string {
 }
 
 type DIP struct {
-	p           *Package
-	currentPath string
+	pkg *Package
 }
 
 var _ unit = (*DIP)(nil)
@@ -407,14 +461,14 @@ func (u *DIP) markDone(ctx context.Context) error {
 }
 
 func (u *DIP) replacements(filterSubdirPath string) replacementMapping {
-	mapping := u.p.replacements()
-	maps.Copy(mapping, baseReplacements(u.p, u.currentPath))
+	mapping := u.pkg.replacements()
+	maps.Copy(mapping, baseReplacements(u.pkg))
 	maps.Copy(mapping, map[string]replacement{
 		"%unitType%": replacement(u.unitVariableType()),
 	})
 	if filterSubdirPath != "" {
 		mapping["%relativeLocation%"] = replacement(
-			strings.Replace(filterSubdirPath, "%sharedPath%", u.p.sharedDir, 1),
+			strings.Replace(filterSubdirPath, "%sharedPath%", u.pkg.sharedDir, 1),
 		)
 	}
 
@@ -500,28 +554,17 @@ func dirBasename(path string) string {
 }
 
 // Replacements needed by all unit types.
-func baseReplacements(p *Package, currentPath string) replacementMapping {
+func baseReplacements(p *Package) replacementMapping {
+	path := p.Path()
 	return map[string]replacement{
 		"%SIPUUID%":              replacement(p.id.String()),
-		"%SIPName%":              replacement(p.name),
-		"%SIPLogsDirectory%":     replacement(filepath.Join(currentPath, "logs") + string(filepath.Separator)),
-		"%SIPObjectsDirectory%":  replacement(filepath.Join(currentPath, "objects") + string(filepath.Separator)),
-		"%SIPDirectory%":         replacement(currentPath),
-		"%SIPDirectoryBasename%": replacement(dirBasename(currentPath)),
-		"%relativeLocation%":     replacement(strings.Replace(currentPath, "%sharedPath%", p.sharedDir, 1)),
+		"%SIPName%":              replacement(p.Name()),
+		"%SIPLogsDirectory%":     replacement(joinPath(path, "logs", "")),
+		"%SIPObjectsDirectory%":  replacement(joinPath(path, "objects", "")),
+		"%SIPDirectory%":         replacement(path),
+		"%SIPDirectoryBasename%": replacement(dirBasename(path)),
+		"%relativeLocation%":     replacement(p.PathForDB()),
 	}
-}
-
-func uuidFromPath(path string) uuid.UUID {
-	path = strings.TrimRight(path, "/")
-	if len(path) < 36 {
-		return uuid.Nil
-	}
-	id, err := uuid.Parse(path[len(path)-36:])
-	if err != nil {
-		return uuid.Nil
-	}
-	return id
 }
 
 // packageContext tracks choices made previously while processing.
