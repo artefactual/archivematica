@@ -167,8 +167,7 @@ def bulk_extractor(request, fileuuid):
                 + fileuuid
             )
             logger.error(message + "; response: %s", (response.text,))
-            response = {"success": False, "message": message}
-            helpers.json_response(response, status_code=500)
+            continue
 
         features[report] = _parse_bulk_extractor_report(response.text)
 
