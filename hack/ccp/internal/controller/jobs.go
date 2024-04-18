@@ -170,6 +170,7 @@ func newOutputDecisionJob(j *job) (*outputDecisionJob, error) {
 }
 
 func (l *outputDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
+	// TODO: store active agent with l.j.p.saveValue.
 	return uuid.Nil, nil
 }
 
@@ -226,6 +227,8 @@ func (l *nextChainDecisionJob) exec(ctx context.Context) (uuid.UUID, error) {
 	} else {
 		return decision.uuid(), nil
 	}
+
+	// TODO: store active agent with l.j.p.saveValue.
 }
 
 // updateContextDecisionJob is a job that updates the chain context based on a user choice.
@@ -275,6 +278,9 @@ func (l *updateContextDecisionJob) exec(ctx context.Context) (uuid.UUID, error) 
 	if id == nil || *id == uuid.Nil {
 		return uuid.Nil, errors.New("ops")
 	}
+
+	// TODO: store active agent with l.j.p.saveValue.
+
 	return *id, nil
 }
 
@@ -305,7 +311,6 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 	if err := l.j.p.reload(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("reload: %v", err)
 	}
-
 	if err := l.j.save(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
@@ -390,7 +395,8 @@ func (l *outputClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
 	return uuid.Nil, nil
 }
 
-// setUnitVarLinkJob is a local job that sets the unit variable configured in the workflow.
+// setUnitVarLinkJob is a local job that sets the unit variable configured in
+// the workflow.
 //
 // Manager: linkTaskManagerSetUnitVariable.
 // Class: SetUnitVarLinkJob(DecisionJob) (decisions.py).
@@ -414,10 +420,19 @@ func newSetUnitVarLinkJob(j *job) (*setUnitVarLinkJob, error) {
 }
 
 func (l *setUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
+	if err := l.j.p.saveLinkID(ctx, l.config.Variable, l.config.ChainID); err != nil {
+		return uuid.Nil, err
+	}
+
+	if err := l.j.markComplete(ctx); err != nil {
+		return uuid.Nil, err
+	}
+
 	return l.config.ChainID, nil
 }
 
-// getUnitVarLinkJob is a local job that gets the next link in the chain from a UnitVariable.
+// getUnitVarLinkJob is a local job that gets the next link in the chain from a
+// UnitVariable.
 //
 // Manager: linkTaskManagerUnitVariableLinkPull.
 // Class: GetUnitVarLinkJob(DecisionJob) (decisions.py).
@@ -441,5 +456,27 @@ func newGetUnitVarLinkJob(j *job) (*getUnitVarLinkJob, error) {
 }
 
 func (l *getUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
-	return l.config.ChainID, nil
+	if err := l.j.p.reload(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("reload: %v", err)
+	}
+	if err := l.j.save(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("save: %v", err)
+	}
+
+	linkID, err := l.j.p.store.ReadUnitLinkID(ctx, l.j.p.id, l.j.p.unitVariableType(), l.config.Variable)
+	if err == sql.ErrNoRows {
+		return l.config.ChainID, nil
+	}
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("read: %v", err)
+	}
+	if linkID == uuid.Nil {
+		linkID = l.config.ChainID
+	}
+
+	if err := l.j.markComplete(ctx); err != nil {
+		return uuid.Nil, err
+	}
+
+	return linkID, nil
 }

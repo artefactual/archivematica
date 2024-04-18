@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,6 +11,8 @@ import (
 
 	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 )
+
+var ErrNotFound error = errors.New("object not found")
 
 type Store interface {
 	RemoveTransientData(ctx context.Context) error
@@ -30,7 +33,16 @@ type Store interface {
 	// variables based on the provided name. If name is an empty string, it
 	// returns all variables for the specified package. If name is provided,
 	// only variables matching this name are returned.
-	ReadUnitVars(ctx context.Context, id uuid.UUID, packageType string, name string) ([]UnitVar, error)
+	ReadUnitVars(ctx context.Context, id uuid.UUID, packageType, name string) ([]UnitVar, error)
+
+	// ReadUnitVar reads a string value stored as a package variable.
+	ReadUnitVar(ctx context.Context, id uuid.UUID, packageType, name string) (string, error)
+
+	// ReadUnitLinkID reads a workflow link ID stored as a package variable.
+	ReadUnitLinkID(ctx context.Context, id uuid.UUID, packageType, name string) (uuid.UUID, error)
+
+	// CreateUnitVar creates a new variable.
+	CreateUnitVar(ctx context.Context, id uuid.UUID, packageType, name, value string, linkID uuid.UUID, update bool) error
 
 	Running() bool
 	Close() error

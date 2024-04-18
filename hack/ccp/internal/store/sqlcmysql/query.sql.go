@@ -118,26 +118,35 @@ func (q *Queries) CreateTransfer(ctx context.Context, arg *CreateTransferParams)
 	return err
 }
 
-const createWorkflowUnitVariable = `-- name: CreateWorkflowUnitVariable :exec
-INSERT INTO UnitVariables (unitType, unitUUID, variable, variableValue, microServiceChainLink) VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE variableValue = VALUES(variableValue), microServiceChainLink = VALUES(microServiceChainLink)
+const createUnitVar = `-- name: CreateUnitVar :exec
+INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microServiceChainLink, createdTime, updatedTime)
+VALUES (
+    UUID(),
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    UTC_TIMESTAMP(),
+    UTC_TIMESTAMP()
+)
 `
 
-type CreateWorkflowUnitVariableParams struct {
-	Unittype              sql.NullString
-	Unituuid              uuid.UUID
-	Variable              sql.NullString
-	Variablevalue         sql.NullString
-	Microservicechainlink sql.NullString
+type CreateUnitVarParams struct {
+	UnitType sql.NullString
+	UnitID   uuid.UUID
+	Name     sql.NullString
+	Value    sql.NullString
+	LinkID   uuid.NullUUID
 }
 
-func (q *Queries) CreateWorkflowUnitVariable(ctx context.Context, arg *CreateWorkflowUnitVariableParams) error {
-	_, err := q.exec(ctx, q.createWorkflowUnitVariableStmt, createWorkflowUnitVariable,
-		arg.Unittype,
-		arg.Unituuid,
-		arg.Variable,
-		arg.Variablevalue,
-		arg.Microservicechainlink,
+func (q *Queries) CreateUnitVar(ctx context.Context, arg *CreateUnitVarParams) error {
+	_, err := q.exec(ctx, q.createUnitVarStmt, createUnitVar,
+		arg.UnitType,
+		arg.UnitID,
+		arg.Name,
+		arg.Value,
+		arg.LinkID,
 	)
 	return err
 }
@@ -180,25 +189,47 @@ func (q *Queries) ReadTransferWithLocation(ctx context.Context, currentlocation 
 	return transferuuid, err
 }
 
+const readUnitVar = `-- name: ReadUnitVar :one
+SELECT variableValue, microServiceChainLink FROM UnitVariables WHERE unitType = ? AND unitUUID = ? AND variable = ?
+`
+
+type ReadUnitVarParams struct {
+	UnitType sql.NullString
+	UnitID   uuid.UUID
+	Name     sql.NullString
+}
+
+type ReadUnitVarRow struct {
+	Variablevalue sql.NullString
+	LinkID        uuid.NullUUID
+}
+
+func (q *Queries) ReadUnitVar(ctx context.Context, arg *ReadUnitVarParams) (*ReadUnitVarRow, error) {
+	row := q.queryRow(ctx, q.readUnitVarStmt, readUnitVar, arg.UnitType, arg.UnitID, arg.Name)
+	var i ReadUnitVarRow
+	err := row.Scan(&i.Variablevalue, &i.LinkID)
+	return &i, err
+}
+
 const readUnitVars = `-- name: ReadUnitVars :many
 SELECT unitType, unitUUID, variable, variableValue, microServiceChainLink FROM UnitVariables WHERE unitUUID = ? AND variable = ?
 `
 
 type ReadUnitVarsParams struct {
-	Unituuid uuid.UUID
-	Variable sql.NullString
+	UnitID uuid.UUID
+	Name   sql.NullString
 }
 
 type ReadUnitVarsRow struct {
-	Unittype              sql.NullString
-	Unituuid              uuid.UUID
-	Variable              sql.NullString
-	Variablevalue         sql.NullString
-	Microservicechainlink sql.NullString
+	Unittype      sql.NullString
+	Unituuid      uuid.UUID
+	Variable      sql.NullString
+	Variablevalue sql.NullString
+	LinkID        uuid.NullUUID
 }
 
 func (q *Queries) ReadUnitVars(ctx context.Context, arg *ReadUnitVarsParams) ([]*ReadUnitVarsRow, error) {
-	rows, err := q.query(ctx, q.readUnitVarsStmt, readUnitVars, arg.Unituuid, arg.Variable)
+	rows, err := q.query(ctx, q.readUnitVarsStmt, readUnitVars, arg.UnitID, arg.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +242,7 @@ func (q *Queries) ReadUnitVars(ctx context.Context, arg *ReadUnitVarsParams) ([]
 			&i.Unituuid,
 			&i.Variable,
 			&i.Variablevalue,
-			&i.Microservicechainlink,
+			&i.LinkID,
 		); err != nil {
 			return nil, err
 		}
@@ -262,5 +293,36 @@ type UpdateTransferLocationParams struct {
 
 func (q *Queries) UpdateTransferLocation(ctx context.Context, arg *UpdateTransferLocationParams) error {
 	_, err := q.exec(ctx, q.updateTransferLocationStmt, updateTransferLocation, arg.Currentlocation, arg.Transferuuid)
+	return err
+}
+
+const updateUnitVar = `-- name: UpdateUnitVar :exec
+UPDATE UnitVariables
+SET
+    variableValue = ?,
+    microServiceChainLink = ?,
+    updatedTime = UTC_TIMESTAMP()
+WHERE
+    unitType = ?
+    AND unitUUID = ?
+    AND variable = ?
+`
+
+type UpdateUnitVarParams struct {
+	Value    sql.NullString
+	LinkID   uuid.NullUUID
+	UnitType sql.NullString
+	UnitID   uuid.UUID
+	Name     sql.NullString
+}
+
+func (q *Queries) UpdateUnitVar(ctx context.Context, arg *UpdateUnitVarParams) error {
+	_, err := q.exec(ctx, q.updateUnitVarStmt, updateUnitVar,
+		arg.Value,
+		arg.LinkID,
+		arg.UnitType,
+		arg.UnitID,
+		arg.Name,
+	)
 	return err
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"iter"
 	"maps"
 	"os"
 	"path/filepath"
@@ -16,6 +15,7 @@ import (
 	"github.com/elliotchance/orderedmap/v2"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"iter"
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/python"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
@@ -204,6 +204,22 @@ func (p *Package) replacements() replacementMapping {
 	}
 }
 
+// saveValue persists "value" as a package variable.
+func (p *Package) saveValue(ctx context.Context, name, value string) error {
+	if err := p.store.CreateUnitVar(ctx, p.id, p.watchedAt.UnitType, name, value, uuid.Nil, true); err != nil {
+		return fmt.Errorf("save value: %v", err)
+	}
+	return nil
+}
+
+// saveLinkID persist "linkID" as a package variable.
+func (p *Package) saveLinkID(ctx context.Context, name string, linkID uuid.UUID) error {
+	if err := p.store.CreateUnitVar(ctx, p.id, p.watchedAt.UnitType, name, "", linkID, true); err != nil {
+		return fmt.Errorf("save linkID: %v", err)
+	}
+	return nil
+}
+
 type replacement string
 
 // escape special characters like slashes, quotes, and backticks.
@@ -245,7 +261,7 @@ var _ unit = (*Transfer)(nil)
 func (u *Transfer) hydrate(ctx context.Context, path, watchedDir string) error {
 	path = strings.Replace(path, "%sharedPath%", u.p.sharedDir, 1)
 	id := uuidFromPath(path)
-	created := true
+	created := false
 
 	// Ensure that a Transfer is either created or updated. The strategy differs
 	// depending on whether we know both its identifier and location, or only

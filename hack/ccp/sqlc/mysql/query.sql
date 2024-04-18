@@ -37,12 +37,35 @@ UPDATE SIPs SET status = 4, completed_at = UTC_TIMESTAMP() WHERE status IN (0, 1
 -- name: CleanUpActiveTasks :exec
 UPDATE Tasks SET exitCode = -1, stdError = "MCP shut down while processing." WHERE exitCode IS NULL;
 
--- name: ReadUnitVars :many
-SELECT unitType, unitUUID, variable, variableValue, microServiceChainLink FROM UnitVariables WHERE unitUUID = ? AND variable = ?;
+-- name: ReadUnitVar :one
+SELECT variableValue, microServiceChainLink FROM UnitVariables WHERE unitType = sqlc.arg(unit_type) AND unitUUID = sqlc.arg(unit_id) AND variable = sqlc.arg(name);
 
--- name: CreateWorkflowUnitVariable :exec
-INSERT INTO UnitVariables (unitType, unitUUID, variable, variableValue, microServiceChainLink) VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE variableValue = VALUES(variableValue), microServiceChainLink = VALUES(microServiceChainLink);
+-- name: ReadUnitVars :many
+SELECT unitType, unitUUID, variable, variableValue, microServiceChainLink FROM UnitVariables WHERE unitUUID = sqlc.arg(unit_id) AND variable = sqlc.arg(name);
+
+-- name: CreateUnitVar :exec
+INSERT INTO UnitVariables (pk, unitType, unitUUID, variable, variableValue, microServiceChainLink, createdTime, updatedTime)
+VALUES (
+    UUID(),
+    sqlc.arg(unit_type),
+    sqlc.arg(unit_id),
+    sqlc.arg(name),
+    sqlc.arg(value),
+    sqlc.arg(link_id),
+    UTC_TIMESTAMP(),
+    UTC_TIMESTAMP()
+);
+
+-- name: UpdateUnitVar :exec
+UPDATE UnitVariables
+SET
+    variableValue = sqlc.arg(value),
+    microServiceChainLink = sqlc.arg(link_id),
+    updatedTime = UTC_TIMESTAMP()
+WHERE
+    unitType = sqlc.arg(unit_type)
+    AND unitUUID = sqlc.arg(unit_id)
+    AND variable = sqlc.arg(name);
 
 -- name: GetLock :one
 SELECT COALESCE(GET_LOCK('lock', 0), 0);

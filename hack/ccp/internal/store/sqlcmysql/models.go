@@ -638,12 +638,12 @@ type Transfermetadataset struct {
 }
 
 type Unitvariable struct {
-	ID                    string
-	Unittype              sql.NullString
-	Unituuid              uuid.UUID
-	Variable              sql.NullString
-	Variablevalue         sql.NullString
-	CreatedAt             time.Time
-	UpdatedAt             time.Time
-	Microservicechainlink sql.NullString
+	ID            uuid.UUID
+	Unittype      sql.NullString
+	Unituuid      uuid.UUID
+	Variable      sql.NullString
+	Variablevalue sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	LinkID        uuid.NullUUID
 }

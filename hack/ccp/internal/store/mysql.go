@@ -231,8 +231,8 @@ func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, package
 	defer wrap(&err, "ReadUnitVars(%s, %s)", packageType, name)
 
 	ret, err := s.queries.ReadUnitVars(ctx, &sqlc.ReadUnitVarsParams{
-		Unituuid: id,
-		Variable: sql.NullString{
+		UnitID: id,
+		Name: sql.NullString{
 			String: name,
 			Valid:  true,
 		},
@@ -249,15 +249,162 @@ func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, package
 		if item.Variablevalue.Valid {
 			uv.Value = &item.Variablevalue.String
 		}
-		if item.Microservicechainlink.Valid {
-			if linkID, err := uuid.Parse(item.Microservicechainlink.String); err == nil {
-				uv.LinkID = &linkID
-			}
+		if item.LinkID.Valid {
+			uv.LinkID = &item.LinkID.UUID
 		}
 		vars = append(vars, uv)
 	}
 
 	return vars, nil
+}
+
+func (s *mysqlStoreImpl) ReadUnitVar(ctx context.Context, id uuid.UUID, packageType, name string) (_ string, err error) {
+	defer wrap(&err, "ReadUnitVar(%s, %s, %s)", id, packageType, name)
+
+	ret, err := s.queries.ReadUnitVar(ctx, &sqlc.ReadUnitVarParams{
+		UnitID: id,
+		UnitType: sql.NullString{
+			String: packageType,
+			Valid:  true,
+		},
+		Name: sql.NullString{
+			String: name,
+			Valid:  true,
+		},
+	})
+	if err == sql.ErrNoRows {
+		return "", ErrNotFound
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return ret.Variablevalue.String, nil
+}
+
+func (s *mysqlStoreImpl) ReadUnitLinkID(ctx context.Context, id uuid.UUID, packageType, name string) (_ uuid.UUID, err error) {
+	defer wrap(&err, "ReadUnitVarLinkID(%s, %s, %s)", id, packageType, name)
+
+	ret, err := s.queries.ReadUnitVar(ctx, &sqlc.ReadUnitVarParams{
+		UnitID: id,
+		UnitType: sql.NullString{
+			String: packageType,
+			Valid:  true,
+		},
+		Name: sql.NullString{
+			String: name,
+			Valid:  true,
+		},
+	})
+	if err == sql.ErrNoRows {
+		return uuid.Nil, ErrNotFound
+	}
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return ret.LinkID.UUID, nil
+}
+
+func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packageType, name, value string, linkID uuid.UUID, updateExisting bool) (err error) {
+	defer wrap(&err, "CreateUnitVar(%s, %s, %s, %s)", id, packageType, name, value)
+
+	tx, err := s.pool.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	q := s.queries.WithTx(tx)
+
+	exists := false
+	uv, err := q.ReadUnitVar(ctx, &sqlc.ReadUnitVarParams{
+		UnitID: id,
+		UnitType: sql.NullString{
+			String: packageType,
+			Valid:  true,
+		},
+		Name: sql.NullString{
+			String: name,
+			Valid:  true,
+		},
+	})
+	switch {
+	case err == sql.ErrNoRows:
+	case err != nil:
+		return err
+	default:
+		exists = true
+	}
+
+	var (
+		wantValue  sql.NullString
+		wantLinkID uuid.NullUUID
+	)
+	{
+		switch {
+		case value == "" && linkID == uuid.Nil:
+			return errors.New("both value and linkID are zero")
+		case value != "" && linkID != uuid.Nil:
+			return errors.New("both value and linkID are non-zero")
+		case value != "":
+			// MCPServer sets "link_id" to NULL when a "value" is given, e.g.:
+			// 	name="processingConfiguration", value="automated", link_id=NULL
+			wantValue.String = value
+			wantValue.Valid = true
+			wantLinkID.Valid = false
+		case linkID != uuid.Nil:
+			// MCPServer sets "value" to empty string when a "link_id" is given, e.g.:
+			//	name="reNormalize", value="", link_id="8ba83807-2832-4e41-843c-2e55ad10ea0b"/
+			wantValue.Valid = true
+			wantLinkID.UUID = linkID
+			wantLinkID.Valid = true
+		}
+	}
+
+	// It exists but it does not require further updates.
+	if exists && wantValue == uv.Variablevalue && wantLinkID == uv.LinkID {
+		return nil
+	}
+
+	// It exists and requires further updates but we rather raise an error.
+	if !updateExisting {
+		return errors.New("variable exists but with different propreties")
+	}
+
+	if exists {
+		err := q.UpdateUnitVar(ctx, &sqlc.UpdateUnitVarParams{
+			Value:  wantValue,
+			LinkID: wantLinkID,
+			// Where...
+			UnitID:   id,
+			UnitType: sql.NullString{String: packageType, Valid: true},
+			Name:     sql.NullString{String: name, Valid: true},
+		})
+		if err != nil {
+			return fmt.Errorf("update: %v", err)
+		} else {
+			return tx.Commit()
+		}
+	} else {
+		if err := s.queries.CreateUnitVar(ctx, &sqlc.CreateUnitVarParams{
+			UnitID: id,
+			UnitType: sql.NullString{
+				String: packageType,
+				Valid:  true,
+			},
+			Name: sql.NullString{
+				String: name,
+				Valid:  true,
+			},
+			Value:  wantValue,
+			LinkID: wantLinkID,
+		}); err != nil {
+			return fmt.Errorf("create: %v", err)
+		} else {
+			return tx.Commit()
+		}
+	}
 }
 
 func (s *mysqlStoreImpl) Running() bool {
