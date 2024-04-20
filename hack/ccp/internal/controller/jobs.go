@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -132,18 +131,6 @@ func (j *job) updateStatusFromExitCode(ctx context.Context, code int) error {
 	}
 
 	return nil
-}
-
-func (j *job) replaceValues(cmd string, replacements replacementMapping) string {
-	if cmd == "" {
-		return ""
-	}
-
-	for k, v := range replacements {
-		cmd = strings.ReplaceAll(cmd, k, v.escape())
-	}
-
-	return cmd
 }
 
 // outputDecisionJob.
@@ -315,12 +302,10 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	replacements := l.j.pkg.unit.replacements(l.config.FilterSubdir)
-	replacements.withContext(l.j.chain.ctx)
-
-	args := l.j.replaceValues(l.config.Arguments, replacements)
-	stdout := l.j.replaceValues(l.config.StdoutFile, replacements)
-	stderr := l.j.replaceValues(l.config.StderrFile, replacements)
+	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).withContext(l.j.chain.ctx)
+	args := rm.replaceValues(l.config.Arguments)
+	stdout := rm.replaceValues(l.config.StdoutFile)
+	stderr := rm.replaceValues(l.config.StderrFile)
 
 	tt := &tasks{Tasks: map[uuid.UUID]*task{}}
 	tt.add(l.j.chain.ctx, args, false, stdout, stderr)
@@ -330,10 +315,8 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		return uuid.Nil, err
 	}
 
-	task := res.Results[uuid.MustParse("09fdf5bb-3361-4323-9bd7-234fbc9b6517")]
-	if err := l.j.updateStatusFromExitCode(ctx, task.ExitCode); err != nil {
-		return uuid.Nil, err
-	}
+	// UPDATE EXIT CODE OF EACH JOB
+	// if err := l.j.updateStatusFromExitCode(ctx, task.ExitCode); err != nil { return uuid.Nil, err }
 
 	return *l.j.wl.FallbackLinkID, nil
 }

@@ -251,38 +251,6 @@ func (p *Package) saveLinkID(ctx context.Context, name string, linkID uuid.UUID)
 	return nil
 }
 
-type replacement string
-
-// escape special characters like slashes, quotes, and backticks.
-func (r replacement) escape() string {
-	v := string(r)
-
-	// Escape backslashes first
-	v = strings.ReplaceAll(v, "\\", "\\\\")
-
-	var escaped string
-	for _, char := range v {
-		switch char {
-		case '\\':
-			escaped += "\\\\"
-		case '"', '`':
-			escaped += "\\" + string(char)
-		default:
-			escaped += string(char)
-		}
-	}
-
-	return escaped
-}
-
-type replacementMapping map[string]replacement
-
-func (rm replacementMapping) withContext(pCtx *packageContext) {
-	for el := pCtx.Front(); el != nil; el = el.Next() {
-		rm[el.Key] = rm[el.Value]
-	}
-}
-
 type unit interface {
 	hydrate(ctx context.Context, path, watchedDir string) error
 	reload(ctx context.Context) error
@@ -609,4 +577,51 @@ func loadContext(ctx context.Context, p *Package) (*packageContext, error) {
 
 func (ctx *packageContext) copy() *orderedmap.OrderedMap[string, string] {
 	return ctx.Copy()
+}
+
+type replacement string
+
+// escape special characters like slashes, quotes, and backticks.
+func (r replacement) escape() string {
+	v := string(r)
+
+	// Escape backslashes first
+	v = strings.ReplaceAll(v, "\\", "\\\\")
+
+	var escaped string
+	for _, char := range v {
+		switch char {
+		case '\\':
+			escaped += "\\\\"
+		case '"', '`':
+			escaped += "\\" + string(char)
+		default:
+			escaped += string(char)
+		}
+	}
+
+	return escaped
+}
+
+type replacementMapping map[string]replacement
+
+func (rm replacementMapping) withContext(pCtx *packageContext) replacementMapping {
+	for el := pCtx.Front(); el != nil; el = el.Next() {
+		rm[el.Key] = replacement(el.Value)
+	}
+
+	return rm
+}
+
+func (rm replacementMapping) replaceValues(input string) string {
+	if input == "" {
+		return ""
+	}
+
+	for k, v := range rm {
+		fmt.Println(k, v)
+		input = strings.ReplaceAll(input, k, v.escape())
+	}
+
+	return input
 }
