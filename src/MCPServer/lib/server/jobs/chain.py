@@ -10,8 +10,6 @@ one by looking at the workflow.
 """
 import logging
 
-from django.utils import timezone
-from server.jobs.client import ClientScriptJob
 from server.jobs.client import DirectoryClientScriptJob
 from server.jobs.client import FilesClientScriptJob
 from server.jobs.client import OutputClientScriptJob
@@ -73,7 +71,6 @@ class JobChain:
         self.package = package
         self.chain = chain
         self.workflow = workflow
-        self.started_on = timezone.now()
 
         self.initial_link = starting_link or self.chain.link
         self.current_link = None
@@ -106,35 +103,20 @@ class JobChain:
             except KeyError:
                 next_link = None
 
-        if next_link:
-            self.current_link = next_link
-            job_class = get_job_class_for_link(self.current_link)
-            self.current_job = job_class(self, self.current_link, self.package)
-            return self.current_job
-        else:
+        # Chain completion.
+        if not next_link:
             self.current_link = None
             self.current_job = None
-            self.chain_completed()
+            logger.debug(
+                "Done with chain %s for package %s", self.id, self.package.uuid
+            )
             raise StopIteration
+
+        self.current_link = next_link
+        job_class = get_job_class_for_link(self.current_link)
+        self.current_job = job_class(self, self.current_link, self.package)
+        return self.current_job
 
     @property
     def id(self):
         return self.chain.id
-
-    def job_completed(self):
-        logger.debug(
-            "%s %s done with exit code %s",
-            self.current_job.__class__.__name__,
-            self.current_job.uuid,
-            self.current_job.exit_code,
-        )
-        if isinstance(self.current_job, ClientScriptJob):
-            self.current_job.update_status_from_exit_code()
-        else:
-            self.current_job.mark_complete()
-
-    def chain_completed(self):
-        """Log chain completion"""
-        logger.debug(
-            "Done with chain %s for package %s", self.chain.id, self.package.uuid
-        )

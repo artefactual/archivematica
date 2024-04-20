@@ -7,7 +7,6 @@ processing config file operations.
 import abc
 import logging
 import os
-import shutil
 
 import storageService as storage_service
 from django.conf import settings
@@ -298,27 +297,6 @@ def get_processing_fields(workflow, lang="en"):
     in the module-level attribute ``processing_fields``.
     """
     return [field.to_dict(workflow, lang) for field in processing_fields]
-
-
-def copy_processing_config(processing_config, destination_path):
-    if processing_config is None:
-        return
-
-    src = os.path.join(
-        settings.SHARED_DIRECTORY,
-        "sharedMicroServiceTasksConfigs/processingMCPConfigs",
-        "%sProcessingMCP.xml" % processing_config,
-    )
-    dest = os.path.join(destination_path, "processingMCP.xml")
-    try:
-        shutil.copyfile(src, dest)
-    except OSError:
-        logger.warning(
-            "Processing configuration could not be copied: (from=%s to=%s)",
-            src,
-            dest,
-            exc_info=True,
-        )
 
 
 def load_processing_xml(package_path):
