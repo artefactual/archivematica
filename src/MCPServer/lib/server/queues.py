@@ -186,10 +186,6 @@ class PackageQueue:
 
         return result
 
-    def stop(self):
-        """Trigger queue shutdown."""
-        self.shutdown_event.set()
-
     def _package_completed_callback(self, package, link_id, future):
         """Marks the package as inactive and schedules a new package.
 

@@ -24,7 +24,7 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdi
     job_chain_mock.return_value = iter(["some_chain_link"])
     mocker.patch("server.mcp.JobChain", job_chain_mock)
     package_queue = mocker.Mock()
-    watched_dir = mocker.MagicMock(**{"__getitem__.return_value": "Transfer"})
+    watched_dir = mocker.MagicMock(unit_type="Transfer")
 
     # Mock a known UUID for the new transfer.
     transfer_uuid = uuid.uuid4()
@@ -56,7 +56,7 @@ def test_watched_dir_handler_creates_transfer_for_file(mocker, tmpdir):
     job_chain_mock.return_value = iter(["some_chain_link"])
     mocker.patch("server.mcp.JobChain", job_chain_mock)
     package_queue = mocker.Mock()
-    watched_dir = mocker.MagicMock(**{"__getitem__.return_value": "Transfer"})
+    watched_dir = mocker.MagicMock(unit_type="Transfer")
 
     # Mock a known UUID for the new transfer.
     transfer_uuid = uuid.uuid4()
