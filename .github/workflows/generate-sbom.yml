@@ -1,0 +1,59 @@
+name: Generate and upload SBOM
+
+on:
+  push:
+    branches:
+    - qa/**
+    - stable/**
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    container:
+      image: aquasec/trivy:latest
+      options: --entrypoint ""
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up cache
+        uses: actions/cache@v4
+        with:
+          path: .trivycache/
+          key: ${{ runner.os }}-trivy-${{ hashFiles('requirements*.txt', 'src/dashboard/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-
+
+      - name: Generate SBOM
+        run: trivy fs --cache-dir .trivycache --format cyclonedx --file-patterns "pip:requirements.*\.txt" --include-dev-deps --output sbom.xml .
+        env:
+          TRIVY_NO_PROGRESS: "true"
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.xml
+
+  upload-sbom:
+    needs: generate-sbom
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download SBOM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom
+
+      - name: Upload SBOM
+        run: |
+          curl -v -X 'POST' "${{ secrets.DEPENDENCY_TRACK_URL }}/api/v1/bom" \
+          -H "X-Api-Key: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}" \
+          -H "Content-Type: multipart/form-data" \
+          -F "autoCreate=true" \
+          -F "projectName=${{ github.repository }}" \
+          -F "projectVersion=${{ github.ref_name }}" \
+          -F "parentName=Archivematica" \
+          -F "bom=@sbom.xml"
+        env:
+          DEPENDENCY_TRACK_URL: ${{ secrets.DEPENDENCY_TRACK_URL }}
+          DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}

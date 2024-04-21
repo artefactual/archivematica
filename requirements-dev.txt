@@ -86,7 +86,7 @@ elasticsearch==6.8.2
     # via -r requirements.txt
 exceptiongroup==1.2.0
     # via pytest
-filelock==3.13.3
+filelock==3.13.4
     # via
     #   tox
     #   virtualenv
@@ -100,9 +100,9 @@ greenlet==3.0.3
     # via
     #   -r requirements.txt
     #   gevent
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via -r requirements.txt
-idna==3.6
+idna==3.7
     # via
     #   -r requirements.txt
     #   requests
@@ -254,7 +254,7 @@ six==1.16.0
     #   opf-fido
     #   python-cas
     #   python-dateutil
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -r requirements.txt
     #   django
@@ -269,7 +269,7 @@ tomli==2.0.1
     #   tox
 tox==4.14.2
     # via -r requirements-dev.in
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via
     #   -r requirements.txt
     #   asgiref
@@ -281,7 +281,7 @@ urllib3==2.2.1
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.25.1
+virtualenv==20.25.2
     # via tox
 wheel==0.43.0
     # via pip-tools
@@ -296,7 +296,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==6.2
+zope-interface==6.3
     # via
     #   -r requirements.txt
     #   gevent
@@ -304,7 +304,7 @@ zope-interface==6.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.0
     # via pip-tools
-setuptools==69.2.0
+setuptools==69.5.1
     # via
     #   -r requirements.txt
     #   pip-tools
