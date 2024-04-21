@@ -15,9 +15,26 @@ import (
 
 var errWait = errors.New("wait")
 
+// A chain is used to carry local state.
+//
+// In Archivematica the workflow is structured around chains and links.
+// A chain is a sequence of links used to accomplish a broader task or set of
+// tasks, carrying local state relevant only for the duration of the chain.
+// The output of a chain is placed in a watched directroy to trigger the next
+// chain.
+//
+// In MCPServer, `chain.jobChain` is implemented as an iterator, simplifying
+// the process of moving through the jobs in a chain. When a chain completes,
+// the queue manager checks the queues for ay work awaiting to be processed,
+// which could be related to other packages.
+//
+// In a3m, chains and watched directories were removed, but it's hard to do it
+// without introducing backward-incompatible changes given the reliance on it
+// in some edge cases like reingest, etc.
 type chain struct {
-	doc *workflow.Chain
-	ctx *packageContext
+	wc      *workflow.Chain // The chain link in the workflow.
+	pCtx    *packageContext // Local state.
+	choices any             // TODO: see `generated_choices` in `chain.py`.
 }
 
 // iterator carries a package through all its workflow.
@@ -61,11 +78,11 @@ func (i *iterator) Process(ctx context.Context) error {
 		// If we're starting a new chain.
 		if ch, ok := i.wf.Chains[next]; ok {
 			i.logger.Info("Starting new chain.", "id", ch.ID, "desc", ch.Description)
-			i.chain = &chain{doc: ch}
+			i.chain = &chain{wc: ch}
 			if pCtx, err := loadContext(ctx, i.p); err != nil {
 				return fmt.Errorf("load context: %v", err)
 			} else {
-				i.chain.ctx = pCtx
+				i.chain.pCtx = pCtx
 			}
 			next = ch.LinkID
 			continue

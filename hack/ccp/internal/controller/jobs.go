@@ -302,13 +302,13 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).withContext(l.j.chain.ctx)
+	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).withContext(l.j.chain.pCtx)
 	args := rm.replaceValues(l.config.Arguments)
 	stdout := rm.replaceValues(l.config.StdoutFile)
 	stderr := rm.replaceValues(l.config.StderrFile)
 
 	tt := &tasks{Tasks: map[uuid.UUID]*task{}}
-	tt.add(l.j.chain.ctx, args, false, stdout, stderr)
+	tt.add(l.j.chain.pCtx, args, false, stdout, stderr)
 	res, err := submitJob(ctx, l.j.logger, l.j.gearman, l.config.Execute, tt)
 	l.j.logger.Info("Job executed.", "results", res, "err", err)
 	if err != nil {
