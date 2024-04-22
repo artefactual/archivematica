@@ -158,11 +158,9 @@ func (s *mysqlStoreImpl) UpdatePackageStatus(ctx context.Context, id uuid.UUID, 
 	}
 
 	var (
-		table     string
-		idColumn  string
-		statusVal int
+		table    string
+		idColumn string
 	)
-
 	switch packageType {
 	case enums.PackageTypeTransfer:
 		table = "Transfers"
@@ -174,13 +172,16 @@ func (s *mysqlStoreImpl) UpdatePackageStatus(ctx context.Context, id uuid.UUID, 
 		return fmt.Errorf("unknown unit type: %q", packageType)
 	}
 
+	values := goqu.Record{
+		"status": status,
+	}
+	if status == enums.PackageStatusCompletedSuccessfully {
+		values["completed_at"] = time.Now()
+	}
+
 	update := s.goqu.Update(table).
-		Where(
-			goqu.Ex{idColumn: id.String()},
-		).
-		Set(
-			goqu.Record{"status": statusVal},
-		).
+		Where(goqu.Ex{idColumn: id.String()}).
+		Set(values).
 		Executor()
 
 	_, err = update.ExecContext(ctx)
