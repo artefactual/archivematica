@@ -36,7 +36,7 @@ define NEWLINE
 endef
 
 IGNORED_PACKAGES := \
-	github.com/artefactual/archivematica/hack/ccp/internal/gen/% \
+	github.com/artefactual/archivematica/hack/ccp/internal/api/gen/% \
 	github.com/artefactual/archivematica/hack/ccp/%/fake
 PACKAGES := $(shell go list ./...)
 TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
