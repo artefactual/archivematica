@@ -125,12 +125,23 @@ type taskResults struct {
 	Results map[uuid.UUID]*taskResult `json:"task_results"`
 }
 
-func (tr taskResults) One() *taskResult {
+func (tr taskResults) First() *taskResult {
 	var r *taskResult
 	for _, tr := range tr.Results {
 		r = tr
+		break
 	}
 	return r
+}
+
+func (tr taskResults) ExitCode() int {
+	var code int
+	for _, task := range tr.Results {
+		if task.ExitCode > 0 {
+			code = task.ExitCode
+		}
+	}
+	return code
 }
 
 type taskResult struct {
