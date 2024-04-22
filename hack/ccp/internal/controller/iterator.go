@@ -96,7 +96,7 @@ func (i *iterator) Process(ctx context.Context) error {
 		if err == io.EOF {
 			return nil
 		}
-		if err == errWait {
+		if errors.Is(err, errWait) {
 			choice, waitErr := i.wait(ctx) // puts the loop on hold.
 			if waitErr != nil {
 				return fmt.Errorf("wait: %v", waitErr)
@@ -111,10 +111,13 @@ func (i *iterator) Process(ctx context.Context) error {
 	}
 }
 
-// runJob processes a job given the identifier of a workflow chain or link.
+// runJob runs a job given the identifier of a workflow chain or link.
 func (i *iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
 	wl, ok := i.wf.Links[id]
-	i.logger.Info("Processing job.", "type", "link", "linkID", id, "desc", wl.Description, "manager", wl.Manager)
+
+	logger := i.logger.WithName("job").WithValues("type", "link", "linkID", id, "desc", wl.Description, "manager", wl.Manager)
+	logger.Info("Running job.")
+
 	if !ok {
 		return uuid.Nil, fmt.Errorf("link %s couldn't be found", id)
 	}
@@ -122,7 +125,7 @@ func (i *iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 		return uuid.Nil, io.EOF
 	}
 
-	s, err := i.buildJob(wl)
+	s, err := i.buildJob(wl, logger)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("link %s couldn't be built: %v", id, err)
 	}
@@ -144,8 +147,8 @@ func (i *iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 }
 
 // buildJob configures a workflow job given the workflow chain link definition.
-func (i *iterator) buildJob(wl *workflow.Link) (*job, error) {
-	j, err := newJob(i.logger.WithName("job"), i.chain, i.p, i.gearman, wl)
+func (i *iterator) buildJob(wl *workflow.Link, logger logr.Logger) (*job, error) {
+	j, err := newJob(logger, i.chain, i.p, i.gearman, wl)
 	if err != nil {
 		return nil, fmt.Errorf("build job: %v", err)
 	}

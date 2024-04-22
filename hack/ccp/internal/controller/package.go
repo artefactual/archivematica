@@ -644,12 +644,33 @@ func (r replacement) escape() string {
 
 type replacementMapping map[string]replacement
 
-func (rm replacementMapping) withContext(pCtx *packageContext) replacementMapping {
+// copy returns a new map with copied replacements.
+func (rm replacementMapping) copy() replacementMapping {
+	n := map[string]replacement{}
+	for k, v := range rm {
+		n[k] = v
+	}
+
+	return n
+}
+
+// update the replacements with the package context.
+func (rm replacementMapping) update(pCtx *packageContext) replacementMapping {
 	for el := pCtx.Front(); el != nil; el = el.Next() {
 		rm[el.Key] = replacement(el.Value)
 	}
 
 	return rm
+}
+
+// with returns a copy of the mapping with input merged into it.
+func (rm replacementMapping) with(input replacementMapping) replacementMapping {
+	ret := rm.copy()
+	for k, v := range input {
+		ret[k] = v
+	}
+
+	return ret
 }
 
 func (rm replacementMapping) replaceValues(input string) string {
@@ -658,7 +679,6 @@ func (rm replacementMapping) replaceValues(input string) string {
 	}
 
 	for k, v := range rm {
-		fmt.Println(k, v)
 		input = strings.ReplaceAll(input, k, v.escape())
 	}
 

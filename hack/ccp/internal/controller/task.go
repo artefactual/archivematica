@@ -1,28 +1,37 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
+	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 )
 
-type tasks struct {
-	Tasks map[uuid.UUID]*task `json:"tasks"`
+type taskBackend struct {
+	logger logr.Logger
+	job    *job
+	tasks  tasks
+
+	// Present in all client chain links: files, directories, output.
+	config *workflow.LinkStandardTaskConfig
 }
 
-func (t tasks) MarshalJSON() ([]byte, error) {
-	if len(t.Tasks) == 0 {
-		return nil, errors.New("map is empty")
+func newTaskBackend(logger logr.Logger, job *job, config *workflow.LinkStandardTaskConfig) *taskBackend {
+	return &taskBackend{
+		logger: logger,
+		job:    job,
+		tasks:  tasks{map[uuid.UUID]*task{}},
+		config: config,
 	}
-	type alias tasks
-	return json.Marshal(&struct{ *alias }{alias: (*alias)(&t)})
 }
 
-func (tt tasks) add(pCtx *packageContext, args string, wantsOutput bool, stdoutFilePath, stderrFilePath string) {
+func (b *taskBackend) submit(pCtx *packageContext, args string, wantsOutput bool, stdoutFilePath, stderrFilePath string) uuid.UUID {
 	t := &task{
 		ID:             uuid.New(),
 		CreatedAt:      mcpTime{time.Now().UTC()},
@@ -36,7 +45,31 @@ func (tt tasks) add(pCtx *packageContext, args string, wantsOutput bool, stdoutF
 		t.WantsOutput = true
 	}
 
-	tt.Tasks[t.ID] = t
+	b.tasks.Tasks[t.ID] = t
+
+	return t.ID
+}
+
+func (b *taskBackend) wait(ctx context.Context) (*taskResults, error) {
+	res, err := submitJob(ctx, b.logger, b.job.gearman, b.config.Execute, &b.tasks)
+	b.logger.Info("Job executed.", "results", res, "err", err, "tasks", len(b.tasks.Tasks))
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+type tasks struct {
+	Tasks map[uuid.UUID]*task `json:"tasks"`
+}
+
+func (t tasks) MarshalJSON() ([]byte, error) {
+	if len(t.Tasks) == 0 {
+		return nil, errors.New("map is empty")
+	}
+	type alias tasks
+	return json.Marshal(&struct{ *alias }{alias: (*alias)(&t)})
 }
 
 type task struct {
@@ -89,6 +122,14 @@ func (t *task) writeFile(path, contents string) error {
 
 type taskResults struct {
 	Results map[uuid.UUID]*taskResult `json:"task_results"`
+}
+
+func (tr taskResults) One() *taskResult {
+	var r *taskResult
+	for _, tr := range tr.Results {
+		r = tr
+	}
+	return r
 }
 
 type taskResult struct {

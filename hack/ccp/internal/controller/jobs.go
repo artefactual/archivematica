@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -302,23 +303,43 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).withContext(l.j.chain.pCtx)
+	results, err := l.submitTasks(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("submit task: %v", err)
+	}
+	taskResult := results.One()
+	if taskResult == nil {
+		return uuid.Nil, fmt.Errorf("submit task: no results")
+	}
+
+	if l.j.updateStatusFromExitCode(ctx, taskResult.ExitCode); err != nil {
+		return uuid.Nil, err
+	}
+
+	if ec, ok := l.j.wl.ExitCodes[taskResult.ExitCode]; ok && ec.LinkID != nil {
+		return *ec.LinkID, nil
+	}
+	if l.j.wl.FallbackLinkID == nil {
+		return uuid.Nil, io.EOF // TODO ?
+	}
+	return *l.j.wl.FallbackLinkID, nil
+}
+
+func (l *directoryClientScriptJob) submitTasks(ctx context.Context) (*taskResults, error) {
+	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).update(l.j.chain.pCtx)
 	args := rm.replaceValues(l.config.Arguments)
 	stdout := rm.replaceValues(l.config.StdoutFile)
 	stderr := rm.replaceValues(l.config.StderrFile)
 
-	tt := &tasks{Tasks: map[uuid.UUID]*task{}}
-	tt.add(l.j.chain.pCtx, args, false, stdout, stderr)
-	res, err := submitJob(ctx, l.j.logger, l.j.gearman, l.config.Execute, tt)
-	l.j.logger.Info("Job executed.", "results", res, "err", err)
+	taskBackend := newTaskBackend(l.j.logger, l.j, l.config)
+	taskBackend.submit(l.j.chain.pCtx, args, false, stdout, stderr)
+
+	res, err := taskBackend.wait(ctx)
 	if err != nil {
-		return uuid.Nil, err
+		return nil, fmt.Errorf("wait: %v", err)
 	}
 
-	// UPDATE EXIT CODE OF EACH JOB
-	// if err := l.j.updateStatusFromExitCode(ctx, task.ExitCode); err != nil { return uuid.Nil, err }
-
-	return *l.j.wl.FallbackLinkID, nil
+	return res, nil
 }
 
 // filesClientScriptJob.
@@ -345,7 +366,43 @@ func newFilesClientScriptJob(j *job) (*filesClientScriptJob, error) {
 }
 
 func (l *filesClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
-	return uuid.Nil, nil
+	if err := l.j.pkg.reload(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("reload: %v", err)
+	}
+	if err := l.j.save(ctx); err != nil {
+		return uuid.Nil, fmt.Errorf("save: %v", err)
+	}
+
+	_, err := l.submitTasks(ctx)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("submit task: %v", err)
+	}
+
+	return uuid.Nil, errors.New("TODO")
+}
+
+func (l *filesClientScriptJob) submitTasks(ctx context.Context) (*taskResults, error) {
+	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).update(l.j.chain.pCtx)
+	taskBackend := newTaskBackend(l.j.logger, l.j, l.config)
+
+	for fileReplacements, err := range l.j.pkg.Files(ctx, l.config.FilterFileEnd, l.config.FilterSubdir) {
+		if err != nil {
+			return nil, err
+		}
+		rm = rm.with(fileReplacements)
+		args := rm.replaceValues(l.config.Arguments)
+		stdout := rm.replaceValues(l.config.StdoutFile)
+		stderr := rm.replaceValues(l.config.StderrFile)
+
+		taskBackend.submit(l.j.chain.pCtx, args, false, stdout, stderr)
+	}
+
+	res, err := taskBackend.wait(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("wait: %v", err)
+	}
+
+	return res, nil
 }
 
 // outputClientScriptJob.
