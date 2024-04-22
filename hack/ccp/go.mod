@@ -6,6 +6,7 @@ require (
 	connectrpc.com/connect v1.16.0
 	connectrpc.com/grpchealth v1.3.0
 	connectrpc.com/grpcreflect v1.2.0
+	github.com/doug-martin/goqu/v9 v9.19.0
 	github.com/elliotchance/orderedmap/v2 v2.2.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-logr/logr v1.4.1

@@ -15,9 +15,18 @@ import (
 var ErrNotFound error = errors.New("object not found")
 
 type Store interface {
+	// RemoveTransientData removes data from the store that the processing
+	// engine can't handle after the application is started.
 	RemoveTransientData(ctx context.Context) error
+
+	// CreateJob creates a new Job.
 	CreateJob(ctx context.Context, params *sqlc.CreateJobParams) error
+
+	// UpdateJobStatus modifies the status of a Job.
 	UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) error
+
+	// UpdateUnitStatus modifies the status of a Transfer, DIP or SIP.
+	UpdateUnitStatus(ctx context.Context, id uuid.UUID, unitType, status string) error
 
 	// ReadTransferLocation returns the current path of a Transfer.
 	ReadTransferLocation(ctx context.Context, id uuid.UUID) (loc string, err error)

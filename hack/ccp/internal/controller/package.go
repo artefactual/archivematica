@@ -251,11 +251,17 @@ func (p *Package) saveLinkID(ctx context.Context, name string, linkID uuid.UUID)
 	return nil
 }
 
+func (p *Package) markAsProcessing(ctx context.Context) error {
+	return p.store.UpdateUnitStatus(ctx, p.id, p.unitVariableType(), "PACKAGE_STATUS_PROCESSING")
+}
+
+func (p *Package) markAsDone(ctx context.Context) error {
+	return p.store.UpdateUnitStatus(ctx, p.id, p.unitVariableType(), "PACKAGE_STATUS_DONE")
+}
+
 type unit interface {
 	hydrate(ctx context.Context, path, watchedDir string) error
 	reload(ctx context.Context) error
-	markProcessing(ctx context.Context) error
-	markDone(ctx context.Context) error
 	replacements(filterSubdirPath string) replacementMapping
 	replacementPath() string
 	unitVariableType() string
@@ -317,16 +323,6 @@ func (u *Transfer) reload(ctx context.Context) error {
 	return nil
 }
 
-func (u *Transfer) markProcessing(ctx context.Context) error {
-	// def queryset(self): return models.Transfer.objects.filter(pk=self.uuid)
-	return nil
-}
-
-func (u *Transfer) markDone(ctx context.Context) error {
-	// def queryset(self): return models.Transfer.objects.filter(pk=self.uuid)
-	return nil
-}
-
 func (u *Transfer) replacements(filterSubdirPath string) replacementMapping {
 	mapping := u.pkg.replacements()
 	maps.Copy(mapping, baseReplacements(u.pkg))
@@ -371,16 +367,6 @@ func (u *SIP) reload(ctx context.Context) error {
 	return nil
 }
 
-func (u *SIP) markProcessing(ctx context.Context) error {
-	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
-	return nil
-}
-
-func (u *SIP) markDone(ctx context.Context) error {
-	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
-	return nil
-}
-
 func (u *SIP) replacements(filterSubdirPath string) replacementMapping {
 	mapping := u.pkg.replacements()
 	maps.Copy(mapping, baseReplacements(u.pkg))
@@ -416,16 +402,6 @@ func (u *DIP) hydrate(ctx context.Context, path, watchedDir string) error {
 
 func (u *DIP) reload(ctx context.Context) error {
 	return nil // No-op.
-}
-
-func (u *DIP) markProcessing(ctx context.Context) error {
-	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
-	return nil
-}
-
-func (u *DIP) markDone(ctx context.Context) error {
-	// def queryset(self): return models.SIP.objects.filter(pk=self.uuid)
-	return nil
 }
 
 func (u *DIP) replacements(filterSubdirPath string) replacementMapping {

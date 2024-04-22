@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -50,10 +51,14 @@ func connectToMySQL(logger logr.Logger, dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
+// mysqlstoreImpl implements the Store interface. While most queries are built
+// using sqlc, there are some cases where more dynamism is required where we
+// are using the goqu SQL builder, e.g. UpdateUnitStatus.
 type mysqlStoreImpl struct {
 	logger  logr.Logger
 	pool    *sql.DB
 	queries *sqlc.Queries
+	goqu    *goqu.Database
 }
 
 var _ Store = (*mysqlStoreImpl)(nil)
@@ -68,6 +73,7 @@ func newMySQLStore(logger logr.Logger, pool *sql.DB) (*mysqlStoreImpl, error) {
 		logger:  logger,
 		pool:    pool,
 		queries: queries,
+		goqu:    goqu.New("mysql", pool),
 	}, nil
 }
 
@@ -138,6 +144,49 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 		ID:          id,
 		Currentstep: step,
 	})
+}
+
+func (s *mysqlStoreImpl) UpdateUnitStatus(ctx context.Context, id uuid.UUID, unitType, status string) (err error) {
+	defer wrap(&err, "UpdateUnitStatus(%s, %s, %s)", id, unitType, status)
+
+	var (
+		table     string
+		idColumn  string
+		statusVal int
+	)
+
+	switch unitType {
+	case "Transfer":
+		table = "Transfers"
+		idColumn = "transferUUID"
+	case "DIP", "SIP":
+		table = "SIPs"
+		idColumn = "sipUUID"
+	default:
+		return fmt.Errorf("unknown unit type: %q", unitType)
+	}
+
+	switch status {
+	case "PACKAGE_STATUS_PROCESSING":
+		statusVal = 1
+	case "PACKAGE_STATUS_DONE":
+		statusVal = 2
+	default:
+		return fmt.Errorf("unsupported status: %q", status)
+	}
+
+	update := s.goqu.Update(table).
+		Where(
+			goqu.Ex{idColumn: id.String()},
+		).
+		Set(
+			goqu.Record{"status": statusVal},
+		).
+		Executor()
+
+	_, err = update.ExecContext(ctx)
+
+	return err
 }
 
 func (s *mysqlStoreImpl) ReadTransferLocation(ctx context.Context, id uuid.UUID) (loc string, err error) {
