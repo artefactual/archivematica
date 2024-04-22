@@ -20,6 +20,7 @@ import (
 )
 
 var (
+	enabled    = getEnvBool("ENABLED", "no")
 	useCompose = getEnvBool("USE_COMPOSE", "no")
 	useStdout  = getEnvBool("USE_STDOUT", "yes")
 )
@@ -41,12 +42,19 @@ func getEnvBool(name, fallback string) bool {
 	}
 }
 
+func requireFlag(t *testing.T) {
+	if !enabled {
+		t.Skip("Skipping integration tests (CCP_INTEGRATION_ENABLED=no).")
+	}
+}
+
 func TestMain(m *testing.M) {
 	goleak.VerifyTestMain(m)
 }
 
 func TestServerCmd(t *testing.T) {
 	t.Parallel()
+	requireFlag(t)
 
 	t.Run("xxxxxxxxxx", func(t *testing.T) {
 		t.Parallel()
