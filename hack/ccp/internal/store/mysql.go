@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"iter"
 	"time"
 
+	"github.com/achille-roussel/sqlrange"
 	"github.com/doug-martin/goqu/v9"
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
@@ -469,6 +471,57 @@ func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packag
 			return fmt.Errorf("create: %v", err)
 		} else {
 			return tx.Commit()
+		}
+	}
+}
+
+func (s *mysqlStoreImpl) Files(ctx context.Context, id uuid.UUID, packageType enums.PackageType, filterFilenameEnd, filterSubdir, replacementPath string) iter.Seq2[[]File, error] {
+	const batchSize = 100
+	return func(yield func([]File, error) bool) {
+		sel := s.goqu.Select().From("Files")
+
+		if filterFilenameEnd != "" {
+			sel.Where(goqu.Ex{"currentLocation": goqu.Op{"like": "%" + filterFilenameEnd}})
+		}
+		if filterSubdir != "" {
+			sel.Where(goqu.Ex{"currentLocation": goqu.Op{"like": replacementPath + filterSubdir + "%"}})
+		}
+
+		switch packageType {
+		case enums.PackageTypeTransfer:
+			sel.Where(goqu.Ex{"transferUUID": id.String()})
+		case enums.PackageTypeSIP, enums.PackageTypeDIP:
+			sel.Where(goqu.Ex{"sipUUID": id.String()})
+		default:
+			yield(nil, fmt.Errorf("unexpected package type: %q", packageType))
+			return
+		}
+
+		offset := uint(0)
+		for {
+			sel.Limit(batchSize).Offset(offset)
+			query, params, err := sel.Prepared(true).ToSQL()
+			if err != nil {
+				yield(nil, fmt.Errorf("generate sql: %v", err))
+				return
+			}
+
+			files := make([]File, batchSize)
+			for f, err := range sqlrange.QueryContext[File](ctx, s.pool, query, params...) {
+				if err != nil {
+					yield(nil, err)
+					return
+				}
+				files = append(files, f)
+			}
+			if len(files) == 0 {
+				return
+			} else {
+				if !yield(files, nil) {
+					return
+				}
+				offset++
+			}
 		}
 	}
 }

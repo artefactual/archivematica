@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"iter"
 	"maps"
@@ -187,37 +188,47 @@ func (p *Package) Decision() []option {
 // found through filesystem traversal that meet specified filters.
 //
 // Parameters:
-//   - filterFilenameStart: the function filters files whose names start with
-//     the specified prefix.
 //   - filterFilenameEnd: the function filters files whose names end with
 //     the specified suffix.
 //   - filterSubdir: the function limits the search to files within
 //     the specified subdirectory.
 //
 // TODO: https://github.com/artefactual/archivematica/blob/95a1daba07a1037dccaf628428fb3b39b795b75e/src/MCPServer/lib/server/packages.py#L649-L700
-func (p *Package) Files(filterFilenameStart, filterFilenameEnd, filterSubdir string) iter.Seq2[replacementMapping, error] {
+func (p *Package) Files(ctx context.Context, filterFilenameEnd, filterSubdir string) iter.Seq2[replacementMapping, error] {
 	filesReturnedAlready := map[string]struct{}{}
 	return func(yield func(replacementMapping, error) bool) {
-		if false {
-			yield(map[string]replacement{}, nil)
+		for files, err := range p.store.Files(ctx, p.id, p.packageType(), filterFilenameEnd, filterSubdir, p.replacementPath()) {
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+			for _, f := range files {
+				if !yield(fileReplacements(p, &f), nil) {
+					return
+				}
+			}
 		}
-		err := filepath.WalkDir(p.Path(), func(path string, d fs.DirEntry, err error) error {
+
+		startPath := p.Path()
+		if filterSubdir != "" {
+			startPath += filterSubdir
+		}
+		err := filepath.WalkDir(startPath, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 			fname := d.Name()
-			if filterFilenameStart != "" && !strings.HasPrefix(fname, filterFilenameStart) {
-				return nil
-			}
-			if filterFilenameStart != "" && !strings.HasPrefix(fname, filterFilenameStart) {
+			if filterFilenameEnd != "" && !strings.HasPrefix(fname, filterFilenameEnd) {
 				return nil
 			}
 			if _, ok := filesReturnedAlready[path]; !ok {
-				yield(map[string]replacement{
+				if !yield(map[string]replacement{
 					"%relativeLocation": replacement(path),
 					"%fileUUID%":        replacement(""),
 					"%fileGrpUse%":      replacement(""),
-				}, nil)
+				}, nil) {
+					return io.EOF
+				}
 			}
 			return nil
 		})
@@ -512,7 +523,7 @@ func dirBasename(path string) string {
 	return filepath.Base(abs)
 }
 
-// Replacements needed by all unit types.
+// baseReplacements returns replacements needed by all unit types.
 func baseReplacements(p *Package) replacementMapping {
 	path := p.Path()
 	return map[string]replacement{
@@ -524,6 +535,34 @@ func baseReplacements(p *Package) replacementMapping {
 		"%SIPDirectoryBasename%": replacement(dirBasename(path)),
 		"%relativeLocation%":     replacement(p.PathForDB()),
 	}
+}
+
+func fileReplacements(pkg *Package, f *store.File) replacementMapping {
+	mapping := map[string]replacement{}
+	maps.Copy(mapping, baseReplacements(pkg))
+
+	dirName := filepath.Dir(f.CurrentLocation)
+	ext := filepath.Ext(f.CurrentLocation)
+	extWithDot := "." + ext
+	name := filepath.Base(strings.TrimSuffix(f.CurrentLocation, ext))
+	absolutePath := strings.ReplaceAll(f.CurrentLocation, "%SIPDirectory%", pkg.Path())
+	absolutePath = strings.ReplaceAll(absolutePath, "%transferDirectory%", pkg.Path())
+
+	maps.Copy(mapping, map[string]replacement{
+		"%fileUUID%":             replacement(f.ID.String()),
+		"%originalLocation%":     replacement(f.OriginalLocation),
+		"%currentLocation%":      replacement(f.CurrentLocation),
+		"%fileGrpUse%":           replacement(f.FileGrpUse),
+		"%fileDirectory%":        replacement(dirName),
+		"%fileName%":             replacement(name),
+		"%fileExtension%":        replacement(ext),
+		"%fileExtensionWithDot%": replacement(extWithDot),
+		"%relativeLocation%":     replacement(absolutePath), // TODO: standardize duplicates.
+		"%inputFile%":            replacement(absolutePath),
+		"%fileFullName%":         replacement(absolutePath),
+	})
+
+	return mapping
 }
 
 // packageContext tracks choices made previously while processing.

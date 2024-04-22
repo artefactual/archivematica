@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"iter"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -57,6 +58,9 @@ type Store interface {
 	// CreateUnitVar creates a new variable.
 	CreateUnitVar(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name, value string, linkID uuid.UUID, update bool) error
 
+	// Files returns an iterable of files for a given package.
+	Files(ctx context.Context, id uuid.UUID, packageType enums.PackageType, filterFilenameEnd, filterSubdir, replacementPath string) iter.Seq2[[]File, error]
+
 	Running() bool
 	Close() error
 }
@@ -88,4 +92,11 @@ type UnitVar struct {
 	Name   string
 	Value  *string
 	LinkID *uuid.UUID
+}
+
+type File struct {
+	ID               uuid.UUID
+	CurrentLocation  string
+	OriginalLocation string
+	FileGrpUse       string
 }
