@@ -262,11 +262,24 @@ func (p *Package) markAsDone(ctx context.Context) error {
 
 // unit represents logic that is specific to a particular type of package, e.g. Transfer.
 type unit interface {
+	// hydrate assits NewPackage in creating a package record in the database.
 	hydrate(ctx context.Context, path, watchedDir string) error
+
+	// reload populates some local state from the database records.
 	reload(ctx context.Context) error
+
+	// replacements returns a map of replacements for this package type.
 	replacements(filterSubdirPath string) replacementMapping
+
+	// replacementPath returns the replacement string for this package type.
 	replacementPath() string
+
+	// packageType describes the type of package.
 	packageType() enums.PackageType
+
+	// jobUnitType returns a string used to relate a Job to a package type in
+	// the database. For example, "unitTransfer" is used to relate a Job to a
+	// Transfer, whereas "unitDIP" relates the Job to a DIP.
 	jobUnitType() string
 }
 
