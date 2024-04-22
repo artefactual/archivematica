@@ -104,7 +104,10 @@ deps:
 	@go mod tidy
 
 gen: # @HELP Generage code.
-gen: gen-sqlc
+gen: gen-mocks gen-sqlc
+
+gen-mocks: $(MOCKGEN) # @HELP Generate mocks.
+	mockgen -typed -source=./internal/store/store.go -destination=./internal/store/fake/mock_store.go -package=fake Store
 
 gen-sqlc: # @HELP Generate sqlc code.
 gen-sqlc: $(SQLC)

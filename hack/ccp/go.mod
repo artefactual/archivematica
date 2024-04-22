@@ -23,6 +23,7 @@ require (
 	go.artefactual.dev/tools v0.8.0
 	go.starlark.net v0.0.0-20240411212711-9b43f0afd521
 	go.uber.org/goleak v1.3.0
+	go.uber.org/mock v0.4.0
 	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 	golang.org/x/net v0.24.0
 	golang.org/x/sync v0.7.0
