@@ -13,7 +13,7 @@ func useMySQL(t *testing.T) string {
 	t.Helper()
 
 	if useCompose {
-		return "root:12345@tcp(127.0.0.1:62001)/MCP"
+		return "root:12345@tcp(127.0.0.1:63001)/MCP"
 	}
 
 	ctx := context.Background()

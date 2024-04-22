@@ -37,7 +37,7 @@ services:
       - "./etc/mysql/tuning.cnf:/etc/my.cnf.d/tuning.cnf:ro"
       - "mysql_data:/var/lib/mysql"
     ports:
-      - "127.0.0.1:62001:3306"
+      - "127.0.0.1:63001:3306"
     cap_add:
       - "SYS_NICE"
 
@@ -48,8 +48,8 @@ services:
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
       - "./etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro"
     ports:
-      - "62080:80"
-      - "62081:8000"
+      - "63080:80"
+      - "63081:8000"
 
   archivematica-ccp:
     build:
@@ -70,7 +70,7 @@ services:
     links:
       - "mysql"
     ports:
-      - "62030:8000"
+      - "63030:8000"
 
   archivematica-mcp-client:
     build:
