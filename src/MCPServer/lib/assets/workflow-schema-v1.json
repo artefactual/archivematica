@@ -292,9 +292,6 @@
         "filter_file_end": {
           "type": "string"
         },
-        "filter_file_start": {
-          "type": "string"
-        },
         "filter_subdir": {
           "type": "string"
         },
@@ -330,9 +327,6 @@
           "type": "string"
         },
         "filter_file_end": {
-          "type": "string"
-        },
-        "filter_file_start": {
           "type": "string"
         },
         "filter_subdir": {

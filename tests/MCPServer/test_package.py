@@ -185,7 +185,7 @@ def test_reload_file_list(tmp_path):
 
     # One file will be returned from the database  with a UUID, another from
     # the filesystem without a UUID.
-    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, "/objects"), 1):
         assert "%fileUUID%" in file_info
         assert "%fileGrpUse%" in file_info
         assert "%relativeLocation%" in file_info
@@ -215,7 +215,7 @@ def test_reload_file_list(tmp_path):
     sub_dir.mkdir()
     new_file = sub_dir / "another_new_file.txt"
     new_file.touch()
-    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, "/objects"), 1):
         if file_info.get("%fileUUID%") != "None":
             continue
         file_path = Path(
@@ -237,7 +237,7 @@ def test_reload_file_list(tmp_path):
 
     # Now the database is updated, we will still have the same file count, but
     # all objects will be returned from the database and we will have uuids.
-    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, "/objects"), 1):
         if file_info.get("%fileUUID%") == "None":
             raise AssertionError(
                 "Non-database entries returned from package.files(): {}".format(
@@ -253,7 +253,7 @@ def test_reload_file_list(tmp_path):
         new_file = objects_path / file_
         new_file.touch()
     new_count = 0
-    for _file_count, file_info in enumerate(transfer.files(None, None, "/objects"), 1):
+    for _file_count, file_info in enumerate(transfer.files(None, "/objects"), 1):
         if file_info.get("%fileUUID%") == "None":
             new_count += 1
     assert new_count == 5
@@ -289,7 +289,7 @@ def test_package_files_with_non_ascii_names(tmp_path):
     models.File.objects.create(**kwargs)
 
     # Assert only one file is returned
-    result = list(transfer.files(None, None, "/objects"))
+    result = list(transfer.files(None, "/objects"))
     assert len(result) == 1
 
     # And it is the file we just created
