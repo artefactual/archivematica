@@ -443,7 +443,7 @@ func (l *getUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
 
-	linkID, err := l.j.pkg.store.ReadUnitLinkID(ctx, l.j.pkg.id, l.j.pkg.unitVariableType(), l.config.Variable)
+	linkID, err := l.j.pkg.store.ReadUnitLinkID(ctx, l.j.pkg.id, l.j.pkg.packageType(), l.config.Variable)
 	if err == sql.ErrNoRows {
 		return l.config.ChainID, nil
 	}

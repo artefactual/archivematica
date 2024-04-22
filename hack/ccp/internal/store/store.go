@@ -9,6 +9,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/store/enums"
 	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 )
 
@@ -25,8 +26,8 @@ type Store interface {
 	// UpdateJobStatus modifies the status of a Job.
 	UpdateJobStatus(ctx context.Context, id uuid.UUID, status string) error
 
-	// UpdateUnitStatus modifies the status of a Transfer, DIP or SIP.
-	UpdateUnitStatus(ctx context.Context, id uuid.UUID, unitType, status string) error
+	// UpdatePackageStatus modifies the status of a Transfer, DIP or SIP.
+	UpdatePackageStatus(ctx context.Context, id uuid.UUID, packageType enums.PackageType, status enums.PackageStatus) error
 
 	// ReadTransferLocation returns the current path of a Transfer.
 	ReadTransferLocation(ctx context.Context, id uuid.UUID) (loc string, err error)
@@ -45,16 +46,16 @@ type Store interface {
 	// variables based on the provided name. If name is an empty string, it
 	// returns all variables for the specified package. If name is provided,
 	// only variables matching this name are returned.
-	ReadUnitVars(ctx context.Context, id uuid.UUID, packageType, name string) ([]UnitVar, error)
+	ReadUnitVars(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name string) ([]UnitVar, error)
 
 	// ReadUnitVar reads a string value stored as a package variable.
-	ReadUnitVar(ctx context.Context, id uuid.UUID, packageType, name string) (string, error)
+	ReadUnitVar(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name string) (string, error)
 
 	// ReadUnitLinkID reads a workflow link ID stored as a package variable.
-	ReadUnitLinkID(ctx context.Context, id uuid.UUID, packageType, name string) (uuid.UUID, error)
+	ReadUnitLinkID(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name string) (uuid.UUID, error)
 
 	// CreateUnitVar creates a new variable.
-	CreateUnitVar(ctx context.Context, id uuid.UUID, packageType, name, value string, linkID uuid.UUID, update bool) error
+	CreateUnitVar(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name, value string, linkID uuid.UUID, update bool) error
 
 	Running() bool
 	Close() error

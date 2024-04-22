@@ -12,6 +12,7 @@ import (
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/store/enums"
 	sqlc "github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 )
 
@@ -146,8 +147,15 @@ func (s *mysqlStoreImpl) UpdateJobStatus(ctx context.Context, id uuid.UUID, stat
 	})
 }
 
-func (s *mysqlStoreImpl) UpdateUnitStatus(ctx context.Context, id uuid.UUID, unitType, status string) (err error) {
-	defer wrap(&err, "UpdateUnitStatus(%s, %s, %s)", id, unitType, status)
+func (s *mysqlStoreImpl) UpdatePackageStatus(ctx context.Context, id uuid.UUID, packageType enums.PackageType, status enums.PackageStatus) (err error) {
+	defer wrap(&err, "UpdateUnitStatus(%s, %s, %s)", id, packageType, status)
+
+	if !packageType.IsValid() {
+		return fmt.Errorf("invalid type: %v", err)
+	}
+	if !status.IsValid() {
+		return fmt.Errorf("invalid status: %v", err)
+	}
 
 	var (
 		table     string
@@ -155,24 +163,15 @@ func (s *mysqlStoreImpl) UpdateUnitStatus(ctx context.Context, id uuid.UUID, uni
 		statusVal int
 	)
 
-	switch unitType {
-	case "Transfer":
+	switch packageType {
+	case enums.PackageTypeTransfer:
 		table = "Transfers"
 		idColumn = "transferUUID"
-	case "DIP", "SIP":
+	case enums.PackageTypeDIP, enums.PackageTypeSIP:
 		table = "SIPs"
 		idColumn = "sipUUID"
 	default:
-		return fmt.Errorf("unknown unit type: %q", unitType)
-	}
-
-	switch status {
-	case "PACKAGE_STATUS_PROCESSING":
-		statusVal = 1
-	case "PACKAGE_STATUS_DONE":
-		statusVal = 2
-	default:
-		return fmt.Errorf("unsupported status: %q", status)
+		return fmt.Errorf("unknown unit type: %q", packageType)
 	}
 
 	update := s.goqu.Update(table).
@@ -290,7 +289,7 @@ func (s *mysqlStoreImpl) EnsureTransfer(ctx context.Context, path string) (_ uui
 	return id, false, nil
 }
 
-func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, packageType, name string) (vars []UnitVar, err error) {
+func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name string) (vars []UnitVar, err error) {
 	defer wrap(&err, "ReadUnitVars(%s, %s)", packageType, name)
 
 	ret, err := s.queries.ReadUnitVars(ctx, &sqlc.ReadUnitVarsParams{
@@ -308,7 +307,7 @@ func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, package
 	}
 
 	for _, item := range ret {
-		if packageType != "" && packageType != item.Unittype.String {
+		if packageType != "" && packageType.String() != item.Unittype.String {
 			continue // Filter by package type if requested.
 		}
 		uv := UnitVar{}
@@ -324,13 +323,13 @@ func (s *mysqlStoreImpl) ReadUnitVars(ctx context.Context, id uuid.UUID, package
 	return vars, nil
 }
 
-func (s *mysqlStoreImpl) ReadUnitVar(ctx context.Context, id uuid.UUID, packageType, name string) (_ string, err error) {
+func (s *mysqlStoreImpl) ReadUnitVar(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name string) (_ string, err error) {
 	defer wrap(&err, "ReadUnitVar(%s, %s, %s)", id, packageType, name)
 
 	ret, err := s.queries.ReadUnitVar(ctx, &sqlc.ReadUnitVarParams{
 		UnitID: id,
 		UnitType: sql.NullString{
-			String: packageType,
+			String: packageType.String(),
 			Valid:  true,
 		},
 		Name: sql.NullString{
@@ -348,13 +347,13 @@ func (s *mysqlStoreImpl) ReadUnitVar(ctx context.Context, id uuid.UUID, packageT
 	return ret.Variablevalue.String, nil
 }
 
-func (s *mysqlStoreImpl) ReadUnitLinkID(ctx context.Context, id uuid.UUID, packageType, name string) (_ uuid.UUID, err error) {
+func (s *mysqlStoreImpl) ReadUnitLinkID(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name string) (_ uuid.UUID, err error) {
 	defer wrap(&err, "ReadUnitVarLinkID(%s, %s, %s)", id, packageType, name)
 
 	ret, err := s.queries.ReadUnitVar(ctx, &sqlc.ReadUnitVarParams{
 		UnitID: id,
 		UnitType: sql.NullString{
-			String: packageType,
+			String: packageType.String(),
 			Valid:  true,
 		},
 		Name: sql.NullString{
@@ -372,7 +371,7 @@ func (s *mysqlStoreImpl) ReadUnitLinkID(ctx context.Context, id uuid.UUID, packa
 	return ret.LinkID.UUID, nil
 }
 
-func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packageType, name, value string, linkID uuid.UUID, updateExisting bool) (err error) {
+func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name, value string, linkID uuid.UUID, updateExisting bool) (err error) {
 	defer wrap(&err, "CreateUnitVar(%s, %s, %s, %s)", id, packageType, name, value)
 
 	tx, err := s.pool.BeginTx(ctx, &sql.TxOptions{})
@@ -387,7 +386,7 @@ func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packag
 	uv, err := q.ReadUnitVar(ctx, &sqlc.ReadUnitVarParams{
 		UnitID: id,
 		UnitType: sql.NullString{
-			String: packageType,
+			String: packageType.String(),
 			Valid:  true,
 		},
 		Name: sql.NullString{
@@ -444,7 +443,7 @@ func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packag
 			LinkID: wantLinkID,
 			// Where...
 			UnitID:   id,
-			UnitType: sql.NullString{String: packageType, Valid: true},
+			UnitType: sql.NullString{String: packageType.String(), Valid: true},
 			Name:     sql.NullString{String: name, Valid: true},
 		})
 		if err != nil {
@@ -456,7 +455,7 @@ func (s *mysqlStoreImpl) CreateUnitVar(ctx context.Context, id uuid.UUID, packag
 		if err := s.queries.CreateUnitVar(ctx, &sqlc.CreateUnitVarParams{
 			UnitID: id,
 			UnitType: sql.NullString{
-				String: packageType,
+				String: packageType.String(),
 				Valid:  true,
 			},
 			Name: sql.NullString{

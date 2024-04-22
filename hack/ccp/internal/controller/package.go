@@ -19,6 +19,7 @@ import (
 
 	"github.com/artefactual/archivematica/hack/ccp/internal/python"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store"
+	"github.com/artefactual/archivematica/hack/ccp/internal/store/enums"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
@@ -237,7 +238,7 @@ func (p *Package) replacements() replacementMapping {
 
 // saveValue persists "value" as a package variable.
 func (p *Package) saveValue(ctx context.Context, name, value string) error {
-	if err := p.store.CreateUnitVar(ctx, p.id, p.watchedAt.UnitType, name, value, uuid.Nil, true); err != nil {
+	if err := p.store.CreateUnitVar(ctx, p.id, p.packageType(), name, value, uuid.Nil, true); err != nil {
 		return fmt.Errorf("save value: %v", err)
 	}
 	return nil
@@ -245,26 +246,27 @@ func (p *Package) saveValue(ctx context.Context, name, value string) error {
 
 // saveLinkID persist "linkID" as a package variable.
 func (p *Package) saveLinkID(ctx context.Context, name string, linkID uuid.UUID) error {
-	if err := p.store.CreateUnitVar(ctx, p.id, p.watchedAt.UnitType, name, "", linkID, true); err != nil {
+	if err := p.store.CreateUnitVar(ctx, p.id, p.packageType(), name, "", linkID, true); err != nil {
 		return fmt.Errorf("save linkID: %v", err)
 	}
 	return nil
 }
 
 func (p *Package) markAsProcessing(ctx context.Context) error {
-	return p.store.UpdateUnitStatus(ctx, p.id, p.unitVariableType(), "PACKAGE_STATUS_PROCESSING")
+	return p.store.UpdatePackageStatus(ctx, p.id, p.packageType(), enums.PackageStatusProcessing)
 }
 
 func (p *Package) markAsDone(ctx context.Context) error {
-	return p.store.UpdateUnitStatus(ctx, p.id, p.unitVariableType(), "PACKAGE_STATUS_DONE")
+	return p.store.UpdatePackageStatus(ctx, p.id, p.packageType(), enums.PackageStatusDone)
 }
 
+// unit represents logic that is specific to a particular type of package, e.g. Transfer.
 type unit interface {
 	hydrate(ctx context.Context, path, watchedDir string) error
 	reload(ctx context.Context) error
 	replacements(filterSubdirPath string) replacementMapping
 	replacementPath() string
-	unitVariableType() string
+	packageType() enums.PackageType
 	jobUnitType() string
 }
 
@@ -311,7 +313,7 @@ func (u *Transfer) reload(ctx context.Context) error {
 	}
 	u.pkg.UpdatePath(path)
 
-	name, err := u.pkg.store.ReadUnitVar(ctx, u.pkg.id, u.unitVariableType(), "processingConfiguration")
+	name, err := u.pkg.store.ReadUnitVar(ctx, u.pkg.id, u.packageType(), "processingConfiguration")
 	if errors.Is(err, store.ErrNotFound) {
 		u.processingConfiguration = "default"
 	} else if err != nil {
@@ -328,7 +330,7 @@ func (u *Transfer) replacements(filterSubdirPath string) replacementMapping {
 	maps.Copy(mapping, baseReplacements(u.pkg))
 	maps.Copy(mapping, map[string]replacement{
 		u.replacementPath():        replacement(u.pkg.Path()),
-		"%unitType%":               replacement(u.unitVariableType()),
+		"%unitType%":               replacement(u.packageType()),
 		"%processingConfiguration": replacement(u.processingConfiguration),
 	})
 
@@ -339,8 +341,8 @@ func (u *Transfer) replacementPath() string {
 	return "%transferDirectory%"
 }
 
-func (u *Transfer) unitVariableType() string {
-	return "Transfer"
+func (u *Transfer) packageType() enums.PackageType {
+	return enums.PackageTypeTransfer
 }
 
 func (u *Transfer) jobUnitType() string {
@@ -371,7 +373,7 @@ func (u *SIP) replacements(filterSubdirPath string) replacementMapping {
 	mapping := u.pkg.replacements()
 	maps.Copy(mapping, baseReplacements(u.pkg))
 	maps.Copy(mapping, map[string]replacement{
-		"%unitType%":   replacement(u.unitVariableType()),
+		"%unitType%":   replacement(u.packageType()),
 		"%AIPFilename": replacement(u.aipFilename),
 		"%SIPType%":    replacement(u.sipType),
 	})
@@ -382,8 +384,8 @@ func (u *SIP) replacementPath() string {
 	return "%SIPDirectory%"
 }
 
-func (u *SIP) unitVariableType() string {
-	return "SIP"
+func (u *SIP) packageType() enums.PackageType {
+	return enums.PackageTypeSIP
 }
 
 func (u *SIP) jobUnitType() string {
@@ -408,7 +410,7 @@ func (u *DIP) replacements(filterSubdirPath string) replacementMapping {
 	mapping := u.pkg.replacements()
 	maps.Copy(mapping, baseReplacements(u.pkg))
 	maps.Copy(mapping, map[string]replacement{
-		"%unitType%": replacement(u.unitVariableType()),
+		"%unitType%": replacement(u.packageType()),
 	})
 	if filterSubdirPath != "" {
 		mapping["%relativeLocation%"] = replacement(
@@ -423,8 +425,8 @@ func (u *DIP) replacementPath() string {
 	return "%SIPDirectory%"
 }
 
-func (u *DIP) unitVariableType() string {
-	return "DIP"
+func (u *DIP) packageType() enums.PackageType {
+	return enums.PackageTypeDIP
 }
 
 func (u *DIP) jobUnitType() string {
@@ -524,7 +526,7 @@ func loadContext(ctx context.Context, p *Package) (*packageContext, error) {
 	}
 
 	// TODO: we shouldn't need one UnitVariable per chain, with all the same values.
-	vars, err := p.store.ReadUnitVars(ctx, p.id, p.unitVariableType(), "replacementDict")
+	vars, err := p.store.ReadUnitVars(ctx, p.id, p.packageType(), "replacementDict")
 	if err != nil {
 		return nil, err
 	}
