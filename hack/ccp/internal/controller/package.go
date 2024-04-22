@@ -195,15 +195,24 @@ func (p *Package) Decision() []option {
 //
 // TODO: https://github.com/artefactual/archivematica/blob/95a1daba07a1037dccaf628428fb3b39b795b75e/src/MCPServer/lib/server/packages.py#L649-L700
 func (p *Package) Files(ctx context.Context, filterFilenameEnd, filterSubdir string) iter.Seq2[replacementMapping, error] {
-	filesReturnedAlready := map[string]struct{}{}
 	return func(yield func(replacementMapping, error) bool) {
+		seen := map[string]struct{}{}
 		for files, err := range p.store.Files(ctx, p.id, p.packageType(), filterFilenameEnd, filterSubdir, p.replacementPath()) {
 			if err != nil {
 				yield(nil, err)
 				return
 			}
 			for _, f := range files {
-				if !yield(fileReplacements(p, &f), nil) {
+				mapping := fileReplacements(p, &f)
+				inputFile, ok := mapping["%inputFile%"]
+				if !ok {
+					continue
+				}
+				if _, err := os.Stat(string(inputFile)); errors.Is(err, os.ErrNotExist) {
+					continue
+				}
+				seen[string(inputFile)] = struct{}{}
+				if !yield(mapping, nil) {
 					return
 				}
 			}
@@ -221,7 +230,7 @@ func (p *Package) Files(ctx context.Context, filterFilenameEnd, filterSubdir str
 			if filterFilenameEnd != "" && !strings.HasPrefix(fname, filterFilenameEnd) {
 				return nil
 			}
-			if _, ok := filesReturnedAlready[path]; !ok {
+			if _, ok := seen[path]; !ok {
 				if !yield(map[string]replacement{
 					"%relativeLocation": replacement(path),
 					"%fileUUID%":        replacement(""),
