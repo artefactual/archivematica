@@ -312,7 +312,7 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 		return uuid.Nil, fmt.Errorf("submit task: no results")
 	}
 
-	if l.j.updateStatusFromExitCode(ctx, taskResult.ExitCode); err != nil {
+	if err := l.j.updateStatusFromExitCode(ctx, taskResult.ExitCode); err != nil {
 		return uuid.Nil, err
 	}
 
@@ -385,10 +385,12 @@ func (l *filesClientScriptJob) submitTasks(ctx context.Context) (*taskResults, e
 	rm := l.j.pkg.unit.replacements(l.config.FilterSubdir).update(l.j.chain.pCtx)
 	taskBackend := newTaskBackend(l.j.logger, l.j, l.config)
 
-	for fileReplacements, err := range l.j.pkg.Files(ctx, l.config.FilterFileEnd, l.config.FilterSubdir) {
-		if err != nil {
-			return nil, err
-		}
+	files, err := l.j.pkg.Files(ctx, l.config.FilterFileEnd, l.config.FilterSubdir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, fileReplacements := range files {
 		rm = rm.with(fileReplacements)
 		args := rm.replaceValues(l.config.Arguments)
 		stdout := rm.replaceValues(l.config.StdoutFile)

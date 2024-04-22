@@ -8,9 +8,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+
+	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
 
 type taskBackend struct {

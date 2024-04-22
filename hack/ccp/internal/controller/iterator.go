@@ -20,7 +20,7 @@ var errWait = errors.New("wait")
 // In Archivematica the workflow is structured around chains and links.
 // A chain is a sequence of links used to accomplish a broader task or set of
 // tasks, carrying local state relevant only for the duration of the chain.
-// The output of a chain is placed in a watched directroy to trigger the next
+// The output of a chain is placed in a watched directory to trigger the next
 // chain.
 //
 // In MCPServer, `chain.jobChain` is implemented as an iterator, simplifying

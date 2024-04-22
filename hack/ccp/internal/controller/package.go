@@ -4,9 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
-	"iter"
 	"maps"
 	"os"
 	"path/filepath"
@@ -192,59 +190,53 @@ func (p *Package) Decision() []option {
 //     the specified suffix.
 //   - filterSubdir: the function limits the search to files within
 //     the specified subdirectory.
-//
-// TODO: https://github.com/artefactual/archivematica/blob/95a1daba07a1037dccaf628428fb3b39b795b75e/src/MCPServer/lib/server/packages.py#L649-L700
-func (p *Package) Files(ctx context.Context, filterFilenameEnd, filterSubdir string) iter.Seq2[replacementMapping, error] {
-	return func(yield func(replacementMapping, error) bool) {
-		seen := map[string]struct{}{}
-		for files, err := range p.store.Files(ctx, p.id, p.packageType(), filterFilenameEnd, filterSubdir, p.replacementPath()) {
-			if err != nil {
-				yield(nil, err)
-				return
-			}
-			for _, f := range files {
-				mapping := fileReplacements(p, &f)
-				inputFile, ok := mapping["%inputFile%"]
-				if !ok {
-					continue
-				}
-				if _, err := os.Stat(string(inputFile)); errors.Is(err, os.ErrNotExist) {
-					continue
-				}
-				seen[string(inputFile)] = struct{}{}
-				if !yield(mapping, nil) {
-					return
-				}
-			}
-		}
-
-		startPath := p.Path()
-		if filterSubdir != "" {
-			startPath += filterSubdir
-		}
-		err := filepath.WalkDir(startPath, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-			fname := d.Name()
-			if filterFilenameEnd != "" && !strings.HasPrefix(fname, filterFilenameEnd) {
-				return nil
-			}
-			if _, ok := seen[path]; !ok {
-				if !yield(map[string]replacement{
-					"%relativeLocation": replacement(path),
-					"%fileUUID%":        replacement(""),
-					"%fileGrpUse%":      replacement(""),
-				}, nil) {
-					return io.EOF
-				}
-			}
-			return nil
-		})
-		if err != nil {
-			yield(nil, err)
-		}
+func (p *Package) Files(ctx context.Context, filterFilenameEnd, filterSubdir string) ([]replacementMapping, error) {
+	files, err := p.store.Files(ctx, p.id, p.packageType(), filterFilenameEnd, filterSubdir, p.replacementPath())
+	if err != nil {
+		return nil, err
 	}
+	ret := make([]replacementMapping, len(files))
+	seen := make(map[string]struct{}, len(files))
+	for _, f := range files {
+		mapping := fileReplacements(p, &f)
+		inputFile, ok := mapping["%inputFile%"]
+		if !ok {
+			continue
+		}
+		if _, err := os.Stat(string(inputFile)); errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		seen[string(inputFile)] = struct{}{}
+		ret = append(ret, mapping)
+	}
+
+	startPath := p.Path()
+	if filterSubdir != "" {
+		startPath += filterSubdir
+	}
+	err = filepath.WalkDir(startPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		fname := d.Name()
+		if filterFilenameEnd != "" && !strings.HasPrefix(fname, filterFilenameEnd) {
+			return nil
+		}
+		if _, ok := seen[path]; ok {
+			return nil
+		}
+		ret = append(ret, map[string]replacement{
+			"%relativeLocation": replacement(path),
+			"%fileUUID%":        replacement(""),
+			"%fileGrpUse%":      replacement(""),
+		})
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("walk dir: %v", err)
+	}
+
+	return ret, nil
 }
 
 func (p *Package) replacements() replacementMapping {

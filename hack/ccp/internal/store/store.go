@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"iter"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -58,8 +57,9 @@ type Store interface {
 	// CreateUnitVar creates a new variable.
 	CreateUnitVar(ctx context.Context, id uuid.UUID, packageType enums.PackageType, name, value string, linkID uuid.UUID, update bool) error
 
-	// Files returns an iterable of files for a given package.
-	Files(ctx context.Context, id uuid.UUID, packageType enums.PackageType, filterFilenameEnd, filterSubdir, replacementPath string) iter.Seq2[[]File, error]
+	// Files returns a list of files. This could return some kind of iterator
+	// interface; rangefunc did work but it's not supported by linters yet.
+	Files(ctx context.Context, id uuid.UUID, packageType enums.PackageType, filterFilenameEnd, filterSubdir, replacementPath string) ([]File, error)
 
 	Running() bool
 	Close() error
@@ -95,8 +95,8 @@ type UnitVar struct {
 }
 
 type File struct {
-	ID               uuid.UUID
-	CurrentLocation  string
-	OriginalLocation string
-	FileGrpUse       string
+	ID               uuid.UUID `db:"fileUUID"`
+	CurrentLocation  string    `db:"currentLocation"`
+	OriginalLocation string    `db:"originalLocation"`
+	FileGrpUse       string    `db:"fileGrpUse"`
 }
