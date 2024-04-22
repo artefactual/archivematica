@@ -229,7 +229,7 @@ type LinkTaskConfigSetUnitVariable struct {
 	Manager       string    `json:"@manager"`
 	Variable      string    `json:"variable"`
 	VariableValue string    `json:"variable_value"`
-	ChainID       uuid.UUID `json:"chain_id"`
+	LinkID        uuid.UUID `json:"chain_id"`
 }
 
 type LinkTaskConfigUnitVariableLinkPull struct {
@@ -237,5 +237,5 @@ type LinkTaskConfigUnitVariableLinkPull struct {
 	Manager       string    `json:"@manager"`
 	Variable      string    `json:"variable"`
 	VariableValue string    `json:"variable_value"`
-	ChainID       uuid.UUID `json:"chain_id"`
+	LinkID        uuid.UUID `json:"chain_id"`
 }

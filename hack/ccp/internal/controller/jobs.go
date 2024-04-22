@@ -484,7 +484,7 @@ func newSetUnitVarLinkJob(j *job) (*setUnitVarLinkJob, error) {
 }
 
 func (l *setUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
-	if err := l.j.pkg.saveLinkID(ctx, l.config.Variable, l.config.ChainID); err != nil {
+	if err := l.j.pkg.saveLinkID(ctx, l.config.Variable, l.config.LinkID); err != nil {
 		return uuid.Nil, err
 	}
 
@@ -492,7 +492,7 @@ func (l *setUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	return l.config.ChainID, nil
+	return l.config.LinkID, nil
 }
 
 // getUnitVarLinkJob is a local job that gets the next link in the chain from a
@@ -529,13 +529,13 @@ func (l *getUnitVarLinkJob) exec(ctx context.Context) (uuid.UUID, error) {
 
 	linkID, err := l.j.pkg.store.ReadUnitLinkID(ctx, l.j.pkg.id, l.j.pkg.packageType(), l.config.Variable)
 	if err == sql.ErrNoRows {
-		return l.config.ChainID, nil
+		return l.config.LinkID, nil
 	}
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("read: %v", err)
 	}
 	if linkID == uuid.Nil {
-		linkID = l.config.ChainID
+		linkID = l.config.LinkID
 	}
 
 	if err := l.j.markComplete(ctx); err != nil {
