@@ -15,7 +15,7 @@ func TestReplacements(t *testing.T) {
 	rm := replacementMapping(map[string]replacement{
 		"%uuid%": "91354225-f28b-433c-8280-cf6a5edea2ff",
 		"%job%":  `cool \\stuff`,
-	}).withContext(pCtx)
+	}).update(pCtx)
 
 	assert.Equal(t,
 		rm.replaceValues(`%name% with path="%path%" and uuid="%uuid%" did: %job%`),
