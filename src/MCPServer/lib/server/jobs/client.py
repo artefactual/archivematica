@@ -168,11 +168,6 @@ class FilesClientScriptJob(ClientScriptJob):
     """
 
     @property
-    def filter_file_start(self):
-        """Returns path prefix to filter files on, as defined in the workflow."""
-        return self.link.config.get("filter_file_start", "")
-
-    @property
     def filter_file_end(self):
         """Returns path suffix to filter files on, as defined in the workflow."""
         return self.link.config.get("filter_file_end", "")
@@ -215,7 +210,6 @@ class FilesClientScriptJob(ClientScriptJob):
     def submit_tasks(self):
         """Iterate through all matching files for the package, and submit tasks."""
         for file_replacements in self.package.files(
-            filter_filename_start=self.filter_file_start,
             filter_filename_end=self.filter_file_end,
             filter_subdir=self.filter_subdir,
         ):

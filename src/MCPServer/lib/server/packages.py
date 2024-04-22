@@ -646,18 +646,13 @@ class Package(metaclass=abc.ABCMeta):
 
         return mapping
 
-    def files(
-        self, filter_filename_start=None, filter_filename_end=None, filter_subdir=None
-    ):
+    def files(self, filter_filename_end=None, filter_subdir=None):
         """Generator that yields all files associated with the package or that
         should be associated with a package.
         """
         with auto_close_old_connections():
             queryset = self.base_queryset
 
-            if filter_filename_start:
-                # TODO: regex filter
-                raise NotImplementedError("filter_filename_start is not implemented")
             if filter_filename_end:
                 queryset = queryset.filter(
                     currentlocation__endswith=filter_filename_end
@@ -683,12 +678,8 @@ class Package(metaclass=abc.ABCMeta):
 
             for basedir, _, files in os.walk(start_path):
                 for file_name in files:
-                    if (
-                        filter_filename_start
-                        and not file_name.startswith(filter_filename_start)
-                    ) or (
+                    if filter_filename_end and not file_name.endswith(
                         filter_filename_end
-                        and not file_name.endswith(filter_filename_end)
                     ):
                         continue
                     file_path = os.path.join(basedir, file_name)
