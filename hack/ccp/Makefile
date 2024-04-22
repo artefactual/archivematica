@@ -16,14 +16,17 @@ endif
 
 include hack/make/bootstrap.mk
 include hack/make/dep_buf.mk
+include hack/make/dep_goenum.mk
 include hack/make/dep_golangci_lint.mk
 include hack/make/dep_gotestsum.mk
 include hack/make/dep_mockgen.mk
 include hack/make/dep_sqlc.mk
 include hack/make/dep_tparse.mk
+include hack/make/enums.mk
 
 # Lazy-evaluated list of tools.
 TOOLS = $(BUF) \
+	$(GOENUM) \
 	$(GOLANGCI_LINT) \
 	$(GOTESTSUM) \
 	$(MOCKGEN) \
@@ -37,7 +40,8 @@ endef
 
 IGNORED_PACKAGES := \
 	github.com/artefactual/archivematica/hack/ccp/internal/api/gen/% \
-	github.com/artefactual/archivematica/hack/ccp/%/fake
+	github.com/artefactual/archivematica/hack/ccp/internal/%/enums \
+	github.com/artefactual/archivematica/hack/ccp/internal/%/fake
 PACKAGES := $(shell go list ./...)
 TEST_PACKAGES := $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES := $(filter $(IGNORED_PACKAGES),$(PACKAGES))
@@ -104,16 +108,21 @@ deps:
 	@go mod tidy
 
 gen: # @HELP Generage code.
-gen: gen-mocks gen-sqlc
+gen: gen-mocks gen-sqlc gen-enums
 
-gen-mocks: $(MOCKGEN) # @HELP Generate mocks.
+gen-mocks: # @HELP Generate mocks.
+gen-mocks: $(MOCKGEN)
 	mockgen -typed -source=./internal/store/store.go -destination=./internal/store/fake/mock_store.go -package=fake Store
 
 gen-sqlc: # @HELP Generate sqlc code.
 gen-sqlc: $(SQLC)
 	sqlc generate --file=$(CURDIR)/sqlc/sqlc.yaml
 
+gen-enums: # @HELP Generate enums.
+gen-enums: $(ENUMS)
+
 push: # @HELP Push new build of CCP to development environment.
+push:
 	docker compose up -d --force-recreate --build --no-deps archivematica-ccp
 	docker compose restart --no-deps archivematica-mcp-client archivematica-dashboard
 
