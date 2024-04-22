@@ -12,6 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/sevein/gearmin"
 
+	"github.com/artefactual/archivematica/hack/ccp/internal/python"
+	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 	"github.com/artefactual/archivematica/hack/ccp/internal/store/sqlcmysql"
 	"github.com/artefactual/archivematica/hack/ccp/internal/workflow"
 )
@@ -372,6 +374,9 @@ func (l *filesClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
 	if err := l.j.save(ctx); err != nil {
 		return uuid.Nil, fmt.Errorf("save: %v", err)
 	}
+	if filter, err := l.filterSubDir(ctx); err != nil {
+		l.config.FilterSubdir = filter
+	}
 
 	_, err := l.submitTasks(ctx)
 	if err != nil {
@@ -405,6 +410,26 @@ func (l *filesClientScriptJob) submitTasks(ctx context.Context) (*taskResults, e
 	}
 
 	return res, nil
+}
+
+// filterSubDir returns the directory to filter files on. This path is usually
+// defined in the workflow but can be overridden per package in a UnitVariable,
+// so we need to look that up.
+func (l *filesClientScriptJob) filterSubDir(ctx context.Context) (string, error) {
+	filterSubDir := l.config.FilterSubdir
+
+	val, err := l.j.pkg.store.ReadUnitVar(ctx, l.j.pkg.id, l.j.pkg.packageType(), l.config.Execute)
+	if err != nil && err != store.ErrNotFound {
+		return "", err
+	}
+
+	if m, err := python.EvalMap(val); err != nil {
+		if override, ok := m["filterSubDir"]; ok {
+			filterSubDir = override
+		}
+	}
+
+	return filterSubDir, nil
 }
 
 // outputClientScriptJob.

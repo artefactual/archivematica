@@ -197,6 +197,7 @@ func (p *Package) Files(ctx context.Context, filterFilenameEnd, filterSubdir str
 	}
 	ret := make([]replacementMapping, len(files))
 	seen := make(map[string]struct{}, len(files))
+
 	for _, f := range files {
 		mapping := fileReplacements(p, &f)
 		inputFile, ok := mapping["%inputFile%"]
