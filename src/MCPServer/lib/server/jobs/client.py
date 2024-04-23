@@ -3,6 +3,7 @@ Jobs remotely executed by on MCP client.
 """
 import abc
 import ast
+import json
 import logging
 
 from dbconns import auto_close_old_connections
@@ -235,13 +236,14 @@ class FilesClientScriptJob(ClientScriptJob):
 
 
 class OutputClientScriptJob(ClientScriptJob):
-    """Retrieves output (e.g. a set of choices) from mcp client, for use in a decision.
+    """Retrieves output (e.g. a set of choices) from MCPClient, for use in a decision.
 
     Output is returned via stderr, and parsed via eval. It is stored for access by the
     next job on the `generated_choices` attribute of the job chain, which is used for
     only this purpose.
 
-    TODO: Remove from workflow if possible.
+    TODO: Remove from workflow if possible - this is only used by
+    getAipStorageLocations_v0.0 (twice).
     """
 
     # We always need output for this type of job
@@ -251,8 +253,8 @@ class OutputClientScriptJob(ClientScriptJob):
         logger.debug("stdout emitted by client: %s", task.stdout)
 
         try:
-            choices = ast.literal_eval(task.stdout)
-        except (ValueError, SyntaxError):
+            choices = json.loads(task.stdout)
+        except (TypeError, ValueError):
             logger.exception("Unable to parse output %s", task.stdout)
             choices = {}
 
