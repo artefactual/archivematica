@@ -153,6 +153,8 @@ olefile==0.47
     #   opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
+orjson==3.10.1
+    # via -r requirements.txt
 packaging==24.0
     # via
     #   -r requirements.txt

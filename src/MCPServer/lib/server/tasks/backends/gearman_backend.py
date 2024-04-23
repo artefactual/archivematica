@@ -2,6 +2,7 @@
 Gearman task backend. Submits `Task` objects to gearman for processing,
 and returns results.
 """
+import datetime
 import logging
 import uuid
 
@@ -250,6 +251,10 @@ class GearmanTaskBatch:
                 task.stdout = task_result.get("stdout", "")
                 task.stderr = task_result.get("stderr", "")
                 task.finished_timestamp = task_result.get("finishedTimestamp")
+                if task.finished_timestamp:
+                    task.finished_timestamp = datetime.datetime.fromisoformat(
+                        task.finished_timestamp
+                    )
                 task.write_output()
 
                 task.done = True
