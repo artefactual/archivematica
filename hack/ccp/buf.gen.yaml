@@ -10,3 +10,9 @@ plugins:
   - plugin: buf.build/connectrpc/go
     out: internal/api/gen
     opt: paths=source_relative
+  - plugin: buf.build/connectrpc/es
+    out: web/src/gen
+    opt: target=ts
+  - plugin: buf.build/bufbuild/es
+    out: web/src/gen
+    opt: target=ts

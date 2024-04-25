@@ -72,9 +72,6 @@ test-ci: # @HELP Run all tests in CI with coverage and the race detector.
 test-ci:
 	$(MAKE) test GOTEST_FLAGS="-race -coverprofile=covreport -covermode=atomic"
 
-buf: $(BUF)
-	which buf
-
 list-tested-packages: # @HELP Print a list of packages being tested.
 list-tested-packages:
 	$(foreach PACKAGE,$(TEST_PACKAGES),@echo $(PACKAGE)$(NEWLINE))
@@ -108,7 +105,7 @@ deps:
 	@go mod tidy
 
 gen: # @HELP Generage code.
-gen: gen-mocks gen-sqlc gen-enums
+gen: gen-mocks gen-sqlc gen-enums gen-buf
 
 gen-mocks: # @HELP Generate mocks.
 gen-mocks: $(MOCKGEN)
@@ -120,6 +117,10 @@ gen-sqlc: $(SQLC)
 
 gen-enums: # @HELP Generate enums.
 gen-enums: $(ENUMS)
+
+gen-buf: # @HELP Generate buf.build assets.
+gen-buf: $(BUF)
+	buf generate
 
 push: # @HELP Push new build of CCP to development environment.
 push:
