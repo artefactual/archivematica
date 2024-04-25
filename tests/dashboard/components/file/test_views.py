@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from unittest import mock
 
@@ -30,6 +31,7 @@ def file(db):
 
 
 @mock.patch("elasticSearchFunctions.get_client")
+<<<<<<< HEAD
 def test_file_details(_get_client, admin_client, dashboard_uuid, file, sip, mocker):
     mocker.patch(
         "elasticSearchFunctions.get_transfer_file_info",
@@ -47,37 +49,68 @@ def test_file_details(_get_client, admin_client, dashboard_uuid, file, sip, mock
             "pending_deletion": False,
         },
     )
+@mock.patch("elasticSearchFunctions.get_transfer_file_info")
+def test_file_details(
+    get_transfer_file_info, get_client, admin_client, dashboard_uuid, file, sip
+):
+    get_transfer_file_info.return_value = {
+        "filename": "LICENSE",
+        "fileuuid": str(file.uuid),
+        "sipuuid": str(sip.uuid),
+        "status": "backlog",
+        "size": 0.032919883728027344,
+        "tags": [],
+        "bulk_extractor_reports": [],
+        "format": [
+            {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
+        ],
+        "pending_deletion": False,
+    }
+
     response = admin_client.get(reverse("file:file_details", args=[file.uuid]))
     assert response.status_code == 200
 
-    content = json.loads(response.content.decode("utf8"))
-    assert content["id"] == str(file.uuid)
-    assert content["title"] == "LICENSE"
+    assert response.json() == {
+        "id": str(file.uuid),
+        "type": "file",
+        "title": "LICENSE",
+        "size": 0.032919883728027344,
+        "bulk_extractor_reports": [],
+        "tags": [],
+        "format": "Generic TXT",
+        "group": "Text (Plain)",
+        "puid": "x-fmt/111",
+    }
 
 
-@mock.patch("elasticSearchFunctions.get_client")
 @pytest.mark.parametrize(
-    "mock_file_info, status_code",
+    "error_message, status_code",
     [
         ("get_transfer_file_info returned no exact results", 404),
         ("unknown error", 500),
     ],
     ids=["no exact results", "unknown error"],
 )
-def test_file_details_handles_exceptions(
-    _get_client, admin_client, dashboard_uuid, file, mocker, mock_file_info, status_code
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.get_transfer_file_info")
+def test_file_details_handle_exceptions(
+    get_transfer_file_info,
+    get_client,
+    error_message,
+    status_code,
+    admin_client,
+    dashboard_uuid,
+    file,
 ):
-    mocker.patch(
-        "elasticSearchFunctions.get_transfer_file_info",
-        side_effect=elasticSearchFunctions.ElasticsearchError(mock_file_info),
+    get_transfer_file_info.side_effect = elasticSearchFunctions.ElasticsearchError(
+        error_message
     )
-
     response = admin_client.get(reverse("file:file_details", args=[file.uuid]))
     assert response.status_code == status_code
 
-    assert json.loads(response.content.decode("utf8")) == {
+    assert response.json() == {
         "success": False,
-        "message": mock_file_info,
+        "message": error_message,
     }
 
 
@@ -88,17 +121,15 @@ def test_file_details_handles_exceptions(
         "filename": "piiTestDataCreditCardNumbers.txt",
         "relative_path": "test-bulk-extract-a239e3e1-0391-46da-94d7-25a3e8509b45/data/objects/piiTestDataCreditCardNumbers.txt",
         "status": "backlog",
-        "size": 0.00026416778564453125,
         "tags": [],
-        "file_extension": "txt",
         "bulk_extractor_reports": ["ccn"],
         "format": [
             {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
         ],
     },
 )
-def test_bulk_extractor_if_missing_reports_exist(
-    _get_client, _get_transfer_file_info, admin_client, dashboard_uuid, file, sip
+def test_bulk_extractor_fails_if_requested_file_is_missing(
+    get_transfer_file_info, get_client, admin_client, dashboard_uuid, file, sip
 ):
     response = admin_client.get(reverse("file:bulk_extractor", args=[file.uuid]))
     assert response.status_code == 400
@@ -110,7 +141,7 @@ def test_bulk_extractor_if_missing_reports_exist(
 
 
 @mock.patch("components.file.views.len", side_effect=[0])
-def test_bulk_extractor_validates_reports_parameter_with_len_mock(
+def test_bulk_extractor_fails_if_no_reports_requested(
     _len, admin_client, dashboard_uuid, file
 ):
     response = admin_client.get(
@@ -118,145 +149,176 @@ def test_bulk_extractor_validates_reports_parameter_with_len_mock(
     )
     assert response.status_code == 400
 
-    assert json.loads(response.content.decode()) == {
+    assert response.json() == {
         "success": False,
         "message": "No reports were requested.",
     }
 
 
-@mock.patch("elasticSearchFunctions.get_client")
 @pytest.mark.parametrize(
-    "mock_file_info, status_code",
+    "error_message, status_code",
     [
         ("get_transfer_file_info returned no exact results", 404),
         ("unknown error", 500),
     ],
     ids=["no exact results", "unknown error"],
 )
-def test_bulk_extractor_handles_exceptions(
-    _get_client, admin_client, dashboard_uuid, file, mocker, mock_file_info, status_code
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.get_transfer_file_info")
+def test_bulk_extractor_handle_exceptions(
+    get_transfer_file_info,
+    get_client,
+    error_message,
+    status_code,
+    admin_client,
+    dashboard_uuid,
+    file,
 ):
-    mocker.patch(
-        "elasticSearchFunctions.get_transfer_file_info",
-        side_effect=elasticSearchFunctions.ElasticsearchError(mock_file_info),
+    get_transfer_file_info.side_effect = elasticSearchFunctions.ElasticsearchError(
+        error_message
     )
-
     response = admin_client.get(
         reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
     )
     assert response.status_code == status_code
 
-    assert json.loads(response.content.decode("utf8")) == {
+    assert response.json() == {
         "success": False,
-        "message": mock_file_info,
+        "message": error_message,
     }
 
 
 @pytest.mark.django_db
 @mock.patch("elasticSearchFunctions.get_client")
-def test_bulk_extractor_status_code_200(
-    _get_client,
+@mock.patch("elasticSearchFunctions.get_transfer_file_info")
+def test_bulk_extractor(
+    get_transfer_file_info,
+    get_client,
     admin_client,
     dashboard_uuid,
-    mocker,
     transfer,
     sip,
+    file,
 ):
-    file = models.File.objects.create(uuid=uuid.uuid4(), transfer=transfer, sip=sip)
-    mocker.patch(
-        "elasticSearchFunctions.get_transfer_file_info",
-        return_value={
-            "filename": "piiTestDataCreditCardNumbers.txt",
-            "fileuuid": str(file.uuid),
-            "sipuuid": str(sip.uuid),
-            "status": "backlog",
-            "created": 1713465340.0109284,
-            "size": 0.00026416778564453125,
-            "tags": [],
-            "file_extension": "txt",
-            "bulk_extractor_reports": ["ccn", "pii"],
-            "format": [
-                {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
-            ],
-            "pending_deletion": False,
-        },
-    )
-    mocker.patch(
+    file.transfer = transfer
+    file.sip = sip
+    file.save()
+    get_transfer_file_info.return_value = {
+        "filename": "piiTestDataCreditCardNumbers.txt",
+        "fileuuid": str(file.uuid),
+        "sipuuid": str(sip.uuid),
+        "status": "backlog",
+        "tags": [],
+        "bulk_extractor_reports": ["ccn", "pii"],
+        "format": [
+            {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
+        ],
+        "pending_deletion": False,
+    }
+    with mock.patch(
         "requests.get",
-        return_value=mocker.Mock(
+        return_value=mock.Mock(
             status_code=200,
-            text="""64	378282246310005	rican Express - 378282246310005 02. American E
-                                                          104	371449635398431	rican Express - 371449635398431 03. American E
-                                                          154	378734493671000	ess Corporate - 378734493671000 04. Australian
-                                                          197	5610591081018250	lian BankCard - 5610591081018250 05. Discover -
-                                                          230	6011000990139424	 05. Discover - 6011000990139424 06. JCB - 3566
-                                                          258	3566002020360505	9424 06. JCB - 3566002020360505 """,
+            text="""64\t378282246310005	rican Express - 378282246310005 02. American E\t
+ 258\t3566002020360505\t9424 06. JCB - 3566002020360505 """,
         ),
-    )
-    response = admin_client.get(
-        reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
-    )
+    ):
+        response = admin_client.get(
+            reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
+        )
     assert response.status_code == 200
+
+    assert response.json() == {
+        "ccn": [
+            {
+                "offset": "64",
+                "content": "378282246310005",
+                "context": "rican Express - 378282246310005 02. American E",
+            },
+            {
+                "offset": " 258",
+                "content": "3566002020360505",
+                "context": "9424 06. JCB - 3566002020360505 ",
+            },
+        ],
+        "pii": [
+            {
+                "offset": "64",
+                "content": "378282246310005",
+                "context": "rican Express - 378282246310005 02. American E",
+            },
+            {
+                "offset": " 258",
+                "content": "3566002020360505",
+                "context": "9424 06. JCB - 3566002020360505 ",
+            },
+        ],
+    }
 
 
 @pytest.mark.django_db
 @mock.patch("elasticSearchFunctions.get_client")
-def test_bulk_extractor_status_code_other_than_200(
-    _get_client, admin_client, dashboard_uuid, mocker, caplog, transfer, sip
+@mock.patch("elasticSearchFunctions.get_transfer_file_info")
+def test_bulk_extractor_handles_exception_if_no_missing_reports(
+    get_transfer_file_info,
+    get_client,
+    admin_client,
+    dashboard_uuid,
+    caplog,
+    transfer,
+    sip,
+    file,
 ):
-    file = models.File.objects.create(uuid=uuid.uuid4(), transfer=transfer, sip=sip)
-    mocker.patch(
-        "elasticSearchFunctions.get_transfer_file_info",
-        return_value={
-            "filename": "piiTestDataCreditCardNumbers.txt",
-            "fileuuid": file.uuid,
-            "sipuuid": sip.uuid,
-            "status": "backlog",
-            "created": 1713465340.0109284,
-            "size": 0.00026416778564453125,
-            "tags": [],
-            "file_extension": "txt",
-            "bulk_extractor_reports": ["ccn", "pii"],
-            "format": [
-                {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
-            ],
-            "pending_deletion": False,
-        },
-    )
-    mocker.patch(
+    file.transfer = transfer
+    file.sip = sip
+    file.save()
+    get_transfer_file_info.return_value = {
+        "filename": "piiTestDataCreditCardNumbers.txt",
+        "fileuuid": file.uuid,
+        "sipuuid": sip.uuid,
+        "status": "backlog",
+        "tags": [],
+        "bulk_extractor_reports": ["ccn", "pii"],
+        "format": [
+            {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
+        ],
+    }
+    with mock.patch(
         "requests.get",
-        return_value=mocker.Mock(status_code=500, text="""Internal Server Error"""),
-    )
-    response = admin_client.get(
-        reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
-    )
+        return_value=mock.Mock(status_code=500, text="""Internal Server Error"""),
+    ):
+        response = admin_client.get(
+            reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
+        )
     assert response.status_code == 200
 
     assert (
-        f"Unable to retrieve ccn report for file with UUID {file.uuid}; response: ('Internal Server Error',)"
-        in ([rec.message for rec in caplog.records[1::2]])
+        "archivematica.dashboard",
+        40,
+        f"Unable to retrieve ccn report for file with UUID {file.uuid}; response: ('Internal Server Error',)",
+    ) in caplog.record_tuples
+    assert [record.levelname == "ERROR" for record in caplog.records]
+    assert caplog.at_level(logging.ERROR, logger="archivematica.dashboard")
+    assert (
+        f"Unable to retrieve ccn report for file with UUID {file.uuid};" in caplog.text
     )
-    assert f"Unable to retrieve ccn report for file with UUID {file.uuid}" in (
-        [(rec.message).split(";")[0] for rec in caplog.records[1::2]]
-    )
-    assert " response: ('Internal Server Error',)" in (
-        [(rec.message).split(";")[1] for rec in caplog.records[1::2]]
-    )
+    assert "response: ('Internal Server Error',)" in caplog.text
 
 
 @mock.patch("elasticSearchFunctions.get_client")
-def test_transfer_file_tags(_get_client, admin_client, dashboard_uuid, file, mocker):
-    mocker.patch(
-        "elasticSearchFunctions.get_file_tags",
-        return_value=["test"],
-    )
+@mock.patch(
+    "elasticSearchFunctions.get_file_tags",
+    return_value=["test"],
+)
+def test_transfer_file_tags(
+    get_file_tags, get_client, admin_client, dashboard_uuid, file
+):
     response = admin_client.get(reverse("file:transfer_file_tags", args=[file.uuid]))
     assert response.status_code == 200
 
-    assert ["test"] == response.json()
+    assert response.json() == ["test"]
 
 
-@mock.patch("elasticSearchFunctions.get_client")
 @pytest.mark.parametrize(
     "exception, status_code",
     [
@@ -265,17 +327,22 @@ def test_transfer_file_tags(_get_client, admin_client, dashboard_uuid, file, moc
     ],
     ids=["Elasticsearch error", "Empty search result error"],
 )
-def test_transfer_file_tags_handles_exceptions(
-    _get_client, exception, status_code, admin_client, dashboard_uuid, file, mocker
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.get_file_tags")
+def test_transfer_file_tags_handle_exceptions(
+    get_file_tags,
+    get_client,
+    exception,
+    status_code,
+    admin_client,
+    dashboard_uuid,
+    file,
 ):
-    mocker.patch(
-        "elasticSearchFunctions.get_file_tags",
-        side_effect=exception,
-    )
+    get_file_tags.side_effect = exception
     response = admin_client.get(reverse("file:transfer_file_tags", args=[file.uuid]))
     assert response.status_code == status_code
 
-    assert json.loads(response.content.decode("utf8")) == {
+    assert response.json() == {
         "success": False,
         "message": "No tags",
     }
@@ -286,8 +353,8 @@ def test_transfer_file_tags_handles_exceptions(
     "elasticSearchFunctions.set_file_tags",
     return_value=["test"],
 )
-def test_transfer_file_tags_put_method(
-    _get_client, _set_file_tags, admin_client, dashboard_uuid, file
+def test_transfer_file_tags_if_update_tags(
+    set_file_tags, get_client, admin_client, dashboard_uuid, file
 ):
     tag_to_update = ["new_tag"]
     response = admin_client.put(
@@ -299,19 +366,19 @@ def test_transfer_file_tags_put_method(
     assert response.json() == {"success": True}
 
 
-def test_transfer_file_tags_put_method_status_code_400(
+def test_transfer_file_tags_fails_if_no_JSON_document_requested(
     admin_client, dashboard_uuid, file
 ):
     response = admin_client.put(reverse("file:transfer_file_tags", args=[file.uuid]))
     assert response.status_code == 400
 
-    assert {
+    assert response.json() == {
         "success": False,
         "message": "No JSON document could be decoded from the request.",
-    } == response.json()
+    }
 
 
-def test_transfer_file_tags_put_method_if_tags_not_list(
+def test_transfer_file_tags_fails_if_updated_tag_is_not_list(
     admin_client, dashboard_uuid, file
 ):
     tag_to_update = "new_tag"
@@ -321,13 +388,12 @@ def test_transfer_file_tags_put_method_if_tags_not_list(
     )
     assert response.status_code == 400
 
-    assert {
+    assert response.json() == {
         "success": False,
         "message": "The request body must be an array.",
-    } == response.json()
+    }
 
 
-@mock.patch("elasticSearchFunctions.get_client")
 @pytest.mark.parametrize(
     "exception, status_code",
     [
@@ -336,21 +402,26 @@ def test_transfer_file_tags_put_method_if_tags_not_list(
     ],
     ids=["Elasticsearch error", "Empty search result error"],
 )
-def test_transfer_file_tags_handles_exceptions_put_method(
-    _get_client, exception, status_code, admin_client, dashboard_uuid, file, mocker
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.set_file_tags")
+def test_transfer_file_tags_handle_exceptions_if_updating_tags(
+    set_file_tags,
+    get_client,
+    exception,
+    status_code,
+    admin_client,
+    dashboard_uuid,
+    file,
 ):
     tag_to_update = ["new_tag"]
-    mocker.patch(
-        "elasticSearchFunctions.set_file_tags",
-        side_effect=exception,
-    )
+    set_file_tags.side_effect = exception
     response = admin_client.put(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_update),
     )
     assert response.status_code == status_code
 
-    assert json.loads(response.content.decode("utf8")) == {
+    assert response.json() == {
         "success": False,
         "message": "No tags",
     }
@@ -361,8 +432,8 @@ def test_transfer_file_tags_handles_exceptions_put_method(
     "elasticSearchFunctions.set_file_tags",
     return_value=["test"],
 )
-def test_transfer_file_tags_delete_method(
-    _get_client, _set_file_tags, admin_client, dashboard_uuid, file
+def test_transfer_file_tags_if_tags_are_removed(
+    set_file_tags, get_client, admin_client, dashboard_uuid, file
 ):
     tag_to_delete = ["new_tag"]
     response = admin_client.delete(
@@ -374,7 +445,6 @@ def test_transfer_file_tags_delete_method(
     assert response.json() == {"success": True}
 
 
-@mock.patch("elasticSearchFunctions.get_client")
 @pytest.mark.parametrize(
     "exception, status_code",
     [
@@ -383,21 +453,26 @@ def test_transfer_file_tags_delete_method(
     ],
     ids=["Elasticsearch error", "Empty search result error"],
 )
-def test_transfer_file_tags_handles_exceptions_delete_method(
-    _get_client, exception, status_code, admin_client, dashboard_uuid, file, mocker
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.set_file_tags")
+def test_transfer_file_tags_handle_exceptions_if_tags_are_removed(
+    set_file_tags,
+    get_client,
+    exception,
+    status_code,
+    admin_client,
+    dashboard_uuid,
+    file,
 ):
+    set_file_tags.side_effect = exception
     tag_to_delete = ["new_tag"]
-    mocker.patch(
-        "elasticSearchFunctions.set_file_tags",
-        side_effect=exception,
-    )
     response = admin_client.delete(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_delete),
     )
     assert response.status_code == status_code
 
-    assert json.loads(response.content.decode("utf8")) == {
+    assert response.json() == {
         "success": False,
         "message": "No tags",
     }
