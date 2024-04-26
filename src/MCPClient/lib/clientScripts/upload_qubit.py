@@ -18,7 +18,6 @@
 import getpass
 import optparse
 import os
-import pickle
 import re
 import subprocess
 import sys
@@ -111,18 +110,12 @@ def start(job, data):
         # Look for access system ID
         transfers = models.Transfer.objects.filter(file__sip_id=data.uuid).distinct()
         if transfers.count() == 1:
-            # Django converts to text since Access.target is a TextField.
-            access.target = pickle.dumps(
-                {"target": transfers[0].access_system_id}, protocol=0
-            ).decode()
+            access.target = transfers[0].access_system_id
         access.save()
 
-    # The target columns contents a serialized Python dictionary
-    # - target is the permalink string
-    try:
-        target = pickle.loads(access.target.encode())
-        log("Target: %s" % (target["target"]))
-    except Exception:
+    target = access.target
+    log("Target: %s" % target)
+    if not target:
         return error(job, "No target was selected")
 
     # Rsync if data.rsync_target option was passed to this script
@@ -225,13 +218,13 @@ def start(job, data):
     deposit_url = "{}/{}sword/deposit/{}".format(
         data.url,
         atom_url_prefix,
-        target["target"],
+        target,
     )
 
     # Auth and request!
     log("About to deposit to: %s" % data.url)
     access.statuscode = 13
-    access.resource = "{}/{}".format(data.url, target["target"])
+    access.resource = f"{data.url}/{target}"
     access.save()
     auth = requests.auth.HTTPBasicAuth(data.email, data.password)
 
