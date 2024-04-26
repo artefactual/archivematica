@@ -17,21 +17,24 @@ import (
 	adminv1 "github.com/artefactual/archivematica/hack/ccp/internal/api/gen/archivematica/ccp/admin/v1"
 	"github.com/artefactual/archivematica/hack/ccp/internal/api/gen/archivematica/ccp/admin/v1/adminv1connect"
 	"github.com/artefactual/archivematica/hack/ccp/internal/controller"
+	"github.com/artefactual/archivematica/hack/ccp/internal/store"
 )
 
 type Server struct {
 	logger logr.Logger
 	config Config
 	ctrl   *controller.Controller
+	store  store.Store
 	server *http.Server
 	ln     net.Listener
 }
 
-func New(logger logr.Logger, config Config, ctrl *controller.Controller) *Server {
+func New(logger logr.Logger, config Config, ctrl *controller.Controller, store store.Store) *Server {
 	return &Server{
 		logger: logger,
 		config: config,
 		ctrl:   ctrl,
+		store:  store,
 	}
 }
 
