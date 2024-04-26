@@ -31,24 +31,6 @@ def file(db):
 
 
 @mock.patch("elasticSearchFunctions.get_client")
-<<<<<<< HEAD
-def test_file_details(_get_client, admin_client, dashboard_uuid, file, sip, mocker):
-    mocker.patch(
-        "elasticSearchFunctions.get_transfer_file_info",
-        return_value={
-            "filename": "LICENSE",
-            "fileuuid": str(file.uuid),
-            "sipuuid": str(sip.uuid),
-            "status": "backlog",
-            "size": 0.032919883728027344,
-            "tags": [],
-            "bulk_extractor_reports": [],
-            "format": [
-                {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
-            ],
-            "pending_deletion": False,
-        },
-    )
 @mock.patch("elasticSearchFunctions.get_transfer_file_info")
 def test_file_details(
     get_transfer_file_info, get_client, admin_client, dashboard_uuid, file, sip
@@ -93,7 +75,7 @@ def test_file_details(
 )
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.get_transfer_file_info")
-def test_file_details_handle_exceptions(
+def test_file_details_handles_exceptions(
     get_transfer_file_info,
     get_client,
     error_message,
@@ -105,6 +87,7 @@ def test_file_details_handle_exceptions(
     get_transfer_file_info.side_effect = elasticSearchFunctions.ElasticsearchError(
         error_message
     )
+
     response = admin_client.get(reverse("file:file_details", args=[file.uuid]))
     assert response.status_code == status_code
 
@@ -165,7 +148,7 @@ def test_bulk_extractor_fails_if_no_reports_requested(
 )
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.get_transfer_file_info")
-def test_bulk_extractor_handle_exceptions(
+def test_bulk_extractor_handles_exceptions(
     get_transfer_file_info,
     get_client,
     error_message,
@@ -177,6 +160,7 @@ def test_bulk_extractor_handle_exceptions(
     get_transfer_file_info.side_effect = elasticSearchFunctions.ElasticsearchError(
         error_message
     )
+
     response = admin_client.get(
         reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
     )
@@ -191,7 +175,16 @@ def test_bulk_extractor_handle_exceptions(
 @pytest.mark.django_db
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.get_transfer_file_info")
+@mock.patch(
+    "requests.get",
+    return_value=mock.Mock(
+        status_code=200,
+        text="""64\t378282246310005	rican Express - 378282246310005 02. American E\t
+ 258\t3566002020360505\t9424 06. JCB - 3566002020360505 """,
+    ),
+)
 def test_bulk_extractor(
+    _get,
     get_transfer_file_info,
     get_client,
     admin_client,
@@ -215,17 +208,10 @@ def test_bulk_extractor(
         ],
         "pending_deletion": False,
     }
-    with mock.patch(
-        "requests.get",
-        return_value=mock.Mock(
-            status_code=200,
-            text="""64\t378282246310005	rican Express - 378282246310005 02. American E\t
- 258\t3566002020360505\t9424 06. JCB - 3566002020360505 """,
-        ),
-    ):
-        response = admin_client.get(
-            reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
-        )
+
+    response = admin_client.get(
+        reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
+    )
     assert response.status_code == 200
 
     assert response.json() == {
@@ -259,7 +245,12 @@ def test_bulk_extractor(
 @pytest.mark.django_db
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.get_transfer_file_info")
-def test_bulk_extractor_handles_exception_if_no_missing_reports(
+@mock.patch(
+    "requests.get",
+    return_value=mock.Mock(status_code=500, text="""Internal Server Error"""),
+)
+def test_bulk_extractor_handles_exception_if_reports_are_not_missing(
+    _get,
     get_transfer_file_info,
     get_client,
     admin_client,
@@ -283,13 +274,10 @@ def test_bulk_extractor_handles_exception_if_no_missing_reports(
             {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
         ],
     }
-    with mock.patch(
-        "requests.get",
-        return_value=mock.Mock(status_code=500, text="""Internal Server Error"""),
-    ):
-        response = admin_client.get(
-            reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
-        )
+
+    response = admin_client.get(
+        reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
+    )
     assert response.status_code == 200
 
     assert (
@@ -329,7 +317,7 @@ def test_transfer_file_tags(
 )
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.get_file_tags")
-def test_transfer_file_tags_handle_exceptions(
+def test_transfer_file_tags_handles_exceptions(
     get_file_tags,
     get_client,
     exception,
@@ -339,6 +327,7 @@ def test_transfer_file_tags_handle_exceptions(
     file,
 ):
     get_file_tags.side_effect = exception
+
     response = admin_client.get(reverse("file:transfer_file_tags", args=[file.uuid]))
     assert response.status_code == status_code
 
@@ -353,10 +342,11 @@ def test_transfer_file_tags_handle_exceptions(
     "elasticSearchFunctions.set_file_tags",
     return_value=["test"],
 )
-def test_transfer_file_tags_if_update_tags(
+def test_transfer_file_tags_updates_tags(
     set_file_tags, get_client, admin_client, dashboard_uuid, file
 ):
     tag_to_update = ["new_tag"]
+
     response = admin_client.put(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_update),
@@ -366,7 +356,7 @@ def test_transfer_file_tags_if_update_tags(
     assert response.json() == {"success": True}
 
 
-def test_transfer_file_tags_fails_if_no_JSON_document_requested(
+def test_transfer_file_tags_fails_if_no_document_provided(
     admin_client, dashboard_uuid, file
 ):
     response = admin_client.put(reverse("file:transfer_file_tags", args=[file.uuid]))
@@ -378,10 +368,11 @@ def test_transfer_file_tags_fails_if_no_JSON_document_requested(
     }
 
 
-def test_transfer_file_tags_fails_if_updated_tag_is_not_list(
+def test_transfer_file_tags_fails_if_provided_tags_are_not_in_a_list(
     admin_client, dashboard_uuid, file
 ):
     tag_to_update = "new_tag"
+
     response = admin_client.put(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_update),
@@ -404,7 +395,7 @@ def test_transfer_file_tags_fails_if_updated_tag_is_not_list(
 )
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.set_file_tags")
-def test_transfer_file_tags_handle_exceptions_if_updating_tags(
+def test_transfer_file_tags_handles_exceptions_when_updating_tags(
     set_file_tags,
     get_client,
     exception,
@@ -415,6 +406,7 @@ def test_transfer_file_tags_handle_exceptions_if_updating_tags(
 ):
     tag_to_update = ["new_tag"]
     set_file_tags.side_effect = exception
+
     response = admin_client.put(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_update),
@@ -432,10 +424,11 @@ def test_transfer_file_tags_handle_exceptions_if_updating_tags(
     "elasticSearchFunctions.set_file_tags",
     return_value=["test"],
 )
-def test_transfer_file_tags_if_tags_are_removed(
+def test_transfer_file_tags_deletes_tags(
     set_file_tags, get_client, admin_client, dashboard_uuid, file
 ):
     tag_to_delete = ["new_tag"]
+
     response = admin_client.delete(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_delete),
@@ -455,7 +448,7 @@ def test_transfer_file_tags_if_tags_are_removed(
 )
 @mock.patch("elasticSearchFunctions.get_client")
 @mock.patch("elasticSearchFunctions.set_file_tags")
-def test_transfer_file_tags_handle_exceptions_if_tags_are_removed(
+def test_transfer_file_tags_handles_exceptions_when_removing_tags(
     set_file_tags,
     get_client,
     exception,
@@ -466,6 +459,7 @@ def test_transfer_file_tags_handle_exceptions_if_tags_are_removed(
 ):
     set_file_tags.side_effect = exception
     tag_to_delete = ["new_tag"]
+
     response = admin_client.delete(
         reverse("file:transfer_file_tags", args=[file.uuid]),
         data=json.dumps(tag_to_delete),
