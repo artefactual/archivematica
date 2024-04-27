@@ -39,7 +39,7 @@ def format_gearman_request(tasks):
         task_uuid = str(task.uuid)
         request["tasks"][task_uuid] = {
             "uuid": task_uuid,
-            "createdDate": task.start_timestamp.isoformat(" "),
+            "createdDate": task.start_timestamp,
             "arguments": task.arguments,
             "wants_output": task.wants_output,
         }
