@@ -49,7 +49,7 @@ func TestSubmitJob(t *testing.T) {
 				Tasks: map[uuid.UUID]*task{
 					uuid.MustParse("5ef281c2-692f-49a2-b8dd-36ab4e2beca5"): {
 						ID:          uuid.MustParse("5ef281c2-692f-49a2-b8dd-36ab4e2beca5"),
-						CreatedAt:   mcpTime{time.Date(2024, time.April, 12, 5, 40, 20, 0, time.UTC)},
+						CreatedAt:   time.Date(2024, time.April, 12, 5, 40, 20, 0, time.UTC),
 						Args:        "\"%sharedPath%\"",
 						WantsOutput: true,
 					},

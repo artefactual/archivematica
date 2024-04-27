@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -34,7 +35,7 @@ func newTaskBackend(logger logr.Logger, job *job, config *workflow.LinkStandardT
 func (b *taskBackend) submit(pCtx *packageContext, args string, wantsOutput bool, stdoutFilePath, stderrFilePath string) uuid.UUID {
 	t := &task{
 		ID:             uuid.New(),
-		CreatedAt:      mcpTime{time.Now().UTC()},
+		CreatedAt:      time.Now().UTC(),
 		Args:           args,
 		stdoutFilePath: stdoutFilePath,
 		stderrFilePath: stderrFilePath,
@@ -85,6 +86,25 @@ type task struct {
 	stderr         string
 	exitCode       *int
 	completedAt    time.Time
+}
+
+func (t task) MarshalJSON() ([]byte, error) {
+	// Python 3.10 or older can't parse the encoded output of time.Time, but it
+	// is fixed in Python 3.11. We override the value here with a format that is
+	// compatible.
+	type alias task
+	type transformer struct {
+		alias
+		CreatedAt string `json:"createdDate"`
+	}
+	createdAt := t.CreatedAt.Format("2006-01-02T15:04:05") +
+		fmt.Sprintf(".%06d", t.CreatedAt.Nanosecond()/1000)[:7] +
+		t.CreatedAt.Format("-07:00")
+	aliased := transformer{
+		alias:     alias(t),
+		CreatedAt: createdAt,
+	}
+	return json.Marshal(aliased)
 }
 
 // writeOutput writes the stdout/stderr we got from MCPClient out to files if

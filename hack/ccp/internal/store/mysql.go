@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
+	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	"github.com/go-logr/logr"
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -478,16 +479,16 @@ func (s *mysqlStoreImpl) Files(ctx context.Context, id uuid.UUID, packageType en
 
 	sel := s.goqu.Select().From("Files")
 	if filterFilenameEnd != "" {
-		sel.Where(goqu.Ex{"currentLocation": goqu.Op{"like": "%" + filterFilenameEnd}})
+		sel = sel.Where(goqu.Ex{"currentLocation": goqu.Op{"like": "%" + filterFilenameEnd}})
 	}
 	if filterSubdir != "" {
-		sel.Where(goqu.Ex{"currentLocation": goqu.Op{"like": replacementPath + filterSubdir + "%"}})
+		sel = sel.Where(goqu.Ex{"currentLocation": goqu.Op{"like": replacementPath + filterSubdir + "%"}})
 	}
 	switch packageType {
 	case enums.PackageTypeTransfer:
-		sel.Where(goqu.Ex{"transferUUID": id.String()})
+		sel = sel.Where(goqu.Ex{"transferUUID": id.String()})
 	case enums.PackageTypeSIP, enums.PackageTypeDIP:
-		sel.Where(goqu.Ex{"sipUUID": id.String()})
+		sel = sel.Where(goqu.Ex{"sipUUID": id.String()})
 	default:
 		return nil, fmt.Errorf("unexpected package type: %q", packageType)
 	}
@@ -497,8 +498,8 @@ func (s *mysqlStoreImpl) Files(ctx context.Context, id uuid.UUID, packageType en
 	const batchSize = 250
 	offset := uint(0)
 	for {
-		sel.Limit(batchSize).Offset(offset)
-		files := make([]File, batchSize)
+		sel = sel.Limit(batchSize).Offset(offset)
+		files := make([]File, 0, batchSize)
 		if err := sel.ScanStructsContext(ctx, &files); err != nil {
 			return nil, fmt.Errorf("scan structs: %v", err)
 		}
