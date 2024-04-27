@@ -135,7 +135,7 @@ func (i *iterator) runJob(ctx context.Context, id uuid.UUID) (uuid.UUID, error) 
 		if err == io.EOF {
 			return uuid.Nil, err
 		}
-		return uuid.Nil, fmt.Errorf("link %s couldn't be executed: %v", id, err)
+		return uuid.Nil, fmt.Errorf("link %s with manager %s (%s) couldn't be executed: %v", id, wl.Manager, wl.Description, err)
 	}
 
 	// Workflow needs to be reactivated by another watched directory.

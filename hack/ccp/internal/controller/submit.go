@@ -26,7 +26,7 @@ func submitJob(ctx context.Context, logger logr.Logger, gearman *gearmin.Server,
 		return nil, fmt.Errorf("marshal tasks: %v", err)
 	}
 
-	logger.V(2).Info("Submitting job to the server.", "data", string(data))
+	logger.V(2).Info("Submitting job to MCPClient.", "data", string(data))
 
 	done := make(chan struct{})
 	res := &taskResults{}
