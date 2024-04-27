@@ -190,7 +190,7 @@ class GearmanTaskBatch:
     def serialize_task(self, task):
         return {
             "uuid": str(task.uuid),
-            "createdDate": task.start_timestamp.isoformat(" "),
+            "createdDate": task.start_timestamp,
             "arguments": task.arguments,
             "wants_output": task.wants_output,
         }
