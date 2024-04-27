@@ -1,6 +1,7 @@
 import functools
 import logging
 import multiprocessing
+from datetime import datetime
 
 import gearman
 from client import metrics
@@ -66,9 +67,16 @@ class MCPGearmanWorker(gearman.GearmanWorker):
 
         jobs = []
         for task_uuid, task_data in tasks.items():
+            # We use ISO 8601 in our wire format but replace the `T` separator
+            # with a space for METS compatibility in client scripts.
+            created_date = datetime.fromisoformat(task_data["createdDate"]).isoformat(
+                " "
+            )
             arguments = str(task_data["arguments"])
             arguments = replace_task_arguments(
-                arguments, task_uuid, task_data.get("createdDate")
+                arguments,
+                task_uuid,
+                created_date,
             )
             arguments = parse_command_line(arguments)
 
