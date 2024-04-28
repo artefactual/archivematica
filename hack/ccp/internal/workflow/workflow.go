@@ -91,7 +91,7 @@ type Link struct {
 	Description       I18nField            `json:"description"`
 	ExitCodes         map[int]LinkExitCode `json:"exit_codes"`
 	FallbackJobStatus string               `json:"fallback_job_status"`
-	FallbackLinkID    *uuid.UUID           `json:"fallback_link_id"`
+	FallbackLinkID    uuid.UUID            `json:"fallback_link_id"`
 	Group             I18nField            `json:"group"`
 	End               bool                 `json:"end"`
 }

@@ -317,11 +317,11 @@ func (l *directoryClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) 
 	if ec, ok := l.j.wl.ExitCodes[taskResult.ExitCode]; ok && ec.LinkID != nil {
 		return *ec.LinkID, nil
 	}
-	if l.j.wl.FallbackLinkID == nil {
+	if l.j.wl.FallbackLinkID == uuid.Nil {
 		return uuid.Nil, io.EOF
 	}
 
-	return *l.j.wl.FallbackLinkID, nil
+	return l.j.wl.FallbackLinkID, nil
 }
 
 func (l *directoryClientScriptJob) submitTasks(ctx context.Context) (*taskResult, error) {
@@ -396,11 +396,11 @@ func (l *filesClientScriptJob) exec(ctx context.Context) (uuid.UUID, error) {
 	if ec, ok := l.j.wl.ExitCodes[exitCode]; ok && ec.LinkID != nil {
 		return *ec.LinkID, nil
 	}
-	if l.j.wl.FallbackLinkID == nil {
+	if l.j.wl.FallbackLinkID == uuid.Nil {
 		return uuid.Nil, io.EOF
 	}
 
-	return *l.j.wl.FallbackLinkID, nil
+	return l.j.wl.FallbackLinkID, nil
 }
 
 func (l *filesClientScriptJob) submitTasks(ctx context.Context) (*taskResults, error) {
