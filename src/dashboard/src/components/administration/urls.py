@@ -18,7 +18,6 @@ from components.administration import views
 from components.administration import views_dip_upload
 from components.administration import views_processing
 from components.administration.forms import ProcessingConfigurationForm
-from django.conf import settings
 from django.urls import include
 from django.urls import path
 from django.urls import re_path
@@ -82,17 +81,17 @@ urlpatterns = [
     path("api/", views.api, name="api"),
     path("general/", views.general, name="general"),
     path("version/", views.version, name="version"),
-    re_path(
-        r"^taxonomy/term/(?P<term_uuid>" + settings.UUID_REGEX + ")/$",
+    path(
+        "taxonomy/term/<uuid:term_uuid>/",
         views.term_detail,
         name="term",
     ),
-    re_path(
-        r"^taxonomy/term/(?P<term_uuid>" + settings.UUID_REGEX + ")/delete/$",
+    path(
+        "taxonomy/term/<uuid:term_uuid>/delete/",
         views.term_delete,
     ),
-    re_path(
-        r"^taxonomy/(?P<taxonomy_uuid>" + settings.UUID_REGEX + ")/$",
+    path(
+        "taxonomy/<uuid:taxonomy_uuid>/",
         views.terms,
         name="terms",
     ),
