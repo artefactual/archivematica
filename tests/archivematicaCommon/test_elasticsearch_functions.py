@@ -1,8 +1,5 @@
 import os
-import unittest
 from unittest import mock
-from unittest.mock import ANY
-from unittest.mock import patch
 
 import elasticSearchFunctions
 import pytest
@@ -14,497 +11,499 @@ from main.models import SIP
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class TestElasticSearchFunctions(unittest.TestCase):
-    def setUp(self):
-        with mock.patch("elasticsearch.transport.Transport.perform_request"):
-            elasticSearchFunctions.setup("elasticsearch:9200")
-        self.client = elasticSearchFunctions.get_client()
-        self.aip_uuid = "b34521a3-1c63-43dd-b901-584416f36c91"
-        self.file_uuid = "268421a7-a986-4fa0-95c1-54176e508210"
+@pytest.fixture
+def es_client():
+    with mock.patch("elasticsearch.transport.Transport.perform_request"):
+        elasticSearchFunctions.setup("elasticsearch:9200")
+    return elasticSearchFunctions.get_client()
 
-    @mock.patch(
-        "elasticsearch.transport.Transport.perform_request",
-        side_effect=[
-            {
-                "took": 2,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {
-                    "total": 1,
-                    "max_score": 0.2876821,
-                    "hits": [
-                        {
-                            "_index": "aips",
-                            "_type": "_doc",
-                            "_id": "lBsZBWgBn49OAVhMXeO8",
-                            "_score": 0.2876821,
-                            "_source": {"uuid": "b34521a3-1c63-43dd-b901-584416f36c91"},
-                        }
-                    ],
-                },
-            },
-            {
-                "took": 8,
-                "timed_out": False,
+
+@mock.patch(
+    "elasticsearch.transport.Transport.perform_request",
+    side_effect=[
+        {
+            "took": 2,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
                 "total": 1,
-                "deleted": 1,
-                "batches": 1,
-                "version_conflicts": 0,
-                "noops": 0,
-                "retries": {"bulk": 0, "search": 0},
-                "throttled_millis": 0,
-                "requests_per_second": -1.0,
-                "throttled_until_millis": 0,
-                "failures": [],
+                "max_score": 0.2876821,
+                "hits": [
+                    {
+                        "_index": "aips",
+                        "_type": "_doc",
+                        "_id": "lBsZBWgBn49OAVhMXeO8",
+                        "_score": 0.2876821,
+                        "_source": {"uuid": "b34521a3-1c63-43dd-b901-584416f36c91"},
+                    }
+                ],
             },
-            {
-                "took": 0,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {"total": 0, "max_score": None, "hits": []},
-            },
-        ],
-    )
-    def test_delete_aip(self, perform_request):
-        # Verify AIP exists
-        results = self.client.search(
-            index="aips",
-            body={"query": {"term": {"uuid": self.aip_uuid}}},
-            _source="uuid",
-        )
-        assert results["hits"]["total"] == 1
-        assert results["hits"]["hits"][0]["_source"]["uuid"] == self.aip_uuid
-        # Delete AIP
-        elasticSearchFunctions.delete_aip(self.client, self.aip_uuid)
-        # Verify AIP gone
-        results = self.client.search(
-            index="aips",
-            body={"query": {"term": {"uuid": self.aip_uuid}}},
-            _source="uuid",
-        )
-        assert results["hits"]["total"] == 0
+        },
+        {
+            "took": 8,
+            "timed_out": False,
+            "total": 1,
+            "deleted": 1,
+            "batches": 1,
+            "version_conflicts": 0,
+            "noops": 0,
+            "retries": {"bulk": 0, "search": 0},
+            "throttled_millis": 0,
+            "requests_per_second": -1.0,
+            "throttled_until_millis": 0,
+            "failures": [],
+        },
+        {
+            "took": 0,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {"total": 0, "max_score": None, "hits": []},
+        },
+    ],
+)
+def test_delete_aip(perform_request, es_client):
+    aip_uuid = "b34521a3-1c63-43dd-b901-584416f36c91"
 
-    @mock.patch(
-        "elasticsearch.transport.Transport.perform_request",
-        side_effect=[
-            {
-                "took": 1,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {
-                    "total": 2,
-                    "max_score": 0.2876821,
-                    "hits": [
-                        {
-                            "_index": "aipfiles",
-                            "_type": "_doc",
-                            "_id": "lRsZBWgBn49OAVhMXuMC",
-                            "_score": 0.2876821,
-                            "_source": {
-                                "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b"
-                            },
-                        },
-                        {
-                            "_index": "aipfiles",
-                            "_type": "_doc",
-                            "_id": "lhsZBWgBn49OAVhMXuMh",
-                            "_score": 0.2876821,
-                            "_source": {
-                                "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b"
-                            },
-                        },
-                    ],
-                },
-            },
-            {
-                "took": 11,
-                "timed_out": False,
+    # Verify AIP exists
+    results = es_client.search(
+        index="aips",
+        body={"query": {"term": {"uuid": aip_uuid}}},
+        _source="uuid",
+    )
+    assert results["hits"]["total"] == 1
+    assert results["hits"]["hits"][0]["_source"]["uuid"] == aip_uuid
+
+    # Delete AIP
+    elasticSearchFunctions.delete_aip(es_client, "b34521a3-1c63-43dd-b901-584416f36c91")
+
+    # Verify AIP gone
+    results = es_client.search(
+        index="aips",
+        body={"query": {"term": {"uuid": aip_uuid}}},
+        _source="uuid",
+    )
+    assert results["hits"]["total"] == 0
+
+
+@mock.patch(
+    "elasticsearch.transport.Transport.perform_request",
+    side_effect=[
+        {
+            "took": 1,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
                 "total": 2,
-                "deleted": 2,
-                "batches": 1,
-                "version_conflicts": 0,
-                "noops": 0,
-                "retries": {"bulk": 0, "search": 0},
-                "throttled_millis": 0,
-                "requests_per_second": -1.0,
-                "throttled_until_millis": 0,
-                "failures": [],
+                "max_score": 0.2876821,
+                "hits": [
+                    {
+                        "_index": "aipfiles",
+                        "_type": "_doc",
+                        "_id": "lRsZBWgBn49OAVhMXuMC",
+                        "_score": 0.2876821,
+                        "_source": {"origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b"},
+                    },
+                    {
+                        "_index": "aipfiles",
+                        "_type": "_doc",
+                        "_id": "lhsZBWgBn49OAVhMXuMh",
+                        "_score": 0.2876821,
+                        "_source": {"origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b"},
+                    },
+                ],
             },
-            {
-                "took": 0,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {"total": 0, "max_score": None, "hits": []},
-            },
-        ],
+        },
+        {
+            "took": 11,
+            "timed_out": False,
+            "total": 2,
+            "deleted": 2,
+            "batches": 1,
+            "version_conflicts": 0,
+            "noops": 0,
+            "retries": {"bulk": 0, "search": 0},
+            "throttled_millis": 0,
+            "requests_per_second": -1.0,
+            "throttled_until_millis": 0,
+            "failures": [],
+        },
+        {
+            "took": 0,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {"total": 0, "max_score": None, "hits": []},
+        },
+    ],
+)
+def test_delete_aip_files(perform_request, es_client):
+    aip_uuid = "b34521a3-1c63-43dd-b901-584416f36c91"
+
+    # Verify AIP files exist
+    results = es_client.search(
+        index="aipfiles", body={"query": {"term": {"AIPUUID": aip_uuid}}}
     )
-    def test_delete_aip_files(self, perform_request):
-        # Verify AIP files exist
-        results = self.client.search(
-            index="aipfiles", body={"query": {"term": {"AIPUUID": self.aip_uuid}}}
-        )
-        assert results["hits"]["total"] == 2
-        # Delete AIP files
-        elasticSearchFunctions.delete_aip_files(self.client, self.aip_uuid)
-        # Verify AIP files gone
-        results = self.client.search(
-            index="aipfiles", body={"query": {"term": {"AIPUUID": self.aip_uuid}}}
-        )
-        assert results["hits"]["total"] == 0
+    assert results["hits"]["total"] == 2
 
-        assert perform_request.mock_calls == [
-            mock.call(
-                "GET",
-                "/aipfiles/_search",
-                params={},
-                body={
-                    "query": {
-                        "term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}
-                    }
-                },
-            ),
-            mock.call(
-                "POST",
-                "/aipfiles/_delete_by_query",
-                params={},
-                body={
-                    "query": {
-                        "term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}
-                    }
-                },
-            ),
-            mock.call(
-                "GET",
-                "/aipfiles/_search",
-                params={},
-                body={
-                    "query": {
-                        "term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}
-                    }
-                },
-            ),
-        ]
-
-    @mock.patch(
-        "elasticsearch.transport.Transport.perform_request",
-        side_effect=[
-            {
-                "took": 1,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {
-                    "total": 1,
-                    "max_score": 0.6931472,
-                    "hits": [
-                        {
-                            "_index": "transferfiles",
-                            "_type": "_doc",
-                            "_id": "mBsZBWgBn49OAVhMh-OV",
-                            "_score": 0.6931472,
-                            "_source": {
-                                "accessionid": "",
-                                "status": "backlog",
-                                "sipuuid": "17b168b6-cbba-4f43-8838-a53360238acb",
-                                "tags": [],
-                                "file_extension": "jpg",
-                                "relative_path": "test-17b168b6-cbba-4f43-8838-a53360238acb/objects/Landing_zone.jpg",
-                                "bulk_extractor_reports": [],
-                                "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b",
-                                "size": 1.2982568740844727,
-                                "modification_date": "2018-12-11",
-                                "created": 1546273029.7313669,
-                                "format": [],
-                                "ingestdate": "2018-12-31",
-                                "filename": "Landing_zone.jpg",
-                                "fileuuid": "268421a7-a986-4fa0-95c1-54176e508210",
-                            },
-                        }
-                    ],
-                },
-            },
-            {
-                "_index": "transferfiles",
-                "_type": "_doc",
-                "_id": "mBsZBWgBn49OAVhMh-OV",
-                "_version": 2,
-                "result": "updated",
-                "forced_refresh": True,
-                "_shards": {"total": 2, "successful": 1, "failed": 0},
-                "_seq_no": 2,
-                "_primary_term": 1,
-            },
-            {
-                "took": 2,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {
-                    "total": 1,
-                    "max_score": 0.47000363,
-                    "hits": [
-                        {
-                            "_index": "transferfiles",
-                            "_type": "_doc",
-                            "_id": "mBsZBWgBn49OAVhMh-OV",
-                            "_score": 0.47000363,
-                            "_source": {"tags": ["test"]},
-                        }
-                    ],
-                },
-            },
-        ],
+    # Delete AIP files
+    elasticSearchFunctions.delete_aip_files(es_client, aip_uuid)
+    # Verify AIP files gone
+    results = es_client.search(
+        index="aipfiles", body={"query": {"term": {"AIPUUID": aip_uuid}}}
     )
-    def test_set_get_tags(self, perform_request):
-        elasticSearchFunctions.set_file_tags(self.client, self.file_uuid, ["test"])
-        assert elasticSearchFunctions.get_file_tags(self.client, self.file_uuid) == [
-            "test"
-        ]
+    assert results["hits"]["total"] == 0
 
-        assert perform_request.mock_calls == [
-            mock.call(
-                "GET",
-                "/transferfiles/_search",
-                params={"size": "10000"},
-                body={
-                    "query": {
-                        "term": {"fileuuid": "268421a7-a986-4fa0-95c1-54176e508210"}
-                    }
-                },
-            ),
-            mock.call(
-                "POST",
-                "/transferfiles/_doc/mBsZBWgBn49OAVhMh-OV/_update",
-                params={},
-                body={"doc": {"tags": ["test"]}},
-            ),
-            mock.call(
-                "GET",
-                "/transferfiles/_search",
-                params={"_source": b"tags"},
-                body={
-                    "query": {
-                        "term": {"fileuuid": "268421a7-a986-4fa0-95c1-54176e508210"}
-                    }
-                },
-            ),
-        ]
-
-    @mock.patch(
-        "elasticsearch.transport.Transport.perform_request",
-        side_effect=[
-            {
-                "took": 1,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {"total": 0, "max_score": None, "hits": []},
-            }
-        ],
-    )
-    def test_list_tags_fails_when_file_cant_be_found(self, perform_request):
-        with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
-            elasticSearchFunctions.get_file_tags(self.client, "no_such_file")
-        perform_request.assert_called_once_with(
+    assert perform_request.mock_calls == [
+        mock.call(
             "GET",
-            "/transferfiles/_search",
-            params={"_source": b"tags"},
-            body={"query": {"term": {"fileuuid": "no_such_file"}}},
-        )
+            "/aipfiles/_search",
+            params={},
+            body={
+                "query": {"term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}}
+            },
+        ),
+        mock.call(
+            "POST",
+            "/aipfiles/_delete_by_query",
+            params={},
+            body={
+                "query": {"term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}}
+            },
+        ),
+        mock.call(
+            "GET",
+            "/aipfiles/_search",
+            params={},
+            body={
+                "query": {"term": {"AIPUUID": "b34521a3-1c63-43dd-b901-584416f36c91"}}
+            },
+        ),
+    ]
 
-    @mock.patch(
-        "elasticsearch.transport.Transport.perform_request",
-        side_effect=[
-            {
-                "took": 0,
-                "timed_out": False,
-                "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-                "hits": {"total": 0, "max_score": None, "hits": []},
-            }
-        ],
-    )
-    def test_set_tags_fails_when_file_cant_be_found(self, perform_request):
-        with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
-            elasticSearchFunctions.set_file_tags(self.client, "no_such_file", [])
-        perform_request.assert_called_once_with(
+
+@mock.patch(
+    "elasticsearch.transport.Transport.perform_request",
+    side_effect=[
+        {
+            "took": 1,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": 1,
+                "max_score": 0.6931472,
+                "hits": [
+                    {
+                        "_index": "transferfiles",
+                        "_type": "_doc",
+                        "_id": "mBsZBWgBn49OAVhMh-OV",
+                        "_score": 0.6931472,
+                        "_source": {
+                            "accessionid": "",
+                            "status": "backlog",
+                            "sipuuid": "17b168b6-cbba-4f43-8838-a53360238acb",
+                            "tags": [],
+                            "file_extension": "jpg",
+                            "relative_path": "test-17b168b6-cbba-4f43-8838-a53360238acb/objects/Landing_zone.jpg",
+                            "bulk_extractor_reports": [],
+                            "origin": "1a14043f-68ef-4bfe-a129-e2e4cdbe391b",
+                            "size": 1.2982568740844727,
+                            "modification_date": "2018-12-11",
+                            "created": 1546273029.7313669,
+                            "format": [],
+                            "ingestdate": "2018-12-31",
+                            "filename": "Landing_zone.jpg",
+                            "fileuuid": "268421a7-a986-4fa0-95c1-54176e508210",
+                        },
+                    }
+                ],
+            },
+        },
+        {
+            "_index": "transferfiles",
+            "_type": "_doc",
+            "_id": "mBsZBWgBn49OAVhMh-OV",
+            "_version": 2,
+            "result": "updated",
+            "forced_refresh": True,
+            "_shards": {"total": 2, "successful": 1, "failed": 0},
+            "_seq_no": 2,
+            "_primary_term": 1,
+        },
+        {
+            "took": 2,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": 1,
+                "max_score": 0.47000363,
+                "hits": [
+                    {
+                        "_index": "transferfiles",
+                        "_type": "_doc",
+                        "_id": "mBsZBWgBn49OAVhMh-OV",
+                        "_score": 0.47000363,
+                        "_source": {"tags": ["test"]},
+                    }
+                ],
+            },
+        },
+    ],
+)
+def test_set_get_tags(perform_request, es_client):
+    file_uuid = "268421a7-a986-4fa0-95c1-54176e508210"
+    elasticSearchFunctions.set_file_tags(es_client, file_uuid, ["test"])
+    assert elasticSearchFunctions.get_file_tags(es_client, file_uuid) == ["test"]
+
+    assert perform_request.mock_calls == [
+        mock.call(
             "GET",
             "/transferfiles/_search",
             params={"size": "10000"},
-            body={"query": {"term": {"fileuuid": "no_such_file"}}},
-        )
-
-    @pytest.mark.django_db
-    @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-    @mock.patch("elasticSearchFunctions.bulk")
-    def test_index_mets_file_metadata(
-        self, dummy_helpers_bulk, dummy_get_dashboard_uuid
-    ):
-        # Set up mocked functions
-        dummy_get_dashboard_uuid.return_value = "test-uuid"
-        indexed_data = {}
-
-        def _bulk(client, actions, stats_only=False, *args, **kwargs):
-            for item in actions:
-                try:
-                    dmd_section = item["_source"]["METS"]["dmdSec"]
-                    metadata_container = dmd_section["mets:xmlData_dict"]
-                    dc = metadata_container["dcterms:dublincore_dict"]
-                except (KeyError, IndexError):
-                    dc = None
-                indexed_data[item["_source"]["filePath"]] = dc
-
-        dummy_helpers_bulk.side_effect = _bulk
-
-        # This METS file is a cut-down version of the AIP METS produced
-        # using the SampleTransfers/DemoTransfer
-        mets_file_path = os.path.join(
-            THIS_DIR, "fixtures", "test_index_metadata-METS.xml"
-        )
-        mets_object_id = "771aa252-7930-4e68-b73e-f91416b1d4a4"
-        uuid = "f42a260a-9b53-4555-847e-8a4329c81662"
-        sipName = f"DemoTransfer-{uuid}"
-        identifiers = []
-        elasticSearchFunctions._index_aip_files(
-            client=self.client,
-            uuid=uuid,
-            mets=etree.parse(mets_file_path).getroot(),
-            name=sipName,
-            identifiers=identifiers,
-        )
-
-        assert dummy_helpers_bulk.call_count == 1
-
-        # ES should have indexed 12 files
-        # - 5 content files
-        # - 5 checksum and csv files in the metadata directory
-        # - 2 files generated in the transfer process
-        assert len(indexed_data) == 12
-
-        # Metadata should have been indexed only for these content
-        # files because they are listed in the metadata.csv file
-        content_files_with_metadata = (
-            {
-                "path": (
-                    "objects/View_from_lookout_over_Queenstown_"
-                    "towards_the_Remarkables_in_spring.jpg"
-                ),
-                "title": (
-                    "Morning view from lookout over Queenstown "
-                    "towards the Remarkables in spring"
-                ),
-                "creator": "Pseudopanax at English Wikipedia",
+            body={
+                "query": {"term": {"fileuuid": "268421a7-a986-4fa0-95c1-54176e508210"}}
             },
-            {
-                "path": "objects/beihai.tif",
-                "title": "Beihai, Guanxi, China, 1988",
-                "creator": (
-                    "NASA/GSFC/METI/ERSDAC/JAROS and U.S./Japan " "ASTER Science Team"
-                ),
+        ),
+        mock.call(
+            "POST",
+            "/transferfiles/_doc/mBsZBWgBn49OAVhMh-OV/_update",
+            params={},
+            body={"doc": {"tags": ["test"]}},
+        ),
+        mock.call(
+            "GET",
+            "/transferfiles/_search",
+            params={"_source": b"tags"},
+            body={
+                "query": {"term": {"fileuuid": "268421a7-a986-4fa0-95c1-54176e508210"}}
             },
-            {
-                "path": "objects/bird.mp3",
-                "title": "14000 Caen, France - Bird in my garden",
-                "creator": "Nicolas Germain",
-            },
-            {
-                "path": "objects/ocr-image.png",
-                "title": "OCR image",
-                "creator": "Tesseract",
-            },
+        ),
+    ]
+
+
+@mock.patch(
+    "elasticsearch.transport.Transport.perform_request",
+    side_effect=[
+        {
+            "took": 1,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {"total": 0, "max_score": None, "hits": []},
+        }
+    ],
+)
+def test_list_tags_fails_when_file_cant_be_found(perform_request, es_client):
+    with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
+        elasticSearchFunctions.get_file_tags(es_client, "no_such_file")
+    perform_request.assert_called_once_with(
+        "GET",
+        "/transferfiles/_search",
+        params={"_source": b"tags"},
+        body={"query": {"term": {"fileuuid": "no_such_file"}}},
+    )
+
+
+@mock.patch(
+    "elasticsearch.transport.Transport.perform_request",
+    side_effect=[
+        {
+            "took": 0,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {"total": 0, "max_score": None, "hits": []},
+        }
+    ],
+)
+def test_set_tags_fails_when_file_cant_be_found(perform_request, es_client):
+    with pytest.raises(elasticSearchFunctions.EmptySearchResultError):
+        elasticSearchFunctions.set_file_tags(es_client, "no_such_file", [])
+    perform_request.assert_called_once_with(
+        "GET",
+        "/transferfiles/_search",
+        params={"size": "10000"},
+        body={"query": {"term": {"fileuuid": "no_such_file"}}},
+    )
+
+
+@pytest.mark.django_db
+@mock.patch("elasticSearchFunctions.get_dashboard_uuid")
+@mock.patch("elasticSearchFunctions.bulk")
+def test_index_mets_file_metadata(bulk, get_dashboard_uuid, es_client):
+    # Set up mocked functions
+    get_dashboard_uuid.return_value = "test-uuid"
+    indexed_data = {}
+
+    def _bulk(client, actions, stats_only=False, *args, **kwargs):
+        for item in actions:
+            try:
+                dmd_section = item["_source"]["METS"]["dmdSec"]
+                metadata_container = dmd_section["mets:xmlData_dict"]
+                dc = metadata_container["dcterms:dublincore_dict"]
+            except (KeyError, IndexError):
+                dc = None
+            indexed_data[item["_source"]["filePath"]] = dc
+
+    bulk.side_effect = _bulk
+
+    # This METS file is a cut-down version of the AIP METS produced
+    # using the SampleTransfers/DemoTransfer
+    mets_file_path = os.path.join(THIS_DIR, "fixtures", "test_index_metadata-METS.xml")
+    mets_object_id = "771aa252-7930-4e68-b73e-f91416b1d4a4"
+    uuid = "f42a260a-9b53-4555-847e-8a4329c81662"
+    sipName = f"DemoTransfer-{uuid}"
+    identifiers = []
+    elasticSearchFunctions._index_aip_files(
+        client=es_client,
+        uuid=uuid,
+        mets=etree.parse(mets_file_path).getroot(),
+        name=sipName,
+        identifiers=identifiers,
+    )
+
+    assert bulk.call_count == 1
+
+    # ES should have indexed 12 files
+    # - 5 content files
+    # - 5 checksum and csv files in the metadata directory
+    # - 2 files generated in the transfer process
+    assert len(indexed_data) == 12
+
+    # Metadata should have been indexed only for these content
+    # files because they are listed in the metadata.csv file
+    content_files_with_metadata = (
+        {
+            "path": (
+                "objects/View_from_lookout_over_Queenstown_"
+                "towards_the_Remarkables_in_spring.jpg"
+            ),
+            "title": (
+                "Morning view from lookout over Queenstown "
+                "towards the Remarkables in spring"
+            ),
+            "creator": "Pseudopanax at English Wikipedia",
+        },
+        {
+            "path": "objects/beihai.tif",
+            "title": "Beihai, Guanxi, China, 1988",
+            "creator": (
+                "NASA/GSFC/METI/ERSDAC/JAROS and U.S./Japan " "ASTER Science Team"
+            ),
+        },
+        {
+            "path": "objects/bird.mp3",
+            "title": "14000 Caen, France - Bird in my garden",
+            "creator": "Nicolas Germain",
+        },
+        {
+            "path": "objects/ocr-image.png",
+            "title": "OCR image",
+            "creator": "Tesseract",
+        },
+    )
+    for file_metadata in content_files_with_metadata:
+        dc = indexed_data[file_metadata["path"]]
+        assert dc["dc:title"] == file_metadata["title"]
+        assert dc["dc:creator"] == file_metadata["creator"]
+
+    # There is no metadata for this content file because
+    # it was not listed in the metadata.csv file
+    assert indexed_data["objects/piiTestDataCreditCardNumbers.txt"] is None
+
+    # Checksum and csv files in the metadata directory
+    # won't have dublin core metadata indexed
+    files_in_metadata_directory = (
+        "checksum.md5",
+        "checksum.sha1",
+        "checksum.sha256",
+        "metadata.csv",
+        "rights.csv",
+    )
+    for filename in files_in_metadata_directory:
+        path = "objects/metadata/transfers/DemoTransfer-{}/{}".format(
+            mets_object_id, filename
         )
-        for file_metadata in content_files_with_metadata:
-            dc = indexed_data[file_metadata["path"]]
-            assert dc["dc:title"] == file_metadata["title"]
-            assert dc["dc:creator"] == file_metadata["creator"]
+        assert indexed_data[path] is None
 
-        # There is no metadata for this content file because
-        # it was not listed in the metadata.csv file
-        assert indexed_data["objects/piiTestDataCreditCardNumbers.txt"] is None
-
-        # Checksum and csv files in the metadata directory
-        # won't have dublin core metadata indexed
-        files_in_metadata_directory = (
-            "checksum.md5",
-            "checksum.sha1",
-            "checksum.sha256",
-            "metadata.csv",
-            "rights.csv",
+    # Neither will the generated files during the transfer process
+    generated_files = ("dc.json", "directory_tree.txt")
+    for filename in generated_files:
+        path = "objects/metadata/transfers/DemoTransfer-{}/{}".format(
+            mets_object_id, filename
         )
-        for filename in files_in_metadata_directory:
-            path = "objects/metadata/transfers/DemoTransfer-{}/{}".format(
-                mets_object_id, filename
-            )
-            assert indexed_data[path] is None
+        assert indexed_data[path] is None
 
-        # Neither will the generated files during the transfer process
-        generated_files = ("dc.json", "directory_tree.txt")
-        for filename in generated_files:
-            path = "objects/metadata/transfers/DemoTransfer-{}/{}".format(
-                mets_object_id, filename
-            )
-            assert indexed_data[path] is None
 
-    @pytest.mark.django_db
-    @mock.patch("elasticSearchFunctions.bulk")
-    def test_index_mets_file_metadata_with_utf8(self, dummy_helpers_bulk):
-        def _bulk(client, actions, stats_only=False, *args, **kwargs):
-            pass
+@pytest.mark.django_db
+@mock.patch("elasticSearchFunctions.bulk")
+def test_index_mets_file_metadata_with_utf8(bulk, es_client):
+    def _bulk(client, actions, stats_only=False, *args, **kwargs):
+        pass
 
-        dummy_helpers_bulk.side_effect = _bulk
-        mets_file_path = os.path.join(
-            THIS_DIR, "fixtures", "test_index_metadata-METS-utf8.xml"
-        )
-        elasticSearchFunctions._index_aip_files(
-            client=self.client,
-            uuid="",
-            mets=etree.parse(mets_file_path).getroot(),
-            name="",
-            identifiers=[],
-        )
+    bulk.side_effect = _bulk
+    mets_file_path = os.path.join(
+        THIS_DIR, "fixtures", "test_index_metadata-METS-utf8.xml"
+    )
+    elasticSearchFunctions._index_aip_files(
+        client=es_client,
+        uuid="",
+        mets=etree.parse(mets_file_path).getroot(),
+        name="",
+        identifiers=[],
+    )
 
-    @patch("elasticSearchFunctions.create_indexes_if_needed")
-    def test_default_setup(self, patch):
-        elasticSearchFunctions.setup("elasticsearch:9200")
-        patch.assert_called_with(
-            ANY, ["aips", "aipfiles", "transfers", "transferfiles"]
-        )
 
-    @patch("elasticSearchFunctions.create_indexes_if_needed")
-    def test_only_aips_setup(self, patch):
-        elasticSearchFunctions.setup("elasticsearch:9200", enabled=["aips"])
-        patch.assert_called_with(ANY, ["aips", "aipfiles"])
+@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+def test_default_setup(create_indexes_if_needed):
+    elasticSearchFunctions.setup("elasticsearch:9200")
+    create_indexes_if_needed.assert_called_with(
+        mock.ANY, ["aips", "aipfiles", "transfers", "transferfiles"]
+    )
 
-    @patch("elasticSearchFunctions.create_indexes_if_needed")
-    def test_only_transfers_setup(self, patch):
-        elasticSearchFunctions.setup("elasticsearch:9200", enabled=["transfers"])
-        patch.assert_called_with(ANY, ["transfers", "transferfiles"])
 
-    @patch("elasticSearchFunctions.create_indexes_if_needed")
-    def test_no_indexes_setup(self, patch):
-        elasticSearchFunctions.setup("elasticsearch:9200", enabled=[])
-        elasticSearchFunctions.setup("elasticsearch:9200", enabled=["unknown"])
-        patch.assert_not_called()
+@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+def test_only_aips_setup(create_indexes_if_needed):
+    elasticSearchFunctions.setup("elasticsearch:9200", enabled=["aips"])
+    create_indexes_if_needed.assert_called_with(mock.ANY, ["aips", "aipfiles"])
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists", return_value=True)
-    def test_create_indexes_already_created(self, mock, patch):
-        elasticSearchFunctions.create_indexes_if_needed(
-            self.client, ["aips", "aipfiles", "transfers", "transferfiles"]
-        )
-        patch.assert_not_called()
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists", return_value=False)
-    def test_create_indexes_creation_calls(self, mock, patch):
-        elasticSearchFunctions.create_indexes_if_needed(
-            self.client, ["aips", "aipfiles", "transfers", "transferfiles"]
-        )
-        assert patch.call_count == 4
+@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+def test_only_transfers_setup(create_indexes_if_needed):
+    elasticSearchFunctions.setup("elasticsearch:9200", enabled=["transfers"])
+    create_indexes_if_needed.assert_called_with(
+        mock.ANY, ["transfers", "transferfiles"]
+    )
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists", return_value=False)
-    def test_create_indexes_wrong_index(self, mock, patch):
-        elasticSearchFunctions.create_indexes_if_needed(
-            self.client, ["aips", "aipfiles", "unknown"]
-        )
-        assert patch.call_count == 2
+
+@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+def test_no_indexes_setup(create_indexes_if_needed):
+    elasticSearchFunctions.setup("elasticsearch:9200", enabled=[])
+    elasticSearchFunctions.setup("elasticsearch:9200", enabled=["unknown"])
+    create_indexes_if_needed.assert_not_called()
+
+
+@mock.patch("elasticsearch.client.indices.IndicesClient.create")
+@mock.patch("elasticsearch.client.indices.IndicesClient.exists", return_value=True)
+def test_create_indexes_already_created(exists, create, es_client):
+    elasticSearchFunctions.create_indexes_if_needed(
+        es_client, ["aips", "aipfiles", "transfers", "transferfiles"]
+    )
+    create.assert_not_called()
+
+
+@mock.patch("elasticsearch.client.indices.IndicesClient.create")
+@mock.patch("elasticsearch.client.indices.IndicesClient.exists", return_value=False)
+def test_create_indexes_creation_calls(exists, create, es_client):
+    elasticSearchFunctions.create_indexes_if_needed(
+        es_client, ["aips", "aipfiles", "transfers", "transferfiles"]
+    )
+    assert create.call_count == 4
+
+
+@mock.patch("elasticsearch.client.indices.IndicesClient.create")
+@mock.patch("elasticsearch.client.indices.IndicesClient.exists", return_value=False)
+def test_create_indexes_wrong_index(exists, create, es_client):
+    elasticSearchFunctions.create_indexes_if_needed(
+        es_client, ["aips", "aipfiles", "unknown"]
+    )
+    assert create.call_count == 2
 
 
 fileuuid_premisv3 = (
@@ -570,12 +569,7 @@ fileuuid_premisv2_no_ns = (
 @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
 @mock.patch("elasticSearchFunctions.bulk")
 def test_index_aipfile_fileuuid(
-    dummy_helpers_bulk,
-    dummy_get_dashboard_uuid,
-    metsfile,
-    fileuuid_dict,
-    aipuuid,
-    aipname,
+    bulk, get_dashboard_uuid, metsfile, fileuuid_dict, aipuuid, aipname
 ):
     """Check AIP file uuids are being correctly parsed from METS files.
 
@@ -584,7 +578,7 @@ def test_index_aipfile_fileuuid(
     from the METS
     """
 
-    dummy_get_dashboard_uuid.return_value = "test-uuid"
+    get_dashboard_uuid.return_value = "test-uuid"
 
     indexed_data = {}
 
@@ -592,7 +586,7 @@ def test_index_aipfile_fileuuid(
         for item in actions:
             indexed_data[item["_source"]["filePath"]] = item["_source"]["FILEUUID"]
 
-    dummy_helpers_bulk.side_effect = _bulk
+    bulk.side_effect = _bulk
 
     elasticSearchFunctions._index_aip_files(
         client=None,
@@ -630,9 +624,7 @@ dmdsec_dconly = {
 )
 @mock.patch("elasticSearchFunctions.get_dashboard_uuid")
 @mock.patch("elasticSearchFunctions.bulk")
-def test_index_aipfile_dmdsec(
-    dummy_helpers_bulk, dummy_get_dashboard_uuid, metsfile, dmdsec_dict
-):
+def test_index_aipfile_dmdsec(bulk, get_dashboard_uuid, metsfile, dmdsec_dict):
     """Check AIP file dmdSec is correctly parsed from METS files.
 
     Mock _try_to_index() with a function that populates a dict
@@ -640,7 +632,7 @@ def test_index_aipfile_dmdsec(
     from the METS
     """
 
-    dummy_get_dashboard_uuid.return_value = "test-uuid"
+    get_dashboard_uuid.return_value = "test-uuid"
 
     indexed_data = {}
 
@@ -654,7 +646,7 @@ def test_index_aipfile_dmdsec(
                 dc = None
             indexed_data[item["_source"]["filePath"]] = dc
 
-    dummy_helpers_bulk.side_effect = _bulk
+    bulk.side_effect = _bulk
 
     elasticSearchFunctions._index_aip_files(
         client=None,
