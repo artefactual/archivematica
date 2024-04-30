@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<mets ID="DSpace_ITEM_2429-2700" OBJID="hdl:2429/2700" TYPE="DSpace ITEM" PROFILE="http://www.dspace.org/schema/aip/mets_aip_1_0.xsd" xmlns="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd">
+ <metsHdr LASTMODDATE="2010-09-13T03:46:47">
+  <agent ROLE="CUSTODIAN" TYPE="OTHER" OTHERTYPE="DSpace Archive">
+   <name>2429/0</name>
+  </agent>
+  <agent ROLE="CREATOR" TYPE="OTHER" OTHERTYPE="DSpace Software">
+   <name>DSpace 1.7.0</name>
+  </agent>
+ </metsHdr>
+ <dmdSec ID="dmdSec_366">
+  <mdWrap MDTYPE="MODS">
+   <xmlData xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd"><mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
+  <mods:name>
+    <mods:role>
+      <mods:roleTerm type="text">author</mods:roleTerm>
+    </mods:role>
+    <mods:namePart>Vice President Research, Office of the</mods:namePart>
+  </mods:name>
+  <mods:extension>
+    <mods:dateAccessioned encoding="iso8601">2008-10-20T18:58:54Z</mods:dateAccessioned>
+  </mods:extension>
+  <mods:extension>
+    <mods:dateAvailable encoding="iso8601">2008-10-20T18:58:54Z</mods:dateAvailable>
+  </mods:extension>
+  <mods:originInfo>
+    <mods:dateIssued encoding="iso8601">2006-05</mods:dateIssued>
+  </mods:originInfo>
+  <mods:identifier type="uri">http://hdl.handle.net/2429/2700</mods:identifier>
+  <mods:abstract>Removing just one species from an ecosystem can have radical results. Tony Sinclair's grand-scale biodviersity knockout experiment sets out to determine why.</mods:abstract>
+  <mods:note type="provenance">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-08-25T18:55:48Z
+No. of bitstreams: 1
+Species Showdown[1].pdf: 853914 bytes, checksum: d92e2f6f72c6c8852d7b32339871757f (MD5)</mods:note>
+  <mods:note type="provenance">Rejected by Andy Torr(andy.torr@ubc.ca), reason:  on 2008-10-20T17:40:57Z (GMT)</mods:note>
+  <mods:note type="provenance">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-10-20T17:52:05Z
+No. of bitstreams: 1
+Species Showdown[1].pdf: 857776 bytes, checksum: 100deac6fb09e416738c92ccaf03d1ed (MD5)</mods:note>
+  <mods:note type="provenance">Approved for entry into archive by Andy Torr(andy.torr@ubc.ca) on 2008-10-20T18:58:54Z (GMT) No. of bitstreams: 1
+Species Showdown[1].pdf: 857776 bytes, checksum: 100deac6fb09e416738c92ccaf03d1ed (MD5)</mods:note>
+  <mods:note type="provenance">Made available in DSpace on 2008-10-20T18:58:54Z (GMT). No. of bitstreams: 1
+Species Showdown[1].pdf: 857776 bytes, checksum: 100deac6fb09e416738c92ccaf03d1ed (MD5)
+  Previous issue date: 2006-05</mods:note>
+  <mods:physicalDescription>
+    <mods:extent>857776 bytes</mods:extent>
+  </mods:physicalDescription>
+  <mods:physicalDescription>
+    <mods:internetMediaType>application/pdf</mods:internetMediaType>
+  </mods:physicalDescription>
+  <mods:language>
+    <mods:languageTerm authority="rfc3066">eng</mods:languageTerm>
+  </mods:language>
+  <mods:originInfo>
+    <mods:publisher>Office of the Vice President Research, The University of British Columbia</mods:publisher>
+  </mods:originInfo>
+  <mods:relatedItem type="series">frontier: a journal of research and discovery, issue 1, May 2006</mods:relatedItem>
+  <mods:subject>
+    <mods:topic>Tony Sinclair</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>zoology</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>biodiversity</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>ecosystem</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Beaty Biodiversity Research Centre</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Roy Turkington</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>keystone species</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Serengeti</mods:topic>
+  </mods:subject>
+  <mods:titleInfo>
+    <mods:title>Species Showdown</mods:title>
+  </mods:titleInfo>
+  <mods:genre>text</mods:genre>
+</mods:mods></xmlData>
+  </mdWrap>
+ </dmdSec>
+ <dmdSec ID="dmdSec_367">
+  <mdWrap MDTYPE="OTHER" OTHERMDTYPE="DIM">
+   <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="ITEM">
+  <dim:field mdschema="dc" element="contributor" qualifier="author">Vice President Research, Office of the</dim:field>
+  <dim:field mdschema="dc" element="date" qualifier="accessioned">2008-10-20T18:58:54Z</dim:field>
+  <dim:field mdschema="dc" element="date" qualifier="available">2008-10-20T18:58:54Z</dim:field>
+  <dim:field mdschema="dc" element="date" qualifier="issued">2006-05</dim:field>
+  <dim:field mdschema="dc" element="identifier" qualifier="uri">http://hdl.handle.net/2429/2700</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">Removing just one species from an ecosystem can have radical results. Tony Sinclair's grand-scale biodviersity knockout experiment sets out to determine why.</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-08-25T18:55:48Z
+No. of bitstreams: 1
+Species Showdown[1].pdf: 853914 bytes, checksum: d92e2f6f72c6c8852d7b32339871757f (MD5)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Rejected by Andy Torr(andy.torr@ubc.ca), reason:  on 2008-10-20T17:40:57Z (GMT)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-10-20T17:52:05Z
+No. of bitstreams: 1
+Species Showdown[1].pdf: 857776 bytes, checksum: 100deac6fb09e416738c92ccaf03d1ed (MD5)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Andy Torr(andy.torr@ubc.ca) on 2008-10-20T18:58:54Z (GMT) No. of bitstreams: 1
+Species Showdown[1].pdf: 857776 bytes, checksum: 100deac6fb09e416738c92ccaf03d1ed (MD5)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2008-10-20T18:58:54Z (GMT). No. of bitstreams: 1
+Species Showdown[1].pdf: 857776 bytes, checksum: 100deac6fb09e416738c92ccaf03d1ed (MD5)
+  Previous issue date: 2006-05</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="extent">857776 bytes</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">application/pdf</dim:field>
+  <dim:field mdschema="dc" element="language" qualifier="iso" lang="en">eng</dim:field>
+  <dim:field mdschema="dc" element="publisher" lang="en">Office of the Vice President Research, The University of British Columbia</dim:field>
+  <dim:field mdschema="dc" element="relation" qualifier="ispartofseries" lang="en">frontier: a journal of research and discovery, issue 1, May 2006</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Tony Sinclair</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">zoology</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">biodiversity</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">ecosystem</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Beaty Biodiversity Research Centre</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Roy Turkington</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">keystone species</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Serengeti</dim:field>
+  <dim:field mdschema="dc" element="title" lang="en">Species Showdown</dim:field>
+  <dim:field mdschema="dc" element="type" lang="en">text</dim:field>
+  <dim:field mdschema="dc" element="type" qualifier="text" lang="en">article</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="affiliation" lang="en">VP Research</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="reviewstatus" lang="en" />
+</dim:dim></xmlData>
+  </mdWrap>
+ </dmdSec>
+ <amdSec ID="amd_368">
+  <rightsMD ID="rightsMD_371">
+   <mdRef LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_8267" MDTYPE="OTHER" OTHERMDTYPE="DSpaceDepositLicense" MIMETYPE="text/plain"/>
+  </rightsMD>
+  <rightsMD ID="rightsMD_374">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_375">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="ITEM">
+  <dim:field mdschema="dc" element="creator">svpr@exchange.ubc.ca</dim:field>
+  <dim:field mdschema="dc" element="identifier" qualifier="uri">hdl:2429/2700</dim:field>
+  <dim:field mdschema="dc" element="relation" qualifier="isPartOf">hdl:2429/1314</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <amdSec ID="amd_378">
+  <rightsMD ID="rightsMD_384">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+ </amdSec>
+ <amdSec ID="amd_387">
+  <techMD ID="techMD_388">
+   <mdWrap MDTYPE="PREMIS">
+    <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd"><premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:object>
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>https://circle-test.library.ubc.ca/bitstream/2429%2F2700/1/Species+Showdown%5B1%5D.pdf</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCategory>File</premis:objectCategory>
+    <premis:objectCharacteristics>
+      <premis:fixity>
+        <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+        <premis:messageDigest>100deac6fb09e416738c92ccaf03d1ed</premis:messageDigest>
+      </premis:fixity>
+      <premis:size>857776</premis:size>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>application/pdf</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>Species Showdown[1].pdf</premis:originalName>
+  </premis:object>
+</premis:premis></xmlData>
+   </mdWrap>
+  </techMD>
+  <rightsMD ID="rightsMD_393">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_394">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="BITSTREAM">
+  <dim:field mdschema="dc" element="title">Species Showdown[1].pdf</dim:field>
+  <dim:field mdschema="dc" element="title" qualifier="alternative">Species Showdown[1].pdf</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="medium">Adobe PDF</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">application/pdf</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="supportlevel">KNOWN</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="internal">false</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <amdSec ID="amd_395">
+  <rightsMD ID="rightsMD_401">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+ </amdSec>
+ <amdSec ID="amd_403">
+  <techMD ID="techMD_404">
+   <mdWrap MDTYPE="PREMIS">
+    <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd"><premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:object>
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>https://circle-test.library.ubc.ca/bitstream/2429%2F2700/2/license.txt</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCategory>File</premis:objectCategory>
+    <premis:objectCharacteristics>
+      <premis:fixity>
+        <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+        <premis:messageDigest>3b7436e26ac9ade94081d820c5161c4f</premis:messageDigest>
+      </premis:fixity>
+      <premis:size>3975</premis:size>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>text/html</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>license.txt</premis:originalName>
+  </premis:object>
+</premis:premis></xmlData>
+   </mdWrap>
+  </techMD>
+  <rightsMD ID="rightsMD_409">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_410">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="BITSTREAM">
+  <dim:field mdschema="dc" element="title">license.txt</dim:field>
+  <dim:field mdschema="dc" element="title" qualifier="alternative">Written by org.dspace.content.Item</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="medium">License</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">text/html</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="supportlevel">KNOWN</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="internal">true</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <amdSec ID="amd_411">
+  <rightsMD ID="rightsMD_417">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+ </amdSec>
+ <amdSec ID="amd_419">
+  <techMD ID="techMD_420">
+   <mdWrap MDTYPE="PREMIS">
+    <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd"><premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:object>
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>https://circle-test.library.ubc.ca/bitstream/2429%2F2700/3/Species+Showdown%5B1%5D.pdf.txt</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCategory>File</premis:objectCategory>
+    <premis:objectCharacteristics>
+      <premis:fixity>
+        <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+        <premis:messageDigest>33b1ccb7a17d4f423770abe5fcc61ac6</premis:messageDigest>
+      </premis:fixity>
+      <premis:size>10714</premis:size>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>text/plain</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>Species Showdown[1].pdf.txt</premis:originalName>
+  </premis:object>
+</premis:premis></xmlData>
+   </mdWrap>
+  </techMD>
+  <rightsMD ID="rightsMD_425">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="MANAGED GRP">
+    <rights:UserName USERTYPE="GROUP">COLLECTION_hdl:2429/1314_ADMIN</rights:UserName>
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_426">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="BITSTREAM">
+  <dim:field mdschema="dc" element="title">Species Showdown[1].pdf.txt</dim:field>
+  <dim:field mdschema="dc" element="title" qualifier="alternative">Written by FormatFilter org.dspace.app.mediafilter.PDFFilter on 2009-12-04T12:14:31Z (GMT).</dim:field>
+  <dim:field mdschema="dc" element="description">Extracted text</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="medium">Text</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">text/plain</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="supportlevel">KNOWN</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="internal">false</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <fileSec>
+  <fileGrp ADMID="amd_378" USE="ORIGINAL">
+   <file ID="bitstream_1" MIMETYPE="application/pdf" SEQ="1" SIZE="857776" CHECKSUM="100deac6fb09e416738c92ccaf03d1ed" CHECKSUMTYPE="MD5" ADMID="amd_387" GROUPID="GROUP_bitstream_1">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_8266.pdf"/>
+   </file>
+  </fileGrp>
+  <fileGrp ADMID="amd_395" USE="LICENSE">
+   <file ID="bitstream_2" MIMETYPE="text/html" SEQ="2" SIZE="3975" CHECKSUM="3b7436e26ac9ade94081d820c5161c4f" CHECKSUMTYPE="MD5" ADMID="amd_403" GROUPID="GROUP_bitstream_2">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_8267"/>
+   </file>
+  </fileGrp>
+  <fileGrp ADMID="amd_411" USE="TEXT">
+   <file ID="bitstream_3" MIMETYPE="text/plain" SEQ="3" SIZE="10714" CHECKSUM="33b1ccb7a17d4f423770abe5fcc61ac6" CHECKSUMTYPE="MD5" ADMID="amd_419" GROUPID="GROUP_bitstream_1">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_40314.txt"/>
+   </file>
+  </fileGrp>
+ </fileSec>
+ <structMap ID="struct_376" LABEL="DSpace Object" TYPE="LOGICAL">
+  <div ID="div_377" DMDID="dmdSec_367 dmdSec_366" ADMID="amd_368" TYPE="DSpace Object Contents">
+   <div ID="div_386" TYPE="DSpace BITSTREAM">
+    <fptr FILEID="bitstream_1"/>
+   </div>
+  </div>
+ </structMap>
+ <structMap ID="struct_427" LABEL="Parent" TYPE="LOGICAL">
+  <div ID="div_428" LABEL="Parent of this DSpace Object" TYPE="AIP Parent Link">
+   <mptr ID="mptr_429" LOCTYPE="HANDLE" xlink:type="simple" xlink:href="2429/1314"/>
+  </div>
+ </structMap>
+</mets>
