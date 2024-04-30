@@ -1,4 +1,3 @@
-"""Update commands and rules for Python 3 compatibility."""
 from django.db import migrations
 
 JHOVE_TOOL_ID = "085d8690-93b7-4d31-84f7-2c5f4cbf6735"
