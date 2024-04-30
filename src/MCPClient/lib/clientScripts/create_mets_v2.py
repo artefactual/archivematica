@@ -1235,7 +1235,7 @@ def createFileSec(
                 use = "submissionDocumentation"
                 admidApplyTo = None
                 if GROUPID == "":  # is an AIP identifier
-                    GROUPID = f.uuid
+                    GROUPID = str(f.uuid)
                     admidApplyTo = structMapDiv.getparent()
 
                 label = "mets.xml-%s" % (GROUPID)

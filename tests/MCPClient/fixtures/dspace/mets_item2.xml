@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<mets ID="DSpace_ITEM_2429-2701" OBJID="hdl:2429/2701" TYPE="DSpace ITEM" PROFILE="http://www.dspace.org/schema/aip/mets_aip_1_0.xsd" xmlns="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd">
+ <metsHdr LASTMODDATE="2010-09-13T03:46:36">
+  <agent ROLE="CUSTODIAN" TYPE="OTHER" OTHERTYPE="DSpace Archive">
+   <name>2429/0</name>
+  </agent>
+  <agent ROLE="CREATOR" TYPE="OTHER" OTHERTYPE="DSpace Software">
+   <name>DSpace 1.7.0</name>
+  </agent>
+ </metsHdr>
+ <dmdSec ID="dmdSec_430">
+  <mdWrap MDTYPE="MODS">
+   <xmlData xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd"><mods:mods xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
+  <mods:name>
+    <mods:role>
+      <mods:roleTerm type="text">author</mods:roleTerm>
+    </mods:role>
+    <mods:namePart>Vice President Research, Office of the</mods:namePart>
+  </mods:name>
+  <mods:extension>
+    <mods:dateAccessioned encoding="iso8601">2008-10-20T19:00:27Z</mods:dateAccessioned>
+  </mods:extension>
+  <mods:extension>
+    <mods:dateAvailable encoding="iso8601">2008-10-20T19:00:27Z</mods:dateAvailable>
+  </mods:extension>
+  <mods:originInfo>
+    <mods:dateIssued encoding="iso8601">2006-05</mods:dateIssued>
+  </mods:originInfo>
+  <mods:identifier type="uri">http://hdl.handle.net/2429/2701</mods:identifier>
+  <mods:abstract>Melanie Jones and Dan Durall aren't looking to the treetops for clues about the "wood wide web." They're looking to the soil at fungi that are crucial to renewing our forests.</mods:abstract>
+  <mods:note type="provenance">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-08-27T17:34:20Z
+No. of bitstreams: 1
+Wood Wide Web[1].pdf: 114179 bytes, checksum: 28b548e21f6686bd16e0b7789982d980 (MD5)</mods:note>
+  <mods:note type="provenance">Rejected by Andy Torr(andy.torr@ubc.ca), reason:  on 2008-10-20T17:41:07Z (GMT)</mods:note>
+  <mods:note type="provenance">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-10-20T17:52:48Z
+No. of bitstreams: 1
+Wood Wide Web[1].pdf: 118031 bytes, checksum: 0124ee9d6a881589e011ead839761fc1 (MD5)</mods:note>
+  <mods:note type="provenance">Approved for entry into archive by Andy Torr(andy.torr@ubc.ca) on 2008-10-20T19:00:27Z (GMT) No. of bitstreams: 1
+Wood Wide Web[1].pdf: 118031 bytes, checksum: 0124ee9d6a881589e011ead839761fc1 (MD5)</mods:note>
+  <mods:note type="provenance">Made available in DSpace on 2008-10-20T19:00:27Z (GMT). No. of bitstreams: 1
+Wood Wide Web[1].pdf: 118031 bytes, checksum: 0124ee9d6a881589e011ead839761fc1 (MD5)
+  Previous issue date: 2006-05</mods:note>
+  <mods:physicalDescription>
+    <mods:extent>118031 bytes</mods:extent>
+  </mods:physicalDescription>
+  <mods:physicalDescription>
+    <mods:internetMediaType>application/pdf</mods:internetMediaType>
+  </mods:physicalDescription>
+  <mods:language>
+    <mods:languageTerm authority="rfc3066">eng</mods:languageTerm>
+  </mods:language>
+  <mods:originInfo>
+    <mods:publisher>Office of the Vice President Research, The University of British Columbia</mods:publisher>
+  </mods:originInfo>
+  <mods:relatedItem type="series">frontier: a journal of research and discovery, issue 1, May 2006</mods:relatedItem>
+  <mods:subject>
+    <mods:topic>Melanie Jones</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Dan Durall</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>soil biology</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>mycorrhizal fungi</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Species at Risk</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Habitat Studies Centre</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Denise Brooks</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>Canada Foundation for Innovation</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>CFI</mods:topic>
+  </mods:subject>
+  <mods:subject>
+    <mods:topic>UBC Okanagan</mods:topic>
+  </mods:subject>
+  <mods:titleInfo>
+    <mods:title>Wood Wide Web</mods:title>
+  </mods:titleInfo>
+  <mods:genre>text</mods:genre>
+</mods:mods></xmlData>
+  </mdWrap>
+ </dmdSec>
+ <dmdSec ID="dmdSec_431">
+  <mdWrap MDTYPE="OTHER" OTHERMDTYPE="DIM">
+   <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="ITEM">
+  <dim:field mdschema="dc" element="contributor" qualifier="author">Vice President Research, Office of the</dim:field>
+  <dim:field mdschema="dc" element="date" qualifier="accessioned">2008-10-20T19:00:27Z</dim:field>
+  <dim:field mdschema="dc" element="date" qualifier="available">2008-10-20T19:00:27Z</dim:field>
+  <dim:field mdschema="dc" element="date" qualifier="issued">2006-05</dim:field>
+  <dim:field mdschema="dc" element="identifier" qualifier="uri">http://hdl.handle.net/2429/2701</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="abstract" lang="en">Melanie Jones and Dan Durall aren't looking to the treetops for clues about the "wood wide web." They're looking to the soil at fungi that are crucial to renewing our forests.</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-08-27T17:34:20Z
+No. of bitstreams: 1
+Wood Wide Web[1].pdf: 114179 bytes, checksum: 28b548e21f6686bd16e0b7789982d980 (MD5)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Rejected by Andy Torr(andy.torr@ubc.ca), reason:  on 2008-10-20T17:41:07Z (GMT)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Submitted by Janis Lai (svpr@exchange.ubc.ca) on 2008-10-20T17:52:48Z
+No. of bitstreams: 1
+Wood Wide Web[1].pdf: 118031 bytes, checksum: 0124ee9d6a881589e011ead839761fc1 (MD5)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Approved for entry into archive by Andy Torr(andy.torr@ubc.ca) on 2008-10-20T19:00:27Z (GMT) No. of bitstreams: 1
+Wood Wide Web[1].pdf: 118031 bytes, checksum: 0124ee9d6a881589e011ead839761fc1 (MD5)</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="provenance" lang="en">Made available in DSpace on 2008-10-20T19:00:27Z (GMT). No. of bitstreams: 1
+Wood Wide Web[1].pdf: 118031 bytes, checksum: 0124ee9d6a881589e011ead839761fc1 (MD5)
+  Previous issue date: 2006-05</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="extent">118031 bytes</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">application/pdf</dim:field>
+  <dim:field mdschema="dc" element="language" qualifier="iso" lang="en">eng</dim:field>
+  <dim:field mdschema="dc" element="publisher" lang="en">Office of the Vice President Research, The University of British Columbia</dim:field>
+  <dim:field mdschema="dc" element="relation" qualifier="ispartofseries" lang="en">frontier: a journal of research and discovery, issue 1, May 2006</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Melanie Jones</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Dan Durall</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">soil biology</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">mycorrhizal fungi</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Species at Risk</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Habitat Studies Centre</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Denise Brooks</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">Canada Foundation for Innovation</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">CFI</dim:field>
+  <dim:field mdschema="dc" element="subject" lang="en">UBC Okanagan</dim:field>
+  <dim:field mdschema="dc" element="title" lang="en">Wood Wide Web</dim:field>
+  <dim:field mdschema="dc" element="type" lang="en">text</dim:field>
+  <dim:field mdschema="dc" element="type" qualifier="text" lang="en">article</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="affiliation" lang="en">VP Research</dim:field>
+  <dim:field mdschema="dc" element="description" qualifier="reviewstatus" lang="en" />
+</dim:dim></xmlData>
+  </mdWrap>
+ </dmdSec>
+ <amdSec ID="amd_432">
+  <rightsMD ID="rightsMD_435">
+   <mdRef LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_8269" MDTYPE="OTHER" OTHERMDTYPE="DSpaceDepositLicense" MIMETYPE="text/plain"/>
+  </rightsMD>
+  <rightsMD ID="rightsMD_438">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_439">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="ITEM">
+  <dim:field mdschema="dc" element="creator">svpr@exchange.ubc.ca</dim:field>
+  <dim:field mdschema="dc" element="identifier" qualifier="uri">hdl:2429/2701</dim:field>
+  <dim:field mdschema="dc" element="relation" qualifier="isPartOf">hdl:2429/1314</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <amdSec ID="amd_442">
+  <rightsMD ID="rightsMD_448">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+ </amdSec>
+ <amdSec ID="amd_451">
+  <techMD ID="techMD_452">
+   <mdWrap MDTYPE="PREMIS">
+    <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd"><premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:object>
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>https://circle-test.library.ubc.ca/bitstream/2429%2F2701/1/Wood+Wide+Web%5B1%5D.pdf</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCategory>File</premis:objectCategory>
+    <premis:objectCharacteristics>
+      <premis:fixity>
+        <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+        <premis:messageDigest>0124ee9d6a881589e011ead839761fc1</premis:messageDigest>
+      </premis:fixity>
+      <premis:size>118031</premis:size>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>application/pdf</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>Wood Wide Web[1].pdf</premis:originalName>
+  </premis:object>
+</premis:premis></xmlData>
+   </mdWrap>
+  </techMD>
+  <rightsMD ID="rightsMD_457">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_458">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="BITSTREAM">
+  <dim:field mdschema="dc" element="title">Wood Wide Web[1].pdf</dim:field>
+  <dim:field mdschema="dc" element="title" qualifier="alternative">Wood Wide Web[1].pdf</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="medium">Adobe PDF</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">application/pdf</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="supportlevel">KNOWN</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="internal">false</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <amdSec ID="amd_459">
+  <rightsMD ID="rightsMD_465">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+ </amdSec>
+ <amdSec ID="amd_467">
+  <techMD ID="techMD_468">
+   <mdWrap MDTYPE="PREMIS">
+    <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd"><premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:object>
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>https://circle-test.library.ubc.ca/bitstream/2429%2F2701/2/license.txt</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCategory>File</premis:objectCategory>
+    <premis:objectCharacteristics>
+      <premis:fixity>
+        <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+        <premis:messageDigest>cdc58860dbfa551807059e5c744e8841</premis:messageDigest>
+      </premis:fixity>
+      <premis:size>3975</premis:size>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>text/html</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>license.txt</premis:originalName>
+  </premis:object>
+</premis:premis></xmlData>
+   </mdWrap>
+  </techMD>
+  <rightsMD ID="rightsMD_473">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_474">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="BITSTREAM">
+  <dim:field mdschema="dc" element="title">license.txt</dim:field>
+  <dim:field mdschema="dc" element="title" qualifier="alternative">Written by org.dspace.content.Item</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="medium">License</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">text/html</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="supportlevel">KNOWN</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="internal">true</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <amdSec ID="amd_475">
+  <rightsMD ID="rightsMD_481">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="GENERAL PUBLIC">
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+ </amdSec>
+ <amdSec ID="amd_483">
+  <techMD ID="techMD_484">
+   <mdWrap MDTYPE="PREMIS">
+    <xmlData xmlns:premis="http://www.loc.gov/standards/premis" xsi:schemaLocation="http://www.loc.gov/standards/premis http://www.loc.gov/standards/premis/PREMIS-v1-0.xsd"><premis:premis xmlns:premis="http://www.loc.gov/standards/premis">
+  <premis:object>
+    <premis:objectIdentifier>
+      <premis:objectIdentifierType>URL</premis:objectIdentifierType>
+      <premis:objectIdentifierValue>https://circle-test.library.ubc.ca/bitstream/2429%2F2701/3/Wood+Wide+Web%5B1%5D.pdf.txt</premis:objectIdentifierValue>
+    </premis:objectIdentifier>
+    <premis:objectCategory>File</premis:objectCategory>
+    <premis:objectCharacteristics>
+      <premis:fixity>
+        <premis:messageDigestAlgorithm>MD5</premis:messageDigestAlgorithm>
+        <premis:messageDigest>979e05921f91661e7240b7e0335bc927</premis:messageDigest>
+      </premis:fixity>
+      <premis:size>7792</premis:size>
+      <premis:format>
+        <premis:formatDesignation>
+          <premis:formatName>text/plain</premis:formatName>
+        </premis:formatDesignation>
+      </premis:format>
+    </premis:objectCharacteristics>
+    <premis:originalName>Wood Wide Web[1].pdf.txt</premis:originalName>
+  </premis:object>
+</premis:premis></xmlData>
+   </mdWrap>
+  </techMD>
+  <rightsMD ID="rightsMD_489">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="METSRIGHTS">
+    <xmlData xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" xsi:schemaLocation="http://cosimo.stanford.edu/sdr/metsrights/ http://cosimo.stanford.edu/sdr/metsrights.xsd"><rights:RightsDeclarationMD xmlns:rights="http://cosimo.stanford.edu/sdr/metsrights/" RIGHTSCATEGORY="LICENSED">
+  <rights:Context CONTEXTCLASS="MANAGED GRP">
+    <rights:UserName USERTYPE="GROUP">COLLECTION_hdl:2429/1314_ADMIN</rights:UserName>
+    <rights:Permissions DISCOVER="true" DISPLAY="true" MODIFY="false" DELETE="false" />
+  </rights:Context>
+</rights:RightsDeclarationMD></xmlData>
+   </mdWrap>
+  </rightsMD>
+  <sourceMD ID="sourceMD_490">
+   <mdWrap MDTYPE="OTHER" OTHERMDTYPE="AIP-TECHMD">
+    <xmlData xmlns:dim="http://www.dspace.org/xmlns/dspace/dim"><dim:dim xmlns:dim="http://www.dspace.org/xmlns/dspace/dim" dspaceType="BITSTREAM">
+  <dim:field mdschema="dc" element="title">Wood Wide Web[1].pdf.txt</dim:field>
+  <dim:field mdschema="dc" element="title" qualifier="alternative">Written by FormatFilter org.dspace.app.mediafilter.PDFFilter on 2009-12-04T10:49:24Z (GMT).</dim:field>
+  <dim:field mdschema="dc" element="description">Extracted text</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="medium">Text</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="mimetype">text/plain</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="supportlevel">KNOWN</dim:field>
+  <dim:field mdschema="dc" element="format" qualifier="internal">false</dim:field>
+</dim:dim></xmlData>
+   </mdWrap>
+  </sourceMD>
+ </amdSec>
+ <fileSec>
+  <fileGrp ADMID="amd_442" USE="ORIGINAL">
+   <file ID="bitstream_1" MIMETYPE="application/pdf" SEQ="1" SIZE="118031" CHECKSUM="0124ee9d6a881589e011ead839761fc1" CHECKSUMTYPE="MD5" ADMID="amd_451" GROUPID="GROUP_bitstream_1">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_8268.pdf"/>
+   </file>
+  </fileGrp>
+  <fileGrp ADMID="amd_459" USE="LICENSE">
+   <file ID="bitstream_2" MIMETYPE="text/html" SEQ="2" SIZE="3975" CHECKSUM="cdc58860dbfa551807059e5c744e8841" CHECKSUMTYPE="MD5" ADMID="amd_467" GROUPID="GROUP_bitstream_2">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_8269"/>
+   </file>
+  </fileGrp>
+  <fileGrp ADMID="amd_475" USE="TEXT">
+   <file ID="bitstream_3" MIMETYPE="text/plain" SEQ="3" SIZE="7792" CHECKSUM="979e05921f91661e7240b7e0335bc927" CHECKSUMTYPE="MD5" ADMID="amd_483" GROUPID="GROUP_bitstream_1">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_39530.txt"/>
+   </file>
+  </fileGrp>
+ </fileSec>
+ <structMap ID="struct_440" LABEL="DSpace Object" TYPE="LOGICAL">
+  <div ID="div_441" DMDID="dmdSec_430 dmdSec_431" ADMID="amd_432" TYPE="DSpace Object Contents">
+   <div ID="div_450" TYPE="DSpace BITSTREAM">
+    <fptr FILEID="bitstream_1"/>
+   </div>
+  </div>
+ </structMap>
+ <structMap ID="struct_491" LABEL="Parent" TYPE="LOGICAL">
+  <div ID="div_492" LABEL="Parent of this DSpace Object" TYPE="AIP Parent Link">
+   <mptr ID="mptr_493" LOCTYPE="HANDLE" xlink:type="simple" xlink:href="2429/1314"/>
+  </div>
+ </structMap>
+</mets>

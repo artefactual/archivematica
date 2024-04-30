@@ -24,9 +24,6 @@ import namespaces as ns
 from django.core.exceptions import ValidationError
 from main.models import File
 
-# dashboard
-# archivematicaCommon
-
 
 def createMDRefDMDSec(LABEL, itemdirectoryPath, directoryPathSTR):
     XPTR = "xpointer(id("
@@ -68,7 +65,7 @@ def archivematicaCreateMETSRightsDspaceMDRef(
             metsFileUUID = mets.uuid
             metsLoc = mets.currentlocation.decode().replace("%SIPDirectory%", "", 1)
             metsLocation = os.path.join(os.path.dirname(itemdirectoryPath), "mets.xml")
-            LABEL = "mets.xml-%s" % (metsFileUUID)
+            LABEL = f"mets.xml-{metsFileUUID}"
             ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
         base = os.path.dirname(os.path.dirname(itemdirectoryPath))
@@ -96,7 +93,7 @@ def archivematicaCreateMETSRightsDspaceMDRef(
                 metsLoc = f.currentlocation.decode().replace("%SIPDirectory%", "", 1)
                 metsLocation = os.path.join(fullDir, "mets.xml")
                 job.pyprint(metsLocation)
-                LABEL = "mets.xml-" + metsFileUUID
+                LABEL = f"mets.xml-{metsFileUUID}"
                 ret.append(createMDRefDMDSec(LABEL, metsLocation, metsLoc))
 
     except Exception as inst:
