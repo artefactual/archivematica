@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from components.backlog import views
-from django.conf import settings
 from django.urls import path
 from django.urls import re_path
 
@@ -23,13 +22,13 @@ app_name = "backlog"
 urlpatterns = [
     path("", views.execute, name="backlog_index"),
     path("search/", views.search, name="backlog_search"),
-    re_path(
-        r"delete/(?P<uuid>" + settings.UUID_REGEX + ")/$",
+    path(
+        "delete/<uuid:uuid>/",
         views.delete,
         name="backlog_delete",
     ),
-    re_path(
-        r"download/(?P<uuid>" + settings.UUID_REGEX + ")/$",
+    path(
+        "download/<uuid:uuid>/",
         views.download,
         name="backlog_download",
     ),
