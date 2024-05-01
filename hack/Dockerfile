@@ -144,11 +144,38 @@ ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 
-FROM base-builder as base
+FROM ubuntu:${UBUNTU_VERSION} AS base
 
+ARG PYENV_DIR=/pyenv
 ARG USER_ID
 ARG GROUP_ID
-ARG PYENV_DIR
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV PYTHONUNBUFFERED 1
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		ca-certificates \
+		# gnupg \
+		# curl \
+		# git \
+		# libldap2-dev \
+		libmysqlclient-dev \
+		# libsasl2-dev \
+		# libsqlite3-dev \
+		locales \
+		# pkg-config \
+		tzdata \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+ENV PYENV_ROOT=${PYENV_DIR}/data
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 RUN set -ex \
 	&& groupadd --gid ${GROUP_ID} --system archivematica \
@@ -161,11 +188,23 @@ USER archivematica
 COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
 COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
+
 # -----------------------------------------------------------------------------
 
 FROM base AS archivematica-mcp-client
 
 USER root
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		gnupg \
+		 curl \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+# Purge
+#	- gnupg
+#	- git
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
@@ -174,7 +213,6 @@ RUN set -ex \
 	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		clamav \
 		atool \
 		bulk-extractor \
 		ffmpeg \
@@ -205,9 +243,6 @@ RUN set -ex \
 		uuid \
 		ssh \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-# Download ClamAV virus signatures
-RUN freshclam --quiet
 
 USER archivematica
 
@@ -246,8 +281,7 @@ USER root
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		gcc \
-		g++ \
+		# g++ \
 		gettext \
 		libffi-dev \
 		libxml2-dev \
