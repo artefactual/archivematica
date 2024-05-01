@@ -107,46 +107,42 @@ urlpatterns += [
         views_as.ingest_upload_as_match_dip_objects_to_resource_component_levels,
         name="ingest_upload_as_match_dip_objects_to_resource_component_levels",
     ),
-    re_path(
-        r"^(?P<uuid>"
-        + settings.UUID_REGEX
-        + ")/upload/as/resource/(?P<resource_id>.+)/$",
+    path(
+        "<uuid:uuid>/upload/as/resource/<str:resource_id>/",
         views_as.ingest_upload_as_resource,
         name="ingest_upload_as_resource",
     ),
-    re_path(
-        r"^(?P<uuid>"
-        + settings.UUID_REGEX
-        + ")/upload/as/resourcecomponent/(?P<resource_component_id>.+)/$",
+    path(
+        "<uuid:uuid>/upload/as/resourcecomponent/<int:resource_component_id>/",
         views_as.ingest_upload_as_resource_component,
         name="ingest_upload_as_resource_component",
     ),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/save/$",
+    path(
+        "<uuid:uuid>/upload/as/save/",
         views_as.ingest_upload_as_save,
     ),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/match/$",
+    path(
+        "<uuid:uuid>/upload/as/match/",
         views_as.ingest_upload_as_match,
         name="ingest_upload_as_match",
     ),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/reset/$",
+    path(
+        "<uuid:uuid>/upload/as/reset/",
         views_as.ingest_upload_as_reset,
         name="ingest_upload_as_reset",
     ),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/review/$",
+    path(
+        "<uuid:uuid>/upload/as/review/",
         views_as.ingest_upload_as_review_matches,
         name="ingest_upload_as_review_matches",
     ),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/complete/$",
+    path(
+        "<uuid:uuid>/upload/as/complete/",
         views_as.complete_matching,
         name="complete_matching",
     ),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/upload/as/$",
+    path(
+        "<uuid:uuid>/upload/as/",
         views_as.ingest_upload_as,
         name="ingest_upload_as",
     ),
