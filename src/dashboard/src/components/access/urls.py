@@ -19,6 +19,7 @@ urlpatterns = [
     re_path(
         r"archivesspace/(?P<record_id>[A-Za-z0-9-_]+)/copy_from_arrange/$",
         views.access_arrange_start_sip,
+        name="access_arrange_start_sip",
     ),
     re_path(
         r"archivesspace/(?P<record_id>[A-Za-z0-9-_]+)/create_directory_within_arrange/$",

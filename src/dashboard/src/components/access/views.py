@@ -97,7 +97,7 @@ def _get_sip(func):
     @wraps(func)
     def wrapper(request, mapping):
         arrange = SIPArrange.objects.get(
-            arrange_path=os.path.join(mapping.arrange_path, "")
+            arrange_path=os.path.join(mapping.arrange_path, "").encode()
         )
         if arrange.sip is None:
             arrange.sip = SIP.objects.create(uuid=(uuid.uuid4()), currentpath=None)
@@ -421,7 +421,7 @@ def access_arrange_start_sip(client, request, mapping):
     """
     try:
         arrange = SIPArrange.objects.get(
-            arrange_path=os.path.join(mapping.arrange_path, "")
+            arrange_path=os.path.join(mapping.arrange_path, "").encode()
         )
     except SIPArrange.DoesNotExist:
         response = {
