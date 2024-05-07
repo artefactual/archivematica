@@ -405,6 +405,37 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
         "utf8"
     )
 
+def test_view_aip_metadata_only_dip_upload_with_slug(
+    mocker, amsetup, admin_client, tmpdir
+):
+    sip_uuid = uuid.uuid4()
+    file_path = tmpdir.mkdir("file")
+    mocker.patch("elasticSearchFunctions.get_client")
+    mocker.patch(
+        "elasticSearchFunctions.get_aip_data",
+        return_value={
+            "_source": {
+                "name": f"transfer-{sip_uuid}",
+                "filePath": str(file_path),
+            }
+        },
+    )
+    mocker.patch(
+        "components.archival_storage.forms.get_atom_client",
+        return_value=mocker.Mock(
+            **{
+                "find_parent_id_for_component.return_value": None
+            }
+        ),
+    )
+
+    response = admin_client.post(
+        reverse("archival_storage:view_aip", args=[sip_uuid]),
+        {"submit-upload-form": "1", "upload-slug": "test"},
+    )
+
+    assert response.status_code == 200
+
 
 def test_create_aic_fails_if_query_is_not_passed(amsetup, admin_client):
     params = {}
