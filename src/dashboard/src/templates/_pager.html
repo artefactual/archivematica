@@ -4,11 +4,11 @@
   <div style='float:right;'>
     {% if page.has_previous %}
       <span style='margin-right: 2em'>
-        {% ifnotequal page.previous_page_number 1 %}
+        {% if not page.previous_page_number == 1 %}
           <span style='margin-right: 1em'>
             <a href='?{{ search_params }}&page=1'>{% trans "First" %}</a>
           </span>
-        {% endifnotequal %}
+        {% endif %}
 
         <a href='?{{ search_params }}&page={{ page.previous_page_number }}'>{% trans "Previous" %}</a>
       </span>
@@ -34,11 +34,11 @@
       <span style='margin-left: 2em'>
         <a href='?{{ search_params }}&page={{ page.next_page_number }}'>{% trans "Next" %}</a>
 
-        {% ifnotequal page.next_page_number page.paginator.num_pages %}
+        {% if not page.next_page_number == page.paginator.num_pages %}
           <span style='margin-left: 1em'>
             <a href='?{{ search_params }}&page={{ page.paginator.num_pages }}' title='Page {{ page.paginator.num_pages }}'>{% trans "Last" %}</a>
           </span>
-        {% endifnotequal %}
+        {% endif %}
       </span>
     {% endif %}
 
