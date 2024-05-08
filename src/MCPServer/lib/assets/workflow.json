@@ -69,9 +69,9 @@
     },
     "0fe9842f-9519-4067-a691-8a363132ae24": {
       "description": {
-        "en": "Upload DIP to AtoM/Binder",
-        "no": "Last opp DIP til AtoM/Binder",
-        "pt_BR": "Carregar DIP no AtoM/Binder"
+        "en": "Upload DIP to AtoM",
+        "no": "Last opp DIP til AtoM",
+        "pt_BR": "Carregar DIP no AtoM"
       },
       "link_id": "7f975ba6-2185-434c-b507-2911f3c77213"
     },
@@ -6746,9 +6746,9 @@
         "replacements": []
       },
       "description": {
-        "en": "Choose config for AtoM/Binder DIP upload",
-        "no": "Velg konfigurasjon for AtoM/Binder DIP opplasting",
-        "pt_BR": "Escolher configuração para carregar DIP no AtoM/Binder"
+        "en": "Choose config for AtoM DIP upload",
+        "no": "Velg konfigurasjon for AtoM DIP opplasting",
+        "pt_BR": "Escolher configuração para carregar DIP no AtoM"
       },
       "exit_codes": {
         "0": {

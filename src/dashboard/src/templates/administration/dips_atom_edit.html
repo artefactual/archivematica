@@ -35,9 +35,9 @@
       <form class="form-stacked" method="post" action="{% url 'administration:dips_atom_index' %}">
         {% csrf_token %}
 
-        <h3>{% trans "AtoM/Binder DIP upload" %}</h3>
+        <h3>{% trans "AtoM DIP upload" %}</h3>
 
-        <p>{% trans "The settings below configure DIP uploading to AtoM/Binder." %}</p>
+        <p>{% trans "The settings below configure DIP uploading to AtoM." %}</p>
 
         {% include "_form.html" %}
 
