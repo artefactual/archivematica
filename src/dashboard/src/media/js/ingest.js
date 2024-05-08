@@ -313,8 +313,8 @@ $(function()
             return false;
           }
 
-          // "Upload DIP to AtoM/Binder" chain matched by its UUID.
-          // If no identifier for the AtoM or Binder SWORD V1 deposit endpoint
+          // "Upload DIP to AtoM" chain matched by its UUID.
+          // If no identifier for the AtoM SWORD V1 deposit endpoint
           // provided at start of transfer, display a modal dialog to request
           // such here.
           if (chainId == '0fe9842f-9519-4067-a691-8a363132ae24')
@@ -407,11 +407,6 @@ $(function()
 
                 .modal('show');
             } else {
-              // The access system ID that the user supplies at the start of
-              // transfer must contain the correct target prefix if the upload
-              // is to Binder, i.e., the 'ar:' prefix for an artwork record and
-              // the 'tr:' prefix for a technical record. This is explained in
-              // the modal dialog help text. See templates/ingest/grid.html.
               var xhr = $.ajax(url, {
                 type: 'POST',
                 data: {'target': this.model.sip.attributes.access_system_id},
