@@ -90,24 +90,24 @@ class AtomConfigForm(forms.Form):
     url = forms.CharField(
         label=_("Upload URL"),
         help_text=_(
-            "URL where the AtoM/Binder index.php frontend lives, SWORD services path will be appended."
+            "URL where the AtoM index.php frontend lives, SWORD services path will be appended."
         ),
     )
     email = forms.CharField(
         label=_("Login email"),
-        help_text=_("E-mail account used to log into AtoM/Binder."),
+        help_text=_("E-mail account used to log into AtoM."),
     )
     password = forms.CharField(
-        label=_("Login password"), help_text=_("Password used to log into AtoM/Binder.")
+        label=_("Login password"), help_text=_("Password used to log into AtoM.")
     )
     version = forms.ChoiceField(
-        label=_("AtoM/Binder version"), choices=((1, "1.x"), (2, "2.x"))
+        label=_("AtoM version"), choices=((1, "1.x"), (2, "2.x"))
     )
     rsync_target = forms.CharField(
         required=False,
         label=_("Rsync target"),
         help_text=_(
-            "The DIP can be sent with Rsync to a remote host before is deposited in AtoM/Binder. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/."
+            "The DIP can be sent with Rsync to a remote host before is deposited in AtoM. This is the destination value passed to Rsync (see man 1 rsync). For example: foobar.com:~/dips/."
         ),
     )
     rsync_command = forms.CharField(
