@@ -47,11 +47,11 @@ click==8.1.7
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.4.4
+coverage[toml]==7.5.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==42.0.5
+cryptography==42.0.7
     # via
     #   -r requirements.txt
     #   josepy
@@ -59,7 +59,7 @@ cryptography==42.0.5
     #   pyopenssl
 distlib==0.3.8
     # via virtualenv
-django==4.2.11
+django==4.2.13
     # via
     #   -r requirements.txt
     #   django-auth-ldap
@@ -80,13 +80,13 @@ django-prometheus==2.3.1
     # via -r requirements.txt
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via -r requirements.txt
-django-tastypie==0.14.6
+django-tastypie==0.14.7
     # via -r requirements.txt
 elasticsearch==6.8.2
     # via -r requirements.txt
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via pytest
-filelock==3.13.4
+filelock==3.14.0
     # via
     #   tox
     #   virtualenv
@@ -123,7 +123,7 @@ josepy==1.14.0
     # via
     #   -r requirements.txt
     #   mozilla-django-oidc
-jsonschema==4.21.1
+jsonschema==4.22.0
     # via -r requirements.txt
 jsonschema-specifications==2023.12.1
     # via
@@ -163,11 +163,11 @@ packaging==24.0
     #   tox
 pip-tools==7.4.1
     # via -r requirements-dev.in
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via
     #   tox
     #   virtualenv
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   pytest
     #   tox
@@ -194,11 +194,11 @@ pyopenssl==24.1.0
     #   josepy
 pyproject-api==1.6.1
     # via tox
-pyproject-hooks==1.0.0
+pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
-pytest==8.1.1
+pytest==8.2.0
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -230,7 +230,7 @@ python-mimeparse==1.6.0
     # via
     #   -r requirements.txt
     #   django-tastypie
-referencing==0.34.0
+referencing==0.35.1
     # via
     #   -r requirements.txt
     #   jsonschema
@@ -243,7 +243,7 @@ requests==2.31.0
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.18.0
+rpds-py==0.18.1
     # via
     #   -r requirements.txt
     #   jsonschema
@@ -264,10 +264,9 @@ tomli==2.0.1
     #   coverage
     #   pip-tools
     #   pyproject-api
-    #   pyproject-hooks
     #   pytest
     #   tox
-tox==4.14.2
+tox==4.15.0
     # via -r requirements-dev.in
 typing-extensions==4.11.0
     # via
@@ -281,7 +280,7 @@ urllib3==2.2.1
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.25.2
+virtualenv==20.26.1
     # via tox
 wheel==0.43.0
     # via pip-tools
