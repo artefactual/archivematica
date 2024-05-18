@@ -163,6 +163,8 @@ services:
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED: "true"
       METADATA_XML_VALIDATION_SETTINGS_FILE: "/src/hack/submodules/archivematica-sampledata/xml-validation/xml_validation.py"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_WORKERS: "1"
+      PYTHONBREAKPOINT: "web_pdb.set_trace"
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
@@ -173,6 +175,8 @@ services:
       - "gearmand"
       - "elasticsearch"
       - "archivematica-storage-service"
+    ports:
+      - "5555:5555"
 
   archivematica-dashboard:
     build:

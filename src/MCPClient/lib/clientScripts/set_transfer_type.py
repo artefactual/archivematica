@@ -35,6 +35,8 @@ def call(jobs):
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
+                breakpoint()
+
                 transferUUID = job.args[1]
                 transferType = job.args[2]
 

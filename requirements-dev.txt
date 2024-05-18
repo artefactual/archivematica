@@ -14,6 +14,8 @@ asgiref==3.8.1
     # via
     #   -r requirements.txt
     #   django
+asyncore-wsgi==0.0.11
+    # via web-pdb
 attrs==23.2.0
     # via
     #   -r requirements.txt
@@ -21,6 +23,8 @@ attrs==23.2.0
     #   referencing
 bagit @ git+https://github.com/artefactual-labs/bagit-python.git@4b8fde73b4e631461bfd7add87e200500d40ca21
     # via -r requirements.txt
+bottle==0.12.25
+    # via web-pdb
 brotli==1.1.0
     # via -r requirements.txt
 build==1.2.1
@@ -282,6 +286,8 @@ urllib3==2.2.1
     #   requests
 virtualenv==20.26.1
     # via tox
+web-pdb==1.6.2
+    # via -r requirements-dev.in
 wheel==0.43.0
     # via pip-tools
 whitenoise==6.6.0

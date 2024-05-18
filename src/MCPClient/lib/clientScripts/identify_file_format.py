@@ -106,6 +106,7 @@ def _default_idcommand():
 
 
 def main(job, enabled, file_path, file_uuid, disable_reidentify):
+    breakpoint()
     enabled = True if enabled == "True" else False
     if not enabled:
         job.print_output("Skipping file format identification")

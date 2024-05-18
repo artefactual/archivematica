@@ -9,3 +9,4 @@ pytest-django
 pytest-mock
 pytest-randomly
 tox
+web-pdb
