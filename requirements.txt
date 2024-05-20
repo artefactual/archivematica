@@ -82,7 +82,7 @@ jsonschema-specifications==2023.12.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.in
-lxml==5.2.1
+lxml==5.2.2
     # via
     #   -r requirements.in
     #   ammcpc
@@ -130,7 +130,7 @@ referencing==0.35.1
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+requests==2.32.1
     # via
     #   -r requirements.in
     #   agentarchives
@@ -160,13 +160,13 @@ urllib3==2.2.1
     #   requests
 whitenoise==6.6.0
     # via -r requirements.in
-zipp==3.18.1
+zipp==3.18.2
     # via
     #   importlib-metadata
     #   importlib-resources
 zope-event==5.0
     # via gevent
-zope-interface==6.3
+zope-interface==6.4
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
