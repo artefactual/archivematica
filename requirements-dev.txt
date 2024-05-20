@@ -131,7 +131,7 @@ jsonschema-specifications==2023.12.1
     #   jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.txt
-lxml==5.2.1
+lxml==5.2.2
     # via
     #   -r requirements.txt
     #   ammcpc
@@ -163,7 +163,7 @@ packaging==24.0
     #   tox
 pip-tools==7.4.1
     # via -r requirements-dev.in
-platformdirs==4.2.1
+platformdirs==4.2.2
     # via
     #   tox
     #   virtualenv
@@ -198,7 +198,7 @@ pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
-pytest==8.2.0
+pytest==8.2.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -235,7 +235,7 @@ referencing==0.35.1
     #   -r requirements.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.31.0
+requests==2.32.1
     # via
     #   -r requirements.txt
     #   agentarchives
@@ -280,13 +280,13 @@ urllib3==2.2.1
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.26.1
+virtualenv==20.26.2
     # via tox
 wheel==0.43.0
     # via pip-tools
 whitenoise==6.6.0
     # via -r requirements.txt
-zipp==3.18.1
+zipp==3.18.2
     # via
     #   -r requirements.txt
     #   importlib-metadata
@@ -295,7 +295,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==6.3
+zope-interface==6.4
     # via
     #   -r requirements.txt
     #   gevent
