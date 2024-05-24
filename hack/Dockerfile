@@ -230,7 +230,7 @@ ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY /src/src/MCPClient/lib/client
 COPY --link src/archivematicaCommon/lib/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
 COPY --link src/archivematicaCommon/lib/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
 
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/lib/archivematicaClient.py"]
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "coverage", "run", "/src/src/MCPClient/lib/archivematicaClient.py"]
 
 # -----------------------------------------------------------------------------
 
@@ -239,7 +239,7 @@ FROM base AS archivematica-mcp-server
 ENV DJANGO_SETTINGS_MODULE settings.common
 ENV PYTHONPATH /src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/src/
 
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/lib/archivematicaMCP.py"]
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "coverage", "run", "/src/src/MCPServer/lib/archivematicaMCP.py"]
 
 # -----------------------------------------------------------------------------
 

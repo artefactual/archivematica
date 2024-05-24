@@ -124,9 +124,12 @@ services:
       ARCHIVEMATICA_MCPSERVER_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
       ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT: "7999"
       ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+      COVERAGE_PROCESS_START: "/src/.coveragerc"
+      COVERAGE_FILE: "/src/.coverage"
     volumes:
-      - "../:/src"
+      - "../:/src:rw"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    stop_signal: SIGTERM
     links:
       - "mysql"
       - "gearmand"
@@ -163,9 +166,12 @@ services:
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED: "true"
       METADATA_XML_VALIDATION_SETTINGS_FILE: "/src/hack/submodules/archivematica-sampledata/xml-validation/xml_validation.py"
+      COVERAGE_PROCESS_START: "/src/.coveragerc"
+      COVERAGE_FILE: "/src/.coverage"
     volumes:
-      - "../:/src"
+      - "../:/src:rw"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    stop_signal: SIGTERM
     links:
       - "fits"
       - "clamavd"
@@ -198,9 +204,12 @@ services:
       ARCHIVEMATICA_DASHBOARD_CLIENT_HOST: "mysql"
       ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE: "MCP"
       ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+      COVERAGE_PROCESS_START: "/src/.coveragerc"
+      COVERAGE_FILE: "/src/.coverage"
     volumes:
-      - "../:/src"
+      - "../:/src:rw"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    stop_signal: SIGTERM
     depends_on:
       elasticsearch:
         condition: service_healthy

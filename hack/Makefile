@@ -372,7 +372,7 @@ test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-b
 	$(call compose_amauat, \
 		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
 			--no-capture --no-capture-stderr --no-logcapture \
-			$(subst $(SPACE), --tags=,$(SPACE)$(TAGS)) --no-skipped -v --stop \
+			$(subst $(SPACE), --tags=,$(SPACE)$(TAGS)) --no-skipped -v \
 			-D driver_name=$(BROWSER) \
 			-D ssh_accessible=no \
 			-D am_url=http://nginx/ \
