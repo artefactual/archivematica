@@ -6,6 +6,7 @@ on:
     branches:
       - "qa/**"
       - "stable/**"
+      - "dev/amauat-coverage-report-take2"
 jobs:
   test:
     name: "Test ${{ matrix.rule }} on ${{ matrix.python-version }}"
@@ -86,6 +87,7 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: false
           verbose: true
+          flag: "unittests,${{ matrix.rule }}"
           name: ${{ matrix.rule }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
