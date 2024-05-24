@@ -90,7 +90,7 @@ jobs:
           files: ./coverage.xml
           fail_ci_if_error: false
           verbose: true
-          flag: "amauats,${{ matrix.tag }}"
+          flags: "amauats,${{ matrix.tag }}"
           name: ${{ matrix.tag }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
