@@ -8,13 +8,10 @@ import traceback
 import uuid
 
 import django
+import transcoder
 from django.utils import timezone
 
-from . import transcoder
-
 django.setup()
-# dashboard
-# archivematicaCommon
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
@@ -22,12 +19,11 @@ from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from fpr.models import FPRule
+from lib import setup_dicts
 from main.models import Derivation
 from main.models import File
 from main.models import FileFormatVersion
 from main.models import FileID
-
-from .lib import setup_dicts
 
 # Return codes
 SUCCESS = 0
@@ -102,7 +98,7 @@ def check_manual_normalization(job, opts):
     if os.path.isfile(normalization_csv):
         found = False
         # use universal newline mode to support unusual newlines, like \r
-        with open(normalization_csv, "rb") as csv_file:
+        with open(normalization_csv) as csv_file:
             reader = csv.reader(csv_file)
             # Search the file for an original filename that matches the one provided
             try:
@@ -121,7 +117,7 @@ def check_manual_normalization(job, opts):
                         )
                         found = True
                         break
-            except csv.Error:
+            except (ValueError, csv.Error):
                 job.print_error(
                     "Error reading", normalization_csv, " on line", reader.line_num
                 )
@@ -187,7 +183,7 @@ def check_manual_normalization(job, opts):
         # if original is /a/b/abc.NEF then /a/b/abc.tif and /a/b/abc_1.tif will
         # both match but /a/b/abc.tif is the correct match.
         job.print_output(
-            "Multiple files matching path {} found. Returning the shortest one."
+            f"Multiple files matching path {path} found. Returning the shortest one."
         )
         ret = sorted(matches, key=lambda f: f.currentlocation.decode())[0]
         job.print_output(f"Returning file at {ret.currentlocation.decode()}")
