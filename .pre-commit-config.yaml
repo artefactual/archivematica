@@ -16,12 +16,12 @@ repos:
     args: [--fix, --exit-non-zero-on-fix]
   - id: ruff-format
 - repo: https://github.com/adamchainz/django-upgrade
-  rev: "1.16.0"
+  rev: "1.17.0"
   hooks:
   - id: django-upgrade
     args: [--target-version, "4.2"]
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.39.0
+  rev: v0.41.0
   hooks:
   - id: markdownlint
     exclude: |
