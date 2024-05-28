@@ -32,7 +32,6 @@ django.setup()
 # dashboard
 from main.models import FPCommandOutput
 
-
 logger = get_script_logger("archivematica.mcp.client.FITS")
 
 formats = []

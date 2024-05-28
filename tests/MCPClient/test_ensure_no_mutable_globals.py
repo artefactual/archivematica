@@ -11,6 +11,7 @@ creates a dict from said globals to the list of modules::functions/methods that
 access them. If the dict is non-empty, it is printed and an exit code of 1 is
 returned. Otherwise a happy message is printed and 0 is returned.
 """
+
 import importlib
 import logging
 import pathlib

@@ -15,6 +15,7 @@ performed.
 Once the tasks have completed, the workflow is picked up from where it would
 normally for a standard transfer type.
 """
+
 from django.db import migrations
 from main.models import Job
 

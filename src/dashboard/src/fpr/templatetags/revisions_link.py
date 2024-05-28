@@ -2,7 +2,6 @@ import django.template.base as base
 from django import template
 from django.urls import reverse
 
-
 register = template.Library()
 
 

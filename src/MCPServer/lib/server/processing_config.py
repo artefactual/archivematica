@@ -4,6 +4,7 @@ This module lists the processing configuration fields where the user has the
 ability to establish predefined choices via the user interface, and handles
 processing config file operations.
 """
+
 import abc
 import logging
 import os
@@ -11,8 +12,8 @@ import os
 import storageService as storage_service
 from django.conf import settings
 from lxml import etree
-from server.workflow_abilities import choice_is_available
 
+from server.workflow_abilities import choice_is_available
 
 logger = logging.getLogger("archivematica.mcp.server.processing_config")
 

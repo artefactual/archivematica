@@ -142,8 +142,8 @@ def parse(xml_input, *args, **kwargs):
 
 
 if __name__ == "__main__":
-    import sys
     import marshal
+    import sys
 
     (item_depth,) = sys.argv[1:]
     item_depth = int(item_depth)

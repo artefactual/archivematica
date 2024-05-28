@@ -56,9 +56,7 @@ def log_invalid_xsd(path, exception, printfn=print):
 
 def log_invalid_events_xml(path, exception, printfn=print):
     printfn(
-        "Could not validate the events XML file {} using the PREMIS 3 XML schema".format(
-            path
-        ),
+        f"Could not validate the events XML file {path} using the PREMIS 3 XML schema",
         str(exception),
         file=sys.stderr,
     )
@@ -216,9 +214,7 @@ def log_event_id_change(event_id, new_event_id, printfn=print):
 
 def log_event_successfully_created(db_event, printfn=print):
     printfn(
-        "Imported PREMIS {} event and assigned identifier {}".format(
-            db_event.event_type, db_event.event_id
-        )
+        f"Imported PREMIS {db_event.event_type} event and assigned identifier {db_event.event_id}"
     )
 
 
@@ -310,11 +306,7 @@ def get_elements(tree, selector, element_factory, printfn=print):
 def format_identifier_details(identifier, element_type):
     identifier_type = identifier[0]
     identifier_value = identifier[1]
-    return "premis:{element_type}IdentifierType='{identifier_type}' and premis:{element_type}IdentifierValue='{identifier_value}'".format(
-        identifier_type=identifier_type,
-        identifier_value=identifier_value,
-        element_type=element_type,
-    )
+    return f"premis:{element_type}IdentifierType='{identifier_type}' and premis:{element_type}IdentifierValue='{identifier_value}'"
 
 
 def format_identifier(identifier, element_type):

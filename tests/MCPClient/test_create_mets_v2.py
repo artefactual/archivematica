@@ -6,12 +6,12 @@ from client.job import Job
 from create_mets_v2 import createDMDIDsFromCSVMetadata
 from create_mets_v2 import main
 from lxml import etree
+from main.models import SIP
 from main.models import DublinCore
 from main.models import Event
 from main.models import File
 from main.models import MetadataAppliesToType
 from main.models import RightsStatement
-from main.models import SIP
 from main.models import SIPArrange
 from namespaces import NSMAP
 

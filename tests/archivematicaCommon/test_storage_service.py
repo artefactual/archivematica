@@ -2,6 +2,7 @@
 
 Tests for the Archivematica Common Storage Service helpers.
 """
+
 import json
 
 import pytest
@@ -44,9 +45,7 @@ def test_location_desc_from_slug(status_code, content_type, expected_result, moc
         return_value=mock_response(status_code, content_type, expected_result),
     )
     res = location_description_from_slug("mock_uri")
-    assert res == expected_result, "Unexpected result for status test: {}".format(
-        status_code
-    )
+    assert res == expected_result, f"Unexpected result for status test: {status_code}"
 
 
 @pytest.mark.parametrize(

@@ -8,19 +8,20 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from django.utils import timezone
-from main.models import Derivation, File, FileFormatVersion
-from fpr.models import FPRule
-
-# archivematicaCommon
-from dicts import ReplacementDict
-from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 import fileOperations
 
+# archivematicaCommon
+from dicts import ReplacementDict
 from django.conf import settings as mcpclient_settings
-from lib import setup_dicts
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from executeOrRunSubProcess import executeOrRun
+from fpr.models import FPRule
+from lib import setup_dicts
+from main.models import Derivation
+from main.models import File
+from main.models import FileFormatVersion
 
 
 def concurrent_instances():
@@ -124,9 +125,7 @@ def main(job, task_uuid, file_uuid):
 
     if not rules:
         job.print_error(
-            "No rules found for file {} and its derivatives; not transcribing".format(
-                file_uuid
-            )
+            f"No rules found for file {file_uuid} and its derivatives; not transcribing"
         )
         return 0
     else:

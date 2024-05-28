@@ -1,4 +1,5 @@
 """Migration to replace magic links with unit variables."""
+
 from collections import namedtuple
 
 from django.db import migrations

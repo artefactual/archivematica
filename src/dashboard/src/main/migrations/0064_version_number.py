@@ -1,4 +1,5 @@
 """Migrate the Archivematica agent version string to Archivematica-1.8."""
+
 from django.db import migrations
 
 

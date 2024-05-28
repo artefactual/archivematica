@@ -1,6 +1,7 @@
 """Tests for the archivematica_clamscan.py client script."""
-from collections import namedtuple
+
 from collections import OrderedDict
+from collections import namedtuple
 
 import archivematica_clamscan
 import pytest

@@ -537,9 +537,7 @@ def test_copy_metadata_files(
     # Verify the copier helper was called with the right parameters
     _copy_from_transfer_sources_mock.assert_called_once_with(
         ["locationuuid:/some/path"],
-        "more/path/metadataReminder/mysip-{}/{}".format(
-            sip_uuid, expected_metadata_dir
-        ),
+        f"more/path/metadataReminder/mysip-{sip_uuid}/{expected_metadata_dir}",
     )
 
 

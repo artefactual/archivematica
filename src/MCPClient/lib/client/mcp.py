@@ -1,6 +1,7 @@
 """
 Main MCPClient entrypoint.
 """
+
 import logging
 import os
 import pathlib
@@ -8,7 +9,6 @@ import signal
 
 from client import metrics
 from client.pool import WorkerPool
-
 
 logger = logging.getLogger("archivematica.mcp.client")
 

@@ -8,19 +8,18 @@ import django
 import requests
 
 django.setup()
-from django.conf import settings as mcpclient_settings
-from django.db import transaction
-
-# dashboard
-from main import models
-
-# archivematicaCommon
-from custom_handlers import get_script_logger
 import elasticSearchFunctions
 import storageService as storage_service
 from archivematicaFunctions import find_transfer_path_from_ingest
 
+# archivematicaCommon
+from custom_handlers import get_script_logger
+from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
+
+# dashboard
+from main import models
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 

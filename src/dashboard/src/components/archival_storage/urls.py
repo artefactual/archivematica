@@ -19,7 +19,6 @@ from django.conf import settings
 from django.urls import path
 from django.urls import re_path
 
-
 app_name = "archival_storage"
 urlpatterns = [
     re_path(

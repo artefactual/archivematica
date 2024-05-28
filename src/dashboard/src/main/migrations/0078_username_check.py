@@ -17,6 +17,7 @@ at this point:
 The error will not be raised when ``--no-input`` is used, which may be useful
 for users that want to deal with the situation later or ignore it entirely.
 """
+
 import sys
 
 from django.db import migrations

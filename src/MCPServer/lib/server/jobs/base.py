@@ -1,6 +1,7 @@
 """
 A base class for other Job types to inherit from.
 """
+
 import abc
 import logging
 import uuid
@@ -8,7 +9,6 @@ import uuid
 from dbconns import auto_close_old_connections
 from django.utils import timezone
 from main import models
-
 
 logger = logging.getLogger("archivematica.mcp.server.jobs")
 

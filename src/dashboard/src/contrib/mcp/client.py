@@ -22,7 +22,6 @@ from django.utils.translation import get_language
 from gearman_encoder import JSONDataEncoder
 from main.models import Job
 
-
 LOGGER = logging.getLogger("archivematica.dashboard.mcp.client")
 
 

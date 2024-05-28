@@ -4,15 +4,15 @@ import multiprocessing
 from datetime import datetime
 
 import gearman
+from django.conf import settings
+from gearman_encoder import JSONDataEncoder
+
 from client import metrics
 from client.job import Job
 from client.loader import load_job_modules
 from client.utils import parse_command_line
 from client.utils import replace_task_arguments
 from client.worker import run_task
-from django.conf import settings
-from gearman_encoder import JSONDataEncoder
-
 
 logger = logging.getLogger("archivematica.mcp.client.gearman")
 

@@ -24,7 +24,6 @@ from django.urls import path
 from django.urls import re_path
 from django.views.generic import TemplateView
 
-
 app_name = "administration"
 urlpatterns = [
     path("", views.administration, name="administration_index"),

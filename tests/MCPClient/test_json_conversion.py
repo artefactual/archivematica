@@ -4,7 +4,6 @@ import os
 import json_metadata_to_csv
 from client.job import Job
 
-
 JSON = '[{"dc.title": "This is a test item", "filename": "objects/test.txt"}]'
 CSV = "filename,dc.title\nobjects/test.txt,This is a test item\n"
 

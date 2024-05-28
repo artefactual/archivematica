@@ -2,6 +2,7 @@
 """
 pronom-ident.py - Identify a bitstream against PRONOM; uses fido
 """
+
 # https://github.com/anarchivist/fiwalk-dgi/blob/master/python/pronom_ident.py
 # Author  anarchivist
 import os

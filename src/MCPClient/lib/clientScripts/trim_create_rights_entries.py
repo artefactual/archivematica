@@ -30,18 +30,16 @@ from lxml import etree as etree
 django.setup()
 from django.db import transaction
 
-# dashboard
-from main.models import (
-    RightsStatement,
-    RightsStatementOtherRightsInformation,
-    RightsStatementOtherRightsDocumentationIdentifier,
-    RightsStatementRightsGranted,
-    RightsStatementRightsGrantedNote,
-    RightsStatementRightsGrantedRestriction,
-)
-
 # archivematicaCommon
 from fileOperations import getFileUUIDLike
+
+# dashboard
+from main.models import RightsStatement
+from main.models import RightsStatementOtherRightsDocumentationIdentifier
+from main.models import RightsStatementOtherRightsInformation
+from main.models import RightsStatementRightsGranted
+from main.models import RightsStatementRightsGrantedNote
+from main.models import RightsStatementRightsGrantedRestriction
 
 while False:
     import time

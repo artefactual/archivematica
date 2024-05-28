@@ -6,7 +6,6 @@ from collections import namedtuple
 
 from lxml import etree
 
-
 SUCCESS_CODE = 0
 ERROR_CODE = 1
 NS = "{https://mediaarea.net/mediaconch}"

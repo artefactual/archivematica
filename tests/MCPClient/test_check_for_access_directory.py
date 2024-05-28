@@ -2,9 +2,9 @@ import check_for_access_directory
 import pytest
 from client.job import Job
 from django.utils import timezone
+from main.models import SIP
 from main.models import Event
 from main.models import File
-from main.models import SIP
 
 
 @pytest.mark.django_db

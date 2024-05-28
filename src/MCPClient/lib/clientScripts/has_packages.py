@@ -4,7 +4,10 @@ import django
 django.setup()
 # dashboard
 from fpr.models import FPRule
-from main.models import FileFormatVersion, Transfer, File, Event
+from main.models import Event
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import Transfer
 
 
 def is_extractable(f):

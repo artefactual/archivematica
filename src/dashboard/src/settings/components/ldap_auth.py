@@ -108,10 +108,8 @@ if environ.get("AUTH_LDAP_TLS_REQUIRE_CERT", None):
         AUTH_LDAP_GLOBAL_OPTIONS[ldap.OPT_X_TLS_REQUIRE_CERT] = ldap.OPT_X_TLS_HARD
     else:
         raise ImproperlyConfigured(
-            (
-                "Unexpected value for AUTH_LDAP_TLS_REQUIRE_CERT: {}. "
-                "Supported values: 'never', 'allow', try', 'hard', or 'demand'."
-            ).format(require_cert)
+            f"Unexpected value for AUTH_LDAP_TLS_REQUIRE_CERT: {require_cert}. "
+            "Supported values: 'never', 'allow', try', 'hard', or 'demand'."
         )
 
 # Non-configurable sane defaults

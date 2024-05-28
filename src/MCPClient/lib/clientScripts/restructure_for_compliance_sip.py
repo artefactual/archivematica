@@ -8,12 +8,12 @@ import django
 # fileOperations requires Django to be set up
 
 django.setup()
-from django.db import transaction
-
 # archivematicaCommon
 import archivematicaFunctions
-from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 import fileOperations
+from archivematicaFunctions import OPTIONAL_FILES
+from archivematicaFunctions import REQUIRED_DIRECTORIES
+from django.db import transaction
 
 
 def restructureForComplianceFileUUIDsAssigned(

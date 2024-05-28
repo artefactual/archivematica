@@ -6,6 +6,7 @@ removed" event in the database. Command line required arguments are the path to
 the file and its UUID. There is a default list of file names that are deleted;
 however, this can be overridden in MCPClient/clientConfig.conf s
 """
+
 import os
 import shutil
 
@@ -17,7 +18,6 @@ from django.db import transaction
 django.setup()
 # archivematicaCommon
 from databaseFunctions import fileWasRemoved
-
 from django.conf import settings as mcpclient_settings
 
 
@@ -25,11 +25,7 @@ def remove_file(job, target_file, file_uuid):
     removableFiles = {e.strip() for e in mcpclient_settings.REMOVABLE_FILES.split(",")}
     basename = os.path.basename(target_file)
     if basename in removableFiles:
-        job.print_output(
-            "Removing {filename} (UUID: {uuid})".format(
-                uuid=file_uuid, filename=basename
-            )
-        )
+        job.print_output(f"Removing {basename} (UUID: {file_uuid})")
         try:
             os.remove(target_file)
         except OSError:

@@ -1,4 +1,5 @@
 """Package management."""
+
 import abc
 import ast
 import collections
@@ -15,6 +16,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from main import models
+
 from server.jobs import JobChain
 from server.processing_config import processing_configuration_file_exists
 from server.utils import uuid_from_path
@@ -487,12 +489,7 @@ class LocationPath:
             self.path = parts[2]
 
     def __repr__(self):
-        return "{} (uuid={!r}, sep={!r}, path={!r})".format(
-            self.__class__,
-            self.uuid,
-            self.sep,
-            self.path,
-        )
+        return f"{self.__class__} (uuid={self.uuid!r}, sep={self.sep!r}, path={self.path!r})"
 
     def parts(self):
         return self.uuid, self.path
@@ -541,11 +538,7 @@ class Package(metaclass=abc.ABCMeta):
         self.uuid = uuid
 
     def __repr__(self):
-        return '{class_name}("{current_path}", {uuid})'.format(
-            class_name=self.__class__.__name__,
-            uuid=self.uuid,
-            current_path=self.current_path,
-        )
+        return f'{self.__class__.__name__}("{self.current_path}", {self.uuid})'
 
     @classmethod
     @auto_close_old_connections()

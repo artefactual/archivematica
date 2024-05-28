@@ -20,7 +20,6 @@ import os
 from archivematicaFunctions import b64encode_string
 from components import helpers
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 

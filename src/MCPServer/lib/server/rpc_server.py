@@ -6,6 +6,7 @@ TODO(sevein): methods with `raise_exc` enabled should be updated so they don't
 need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
 """
+
 import calendar
 import configparser
 import inspect
@@ -23,13 +24,13 @@ from django.db import connection
 from gearman import GearmanWorker
 from gearman_encoder import JSONDataEncoder
 from lxml import etree
-from main.models import Job
 from main.models import SIP
+from main.models import Job
 from main.models import Transfer
+
 from server.packages import create_package
 from server.packages import get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
-
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
 
@@ -309,7 +310,7 @@ class RPCServer(GearmanWorker):
         if not job:  # No job to be found.
             raise NotFoundError(
                 'There is no "Reingest AIP" job awaiting a'
-                " decision for SIP {}".format(sip_uuid)
+                f" decision for SIP {sip_uuid}"
             )
         not_found = NotFoundError("Could not find choice for approve AIP reingest")
         try:

@@ -1,6 +1,5 @@
 from django.db import migrations
 
-
 OLD_FITS_CMD_UUID = "0b0d301f-b586-45d5-ba35-d76da57ce32a"
 NEW_FITS_CMD_UUID = "1a0394dc-528b-4a03-8c2b-1c158f1fb313"
 OLD_FITS_RULE_UUID = "296a131d-ce70-45ae-b800-6c71b3ea46f0"

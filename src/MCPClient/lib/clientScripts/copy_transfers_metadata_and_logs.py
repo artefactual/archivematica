@@ -24,10 +24,10 @@ import django
 
 django.setup()
 
-from bag import is_bag
-from main.models import File, SIP
-
 from archivematicaFunctions import find_transfer_path_from_ingest
+from bag import is_bag
+from main.models import SIP
+from main.models import File
 
 
 def main(

@@ -863,8 +863,8 @@ class TestCustomStructMap(TempDirMixin, TestCase):
         assert (
             self.state.fileNameToFileID is not None
         ), "fileNameToFileID mapping hasn't been generated"
-        assert self.count_dir_objects(self.objects_dir) == len(
-            self.state.fileNameToFileID
+        assert (
+            self.count_dir_objects(self.objects_dir) == len(self.state.fileNameToFileID)
         ), "State hasn't been generated for all objects on disk, duplicate names may not be counted for"
 
     def test_get_included_structmap_invalid_mets(self):
@@ -884,9 +884,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
         try:
             self.validate_mets(self.mets_xsd_path, broken_structmap_path)
         except etree.DocumentInvalid:
-            assert (
-                True
-            ), "Expecting a validation error so that we know validation is working correctly"
+            assert True, "Expecting a validation error so that we know validation is working correctly"
 
     def test_get_included_structmap_valid_mets(self):
         """Test the valid output of custom structmaps in create_mets_v2."""
@@ -964,8 +962,9 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             self.validate_mets(self.mets_xsd_path, custom_structmap)
             assert custom_structmap.tag == f"{{{ns.metsNS}}}structMap"
             if not res.structmap_id:
-                assert custom_structmap.attrib["ID"].lower() == "structmap_{}".format(
-                    self.state.globalStructMapCounter
+                assert (
+                    custom_structmap.attrib["ID"].lower()
+                    == f"structmap_{self.state.globalStructMapCounter}"
                 ), "structmap id is incorrect"
             else:
                 assert (
@@ -1017,9 +1016,7 @@ class TestCustomStructMap(TempDirMixin, TestCase):
             )
             assert (
                 custom_structmap == []
-            ), "Return from include_custom_structmap should be an empty array: {}".format(
-                custom_structmap
-            )
+            ), f"Return from include_custom_structmap should be an empty array: {custom_structmap}"
             assert (
                 self.state.error_accumulator.error_count == 1
             ), "error counter should be incremented on error"

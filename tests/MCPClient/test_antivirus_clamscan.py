@@ -1,4 +1,5 @@
 """Tests for the archivematica_clamscan.py client script."""
+
 import subprocess
 
 import archivematica_clamscan

@@ -1,4 +1,5 @@
 """MySQL specific indexes for Files."""
+
 from django.db import migrations
 
 

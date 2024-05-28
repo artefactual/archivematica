@@ -13,10 +13,10 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.template import Context
 from django.template import Template
+from main.models import SIP
 from main.models import File
 from main.models import Job
 from main.models import Report
-from main.models import SIP
 from main.models import Task
 
 django.setup()

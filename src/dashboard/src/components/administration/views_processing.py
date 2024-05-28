@@ -29,7 +29,6 @@ from processing import install_builtin_config
 
 from .forms import ProcessingConfigurationForm
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 

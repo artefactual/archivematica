@@ -7,6 +7,7 @@ want to remove in future; however, currently they are used extensively in all
 workflows, as many chains start the next chain by moving a transfer or SIP t
 the appropriate watched directory.
 """
+
 import logging
 import os
 import sys
@@ -14,9 +15,8 @@ import time
 import warnings
 
 from django.conf import settings
-from inotify_simple import flags
 from inotify_simple import INotify
-
+from inotify_simple import flags
 
 IS_LINUX = sys.platform.startswith("linux")
 WATCHED_BASE_DIR = os.path.abspath(settings.WATCH_DIRECTORY)

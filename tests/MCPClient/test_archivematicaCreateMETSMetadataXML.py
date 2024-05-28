@@ -4,6 +4,7 @@ Tests for XML metadata management on the METS creation process:
 
 archivematicaCreateMETSMetadataXML.process_xml_metadata()
 """
+
 from pathlib import Path
 from uuid import uuid4
 
@@ -13,9 +14,8 @@ import requests
 from archivematicaCreateMETSMetadataXML import process_xml_metadata
 from importlib_metadata import version
 from lxml.etree import parse
-from main.models import File
 from main.models import SIP
-
+from main.models import File
 
 METADATA_DIR = Path("objects") / "metadata"
 TRANSFER_METADATA_DIR = METADATA_DIR / "transfers" / "transfer_a"
@@ -277,9 +277,7 @@ def test_validation(
     schema_uri = str(make_schema_file(schema))
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": schema_uri}
-    source_metadata_csv_contents = "filename,metadata,type\nobjects,{},mdtype".format(
-        xml_file
-    )
+    source_metadata_csv_contents = f"filename,metadata,type\nobjects,{xml_file},mdtype"
     metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / xml_file
@@ -407,9 +405,7 @@ def test_source_metadata_errors(settings, make_mock_mets, sip):
         mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
     )
     assert (
-        "More than one entry in {} for path objects and type mdtype".format(
-            metadata_csv_path
-        )
+        f"More than one entry in {metadata_csv_path} for path objects and type mdtype"
         in errors[0]
     )
 

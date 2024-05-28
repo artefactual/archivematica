@@ -345,7 +345,7 @@ def getrightsGranted(job, statement, parent, state):
         restriction = "Undefined"
         for restriction in granted.restrictions.all():
             restriction = restriction.restriction
-            if not restriction.lower() in ["disallow", "conditional", "allow"]:
+            if restriction.lower() not in ["disallow", "conditional", "allow"]:
                 job.pyprint(
                     "The value of element restriction must be: 'Allow', 'Disallow', or 'Conditional':",
                     restriction,

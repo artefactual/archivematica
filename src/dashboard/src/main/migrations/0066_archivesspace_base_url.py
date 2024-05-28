@@ -2,6 +2,7 @@
 
 ``host`` and `port`` are replaced by ``base_url``.
 """
+
 import sys
 from urllib.parse import urlparse
 

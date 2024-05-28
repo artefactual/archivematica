@@ -1,4 +1,5 @@
 """Settings for basic user authentication."""
+
 from settings.base import config
 
 AUTH_PASSWORD_VALIDATORS = [

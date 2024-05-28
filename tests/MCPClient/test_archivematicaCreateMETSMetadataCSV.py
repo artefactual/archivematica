@@ -2,6 +2,7 @@
 """
 Tests for CSV metadata management on the METS creation process
 """
+
 from archivematicaCreateMETSMetadataCSV import parseMetadataCSV
 
 content_when_value_has_empty_strings = """

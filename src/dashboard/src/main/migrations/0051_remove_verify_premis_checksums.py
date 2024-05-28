@@ -2,6 +2,7 @@
 micro-service which is redundant. See
 https://github.com/artefactual/archivematica/issues/918.
 """
+
 from django.db import migrations
 
 

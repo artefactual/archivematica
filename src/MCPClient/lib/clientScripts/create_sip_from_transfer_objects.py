@@ -23,14 +23,18 @@ import uuid
 import django
 
 django.setup()
-from django.db import transaction
-
-# dashboard
-from main.models import File, Directory, SIP, Transfer, UnitVariable, Agent
-
 # archivematicaCommon
 import archivematicaFunctions
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from main.models import SIP
+from main.models import Agent
+from main.models import Directory
+
+# dashboard
+from main.models import File
+from main.models import Transfer
+from main.models import UnitVariable
 
 
 def call(jobs):

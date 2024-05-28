@@ -9,10 +9,10 @@ import pytest
 from components import helpers
 from django.utils.timezone import make_aware
 from lxml import etree
+from main.models import SIP
 from main.models import Directory
 from main.models import File
 from main.models import Identifier
-from main.models import SIP
 from main.models import Transfer
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -424,17 +424,13 @@ def test_index_mets_file_metadata(bulk, get_dashboard_uuid, es_client):
         "rights.csv",
     )
     for filename in files_in_metadata_directory:
-        path = "objects/metadata/transfers/DemoTransfer-{}/{}".format(
-            mets_object_id, filename
-        )
+        path = f"objects/metadata/transfers/DemoTransfer-{mets_object_id}/{filename}"
         assert indexed_data[path] is None
 
     # Neither will the generated files during the transfer process
     generated_files = ("dc.json", "directory_tree.txt")
     for filename in generated_files:
-        path = "objects/metadata/transfers/DemoTransfer-{}/{}".format(
-            mets_object_id, filename
-        )
+        path = f"objects/metadata/transfers/DemoTransfer-{mets_object_id}/{filename}"
         assert indexed_data[path] is None
 
 

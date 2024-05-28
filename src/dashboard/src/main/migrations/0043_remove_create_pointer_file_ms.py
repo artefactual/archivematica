@@ -1,4 +1,5 @@
 """Migration to remove the "Create AIP Pointer File" micro-service."""
+
 from django.db import migrations
 
 

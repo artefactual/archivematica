@@ -14,6 +14,7 @@ Arguments:
     [FILE_PATH] [FILE_UUID] [SIP_UUID] [SHARED_PATH] [FILE_TYPE]
 
 """
+
 import ast
 import os
 import sys
@@ -24,17 +25,17 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 django.setup()
-from fpr.models import FPRule, FormatVersion
-from main.models import Derivation, File, SIP
-
-from custom_handlers import get_script_logger
 import databaseFunctions
-from executeOrRunSubProcess import executeOrRun
+from custom_handlers import get_script_logger
 from dicts import replace_string_values
-
 from django.conf import settings as mcpclient_settings
+from executeOrRunSubProcess import executeOrRun
+from fpr.models import FormatVersion
+from fpr.models import FPRule
 from lib import setup_dicts
-
+from main.models import SIP
+from main.models import Derivation
+from main.models import File
 
 SUCCESS_CODE = 0
 FAIL_CODE = 1
@@ -87,9 +88,7 @@ class Validator:
         """
         if self.file_type in DERIVATIVE_TYPES and not self._file_is_derivative():
             self.job.print_output(
-                "File {uuid} {not_derivative_msg}; not validating.".format(
-                    uuid=self.file_uuid, not_derivative_msg=self._not_derivative_msg()
-                )
+                f"File {self.file_uuid} {self._not_derivative_msg()}; not validating."
             )
             return NOT_DERIVATIVE_CODE
         rules = self._get_rules()
@@ -143,12 +142,8 @@ class Validator:
         )
         if exitstatus != 0:
             self.job.print_error(
-                "Command {description} failed with exit status {status};"
-                " stderr: {stderr}".format(
-                    description=rule.command.description,
-                    status=exitstatus,
-                    stderr=stderr,
-                )
+                f"Command {rule.command.description} failed with exit status {exitstatus};"
+                f" stderr: {stderr}"
             )
             return "failed"
         # Parse output and generate an Event
@@ -156,8 +151,8 @@ class Validator:
         # insecure practice; should be JSON.
         output = ast.literal_eval(stdout)
         event_detail = (
-            'program="{tool.description}";'
-            ' version="{tool.version}"'.format(tool=rule.command.tool)
+            f'program="{rule.command.tool.description}";'
+            f' version="{rule.command.tool.version}"'
         )
         # If the FPR command has not errored but the actual validation
         # determined that the file is not valid, then we want to both create a
@@ -176,19 +171,15 @@ class Validator:
             )
         else:
             self.job.pyprint(
-                "Command {cmd_description} indicated failure with this"
-                " output:\n\n{output}".format(
-                    cmd_description=rule.command.description, output=pformat(stdout)
-                ),
+                f"Command {rule.command.description} indicated failure with this"
+                f" output:\n\n{pformat(stdout)}",
                 file=sys.stderr,
             )
             result = "failed"
         if self.file_type == "preservation":
             self._save_stdout_to_logs_dir(output)
         self.job.print_output(
-            "Creating {purpose} event for {file_path} ({file_uuid})".format(
-                purpose=self.purpose, file_path=self.file_path, file_uuid=self.file_uuid
-            )
+            f"Creating {self.purpose} event for {self.file_path} ({self.file_uuid})"
         )
         databaseFunctions.insertIntoEvents(
             fileUUID=self.file_uuid,
@@ -268,7 +259,7 @@ class Validator:
         except (SIP.DoesNotExist, SIP.MultipleObjectsReturned, ValidationError):
             self.job.print_error(
                 "Warning: unable to retrieve SIP model corresponding to SIP"
-                " UUID {}".format(self.sip_uuid)
+                f" UUID {self.sip_uuid}"
             )
             return None
         else:
@@ -281,7 +272,7 @@ class Validator:
                 return logs_dir
             self.job.print_error(
                 "Warning: unable to find a logs/ directory in the SIP"
-                " with UUID {}".format(self.sip_uuid)
+                f" with UUID {self.sip_uuid}"
             )
             return None
 

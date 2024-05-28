@@ -26,16 +26,15 @@ from django.db import transaction
 
 django.setup()
 
-from main.models import File, FileFormatVersion
-
+import metsrw
+import parse_mets_to_db
 from archivematicaFunctions import find_mets_file
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoDerivations
-from fileOperations import get_size_and_checksum, updateSizeAndChecksum
-
-import metsrw
-
-import parse_mets_to_db
+from fileOperations import get_size_and_checksum
+from fileOperations import updateSizeAndChecksum
+from main.models import File
+from main.models import FileFormatVersion
 
 logger = get_script_logger("archivematica.mcp.client.updateSizeAndChecksum")
 

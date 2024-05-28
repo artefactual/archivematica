@@ -23,7 +23,6 @@ from main.models import Transfer
 from metsrw.plugins.premisrw import PREMIS_3_0_NAMESPACES
 from version import get_preservation_system_identifier
 
-
 PREMIS_NAMESPACES = PREMIS_3_0_NAMESPACES
 
 
@@ -779,9 +778,7 @@ def test_transfer_mets_includes_other_rights(
     other_rights_note_db_obj = (
         other_rights_db_obj.rightsstatementotherrightsinformationnote_set.first()
     )
-    doc_identifier_db_obj = (
-        other_rights_db_obj.rightsstatementotherrightsdocumentationidentifier_set.first()
-    )
+    doc_identifier_db_obj = other_rights_db_obj.rightsstatementotherrightsdocumentationidentifier_set.first()
 
     other_rights_info = mets_xml.find(
         ".//premis:otherRightsInformation", namespaces=PREMIS_NAMESPACES

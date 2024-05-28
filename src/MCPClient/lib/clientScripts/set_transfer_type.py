@@ -19,14 +19,12 @@ import django
 
 django.setup()
 # dashboard
-from main.models import Transfer
+from client import metrics
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
 from django.db import transaction
-
-from client import metrics
-
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.setTransferType")
 

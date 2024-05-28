@@ -62,9 +62,7 @@ def sync_es_transfer_status_with_storage_service(uuid, pending_deletion):
 
     if api_results in AMCLIENT_ERROR_CODES:
         logger.warning(
-            "Package {} not found in Storage Service. AMClient error code: {}".format(
-                uuid, api_results
-            )
+            f"Package {uuid} not found in Storage Service. AMClient error code: {api_results}"
         )
         return keep_in_results
 

@@ -31,6 +31,7 @@ cur, tmp, and the subfolders, which are hidden directories with names like
 [mbox_filename] will be newly created, as well as a [mbox_filename].sbd the
 directory.
 """
+
 import email
 import mailbox
 import os

@@ -2,7 +2,6 @@ import os
 
 from django.db import migrations
 
-
 HERE = os.path.dirname(os.path.abspath(__file__))
 MIGR_DATA = os.path.join(os.path.dirname(HERE), "migrations-data")
 VALIDATE_CMD_FNM = os.path.join(MIGR_DATA, "mc_validate_cmd.py")

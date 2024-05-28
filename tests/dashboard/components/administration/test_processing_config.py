@@ -68,7 +68,7 @@ class TestProcessingConfig(TestCase):
     )
     @mock.patch(
         "components.administration.forms.ProcessingConfigurationForm.load_config",
-        side_effect=IOError(),
+        side_effect=OSError(),
     )
     def test_edit_not_found_config(self, mock_load_config, mock_conf_fields):
         response = self.client.get("/administration/processing/edit/not_found_config/")

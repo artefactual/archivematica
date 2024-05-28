@@ -1,6 +1,7 @@
 """
 Exposes various metrics via Prometheus.
 """
+
 import configparser
 import datetime
 import functools
@@ -9,28 +10,23 @@ import django
 
 django.setup()
 
+from common_metrics import PACKAGE_FILE_COUNT_BUCKETS
+from common_metrics import PACKAGE_SIZE_BUCKETS
+from common_metrics import PROCESSING_TIME_BUCKETS
+from common_metrics import TASK_DURATION_BUCKETS
 from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
-from prometheus_client import (
-    CollectorRegistry,
-    Counter,
-    Gauge,
-    Histogram,
-    multiprocess,
-    start_http_server,
-)
-
 from fpr.models import FormatVersion
-from main.models import File, FileFormatVersion, Transfer
-
-from common_metrics import (
-    PACKAGE_FILE_COUNT_BUCKETS,
-    PACKAGE_SIZE_BUCKETS,
-    PROCESSING_TIME_BUCKETS,
-    TASK_DURATION_BUCKETS,
-)
-
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import Transfer
+from prometheus_client import CollectorRegistry
+from prometheus_client import Counter
+from prometheus_client import Gauge
+from prometheus_client import Histogram
+from prometheus_client import multiprocess
+from prometheus_client import start_http_server
 
 job_counter = Counter(
     "mcpclient_job_total",

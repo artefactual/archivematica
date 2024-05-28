@@ -20,29 +20,21 @@ def mets_file(src):
         if amd.mets_techMD is None:
             continue
 
-        file_uuid = (
-            amd.mets_techMD.mets_mdWrap.mets_xmlData.premis_object.premis_objectIdentifier.premis_objectIdentifierValue
-        )
+        file_uuid = amd.mets_techMD.mets_mdWrap.mets_xmlData.premis_object.premis_objectIdentifier.premis_objectIdentifierValue
         if amd.mets_rightsMD:
             for rights in amd.mets_rightsMD:
                 # print "found rightsMD: {}".format(rights['ID'])
-                if (
-                    rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted
-                ):
-                    for (
-                        granted
-                    ) in (
-                        rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted
-                    ):
+                if rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
+                    for granted in rights.mets_mdWrap.mets_xmlData.premis_rightsStatement.premis_rightsGranted:
                         act = granted.premis_act
                         # note = granted.premis_rightsGrantedNote
                         # print "found {} has {} with {}".format(file_uuid, act, note)
-                        mets[file_uuid]["premis"][act][
-                            "restriction"
-                        ] = granted.premis_restriction
-                        mets[file_uuid]["premis"][act][
-                            "rightsGrantedNote"
-                        ] = granted.premis_rightsGrantedNote
+                        mets[file_uuid]["premis"][act]["restriction"] = (
+                            granted.premis_restriction
+                        )
+                        mets[file_uuid]["premis"][act]["rightsGrantedNote"] = (
+                            granted.premis_rightsGrantedNote
+                        )
 
     return mets
 

@@ -1,4 +1,5 @@
 """A MySQL specific index for UnitVariables."""
+
 from django.db import migrations
 
 

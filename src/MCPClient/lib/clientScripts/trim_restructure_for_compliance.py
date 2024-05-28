@@ -22,12 +22,11 @@ import django
 # fileOperations requires Django to be set up
 
 django.setup()
-from django.db import transaction
-
 # archivematicaCommon
 import archivematicaFunctions
-from archivematicaFunctions import REQUIRED_DIRECTORIES
 import fileOperations
+from archivematicaFunctions import REQUIRED_DIRECTORIES
+from django.db import transaction
 
 
 def restructureTRIMForComplianceFileUUIDsAssigned(

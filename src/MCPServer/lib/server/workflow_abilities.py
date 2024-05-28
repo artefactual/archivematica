@@ -2,8 +2,8 @@
 dependencies across Archivematica components (i.e., dashboard, MCPServer, and
 MCPClient).
 """
-from django.conf import settings
 
+from django.conf import settings
 
 ABILITIES = (
     # The (elastic)search Transfers indexes must be enabled for the transfers

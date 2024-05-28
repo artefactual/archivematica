@@ -30,6 +30,7 @@ all packages that completed processing regardless their age. This form is
 generally not recommended because it can affect SIPs being created from
 recently purged transfers.
 """
+
 import logging
 import traceback
 
@@ -152,9 +153,7 @@ class Command(DashboardCommand):
             package_id = transfer.pk
             if not options["quiet"]:
                 self.warning(
-                    "» Transfer {} with status {}".format(
-                        package_id, transfer.status_str
-                    )
+                    f"» Transfer {package_id} with status {transfer.status_str}"
                 )
             if options["dry_run"]:
                 continue

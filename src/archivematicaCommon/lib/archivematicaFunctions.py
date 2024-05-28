@@ -17,6 +17,7 @@
 """archivematicaFunctions provides various helper functions across the
 different Archivematica modules.
 """
+
 import base64
 import collections
 import errno
@@ -376,23 +377,21 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
         if logger:
             logger.info(
                 "Unable to construct empty directories, either because"
-                " there is no METS file at {} or because there is no"
-                " objects/ directory at {}".format(mets_file_path, objects_path)
+                f" there is no METS file at {mets_file_path} or because there is no"
+                f" objects/ directory at {objects_path}"
             )
         return
     doc = etree.parse(mets_file_path, etree.XMLParser(remove_blank_text=True))
     logical_struct_map_el = doc.find(
-        'mets:structMap[@TYPE="logical"][@LABEL="{}"]'.format(
-            NORMATIVE_STRUCTMAP_LABEL
-        ),
+        f'mets:structMap[@TYPE="logical"][@LABEL="{NORMATIVE_STRUCTMAP_LABEL}"]',
         NSMAP,
     )
     if logical_struct_map_el is None:
         if logger:
             logger.info(
-                "Unable to locate a logical structMap labelled {}."
+                f"Unable to locate a logical structMap labelled {NORMATIVE_STRUCTMAP_LABEL}."
                 " Aborting attempt to reconstruct empty"
-                " directories.".format(NORMATIVE_STRUCTMAP_LABEL)
+                " directories."
             )
         return
     root_div_el = logical_struct_map_el.find(
@@ -401,9 +400,9 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
     if root_div_el is None:
         if logger:
             logger.info(
-                "Unable to locate a logical structMap labelled {}."
+                f"Unable to locate a logical structMap labelled {NORMATIVE_STRUCTMAP_LABEL}."
                 " Aborting attempt to reconstruct empty"
-                " directories.".format(NORMATIVE_STRUCTMAP_LABEL)
+                " directories."
             )
         return
     paths = div_el_to_dir_paths(root_div_el, include=False)

@@ -3,6 +3,7 @@ choose to generate thumbnails (the previous default), skip generating thumbnails
 entirely, or to only generate thumbnails if there is an active FPRule for the
 given file type.
 """
+
 from dateutil.parser import parse as parse_date
 from django.db import migrations
 from django.db.models import F

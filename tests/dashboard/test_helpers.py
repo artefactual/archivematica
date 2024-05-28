@@ -33,9 +33,7 @@ def mets_hdr():
 
 def setup_ptr_info(sip_uuid):
     pointer_url = (
-        "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
-            sip_uuid
-        )
+        f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
     pointer_file = f"pointer.{sip_uuid}.xml"
     content_disposition = f'attachment; filename="{pointer_file}"'
@@ -109,9 +107,7 @@ def test_stream_mets_from_storage_success(mocker, mets_hdr, tmpdir):
         transfer_name="mets_transfer", sip_uuid=sip_uuid
     )
     assert response.get(CONTENT_TYPE) == CONTENT_XML
-    assert response.get(CONTENT_DISPOSITION) == "attachment; filename={};".format(
-        mets_file
-    )
+    assert response.get(CONTENT_DISPOSITION) == f"attachment; filename={mets_file};"
     response_text = get_streaming_response(response.streaming_content)
     assert response_text == mets_hdr
 
