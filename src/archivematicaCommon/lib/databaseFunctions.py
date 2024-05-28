@@ -19,12 +19,12 @@ import sys
 import uuid
 
 from django.utils import timezone
+from main.models import SIP
 from main.models import Agent
 from main.models import Derivation
 from main.models import Event
 from main.models import File
 from main.models import FPCommandOutput
-from main.models import SIP
 
 LOGGER = logging.getLogger("archivematica.common")
 

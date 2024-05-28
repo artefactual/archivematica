@@ -4,7 +4,6 @@ import os
 import shutil
 import tempfile
 
-
 # http://docs.gunicorn.org/en/stable/settings.html#user
 user = os.environ.get("AM_GUNICORN_USER", "archivematica")
 

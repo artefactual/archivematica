@@ -20,7 +20,6 @@ import re
 
 from main import models
 
-
 config = {}
 
 

@@ -34,16 +34,13 @@ from archivematicaFunctions import get_dashboard_uuid
 from countryCodes import getCodeForCountry
 
 # dashboard
-from main.models import (
-    Agent,
-    Derivation,
-    Directory,
-    File,
-    FPCommandOutput,
-    RightsStatement,
-    Transfer,
-)
-
+from main.models import Agent
+from main.models import Derivation
+from main.models import Directory
+from main.models import File
+from main.models import FPCommandOutput
+from main.models import RightsStatement
+from main.models import Transfer
 
 PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
 FILE_PREMIS_META = PREMIS_META.copy()

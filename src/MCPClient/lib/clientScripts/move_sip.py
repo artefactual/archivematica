@@ -24,11 +24,11 @@ import django
 django.setup()
 from django.db import transaction
 
-# dashboard
-from main.models import SIP
-
 # archivematicaCommon
 from fileOperations import rename
+
+# dashboard
+from main.models import SIP
 
 
 def updateDB(dst, sip_uuid):

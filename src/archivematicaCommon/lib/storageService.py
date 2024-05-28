@@ -463,9 +463,7 @@ def download_file_url(file_uuid):
     """
     storage_service_url = _storage_service_url()
     params = _storage_api_params()
-    download_url = "{base_url}file/{uuid}/download/?{params}".format(
-        base_url=storage_service_url, uuid=file_uuid, params=params
-    )
+    download_url = f"{storage_service_url}file/{file_uuid}/download/?{params}"
     return download_url
 
 
@@ -475,12 +473,7 @@ def extract_file_url(file_uuid, relative_path):
     """
     storage_service_url = _storage_service_url()
     api_params = _storage_api_params()
-    download_url = "{base_url}file/{uuid}/extract_file/?relative_path_to_file={path}&{params}".format(
-        base_url=storage_service_url,
-        uuid=file_uuid,
-        path=relative_path,
-        params=api_params,
-    )
+    download_url = f"{storage_service_url}file/{file_uuid}/extract_file/?relative_path_to_file={relative_path}&{api_params}"
     return download_url
 
 
@@ -503,9 +496,7 @@ def pointer_file_url(file_uuid):
     """
     storage_service_url = _storage_service_url()
     params = _storage_api_params()
-    download_url = "{base_url}file/{uuid}/pointer_file/?{params}".format(
-        base_url=storage_service_url, uuid=file_uuid, params=params
-    )
+    download_url = f"{storage_service_url}file/{file_uuid}/pointer_file/?{params}"
     return download_url
 
 
@@ -676,8 +667,6 @@ def retrieve_storage_location_description(aip_location_slug, logger=None):
         location_description = response.get(KEY_PATH, "")
     if logger:
         logger.info(
-            "Storage location retrieved: {} ({})".format(
-                location_description, aip_location_slug
-            )
+            f"Storage location retrieved: {location_description} ({aip_location_slug})"
         )
     return location_description

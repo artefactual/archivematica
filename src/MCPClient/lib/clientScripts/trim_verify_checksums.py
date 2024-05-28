@@ -25,12 +25,12 @@ from lxml import etree as etree
 # fileOperations, databaseFunctions requires Django to be set up
 
 django.setup()
-from django.db import transaction
+import databaseFunctions
 
 # archivematicaCommon
 from archivematicaFunctions import get_file_checksum
+from django.db import transaction
 from fileOperations import getFileUUIDLike
-import databaseFunctions
 
 
 def call(jobs):

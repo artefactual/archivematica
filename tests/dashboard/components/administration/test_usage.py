@@ -6,7 +6,6 @@ from components import helpers
 from django.conf import settings
 from django.test import TestCase
 
-
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
 )

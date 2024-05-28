@@ -26,6 +26,7 @@ us to easily call each of the tools packaged against its different algorithms:
     * SHA256
     * SHA512
 """
+
 import datetime
 import os
 import subprocess
@@ -36,10 +37,10 @@ import django
 from django.db import transaction
 
 django.setup()
-from main.models import Event, File, Transfer
-
 from custom_handlers import get_script_logger
-
+from main.models import Event
+from main.models import File
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.verify_checksum")
 
@@ -111,8 +112,8 @@ class Hashsum:
         if lines == objects:
             return True
         self.job.pyprint(
-            "{}: Comparison failed with {} checksum lines and {} "
-            "transfer files".format(self.get_ext(self.hashfile), lines, objects),
+            f"{self.get_ext(self.hashfile)}: Comparison failed with {lines} checksum lines and {objects} "
+            "transfer files",
             file=sys.stderr,
         )
         return False
@@ -127,9 +128,7 @@ class Hashsum:
             return 0
         except subprocess.CalledProcessError as err:
             if self.EXIT_NON_ZERO in str(err):
-                warn = "{}: comparison exited with status: {}. Please check the formatting of the checksums or integrity of the files.".format(
-                    self.get_ext(self.hashfile), err.returncode
-                )
+                warn = f"{self.get_ext(self.hashfile)}: comparison exited with status: {err.returncode}. Please check the formatting of the checksums or integrity of the files."
                 self.job.pyprint(warn, file=sys.stderr)
             for line in self._decode(err.output):
                 if not line:
@@ -209,9 +208,7 @@ def get_file_queryset(transfer_uuid):
         **{"removedtime__isnull": True, "transfer_id": transfer_uuid}
     )
     if not file_objs_queryset.exists():
-        err_str = "Unable to find the transfer objects for the SIP: '{}' in the database".format(
-            transfer_uuid
-        )
+        err_str = f"Unable to find the transfer objects for the SIP: '{transfer_uuid}' in the database"
         raise PREMISFailure(err_str)
     return file_objs_queryset
 
@@ -266,16 +263,12 @@ def run_hashsum_commands(job):
                 hashsum = Hashsum(hashfilepath, job)
             except NoHashCommandAvailable:
                 job.pyprint(
-                    "Nothing to do for {}. No command available.".format(
-                        Hashsum.get_ext(hashfilepath)
-                    )
+                    f"Nothing to do for {Hashsum.get_ext(hashfilepath)}. No command available."
                 )
                 continue
         if hashsum:
             job.pyprint(
-                "Comparing transfer checksums with the supplied {} file".format(
-                    Hashsum.get_ext(hashfilepath)
-                ),
+                f"Comparing transfer checksums with the supplied {Hashsum.get_ext(hashfilepath)} file",
                 file=sys.stderr,
             )
             result = hashsum.compare_hashes(transfer_dir=transfer_dir)

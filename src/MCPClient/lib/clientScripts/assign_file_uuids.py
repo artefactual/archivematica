@@ -27,6 +27,7 @@ Salient parameters are the UUID of the containing unit (Transfer or SIP), the
 path to the SIP directory, and the subdirectory being targeted if any.
 
 """
+
 import argparse
 import os
 import uuid
@@ -36,16 +37,17 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from main.models import File, Transfer
-
-# archivematicaCommon
-from archivematicaFunctions import chunk_iterable, find_mets_file
-from custom_handlers import get_script_logger
-from fileOperations import addFileToTransfer
-from fileOperations import addFileToSIP
-
 import metsrw
 import namespaces as ns
+
+# archivematicaCommon
+from archivematicaFunctions import chunk_iterable
+from archivematicaFunctions import find_mets_file
+from custom_handlers import get_script_logger
+from fileOperations import addFileToSIP
+from fileOperations import addFileToTransfer
+from main.models import File
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
 
@@ -266,9 +268,7 @@ def call(jobs):
                 job.print_error(f"METS file not found: {err}")
             if mets_file:
                 job.print_output(
-                    "Reading METS file {} for reingested file information.".format(
-                        mets_file
-                    )
+                    f"Reading METS file {mets_file} for reingested file information."
                 )
                 kwargs["mets"] = metsrw.METSDocument.fromfile(mets_file)
 

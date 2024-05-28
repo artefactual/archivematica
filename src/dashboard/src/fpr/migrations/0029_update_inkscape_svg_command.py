@@ -1,6 +1,6 @@
 """Stop using sudo in the `Transcoding to plain svg with inkscape` command."""
-from django.db import migrations
 
+from django.db import migrations
 
 INKSCAPE_TOOL_UUID = "34afccc3-2cfd-4780-ba56-06221f1bfe18"
 

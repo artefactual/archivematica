@@ -12,6 +12,7 @@ with ``max_tasks_per_child``, which is useful to free resources held.
 Workers log events into a shared queue while the pool runs a background thread
 (log listener) that listens to the queue and writes the events safely.
 """
+
 import logging
 import multiprocessing
 import threading
@@ -21,12 +22,12 @@ import django
 
 django.setup()
 
-from django.conf import settings
 from django import db
+from django.conf import settings
 
-from client import loader, metrics
+from client import loader
+from client import metrics
 from client.gearman import MCPGearmanWorker
-
 
 logger = logging.getLogger("archivematica.mcp.client.worker")
 

@@ -1,17 +1,18 @@
 """
 The PackageQueue class handles job queueing, as it relates to packages.
 """
+
 import functools
 import logging
 import queue as Queue
 import threading
 
 from django.conf import settings
+
 from server import metrics
 from server.jobs import DecisionJob
 from server.packages import DIP
 from server.packages import SIP
-
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
 

@@ -19,8 +19,8 @@ import django
 
 django.setup()
 # dashboard
-from main.models import File
 from django.db import transaction
+from main.models import File
 
 
 def call(jobs):

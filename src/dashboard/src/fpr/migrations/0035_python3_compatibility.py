@@ -1,4 +1,5 @@
 """Update commands and rules for Python 3 compatibility."""
+
 from django.db import migrations
 
 OLD_JHOVE_CMD_UUID = "11036e14-78d9-4449-8360-e2da394279ad"

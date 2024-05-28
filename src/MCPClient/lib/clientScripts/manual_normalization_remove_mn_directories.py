@@ -21,13 +21,12 @@ import sys
 import django
 
 django.setup()
+# archivematicaCommon
+import databaseFunctions
 from django.db import transaction
 
 # dashboard
 from main.models import File
-
-# archivematicaCommon
-import databaseFunctions
 
 
 def recursivelyRemoveEmptyDirectories(job, dir):
@@ -81,9 +80,7 @@ def call(jobs):
                         os.rmdir(manual_normalization_dir)
                     except OSError as e:
                         job.pyprint(
-                            "{} could not be deleted: {}".format(
-                                manual_normalization_dir, e.args
-                            ),
+                            f"{manual_normalization_dir} could not be deleted: {e.args}",
                             file=sys.stderr,
                         )
                         errorCount += 1

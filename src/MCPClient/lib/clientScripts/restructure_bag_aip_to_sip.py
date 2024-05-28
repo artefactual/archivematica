@@ -92,7 +92,7 @@ def call(jobs):
                 else:
                     logger.info(
                         "Unable to reconstruct empty directories: no METS file"
-                        " could be found in {}".format(sip_path)
+                        f" could be found in {sip_path}"
                     )
 
                 archivematicaFunctions.create_structured_directory(

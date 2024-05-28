@@ -21,14 +21,12 @@ import os
 import django
 
 django.setup()
+# archivematicaCommon
+from custom_handlers import get_script_logger
 from django.db import transaction
 
 # dashboard
 from main import models
-
-# archivematicaCommon
-from custom_handlers import get_script_logger
-
 
 logger = get_script_logger("archivematica.mcp.client.storeFileModificationDates")
 

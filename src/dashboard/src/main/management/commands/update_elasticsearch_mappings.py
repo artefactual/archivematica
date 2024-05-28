@@ -9,6 +9,7 @@ Execution example:
 
 ./manage.py update_elasticsearch_mappings
 """
+
 import sys
 
 import elasticSearchFunctions as es

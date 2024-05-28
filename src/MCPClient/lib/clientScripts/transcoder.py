@@ -64,12 +64,7 @@ class Command:
             )
 
     def __str__(self):
-        return "[COMMAND] {}\n\tExecuting: {}\n\tCommand: {}\n\tOutput location: {}\n".format(
-            self.fpcommand,
-            self.command,
-            self.verification_command,
-            self.output_location,
-        )
+        return f"[COMMAND] {self.fpcommand}\n\tExecuting: {self.command}\n\tCommand: {self.verification_command}\n\tOutput location: {self.output_location}\n"
 
     def execute(self, skip_on_success=False):
         """Execute the the command, and associated verification and event detail commands.
@@ -135,8 +130,8 @@ class CommandLinker:
         )
 
     def __str__(self):
-        return "[Command Linker] FPRule: {fprule} Command: {co}".format(
-            fprule=self.fprule.uuid, co=self.commandObject
+        return (
+            f"[Command Linker] FPRule: {self.fprule.uuid} Command: {self.commandObject}"
         )
 
     def execute(self):

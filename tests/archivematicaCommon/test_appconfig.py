@@ -6,7 +6,6 @@ from appconfig import Config
 from appconfig import process_search_enabled
 from django.core.exceptions import ImproperlyConfigured
 
-
 CONFIG_MAPPING = {
     "search_enabled": {
         "section": "Dashboard",
@@ -33,11 +32,7 @@ CONFIG_MAPPING = {
 )
 def test_mapping_list_config_file(option, value, expect):
     config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
-    config.read_defaults(
-        StringIO(
-            "[Dashboard]\n" "{option} = {value}".format(option=option, value=value)
-        )
-    )
+    config.read_defaults(StringIO("[Dashboard]\n" f"{option} = {value}"))
     if isinstance(expect, list):
         assert sorted(config.get("search_enabled")) == sorted(expect)
     else:

@@ -2,7 +2,6 @@ import bindpid
 import pytest
 from django.test import TestCase
 
-
 VALID_ARG_DICT = {
     "entity_type": "file",
     "resolve_url_template_file": "https://access.my.org/access/{{ naming_authority }}/{{ pid }}",

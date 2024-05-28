@@ -37,7 +37,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from main import models
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY

@@ -3,6 +3,7 @@
 We've changed file format identification commands so only one object can be
 enabled. This migration makes Siegfried the new default.
 """
+
 from django.db import migrations
 
 

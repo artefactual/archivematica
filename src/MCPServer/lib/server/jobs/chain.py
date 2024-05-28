@@ -8,6 +8,7 @@ provided by previous jobs in the same chain (e.g. choices for a decision).
 This module knows about all `Job` subclasses, and will instantiate the correct
 one by looking at the workflow.
 """
+
 import logging
 
 from server.jobs.client import DirectoryClientScriptJob
@@ -18,7 +19,6 @@ from server.jobs.decisions import OutputDecisionJob
 from server.jobs.decisions import UpdateContextDecisionJob
 from server.jobs.local import GetUnitVarLinkJob
 from server.jobs.local import SetUnitVarLinkJob
-
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.chain")
 

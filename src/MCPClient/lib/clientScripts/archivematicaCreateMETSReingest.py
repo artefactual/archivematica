@@ -27,9 +27,7 @@ def _create_premis_object(premis_object_type):
         {
             etree.QName(ns.xsiNS, "schemaLocation"): "%s %s"
             % (ns.premisNS, "https://www.loc.gov/standards/premis/premis.xsd"),
-            "{http://www.w3.org/2001/XMLSchema-instance}type": "premis:{}".format(
-                premis_object_type
-            ),
+            "{http://www.w3.org/2001/XMLSchema-instance}type": f"premis:{premis_object_type}",
             "version": "3.0",
         },
         nsmap={"premis": ns.premisNS},

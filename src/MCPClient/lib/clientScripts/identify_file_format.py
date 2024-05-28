@@ -7,14 +7,19 @@ import django
 
 django.setup()
 # dashboard
-from fpr.models import IDCommand, IDRule, FormatVersion
-from main.models import FileFormatVersion, File, FileID, UnitVariable
+from databaseFunctions import insertIntoEvents
 from django.db import transaction
 from django.utils import timezone
 
 # archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoEvents
+from fpr.models import FormatVersion
+from fpr.models import IDCommand
+from fpr.models import IDRule
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import FileID
+from main.models import UnitVariable
 
 
 def concurrent_instances():
@@ -46,8 +51,8 @@ def _save_id_preference(file_, value):
 
 
 def write_identification_event(file_uuid, command, format=None, success=True):
-    event_detail_text = 'program="{}"; version="{}"'.format(
-        command.tool.description, command.tool.version
+    event_detail_text = (
+        f'program="{command.tool.description}"; version="{command.tool.version}"'
     )
     if success:
         event_outcome_text = "Positive"
@@ -164,17 +169,13 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
             version = rule.format
     except IDRule.DoesNotExist:
         job.print_error(
-            'Error: No FPR identification rule for tool output "{}" found'.format(
-                output
-            )
+            f'Error: No FPR identification rule for tool output "{output}" found'
         )
         write_identification_event(file_uuid, command, success=False)
         return 255
     except IDRule.MultipleObjectsReturned:
         job.print_error(
-            'Error: Multiple FPR identification rules for tool output "{}" found'.format(
-                output
-            )
+            f'Error: Multiple FPR identification rules for tool output "{output}" found'
         )
         write_identification_event(file_uuid, command, success=False)
         return 255

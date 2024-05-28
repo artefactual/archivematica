@@ -25,15 +25,16 @@ import django
 from lxml import etree
 
 django.setup()
-from django.db import transaction
 from django.core.exceptions import ValidationError
-
-# dashboard
-from main.models import File
+from django.db import transaction
 
 # archivematicaCommon
 from externals.extractMaildirAttachments import parse
-from fileOperations import addFileToTransfer, updateSizeAndChecksum
+from fileOperations import addFileToTransfer
+from fileOperations import updateSizeAndChecksum
+
+# dashboard
+from main.models import File
 
 
 class State:
@@ -105,9 +106,7 @@ def addKeyFileToNormalizeMaildirOffOf(
     content = """#This file is used in the archivematica system to represent a maildir dirctory, for normalization and permission purposes.
 [archivematicaMaildir]
 path = %s
-    """ % (
-        relativePathToRepresent
-    )
+    """ % (relativePathToRepresent)
     f = open(outFile, "w")
     f.write(content)
     f.close()
@@ -210,10 +209,7 @@ def handle_job(job):
                                 )
                                 job.pyprint("\tAttachment path:", filePath)
                                 writeFile(filePath, attachment)
-                                eventDetail = "Unpacked from: {{{}}}{}".format(
-                                    sourceFileUUID,
-                                    sourceFilePath,
-                                )
+                                eventDetail = f"Unpacked from: {{{sourceFileUUID}}}{sourceFilePath}"
                                 addFile(
                                     filePath,
                                     transferDir,

@@ -1,6 +1,7 @@
 """
 Jobs relating to user decisions.
 """
+
 import abc
 import logging
 import threading
@@ -8,12 +9,12 @@ from collections import OrderedDict
 
 from dbconns import auto_close_old_connections
 from main import models
+
 from server.jobs.base import Job
 from server.processing_config import load_preconfigured_choice
 from server.processing_config import load_processing_xml
 from server.translation import TranslationLabel
 from server.workflow_abilities import choice_is_available
-
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.decisions")
 

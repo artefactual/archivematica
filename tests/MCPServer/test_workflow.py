@@ -78,8 +78,9 @@ def test_load_valid_document(path):
     assert isinstance(first_wdir.chain, workflow.BaseLink)
 
     # Workflow __str__ method
-    assert str(wf) == "Chains {}, links {}, watched directories: {}".format(
-        len(chains), len(links), len(wdirs)
+    assert (
+        str(wf)
+        == f"Chains {len(chains)}, links {len(links)}, watched directories: {len(wdirs)}"
     )
 
     # Test normalization of job statuses.

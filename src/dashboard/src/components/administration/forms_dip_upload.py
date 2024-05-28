@@ -1,7 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-
 PREMIS_CHOICES = [("yes", _("Yes")), ("no", _("No")), ("premis", _("Base on PREMIS"))]
 
 EAD_ACTUATE_CHOICES = [

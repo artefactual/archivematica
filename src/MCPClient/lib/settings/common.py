@@ -415,8 +415,6 @@ if METADATA_XML_VALIDATION_ENABLED:
             XML_VALIDATION_FAIL_ON_ERROR, bool
         ):
             raise ImproperlyConfigured(
-                "The metadata XML validation settings file {} does not contain "
-                "the right settings: an XML_VALIDATION dictionary and an XML_VALIDATION_FAIL_ON_ERROR boolean".format(
-                    METADATA_XML_VALIDATION_SETTINGS_FILE
-                )
+                f"The metadata XML validation settings file {METADATA_XML_VALIDATION_SETTINGS_FILE} does not contain "
+                "the right settings: an XML_VALIDATION dictionary and an XML_VALIDATION_FAIL_ON_ERROR boolean"
             )

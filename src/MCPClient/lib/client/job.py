@@ -4,6 +4,7 @@ performed--corresponding to a Task on the MCPServer side.  Jobs are run in
 batches by clientScript modules and populated with an exit code, standard out
 and standard error information.
 """
+
 import logging
 import sys
 import traceback
@@ -12,7 +13,6 @@ from contextlib import contextmanager
 from django.conf import settings
 from django.utils import timezone
 from main.models import Task
-
 
 logger = logging.getLogger("archivematica.mcp.client.job")
 

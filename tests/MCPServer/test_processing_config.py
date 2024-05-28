@@ -3,14 +3,13 @@ import pathlib
 
 import pytest
 from server.processing_config import ChainChoicesField
-from server.processing_config import get_processing_fields
-from server.processing_config import processing_configuration_file_exists
-from server.processing_config import processing_fields
 from server.processing_config import ReplaceDictField
 from server.processing_config import SharedChainChoicesField
 from server.processing_config import StorageLocationField
+from server.processing_config import get_processing_fields
+from server.processing_config import processing_configuration_file_exists
+from server.processing_config import processing_fields
 from server.workflow import load
-
 
 ASSETS_DIR = (
     pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "lib" / "assets"

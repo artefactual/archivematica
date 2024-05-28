@@ -5,15 +5,12 @@ import os
 import django
 
 django.setup()
-from django.db import transaction
-
 # archivematicaCommon
 import storageService as storage_service
-
-from main.models import File, Transfer
-
 from client import metrics
-
+from django.db import transaction
+from main.models import File
+from main.models import Transfer
 
 REJECTED = "reject"
 FAILED = "fail"

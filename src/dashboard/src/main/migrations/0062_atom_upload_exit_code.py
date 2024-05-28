@@ -2,9 +2,9 @@
 DIP upload`` link is marked as completed successfully when the exit code is
 ``0``.
 """
+
 from django.db import migrations
 from main.models import Job
-
 
 ATOM_DIP_UPLOAD_CONFIG_EXIT_CODE_ZERO = "c9e90d83-533f-44c3-8220-083a6eb91751"
 

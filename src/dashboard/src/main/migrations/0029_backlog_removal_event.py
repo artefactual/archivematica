@@ -1,6 +1,5 @@
 from django.db import migrations
 
-
 BCKLG_RMVL_EVT_UUID = "463e5d1c-d680-47fa-a27a-7efd4f702355"
 
 

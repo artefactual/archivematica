@@ -1,8 +1,8 @@
 """
 i18n handling.
 """
-import pprint
 
+import pprint
 
 FALLBACK_LANG = "en"
 UNKNOWN_TRANSLATION_LABEL = "<unknown>"

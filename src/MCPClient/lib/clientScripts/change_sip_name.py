@@ -21,12 +21,12 @@ import sys
 import django
 
 django.setup()
+from change_names import change_path
 from django.db import transaction
 
 # dashboard
-from main.models import SIP, Transfer
-
-from change_names import change_path
+from main.models import SIP
+from main.models import Transfer
 
 
 def call(jobs):

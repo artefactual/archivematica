@@ -618,9 +618,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
             file_id = file_.attrib.get("ID", None)
             file_pointer_division = ns.xml_find_premis(
                 mets,
-                "mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{}']/..".format(
-                    file_id
-                ),
+                f"mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{file_id}']/..",
             )
             if file_pointer_division is not None:
                 descriptive_metadata = _get_file_metadata(file_pointer_division, mets)
@@ -637,9 +635,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
                     for dmd_section_id_item in dmd_section_id.split():
                         dmd_section_info = ns.xml_find_premis(
                             mets,
-                            "mets:dmdSec[@ID='{}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData".format(
-                                dmd_section_id_item
-                            ),
+                            f"mets:dmdSec[@ID='{dmd_section_id_item}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData",
                         )
                         if dmd_section_info is not None:
                             xml = etree.tostring(dmd_section_info, encoding="utf8")
@@ -1288,9 +1284,7 @@ def get_file_tags(client, uuid):
         raise EmptySearchResultError(f"No matches found for file with UUID {uuid}")
     if count > 1:
         raise TooManyResultsError(
-            "{} matches found for file with UUID {}; unable to fetch a single result".format(
-                count, uuid
-            )
+            f"{count} matches found for file with UUID {uuid}; unable to fetch a single result"
         )
 
     result = results["hits"]["hits"][0]
@@ -1317,9 +1311,7 @@ def set_file_tags(client, uuid, tags):
         raise EmptySearchResultError(f"No matches found for file with UUID {uuid}")
     if count > 1:
         raise TooManyResultsError(
-            "{} matches found for file with UUID {}; unable to fetch a single result".format(
-                count, uuid
-            )
+            f"{count} matches found for file with UUID {uuid}; unable to fetch a single result"
         )
 
     body = {"doc": {"tags": tags}}

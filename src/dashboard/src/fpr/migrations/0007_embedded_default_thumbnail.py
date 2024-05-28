@@ -2,7 +2,6 @@ import uuid
 
 from django.db import migrations
 
-
 REPLACE_COMMAND = """
 import argparse
 import sys

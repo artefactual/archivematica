@@ -247,7 +247,7 @@ def data_migration(apps, schema_editor):
     chain_yes_prsrvtn_drvtv_plcy_chck_msc = MicroServiceChain.objects.create(
         id=chain_yes_prsrvtn_drvtv_plcy_chck_msc_pk,
         startinglink=prsrvtn_drvtv_policy_check_cl,
-        description="Yes"  # Yes, policy checks on preservation derivatives
+        description="Yes",  # Yes, policy checks on preservation derivatives
         # please!'
     )
 
@@ -264,7 +264,7 @@ def data_migration(apps, schema_editor):
     chain_no_prsrvtn_drvtv_plcy_chck_msc = MicroServiceChain.objects.create(
         id=chain_no_prsrvtn_drvtv_plcy_chck_msc_pk,
         startinglink=ccss_drvtv_policy_check_choice_cl,
-        description="No"  # No policy checks on preservation derivatives
+        description="No",  # No policy checks on preservation derivatives
         # please!'
     )
 
@@ -316,7 +316,7 @@ def data_migration(apps, schema_editor):
         execute="policyCheck_v0.0",
         arguments=(
             '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"' ' "%sharedPath%" "original"'
-        )
+        ),
         # filter_subdir='objects/'  <- not needed during transfer, I believe ...
     )
 

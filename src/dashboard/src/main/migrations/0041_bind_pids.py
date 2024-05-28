@@ -1,4 +1,5 @@
 """Migration for PID Binding: persistent identifier creation & resolution."""
+
 from django.db import migrations
 from django.db import models
 

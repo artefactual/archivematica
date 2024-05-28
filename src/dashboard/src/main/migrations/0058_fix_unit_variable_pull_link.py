@@ -1,6 +1,7 @@
 """Migration to update "Resume after normalization file identification tool
 selected." chain link to exit with the successful status.
 """
+
 from django.db import migrations
 from main.models import Job
 

@@ -14,10 +14,8 @@ ALLOWED_CAS_VERSION_VALUES = ("1", "2", "3", "CAS_2_SAML_1_0")
 CAS_VERSION = environ.get("AUTH_CAS_PROTOCOL_VERSION", "3")
 if CAS_VERSION not in ALLOWED_CAS_VERSION_VALUES:
     raise ImproperlyConfigured(
-        (
-            "Unexpected value for AUTH_CAS_PROTOCOL_VERSION: {}. "
-            "Supported values: '1', '2', '3', or 'CAS_2_SAML_1_0'."
-        ).format(CAS_VERSION)
+        f"Unexpected value for AUTH_CAS_PROTOCOL_VERSION: {CAS_VERSION}. "
+        "Supported values: '1', '2', '3', or 'CAS_2_SAML_1_0'."
     )
 
 CAS_CHECK_ADMIN_ATTRIBUTES = environ.get("AUTH_CAS_CHECK_ADMIN_ATTRIBUTES", False)

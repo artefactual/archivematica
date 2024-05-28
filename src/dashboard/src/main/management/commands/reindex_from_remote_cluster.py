@@ -11,6 +11,7 @@ Execution example:
     https://192.168.168.196:9200 \
     -u test -p 1234
 """
+
 import json
 import sys
 
@@ -88,8 +89,8 @@ class Command(DashboardCommand):
             elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
         except Exception as e:
             self.error(
-                "The Elasticsearch indexes could not be recreated in {}. "
-                "Error: {}".format(settings.ELASTICSEARCH_SERVER, e)
+                f"The Elasticsearch indexes could not be recreated in {settings.ELASTICSEARCH_SERVER}. "
+                f"Error: {e}"
             )
             sys.exit(1)
 

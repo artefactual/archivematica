@@ -10,6 +10,7 @@ Arguments::
     [FILE_PATH] [FILE_UUID] [SIP_UUID] [SHARED_PATH] [FILE_TYPE]
 
 """
+
 import json
 import os
 
@@ -17,16 +18,19 @@ import django
 from custom_handlers import get_script_logger
 
 django.setup()
-from django.conf import settings as mcpclient_settings
-from django.db import transaction
-from fpr.models import FPRule, FormatVersion
-from main.models import Derivation, File, SIP, Transfer
-
-from executeOrRunSubProcess import executeOrRun
 import databaseFunctions
 from dicts import replace_string_values
-from lib import setup_dicts
+from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from executeOrRunSubProcess import executeOrRun
+from fpr.models import FormatVersion
+from fpr.models import FPRule
+from lib import setup_dicts
+from main.models import SIP
+from main.models import Derivation
+from main.models import File
+from main.models import Transfer
 
 # Note that linkTaskManagerFiles.py will take the highest exit code it has seen
 # from all tasks and will use that as the exit code of the job as a whole.
@@ -84,7 +88,7 @@ class PolicyChecker:
             except (File.DoesNotExist, ValidationError):
                 self.job.pyprint(
                     "Not performing a policy check because there is no file"
-                    " with UUID {}.".format(self.file_uuid)
+                    f" with UUID {self.file_uuid}."
                 )
                 return NOT_APPLICABLE_CODE
         if not self._we_check_this_type_of_file():
@@ -119,8 +123,8 @@ class PolicyChecker:
         elif self.file_type == "preservation":
             if (not self._file_is_derivative()) or self._file_is_for_access():
                 self.job.pyprint(
-                    "File {uuid} is not a preservation derivative; not"
-                    " performing a policy check.".format(uuid=self.file_uuid)
+                    f"File {self.file_uuid} is not a preservation derivative; not"
+                    " performing a policy check."
                 )
                 return False
             return True
@@ -128,8 +132,8 @@ class PolicyChecker:
             if self._file_is_derivative(for_access=True) and self._file_is_for_access():
                 return True
             self.job.pyprint(
-                "File {uuid} is not an access derivative; not performing"
-                " a policy check.".format(uuid=self.file_uuid)
+                f"File {self.file_uuid} is not an access derivative; not performing"
+                " a policy check."
             )
             if not self._file_is_derivative(for_access=True):
                 self.job.pyprint(f"File {self.file_uuid} is not a derivative.")
@@ -196,11 +200,7 @@ class PolicyChecker:
         (see ``self._get_rules()``).
         """
         manually_normalized_file_name = os.path.basename(self.file_path)[37:]
-        manually_normalized_file_path = (
-            "%transferDirectory%objects/manualNormalization/access/{}".format(
-                manually_normalized_file_name
-            )
-        )
+        manually_normalized_file_path = f"%transferDirectory%objects/manualNormalization/access/{manually_normalized_file_name}"
         try:
             return File.objects.get(
                 originallocation=manually_normalized_file_path.encode(),
@@ -255,21 +255,17 @@ class PolicyChecker:
             self._save_to_logs_dir(output)
         if exitstatus == 0:
             self.job.pyprint(
-                "Command {} completed with output {}".format(
-                    rule.command.description, stdout
-                )
+                f"Command {rule.command.description} completed with output {stdout}"
             )
         else:
             self.job.print_error(
-                "Command {} failed with exit status {}; stderr:".format(
-                    rule.command.description, exitstatus
-                ),
+                f"Command {rule.command.description} failed with exit status {exitstatus}; stderr:",
                 stderr,
             )
             return "failed"
         event_detail = (
-            'program="{tool.description}";'
-            ' version="{tool.version}"'.format(tool=rule.command.tool)
+            f'program="{rule.command.tool.description}";'
+            f' version="{rule.command.tool.version}"'
         )
         if output.get("eventOutcomeInformation") != "pass":
             self.job.print_error(
@@ -283,9 +279,7 @@ class PolicyChecker:
             )
             result = "failed"
         self.job.pyprint(
-            "Creating policy checking event for {} ({})".format(
-                self.file_path, self.file_uuid
-            )
+            f"Creating policy checking event for {self.file_path} ({self.file_uuid})"
         )
         # Manually-normalized access derivatives have no file UUID so we can't
         # create a validation event for them. TODO/QUESTION: should we use the
@@ -380,10 +374,8 @@ class PolicyChecker:
             ValidationError,
         ):
             self.job.print_error(
-                "Warning: unable to retrieve {unit_type} model corresponding"
-                " to {unit_type} UUID {sip_uuid}".format(
-                    unit_type=unit_type, sip_uuid=self.sip_uuid
-                )
+                f"Warning: unable to retrieve {unit_type} model corresponding"
+                f" to {unit_type} UUID {self.sip_uuid}"
             )
             return None
         else:
@@ -400,10 +392,8 @@ class PolicyChecker:
                 self._sip_logs_dir = logs_dir
                 return logs_dir
             self.job.print_error(
-                "Warning: unable to find a logs/ directory in the {unit_type}"
-                " with UUID {sip_uuid}".format(
-                    unit_type=unit_type, sip_uuid=self.sip_uuid
-                )
+                f"Warning: unable to find a logs/ directory in the {unit_type}"
+                f" with UUID {self.sip_uuid}"
             )
             return None
 
@@ -419,8 +409,8 @@ class PolicyChecker:
         except (SIP.DoesNotExist, SIP.MultipleObjectsReturned, ValidationError):
             self.job.print_error(
                 "Warning: unable to retrieve SIP model corresponding to SIP"
-                " UUID {} (when attempting to get the path to"
-                " metadata/submissionDocumentation/".format(self.sip_uuid)
+                f" UUID {self.sip_uuid} (when attempting to get the path to"
+                " metadata/submissionDocumentation/"
             )
             return None
         else:
@@ -433,7 +423,7 @@ class PolicyChecker:
                 return subm_doc_dir
             self.job.print_error(
                 "Warning: unable to find a metadata/submissionDocumentation/"
-                " directory in the SIP with UUID {}".format(self.sip_uuid)
+                f" directory in the SIP with UUID {self.sip_uuid}"
             )
             return None
 

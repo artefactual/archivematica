@@ -1,5 +1,5 @@
-from server.translation import TranslationLabel
 from server.translation import UNKNOWN_TRANSLATION_LABEL
+from server.translation import TranslationLabel
 
 
 def test_translation_label(mocker):

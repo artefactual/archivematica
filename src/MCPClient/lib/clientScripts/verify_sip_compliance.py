@@ -20,7 +20,6 @@ import sys
 
 from client import metrics
 
-
 REQUIRED_DIRECTORIES = (
     "objects",
     "logs",

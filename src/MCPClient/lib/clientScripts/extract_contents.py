@@ -8,18 +8,23 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from fpr.models import FPCommand
-from main.models import Directory, FileFormatVersion, File, Transfer
+from archivematicaFunctions import format_subdir_path
+from archivematicaFunctions import get_dir_uuids
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from executeOrRunSubProcess import executeOrRun
 from databaseFunctions import fileWasRemoved
-from fileOperations import addFileToTransfer, updateSizeAndChecksum
-from archivematicaFunctions import get_dir_uuids, format_subdir_path
+from executeOrRunSubProcess import executeOrRun
+from fileOperations import addFileToTransfer
+from fileOperations import updateSizeAndChecksum
+from fpr.models import FPCommand
 
 # clientScripts
 from has_packages import already_extracted
+from main.models import Directory
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.extractContents")
 

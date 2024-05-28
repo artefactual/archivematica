@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica. If not, see <http://www.gnu.org/licenses/>.
 """Management of XML metadata files."""
+
 import csv
 from pathlib import Path
 from urllib.parse import urlparse
@@ -132,16 +133,12 @@ def _get_xml_metadata_mapping(sip_path, reingest=False):
             for row in reader:
                 if not all(k in row and row[k] for k in ["filename", "type"]):
                     errors.append(
-                        "A row in {} is missing the filename and/or type".format(
-                            source_metadata_path
-                        )
+                        f"A row in {source_metadata_path} is missing the filename and/or type"
                     )
                     continue
                 if row["type"] == "CUSTOM":
                     errors.append(
-                        "A row in {} is using CUSTOM, a reserved type".format(
-                            source_metadata_path
-                        )
+                        f"A row in {source_metadata_path} is using CUSTOM, a reserved type"
                     )
                     continue
                 if row["filename"] not in mapping:

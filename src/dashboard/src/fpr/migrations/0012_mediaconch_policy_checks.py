@@ -1,7 +1,6 @@
 from django.db import migrations
 from django.db import models
 
-
 # All MediaConch policy check commands in the FPR should follow the template in
 # the following constant. They depend on the ammcpc module / command-line tool
 # https://github.com/artefactual-labs/ammcpc being installed, which is a simple

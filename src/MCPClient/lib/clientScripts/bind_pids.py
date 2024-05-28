@@ -37,6 +37,7 @@ The required arguments are the SIP's UUID and the path to the
 shared directory where SIPs are stored. If the --bind-pids option is something
 other than 'Yes', the script will continue to the next job without doing anything.
 """
+
 import argparse
 import os
 import sys
@@ -46,24 +47,23 @@ from itertools import chain
 import django
 
 django.setup()
-from django.db import transaction
-from lxml import etree
-from django.core.exceptions import ValidationError
-
-# dashboard
-from main.models import DashboardSetting, Directory, SIP
+import namespaces as ns
 
 # archivematicaCommon
 from archivematicaFunctions import str2bool
-from bindpid import (
-    bind_pid,
-    BindPIDException,
-    _validate_handle_server_config,
-    _validate_entity_type_required_params,
-)
+from bindpid import BindPIDException
+from bindpid import _validate_entity_type_required_params
+from bindpid import _validate_handle_server_config
+from bindpid import bind_pid
 from custom_handlers import get_script_logger
-import namespaces as ns
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from lxml import etree
+from main.models import SIP
 
+# dashboard
+from main.models import DashboardSetting
+from main.models import Directory
 
 logger = get_script_logger("archivematica.mcp.client.bind_pids")
 

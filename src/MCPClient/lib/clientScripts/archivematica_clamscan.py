@@ -27,19 +27,17 @@ import uuid
 import django
 
 django.setup()
-from django.db import transaction
-from django.conf import settings as mcpclient_settings
-
-from clamd import (
-    ClamdUnixSocket,
-    ClamdNetworkSocket,
-    BufferTooLongError,
-    ConnectionError,
-)
+from clamd import BufferTooLongError
+from clamd import ClamdNetworkSocket
+from clamd import ClamdUnixSocket
+from clamd import ConnectionError
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
-from main.models import Event, File
+from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from main.models import Event
+from main.models import File
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
@@ -233,9 +231,7 @@ def queue_event(file_uuid, date, scanner, passed, queue):
 
     event_detail = ""
     if scanner is not None:
-        event_detail = 'program="{}"; version="{}"; virusDefinitions="{}"'.format(
-            scanner.program(), scanner.version(), scanner.virus_definitions()
-        )
+        event_detail = f'program="{scanner.program()}"; version="{scanner.version()}"; virusDefinitions="{scanner.virus_definitions()}"'
 
     outcome = "Pass" if passed else "Fail"
     logger.info("Recording new event for file %s (outcome: %s)", file_uuid, outcome)

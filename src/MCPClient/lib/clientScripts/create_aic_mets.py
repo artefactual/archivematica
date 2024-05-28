@@ -12,9 +12,6 @@ from lxml.builder import ElementMaker
 
 django.setup()
 # dashboard
-from django.utils import timezone
-from main.models import UnitVariable
-
 import create_mets_v2
 
 # archivematicaCommon
@@ -22,6 +19,8 @@ import databaseFunctions
 import fileOperations
 import namespaces as ns
 import storageService as storage_service
+from django.utils import timezone
+from main.models import UnitVariable
 
 
 def get_aip_info(aic_dir, job):
@@ -97,9 +96,9 @@ def create_mets_file(aic, aips, job):
             TYPE="logical",  # structMap
         ),
     )
-    mets.attrib[
-        "{{{ns}}}schemaLocation".format(ns=nsmap["xsi"])
-    ] = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd"
+    mets.attrib["{{{ns}}}schemaLocation".format(ns=nsmap["xsi"])] = (
+        "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd"
+    )
 
     # Add Dublin Core info
     xml_data = mets.find("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)

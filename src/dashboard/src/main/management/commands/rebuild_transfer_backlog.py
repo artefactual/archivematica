@@ -35,6 +35,7 @@ with ``--uuid`` option
 ``--delete``: before re-reindexing a transfer, will delete any data found in Elasticsearch with a matching UUID. In contrast with the ``--delete-all``, it does not delete the entire index.
 
 """
+
 import logging
 import multiprocessing
 import os
@@ -58,8 +59,8 @@ from django.core.management.base import CommandError
 from fileOperations import addFileToTransfer
 from fileOperations import extract_package
 from fpr.models import FormatVersion
-from main.management.commands import boolean_input
 from main.management.commands import DashboardCommand
+from main.management.commands import boolean_input
 from main.models import Agent
 from main.models import FileFormatVersion
 from main.models import FileID
@@ -320,9 +321,7 @@ class Command(DashboardCommand):
                 )
             except storageService.Error:
                 self.error(
-                    "Transfer {} not indexed. Unable to download from Storage Service.".format(
-                        transfer_uuid
-                    )
+                    f"Transfer {transfer_uuid} not indexed. Unable to download from Storage Service."
                 )
                 continue
             # Transfers are downloaded as .tar files, so we extract files
@@ -331,9 +330,7 @@ class Command(DashboardCommand):
                 extract_package(local_package, temp_backlog_dir)
             except CalledProcessError as err:
                 self.error(
-                    "Transfer {} not indexed. File extraction from tar failed: {}.".format(
-                        transfer_uuid, err
-                    )
+                    f"Transfer {transfer_uuid} not indexed. File extraction from tar failed: {err}."
                 )
                 continue
             local_package_without_extension = am.package_name_from_path(local_package)
@@ -342,9 +339,7 @@ class Command(DashboardCommand):
                 if entry.is_dir() and entry.name == local_package_without_extension:
                     transfer_path = entry.path
                     self.info(
-                        "Importing transfer {} from temporarily downloaded copy.".format(
-                            transfer_uuid
-                        )
+                        f"Importing transfer {transfer_uuid} from temporarily downloaded copy."
                     )
                     _import_self_describing_transfer(
                         self,
@@ -360,9 +355,7 @@ class Command(DashboardCommand):
                 processed += 1
             else:
                 self.error(
-                    "Transfer {} not indexed. Unable to find files extracted from tar.".format(
-                        transfer_uuid
-                    )
+                    f"Transfer {transfer_uuid} not indexed. Unable to find files extracted from tar."
                 )
         self.success(f"{processed} transfers indexed!")
 
@@ -550,9 +543,7 @@ def _import_self_describing_transfer(
                     _import_file_from_fsentry(cmd, fsentry, transfer_uuid)
             except Exception as err:
                 cmd.warning(
-                    "There was an error processing file {} (transfer {}): {}".format(
-                        fsentry.file_uuid, transfer_uuid, err
-                    )
+                    f"There was an error processing file {fsentry.file_uuid} (transfer {transfer_uuid}): {err}"
                 )
                 if django_settings.DEBUG:
                     traceback.print_exc()

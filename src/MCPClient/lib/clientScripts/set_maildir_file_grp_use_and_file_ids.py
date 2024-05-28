@@ -27,8 +27,9 @@ from django.db import connection
 from django.db import transaction
 
 # dashboard
-from main.models import File, FileID, FileFormatVersion
-
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import FileID
 
 logger = get_script_logger("archivematica.mcp.client.setMaildirFileGrpUseAndFileIDs")
 
@@ -40,19 +41,16 @@ def get_files(sip_uuid, current_location, removed_time=0):
 
 
 def insert_file_format_version(file_uuid, description):
-    sql = """
-        INSERT INTO {file_format_version} (fileUUID, fileID)
+    sql = f"""
+        INSERT INTO {FileFormatVersion._meta.db_table} (fileUUID, fileID)
         VALUES (%s, (
             SELECT pk
-            FROM {file_id}
+            FROM {FileID._meta.db_table}
             WHERE
                 enabled = TRUE
                 AND description = %s
             ));
-    """.format(
-        file_format_version=FileFormatVersion._meta.db_table,
-        file_id=FileID._meta.db_table,
-    )
+    """
     with connection.cursor() as cursor:
         return cursor.execute(sql, [file_uuid, description])
 

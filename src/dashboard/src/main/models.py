@@ -94,11 +94,7 @@ def create_user_agent(sender, instance, **kwargs):
         defaults={
             "identifiertype": "Archivematica user pk",
             "identifiervalue": str(instance.id),
-            "name": 'username="{}", first_name="{}", last_name="{}"'.format(
-                instance.username,
-                instance.first_name,
-                instance.last_name,
-            ),
+            "name": f'username="{instance.username}", first_name="{instance.first_name}", last_name="{instance.last_name}"',
             "agenttype": "Archivematica user",
         },
     )
@@ -668,9 +664,7 @@ class SIPArrangeAccessMapping(models.Model):
     identifier = models.CharField(max_length=255)
 
     def __str__(self):
-        return "arrange_path={s.arrange_path}, system={s.system}, identifier={s.identifier}".format(
-            s=self
-        )
+        return f"arrange_path={self.arrange_path}, system={self.system}, identifier={self.identifier}"
 
 
 class Identifier(models.Model):
@@ -691,7 +685,7 @@ class Identifier(models.Model):
     )
 
     def __str__(self):
-        return "Identifier {i.value} of type {i.type}".format(i=self)
+        return f"Identifier {self.value} of type {self.type}"
 
     class Meta:
         db_table = "Identifiers"
@@ -1068,11 +1062,7 @@ class Agent(models.Model):
     objects = AgentManager()
 
     def __str__(self):
-        return (
-            "{a.agenttype}; {a.identifiertype}: {a.identifiervalue}; {a.name}".format(
-                a=self
-            )
-        )
+        return f"{self.agenttype}; {self.identifiertype}: {self.identifiervalue}; {self.name}"
 
     class Meta:
         db_table = "Agents"
@@ -1671,9 +1661,7 @@ class ArchivesSpaceDIPObjectResourcePairing(models.Model):
     resourceid = models.CharField(max_length=150, db_column="resourceId")
 
     def __str__(self):
-        return "ArchivesSpace Pairing<dipuuid: {s.dipuuid}, resourceid: {s.resourceid}>".format(
-            s=self
-        )
+        return f"ArchivesSpace Pairing<dipuuid: {self.dipuuid}, resourceid: {self.resourceid}>"
 
     class Meta:
         db_table = "ArchivesSpaceDIPObjectResourcePairing"
@@ -1809,9 +1797,7 @@ class FPCommandOutput(models.Model):
     # Table name is main_fpcommandoutput
 
     def __str__(self):
-        return "<file: {file}; rule: {rule}; content: {content}".format(
-            file=self.file, rule=self.rule, content=self.content[:20]
-        )
+        return f"<file: {self.file}; rule: {self.rule}; content: {self.content[:20]}"
 
 
 class FileID(models.Model):

@@ -13,6 +13,7 @@ Alternatively, they can include the 'section' and a 'process_function' callback
 where a specific parsing process can be defined. Those callbacks must accept the
 current appconfig Config object and the section.
 """
+
 import configparser
 
 from django.core.exceptions import ImproperlyConfigured

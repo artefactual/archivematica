@@ -14,9 +14,7 @@ def data_migration(apps, schema_editor):
         agent = Agent.objects.create(
             identifiertype="Archivematica user pk",
             identifiervalue=str(u.id),
-            name='username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"'.format(
-                u=u
-            ),
+            name=f'username="{u.username}", first_name="{u.first_name}", last_name="{u.last_name}"',
             agenttype="Archivematica user",
         )
         UserProfile.objects.create(user=u, agent=agent)

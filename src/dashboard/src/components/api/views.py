@@ -258,9 +258,7 @@ def status(request, unit_uuid, unit_type):
         response["type"] = "SIP"
 
     if unit is None:
-        response["message"] = "Cannot fetch {} with UUID {}".format(
-            unit_type, unit_uuid
-        )
+        response["message"] = f"Cannot fetch {unit_type} with UUID {unit_uuid}"
         response["error"] = True
         return django.http.HttpResponseBadRequest(  # 400
             json.dumps(response), content_type="application/json"

@@ -12,6 +12,7 @@ concrete types of jobs, handled by subclasses:
     * `DecisionJob`, handling workflow decision points
     * `LocalJob`, handling work done directly on MCPServer
 """
+
 from server.jobs.base import Job
 from server.jobs.chain import JobChain
 from server.jobs.client import ClientScriptJob

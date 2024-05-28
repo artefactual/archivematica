@@ -1,7 +1,6 @@
-"""Migrate the Archivematica agent version string to Archivematica-1.13.
-"""
-from django.db import migrations
+"""Migrate the Archivematica agent version string to Archivematica-1.13."""
 
+from django.db import migrations
 
 DOWN_VERSION = "Archivematica-1.12"
 UP_VERSION = "Archivematica-1.13"

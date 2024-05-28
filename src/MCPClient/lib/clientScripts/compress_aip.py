@@ -8,11 +8,10 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from main.models import SIP
-
 # archivematicaCommon
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
+from main.models import SIP
 
 
 def update_unit(sip_uuid, compressed_location):
@@ -59,49 +58,32 @@ def compress_aip(
         return 0, {"sip_uuid": sip_uuid, "location": uncompressed_location}
 
     job.pyprint(
-        "Compressing {} with {}, algorithm {}, level {}".format(
-            uncompressed_location, program, compression_algorithm, compression_level
-        )
+        f"Compressing {uncompressed_location} with {program}, algorithm {compression_algorithm}, level {compression_level}"
     )
 
     if program == "7z":
         compressed_location = uncompressed_location + ".7z"
-        command = '/usr/bin/7z a -bd -t7z -y -m0={algorithm} -mx={level} -mta=on -mtc=on -mtm=on -mmt=on "{compressed_location}" "{uncompressed_location}"'.format(
-            algorithm=compression_algorithm,
-            level=compression_level,
-            uncompressed_location=uncompressed_location,
-            compressed_location=compressed_location,
-        )
+        command = f'/usr/bin/7z a -bd -t7z -y -m0={compression_algorithm} -mx={compression_level} -mta=on -mtc=on -mtm=on -mmt=on "{compressed_location}" "{uncompressed_location}"'
         tool_info_command = (
             r'echo program="7z"\; '
-            r'algorithm="{}"\; '
-            'version="`7z | grep Version`"'.format(compression_algorithm)
+            rf'algorithm="{compression_algorithm}"\; '
+            'version="`7z | grep Version`"'
         )
     elif program == "pbzip2":
         compressed_location = uncompressed_location + ".tar.bz2"
-        command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/pbzip2 --compress -{level} > "{compressed_location}"'.format(
-            sip_directory=sip_directory,
-            archive_path=archive_path,
-            level=compression_level,
-            compressed_location=compressed_location,
-        )
+        command = f'/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /usr/bin/pbzip2 --compress -{compression_level} > "{compressed_location}"'
         tool_info_command = (
             r'echo program="pbzip2"\; '
-            r'algorithm="{}"\; '
-            'version="$((pbzip2 -V) 2>&1)"'.format(compression_algorithm)
+            rf'algorithm="{compression_algorithm}"\; '
+            'version="$((pbzip2 -V) 2>&1)"'
         )
     elif program == "gzip":
         compressed_location = uncompressed_location + ".tar.gz"
-        command = '/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /bin/gzip -{level} > "{compressed_location}"'.format(
-            sip_directory=sip_directory,
-            archive_path=archive_path,
-            level=compression_level,
-            compressed_location=compressed_location,
-        )
+        command = f'/bin/tar -c --directory "{sip_directory}" "{archive_path}" | /bin/gzip -{compression_level} > "{compressed_location}"'
         tool_info_command = (
             r'echo program="gzip"\; '
-            r'algorithm="{}"\; '
-            'version="$((gzip -V) 2>&1)"'.format(compression_algorithm)
+            rf'algorithm="{compression_algorithm}"\; '
+            'version="$((gzip -V) 2>&1)"'
         )
     else:
         msg = f"Program {program} not recognized, exiting script prematurely."
