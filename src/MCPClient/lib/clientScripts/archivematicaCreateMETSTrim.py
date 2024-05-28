@@ -96,10 +96,9 @@ def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
             if maxDateMod is None or dateMod > maxDateMod:
                 maxDateMod = dateMod
 
-    etree.SubElement(dublincore, ns.dctermsBNS + "date").text = "{}/{}".format(
-        minDateMod,
-        maxDateMod,
-    )
+    etree.SubElement(
+        dublincore, ns.dctermsBNS + "date"
+    ).text = f"{minDateMod}/{maxDateMod}"
 
     return ret
 
@@ -167,8 +166,9 @@ def getTrimFileAmdSec(job, baseDirectoryPath, sipUUID, fileUUID):
         label = os.path.basename(f.currentlocation.decode())
         attrib = {
             "LABEL": label,
-            ns.xlinkBNS
-            + "href": f.currentlocation.decode().replace("%SIPDirectory%", "", 1),
+            ns.xlinkBNS + "href": f.currentlocation.decode().replace(
+                "%SIPDirectory%", "", 1
+            ),
             "MDTYPE": "OTHER",
             "OTHERMDTYPE": "CUSTOM",
             "LOCTYPE": "OTHER",
@@ -189,8 +189,9 @@ def getTrimAmdSec(job, baseDirectoryPath, sipUUID):
     for f in files:
         attrib = {
             "LABEL": "ContainerMetadata.xml",
-            ns.xlinkBNS
-            + "href": f.currentlocation.decode().replace("%SIPDirectory%", "", 1),
+            ns.xlinkBNS + "href": f.currentlocation.decode().replace(
+                "%SIPDirectory%", "", 1
+            ),
             "MDTYPE": "OTHER",
             "OTHERMDTYPE": "CUSTOM",
             "LOCTYPE": "OTHER",

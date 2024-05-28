@@ -3,7 +3,6 @@ from django.urls import reverse
 from externals import xmltodict
 from lxml import etree
 
-
 FILE_FORMAT_IDENTIFICATION_CHOICES = """
 <choicesAvailableForUnit>
   <UUID>b8d5dcca-b60e-40fd-b160-32447abbf7f8</UUID>

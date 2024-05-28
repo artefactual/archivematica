@@ -9,35 +9,19 @@ repos:
         src/MCPServer/lib/assets/.*\.json|
         src/(MCPClient/MCPServer|dashboard)/osdeps/.*\.json
       )
-- repo: https://github.com/asottile/pyupgrade
-  rev: v3.15.2
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.4.5
   hooks:
-  - id: pyupgrade
-    args: [--py38-plus]
-- repo: https://github.com/asottile/reorder_python_imports
-  rev: v3.12.0
-  hooks:
-  - id: reorder-python-imports
-    args: [--py38-plus]
+  - id: ruff
+    args: [--fix, --exit-non-zero-on-fix]
+  - id: ruff-format
 - repo: https://github.com/adamchainz/django-upgrade
-  rev: "1.16.0"
+  rev: "1.17.0"
   hooks:
   - id: django-upgrade
     args: [--target-version, "4.2"]
-- repo: https://github.com/psf/black
-  rev: "23.12.1"
-  hooks:
-  - id: black
-    args: [--safe, --quiet]
-- repo: https://github.com/pycqa/flake8
-  rev: "7.0.0"
-  hooks:
-  - id: flake8
-    additional_dependencies:
-    - flake8-bugbear==24.2.6
-    - flake8-comprehensions==3.14.0
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.39.0
+  rev: v0.41.0
   hooks:
   - id: markdownlint
     exclude: |

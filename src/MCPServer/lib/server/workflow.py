@@ -13,6 +13,7 @@ MCPServer to read workflow links that can be instances of three different
 classes ``Chain``, ``Link`` and ``WatchedDir``. They have different method
 sets.
 """
+
 import json
 import os
 
@@ -20,10 +21,10 @@ from django.conf import settings as django_settings
 from jsonschema import FormatChecker
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
+
 from server.jobs import Job
 from server.translation import FALLBACK_LANG
 from server.translation import TranslationLabel
-
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
 ASSETS_DIR = os.path.join(
@@ -57,9 +58,7 @@ class Workflow:
         self._decode_wdirs()
 
     def __str__(self):
-        return "Chains {}, links {}, watched directories: {}".format(
-            len(self.chains), len(self.links), len(self.wdirs)
-        )
+        return f"Chains {len(self.chains)}, links {len(self.links)}, watched directories: {len(self.wdirs)}"
 
     def _decode_chains(self):
         self.chains = {}

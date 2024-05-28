@@ -11,7 +11,6 @@ from fpr.models import IDCommand
 from fpr.models import IDRule
 from lxml import etree
 
-
 # Introduced in fpr/migrations/0035_python3_compatibility.py
 FILE_BY_EXTENSION_CMD_UUID = "8546b624-7894-4201-8df6-f239d5e0d5ba"
 
@@ -137,11 +136,7 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
                     group=unknown_format_group,
                     uuid=str(uuid.uuid4()),
                 )
-                migration = '''    Format.objects.create(description="""{}""", group_id="{}", uuid="{}")'''.format(
-                    new_format.format_name,
-                    unknown_format_group.uuid,
-                    parent_format.uuid,
-                )
+                migration = f'''    Format.objects.create(description="""{new_format.format_name}""", group_id="{unknown_format_group.uuid}", uuid="{parent_format.uuid}")'''
                 sql = save_object(parent_format)
                 choose_output(output_format, output_file, sql, migration)
                 archivematica_formats[new_format.format_name] = parent_format
@@ -154,13 +149,7 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
             uuid=str(uuid.uuid4()),
         )
         sql = save_object(format_version)
-        migration = '''    FormatVersion.objects.create(format_id="{}", pronom_id="{}", description="""{}""", version="{}", uuid="{}")'''.format(
-            parent_format.uuid,
-            new_format.puid,
-            new_format.version_name,
-            new_format.version,
-            format_version.uuid,
-        )
+        migration = f'''    FormatVersion.objects.create(format_id="{parent_format.uuid}", pronom_id="{new_format.puid}", description="""{new_format.version_name}""", version="{new_format.version}", uuid="{format_version.uuid}")'''
         choose_output(output_format, output_file, sql, migration)
 
         # If an extension is listed, set up a new IDRule so that
@@ -173,9 +162,7 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
             ).delete()
             if deleted_count:
                 sql = connection.queries[-1]["sql"]
-                migration = """    IDRule.objects.filter(command_output="{}").delete()""".format(
-                    new_format.extension
-                )
+                migration = f"""    IDRule.objects.filter(command_output="{new_format.extension}").delete()"""
                 choose_output(output_format, output_file, sql, migration)
             else:
                 rule = IDRule(
@@ -184,8 +171,6 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
                     command_output=new_format.extension,
                 )
                 sql = save_object(rule)
-                migration = """    IDRule.objects.create(format_id="{}", command_id="{}", command_output="{}")""".format(
-                    format_version.uuid, file_by_extension.uuid, new_format.extension
-                )
+                migration = f"""    IDRule.objects.create(format_id="{format_version.uuid}", command_id="{file_by_extension.uuid}", command_output="{new_format.extension}")"""
                 choose_output(output_format, output_file, sql, migration)
         print(file=output_file)

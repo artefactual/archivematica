@@ -1,9 +1,9 @@
 import logging
 
-from client import metrics
-from client.job import Job
 from dbconns import auto_close_old_connections
 
+from client import metrics
+from client.job import Job
 
 logger = logging.getLogger("archivematica.mcp.client.worker")
 

@@ -22,14 +22,18 @@ import uuid
 import django
 
 django.setup()
-from django.db import transaction
-
-# dashboard
-from main.models import Event, File, Directory, Transfer, SIP
+import change_names
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-import change_names
+from django.db import transaction
+from main.models import SIP
+from main.models import Directory
+
+# dashboard
+from main.models import Event
+from main.models import File
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.changeObjectNames")
 

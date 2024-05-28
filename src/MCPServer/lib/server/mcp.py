@@ -19,6 +19,7 @@ Start and run MCPServer via the `main` function.
     watched dirs as set in the workflow.
 10. The `PackageQueue.work` processing loop is started on the main thread.
 """
+
 import concurrent.futures
 import functools
 import getpass
@@ -33,14 +34,19 @@ django.setup()
 
 from django.conf import settings
 
-from server import metrics, rpc_server, shared_dirs
-from server.jobs import Job, JobChain
-from server.packages import Package, DIP, Transfer, SIP
+from server import metrics
+from server import rpc_server
+from server import shared_dirs
+from server.jobs import Job
+from server.jobs import JobChain
+from server.packages import DIP
+from server.packages import SIP
+from server.packages import Package
+from server.packages import Transfer
 from server.queues import PackageQueue
 from server.tasks import Task
 from server.watch_dirs import watch_directories
 from server.workflow import load_workflow
-
 
 logger = logging.getLogger("archivematica.mcp.server")
 

@@ -1,4 +1,5 @@
 """Migration for the deletion of an orphan chain link in the workflow."""
+
 from django.db import migrations
 
 

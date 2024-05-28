@@ -48,7 +48,6 @@ from main import models
 from version import get_full_version
 from version import get_preservation_system_identifier
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 

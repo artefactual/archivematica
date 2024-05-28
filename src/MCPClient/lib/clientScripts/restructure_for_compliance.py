@@ -22,20 +22,18 @@ import shutil
 import django
 
 django.setup()
-from django.db import transaction
-from main.models import Transfer, SIP
+import bag
+from archivematicaFunctions import OPTIONAL_FILES
+from archivematicaFunctions import REQUIRED_DIRECTORIES
 
 # archivematicaCommon
-from archivematicaFunctions import (
-    create_structured_directory,
-    reconstruct_empty_directories,
-    REQUIRED_DIRECTORIES,
-    OPTIONAL_FILES,
-)
-
+from archivematicaFunctions import create_structured_directory
+from archivematicaFunctions import reconstruct_empty_directories
 from custom_handlers import get_script_logger
-import bag
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from main.models import SIP
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
 

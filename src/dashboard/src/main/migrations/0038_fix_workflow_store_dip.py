@@ -1,4 +1,5 @@
 """Migration to change workflow related to DIP upload and storage."""
+
 from django.db import migrations
 
 

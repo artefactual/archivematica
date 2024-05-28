@@ -1,11 +1,11 @@
 """
 Handle offloading of Task objects to MCP Client for processing.
 """
+
 import threading
 
 from server.tasks.backends.base import TaskBackend
 from server.tasks.backends.gearman_backend import GearmanTaskBackend
-
 
 backend_local = threading.local()
 

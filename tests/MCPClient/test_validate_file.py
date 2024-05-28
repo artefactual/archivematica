@@ -6,10 +6,10 @@ from fpr.models import FormatVersion
 from fpr.models import FPCommand
 from fpr.models import FPRule
 from fpr.models import FPTool
+from main.models import SIP
 from main.models import Event
 from main.models import File
 from main.models import FileFormatVersion
-from main.models import SIP
 from validate_file import main
 
 

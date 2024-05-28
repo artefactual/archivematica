@@ -14,18 +14,20 @@ from . import transcoder
 
 django.setup()
 # dashboard
-from fpr.models import FPRule
-from main.models import Derivation, FileFormatVersion, File, FileID
-from django.db import transaction
-
 # archivematicaCommon
 import databaseFunctions
 import fileOperations
 from dicts import ReplacementDict
-
 from django.conf import settings as mcpclient_settings
-from .lib import setup_dicts
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from fpr.models import FPRule
+from main.models import Derivation
+from main.models import File
+from main.models import FileFormatVersion
+from main.models import FileID
+
+from .lib import setup_dicts
 
 # Return codes
 SUCCESS = 0
@@ -170,8 +172,8 @@ def check_manual_normalization(job, opts):
     # FIXME: SQL uses removedtime=0. Cannot get Django to express this
     job.print_output(
         "Checking for a manually normalized file by trying to get the"
-        " unique file that matches SIP UUID {} and whose currentlocation"
-        " value starts with this path: {}.".format(opts.sip_uuid, path)
+        f" unique file that matches SIP UUID {opts.sip_uuid} and whose currentlocation"
+        f" value starts with this path: {path}."
     )
     matches = File.objects.filter(  # removedtime = 0
         sip=opts.sip_uuid, currentlocation__startswith=path
@@ -221,9 +223,7 @@ def once_normalized(job, command, opts, replacement_dict):
         command.exit_code = -2
 
     derivation_event_uuid = str(uuid.uuid4())
-    event_detail_output = 'ArchivematicaFPRCommandID="{}"'.format(
-        command.fpcommand.uuid
-    )
+    event_detail_output = f'ArchivematicaFPRCommandID="{command.fpcommand.uuid}"'
     if command.event_detail_command is not None:
         event_detail_output += f"; {command.event_detail_command.std_out}"
     for ef in transcoded_files:

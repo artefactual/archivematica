@@ -29,9 +29,7 @@ class CallbackHandler(logging.Handler):
 STANDARD_FORMAT = (
     "%(levelname)-8s  %(asctime)s  %(name)s.%(funcName)s:%(lineno)d  %(message)s"
 )
-SCRIPT_FILE_FORMAT = "{}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(lineno)d:  %(message)s".format(
-    os.path.basename(sys.argv[0])
-)
+SCRIPT_FILE_FORMAT = f"{os.path.basename(sys.argv[0])}: %(levelname)-8s  %(asctime)s  %(name)s:%(funcName)s:%(lineno)d:  %(message)s"
 
 
 def get_script_logger(

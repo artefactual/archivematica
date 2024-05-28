@@ -7,6 +7,7 @@ The local copy is removed.
 
 PREMIS events are created after this job runs as part of the workflow.
 """
+
 import multiprocessing
 import os
 import pprint
@@ -16,20 +17,21 @@ import uuid
 import django
 
 django.setup()
-from django.conf import settings as mcpclient_settings
-from django.db import transaction
-from django.db.models import Q
-
-from archivematicaFunctions import get_bag_size, get_setting
+import elasticSearchFunctions
+import metsrw
+import storageService as storage_service
+from archivematicaFunctions import get_bag_size
+from archivematicaFunctions import get_setting
+from bagit import make_bag
 from custom_handlers import get_script_logger
 from databaseFunctions import insertIntoEvents
-import elasticSearchFunctions
-from main.models import Agent, File, UnitVariable
-import storageService as storage_service
-
-from bagit import make_bag
-import metsrw
+from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import Q
+from main.models import Agent
+from main.models import File
+from main.models import UnitVariable
 
 logger = get_script_logger("archivematica.mcp.client.move_to_backlog")
 

@@ -23,14 +23,14 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from main.models import File
-
-# archivematicaCommon
-from archivematicaFunctions import REQUIRED_DIRECTORIES, OPTIONAL_FILES
 import bag
 import fileOperations
-from databaseFunctions import insertIntoEvents
+from archivematicaFunctions import OPTIONAL_FILES
 
+# archivematicaCommon
+from archivematicaFunctions import REQUIRED_DIRECTORIES
+from databaseFunctions import insertIntoEvents
+from main.models import File
 from move_or_merge import move_or_merge
 
 

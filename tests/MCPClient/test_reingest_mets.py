@@ -525,8 +525,8 @@ class TestUpdateObject(TestCase):
 
         for i in range(1, 4):
             path = (
-                './/mets:techMD[@ID="techMD_{}"]'
-                "/mets:mdWrap/mets:xmlData/premis:object".format(i)
+                f'.//mets:techMD[@ID="techMD_{i}"]'
+                "/mets:mdWrap/mets:xmlData/premis:object"
             )
             premis_object = root.find(path, namespaces=nsmap_for_premis2())
             # This is what we're trying to avoid: PREMIS as the default ns.

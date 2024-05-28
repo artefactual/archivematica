@@ -4,6 +4,7 @@
 Describes the data model for the FPR
 
 """
+
 import logging
 import uuid as uuid
 
@@ -14,7 +15,6 @@ from django.db import connection
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from main.models import UUIDField
-
 
 logger = logging.getLogger(__name__)
 

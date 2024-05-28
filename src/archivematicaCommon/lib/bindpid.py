@@ -130,17 +130,17 @@ Example::
         </soapenv:Body>
     </soapenv:Envelope>
 """
+
 import argparse
 import configparser
 import os
 
-
 try:
     from jinja2 import Template
 except ImportError:
-    from django.template import Context, Template
+    from django.template import Context
+    from django.template import Template
 import requests
-
 
 # Parameters required when requesting the binding of a handle PID.
 REQ_PARAMS = (
@@ -237,8 +237,8 @@ def _validate_entity_type_required_params(argdict):
     for param in et_validation["required"]:
         if not argdict.get(param):
             raise BindPIDException(
-                "To request a PID for a {}, you must also supply a value"
-                " for {}".format(entity_type, param)
+                f"To request a PID for a {entity_type}, you must also supply a value"
+                f" for {param}"
             )
 
 

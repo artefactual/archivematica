@@ -35,7 +35,6 @@ from django.urls import reverse
 from elasticsearch import Elasticsearch
 from main.models import DashboardSetting
 
-
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
 CONTENT_TYPE = "Content-Type"
@@ -148,9 +147,7 @@ def test_get_mets_known_mets(mocker, amsetup, admin_client, mets_hdr):
 def test_get_pointer_unknown_pointer(mocker, amsetup, admin_client):
     sip_uuid = "33333333-3333-3333-3333-333333333331"
     pointer_url = (
-        "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
-            sip_uuid
-        )
+        f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
     mocker.patch("elasticSearchFunctions.get_client")
     mocker.patch("storageService.pointer_file_url", return_value=pointer_url)
@@ -172,9 +169,7 @@ def test_get_pointer_unknown_pointer(mocker, amsetup, admin_client):
 def test_get_pointer_known_pointer(mocker, amsetup, admin_client, mets_hdr):
     sip_uuid = "44444444-4444-4444-4444-444444444444"
     pointer_url = (
-        "http://archivematica-storage-service:8000/api/v2/file/{}/pointer_file".format(
-            sip_uuid
-        )
+        f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
     pointer_file = f"pointer.{sip_uuid}.xml"
     content_disposition = f'attachment; filename="{pointer_file}"'

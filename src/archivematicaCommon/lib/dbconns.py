@@ -16,6 +16,7 @@ To debug connection timeouts, turn DEBUG on in Django settings, which will log
 all SQL queries and allow us to check that all logged queries occur within the
 wrapper. Note though, this will result in _very_ verbose logs.
 """
+
 import logging
 import threading
 import traceback
@@ -23,7 +24,6 @@ from contextlib import ContextDecorator
 
 from django.conf import settings
 from django.db import close_old_connections
-
 
 logger = logging.getLogger("archivematica.mcp.server.db")
 thread_locals = threading.local()

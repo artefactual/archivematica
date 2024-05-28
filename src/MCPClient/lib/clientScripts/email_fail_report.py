@@ -29,7 +29,6 @@ from lxml import etree
 from main.models import Job
 from main.models import Report
 
-
 django.setup()
 
 logger = get_script_logger("archivematica.mcp.client.emailFailReport")
@@ -234,11 +233,7 @@ def call(jobs):
                     )
                     job.set_status(1)
                     continue
-                subject = "Archivematica Fail Report for {}: {}-{}".format(
-                    args.unit_type,
-                    args.unit_name,
-                    args.unit_uuid,
-                )
+                subject = f"Archivematica Fail Report for {args.unit_type}: {args.unit_name}-{args.unit_uuid}"
 
                 # Generate report in HTML and send it by email
                 content = get_content_for(

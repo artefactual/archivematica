@@ -11,15 +11,15 @@ from django.core.management import call_command
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
+from main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
+from main.models import SIP
 from main.models import DashboardSetting
 from main.models import DublinCore
 from main.models import File
 from main.models import Job
 from main.models import LevelOfDescription
 from main.models import MetadataAppliesToType
-from main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
 from main.models import RightsStatement
-from main.models import SIP
 from main.models import SIPArrange
 from main.models import Task
 from main.models import Transfer

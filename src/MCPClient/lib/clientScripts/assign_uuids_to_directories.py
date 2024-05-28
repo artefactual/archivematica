@@ -26,6 +26,7 @@ the --include-dirs option is something other than 'Yes', the script will exit
 without doing anything.
 
 """
+
 import argparse
 import os
 from functools import wraps
@@ -34,14 +35,16 @@ import django
 
 django.setup()
 # dashboard
-from main.models import Transfer, Directory
+from archivematicaFunctions import format_subdir_path
+from archivematicaFunctions import get_dir_uuids
+from archivematicaFunctions import str2bool
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-from archivematicaFunctions import get_dir_uuids, format_subdir_path, str2bool
-
-from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from main.models import Directory
+from main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.assignUUIDsToDirectories")
 

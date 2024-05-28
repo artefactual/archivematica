@@ -1,6 +1,7 @@
 """Migration to add a 7-zip method to the list of Archivematica AIP 7-zip
 methods that does not use compression. 7-zip copy mode.
 """
+
 from django.db import migrations
 
 choice_no_compression_uuid = "e3906da0-41fb-4cb8-a598-6c73981b63e9"

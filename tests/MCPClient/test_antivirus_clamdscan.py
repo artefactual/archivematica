@@ -1,4 +1,5 @@
 """Tests for the archivematica_clamscan.py client script."""
+
 import errno
 from collections import namedtuple
 
@@ -124,14 +125,14 @@ def test_clamdscanner_scan(mocker, settings):
 
     # Testing a generic IOError that is not a broken pipe error that we're
     # expecting to be able to manage from clamdscan.
-    patch(scanner, ret=OKAY_RET, excepts=IOError("Testing a generic IO Error"))
+    patch(scanner, ret=OKAY_RET, excepts=OSError("Testing a generic IO Error"))
     passed, state, details = scanner.scan("/file")
     assert passed is False
     assert state is None
     assert details is None
 
     # Broken pipe is a known error from the clamd library.
-    brokenpipe_error = IOError("Testing a broken pipe error")
+    brokenpipe_error = OSError("Testing a broken pipe error")
     brokenpipe_error.errno = errno.EPIPE
     patch(scanner, ret=OKAY_RET, excepts=brokenpipe_error)
     passed, state, details = scanner.scan("/file")

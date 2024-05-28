@@ -52,9 +52,7 @@ def parse_attachment(message_part, state, attachments=None):
                     name, encoding = email.header.decode_header(filename)[0]
                     if encoding:
                         print(
-                            "\t{filename} encoded with {encoding}, converting to unicode".format(
-                                filename=filename, encoding=encoding
-                            )
+                            f"\t{filename} encoded with {encoding}, converting to unicode"
                         )
                         filename = name.decode(encoding)
                 else:  # filename not in Content-Disposition
@@ -119,8 +117,12 @@ def parse2(msgobj, state, attachments=None):
             attachments.append(attachment)
     return {
         "subject": subject,
-        "from": email.utils.parseaddr(msgobj.get("From"))[1],  # 名前は除いてメールアドレスのみ抽出
-        "to": email.utils.parseaddr(msgobj.get("To"))[1],  # 名前は除いてメールアドレスのみ抽出
+        "from": email.utils.parseaddr(msgobj.get("From"))[
+            1
+        ],  # 名前は除いてメールアドレスのみ抽出
+        "to": email.utils.parseaddr(msgobj.get("To"))[
+            1
+        ],  # 名前は除いてメールアドレスのみ抽出
         "attachments": attachments,
         "msgobj": msgobj,
     }

@@ -111,9 +111,9 @@ def component(request, uuid):
             field_value.fieldvalue = request.POST.get(field.fieldname, "")
             field_value.save()
             fields_saved = True
-            values[
-                (field.fieldname)
-            ] = field_value.fieldvalue  # override initially loaded value, if any
+            values[(field.fieldname)] = (
+                field_value.fieldvalue
+            )  # override initially loaded value, if any
 
     if fields_saved:
         messages.append("Metadata saved.")

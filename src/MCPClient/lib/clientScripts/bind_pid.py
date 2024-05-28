@@ -38,6 +38,7 @@ The idea is to allow for PURL resolution like:
 The sole command-line argument is the File's UUID. If the --bind-pids option
 is something other than 'Yes', the script will exit without doing anything.
 """
+
 import argparse
 from functools import wraps
 
@@ -46,13 +47,12 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from main.models import DashboardSetting, File
-
 # archivematicaCommon
 import bindpid
-from custom_handlers import get_script_logger
 from archivematicaFunctions import str2bool
-
+from custom_handlers import get_script_logger
+from main.models import DashboardSetting
+from main.models import File
 
 logger = get_script_logger("archivematica.mcp.client.bind_pid")
 

@@ -5,7 +5,6 @@ from django.shortcuts import render
 from django.utils.translation import gettext as _
 from main.models import DashboardSetting
 
-
 _AS_DICTNAME = "upload-archivesspace_v0.0"
 _ATOM_DICTNAME = "upload-qubit_v0.0"
 

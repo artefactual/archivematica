@@ -12,20 +12,21 @@ import django
 from lxml import etree
 
 django.setup()
-from django.db import transaction
+from databaseFunctions import insertIntoFPCommandOutput
+from dicts import ReplacementDict
+from dicts import replace_string_values
 from django.conf import settings as mcpclient_settings
-
-# dashboard
-from main.models import FPCommandOutput
-from fpr.models import FPRule, FormatVersion
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 # archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
-from databaseFunctions import insertIntoFPCommandOutput
-from dicts import replace_string_values, ReplacementDict
-
+from fpr.models import FormatVersion
+from fpr.models import FPRule
 from lib import setup_dicts
-from django.core.exceptions import ValidationError
+
+# dashboard
+from main.models import FPCommandOutput
 
 
 def concurrent_instances():
@@ -81,9 +82,7 @@ def main(job, file_path, file_uuid, sip_uuid):
 
         if exitstatus != 0:
             job.write_error(
-                "Command {} failed with exit status {}; stderr:".format(
-                    rule.command.description, exitstatus
-                )
+                f"Command {rule.command.description} failed with exit status {exitstatus}; stderr:"
             )
             failed = True
             continue
@@ -100,22 +99,16 @@ def main(job, file_path, file_uuid, sip_uuid):
                 etree.fromstring(stdout.encode("utf8"))
                 insertIntoFPCommandOutput(file_uuid, stdout, rule.uuid)
                 job.write_output(
-                    'Saved XML output for command "{}" ({})'.format(
-                        rule.command.description, rule.command.uuid
-                    )
+                    f'Saved XML output for command "{rule.command.description}" ({rule.command.uuid})'
                 )
             except etree.XMLSyntaxError:
                 failed = True
                 job.write_error(
-                    'XML output for command "{}" ({}) was not valid XML; not saving to database'.format(
-                        rule.command.description, rule.command.uuid
-                    )
+                    f'XML output for command "{rule.command.description}" ({rule.command.uuid}) was not valid XML; not saving to database'
                 )
         else:
             job.write_error(
-                'Tool output for command "{}" ({}) is not XML; not saving to database'.format(
-                    rule.command.description, rule.command.uuid
-                )
+                f'Tool output for command "{rule.command.description}" ({rule.command.uuid}) is not XML; not saving to database'
             )
 
     if failed:

@@ -26,7 +26,6 @@ from main.models import DashboardSetting
 from main.models import User
 from tastypie.models import ApiKey
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 

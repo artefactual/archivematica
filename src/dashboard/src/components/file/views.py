@@ -10,7 +10,6 @@ from django.conf import settings as django_settings
 from django.views.generic import View
 from main import models
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 

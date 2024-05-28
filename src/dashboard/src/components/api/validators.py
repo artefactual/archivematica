@@ -11,6 +11,7 @@ does not pass. The exception may include a message with more details.
 
 New validators must be added to the `` _VALIDATORS`` registry.
 """
+
 import collections
 import csv
 from io import StringIO

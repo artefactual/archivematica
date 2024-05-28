@@ -1,6 +1,7 @@
 """
 Exposes various metrics via Prometheus.
 """
+
 import functools
 import os
 
@@ -12,7 +13,6 @@ from prometheus_client import Histogram
 from prometheus_client import Info
 from prometheus_client import start_http_server
 from version import get_full_version
-
 
 gearman_active_jobs_gauge = Gauge(
     "mcpserver_gearman_active_jobs", "Number of gearman jobs currently being processed"

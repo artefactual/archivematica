@@ -120,9 +120,7 @@ def test_get_premis_schema_with_invalid_schema(mocker, invalid_xsd_path):
     )
     printfn.assert_called_once_with(
         f"Could not parse the PREMIS XML schema {invalid_xsd_path.as_posix()}",
-        "The XML document '{}' is not a schema document.".format(
-            invalid_xsd_path.as_posix()
-        ),
+        f"The XML document '{invalid_xsd_path.as_posix()}' is not a schema document.",
         file=sys.stderr,
     )
     assert result is None
@@ -725,9 +723,7 @@ def test_ensure_event_id_is_uuid_with_existent_event(mocker, existent_event_id):
     )
     assert result != existent_event_id
     printfn.assert_called_once_with(
-        "Changed event identifier from {} to f11ea76b-1921-4152-b1b4-a93dbbfeaa11".format(
-            existent_event_id
-        )
+        f"Changed event identifier from {existent_event_id} to f11ea76b-1921-4152-b1b4-a93dbbfeaa11"
     )
 
 

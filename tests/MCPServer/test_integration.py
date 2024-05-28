@@ -22,7 +22,6 @@ from server.queues import PackageQueue
 from server.tasks import TaskBackend
 from server.workflow import load as load_workflow
 
-
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 INTEGRATION_TEST_PATH = os.path.join(FIXTURES_DIR, "workflow-integration-test.json")
 DEFAULT_STORAGE_LOCATION = "/api/v2/location/default/"
@@ -140,9 +139,7 @@ def test_workflow_integration(
 
     assert isinstance(job, DirectoryClientScriptJob)
     assert job.exit_code == 0
-    assert task.arguments == '"{}" "{}"'.format(
-        settings.PROCESSING_DIRECTORY, transfer.uuid
-    )
+    assert task.arguments == f'"{settings.PROCESSING_DIRECTORY}" "{transfer.uuid}"'
 
     # Next job in chain should be queued
     assert package_queue.job_queue.qsize() == 1

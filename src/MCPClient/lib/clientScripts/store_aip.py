@@ -25,18 +25,19 @@ import django
 # storageService requires Django to be set up
 
 django.setup()
-from django.db import transaction
-from metsrw.plugins import premisrw
-
-from main.models import UnitVariable, Event, Agent, DublinCore
+import storageService as storage_service
+from archivematicaFunctions import escape
+from client import metrics
 
 # archivematicaCommon
 from custom_handlers import get_script_logger
-import storageService as storage_service
-from archivematicaFunctions import escape
-
-from client import metrics
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from main.models import Agent
+from main.models import DublinCore
+from main.models import Event
+from main.models import UnitVariable
+from metsrw.plugins import premisrw
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
 
@@ -155,9 +156,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
                 variablevalue=uuid,
             )
             job.pyprint(
-                "Noting DIP UUID {} related to AIP so relationship can be created when AIP is stored.".format(
-                    uuid
-                )
+                f"Noting DIP UUID {uuid} related to AIP so relationship can be created when AIP is stored."
             )
     else:
         uuid = sip_uuid

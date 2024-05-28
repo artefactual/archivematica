@@ -5,6 +5,7 @@ identifier binding and declaration in Archivematica.
 The tests in this module cover both the two bind_pid(s) microservice jobs but
 also limited unit testing in create_mets_v2 (AIP METS generation).
 """
+
 import os
 from itertools import chain
 
@@ -14,10 +15,10 @@ import create_mets_v2
 import namespaces as ns
 import pytest
 from client.job import Job
+from main.models import SIP
 from main.models import DashboardSetting
 from main.models import Directory
 from main.models import File
-from main.models import SIP
 from main.models import Transfer
 from pid_declaration import DeclarePIDs
 from pid_declaration import DeclarePIDsException

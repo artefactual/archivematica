@@ -21,6 +21,7 @@ hashsum checksum utilities. We need to ensure that the output of the tool is
 mapped consistently to something that can be understood by users when
 debugging their preservation workflow.
 """
+
 import subprocess
 
 import pytest
@@ -29,10 +30,10 @@ from main.models import Event
 from main.models import File
 from main.models import Transfer
 from main.models import User
-from verify_checksum import get_file_queryset
 from verify_checksum import Hashsum
 from verify_checksum import NoHashCommandAvailable
 from verify_checksum import PREMISFailure
+from verify_checksum import get_file_queryset
 from verify_checksum import write_premis_event_per_file
 
 
@@ -338,14 +339,10 @@ class TestHashsum:
             ), f"Length of the event objects is not '1', it is: {len(events)}"
             assert (
                 events[0].event_outcome == event_outcome
-            ), "Event outcome retrieved from the database is incorrect: {}".format(
-                events[0].event_outcome
-            )
+            ), f"Event outcome retrieved from the database is incorrect: {events[0].event_outcome}"
             assert (
                 detail in events[0].event_detail
-            ), "Event detail retrieved from the database is incorrect: {}".format(
-                events[0].event_detail
-            )
+            ), f"Event detail retrieved from the database is incorrect: {events[0].event_detail}"
             # Ensure that UUID creation has happened as anticipated. Will raise
             # a TypeError if otherwise.
             (events[0].event_id)
@@ -372,9 +369,7 @@ class TestHashsum:
                 assert set(agenttypes) == set(agent_types), "agent types don't match"
                 assert (
                     _agent_count == number_of_expected_agents
-                ), "Number of agents is incorrect: {} expected: {}".format(
-                    _agent_count, number_of_expected_agents
-                )
+                ), f"Number of agents is incorrect: {_agent_count} expected: {number_of_expected_agents}"
             # Collect the different checksum algorithms written to ensure they
             # were all written independently in the function.
             for event in events:
@@ -394,7 +389,5 @@ class TestHashsum:
         with pytest.raises(PREMISFailure):
             get_file_queryset(invalid_package_uuid)
             pytest.fail(
-                "Unable to find the transfer objects for the SIP: '{}' in the database".format(
-                    invalid_package_uuid
-                )
+                f"Unable to find the transfer objects for the SIP: '{invalid_package_uuid}' in the database"
             )

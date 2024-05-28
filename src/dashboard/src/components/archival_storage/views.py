@@ -84,9 +84,7 @@ def sync_es_aip_status_with_storage_service(uuid, es_status):
 
     if api_results in AMCLIENT_ERROR_CODES:
         logger.warning(
-            "Package {} not found in Storage Service. AMClient error code: {}".format(
-                uuid, api_results
-            )
+            f"Package {uuid} not found in Storage Service. AMClient error code: {api_results}"
         )
         return keep_in_results
 
@@ -649,9 +647,7 @@ def aips_pending_deletion():
     except Exception as e:
         # TODO this should be messages.warning, but we need 'request' here
         logger.warning(
-            "Error retrieving AIPs pending deletion: is the storage server running?  Error: {}".format(
-                e
-            )
+            f"Error retrieving AIPs pending deletion: is the storage server running?  Error: {e}"
         )
     else:
         for aip in aips:

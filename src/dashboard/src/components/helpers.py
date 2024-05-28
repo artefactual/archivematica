@@ -41,7 +41,6 @@ from django.utils.translation import gettext as _
 from main import models
 from tastypie.models import ApiKey
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 
@@ -416,14 +415,12 @@ def completed_units_efficient(unit_type="transfer", include_failed=True):
         table_name = "SIPs"
         pk_name = "sipUUID"
     q = (
-        "SELECT u.{pk_name}, j.jobType, j.microserviceGroup"
-        " FROM {table_name} as u"
+        f"SELECT u.{pk_name}, j.jobType, j.microserviceGroup"
+        f" FROM {table_name} as u"
         " INNER JOIN Jobs as j"
-        " ON j.SIPUUID = u.{pk_name}"
+        f" ON j.SIPUUID = u.{pk_name}"
         " WHERE u.hidden = 0"
-        " ORDER BY u.{pk_name}, j.createdTime DESC, j.createdTimeDec DESC;".format(
-            table_name=table_name, pk_name=pk_name
-        )
+        f" ORDER BY u.{pk_name}, j.createdTime DESC, j.createdTimeDec DESC;"
     )
     completed = set()
     current_uuid = None

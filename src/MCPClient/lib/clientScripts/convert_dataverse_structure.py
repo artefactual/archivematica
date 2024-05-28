@@ -21,6 +21,7 @@ Archivematica documentation:
 
 https://wiki.archivematica.org/Dataverse
 """
+
 import json
 import os
 import sys
@@ -33,9 +34,8 @@ from lxml import etree
 
 django.setup()
 
-from custom_handlers import get_script_logger
 import metsrw
-
+from custom_handlers import get_script_logger
 
 logger = get_script_logger("archivematica.mcp.client.convert_dataverse_struct")
 
@@ -200,9 +200,7 @@ def display_checksum_for_user(job, fname, checksum_value, checksum_type="MD5"):
     this script is doing in the Dataverse workflow.
     """
     job.pyprint(
-        "Checksum for '{}' retrieved from dataset.json: {} ({})".format(
-            fname, checksum_value, checksum_type
-        )
+        f"Checksum for '{fname}' retrieved from dataset.json: {checksum_value} ({checksum_type})"
     )
 
 
@@ -580,9 +578,7 @@ def init_convert_dataverse(job):
         return convert_dataverse_to_mets(job, unit_path=transfer_dir)
     except IndexError:
         convert_dv_msg = (
-            "Problem with the supplied arguments to the function len: {}".format(
-                len(job.args)
-            )
+            f"Problem with the supplied arguments to the function len: {len(job.args)}"
         )
         logger.error(convert_dv_msg)
         raise ConvertDataverseError(convert_dv_msg)

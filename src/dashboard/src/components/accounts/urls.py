@@ -19,7 +19,6 @@ from components.accounts import views
 from django.conf import settings
 from django.urls import path
 
-
 app_name = "accounts"
 urlpatterns = [
     path("", views.list, name="accounts_index"),

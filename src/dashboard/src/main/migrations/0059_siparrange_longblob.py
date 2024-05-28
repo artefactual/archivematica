@@ -1,9 +1,9 @@
 import uuid
 
 import main.models
+from django.db import OperationalError
 from django.db import migrations
 from django.db import models
-from django.db import OperationalError
 
 
 def drop_original_path_unique_key(apps, schema_editor):

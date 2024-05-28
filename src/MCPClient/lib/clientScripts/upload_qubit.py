@@ -32,13 +32,11 @@ from custom_handlers import get_script_logger
 # externals
 
 django.setup()
-from django.conf import settings as mcpclient_settings
-from django.db import transaction
-
 # dashboard
 import main.models as models
-
+from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 # moved after django.setup()
 logger = get_script_logger("archivematica.upload.qubit")
@@ -215,11 +213,7 @@ def start(job, data):
 
     # Build URL (expected sth like http://localhost/ica-atom/index.php)
     atom_url_prefix = ";" if data.version == 1 else ""
-    deposit_url = "{}/{}sword/deposit/{}".format(
-        data.url,
-        atom_url_prefix,
-        target,
-    )
+    deposit_url = f"{data.url}/{atom_url_prefix}sword/deposit/{target}"
 
     # Auth and request!
     log("About to deposit to: %s" % data.url)

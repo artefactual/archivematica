@@ -3,6 +3,7 @@
 validate against the objects expected to be part of the SIP generated during
 transfer.
 """
+
 import json
 import os
 import uuid
@@ -12,15 +13,16 @@ import django
 # databaseFunctions requires Django to be set up
 
 django.setup()
-from django.utils import timezone
+import databaseFunctions
+import metsrw
 
 # archivematicaCommon
 from archivematicaFunctions import get_file_checksum
 from custom_handlers import get_script_logger
-import databaseFunctions
-from main.models import Agent, File
-import metsrw
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from main.models import Agent
+from main.models import File
 
 logger = get_script_logger("archivematica.mcp.client.parse_dataverse_mets")
 transfer_objects_directory = "%transferDirectory%objects"
@@ -203,9 +205,7 @@ def create_db_entries(job, mapping, dataverse_agent_id):
                     "Added derivation from", original_uuid, "to", file_entry.uuid
                 )
             except django.db.IntegrityError:
-                err_log = "Database integrity error, entry: {} for file {}".format(
-                    file_entry.currentlocation, file_entry.originallocation
-                )
+                err_log = f"Database integrity error, entry: {file_entry.currentlocation} for file {file_entry.originallocation}"
                 raise ParseDataverseError(err_log)
 
 
@@ -256,7 +256,7 @@ def verify_checksum(
 
     checksumtype = checksumtype.lower()
     generated_checksum = get_file_checksum(path, checksumtype)
-    event_detail = 'program="python"; ' 'module="hashlib.{}()"'.format(checksumtype)
+    event_detail = 'program="python"; ' f'module="hashlib.{checksumtype}()"'
     if checksum != generated_checksum:
         job.pyprint("Checksum failed")
         event_outcome = "Fail"

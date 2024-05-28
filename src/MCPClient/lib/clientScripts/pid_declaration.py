@@ -6,6 +6,7 @@ Given an identifiers.json file, supplying third-party persistent identifiers
 with the objects in the transfer, so be translated to PREMIS objects in the
 AIP METS.
 """
+
 import json
 import os
 import sys
@@ -15,10 +16,11 @@ import django
 
 django.setup()
 
-from main.models import Directory, File, SIP
-
 from change_names import change_name
 from django.core.exceptions import ValidationError
+from main.models import SIP
+from main.models import Directory
+from main.models import File
 
 
 class DeclarePIDsException(Exception):
@@ -112,9 +114,7 @@ class DeclarePIDs:
         identifier = id_.get("identifier", None)
         if identifier_type is None:
             self.job.pyprint(
-                "None value returned for identifier type: {} on object: {}".format(
-                    id_, mdl
-                ),
+                f"None value returned for identifier type: {id_} on object: {mdl}",
                 file=sys.stderr,
             )
             return (False,)
@@ -175,9 +175,7 @@ class DeclarePIDs:
                 except (Directory.DoesNotExist, ValidationError):
                     pass
         self.job.pyprint(
-            "{} identifiers added for {} objects in the package".format(
-                self.actual_count, self.identifier_count
-            )
+            f"{self.actual_count} identifiers added for {self.identifier_count} objects in the package"
         )
 
     def _retrieve_identifiers_path(self, unit_uuid, sip_directory):

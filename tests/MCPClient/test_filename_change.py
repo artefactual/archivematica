@@ -7,10 +7,10 @@ import change_object_names
 import pytest
 from client.job import Job
 from django.test import TestCase
+from main.models import SIP
 from main.models import Directory
 from main.models import Event
 from main.models import File
-from main.models import SIP
 from main.models import Transfer
 from main.models import User
 from pytest_django.asserts import assertQuerysetEqual

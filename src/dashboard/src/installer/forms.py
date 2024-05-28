@@ -22,7 +22,6 @@ from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
 from main.models import DashboardSetting
 
-
 site_url_field = forms.CharField(
     label=_("Site URL"),
     help_text=_("This is the public URL of your Archivematica dashboard."),

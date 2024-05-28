@@ -22,14 +22,13 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from main.models import File
+# --sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
+from optparse import OptionParser
 
 # archivematicaCommon
 import fileOperations
-
-# --sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
-from optparse import OptionParser
 from django.core.exceptions import ValidationError
+from main.models import File
 
 
 def main(job):
@@ -96,11 +95,7 @@ def main(job):
                     )
                     return 3
                 else:
-                    job.print_error(
-                        "Could not find {access_file} in {filename}".format(
-                            access_file=access_file, filename=csv_path
-                        )
-                    )
+                    job.print_error(f"Could not find {access_file} in {csv_path}")
                     return 2
             # If we found the original file, retrieve it from the DB
             kwargs = {

@@ -16,8 +16,8 @@ from xml2obj import mets_file
 # initialize Django (required for Django 1.7)
 
 django.setup()
-from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -234,9 +234,7 @@ def upload_to_archivesspace(
             )
         except ArchivesSpaceError as error:
             logger.error(
-                "Could not upload {} to ArchivesSpace record {}. Error: {}".format(
-                    file_name, as_resource, str(error)
-                )
+                f"Could not upload {file_name} to ArchivesSpace record {as_resource}. Error: {str(error)}"
             )
             all_files_paired_successfully = False
 

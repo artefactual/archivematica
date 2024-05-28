@@ -1,6 +1,5 @@
 from django.db import migrations
 
-
 _AS_DICTNAME = "upload-archivesspace_v0.0"
 
 

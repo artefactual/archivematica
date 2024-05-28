@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """Unit tests against the Convert Dataverse Structure MCP Client script."""
+
 import os
 from collections import namedtuple
 
@@ -203,9 +204,7 @@ class TestDataverseExample:
 
         assert (
             len(mets.all_files()) == fixture.all_file_count
-        ), "File count incorrect: '{}', expected '{}'".format(
-            len(mets.all_files()), fixture.all_file_count
-        )
+        ), f"File count incorrect: '{len(mets.all_files())}', expected '{fixture.all_file_count}'"
 
         dir_counter = 0
         item_counter = 0
@@ -217,14 +216,10 @@ class TestDataverseExample:
 
         assert (
             dir_counter == fixture.dir_count
-        ), "Directory count incorrect: '{}', expected: '{}'".format(
-            dir_counter, fixture.dir_count
-        )
+        ), f"Directory count incorrect: '{dir_counter}', expected: '{fixture.dir_count}'"
         assert (
             item_counter == fixture.item_count
-        ), "Item count incorrect: '{}', expected: '{}'".format(
-            item_counter, fixture.item_count
-        )
+        ), f"Item count incorrect: '{item_counter}', expected: '{fixture.item_count}'"
 
     @pytest.mark.parametrize(
         "fixture", [dv_1, dv_2, dv_3, dv_4, dv_5, dv_6, dv_7, dv_8]
@@ -252,7 +247,7 @@ class TestDataverseExample:
         codebook = mets_root.findall(".//ddi:codebook", namespace)
         assert len(codebook) == 1, (
             "Incorrect number of codebook entries "
-            "discovered: '{}' expected 1.".format(len(codebook))
+            f"discovered: '{len(codebook)}' expected 1."
         )
 
         # Test that we have a single title instance and the title matches what
@@ -261,9 +256,7 @@ class TestDataverseExample:
         assert len(title) == 1
         assert (
             title[0].text == fixture.ddi_title
-        ), "DDI title: '{}' is not what was expected: '{}'".format(
-            title[0].text, fixture.ddi_title
-        )
+        ), f"DDI title: '{title[0].text}' is not what was expected: '{fixture.ddi_title}'"
 
         # Test that we have a single PID and that it matches what is expected.
         pid = mets_root.findall(".//ddi:IDNo", namespace)
@@ -273,14 +266,10 @@ class TestDataverseExample:
         pid_agency = pid[0].get("agency")
         assert (
             pid_agency == fixture.pid_type
-        ), "PID type: '{}' is not what was expected: '{}'".format(
-            pid_agency, fixture.pid_type
-        )
+        ), f"PID type: '{pid_agency}' is not what was expected: '{fixture.pid_type}'"
         assert (
             pid[0].text == fixture.pid_value
-        ), "PID value: '{}' is not what was expected: '{}".format(
-            pid[0].text, fixture.pid_value
-        )
+        ), f"PID value: '{pid[0].text}' is not what was expected: '{fixture.pid_value}"
 
         # Title is used in three other locations in the METS. Make sure that
         # they are found as well.

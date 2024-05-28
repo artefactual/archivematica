@@ -10,6 +10,7 @@ Add a derivative link.
 :param fileUUID: UUID of the preservation file.
 :param filePath: Path on disk of the preservation file.
 """
+
 import os
 import uuid
 
@@ -17,15 +18,15 @@ import django
 from django.db import transaction
 
 django.setup()
-from django.db.models import Q
-
-# dashboard
-from main.models import Event, File
-
 # archivematicaCommon
 import databaseFunctions
 import fileOperations
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+
+# dashboard
+from main.models import Event
+from main.models import File
 
 
 def main(job):
@@ -93,11 +94,7 @@ def main(job):
                     )
                     return 3
                 else:
-                    job.print_error(
-                        "Could not find {preservation_file} in {filename}".format(
-                            preservation_file=preservation_file, filename=csv_path
-                        )
-                    )
+                    job.print_error(f"Could not find {preservation_file} in {csv_path}")
                     return 2
             # If we found the original file, retrieve it from the DB
             original_file = File.objects.get(
@@ -157,7 +154,7 @@ def main(job):
         e.save()
         job.print_output(
             "Updated the eventOutcomeDetailNote of an existing normalization"
-            " Event for file {}. Not creating a Derivation object".format(fileUUID)
+            f" Event for file {fileUUID}. Not creating a Derivation object"
         )
     except (Event.DoesNotExist, ValidationError):
         # No normalization event was created in normalize.py - probably manually
@@ -173,9 +170,7 @@ def main(job):
             eventOutcomeDetailNote=dstR,
         )
         job.print_output(
-            "Created a manual normalization Event for file {}.".format(
-                original_file.uuid
-            )
+            f"Created a manual normalization Event for file {original_file.uuid}."
         )
 
         # Add linking information between files
@@ -186,8 +181,8 @@ def main(job):
             relatedEventUUID=derivationEventUUID,
         )
         job.print_output(
-            "Created a Derivation for original file {}, derived file {}, and"
-            " event {}".format(original_file.uuid, fileUUID, derivationEventUUID)
+            f"Created a Derivation for original file {original_file.uuid}, derived file {fileUUID}, and"
+            f" event {derivationEventUUID}"
         )
 
     return 0

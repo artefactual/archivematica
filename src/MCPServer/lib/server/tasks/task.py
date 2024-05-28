@@ -4,6 +4,7 @@ Stored in the `Task` model.
 
 Tasks are passed to MCPClient for processing.
 """
+
 import logging
 import os
 import uuid
@@ -11,7 +12,6 @@ import uuid
 from dbconns import auto_close_old_connections
 from django.utils import timezone
 from main import models
-
 
 logger = logging.getLogger("archivematica.mcp.server.tasks")
 
@@ -44,9 +44,7 @@ class Task:
         self.finished_timestamp = None
 
     def __repr__(self):
-        return "Task(uuid={}, arguments={}, start_timestamp={}, done={})".format(
-            self.uuid, self.arguments, self.start_timestamp, self.done
-        )
+        return f"Task(uuid={self.uuid}, arguments={self.arguments}, start_timestamp={self.start_timestamp}, done={self.done})"
 
     @classmethod
     @auto_close_old_connections()

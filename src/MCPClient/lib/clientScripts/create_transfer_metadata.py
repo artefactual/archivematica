@@ -6,9 +6,8 @@ from lxml import etree
 
 django.setup()
 # dashboard
-from main.models import Transfer
-
 from client import metrics
+from main.models import Transfer
 
 
 def fetch_set(sip_uuid):

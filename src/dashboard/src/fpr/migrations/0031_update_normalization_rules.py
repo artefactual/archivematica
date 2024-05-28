@@ -1,5 +1,6 @@
 """Remove normalization for preservation rules for all video files
 and for some common image formats."""
+
 from django.db import migrations
 
 NORMALIZE_TO_MKV_FOR_PRES_COMMANDS = (

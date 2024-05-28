@@ -35,44 +35,39 @@ import metsrw
 
 django.setup()
 # dashboard
-from django.conf import settings as mcpclient_settings
-from main.models import (
-    Agent,
-    Derivation,
-    Directory,
-    DublinCore,
-    Event,
-    File,
-    FileID,
-    FPCommandOutput,
-    SIP,
-    SIPArrange,
-)
-
-import archivematicaCreateMETSReingest
-from archivematicaCreateMETSMetadataCSV import parseMetadata
 import archivematicaCreateMETSMetadataXML
+import archivematicaCreateMETSReingest
+import namespaces as ns
+from archivematicaCreateMETSMetadataCSV import parseMetadata
 from archivematicaCreateMETSRights import archivematicaGetRights
 from archivematicaCreateMETSRightsDspaceMDRef import (
     archivematicaCreateMETSRightsDspaceMDRef,
 )
-from archivematicaCreateMETSTrim import getTrimDmdSec
-from archivematicaCreateMETSTrim import getTrimFileDmdSec
 from archivematicaCreateMETSTrim import getTrimAmdSec
+from archivematicaCreateMETSTrim import getTrimDmdSec
 from archivematicaCreateMETSTrim import getTrimFileAmdSec
+from archivematicaCreateMETSTrim import getTrimFileDmdSec
 
 # archivematicaCommon
 from archivematicaFunctions import normalizeNonDcElementName
-from create_mets_dataverse_v2 import (
-    create_dataverse_sip_dmdsec,
-    create_dataverse_tabfile_dmdsec,
-)
-from custom_handlers import get_script_logger
-import namespaces as ns
+from bagit import Bag
+from bagit import BagError
 from change_names import change_name
-
-from bagit import Bag, BagError
+from create_mets_dataverse_v2 import create_dataverse_sip_dmdsec
+from create_mets_dataverse_v2 import create_dataverse_tabfile_dmdsec
+from custom_handlers import get_script_logger
+from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from main.models import SIP
+from main.models import Agent
+from main.models import Derivation
+from main.models import Directory
+from main.models import DublinCore
+from main.models import Event
+from main.models import File
+from main.models import FileID
+from main.models import FPCommandOutput
+from main.models import SIPArrange
 
 SIP_DIR_VAR = r"%SIPDirectory%"
 
@@ -1203,7 +1198,7 @@ def createFileSec(
                 except (Derivation.DoesNotExist, ValidationError):
                     job.pyprint(
                         "Fatal error: unable to locate a Derivation object"
-                        " where the derived file is {}".format(f.uuid)
+                        f" where the derived file is {f.uuid}"
                     )
                     raise
                 GROUPID = f"Group-{d.source_file_id}"
@@ -1484,7 +1479,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
                     bag_tag = etree.SubElement(bag_metadata, key)
                 except ValueError:
                     job.pyprint(
-                        "Skipping bag key {}; not a valid" " XML tag name".format(key),
+                        f"Skipping bag key {key}; not a valid" " XML tag name",
                         file=sys.stderr,
                     )
                     continue
@@ -1663,9 +1658,7 @@ def add_normative_structmap_div(
             parent_el = path_to_el[parent_path]
         except KeyError:
             logger.info(
-                "Unable to find parent path {} of item {} in path_to_el\n{}".format(
-                    parent_path, fsitem.path, pprint.pformat(path_to_el)
-                )
+                f"Unable to find parent path {parent_path} of item {fsitem.path} in path_to_el\n{pprint.pformat(path_to_el)}"
             )
             raise
         el = etree.SubElement(

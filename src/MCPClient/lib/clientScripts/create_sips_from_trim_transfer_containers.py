@@ -25,11 +25,10 @@ from django.db import transaction
 
 django.setup()
 # dashboard
-from main.models import File
-
 # archivematicaCommon
 import archivematicaFunctions
 import databaseFunctions
+from main.models import File
 
 
 def call(jobs):

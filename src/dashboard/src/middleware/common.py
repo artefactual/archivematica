@@ -26,7 +26,6 @@ from django.template import TemplateDoesNotExist
 from django.utils.deprecation import MiddlewareMixin
 from shibboleth.middleware import ShibbolethRemoteUserMiddleware
 
-
 logger = logging.getLogger("archivematica.dashboard")
 
 

@@ -32,6 +32,7 @@ recreate them using the most recent version of the ES mappings.
 Execution example:
 ./manage.py rebuild_aip_index_from_storage_service --delete-all
 """
+
 import logging
 import os
 import shutil
@@ -180,9 +181,7 @@ class Command(DashboardCommand):
                 "AIP/AIC" if aip_indexed_count == 1 else "AIPs/AICs"
             )
             self.success(
-                "Indexing complete. Successfully indexed {count} {term}.".format(
-                    count=aip_indexed_count, term=pluralized_aips_aics_term
-                )
+                f"Indexing complete. Successfully indexed {aip_indexed_count} {pluralized_aips_aics_term}."
             )
 
     def process_package(

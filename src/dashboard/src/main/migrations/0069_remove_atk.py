@@ -1,4 +1,5 @@
 """Remove Archivists' Toolkit data and model."""
+
 from django.db import migrations
 from django.db import models
 
