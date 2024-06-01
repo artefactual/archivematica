@@ -1,4 +1,3 @@
-# flake8: noqa
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -418,7 +417,7 @@ if AUDIT_LOG_MIDDLEWARE:
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # Import basic authentication settings from component module.
-from .components.auth import *  # noqa
+from .components.auth import *
 
 ROOT_URLCONF = "urls"
 
@@ -513,16 +512,6 @@ LOGIN_EXEMPT_URLS = [
     r"^api",
     r"^jsi18n",
 ]
-# Django debug toolbar
-try:
-    import debug_toolbar  # noqa: F401
-except:
-    pass
-else:
-    MIDDLEWARE += ("debug_toolbar.middleware.DebugToolbarMiddleware",)
-    INSTALLED_APPS += ("debug_toolbar",)
-    INTERNAL_IPS = ("127.0.0.1", "192.168.82.1", "10.0.2.2")
-    DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False}
 
 # Dashboard internal settings
 GEARMAN_SERVER = config.get("gearman_server")
@@ -601,14 +590,14 @@ if SHIBBOLETH_AUTHENTICATION:
         "shibboleth.context_processors.logout_link"
     ]
 
-    from .components.shibboleth_auth import *  # noqa
+    from .components.shibboleth_auth import *
 
 LDAP_AUTHENTICATION = config.get("ldap_authentication")
 if LDAP_AUTHENTICATION:
     ALLOW_USER_EDITS = False
     AUTHENTICATION_BACKENDS.insert(0, "components.accounts.backends.CustomLDAPBackend")
 
-    from .components.ldap_auth import *  # noqa
+    from .components.ldap_auth import *
 
 CAS_AUTHENTICATION = config.get("cas_authentication")
 if CAS_AUTHENTICATION:
@@ -633,7 +622,7 @@ if CAS_AUTHENTICATION:
         "django_cas_ng.middleware.CASMiddleware",
     )
 
-    from .components.cas_auth import *  # noqa
+    from .components.cas_auth import *
 
 OIDC_AUTHENTICATION = config.get("oidc_authentication")
 if OIDC_AUTHENTICATION:
@@ -643,13 +632,13 @@ if OIDC_AUTHENTICATION:
     LOGIN_EXEMPT_URLS.append(r"^oidc")
     INSTALLED_APPS += ["mozilla_django_oidc"]
 
-    from .components.oidc_auth import *  # noqa
+    from .components.oidc_auth import *
 
 CSP_ENABLED = config.get("csp_enabled")
 if CSP_ENABLED:
     MIDDLEWARE.insert(0, "csp.middleware.CSPMiddleware")
 
-    from .components.csp import *  # noqa
+    from .components.csp import *
 
     CSP_SETTINGS_FILE = os.environ.get("CSP_SETTINGS_FILE", "")
     if CSP_SETTINGS_FILE:

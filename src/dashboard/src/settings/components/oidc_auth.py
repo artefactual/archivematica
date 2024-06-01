@@ -30,8 +30,13 @@ else:
 
 OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO", "HS256")
 
+
 # Username is email address
-OIDC_USERNAME_ALGO = lambda email: email  # noqa
+def _get_email(email):
+    return email
+
+
+OIDC_USERNAME_ALGO = _get_email
 
 # map attributes from access token
 OIDC_ACCESS_ATTRIBUTE_MAP = {"given_name": "first_name", "family_name": "last_name"}
