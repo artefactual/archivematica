@@ -17,5 +17,9 @@ ignore = [
   "UP031",
 ]
 
+[lint.per-file-ignores]
+"src/*/settings/*" = ["F403"]
+"src/dashboard/src/settings/*" = ["F405"]
+
 [lint.isort]
 force-single-line = true

@@ -1,4 +1,3 @@
-# flake8: noqa
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -20,7 +19,6 @@
 import os
 
 from .base import *
-
 
 DEBUG = True
 TEMPLATES[0]["OPTIONS"]["debug"] = True

@@ -1,4 +1,3 @@
-# flake8: noqa
 # This file is part of Archivematica.
 #
 # Copyright 2010-2018 Artefactual Systems Inc. <http://artefactual.com>

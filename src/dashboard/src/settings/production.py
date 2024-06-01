@@ -1,4 +1,3 @@
-# flake8: noqa
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -18,7 +17,6 @@
 """Production settings and globals."""
 
 from .base import *
-
 
 ALLOWED_HOSTS = config.get("allowed_hosts").split(",")
 
