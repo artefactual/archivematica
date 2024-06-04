@@ -403,8 +403,8 @@ def get_premis_rights_documentation_identifiers(rights_type, identifiers):
         identifier_value = getattr(
             identifier, f"{rights_type}documentationidentifiervalue"
         )
-        identifier_role = getattr(
-            identifier, f"{rights_type}documentationidentifierrole"
+        identifier_role = (
+            getattr(identifier, f"{rights_type}documentationidentifierrole") or ""
         )
 
         data += (
@@ -483,7 +483,7 @@ def get_premis_license_information(rights):
             "license",
             license_section.rightsstatementlicensedocumentationidentifier_set.all(),
         )
-        license_information += (("license_terms", license_section.licenseterms),)
+        license_information += (("license_terms", license_section.licenseterms or ""),)
         for note in license_section.rightsstatementlicensenote_set.all():
             license_information += (("license_note", note.licensenote),)
         license_information += (
@@ -698,8 +698,8 @@ def event_to_premis(event):
         premis_data += (
             (
                 "linking_agent_identifier",
-                ("linking_agent_identifier_type", agent.identifiertype),
-                ("linking_agent_identifier_value", str(agent.identifiervalue)),
+                ("linking_agent_identifier_type", agent.identifiertype or ""),
+                ("linking_agent_identifier_value", str(agent.identifiervalue or "")),
             ),
         )
 
@@ -720,10 +720,10 @@ def agent_to_premis(agent):
         PREMIS_META,
         (
             "agent_identifier",
-            ("agent_identifier_type", agent.identifiertype),
-            ("agent_identifier_value", str(agent.identifiervalue)),
+            ("agent_identifier_type", agent.identifiertype or ""),
+            ("agent_identifier_value", str(agent.identifiervalue or "")),
         ),
-        ("agent_name", agent.name),
+        ("agent_name", agent.name or ""),
         ("agent_type", agent.agenttype),
     )
 
