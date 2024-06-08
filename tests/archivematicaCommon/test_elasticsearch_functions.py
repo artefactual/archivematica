@@ -1201,17 +1201,26 @@ def test_get_transfer_file_info_logs_multiple_results(search_all_results, es_cli
 
 @pytest.mark.django_db
 @mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions._document_ids_from_field_query")
-def test_remove_backlog_transfer_files(
-    _document_ids_from_field_query, client, transfer
-):
-    file_doc_id = str(uuid.uuid4())
-    _document_ids_from_field_query.return_value = [file_doc_id]
+@mock.patch("elasticSearchFunctions.search_all_results")
+def test_remove_backlog_transfer_files(search_all_results, client, transfer):
+    file_doc_id = "123"
+    search_all_results.return_value = {
+        "hits": {
+            "hits": [
+                {
+                    "_id": file_doc_id,
+                    "_source": {"filename": "file.txt", "fileuuid": str(uuid.uuid4())},
+                }
+            ]
+        }
+    }
 
     elasticSearchFunctions.remove_backlog_transfer_files(client, transfer.uuid)
 
-    _document_ids_from_field_query.assert_called_once_with(
-        client, elasticSearchFunctions.TRANSFER_FILES_INDEX, "sipuuid", transfer.uuid
+    search_all_results.assert_called_once_with(
+        client,
+        body={"query": {"term": {"sipuuid": str(transfer.uuid)}}},
+        index=elasticSearchFunctions.TRANSFER_FILES_INDEX,
     )
     client.delete.assert_called_once_with(
         index=elasticSearchFunctions.TRANSFER_FILES_INDEX,
@@ -1222,17 +1231,26 @@ def test_remove_backlog_transfer_files(
 
 @pytest.mark.django_db
 @mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions._document_ids_from_field_query")
-def test_remove_sip_transfer_files(
-    _document_ids_from_field_query, client, transfer, transfer_file
-):
-    file_doc_id = str(uuid.uuid4())
-    _document_ids_from_field_query.return_value = [file_doc_id]
+@mock.patch("elasticSearchFunctions.search_all_results")
+def test_remove_sip_transfer_files(search_all_results, client, transfer, transfer_file):
+    file_doc_id = "123"
+    search_all_results.return_value = {
+        "hits": {
+            "hits": [
+                {
+                    "_id": file_doc_id,
+                    "_source": {"filename": "file.txt", "fileuuid": str(uuid.uuid4())},
+                }
+            ]
+        }
+    }
 
     elasticSearchFunctions.remove_sip_transfer_files(client, transfer.uuid)
 
-    _document_ids_from_field_query.assert_called_once_with(
-        client, elasticSearchFunctions.TRANSFER_FILES_INDEX, "sipuuid", transfer.uuid
+    search_all_results.assert_called_once_with(
+        client,
+        body={"query": {"term": {"sipuuid": str(transfer.uuid)}}},
+        index=elasticSearchFunctions.TRANSFER_FILES_INDEX,
     )
     client.delete.assert_called_once_with(
         index=elasticSearchFunctions.TRANSFER_FILES_INDEX,

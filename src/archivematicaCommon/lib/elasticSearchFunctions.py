@@ -1248,7 +1248,7 @@ def _document_ids_from_field_query(client, index, field, value):
     document_ids = []
 
     # Escape /'s with \\
-    searchvalue = value.replace("/", "\\/")
+    searchvalue = str(value).replace("/", "\\/")
     query = {"query": {"term": {field: searchvalue}}}
     documents = search_all_results(client, body=query, index=index)
 
