@@ -340,8 +340,7 @@ def findFileInNormalizationCSV(
 
     :returns: Path to the origin file for `target_file`. Note this is the path from normalization.csv, so will be the original location.
     """
-    # use universal newline mode to support unusual newlines, like \r
-    with open(csv_path, "rb") as csv_file:
+    with open(csv_path) as csv_file:
         reader = csv.reader(csv_file)
         # Search CSV for an access/preservation filename that matches target_file
         # Get original name of target file, to handle filename changes.
@@ -388,7 +387,7 @@ def findFileInNormalizationCSV(
                     return original
             else:
                 return None
-        except csv.Error:
+        except (ValueError, csv.Error):
             printfn(
                 f"Error reading {csv_path} on line {reader.line_num}",
                 file=sys.stderr,
