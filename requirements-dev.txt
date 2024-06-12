@@ -27,7 +27,7 @@ build==1.2.1
     # via pip-tools
 cachetools==5.3.3
     # via tox
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   -r requirements.txt
     #   requests
@@ -47,11 +47,11 @@ click==8.1.7
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.5.1
+coverage[toml]==7.5.3
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==42.0.7
+cryptography==42.0.8
     # via
     #   -r requirements.txt
     #   josepy
@@ -153,9 +153,9 @@ olefile==0.47
     #   opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
-orjson==3.10.1
+orjson==3.10.4
     # via -r requirements.txt
-packaging==24.0
+packaging==24.1
     # via
     #   -r requirements.txt
     #   build
@@ -200,7 +200,7 @@ pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
-pytest==8.2.1
+pytest==8.2.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -237,7 +237,7 @@ referencing==0.35.1
     #   -r requirements.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.1
+requests==2.32.3
     # via
     #   -r requirements.txt
     #   agentarchives
@@ -268,9 +268,9 @@ tomli==2.0.1
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.15.0
+tox==4.15.1
     # via -r requirements-dev.in
-typing-extensions==4.11.0
+typing-extensions==4.12.2
     # via
     #   -r requirements.txt
     #   asgiref
@@ -288,7 +288,7 @@ wheel==0.43.0
     # via pip-tools
 whitenoise==6.6.0
     # via -r requirements.txt
-zipp==3.18.2
+zipp==3.19.2
     # via
     #   -r requirements.txt
     #   importlib-metadata
@@ -297,7 +297,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==6.4
+zope-interface==6.4.post2
     # via
     #   -r requirements.txt
     #   gevent
@@ -305,7 +305,7 @@ zope-interface==6.4
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.0
     # via pip-tools
-setuptools==69.5.1
+setuptools==70.0.0
     # via
     #   -r requirements.txt
     #   pip-tools
