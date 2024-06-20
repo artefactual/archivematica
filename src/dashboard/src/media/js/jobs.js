@@ -861,6 +861,16 @@ BaseAppView = Backbone.View.extend({
         }
     },
 
+  // Check if the response from the API has changed since the last poll.
+  hasResponseChanged: function(response)
+    {
+      var next = JSON.stringify(response);
+      var changed = this.firstPoll || this.previousVersion !== next;
+      this.previousVersion = next;
+
+      return changed;
+    },
+
   poll: function(start)
     {
       this.firstPoll = undefined !== start;
@@ -880,8 +890,11 @@ BaseAppView = Backbone.View.extend({
           },
         success: function(response)
           {
-            var objects = response.objects;
+            if (!this.hasResponseChanged(response)) {
+              return;
+            }
 
+            var objects = response.objects;
             if (getURLParameter('paged'))
               {
                 this.updateSips(objects);
