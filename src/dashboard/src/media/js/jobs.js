@@ -861,13 +861,24 @@ BaseAppView = Backbone.View.extend({
         }
     },
 
+  // Check if the response from the API has changed since the last poll.
+  hasResponseChanged: function(response)
+    {
+      var changed = this.firstPoll || this.previousVersion !== response;
+
+      this.previousVersion = response;
+
+      return changed;
+    },
+
   poll: function(start)
     {
       this.firstPoll = undefined !== start;
 
       $.ajax({
         context: this,
-        dataType: 'json',
+        // Use text instead of json to cache raw bytes. We'll parse manually.
+        dataType: 'text',
         type: 'GET',
         url: this.statusUrl + '?' + new Date().getTime(),
         beforeSend: function()
@@ -880,7 +891,12 @@ BaseAppView = Backbone.View.extend({
           },
         success: function(response)
           {
-            var objects = response.objects;
+            if (!this.hasResponseChanged(response)) {
+              return;
+            }
+
+            var data = JSON.parse(response);
+            var objects = data.objects;
 
             if (getURLParameter('paged'))
               {
@@ -920,7 +936,7 @@ BaseAppView = Backbone.View.extend({
             }
 
             // MCP status
-            if (response.mcp)
+            if (data.mcp)
             {
               window.statusWidget.connect();
             }
