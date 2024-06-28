@@ -877,6 +877,7 @@ BaseAppView = Backbone.View.extend({
 
       $.ajax({
         context: this,
+        // Use text instead of json to cache raw bytes. We'll parse manually.
         dataType: 'text',
         type: 'GET',
         url: this.statusUrl + '?' + new Date().getTime(),
