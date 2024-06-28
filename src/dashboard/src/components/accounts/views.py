@@ -24,6 +24,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
+from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -31,6 +33,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from main.models import UserProfile
+from mozilla_django_oidc.views import OIDCAuthenticationRequestView
 from tastypie.models import ApiKey
 
 
@@ -193,3 +196,50 @@ def delete(request, id):
         return redirect("accounts:accounts_index")
     except Exception:
         raise Http404
+
+
+class CustomOIDCLoginView(LoginView):
+    def get(self, request, *args, **kwargs):
+        if settings.OIDC_ALLOW_LOCAL_AUTHENTICATION:
+            return super().get(request, *args, **kwargs)
+
+        login_url = reverse("oidc_authentication_init")
+
+        # Redirect to the OIDC authentication URL with the provider set
+        return redirect(f"{login_url}")
+
+
+class CustomOIDCAuthenticationRequestView(OIDCAuthenticationRequestView):
+    """
+    Provide OpenID Connect authentication
+    """
+
+    def get_settings(self, attr, *args):
+        if attr in ["OIDC_RP_CLIENT_ID", "OIDC_RP_CLIENT_SECRET"]:
+            # Retrieve the request object stored in the instance.
+            request = getattr(self, "request", None)
+
+            if request:
+                provider_name = request.session.get("providername")
+
+                if (
+                    provider_name
+                    and provider_name in settings.OIDC_SECONDARY_PROVIDER_NAMES
+                ):
+                    provider_settings = settings.OIDC_PROVIDERS.get(provider_name, {})
+                    value = provider_settings.get(attr)
+
+                    if value is None:
+                        raise ImproperlyConfigured(
+                            f"Setting {attr} for provider {provider_name} not found"
+                        )
+                    return value
+
+        # If request is None or provider_name session var is not set or attr is
+        # not in the list, call the superclass's get_settings method.
+        return OIDCAuthenticationRequestView.get_settings(attr, *args)
+
+    def get(self, request):
+        self.request = request
+
+        return super().get(request)

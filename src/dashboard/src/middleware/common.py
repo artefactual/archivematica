@@ -21,6 +21,7 @@ import traceback
 import elasticsearch
 from django.conf import settings
 from django.http import HttpResponseServerError
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.template import TemplateDoesNotExist
 from django.utils.deprecation import MiddlewareMixin
@@ -122,3 +123,21 @@ class CustomShibbolethRemoteUserMiddleware(ShibbolethRemoteUserMiddleware):
         entitlements = shib_meta["entitlement"].split(";")
         user.is_superuser = settings.SHIBBOLETH_ADMIN_ENTITLEMENT in entitlements
         user.save()
+
+
+class OidcCaptureQueryParamMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not request.user.is_authenticated:
+            # Capture query parameter value and store it in the session.
+            provider_name = request.GET.get(settings.OIDC_PROVIDER_QUERY_PARAM_NAME)
+
+            if provider_name and provider_name in settings.OIDC_PROVIDERS:
+                request.session["providername"] = provider_name
+
+        # Continue processing the request.
+        response = self.get_response(request)
+
+        return response

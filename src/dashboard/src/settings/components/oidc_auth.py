@@ -1,5 +1,33 @@
 import os
 
+
+def get_oidc_secondary_providers(oidc_secondary_provider_names):
+    providers = {}
+
+    for provider_name in oidc_secondary_provider_names:
+        provider_name = provider_name.strip()
+        client_id = os.environ.get(f"OIDC_PROVIDER_CLIENT_ID_{provider_name.upper()}")
+        client_secret = os.environ.get(
+            f"OIDC_PROVIDER_CLIENT_SECRET_{provider_name.upper()}"
+        )
+
+        if client_id and client_secret:
+            providers[provider_name] = {
+                "OIDC_RP_CLIENT_ID": client_id,
+                "OIDC_RP_CLIENT_SECRET": client_secret,
+            }
+
+    return providers
+
+
+OIDC_SECONDARY_PROVIDER_NAMES = os.environ.get(
+    "OIDC_SECONDARY_PROVIDER_NAMES", ""
+).split(",")
+OIDC_PROVIDER_QUERY_PARAM_NAME = os.environ.get(
+    "OIDC_PROVIDER_QUERY_PARAM_NAME", "secondary"
+)
+OIDC_PROVIDERS = get_oidc_secondary_providers(OIDC_SECONDARY_PROVIDER_NAMES)
+
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
 

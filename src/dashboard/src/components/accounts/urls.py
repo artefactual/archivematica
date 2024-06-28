@@ -37,6 +37,20 @@ if "django_cas_ng" in settings.INSTALLED_APPS:
         path("logout/", django_cas_ng.views.LogoutView.as_view(), name="logout"),
     ]
 
+elif "mozilla_django_oidc" in settings.INSTALLED_APPS:
+    from components.accounts.views import CustomOIDCLoginView
+
+    urlpatterns += [
+        path(
+            "login/",
+            CustomOIDCLoginView.as_view(
+                template_name="accounts/login.html"
+            ),
+            name="login",
+        ),
+        path("logout/", django.contrib.auth.views.logout_then_login, name="logout"),
+    ]
+
 else:
     urlpatterns += [
         path(
