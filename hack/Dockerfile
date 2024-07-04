@@ -6,6 +6,7 @@ ARG PYTHON_VERSION=3.9
 ARG NODE_VERSION=20
 ARG PYENV_DIR=/pyenv
 ARG SELENIUM_DIR=/selenium
+ARG MEDIAAREA_VERSION=1.0-24
 
 # -----------------------------------------------------------------------------
 
@@ -144,17 +145,19 @@ ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 
-FROM base-builder as base
+FROM base-builder AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG PYENV_DIR=/pyenv
+ARG MEDIAAREA_VERSION
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
 	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.16.x.gpg] http://packages.archivematica.org/1.16.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
-	&& curl --retry 3 -so /tmp/repo-mediaarea_1.0-21_all.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb \
-	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
+	&& curl --retry 3 -so /tmp/repo-mediaarea.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_${MEDIAAREA_VERSION}_all.deb \
+	&& dpkg -i /tmp/repo-mediaarea.deb \
+	&& rm /tmp/repo-mediaarea.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		atool \
