@@ -144,7 +144,7 @@ ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 
-FROM base-builder as base
+FROM base-builder AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
