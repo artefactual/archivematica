@@ -27,7 +27,7 @@ build==1.2.1
     # via pip-tools
 cachetools==5.3.3
     # via tox
-certifi==2024.6.2
+certifi==2024.7.4
     # via
     #   -r requirements.txt
     #   requests
@@ -47,7 +47,7 @@ click==8.1.7
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.5.3
+coverage[toml]==7.5.4
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -86,7 +86,7 @@ elasticsearch==6.8.2
     # via -r requirements.txt
 exceptiongroup==1.2.1
     # via pytest
-filelock==3.15.1
+filelock==3.15.4
     # via
     #   tox
     #   virtualenv
@@ -106,7 +106,7 @@ idna==3.7
     # via
     #   -r requirements.txt
     #   requests
-importlib-metadata==7.1.0
+importlib-metadata==8.0.0
     # via
     #   -r requirements.txt
     #   build
@@ -153,7 +153,7 @@ olefile==0.47
     #   opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
-orjson==3.10.5
+orjson==3.10.6
     # via -r requirements.txt
 packaging==24.1
     # via
@@ -194,7 +194,7 @@ pyopenssl==24.1.0
     # via
     #   -r requirements.txt
     #   josepy
-pyproject-api==1.6.1
+pyproject-api==1.7.1
     # via tox
 pyproject-hooks==1.1.0
     # via
@@ -245,7 +245,7 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.18.1
+rpds-py==0.19.0
     # via
     #   -r requirements.txt
     #   jsonschema
@@ -268,7 +268,7 @@ tomli==2.0.1
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.15.1
+tox==4.16.0
     # via -r requirements-dev.in
 typing-extensions==4.12.2
     # via
@@ -282,11 +282,11 @@ urllib3==2.2.2
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.26.2
+virtualenv==20.26.3
     # via tox
 wheel==0.43.0
     # via pip-tools
-whitenoise==6.6.0
+whitenoise==6.7.0
     # via -r requirements.txt
 zipp==3.19.2
     # via
@@ -303,9 +303,9 @@ zope-interface==6.4.post2
     #   gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==24.0
+pip==24.1.2
     # via pip-tools
-setuptools==70.0.0
+setuptools==70.2.0
     # via
     #   -r requirements.txt
     #   pip-tools
