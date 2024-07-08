@@ -29,6 +29,7 @@ RUN set -ex \
 		libsasl2-dev \
 		libsqlite3-dev \
 		locales \
+		make \
 		pkg-config \
 		tzdata \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*

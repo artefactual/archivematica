@@ -20,7 +20,7 @@ bagit @ git+https://github.com/artefactual-labs/bagit-python.git@4b8fde73b4e6314
     # via -r requirements.in
 brotli==1.1.0
     # via -r requirements.in
-certifi==2024.6.2
+certifi==2024.7.4
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -68,7 +68,7 @@ gunicorn==22.0.0
     # via -r requirements.in
 idna==3.7
     # via requests
-importlib-metadata==7.1.0
+importlib-metadata==8.0.0
     # via -r requirements.in
 importlib-resources==6.4.0
     # via opf-fido
@@ -98,7 +98,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.in
-orjson==3.10.5
+orjson==3.10.6
     # via -r requirements.in
 packaging==24.1
     # via gunicorn
@@ -140,7 +140,7 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.18.1
+rpds-py==0.19.0
     # via
     #   jsonschema
     #   referencing
@@ -160,7 +160,7 @@ urllib3==2.2.2
     #   amclient
     #   elasticsearch
     #   requests
-whitenoise==6.6.0
+whitenoise==6.7.0
     # via -r requirements.in
 zipp==3.19.2
     # via
@@ -172,7 +172,7 @@ zope-interface==6.4.post2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==70.0.0
+setuptools==70.2.0
     # via
     #   zope-event
     #   zope-interface
