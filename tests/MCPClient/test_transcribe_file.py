@@ -160,16 +160,16 @@ def test_main(file, task, fprule, file_format_version):
     assert (
         models.File.objects.filter(
             filegrpuse="original",
-            originallocation=b"%SIPDirectory%objects/file.jpg",
-            currentlocation=b"%SIPDirectory%objects/file.jpg",
+            originallocation=file.originallocation,
+            currentlocation=file.currentlocation,
         ).count()
         == 1
     )
     assert (
         models.File.objects.filter(
             filegrpuse="text/ocr",
-            originallocation=b"%SIPDirectory%objects/file.jpg",
-            currentlocation=b"%SIPDirectory%objects/file.jpg",
+            originallocation=file.originallocation,
+            currentlocation=file.currentlocation,
         ).count()
         == 1
     )
