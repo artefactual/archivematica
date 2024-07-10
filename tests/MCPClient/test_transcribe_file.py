@@ -8,6 +8,16 @@ from django.utils import timezone
 from fpr import models as fprmodels
 from main import models
 
+EXECUTE_OR_RUN_STDOUT = "Hello"
+
+
+@pytest.fixture(scope="module", autouse=True)
+def execute_or_run():
+    with mock.patch(
+        "transcribe_file.executeOrRun", return_value=(0, EXECUTE_OR_RUN_STDOUT, "")
+    ):
+        yield
+
 
 @pytest.fixture
 def sip_directory(tmp_path):
@@ -19,7 +29,7 @@ def sip_directory(tmp_path):
 
 @pytest.fixture
 def sip(sip_directory):
-    return models.SIP.objects.create(currentpath=str(sip_directory) + "/")
+    return models.SIP.objects.create(currentpath=f"{sip_directory}/")
 
 
 @pytest.fixture
@@ -27,18 +37,15 @@ def file(sip, sip_directory):
     location = b"%SIPDirectory%objects/file.jpg"
     file_dir = sip_directory / "objects"
     file_dir.mkdir(parents=True)
+    file_name = pathlib.Path(location.decode()).name
+    (file_dir / file_name).touch()
 
-    file = models.File.objects.create(
+    return models.File.objects.create(
         sip=sip,
         filegrpuse="original",
         currentlocation=location,
         originallocation=location,
     )
-
-    file_name = pathlib.Path(file.currentlocation.decode()).name
-    (file_dir / file_name).touch()
-
-    return file
 
 
 @pytest.fixture
@@ -113,7 +120,7 @@ def preservation_file_format_version(preservation_file, format_version):
 
 
 @pytest.fixture
-def preservation_file_fprule(format_version, command):
+def derivative_file_fprule(format_version, command):
     return fprmodels.FPRule.objects.create(
         format=format_version,
         command=command,
@@ -132,21 +139,46 @@ def task(job):
 
 
 @pytest.mark.django_db
-def test_main(file, task, fprule, file_format_version, capsys):
+def test_main(file, task, fprule, file_format_version):
     job = mock.Mock(spec=Job)
 
     result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
 
     assert result == 0
 
-    captured = capsys.readouterr()
-    assert captured.out.strip() == "Hello"
-    assert models.Event.objects.filter(event_type="transcription").count() == 1
-    assert models.File.objects.count() == 2
-    assert models.File.objects.filter(filegrpuse="original").count() == 1
-    assert models.File.objects.filter(filegrpuse="text/ocr").count() == 1
+    assert job.write_output.mock_calls == [mock.call(EXECUTE_OR_RUN_STDOUT)]
     assert (
-        models.Derivation.objects.filter(event__event_type="transcription").count() == 1
+        models.Event.objects.filter(
+            file_uuid_id=file.uuid,
+            event_type="transcription",
+            event_outcome="transcribed",
+            event_outcome_detail="%SIPDirectory%objects/file.jpg",
+        ).count()
+        == 1
+    )
+    assert models.File.objects.count() == 2
+    assert (
+        models.File.objects.filter(
+            filegrpuse="original",
+            originallocation=b"%SIPDirectory%objects/file.jpg",
+            currentlocation=b"%SIPDirectory%objects/file.jpg",
+        ).count()
+        == 1
+    )
+    assert (
+        models.File.objects.filter(
+            filegrpuse="text/ocr",
+            originallocation=b"%SIPDirectory%objects/file.jpg",
+            currentlocation=b"%SIPDirectory%objects/file.jpg",
+        ).count()
+        == 1
+    )
+    assert (
+        models.Derivation.objects.filter(
+            event__event_type="transcription",
+            source_file_id=file.uuid,
+        ).count()
+        == 1
     )
 
 
@@ -162,7 +194,8 @@ def test_main_if_filegroup_is_not_original(
 
     assert result == 0
 
-    assert models.Event.objects.count() == 0
+    # No event is stored in the database as there is no transcription on file
+    assert models.Event.objects.filter(event_type="transcription").count() == 0
     assert job.print_error.mock_calls == [
         mock.call(f"{preservation_file.uuid} is not an original; not transcribing")
     ]
@@ -176,7 +209,8 @@ def test_main_if_no_rules_exist(file, task, file_format_version, capsys):
 
     assert result == 0
 
-    assert models.Event.objects.count() == 0
+    # No event is stored in the database as there is no transcription on file
+    assert models.Event.objects.filter(event_type="transcription").count() == 0
     assert job.print_error.mock_calls == [
         mock.call(
             f"No rules found for file {file.uuid} and its derivatives; not transcribing"
@@ -195,16 +229,19 @@ def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives(
-    derivation, preservation_file_fprule, preservation_file_format_version
+    derivation, derivative_file_fprule, preservation_file_format_version
 ):
     derived_file, rules_of_derived_file = transcribe_file.fetch_rules_for_derivatives(
         file_=derivation.source_file
     )
 
-    assert rules_of_derived_file.values()[0]["purpose"] == "transcription"
+    assert list(rules_of_derived_file.values_list("purpose")) == [("transcription",)]
+
     assert (
         models.Derivation.objects.filter(
-            derived_file__filegrpuse="preservation"
+            derived_file__filegrpuse="preservation",
+            derived_file_id=derived_file.uuid,
+            source_file_id=derivation.source_file.uuid,
         ).count()
         == 1
     )
