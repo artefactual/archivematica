@@ -59,7 +59,7 @@ cryptography==42.0.8
     #   pyopenssl
 distlib==0.3.8
     # via virtualenv
-django==4.2.13
+django==4.2.14
     # via
     #   -r requirements.txt
     #   django-auth-ldap
@@ -123,7 +123,7 @@ josepy==1.14.0
     # via
     #   -r requirements.txt
     #   mozilla-django-oidc
-jsonschema==4.22.0
+jsonschema==4.23.0
     # via -r requirements.txt
 jsonschema-specifications==2023.12.1
     # via
@@ -305,7 +305,7 @@ zope-interface==6.4.post2
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.1.2
     # via pip-tools
-setuptools==70.2.0
+setuptools==70.3.0
     # via
     #   -r requirements.txt
     #   pip-tools
