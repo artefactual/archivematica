@@ -245,3 +245,56 @@ def test_fetch_rules_for_derivatives(
         ).count()
         == 1
     )
+
+
+@pytest.fixture
+def command_disabled(tool, file):
+    return fprmodels.FPCommand.objects.create(
+        tool=tool,
+        description="Transcribe using Tesseract",
+        command_usage="transcription",
+        command="echo Hello",
+        script_type="bashScript",
+        output_location=file.currentlocation.decode(),
+        enabled=0,
+    )
+
+
+@pytest.fixture
+def fprule_disabled(format_version, command_disabled):
+    return fprmodels.FPRule.objects.create(
+        format=format_version,
+        command=command_disabled,
+        purpose="transcription",
+        enabled=0,
+    )
+
+
+@pytest.mark.django_db
+def test_main_if_fprule_is_disabled(
+    file, task, fprule, fprule_disabled, file_format_version
+):
+    job = mock.Mock(spec=Job)
+
+    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
+
+    assert result == 0
+
+    assert (
+        fprmodels.FPRule.objects.filter(
+            enabled=1,
+            purpose="transcription",
+            command_id=fprule.command.uuid,
+        ).count()
+        == 1
+    )
+    assert (
+        fprmodels.FPRule.objects.filter(
+            enabled=0,
+            purpose="transcription",
+            command_id=fprule_disabled.command.uuid,
+        ).count()
+        == 1
+    )
+    assert job.write_output.call_count == 1
+    assert job.write_output.mock_calls == [mock.call(EXECUTE_OR_RUN_STDOUT)]
