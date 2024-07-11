@@ -79,7 +79,7 @@ def insert_file_into_database(
 def fetch_rules_for(file_):
     try:
         format = FileFormatVersion.objects.get(file_uuid=file_)
-        return FPRule.objects.filter(
+        return FPRule.active.filter(
             format=format.format_version, purpose="transcription"
         )
     except (FileFormatVersion.DoesNotExist, ValidationError):
