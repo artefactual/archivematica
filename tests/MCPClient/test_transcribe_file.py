@@ -245,3 +245,69 @@ def test_fetch_rules_for_derivatives(
         ).count()
         == 1
     )
+
+
+@pytest.fixture
+def command_disabled(tool, file):
+    return fprmodels.FPCommand.objects.create(
+        tool=tool,
+        description="Transcribe using Tesseract",
+        command_usage="transcription",
+        command="echo Hello",
+        script_type="bashScript",
+        output_location=file.currentlocation.decode(),
+        enabled=0,
+    )
+
+
+@pytest.fixture
+def disabled_fprule(format_version, command_disabled):
+    return fprmodels.FPRule.objects.create(
+        format=format_version,
+        command=command_disabled,
+        purpose="transcription",
+        enabled=0,
+    )
+
+
+@pytest.mark.django_db
+def test_main_if_fprule_is_disabled(file, task, disabled_fprule, file_format_version):
+    job = mock.Mock(spec=Job)
+
+    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
+
+    assert result == 0
+
+    assert job.write_output.mock_calls == []
+    assert (
+        models.Event.objects.filter(
+            file_uuid_id=file.uuid,
+            event_type="transcription",
+            event_outcome="transcribed",
+            event_outcome_detail="%SIPDirectory%objects/file.jpg",
+        ).count()
+        == 0
+    )
+    assert (
+        models.File.objects.filter(
+            filegrpuse="original",
+            originallocation=file.originallocation,
+            currentlocation=file.currentlocation,
+        ).count()
+        == 1
+    )
+    assert (
+        models.File.objects.filter(
+            filegrpuse="text/ocr",
+            originallocation=file.originallocation,
+            currentlocation=file.currentlocation,
+        ).count()
+        == 0
+    )
+    assert (
+        models.Derivation.objects.filter(
+            event__event_type="transcription",
+            source_file_id=file.uuid,
+        ).count()
+        == 0
+    )
