@@ -9,6 +9,7 @@ import logging
 import sys
 import traceback
 from contextlib import contextmanager
+from logging.handlers import BufferingHandler
 
 from django.conf import settings
 from django.utils import timezone
@@ -149,7 +150,7 @@ class Job:
                 logger.removeHandler(handler)
 
 
-class JobLogHandler(logging.handlers.BufferingHandler):
+class JobLogHandler(BufferingHandler):
     """
     A handler that buffers log messages, and writes them to Job output
     when the buffer is full.
