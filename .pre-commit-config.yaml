@@ -45,3 +45,9 @@ repos:
   rev: 054bda51dbe278b3e86f27c890e3f3ac877d616c
   hooks:
     - id: validate-cff
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.10.1
+  hooks:
+  - id: mypy
+    additional_dependencies: [types-all]
+    args: [--explicit-package-bases]
