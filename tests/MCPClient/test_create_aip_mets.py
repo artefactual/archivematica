@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from typing import List
 
 import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights
@@ -26,7 +27,7 @@ THIS_DIR = pathlib.Path(__file__).parent
 class TestNormativeStructMap(TempDirMixin, TestCase):
     """Test creation of normative structMap."""
 
-    fixture_files = []
+    fixture_files: List[str] = []
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     def setUp(self):
