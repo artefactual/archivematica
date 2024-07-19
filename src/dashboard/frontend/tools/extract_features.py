@@ -43,4 +43,4 @@ if __name__ == "__main__":
     try:
         sys.exit(main(args.uuid, args.log_path, args.output))
     except Exception as e:
-        sys.exit(e)
+        sys.exit(str(e))
