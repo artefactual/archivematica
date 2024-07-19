@@ -36,6 +36,7 @@ class DeclarePIDsExceptionNonCritical(Exception):
 
     exit_code = 0
 
+
 def exit_on_known_exception(func):
     """Decorator to allows us to raise an exception but still exit-zero when
     the exception is cleaner to return than ad-hoc integer values.
