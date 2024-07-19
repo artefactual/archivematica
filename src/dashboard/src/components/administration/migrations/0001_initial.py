@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 
 import main.models
 from django.db import migrations
@@ -6,7 +7,7 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-    dependencies = []
+    dependencies: List[str] = []
 
     operations = [
         migrations.CreateModel(
