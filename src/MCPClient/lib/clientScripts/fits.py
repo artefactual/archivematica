@@ -34,7 +34,6 @@ from main.models import FPCommandOutput
 
 logger = get_script_logger("archivematica.mcp.client.FITS")
 
-formats = []
 FITSNS = "{http://hul.harvard.edu/ois/xml/ns/fits/fits_output}"
 
 

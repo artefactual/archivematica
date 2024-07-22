@@ -37,6 +37,21 @@ class DeclarePIDsExceptionNonCritical(Exception):
     exit_code = 0
 
 
+def exit_on_known_exception(func):
+    """Decorator to allows us to raise an exception but still exit-zero when
+    the exception is cleaner to return than ad-hoc integer values.
+    """
+
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except DeclarePIDsExceptionNonCritical as err:
+            return err.exit_code
+
+    return wrapped
+
+
 class DeclarePIDs:
     """Class to wrap PID declaration features and provide some mechanism of
     recording state.
@@ -49,20 +64,6 @@ class DeclarePIDs:
         self.job = job
         self.identifier_count = 0
         self.actual_count = 0
-
-    def exit_on_known_exception(func):
-        """Decorator to allows us to raise an exception but still exit-zero when
-        the exception is cleaner to return than ad-hoc integer values.
-        """
-
-        @wraps(func)
-        def wrapped(*args, **kwargs):
-            try:
-                func(*args, **kwargs)
-            except DeclarePIDsExceptionNonCritical as err:
-                return err.exit_code
-
-        return wrapped
 
     def _fixup_path_input_by_user(self, path):
         """Fix-up paths submitted by a user, e.g. in custom structmap examples
