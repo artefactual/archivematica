@@ -17,8 +17,6 @@ from main.models import UnitVariable
 from main.models import User
 from pytest_django.asserts import assertQuerysetEqual
 
-from . import TempDirMixin
-
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -184,7 +182,7 @@ def verify_event_details(event):
     )
 
 
-class TestFilenameChange(TempDirMixin, TestCase):
+class TestFilenameChange(TestCase):
     """Test change_names, change_object_names & change_sip_name."""
 
     fixture_files = [
@@ -194,6 +192,12 @@ class TestFilenameChange(TempDirMixin, TestCase):
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+
+    @pytest.fixture(autouse=True)
+    def tmp_dir(self, tmp_path):
+        tmpdir = tmp_path / "tmp"
+        tmpdir.mkdir()
+        self.tmpdir = tmpdir
 
     @pytest.fixture(autouse=True)
     def admin_user(self, user):

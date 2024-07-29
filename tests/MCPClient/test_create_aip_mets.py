@@ -13,22 +13,27 @@ import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights
 import create_mets_v2
 import namespaces as ns
+import pytest
 from client.job import Job
 from django.test import TestCase
 from lxml import etree
 from main.models import RightsStatement
 from version import get_preservation_system_identifier
 
-from . import TempDirMixin
-
 THIS_DIR = pathlib.Path(__file__).parent
 
 
-class TestNormativeStructMap(TempDirMixin, TestCase):
+class TestNormativeStructMap(TestCase):
     """Test creation of normative structMap."""
 
     fixture_files: List[str] = []
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+
+    @pytest.fixture(autouse=True)
+    def tmp_dir(self, tmp_path):
+        tmpdir = tmp_path / "tmp"
+        tmpdir.mkdir()
+        self.tmpdir = tmpdir
 
     def setUp(self):
         super().setUp()
@@ -421,8 +426,14 @@ class TestDublinCore(TestCase):
         assert xmldata[1].text == "雪 ユキ"
 
 
-class TestCSVMetadata(TempDirMixin, TestCase):
+class TestCSVMetadata(TestCase):
     """Test parsing the metadata.csv."""
+
+    @pytest.fixture(autouse=True)
+    def tmp_dir(self, tmp_path):
+        tmpdir = tmp_path / "tmp"
+        tmpdir.mkdir()
+        self.tmpdir = tmpdir
 
     def setUp(self):
         super().setUp()
@@ -742,7 +753,7 @@ class TestRights(TestCase):
         assert len(rightsgranted[3]) == 0
 
 
-class TestCustomStructMap(TempDirMixin, TestCase):
+class TestCustomStructMap(TestCase):
     """Test creation of custom structMap."""
 
     fixture_files = [
@@ -753,6 +764,12 @@ class TestCustomStructMap(TempDirMixin, TestCase):
     mets_xsd_path = os.path.abspath(
         os.path.join(THIS_DIR, "../../src/MCPClient/lib/assets/mets/mets.xsd")
     )
+
+    @pytest.fixture(autouse=True)
+    def tmp_dir(self, tmp_path):
+        tmpdir = tmp_path / "tmp"
+        tmpdir.mkdir()
+        self.tmpdir = tmpdir
 
     @staticmethod
     def count_dir_objects(path):
