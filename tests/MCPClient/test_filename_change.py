@@ -8,10 +8,12 @@ import pytest
 from client.job import Job
 from django.test import TestCase
 from main.models import SIP
+from main.models import Agent
 from main.models import Directory
 from main.models import Event
 from main.models import File
 from main.models import Transfer
+from main.models import UnitVariable
 from main.models import User
 from pytest_django.asserts import assertQuerysetEqual
 
@@ -188,12 +190,32 @@ class TestFilenameChange(TempDirMixin, TestCase):
     fixture_files = [
         "transfer.json",
         "files-transfer-unicode.json",
-        "admin-user.json",
-        os.path.join("microservice_agents", "microservice_unitvars.json"),
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+
+    @pytest.fixture(autouse=True)
+    def admin_user(self, user):
+        return user
+
+    @pytest.fixture(autouse=True)
+    def admin_agent(self, admin_user):
+        return Agent.objects.create(
+            agenttype="Archivematica user",
+            identifiervalue=str(admin_user.pk),
+            name=f'username="{admin_user.username}", first_name="{admin_user.first_name}", last_name="{admin_user.last_name}"',
+            identifiertype="Archivematica user pk",
+        )
+
+    @pytest.fixture(autouse=True)
+    def microservice_unitvars(self, admin_agent):
+        UnitVariable.objects.create(
+            unituuid=self.transfer_uuid,
+            unittype="Transfer",
+            variablevalue=str(admin_agent.pk),
+            variable="activeAgent",
+        )
 
     def test_change_object_names(self):
         """Test change_object_names.
