@@ -15,7 +15,6 @@ class TestDSpaceToArchivesSpace(TestCase):
 
     fixture_files = [
         "archivesspaceconfig.json",
-        "storageserviceconfig.json",
         "sip.json",
         "archivesspacecomponents.json",
     ]
