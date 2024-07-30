@@ -42,7 +42,6 @@ from main.models import RightsStatementRightsGrantedRestriction
 from main.models import RightsStatementStatuteDocumentationIdentifier
 from main.models import RightsStatementStatuteInformation
 from main.models import RightsStatementStatuteInformationNote
-from main.models import Transfer
 from metsrw.plugins.premisrw import PREMIS_3_0_NAMESPACES
 from version import get_preservation_system_identifier
 
@@ -79,13 +78,6 @@ def file_path2(subdir_path):
     file_path.write_text("Hello world")
 
     return file_path
-
-
-@pytest.fixture()
-def transfer(db):
-    return Transfer.objects.create(
-        uuid=uuid.uuid4(), currentlocation=r"%transferDirectory%"
-    )
 
 
 @pytest.fixture()

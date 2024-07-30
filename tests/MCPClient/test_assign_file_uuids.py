@@ -7,13 +7,6 @@ from main import models
 
 
 @pytest.fixture
-def transfer():
-    return models.Transfer.objects.create(
-        currentlocation=r"%transferDirectory%",
-    )
-
-
-@pytest.fixture
 def sip_dir(tmp_path):
     sip_dir = tmp_path / "dir"
     sip_dir.mkdir()

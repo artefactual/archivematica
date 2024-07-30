@@ -14,10 +14,8 @@ def sip(db):
 
 
 @pytest.fixture
-def transfer(db, sip):
-    transfer = models.Transfer.objects.create(access_system_id="atom-description-id")
-    models.File.objects.create(sip=sip, transfer=transfer)
-    return transfer
+def file(sip, transfer):
+    return models.File.objects.create(sip=sip, transfer=transfer)
 
 
 @pytest.fixture
@@ -70,7 +68,7 @@ def test_start_synchronously(db, mocker, mcp_job, sip, sip_job, access):
     assert access.target == "atom-description-id"
 
 
-def test_first_run(db, mocker, mcp_job, sip_job, transfer, sip):
+def test_first_run(db, mocker, mcp_job, sip_job, sip, file):
     mocker.patch(
         "requests.request",
         return_value=mocker.Mock(

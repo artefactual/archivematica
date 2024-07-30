@@ -12,7 +12,6 @@ from fpr.models import FPTool
 from main.models import Event
 from main.models import File
 from main.models import FileFormatVersion
-from main.models import Transfer
 
 
 @pytest.fixture
@@ -43,17 +42,17 @@ def extract_fprule(format_version, command):
 
 
 @pytest.fixture
-def transfer(tmp_path):
-    transfer_dir = tmp_path / "transfer"
-    transfer_dir.mkdir()
+def transfer_directory(tmp_path):
+    result = tmp_path / "transfer"
+    result.mkdir()
 
-    return Transfer.objects.create(currentlocation=str(transfer_dir))
+    return result
 
 
 @pytest.fixture
-def compressed_file(transfer, format_version):
+def compressed_file(transfer, transfer_directory, format_version):
     # Simulate a compressed file being extracted to a directory with the same name.
-    d = Path(transfer.currentlocation) / "compressed.zip"
+    d = Path(transfer_directory) / "compressed.zip"
     d.mkdir()
 
     # Place an extracted file in it.
@@ -61,11 +60,17 @@ def compressed_file(transfer, format_version):
     f.touch()
 
     # Create File models for the compressed and extracted files.
+    d_location = (
+        f"{transfer.currentlocation}{d.relative_to(transfer_directory)}".encode()
+    )
+    f_location = (
+        f"{transfer.currentlocation}{f.relative_to(transfer_directory)}".encode()
+    )
     result = File.objects.create(
-        transfer=transfer, originallocation=bytes(d), currentlocation=bytes(d)
+        transfer=transfer, originallocation=d_location, currentlocation=d_location
     )
     File.objects.create(
-        transfer=transfer, originallocation=bytes(f), currentlocation=bytes(f)
+        transfer=transfer, originallocation=f_location, currentlocation=f_location
     )
 
     # Create a file format version for the compressed file.

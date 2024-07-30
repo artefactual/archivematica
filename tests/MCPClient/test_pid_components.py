@@ -18,7 +18,6 @@ from main.models import SIP
 from main.models import DashboardSetting
 from main.models import Directory
 from main.models import File
-from main.models import Transfer
 from pid_declaration import DeclarePIDs
 from pid_declaration import DeclarePIDsException
 
@@ -43,15 +42,6 @@ def sip(db):
         currentpath="%sharedPath%currentlyProcessing/pid_tests-cb5ebaf5-beda-40b4-8d0c-fefbd546b8de/",
         sip_type="SIP",
         createdtime="2015-06-24T17:22:02Z",
-    )
-
-
-@pytest.fixture
-def transfer(db):
-    return Transfer.objects.create(
-        uuid="29460c83-957e-481f-9ca2-873bca42229a",
-        type="Standard",
-        currentlocation=b"%sharedPath%watchedDirectories/SIPCreation/completedTransfers/test-3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e/",
     )
 
 
@@ -118,7 +108,7 @@ def settings(db):
 
 
 @pytest.fixture
-def files(db):
+def files(db, transfer):
     return File.objects.bulk_create(
         [
             File(
@@ -144,7 +134,7 @@ def files(db):
                 originallocation=b"%transferDirectory%objects/images/image_001.jpg",
                 sip_id=PACKAGE_UUID,
                 size=11,
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
             ),
             File(
                 uuid="697c407f-7a43-43d2-b7e2-fefc956ea5fd",
@@ -157,7 +147,7 @@ def files(db):
                 originallocation=b"%transferDirectory%objects/documents/Document001.doc",
                 sip_id=PACKAGE_UUID,
                 size=11,
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
             ),
             File(
                 uuid="c91d7725-f363-4e8a-bde1-0f5416b4f7f8",
@@ -188,20 +178,20 @@ def files(db):
 
 
 @pytest.fixture
-def directories(db):
+def directories(db, transfer):
     return Directory.objects.bulk_create(
         [
             Directory(
                 uuid="3cc124e1-4e5c-433b-8f15-a7831d70145a",
                 originallocation=b"%transferDirectory%metadata/",
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
                 currentlocation=b"%transferDirectory%metadata/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
                 uuid="41b3fcfd-36ed-4cf7-b5af-56127238b362",
                 originallocation=b"%transferDirectory%logs/",
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
                 currentlocation=b"%transferDirectory%logs/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
@@ -209,7 +199,7 @@ def directories(db):
                 uuid="966755bd-0ae3-4f85-b4ec-b359fefeff33",
                 sip_id=PACKAGE_UUID,
                 originallocation=b"%transferDirectory%objects/images/",
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
                 currentlocation=b"%SIPDirectory%objects/images/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
@@ -217,21 +207,21 @@ def directories(db):
                 uuid="d298dd3f-c5d1-4445-99fe-09123fba8b30",
                 sip_id=PACKAGE_UUID,
                 originallocation=b"%transferDirectory%objects/documents/",
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
                 currentlocation=b"%SIPDirectory%objects/documents/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
                 uuid="e7ae9b01-4c07-4915-a7a0-1833b1078a5b",
                 originallocation=b"%transferDirectory%logs/fileMeta/",
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
                 currentlocation=b"%transferDirectory%logs/fileMeta/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
                 uuid="f9e8c91a-bfbc-48f0-8ff0-eed210ff6fde",
                 originallocation=b"%transferDirectory%metadata/submissionDocumentation/",
-                transfer_id="29460c83-957e-481f-9ca2-873bca42229a",
+                transfer=transfer,
                 currentlocation=b"%transferDirectory%metadata/submissionDocumentation/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),

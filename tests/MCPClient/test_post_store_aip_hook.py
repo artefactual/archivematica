@@ -98,10 +98,16 @@ def sip(db):
 
 
 @pytest.fixture
-def transfer(db, processing_dir):
+def transfer(transfer, shared_dir, processing_dir):
     transfer_location = processing_dir / "transfer"
     transfer_location.mkdir()
-    return models.Transfer.objects.create(currentlocation=str(transfer_location))
+
+    transfer.currentlocation = (
+        f"%sharedPath%{transfer_location.relative_to(shared_dir)}"
+    )
+    transfer.save()
+
+    return transfer
 
 
 @pytest.fixture
@@ -111,8 +117,8 @@ def file_(db, sip, transfer):
 
 @pytest.fixture
 def custom_settings(settings, shared_dir, processing_dir):
-    settings.SHARED_DIRECTORY = str(shared_dir)
-    settings.PROCESSING_DIRECTORY = str(processing_dir)
+    settings.SHARED_DIRECTORY = f"{shared_dir}/"
+    settings.PROCESSING_DIRECTORY = f"{processing_dir}/"
     return settings
 
 
@@ -122,10 +128,15 @@ def test_post_store_hook_deletes_transfer_directory(
     job = mock.Mock(spec=Job)
 
     # The transfer directory exists before calling the delete function
-    assert pathlib.Path(transfer.currentlocation).exists()
+    transfer_path = pathlib.Path(
+        transfer.currentlocation.replace(
+            "%sharedPath%", custom_settings.SHARED_DIRECTORY, 1
+        )
+    )
+    assert transfer_path.exists()
 
     result = post_store_aip_hook.delete_transfer_directory(job, sip.uuid)
 
     # The transfer directory is returned and has been deleted
-    assert result == transfer.currentlocation
-    assert not pathlib.Path(transfer.currentlocation).exists()
+    assert result == str(transfer_path)
+    assert not transfer_path.exists()

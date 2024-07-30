@@ -45,3 +45,15 @@ def user():
         is_staff=True,
         email="keladry@mindelan.com",
     )
+
+
+@pytest.fixture
+def transfer(user):
+    result = models.Transfer.objects.create(
+        currentlocation=r"%transferDirectory%",
+        access_system_id="atom-description-id",
+        diruuids=True,
+    )
+    result.update_active_agent(user.id)
+
+    return result

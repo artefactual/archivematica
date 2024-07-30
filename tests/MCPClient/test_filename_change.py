@@ -28,17 +28,6 @@ def subdir_path(tmp_path):
 
 
 @pytest.fixture()
-def transfer(db, user):
-    transfer = Transfer.objects.create(
-        uuid="f6eb30e3-6ded-4f85-b52e-8653b430f29c",
-        currentlocation=r"%transferDirectory%",
-        diruuids=True,
-    )
-    transfer.update_active_agent(user.id)
-    return transfer
-
-
-@pytest.fixture()
 def sip(db):
     return SIP.objects.create(
         uuid=uuid.uuid4(), currentpath=r"%SIPDirectory%", diruuids=True
