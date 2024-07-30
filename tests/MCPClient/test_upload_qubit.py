@@ -21,15 +21,16 @@ def transfer(db, sip):
 
 
 @pytest.fixture
-def job(sip, tmp_path):
+def sip_job(job, sip, tmp_path):
     job_dir = tmp_path / "job"
     job_dir.mkdir()
-    return models.Job.objects.create(
-        sipuuid=sip.uuid,
-        jobtype="Upload DIP",
-        directory=str(job_dir),
-        createdtime="2021-06-29T00:00:00Z",
-    )
+
+    job.sipuuid = sip.uuid
+    job.jobtype = "Upload DIP"
+    job.directory = str(job_dir)
+    job.save()
+
+    return job
 
 
 @pytest.fixture
@@ -40,7 +41,7 @@ def access(db, sip):
     )
 
 
-def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
+def test_start_synchronously(db, mocker, mcp_job, sip, sip_job, access):
     mocker.patch(
         "requests.request",
         return_value=mocker.Mock(
@@ -69,7 +70,7 @@ def test_start_synchronously(db, mocker, mcp_job, sip, job, access):
     assert access.target == "atom-description-id"
 
 
-def test_first_run(db, mocker, mcp_job, job, transfer, sip):
+def test_first_run(db, mocker, mcp_job, sip_job, transfer, sip):
     mocker.patch(
         "requests.request",
         return_value=mocker.Mock(

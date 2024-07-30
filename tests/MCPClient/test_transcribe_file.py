@@ -129,11 +129,6 @@ def derivative_file_fprule(format_version, command):
 
 
 @pytest.fixture
-def job():
-    return models.Job.objects.create(createdtime=timezone.now())
-
-
-@pytest.fixture
 def task(job):
     return models.Task.objects.create(job=job, createdtime=timezone.now())
 

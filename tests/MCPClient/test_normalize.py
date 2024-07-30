@@ -383,11 +383,6 @@ def default_preservation_rule(command, format_version):
 
 
 @pytest.fixture
-def job():
-    return models.Job.objects.create(createdtime=timezone.now())
-
-
-@pytest.fixture
 def task(job):
     return models.Task.objects.create(job=job, createdtime=timezone.now())
 
