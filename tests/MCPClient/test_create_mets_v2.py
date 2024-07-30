@@ -5,7 +5,6 @@ import pytest
 from create_mets_v2 import createDMDIDsFromCSVMetadata
 from create_mets_v2 import main
 from lxml import etree
-from main.models import SIP
 from main.models import DublinCore
 from main.models import Event
 from main.models import File
@@ -92,15 +91,6 @@ def metadata_csv(sip, sip_path, objects_path):
 
 
 @pytest.fixture()
-def sip(db, sip_path, objects_path):
-    return SIP.objects.create(
-        uuid=uuid.uuid4(),
-        sip_type="SIP",
-        currentpath=str(sip_path),
-    )
-
-
-@pytest.fixture()
 def sip_dublincore(sip):
     return DublinCore.objects.create(
         metadataappliestotype_id=MetadataAppliesToType.SIP_TYPE,
@@ -162,12 +152,13 @@ def file_obj(db, sip, sip_path, file_path):
     return file_obj
 
 
+@pytest.mark.django_db
 def test_simple_mets(mcp_job, sip_path, sip, file_obj):
     mets_path = sip_path / f"METS.{sip.uuid}.xml"
     main(
         mcp_job,
         sipType="SIP",
-        baseDirectoryPath=sip.currentpath,
+        baseDirectoryPath=str(sip_path),
         XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=False,
@@ -193,12 +184,13 @@ def test_simple_mets(mcp_job, sip_path, sip, file_obj):
     assert "physical" in structmap_types
 
 
+@pytest.mark.django_db
 def test_aip_mets_includes_dublincore(mcp_job, sip_path, sip, sip_dublincore, file_obj):
     mets_path = sip_path / f"METS.{sip.uuid}.xml"
     main(
         mcp_job,
         sipType="SIP",
-        baseDirectoryPath=sip.currentpath,
+        baseDirectoryPath=str(sip_path),
         XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=True,
@@ -225,6 +217,7 @@ def test_aip_mets_includes_dublincore(mcp_job, sip_path, sip, sip_dublincore, fi
     assert dublincore[2].text == "23456"
 
 
+@pytest.mark.django_db
 def test_aip_mets_includes_dublincore_via_metadata_csv(
     mcp_job, sip_path, sip, file_obj, metadata_csv
 ):
@@ -232,7 +225,7 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
     main(
         mcp_job,
         sipType="SIP",
-        baseDirectoryPath=sip.currentpath,
+        baseDirectoryPath=str(sip_path),
         XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=True,
@@ -255,6 +248,7 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
     assert dublincore[0].text == "File 1"
 
 
+@pytest.mark.django_db
 def test_aip_mets_normative_directory_structure(
     mcp_job, sip_path, sip, file_obj, metadata_csv, empty_dir_path
 ):
@@ -262,7 +256,7 @@ def test_aip_mets_normative_directory_structure(
     main(
         mcp_job,
         sipType="SIP",
-        baseDirectoryPath=sip.currentpath,
+        baseDirectoryPath=str(sip_path),
         XMLFile=str(mets_path),
         sipUUID=sip.pk,
         includeAmdSec=True,
@@ -296,6 +290,7 @@ def test_aip_mets_normative_directory_structure(
     )
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "fail_on_error, errors, expectation",
     [
@@ -333,7 +328,7 @@ def test_xml_validation_fail_on_error(
         main(
             mcp_job,
             sipType="SIP",
-            baseDirectoryPath=sip.currentpath,
+            baseDirectoryPath=str(sip_path),
             XMLFile=str(sip_path / "METS.xml"),
             sipUUID=sip.pk,
             includeAmdSec=False,
@@ -347,24 +342,24 @@ def test_xml_validation_fail_on_error(
 
 
 @pytest.fixture
-def arranged_sip(db, tmp_path):
-    # Create an arranged SIP.
+def arranged_sip_path(tmp_path):
     sip_path = tmp_path / "sip"
     sip_path.mkdir()
-    sip = SIP.objects.create(
-        sip_type="SIP",
-        currentpath=str(sip_path),
-    )
 
+    return sip_path
+
+
+@pytest.fixture
+def create_arrangement(sip, arranged_sip_path):
     # Create the directory structure representing the new arrangement.
-    objects_path = sip_path / "objects"
+    objects_path = arranged_sip_path / "objects"
     objects_path.mkdir()
     SIPArrange.objects.create(sip=sip, arrange_path=b".")
 
     for path, level_of_description in [
-        ((sip_path / "objects" / "subdir"), "Series"),
-        ((sip_path / "objects" / "subdir" / "first"), "Subseries"),
-        ((sip_path / "objects" / "subdir" / "second"), "Subseries"),
+        ((arranged_sip_path / "objects" / "subdir"), "Series"),
+        ((arranged_sip_path / "objects" / "subdir" / "first"), "Subseries"),
+        ((arranged_sip_path / "objects" / "subdir" / "second"), "Subseries"),
     ]:
         path.mkdir()
         SIPArrange.objects.create(
@@ -375,15 +370,15 @@ def arranged_sip(db, tmp_path):
 
     # Add files to the arrangement.
     for path in [
-        (sip_path / "objects" / "file1"),
-        (sip_path / "objects" / "subdir" / "file2"),
-        (sip_path / "objects" / "subdir" / "first" / "file3"),
-        (sip_path / "objects" / "subdir" / "second" / "file4"),
+        (arranged_sip_path / "objects" / "file1"),
+        (arranged_sip_path / "objects" / "subdir" / "file2"),
+        (arranged_sip_path / "objects" / "subdir" / "first" / "file3"),
+        (arranged_sip_path / "objects" / "subdir" / "second" / "file4"),
     ]:
         path.touch()
         f = File.objects.create(
-            originallocation=f"%TransferDirectory%{path.relative_to(sip_path)}".encode(),
-            currentlocation=f"%SIPDirectory%{path.relative_to(sip_path)}".encode(),
+            originallocation=f"%TransferDirectory%{path.relative_to(arranged_sip_path)}".encode(),
+            currentlocation=f"%SIPDirectory%{path.relative_to(arranged_sip_path)}".encode(),
             sip=sip,
             filegrpuse="original",
         )
@@ -394,18 +389,19 @@ def arranged_sip(db, tmp_path):
             file_uuid=f.uuid,
         )
 
-    return sip
 
-
-def test_structmap_is_created_from_sip_arrangement(mcp_job, arranged_sip):
-    mets_path = f"{arranged_sip.currentpath}/METS.{arranged_sip.uuid}.xml"
+@pytest.mark.django_db
+def test_structmap_is_created_from_sip_arrangement(
+    mcp_job, create_arrangement, arranged_sip_path, sip
+):
+    mets_path = f"{arranged_sip_path}/METS.{sip.uuid}.xml"
 
     main(
         mcp_job,
         sipType="SIP",
-        baseDirectoryPath=arranged_sip.currentpath,
+        baseDirectoryPath=(arranged_sip_path),
         XMLFile=mets_path,
-        sipUUID=arranged_sip.pk,
+        sipUUID=sip.pk,
         includeAmdSec=False,
         createNormativeStructmap=False,
     )

@@ -1,16 +1,10 @@
 import os
-import uuid
 
 import pytest
 import upload_qubit
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-@pytest.fixture
-def sip(db):
-    return models.SIP.objects.create(uuid=str(uuid.uuid4()))
 
 
 @pytest.fixture

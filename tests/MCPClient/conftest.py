@@ -57,3 +57,8 @@ def transfer(user):
     result.update_active_agent(user.id)
 
     return result
+
+
+@pytest.fixture
+def sip():
+    return models.SIP.objects.create(currentpath=r"%SIPDirectory%", diruuids=True)

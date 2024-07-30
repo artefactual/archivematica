@@ -3,14 +3,8 @@ from unittest import mock
 
 import dip_generation_helper
 import pytest
-from main.models import SIP
 from main.models import ArchivesSpaceDIPObjectResourcePairing
 from main.models import File
-
-
-@pytest.fixture
-def sip():
-    return SIP.objects.create()
 
 
 @pytest.fixture

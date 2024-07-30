@@ -7,7 +7,6 @@ import change_object_names
 import pytest
 from client.job import Job
 from django.test import TestCase
-from main.models import SIP
 from main.models import Agent
 from main.models import Directory
 from main.models import Event
@@ -25,13 +24,6 @@ def subdir_path(tmp_path):
     subdir.mkdir()
 
     return subdir
-
-
-@pytest.fixture()
-def sip(db):
-    return SIP.objects.create(
-        uuid=uuid.uuid4(), currentpath=r"%SIPDirectory%", diruuids=True
-    )
 
 
 @pytest.fixture()

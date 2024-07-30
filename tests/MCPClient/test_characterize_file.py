@@ -8,19 +8,6 @@ from main import models
 
 
 @pytest.fixture
-def sip_directory(tmp_path):
-    result = tmp_path / "sip"
-    result.mkdir()
-
-    return result
-
-
-@pytest.fixture
-def sip(sip_directory):
-    return models.SIP.objects.create(currentpath=str(sip_directory))
-
-
-@pytest.fixture
 def file(sip):
     location = b"%SIPDirectory%objects/file.mp3"
     return models.File.objects.create(

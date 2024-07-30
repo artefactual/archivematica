@@ -47,11 +47,6 @@ def sip_directory(tmp_path):
 
 
 @pytest.fixture
-def sip(sip_directory):
-    return models.SIP.objects.create(currentpath=str(sip_directory))
-
-
-@pytest.fixture
 def file(sip):
     location = b"%SIPDirectory%objects/file.mp3"
     return models.File.objects.create(

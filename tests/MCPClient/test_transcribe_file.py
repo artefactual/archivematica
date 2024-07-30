@@ -27,9 +27,13 @@ def sip_directory(tmp_path):
     return result
 
 
-@pytest.fixture
-def sip(sip_directory):
-    return models.SIP.objects.create(currentpath=f"{sip_directory}/")
+@pytest.fixture()
+def sip(sip):
+    # ReplacementDict expands SIP paths based on the shared directory.
+    sip.currentpath = "%sharedPath%"
+    sip.save()
+
+    return sip
 
 
 @pytest.fixture
@@ -134,8 +138,9 @@ def task(job):
 
 
 @pytest.mark.django_db
-def test_main(file, task, fprule, file_format_version):
+def test_main(file, task, fprule, file_format_version, settings, sip_directory):
     job = mock.Mock(spec=Job)
+    settings.SHARED_DIRECTORY = f"{sip_directory}/"
 
     result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
 

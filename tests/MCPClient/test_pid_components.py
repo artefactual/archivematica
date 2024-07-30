@@ -23,7 +23,6 @@ from pid_declaration import DeclarePIDsException
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-PACKAGE_UUID = "cb5ebaf5-beda-40b4-8d0c-fefbd546b8de"
 INCOMPLETE_CONFIG_MSG = "A value for parameter"
 BOUND_URI = "http://195.169.88.240:8017/12345/"
 BOUND_HDL = "12345/"
@@ -32,17 +31,6 @@ BOUND_IDENTIFIER_TYPES = ("hdl", "URI")
 PID_EXID = "EXÎD"
 PID_ULID = "ULID"
 DECLARED_IDENTIFIER_TYPES = (PID_EXID, PID_ULID)
-
-
-@pytest.fixture
-def sip(db):
-    return SIP.objects.create(
-        uuid=PACKAGE_UUID,
-        aip_filename="pid_tests-cb5ebaf5-beda-40b4-8d0c-fefbd546b8de.7z",
-        currentpath="%sharedPath%currentlyProcessing/pid_tests-cb5ebaf5-beda-40b4-8d0c-fefbd546b8de/",
-        sip_type="SIP",
-        createdtime="2015-06-24T17:22:02Z",
-    )
 
 
 @pytest.fixture
@@ -108,7 +96,7 @@ def settings(db):
 
 
 @pytest.fixture
-def files(db, transfer):
+def files(transfer, sip):
     return File.objects.bulk_create(
         [
             File(
@@ -120,7 +108,7 @@ def files(db, transfer):
                 filegrpuse="metadata",
                 modificationtime="2019-05-02T11:16:08.195Z",
                 originallocation=b"%SIPDirectory%objects/metadata/transfers/pid_tests-29460c83-957e-481f-9ca2-873bca42229a/directory_tree.txt",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 size=233,
             ),
             File(
@@ -132,7 +120,7 @@ def files(db, transfer):
                 filegrpuse="original",
                 modificationtime="2019-04-23T12:25:01Z",
                 originallocation=b"%transferDirectory%objects/images/image_001.jpg",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 size=11,
                 transfer=transfer,
             ),
@@ -145,7 +133,7 @@ def files(db, transfer):
                 filegrpuse="original",
                 modificationtime="2019-04-23T12:26:18Z",
                 originallocation=b"%transferDirectory%objects/documents/Document001.doc",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 size=11,
                 transfer=transfer,
             ),
@@ -158,7 +146,7 @@ def files(db, transfer):
                 filegrpuse="submissionDocumentation",
                 modificationtime="2019-05-02T11:16:00.917Z",
                 originallocation=b"%SIPDirectory%objects/submissionDocumentation/transfer-pid_tests-29460c83-957e-481f-9ca2-873bca42229a/METS.xml",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 size=37119,
             ),
             File(
@@ -170,7 +158,7 @@ def files(db, transfer):
                 filegrpuse="metadata",
                 modificationtime="2019-05-02T11:16:08.217Z",
                 originallocation=b"%SIPDirectory%objects/metadata/transfers/pid_tests-29460c83-957e-481f-9ca2-873bca42229a/identifiers.json",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 size=1768,
             ),
         ]
@@ -178,7 +166,7 @@ def files(db, transfer):
 
 
 @pytest.fixture
-def directories(db, transfer):
+def directories(transfer, sip):
     return Directory.objects.bulk_create(
         [
             Directory(
@@ -197,7 +185,7 @@ def directories(db, transfer):
             ),
             Directory(
                 uuid="966755bd-0ae3-4f85-b4ec-b359fefeff33",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 originallocation=b"%transferDirectory%objects/images/",
                 transfer=transfer,
                 currentlocation=b"%SIPDirectory%objects/images/",
@@ -205,7 +193,7 @@ def directories(db, transfer):
             ),
             Directory(
                 uuid="d298dd3f-c5d1-4445-99fe-09123fba8b30",
-                sip_id=PACKAGE_UUID,
+                sip=sip,
                 originallocation=b"%transferDirectory%objects/documents/",
                 transfer=transfer,
                 currentlocation=b"%SIPDirectory%objects/documents/",
@@ -257,7 +245,7 @@ def test_bind_pids_no_config(data, caplog, mcp_job):
 
 
 @pytest.mark.django_db
-def test_bind_pids(data, mocker, mcp_job, pid_web_service):
+def test_bind_pids(data, sip, mocker, mcp_job, pid_web_service):
     """Test the bind_pids function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -266,17 +254,17 @@ def test_bind_pids(data, mocker, mcp_job, pid_web_service):
     """
     # We might want to return a unique accession number, but we can also
     # test here using the package UUID, the function's fallback position.
-    mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=PACKAGE_UUID)
+    mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=str(sip.uuid))
     mocker.patch.object(bind_pids, "_validate_handle_server_config", return_value=None)
 
     # Primary entry-point for the bind_pids microservice job.
-    bind_pids.main(mcp_job, PACKAGE_UUID, "")
+    bind_pids.main(mcp_job, str(sip.uuid), "")
 
-    sip_mdl = SIP.objects.filter(uuid=PACKAGE_UUID).first()
+    sip_mdl = SIP.objects.filter(uuid=sip.uuid).first()
     assert len(sip_mdl.identifiers.all()) == len(
         BOUND_IDENTIFIER_TYPES
     ), "Number of SIP identifiers is greater than anticipated"
-    dirs = Directory.objects.filter(sip=PACKAGE_UUID).all()
+    dirs = Directory.objects.filter(sip=sip).all()
     # At time of writing, the Bind PIDs functions only binds to the content
     # folders and the SIP itself, it doesn't bind to the metadata or
     # submissionDocumentation directories in the package.
@@ -319,7 +307,7 @@ def test_bind_pids(data, mocker, mcp_job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_bind_pid_no_config(data, caplog, mcp_job):
+def test_bind_pid_no_config(data, sip, caplog, mcp_job):
     """Test the output of the code when bind_pids is set to True but there
     are no handle settings in the Dashboard. Conceivably then the dashboard
     settings could be in-between two states, complete and not-complete,
@@ -327,19 +315,19 @@ def test_bind_pid_no_config(data, caplog, mcp_job):
     most visible errors to the user.
     """
     DashboardSetting.objects.filter(scope="handle").delete()
-    assert bind_pid.main(mcp_job, PACKAGE_UUID) == 1
+    assert bind_pid.main(mcp_job, str(sip.uuid)) == 1
     assert caplog.records[0].message.startswith(INCOMPLETE_CONFIG_MSG)
 
 
 @pytest.mark.django_db
-def test_bind_pid(data, mcp_job, pid_web_service):
+def test_bind_pid(data, sip, mcp_job, pid_web_service):
     """Test the bind_pid function end-to-end and ensure that the
     result is that which is anticipated.
 
     The bind_pid module is responsible for binding persistent identifiers
     to the SIP's files and so we test for that here.
     """
-    files = File.objects.filter(sip=PACKAGE_UUID).all()
+    files = File.objects.filter(sip=sip).all()
     package_files = [
         "directory_tree.txt",
         "image 001.jpg",
@@ -383,7 +371,7 @@ def test_bind_pid(data, mcp_job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_bind_pid_no_settings(data, caplog, mcp_job):
+def test_bind_pid_no_settings(data, sip, caplog, mcp_job):
     """Test the output of the code when bind_pids is set to True but there
     are no handle settings in the Dashboard. Conceivably then the dashboard
     settings could be in-between two states, complete and not-complete,
@@ -392,7 +380,7 @@ def test_bind_pid_no_settings(data, caplog, mcp_job):
     """
     file_count = 5
     DashboardSetting.objects.filter(scope="handle").delete()
-    files = File.objects.filter(sip=PACKAGE_UUID).all()
+    files = File.objects.filter(sip=sip).all()
     assert files is not None, "Files haven't been retrieved from the model as expected"
     for file_ in files:
         bind_pid.main(mcp_job, file_.pk)
@@ -401,7 +389,7 @@ def test_bind_pid_no_settings(data, caplog, mcp_job):
 
 
 @pytest.mark.django_db
-def test_pid_declaration(data, mocker, mcp_job, pid_web_service):
+def test_pid_declaration(data, sip, mocker, mcp_job, pid_web_service):
     """Test that the overall functionality of the PID declaration functions
     work as expected.
     """
@@ -417,11 +405,11 @@ def test_pid_declaration(data, mocker, mcp_job, pid_web_service):
             THIS_DIR, "fixtures", "pid_declaration", "identifiers.json"
         ),
     )
-    DeclarePIDs(mcp_job).pid_declaration(unit_uuid=PACKAGE_UUID, sip_directory="")
+    DeclarePIDs(mcp_job).pid_declaration(unit_uuid=sip.uuid, sip_directory="")
     # Declare PIDs allows us to assign PIDs to very specific objects in a
     # transfer.
-    sip_mdl = SIP.objects.filter(uuid=PACKAGE_UUID).first()
-    files = File.objects.filter(sip=PACKAGE_UUID, filegrpuse="original").all()
+    sip_mdl = SIP.objects.filter(uuid=sip.uuid).first()
+    files = File.objects.filter(sip=sip, filegrpuse="original").all()
     dir_mdl = Directory.objects.filter(
         currentlocation__contains="%SIPDirectory%objects/"
     )
@@ -439,10 +427,10 @@ def test_pid_declaration(data, mocker, mcp_job, pid_web_service):
                 assert example_uri in value, "Example URI type not preserved"
             if key == PID_ULID:
                 assert len(example_ulid) == len(value)
-    mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=PACKAGE_UUID)
+    mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=str(sip.uuid))
     mocker.patch.object(bind_pids, "_validate_handle_server_config", return_value=None)
     # Primary entry-point for the bind_pids microservice job.
-    bind_pids.main(mcp_job, PACKAGE_UUID, "")
+    bind_pids.main(mcp_job, str(sip.uuid), "")
     for mdl in chain((sip_mdl,), dir_mdl):
         dir_dmd_sec = create_mets_v2.getDirDmdSec(mdl, "")
         id_type = dir_dmd_sec.xpath(

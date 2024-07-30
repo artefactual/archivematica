@@ -19,6 +19,7 @@ def archivesspace_components(sip):
     )
 
 
+@pytest.mark.django_db
 def test_no_archivesspace(sip, archivesspace_components):
     """It should abort if no ArchivesSpaceDigitalObject found."""
     models.ArchivesSpaceDigitalObject.objects.all().delete()
@@ -28,6 +29,7 @@ def test_no_archivesspace(sip, archivesspace_components):
     assert rc == 1
 
 
+@pytest.mark.django_db
 @mock.patch(
     "storageService.get_file_info",
     return_value=[{"misc_attributes": {}}],
@@ -40,6 +42,7 @@ def test_no_dspace(get_file_info, sip):
     assert rc == 1
 
 
+@pytest.mark.django_db
 @mock.patch(
     "storageService.get_file_info",
     return_value=[{"misc_attributes": {"handle": "123456789/41"}}],
@@ -90,11 +93,6 @@ def processing_dir(shared_dir):
     result = shared_dir / "currentlyProcessing"
     result.mkdir()
     return result
-
-
-@pytest.fixture
-def sip(db):
-    return models.SIP.objects.create()
 
 
 @pytest.fixture

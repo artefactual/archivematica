@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import has_packages
 import pytest
 from client.job import Job
@@ -52,7 +50,7 @@ def transfer_directory(tmp_path):
 @pytest.fixture
 def compressed_file(transfer, transfer_directory, format_version):
     # Simulate a compressed file being extracted to a directory with the same name.
-    d = Path(transfer_directory) / "compressed.zip"
+    d = transfer_directory / "compressed.zip"
     d.mkdir()
 
     # Place an extracted file in it.
