@@ -14,7 +14,6 @@ import bind_pids
 import create_mets_v2
 import namespaces as ns
 import pytest
-from client.job import Job
 from main.models import SIP
 from main.models import DashboardSetting
 from main.models import Directory
@@ -34,11 +33,6 @@ BOUND_IDENTIFIER_TYPES = ("hdl", "URI")
 PID_EXID = "EXÎD"
 PID_ULID = "ULID"
 DECLARED_IDENTIFIER_TYPES = (PID_EXID, PID_ULID)
-
-
-@pytest.fixture
-def job():
-    return Job("stub", "stub", [])
 
 
 @pytest.fixture
@@ -256,7 +250,7 @@ def pid_web_service(mocker):
 
 
 @pytest.mark.django_db
-def test_bind_pids_no_config(data, caplog, job):
+def test_bind_pids_no_config(data, caplog, mcp_job):
     """Test the output of the code without any args.
 
     In this instance, we want bind_pids to think that there is some
@@ -267,13 +261,13 @@ def test_bind_pids_no_config(data, caplog, job):
     """
     DashboardSetting.objects.filter(scope="handle").delete()
     assert (
-        bind_pids.main(job, None, None) == 1
+        bind_pids.main(mcp_job, None, None) == 1
     ), "Incorrect return value for bind_pids with incomplete configuration."
     assert caplog.records[0].message.startswith(INCOMPLETE_CONFIG_MSG)
 
 
 @pytest.mark.django_db
-def test_bind_pids(data, mocker, job, pid_web_service):
+def test_bind_pids(data, mocker, mcp_job, pid_web_service):
     """Test the bind_pids function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -286,7 +280,7 @@ def test_bind_pids(data, mocker, job, pid_web_service):
     mocker.patch.object(bind_pids, "_validate_handle_server_config", return_value=None)
 
     # Primary entry-point for the bind_pids microservice job.
-    bind_pids.main(job, PACKAGE_UUID, "")
+    bind_pids.main(mcp_job, PACKAGE_UUID, "")
 
     sip_mdl = SIP.objects.filter(uuid=PACKAGE_UUID).first()
     assert len(sip_mdl.identifiers.all()) == len(
@@ -335,7 +329,7 @@ def test_bind_pids(data, mocker, job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_bind_pid_no_config(data, caplog, job):
+def test_bind_pid_no_config(data, caplog, mcp_job):
     """Test the output of the code when bind_pids is set to True but there
     are no handle settings in the Dashboard. Conceivably then the dashboard
     settings could be in-between two states, complete and not-complete,
@@ -343,12 +337,12 @@ def test_bind_pid_no_config(data, caplog, job):
     most visible errors to the user.
     """
     DashboardSetting.objects.filter(scope="handle").delete()
-    assert bind_pid.main(job, PACKAGE_UUID) == 1
+    assert bind_pid.main(mcp_job, PACKAGE_UUID) == 1
     assert caplog.records[0].message.startswith(INCOMPLETE_CONFIG_MSG)
 
 
 @pytest.mark.django_db
-def test_bind_pid(data, job, pid_web_service):
+def test_bind_pid(data, mcp_job, pid_web_service):
     """Test the bind_pid function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -367,7 +361,7 @@ def test_bind_pid(data, job, pid_web_service):
         package_files
     ), "Number of files returned from package is incorrect"
     for file_ in files:
-        bind_pid.main(job, file_.pk)
+        bind_pid.main(mcp_job, file_.pk)
     for file_mdl in files:
         bound = {idfr.type: idfr.value for idfr in file_mdl.identifiers.all()}
         assert (
@@ -399,7 +393,7 @@ def test_bind_pid(data, job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_bind_pid_no_settings(data, caplog, job):
+def test_bind_pid_no_settings(data, caplog, mcp_job):
     """Test the output of the code when bind_pids is set to True but there
     are no handle settings in the Dashboard. Conceivably then the dashboard
     settings could be in-between two states, complete and not-complete,
@@ -411,13 +405,13 @@ def test_bind_pid_no_settings(data, caplog, job):
     files = File.objects.filter(sip=PACKAGE_UUID).all()
     assert files is not None, "Files haven't been retrieved from the model as expected"
     for file_ in files:
-        bind_pid.main(job, file_.pk)
+        bind_pid.main(mcp_job, file_.pk)
     for file_number in range(file_count):
         assert caplog.records[file_number].message.startswith(INCOMPLETE_CONFIG_MSG)
 
 
 @pytest.mark.django_db
-def test_pid_declaration(data, mocker, job, pid_web_service):
+def test_pid_declaration(data, mocker, mcp_job, pid_web_service):
     """Test that the overall functionality of the PID declaration functions
     work as expected.
     """
@@ -433,7 +427,7 @@ def test_pid_declaration(data, mocker, job, pid_web_service):
             THIS_DIR, "fixtures", "pid_declaration", "identifiers.json"
         ),
     )
-    DeclarePIDs(job).pid_declaration(unit_uuid=PACKAGE_UUID, sip_directory="")
+    DeclarePIDs(mcp_job).pid_declaration(unit_uuid=PACKAGE_UUID, sip_directory="")
     # Declare PIDs allows us to assign PIDs to very specific objects in a
     # transfer.
     sip_mdl = SIP.objects.filter(uuid=PACKAGE_UUID).first()
@@ -458,7 +452,7 @@ def test_pid_declaration(data, mocker, job, pid_web_service):
     mocker.patch.object(bind_pids, "_get_unique_acc_no", return_value=PACKAGE_UUID)
     mocker.patch.object(bind_pids, "_validate_handle_server_config", return_value=None)
     # Primary entry-point for the bind_pids microservice job.
-    bind_pids.main(job, PACKAGE_UUID, "")
+    bind_pids.main(mcp_job, PACKAGE_UUID, "")
     for mdl in chain((sip_mdl,), dir_mdl):
         dir_dmd_sec = create_mets_v2.getDirDmdSec(mdl, "")
         id_type = dir_dmd_sec.xpath(
@@ -479,7 +473,7 @@ def test_pid_declaration(data, mocker, job, pid_web_service):
             if key == PID_ULID:
                 assert len(example_ulid) == len(value)
     for file_ in files:
-        bind_pid.main(job, file_.pk)
+        bind_pid.main(mcp_job, file_.pk)
     for file_mdl in files:
         file_level_premis = create_mets_v2.create_premis_object(file_mdl.pk)
         id_type = file_level_premis.xpath(
@@ -502,17 +496,17 @@ def test_pid_declaration(data, mocker, job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_pid_declaration_exceptions(data, mocker, job):
+def test_pid_declaration_exceptions(data, mocker, mcp_job):
     """Ensure that the PID declaration feature exits when the JSOn cannot
     be loaded.
     """
     # Test behavior when there isn't an identifiers.json file, e.g. we
     # simulate this by passing an incorrect Unit UUID.
-    DeclarePIDs(job).pid_declaration(
+    DeclarePIDs(mcp_job).pid_declaration(
         unit_uuid="eb6b860e-611c-45c8-8d3e-b9396ed6c751", sip_directory=""
     )
     assert (
-        "No identifiers.json file found" in job.get_stderr().strip()
+        "No identifiers.json file found" in mcp_job.get_stderr().strip()
     ), "Expecting no identifiers.json file, but got something else"
     # Test behavior when identifiers.json is badly formatted.
     bad_identifiers_loc = os.path.join(
@@ -522,7 +516,7 @@ def test_pid_declaration_exceptions(data, mocker, job):
         DeclarePIDs, "_retrieve_identifiers_path", return_value=bad_identifiers_loc
     )
     try:
-        DeclarePIDs(job).pid_declaration(unit_uuid="", sip_directory="")
+        DeclarePIDs(mcp_job).pid_declaration(unit_uuid="", sip_directory="")
     except DeclarePIDsException as err:
         json_error = "Expecting value: line 15 column 1 (char 336)"
         assert json_error in str(

@@ -1,6 +1,7 @@
 import pathlib
 
 import pytest
+from client.job import Job
 
 
 @pytest.fixture(autouse=True)
@@ -18,3 +19,8 @@ def set_xml_catalog_files(monkeypatch):
             / "catalog.xml"
         ),
     )
+
+
+@pytest.fixture()
+def mcp_job():
+    return Job("stub", "stub", [])

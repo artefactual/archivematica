@@ -3,15 +3,9 @@ import uuid
 
 import pytest
 import upload_qubit
-from client.job import Job
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-@pytest.fixture()
-def mcp_job():
-    return Job("stub", "stub", [])
 
 
 @pytest.fixture
