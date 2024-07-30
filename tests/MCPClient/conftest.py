@@ -31,3 +31,17 @@ def mcp_job():
 @pytest.fixture
 def job():
     return models.Job.objects.create(createdtime=timezone.now())
+
+
+@pytest.fixture()
+def user():
+    return models.User.objects.create(
+        id=1,
+        username="kmindelan",
+        first_name="Keladry",
+        last_name="Mindelan",
+        is_active=True,
+        is_superuser=True,
+        is_staff=True,
+        email="keladry@mindelan.com",
+    )

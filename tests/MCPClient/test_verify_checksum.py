@@ -29,7 +29,6 @@ from client.job import Job
 from main.models import Event
 from main.models import File
 from main.models import Transfer
-from main.models import User
 from verify_checksum import Hashsum
 from verify_checksum import NoHashCommandAvailable
 from verify_checksum import PREMISFailure
@@ -43,21 +42,8 @@ class TestHashsum:
     assert_exception_string = "Hashsum exception string returned is incorrect"
     assert_return_value = "Hashsum comparison returned something other than 1: {}"
 
-    @pytest.fixture()
-    def user(self, db):
-        return User.objects.create(
-            id=1,
-            username="kmindelan",
-            first_name="Keladry",
-            last_name="Mindelan",
-            is_active=True,
-            is_superuser=True,
-            is_staff=True,
-            email="keladry@mindelan.com",
-        )
-
     @pytest.fixture
-    def transfer(self, db, user):
+    def transfer(self, user):
         transfer = Transfer.objects.create(
             uuid="e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
             type="Standard",

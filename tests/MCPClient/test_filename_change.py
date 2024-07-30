@@ -14,7 +14,6 @@ from main.models import Event
 from main.models import File
 from main.models import Transfer
 from main.models import UnitVariable
-from main.models import User
 from pytest_django.asserts import assertQuerysetEqual
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,20 +25,6 @@ def subdir_path(tmp_path):
     subdir.mkdir()
 
     return subdir
-
-
-@pytest.fixture()
-def user(db):
-    return User.objects.create(
-        id=1,
-        username="kmindelan",
-        first_name="Keladry",
-        last_name="Mindelan",
-        is_active=True,
-        is_superuser=True,
-        is_staff=True,
-        email="keladry@mindelan.com",
-    )
 
 
 @pytest.fixture()
@@ -200,15 +185,11 @@ class TestFilenameChange(TestCase):
         self.tmpdir = tmpdir
 
     @pytest.fixture(autouse=True)
-    def admin_user(self, user):
-        return user
-
-    @pytest.fixture(autouse=True)
-    def admin_agent(self, admin_user):
+    def admin_agent(self, user):
         return Agent.objects.create(
             agenttype="Archivematica user",
-            identifiervalue=str(admin_user.pk),
-            name=f'username="{admin_user.username}", first_name="{admin_user.first_name}", last_name="{admin_user.last_name}"',
+            identifiervalue=str(user.pk),
+            name=f'username="{user.username}", first_name="{user.first_name}", last_name="{user.last_name}"',
             identifiertype="Archivematica user pk",
         )
 
