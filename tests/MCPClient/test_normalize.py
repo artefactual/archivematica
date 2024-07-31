@@ -47,11 +47,6 @@ def sip_directory(tmp_path):
 
 
 @pytest.fixture
-def sip(sip_directory):
-    return models.SIP.objects.create(currentpath=str(sip_directory))
-
-
-@pytest.fixture
 def file(sip):
     location = b"%SIPDirectory%objects/file.mp3"
     return models.File.objects.create(
@@ -380,11 +375,6 @@ def default_preservation_rule(command, format_version):
     return fprmodels.FPRule.objects.create(
         purpose="default_preservation", command=command, format=format_version
     )
-
-
-@pytest.fixture
-def job():
-    return models.Job.objects.create(createdtime=timezone.now())
 
 
 @pytest.fixture

@@ -28,8 +28,6 @@ import pytest
 from client.job import Job
 from main.models import Event
 from main.models import File
-from main.models import Transfer
-from main.models import User
 from verify_checksum import Hashsum
 from verify_checksum import NoHashCommandAvailable
 from verify_checksum import PREMISFailure
@@ -43,29 +41,9 @@ class TestHashsum:
     assert_exception_string = "Hashsum exception string returned is incorrect"
     assert_return_value = "Hashsum comparison returned something other than 1: {}"
 
-    @pytest.fixture()
-    def user(self, db):
-        return User.objects.create(
-            id=1,
-            username="kmindelan",
-            first_name="Keladry",
-            last_name="Mindelan",
-            is_active=True,
-            is_superuser=True,
-            is_staff=True,
-            email="keladry@mindelan.com",
-        )
-
     @pytest.fixture
-    def transfer(self, db, user):
-        transfer = Transfer.objects.create(
-            uuid="e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6",
-            type="Standard",
-            currentlocation="%sharedPath%currentlyProcessing/ユニコード-e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6/",
-        )
-        transfer.update_active_agent(user_id=user.id)
-        File.objects.create(
-            uuid="8a1f0b59-cf94-47ef-8078-647b77c8a147",
+    def file(self, transfer):
+        return File.objects.create(
             checksumtype="sha256",
             transfer=transfer,
             filegrpuse="original",
@@ -76,7 +54,6 @@ class TestHashsum:
             currentlocation=b"%transferDirectory%objects/has space/lion.svg",
             size=18324,
         )
-        return transfer
 
     @staticmethod
     def setup_hashsum(path, job):
@@ -295,7 +272,7 @@ class TestHashsum:
         ), "Invalid version string decoded by Hashsum"
 
     @pytest.mark.django_db
-    def test_write_premis_event_to_db(self, transfer):
+    def test_write_premis_event_to_db(self, transfer, file):
         """Test that the microservice job connects to the database as
         anticipated, writes its data, and that data can then be retrieved.
         """
@@ -321,7 +298,7 @@ class TestHashsum:
         ]
 
         agent_types = ["organization", "Archivematica user"]
-        package_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+        package_uuid = str(transfer.uuid)
         kwargs = {"removedtime__isnull": True, "transfer_id": package_uuid}
         file_objs_queryset = File.objects.filter(**kwargs)
         for algorithm in algorithms:
@@ -379,11 +356,11 @@ class TestHashsum:
         ), "No all algorithms written to PREMIS events"
 
     @pytest.mark.django_db
-    def test_get_file_obj_queryset(self, transfer):
+    def test_get_file_obj_queryset(self, transfer, file):
         """Test the retrieval and failure of the queryset used for creating
         events for all the file objects associated with the transfer checksums.
         """
-        package_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+        package_uuid = str(transfer.uuid)
         assert get_file_queryset(package_uuid)
         invalid_package_uuid = "badf00d1-9c84-45d5-a3ca-1b0b3f58d9b6"
         with pytest.raises(PREMISFailure):

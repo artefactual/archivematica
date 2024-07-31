@@ -1,83 +1,78 @@
-import os
+import pathlib
 from unittest import mock
 
 import post_store_aip_hook
 import pytest
 from client.job import Job
-from django.test import TestCase
 from main import models
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
-class TestDSpaceToArchivesSpace(TestCase):
-    """Test sending the DSpace handle to ArchivesSpace."""
-
-    fixture_files = [
-        "archivesspaceconfig.json",
-        "sip.json",
-        "archivesspacecomponents.json",
-    ]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
-
-    def setUp(self):
-        self.sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-
-    def test_no_archivesspace(self):
-        """It should abort if no ArchivesSpaceDigitalObject found."""
-        models.ArchivesSpaceDigitalObject.objects.all().delete()
-        rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-            Job("stub", "stub", []), self.sip_uuid
-        )
-        assert rc == 1
-
-    @mock.patch(
-        "storageService.get_file_info",
-        return_value=[{"misc_attributes": {}}],
+@pytest.fixture()
+def archivesspace_components(sip):
+    models.ArchivesSpaceDigitalObject.objects.create(
+        remoteid="/repositories/2/digital_objects/211",
+        sip=sip,
+        title="Digital Object",
+        started=True,
+        resourceid="/repositories/2/archival_objects/8887",
+        label="",
     )
-    def test_no_dspace(self, get_file_info):
-        """It should abort if no DSpace handle found."""
-        rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-            Job("stub", "stub", []), self.sip_uuid
-        )
-        assert rc == 1
 
-    @mock.patch(
-        "storageService.get_file_info",
-        return_value=[{"misc_attributes": {"handle": "123456789/41"}}],
-    )
-    @mock.patch(
-        "requests.post",
-        side_effect=[
-            mock.Mock(**{"json.return_value": {"session": "session-id"}}),
-            mock.Mock(status_code=200),
-        ],
-    )
-    @mock.patch(
-        "requests.get",
-        return_value=mock.Mock(
-            **{
-                "json.return_value": {
-                    "file_versions": [
-                        {
-                            "file_uri": "123456789/41",
-                            "use_statement": "text-data",
-                            "xlink_actuate_attribute": "none",
-                            "xlink_show_attribute": "embed",
-                        },
-                    ],
-                }
+
+@pytest.mark.django_db
+def test_no_archivesspace(sip, archivesspace_components, mcp_job):
+    """It should abort if no ArchivesSpaceDigitalObject found."""
+    models.ArchivesSpaceDigitalObject.objects.all().delete()
+    rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)
+    assert rc == 1
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "storageService.get_file_info",
+    return_value=[{"misc_attributes": {}}],
+)
+def test_no_dspace(get_file_info, sip, mcp_job):
+    """It should abort if no DSpace handle found."""
+    rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)
+    assert rc == 1
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "storageService.get_file_info",
+    return_value=[{"misc_attributes": {"handle": "123456789/41"}}],
+)
+@mock.patch(
+    "requests.post",
+    side_effect=[
+        mock.Mock(**{"json.return_value": {"session": "session-id"}}),
+        mock.Mock(status_code=200),
+    ],
+)
+@mock.patch(
+    "requests.get",
+    return_value=mock.Mock(
+        **{
+            "json.return_value": {
+                "file_versions": [
+                    {
+                        "file_uri": "123456789/41",
+                        "use_statement": "text-data",
+                        "xlink_actuate_attribute": "none",
+                        "xlink_show_attribute": "embed",
+                    },
+                ],
             }
-        ),
-    )
-    def test_dspace_handle_to_archivesspace(
-        self, requests_get, requests_post, get_file_info
-    ):
-        """It should send the DSpace handle to ArchivesSpace."""
-        rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-            Job("stub", "stub", []), self.sip_uuid
-        )
-        assert rc == 0
+        }
+    ),
+)
+def test_dspace_handle_to_archivesspace(
+    requests_get, requests_post, get_file_info, sip, archivesspace_components, mcp_job
+):
+    """It should send the DSpace handle to ArchivesSpace."""
+    rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)
+    assert rc == 0
 
 
 @pytest.fixture
@@ -95,15 +90,16 @@ def processing_dir(shared_dir):
 
 
 @pytest.fixture
-def sip(db):
-    return models.SIP.objects.create()
-
-
-@pytest.fixture
-def transfer(db, processing_dir):
+def transfer(transfer, shared_dir, processing_dir):
     transfer_location = processing_dir / "transfer"
     transfer_location.mkdir()
-    return models.Transfer.objects.create(currentlocation=str(transfer_location))
+
+    transfer.currentlocation = (
+        f"%sharedPath%{transfer_location.relative_to(shared_dir)}"
+    )
+    transfer.save()
+
+    return transfer
 
 
 @pytest.fixture
@@ -113,21 +109,26 @@ def file_(db, sip, transfer):
 
 @pytest.fixture
 def custom_settings(settings, shared_dir, processing_dir):
-    settings.SHARED_DIRECTORY = str(shared_dir)
-    settings.PROCESSING_DIRECTORY = str(processing_dir)
+    settings.SHARED_DIRECTORY = f"{shared_dir}/"
+    settings.PROCESSING_DIRECTORY = f"{processing_dir}/"
     return settings
 
 
 def test_post_store_hook_deletes_transfer_directory(
-    db, mocker, sip, transfer, file_, custom_settings
+    db, sip, transfer, file_, custom_settings
 ):
-    job = mocker.Mock()
+    job = mock.Mock(spec=Job)
 
     # The transfer directory exists before calling the delete function
-    assert os.path.exists(transfer.currentlocation)
+    transfer_path = pathlib.Path(
+        transfer.currentlocation.replace(
+            "%sharedPath%", custom_settings.SHARED_DIRECTORY, 1
+        )
+    )
+    assert transfer_path.exists()
 
     result = post_store_aip_hook.delete_transfer_directory(job, sip.uuid)
 
     # The transfer directory is returned and has been deleted
-    assert result == transfer.currentlocation
-    assert not os.path.exists(transfer.currentlocation)
+    assert result == str(transfer_path)
+    assert not transfer_path.exists()

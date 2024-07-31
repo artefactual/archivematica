@@ -7,17 +7,19 @@ import change_object_names
 import pytest
 from client.job import Job
 from django.test import TestCase
-from main.models import SIP
+from main.models import Agent
 from main.models import Directory
 from main.models import Event
 from main.models import File
 from main.models import Transfer
-from main.models import User
+from main.models import UnitVariable
 from pytest_django.asserts import assertQuerysetEqual
 
-from . import TempDirMixin
-
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# This uses the same name as the pytest fixture in conftest and it can be
+# removed when these TestCase subclasses are converted into pytest tests.
+mcp_job = Job("stub", "stub", [])
 
 
 @pytest.fixture()
@@ -26,38 +28,6 @@ def subdir_path(tmp_path):
     subdir.mkdir()
 
     return subdir
-
-
-@pytest.fixture()
-def user(db):
-    return User.objects.create(
-        id=1,
-        username="kmindelan",
-        first_name="Keladry",
-        last_name="Mindelan",
-        is_active=True,
-        is_superuser=True,
-        is_staff=True,
-        email="keladry@mindelan.com",
-    )
-
-
-@pytest.fixture()
-def transfer(db, user):
-    transfer = Transfer.objects.create(
-        uuid="f6eb30e3-6ded-4f85-b52e-8653b430f29c",
-        currentlocation=r"%transferDirectory%",
-        diruuids=True,
-    )
-    transfer.update_active_agent(user.id)
-    return transfer
-
-
-@pytest.fixture()
-def sip(db):
-    return SIP.objects.create(
-        uuid=uuid.uuid4(), currentpath=r"%SIPDirectory%", diruuids=True
-    )
 
 
 @pytest.fixture()
@@ -182,18 +152,40 @@ def verify_event_details(event):
     )
 
 
-class TestFilenameChange(TempDirMixin, TestCase):
+class TestFilenameChange(TestCase):
     """Test change_names, change_object_names & change_sip_name."""
 
     fixture_files = [
         "transfer.json",
         "files-transfer-unicode.json",
-        "admin-user.json",
-        os.path.join("microservice_agents", "microservice_unitvars.json"),
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+
+    @pytest.fixture(autouse=True)
+    def tmp_dir(self, tmp_path):
+        tmpdir = tmp_path / "tmp"
+        tmpdir.mkdir()
+        self.tmpdir = tmpdir
+
+    @pytest.fixture(autouse=True)
+    def admin_agent(self, user):
+        return Agent.objects.create(
+            agenttype="Archivematica user",
+            identifiervalue=str(user.pk),
+            name=f'username="{user.username}", first_name="{user.first_name}", last_name="{user.last_name}"',
+            identifiertype="Archivematica user pk",
+        )
+
+    @pytest.fixture(autouse=True)
+    def microservice_unitvars(self, admin_agent):
+        UnitVariable.objects.create(
+            unituuid=self.transfer_uuid,
+            unittype="Transfer",
+            variablevalue=str(admin_agent.pk),
+            variable="activeAgent",
+        )
 
     def test_change_object_names(self):
         """Test change_object_names.
@@ -223,7 +215,7 @@ class TestFilenameChange(TempDirMixin, TestCase):
         try:
             # Change names
             name_changer = change_object_names.NameChanger(
-                Job("stub", "stub", []),
+                mcp_job,
                 os.path.join(transfer_path, "objects", "").encode("utf8"),
                 self.transfer_uuid,
                 "2017-01-04 19:35:22",
@@ -326,7 +318,7 @@ def test_change_transfer_with_multiple_files(
     monkeypatch.setattr(change_object_names.NameChanger, "BATCH_SIZE", 10)
 
     name_changer = change_object_names.NameChanger(
-        Job("stub", "stub", []),
+        mcp_job,
         subdir_path.as_posix(),
         transfer.uuid,
         "2017-01-04 19:35:22",
@@ -354,7 +346,7 @@ def test_change_transfer_with_directory_uuids(
     tmp_path, transfer, subdir_path, transfer_dir_obj
 ):
     name_changer = change_object_names.NameChanger(
-        Job("stub", "stub", []),
+        mcp_job,
         os.path.join(tmp_path.as_posix(), ""),
         transfer.uuid,
         "2017-01-04 19:35:22",
@@ -374,7 +366,7 @@ def test_change_transfer_with_directory_uuids(
 @pytest.mark.django_db
 def test_change_sip(tmp_path, sip, subdir_path, sip_dir_obj, sip_file_obj):
     name_changer = change_object_names.NameChanger(
-        Job("stub", "stub", []),
+        mcp_job,
         os.path.join(tmp_path.as_posix(), ""),
         sip.uuid,
         "2017-01-04 19:35:22",

@@ -7,6 +7,10 @@ from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# This uses the same name as the pytest fixture in conftest and it can be
+# removed when these TestCase subclasses are converted into pytest tests.
+mcp_job = Job("stub", "stub", [])
+
 
 class TestRightsImportFromCsvBase(TestCase):
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"  # UUID of transfer created by transfer.json
@@ -37,7 +41,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         """
         rights_csv_filepath = os.path.join(THIS_DIR, "fixtures/rights.csv")
         parser = rights_from_csv.RightCsvReader(
-            Job("stub", "stub", []), self.transfer_uuid, rights_csv_filepath
+            mcp_job, self.transfer_uuid, rights_csv_filepath
         )
         rows_processed = parser.parse()
 
@@ -404,7 +408,7 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
             THIS_DIR, "fixtures/rights-unicode-filepath.csv"
         )
         parser = rights_from_csv.RightCsvReader(
-            Job("stub", "stub", []), self.transfer_uuid, "%s" % rights_csv_filepath
+            mcp_job, self.transfer_uuid, "%s" % rights_csv_filepath
         )
         rows_processed = parser.parse()
 

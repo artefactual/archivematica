@@ -5,13 +5,6 @@ from main import models
 
 
 @pytest.fixture
-def transfer():
-    return models.Transfer.objects.create(
-        currentlocation=r"%transferDirectory%",
-    )
-
-
-@pytest.fixture
 def transfer_dir(tmp_path):
     transfer_dir = tmp_path / "dir"
     transfer_dir.mkdir()

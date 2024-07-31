@@ -10,11 +10,6 @@ LABEL = "my file"
 OBJECTS_DIRECTORY = "%transferDirectory%objects"
 
 
-@pytest.fixture()
-def transfer():
-    return models.Transfer.objects.create()
-
-
 @pytest.mark.django_db
 def test_load_labels_from_csv_fails_if_file_labels_csv_does_not_exist(
     transfer, tmp_path

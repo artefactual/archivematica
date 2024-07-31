@@ -14,7 +14,6 @@ import requests
 from archivematicaCreateMETSMetadataXML import process_xml_metadata
 from importlib_metadata import version
 from lxml.etree import parse
-from main.models import SIP
 from main.models import File
 
 METADATA_DIR = Path("objects") / "metadata"
@@ -63,25 +62,22 @@ def make_schema_file(tmp_path):
 
 
 @pytest.fixture
-def sip(db, tmp_path):
+def sip_directory(tmp_path):
     sip_dir = tmp_path / "sip_dir"
     transfer_metadata_dir = sip_dir / TRANSFER_METADATA_DIR
     transfer_metadata_dir.mkdir(parents=True)
     (transfer_metadata_dir / "valid.xml").write_text(VALID_XML)
     (transfer_metadata_dir / "invalid.xml").write_text(INVALID_XML)
-    return SIP.objects.create(
-        uuid=uuid4(),
-        sip_type="SIP",
-        currentpath=str(sip_dir),
-    )
+
+    return sip_dir
 
 
 @pytest.fixture
-def make_metadata_file(db, sip):
+def make_metadata_file(sip, sip_directory):
     def _make_metadata_file(rel_path):
         return File.objects.create(
             uuid=uuid4(),
-            sip_id=sip.uuid,
+            sip=sip,
             currentlocation=f"%SIPDirectory%{rel_path}".encode(),
         )
 
@@ -238,12 +234,17 @@ def test_disabled_settings(make_mock_mets):
     mock_mets.all_files.assert_not_called()
 
 
-def test_no_source_metadata_csv(settings, make_mock_mets, sip):
+@pytest.mark.django_db
+def test_no_source_metadata_csv(settings, make_mock_mets, sip, sip_directory):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": None}
     mock_mets = make_mock_mets()
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        str(sip_directory),
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert not errors
     mock_mets.all_files.assert_not_called()
@@ -267,6 +268,7 @@ def test_validation(
     make_mock_mets,
     make_schema_file,
     sip,
+    sip_directory,
     mocker,
     insert_into_events_mock,
     create_event_mock,
@@ -278,13 +280,17 @@ def test_validation(
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": schema_uri}
     source_metadata_csv_contents = f"filename,metadata,type\nobjects,{xml_file},mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / xml_file
     metadata_file = make_metadata_file(metadata_file_rel_path)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     objects_fsentry = mock_mets.get_file(label="objects")
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
@@ -316,17 +322,24 @@ def test_validation(
     metadata_fsentry.add_premis_event.assert_called_once_with("fake_element")
 
 
-def test_skipped_validation(settings, make_metadata_file, make_mock_mets, sip, mocker):
+@pytest.mark.django_db
+def test_skipped_validation(
+    settings, make_metadata_file, make_mock_mets, sip, sip_directory, mocker
+):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": None}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,invalid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / "invalid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     objects_fsentry = mock_mets.get_file(label="objects")
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
@@ -339,42 +352,56 @@ def test_skipped_validation(settings, make_metadata_file, make_mock_mets, sip, m
     metadata_fsentry.add_premis_event.assert_not_called()
 
 
+@pytest.mark.django_db
 def test_validation_schema_errors(
-    settings, make_metadata_file, make_mock_mets, make_schema_file, sip
+    settings, make_metadata_file, make_mock_mets, make_schema_file, sip, sip_directory
 ):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": "bad_path.xsd"}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / "valid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert "XML schema local path bad_path.xsd must be absolute" in errors[0]
     schema_file = make_schema_file("xsd")
     schema_file.write_text("")
     xml_validation = {"foo": str(schema_file)}
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert "Could not parse schema file" in errors[0]
     unk_schema_file = schema_file.with_suffix(".unk")
     unk_schema_file.write_text("")
     xml_validation = {"foo": str(unk_schema_file)}
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert "Unknown XML validation schema type: unk" in errors[0]
 
 
-def test_source_metadata_errors(settings, make_mock_mets, sip):
+@pytest.mark.django_db
+def test_source_metadata_errors(settings, make_mock_mets, sip, sip_directory):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": None}
     mock_mets = make_mock_mets()
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     source_metadata_csv_contents = (
         "filename,metadata,type\n"
         + "valid.xml,none\n"
@@ -384,7 +411,11 @@ def test_source_metadata_errors(settings, make_mock_mets, sip):
     )
     metadata_csv_path.write_text(source_metadata_csv_contents)
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert len(errors) == 4
     for error in errors:
@@ -392,7 +423,11 @@ def test_source_metadata_errors(settings, make_mock_mets, sip):
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,CUSTOM"
     metadata_csv_path.write_text(source_metadata_csv_contents)
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert "is using CUSTOM, a reserved type" in errors[0]
     source_metadata_csv_contents = (
@@ -402,7 +437,11 @@ def test_source_metadata_errors(settings, make_mock_mets, sip):
     )
     metadata_csv_path.write_text(source_metadata_csv_contents)
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert (
         f"More than one entry in {metadata_csv_path} for path objects and type mdtype"
@@ -427,6 +466,7 @@ def test_schema_uri_retrieval(
     make_mock_mets,
     make_schema_file,
     sip,
+    sip_directory,
     validation_key,
     should_error,
 ):
@@ -434,7 +474,7 @@ def test_schema_uri_retrieval(
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {validation_key: schema_path}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_contents = (
         '<?xml version="1.0" encoding="UTF-8"?>'
@@ -445,11 +485,15 @@ def test_schema_uri_retrieval(
     )
     metadata_file_rel_path = TRANSFER_METADATA_DIR / "valid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
-    metadata_file_path = sip.currentpath / metadata_file_rel_path
+    metadata_file_path = sip_directory / metadata_file_rel_path
     metadata_file_path.write_text(metadata_file_contents)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
     if should_error:
@@ -460,7 +504,9 @@ def test_schema_uri_retrieval(
 
 
 @pytest.mark.django_db
-def test_multiple_dmdsecs(settings, make_metadata_file, make_mock_mets, sip):
+def test_multiple_dmdsecs(
+    settings, make_metadata_file, make_mock_mets, sip, sip_directory
+):
     mdkeys = ["foo", "foo_2", "foo_3"]
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {}
@@ -473,16 +519,20 @@ def test_multiple_dmdsecs(settings, make_metadata_file, make_mock_mets, sip):
         csv_contents += f"objects/directory/file.txt,{mdkey}.xml,{mdkey}\n"
         metadata_file_rel_path = TRANSFER_METADATA_DIR / f"{mdkey}.xml"
         metadata_file = make_metadata_file(metadata_file_rel_path)
-        metadata_file_path = sip.currentpath / metadata_file_rel_path
+        metadata_file_path = sip_directory / metadata_file_rel_path
         metadata_file_path.write_text(
             f'<?xml version="1.0" encoding="UTF-8"?><{mdkey}/>'
         )
         metadata_file_uuids.append(str(metadata_file.uuid))
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(csv_contents)
     mock_mets = make_mock_mets(metadata_file_uuids)
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert not errors
     for label in ["objects", "directory", "file.txt"]:
@@ -492,19 +542,25 @@ def test_multiple_dmdsecs(settings, make_metadata_file, make_mock_mets, sip):
 
 @pytest.mark.django_db
 def test_reingest(
-    settings, make_schema_file, make_metadata_file, make_mock_mets, sip, mocker
+    settings,
+    make_schema_file,
+    make_metadata_file,
+    make_mock_mets,
+    sip,
+    sip_directory,
+    mocker,
 ):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": str(make_schema_file("xsd"))}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / METADATA_DIR / "source-metadata.csv"
+    metadata_csv_path = sip_directory / METADATA_DIR / "source-metadata.csv"
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = METADATA_DIR / "valid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
-    (sip.currentpath / metadata_file_rel_path).write_text(VALID_XML)
+    (sip_directory / metadata_file_rel_path).write_text(VALID_XML)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "REIN", xml_validation
+        mock_mets, sip_directory, sip.uuid, "REIN", xml_validation
     )
     objects_fsentry = mock_mets.get_file(label="objects")
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
@@ -518,7 +574,7 @@ def test_reingest(
     source_metadata_csv_contents = "filename,metadata,type\nobjects,,mdtype"
     metadata_csv_path.write_text(source_metadata_csv_contents)
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "REIN", xml_validation
+        mock_mets, sip_directory, sip.uuid, "REIN", xml_validation
     )
     assert not errors
     objects_fsentry.delete_dmdsec.assert_called_with("OTHER", "mdtype")
@@ -530,6 +586,7 @@ def test_resolver(
     make_metadata_file,
     make_mock_mets,
     sip,
+    sip_directory,
     etree_parse,
     requests_get,
     schema_with_remote_import,
@@ -537,13 +594,17 @@ def test_resolver(
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": str(schema_with_remote_import)}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / "valid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert not errors
     requests_get.assert_called_once_with("http://foo.com/my.xsd")
@@ -555,6 +616,7 @@ def test_resolver_with_requests_error(
     make_metadata_file,
     make_mock_mets,
     sip,
+    sip_directory,
     etree_parse,
     requests_get_error,
     schema_with_remote_import,
@@ -562,13 +624,17 @@ def test_resolver_with_requests_error(
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": str(schema_with_remote_import)}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / "valid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert not errors
 
@@ -579,6 +645,7 @@ def test_resolver_with_local_import(
     make_metadata_file,
     make_mock_mets,
     sip,
+    sip_directory,
     etree_parse,
     requests_get,
     schema_with_local_import,
@@ -586,13 +653,17 @@ def test_resolver_with_local_import(
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": str(schema_with_local_import)}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
-    metadata_csv_path = sip.currentpath / TRANSFER_SOURCE_METADATA_CSV
+    metadata_csv_path = sip_directory / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
     metadata_file_rel_path = TRANSFER_METADATA_DIR / "valid.xml"
     metadata_file = make_metadata_file(metadata_file_rel_path)
     mock_mets = make_mock_mets([str(metadata_file.uuid)])
     mock_mets, errors = process_xml_metadata(
-        mock_mets, sip.currentpath, sip.uuid, "sip_type", xml_validation
+        mock_mets,
+        sip_directory,
+        sip.uuid,
+        "sip_type",
+        xml_validation,
     )
     assert not errors
     requests_get.assert_not_called()

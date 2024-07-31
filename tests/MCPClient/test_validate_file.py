@@ -6,21 +6,10 @@ from fpr.models import FormatVersion
 from fpr.models import FPCommand
 from fpr.models import FPRule
 from fpr.models import FPTool
-from main.models import SIP
 from main.models import Event
 from main.models import File
 from main.models import FileFormatVersion
 from validate_file import main
-
-
-@pytest.fixture
-def sip(tmp_path):
-    sip_dir = tmp_path / "sip"
-    sip_dir.mkdir()
-    # Create logs directory in the SIP.
-    (sip_dir / "logs").mkdir()
-
-    return SIP.objects.create(currentpath=str(sip_dir))
 
 
 @pytest.fixture

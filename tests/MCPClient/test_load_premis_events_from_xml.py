@@ -9,7 +9,6 @@ from lxml import etree
 from main.models import Agent
 from main.models import Event
 from main.models import File
-from main.models import Transfer
 
 THIS_DIR = pathlib.Path(__file__).parent
 
@@ -740,13 +739,6 @@ def file_path(subdir_path):
     file_path = subdir_path / "file1"
     file_path.write_text("Hello world")
     return file_path
-
-
-@pytest.fixture()
-def transfer(db):
-    return Transfer.objects.create(
-        uuid=uuid.uuid4(), currentlocation=r"%transferDirectory%"
-    )
 
 
 @pytest.fixture()

@@ -3,14 +3,8 @@ import shutil
 
 import pytest
 import restructure_dip_for_content_dm_upload
-from client.job import Job
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-@pytest.fixture
-def job():
-    return Job("stub", "stub", [])
 
 
 @pytest.fixture
@@ -35,13 +29,13 @@ def dip_directory_optional_dc_columns(tmpdir):
     return tmpdir
 
 
-def test_restructure_dip_for_content_dm_upload(job, dip_directory):
-    job.args = (
+def test_restructure_dip_for_content_dm_upload(mcp_job, dip_directory):
+    mcp_job.args = (
         None,
         "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
         f"--dipDir={dip_directory}",
     )
-    jobs = [job]
+    jobs = [mcp_job]
 
     restructure_dip_for_content_dm_upload.call(jobs)
     csv_data = (
@@ -50,8 +44,8 @@ def test_restructure_dip_for_content_dm_upload(job, dip_directory):
         .splitlines()
     )
 
-    assert not job.error
-    assert job.get_exit_code() == 0
+    assert not mcp_job.error
+    assert mcp_job.get_exit_code() == 0
     assert (
         csv_data[0]
         == "Directory name	title	creator	subject	description	publisher	contributor	date	type	format	identifier	source	relation	language	rights	isPartOf	AIP UUID	file UUID"
@@ -63,14 +57,14 @@ def test_restructure_dip_for_content_dm_upload(job, dip_directory):
 
 
 def test_restructure_dip_for_content_dm_upload_with_optional_dc_columns(
-    job, dip_directory_optional_dc_columns
+    mcp_job, dip_directory_optional_dc_columns
 ):
-    job.args = (
+    mcp_job.args = (
         None,
         "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
         f"--dipDir={dip_directory_optional_dc_columns}",
     )
-    jobs = [job]
+    jobs = [mcp_job]
 
     restructure_dip_for_content_dm_upload.call(jobs)
     csv_data = (
@@ -79,8 +73,8 @@ def test_restructure_dip_for_content_dm_upload_with_optional_dc_columns(
         .splitlines()
     )
 
-    assert not job.error
-    assert job.get_exit_code() == 0
+    assert not mcp_job.error
+    assert mcp_job.get_exit_code() == 0
 
     assert (
         csv_data[0]
