@@ -20,12 +20,10 @@ def archivesspace_components(sip):
 
 
 @pytest.mark.django_db
-def test_no_archivesspace(sip, archivesspace_components):
+def test_no_archivesspace(sip, archivesspace_components, mcp_job):
     """It should abort if no ArchivesSpaceDigitalObject found."""
     models.ArchivesSpaceDigitalObject.objects.all().delete()
-    rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-        Job("stub", "stub", []), sip.uuid
-    )
+    rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)
     assert rc == 1
 
 
@@ -34,11 +32,9 @@ def test_no_archivesspace(sip, archivesspace_components):
     "storageService.get_file_info",
     return_value=[{"misc_attributes": {}}],
 )
-def test_no_dspace(get_file_info, sip):
+def test_no_dspace(get_file_info, sip, mcp_job):
     """It should abort if no DSpace handle found."""
-    rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-        Job("stub", "stub", []), sip.uuid
-    )
+    rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)
     assert rc == 1
 
 
@@ -72,12 +68,10 @@ def test_no_dspace(get_file_info, sip):
     ),
 )
 def test_dspace_handle_to_archivesspace(
-    requests_get, requests_post, get_file_info, sip, archivesspace_components
+    requests_get, requests_post, get_file_info, sip, archivesspace_components, mcp_job
 ):
     """It should send the DSpace handle to ArchivesSpace."""
-    rc = post_store_aip_hook.dspace_handle_to_archivesspace(
-        Job("stub", "stub", []), sip.uuid
-    )
+    rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)
     assert rc == 0
 
 

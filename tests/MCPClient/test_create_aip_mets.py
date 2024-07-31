@@ -22,6 +22,10 @@ from version import get_preservation_system_identifier
 
 THIS_DIR = pathlib.Path(__file__).parent
 
+# This uses the same name as the pytest fixture in conftest and it can be
+# removed when these TestCase subclasses are converted into pytest tests.
+mcp_job = Job("stub", "stub", [])
+
 
 class TestNormativeStructMap(TestCase):
     """Test creation of normative structMap."""
@@ -124,7 +128,7 @@ class TestDublinCore(TestCase):
         # Generate dmdSec if DC exists
         state = create_mets_v2.MetsState()
         dmdsec_elem, dmdid = create_mets_v2.createDublincoreDMDSecFromDBData(
-            Job("stub", "stub", []), self.siptypeuuid, self.sipuuid, THIS_DIR, state
+            mcp_job, self.siptypeuuid, self.sipuuid, THIS_DIR, state
         )
         # Verify created correctly
         assert dmdsec_elem is not None
@@ -145,7 +149,7 @@ class TestDublinCore(TestCase):
         badsipuuid = "dnednedn-5bd2-4249-84a1-2f00f725b981"
         state = create_mets_v2.MetsState()
         dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(
-            Job("stub", "stub", []), self.siptypeuuid, badsipuuid, THIS_DIR, state
+            mcp_job, self.siptypeuuid, badsipuuid, THIS_DIR, state
         )
         # Expect no element
         assert dmdsec_elem is None
@@ -162,7 +166,7 @@ class TestDublinCore(TestCase):
             (sip_dir / "objects/metadata/transfers/.gitignore").unlink()
             state = create_mets_v2.MetsState()
             dmdsec_elem = create_mets_v2.createDublincoreDMDSecFromDBData(
-                Job("stub", "stub", []),
+                mcp_job,
                 self.siptypeuuid,
                 badsipuuid,
                 str(sip_dir),
@@ -201,9 +205,7 @@ class TestDublinCore(TestCase):
         )
         # Test
         state = create_mets_v2.MetsState()
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(
-            Job("stub", "stub", []), data, state
-        )
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(mcp_job, data, state)
         # Verify
         assert ret
         assert len(ret) == 1
@@ -265,9 +267,7 @@ class TestDublinCore(TestCase):
         )
         # Test
         state = create_mets_v2.MetsState()
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(
-            Job("stub", "stub", []), data, state
-        )
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(mcp_job, data, state)
         # Verify
         assert ret
         assert len(ret) == 1
@@ -311,9 +311,7 @@ class TestDublinCore(TestCase):
         )
         # Test
         state = create_mets_v2.MetsState()
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(
-            Job("stub", "stub", []), data, state
-        )
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(mcp_job, data, state)
         # Verify
         assert ret
         assert len(ret) == 2
@@ -366,9 +364,7 @@ class TestDublinCore(TestCase):
         data = {}
         # Test
         state = create_mets_v2.MetsState()
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(
-            Job("stub", "stub", []), data, state
-        )
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(mcp_job, data, state)
         # Verify
         assert ret == []
 
@@ -382,9 +378,7 @@ class TestDublinCore(TestCase):
         )
         # Test
         state = create_mets_v2.MetsState()
-        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(
-            Job("stub", "stub", []), data, state
-        )
+        ret = create_mets_v2.createDmdSecsFromCSVParsedMetadata(mcp_job, data, state)
         # Verify
         assert ret
         assert len(ret) == 2
@@ -454,7 +448,7 @@ class TestCSVMetadata(TestCase):
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), str(self.metadata_file)
+            mcp_job, str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -498,7 +492,7 @@ class TestCSVMetadata(TestCase):
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), str(self.metadata_file)
+            mcp_job, str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -524,7 +518,7 @@ class TestCSVMetadata(TestCase):
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), str(self.metadata_file)
+            mcp_job, str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -547,7 +541,7 @@ class TestCSVMetadata(TestCase):
 
         # Run test
         dc = archivematicaCreateMETSMetadataCSV.parseMetadataCSV(
-            Job("stub", "stub", []), str(self.metadata_file)
+            mcp_job, str(self.metadata_file)
         )
         # Verify
         assert dc
@@ -723,9 +717,7 @@ class TestRights(TestCase):
         statement = RightsStatement.objects.get(id=1)
         # Test
         state = create_mets_v2.MetsState()
-        archivematicaCreateMETSRights.getrightsGranted(
-            Job("stub", "stub", []), statement, elem, state
-        )
+        archivematicaCreateMETSRights.getrightsGranted(mcp_job, statement, elem, state)
         # Verify
         assert len(elem) == 1
         rightsgranted = elem[0]
@@ -796,7 +788,7 @@ class TestCustomStructMap(TestCase):
         """For items on-disk we have to mimic the filename change process."""
         for key, _ in dict(self.state.fileNameToFileID).items():
             self.state.fileNameToFileID[
-                create_mets_v2._fixup_path_input_by_user(Job("stub", "stub", []), key)
+                create_mets_v2._fixup_path_input_by_user(mcp_job, key)
             ] = self.state.fileNameToFileID.pop(key)
 
     def generate_aip_mets_v2_state(self):
@@ -837,7 +829,7 @@ class TestCustomStructMap(TestCase):
             list(range(arbitrary_max_structmaps))
         )
         self.structmap_div_element = create_mets_v2.createFileSec(
-            job=Job("stub", "stub", []),
+            job=mcp_job,
             directoryPath=self.objects_dir,
             parentDiv=structMapDiv,
             baseDirectoryPath=self.transfer_dir,
@@ -963,14 +955,14 @@ class TestCustomStructMap(TestCase):
             # Ensure that we test default behavior.
             if not res.structmap_name:
                 custom_structmap = create_mets_v2.include_custom_structmap(
-                    job=Job("stub", "stub", []),
+                    job=mcp_job,
                     baseDirectoryPath=self.transfer_dir,
                     state=self.state,
                 )[0]
             else:
                 # Expand the scope of testing to all our sample structmaps.
                 custom_structmap = create_mets_v2.include_custom_structmap(
-                    job=Job("stub", "stub", []),
+                    job=mcp_job,
                     baseDirectoryPath=self.transfer_dir,
                     state=self.state,
                     custom_structmap=res.structmap_name,
@@ -1027,7 +1019,7 @@ class TestCustomStructMap(TestCase):
             assert os.path.isfile(self.mets_xsd_path)
             self.validate_mets(self.mets_xsd_path, structmap_path)
             custom_structmap = create_mets_v2.include_custom_structmap(
-                job=Job("stub", "stub", []),
+                job=mcp_job,
                 baseDirectoryPath=self.transfer_dir,
                 state=self.state,
                 custom_structmap=res.structmap_name,

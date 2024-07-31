@@ -17,6 +17,10 @@ from pytest_django.asserts import assertQuerysetEqual
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# This uses the same name as the pytest fixture in conftest and it can be
+# removed when these TestCase subclasses are converted into pytest tests.
+mcp_job = Job("stub", "stub", [])
+
 
 @pytest.fixture()
 def subdir_path(tmp_path):
@@ -211,7 +215,7 @@ class TestFilenameChange(TestCase):
         try:
             # Change names
             name_changer = change_object_names.NameChanger(
-                Job("stub", "stub", []),
+                mcp_job,
                 os.path.join(transfer_path, "objects", "").encode("utf8"),
                 self.transfer_uuid,
                 "2017-01-04 19:35:22",
@@ -314,7 +318,7 @@ def test_change_transfer_with_multiple_files(
     monkeypatch.setattr(change_object_names.NameChanger, "BATCH_SIZE", 10)
 
     name_changer = change_object_names.NameChanger(
-        Job("stub", "stub", []),
+        mcp_job,
         subdir_path.as_posix(),
         transfer.uuid,
         "2017-01-04 19:35:22",
@@ -342,7 +346,7 @@ def test_change_transfer_with_directory_uuids(
     tmp_path, transfer, subdir_path, transfer_dir_obj
 ):
     name_changer = change_object_names.NameChanger(
-        Job("stub", "stub", []),
+        mcp_job,
         os.path.join(tmp_path.as_posix(), ""),
         transfer.uuid,
         "2017-01-04 19:35:22",
@@ -362,7 +366,7 @@ def test_change_transfer_with_directory_uuids(
 @pytest.mark.django_db
 def test_change_sip(tmp_path, sip, subdir_path, sip_dir_obj, sip_file_obj):
     name_changer = change_object_names.NameChanger(
-        Job("stub", "stub", []),
+        mcp_job,
         os.path.join(tmp_path.as_posix(), ""),
         sip.uuid,
         "2017-01-04 19:35:22",
