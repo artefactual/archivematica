@@ -225,7 +225,7 @@ def test_main_if_fprule_is_disabled(
 
 @pytest.mark.django_db
 @mock.patch("transcribe_file.executeOrRun")
-def test_main_if_command_is_python_script(
+def test_main_if_command_is_not_bash_script(
     _execute_or_run,
     fpcommand,
     sip_file,
@@ -233,11 +233,7 @@ def test_main_if_command_is_python_script(
     fprule_transcription,
     file_format_version,
 ):
-    _execute_or_run.return_value = (
-        0,
-        fpcommand.command,
-        "",
-    )
+    _execute_or_run.return_value = (0, fpcommand.command, "")
     job = mock.Mock(spec=Job)
 
     result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=sip_file.uuid)
@@ -249,13 +245,13 @@ def test_main_if_command_is_python_script(
     ]
     assert job.write_output.mock_calls == [mock.call(fpcommand.command)]
 
-    # executeOrRun is called once
+    # executeOrRun is called once.
     transcribe_file.executeOrRun.assert_called_once()
 
-    # Get the call to executeOrRun
+    # Get the call to executeOrRun.
     execute_or_run_call = transcribe_file.executeOrRun.mock_calls[0]
     call_kwargs = execute_or_run_call[-1]
 
-    # Ensure the arguments passed are list of strings
+    # Ensure the arguments passed is a list.
     execute_or_run_args = call_kwargs["arguments"]
     assert isinstance(execute_or_run_args, list)
