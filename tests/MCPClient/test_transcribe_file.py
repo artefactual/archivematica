@@ -39,6 +39,14 @@ def create_sip_file(sip_directory_path, sip_file):
 
 
 @pytest.fixture
+def fpcommand(fpcommand, sip_file):
+    fpcommand.output_location = sip_file.currentlocation.decode()
+    fpcommand.save()
+
+    return fpcommand
+
+
+@pytest.fixture
 def derivation(sip_file, preservation_file):
     return models.Derivation.objects.create(
         source_file=sip_file, derived_file=preservation_file

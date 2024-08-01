@@ -91,10 +91,8 @@ def fptool():
 
 
 @pytest.fixture
-def fpcommand(fptool, sip_file):
-    return fprmodels.FPCommand.objects.create(
-        tool=fptool, output_location=sip_file.currentlocation.decode()
-    )
+def fpcommand(fptool):
+    return fprmodels.FPCommand.objects.create(tool=fptool)
 
 
 @pytest.fixture
