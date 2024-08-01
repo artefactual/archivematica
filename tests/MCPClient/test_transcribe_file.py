@@ -57,7 +57,7 @@ def test_main(
     sip_file,
     task,
     fprule_transcription,
-    file_format_version,
+    sip_file_format_version,
     settings,
     sip_directory_path,
     create_sip_file,
@@ -107,7 +107,7 @@ def test_main(
 
 @pytest.mark.django_db
 def test_main_if_filegroup_is_not_original(
-    preservation_file, task, fprule_transcription, file_format_version, capsys
+    preservation_file, task, fprule_transcription, sip_file_format_version, capsys
 ):
     job = mock.Mock(spec=Job)
 
@@ -125,7 +125,7 @@ def test_main_if_filegroup_is_not_original(
 
 
 @pytest.mark.django_db
-def test_main_if_no_rules_exist(sip_file, task, file_format_version, capsys):
+def test_main_if_no_rules_exist(sip_file, task, sip_file_format_version, capsys):
     job = mock.Mock(spec=Job)
 
     result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=sip_file.uuid)
@@ -143,7 +143,7 @@ def test_main_if_no_rules_exist(sip_file, task, file_format_version, capsys):
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
-    derivation, fprule_transcription, file_format_version
+    derivation, fprule_transcription, sip_file_format_version
 ):
     result = transcribe_file.fetch_rules_for_derivatives(file_=derivation.source_file)
 
@@ -180,7 +180,7 @@ def disabled_fprule_transcription(fprule_transcription):
 
 @pytest.mark.django_db
 def test_main_if_fprule_is_disabled(
-    sip_file, task, disabled_fprule_transcription, file_format_version
+    sip_file, task, disabled_fprule_transcription, sip_file_format_version
 ):
     job = mock.Mock(spec=Job)
 
@@ -231,7 +231,7 @@ def test_main_if_command_is_not_bash_script(
     sip_file,
     task,
     fprule_transcription,
-    file_format_version,
+    sip_file_format_version,
 ):
     _execute_or_run.return_value = (0, fpcommand.command, "")
     job = mock.Mock(spec=Job)

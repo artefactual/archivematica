@@ -422,7 +422,7 @@ def test_normalization_finds_rule_by_file_format_version(
     task,
     fpcommand,
     format_version,
-    file_format_version,
+    sip_file_format_version,
     fprule_preservation,
 ):
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())

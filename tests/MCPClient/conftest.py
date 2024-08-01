@@ -178,7 +178,7 @@ def preservation_file(sip, transfer):
 
 
 @pytest.fixture
-def file_format_version(sip_file, format_version):
+def sip_file_format_version(sip_file, format_version):
     return models.FileFormatVersion.objects.create(
         file_uuid=sip_file, format_version=format_version
     )
