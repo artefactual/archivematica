@@ -12,12 +12,6 @@ from create_transfer_mets import file_obj_to_premis
 from create_transfer_mets import rights_to_premis
 from create_transfer_mets import write_mets
 from django.db.models import prefetch_related_objects
-from fpr.models import Format
-from fpr.models import FormatGroup
-from fpr.models import FormatVersion
-from fpr.models import FPCommand
-from fpr.models import FPRule
-from fpr.models import FPTool
 from lxml import etree
 from main.models import Agent
 from main.models import DashboardSetting
@@ -145,26 +139,10 @@ def event(request, db, file_obj):
 
 
 @pytest.fixture()
-def fprule(db):
-    format_group = FormatGroup.objects.create(description="group")
-    format = Format.objects.create(description="format", group=format_group)
-    format_version = FormatVersion.objects.create(
-        format=format, version="1.0", description="Version 1.0"
-    )
-    tool = FPTool.objects.create(description="tool")
-    command = FPCommand.objects.create(tool=tool, description="command")
-    return FPRule.objects.create(
-        purpose=FPRule.CHARACTERIZATION,
-        command=command,
-        format=format_version,
-    )
-
-
-@pytest.fixture()
-def fpcommand_output(db, fprule, file_obj):
+def fpcommand_output(db, fprule_characterization, file_obj):
     return FPCommandOutput.objects.create(
         file=file_obj,
-        rule=fprule,
+        rule=fprule_characterization,
         content='<?xml version="1.0" encoding="UTF-8"?><hello>World</hello>',
     )
 

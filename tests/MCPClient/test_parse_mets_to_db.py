@@ -457,6 +457,10 @@ class TestParseFiles(TestCase):
     fixture_files = ["formats.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
+    @pytest.fixture(autouse=True)
+    def set_sip_uuid(self, sip):
+        self.SIP_UUID = str(sip.uuid)
+
     def setUp(self):
         self.ORIG_INFO = {
             "uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
@@ -498,8 +502,6 @@ class TestParseFiles(TestCase):
             "derivation": None,
             "derivation_event": None,
         }
-        self.SIP_UUID = "8a0cac37-e446-4fa7-9e96-062bf07ccd04"
-        models.SIP.objects.create(uuid=self.SIP_UUID, sip_type="AIP-REIN")
 
     def test_parse_file_info(self):
         """

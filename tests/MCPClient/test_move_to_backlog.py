@@ -5,7 +5,6 @@ import move_to_backlog
 import pytest
 from lxml import etree
 from main.models import Agent
-from main.models import File
 
 
 @pytest.mark.django_db
@@ -65,24 +64,27 @@ def test_transfer_agents(transfer):
 
 
 @pytest.mark.django_db
-def test_record_backlog_event(tmp_path, transfer):
-    file_obj = File.objects.create(
-        uuid="3c567bc8-0847-4d12-a77d-0ed3a0361c0a", transfer=transfer
-    )
-
+def test_record_backlog_event(transfer, transfer_file, transfer_directory_path):
     # ``_record_backlog_event`` expects the METS file to exist already.
     # We're creating one with a single file in it.
-    (tmp_path / "metadata/submissionDocumentation").mkdir(parents=True)
-    mets_path = str(tmp_path / "metadata/submissionDocumentation/METS.xml")
+    (transfer_directory_path / "metadata/submissionDocumentation").mkdir(parents=True)
+    mets_path = str(
+        transfer_directory_path / "metadata/submissionDocumentation/METS.xml"
+    )
     mets = metsrw.METSDocument()
     mets.append_file(
         metsrw.FSEntry(
-            path="foobar.jpg", label="foobar", type="Item", file_uuid=file_obj.uuid
+            path="foobar.jpg",
+            label="foobar",
+            type="Item",
+            file_uuid=str(transfer_file.uuid),
         )
     )
     mets.write(mets_path, pretty_print=True)
 
-    move_to_backlog._record_backlog_event(transfer.uuid, str(tmp_path), "2019-03-12")
+    move_to_backlog._record_backlog_event(
+        transfer.uuid, str(transfer_directory_path), "2019-03-12"
+    )
 
     # Load METS document again and test that the file has a PREMIS event.
     mets = metsrw.METSDocument().fromfile(mets_path)

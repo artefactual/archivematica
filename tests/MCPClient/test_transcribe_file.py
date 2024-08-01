@@ -4,8 +4,6 @@ from unittest import mock
 import pytest
 import transcribe_file
 from client.job import Job
-from django.utils import timezone
-from fpr import models as fprmodels
 from main import models
 
 EXECUTE_OR_RUN_STDOUT = "Hello"
@@ -19,14 +17,6 @@ def execute_or_run():
         yield
 
 
-@pytest.fixture
-def sip_directory(tmp_path):
-    result = tmp_path / "sip"
-    result.mkdir()
-
-    return result
-
-
 @pytest.fixture()
 def sip(sip):
     # ReplacementDict expands SIP paths based on the shared directory.
@@ -37,82 +27,21 @@ def sip(sip):
 
 
 @pytest.fixture
-def file(sip, sip_directory):
-    location = b"%SIPDirectory%objects/file.jpg"
-    file_dir = sip_directory / "objects"
+def create_sip_file(sip_directory_path, sip_file):
+    file_path = pathlib.Path(
+        sip_file.currentlocation.decode().replace("%SIPDirectory%", "")
+    )
+
+    file_dir = sip_directory_path / file_path.parent
     file_dir.mkdir(parents=True)
-    file_name = pathlib.Path(location.decode()).name
-    (file_dir / file_name).touch()
 
-    return models.File.objects.create(
-        sip=sip,
-        filegrpuse="original",
-        currentlocation=location,
-        originallocation=location,
-    )
+    (file_dir / file_path.name).touch()
 
 
 @pytest.fixture
-def tool():
-    return fprmodels.FPTool.objects.create()
-
-
-@pytest.fixture
-def command(tool, file):
-    return fprmodels.FPCommand.objects.create(
-        tool=tool,
-        description="Transcribe using Tesseract",
-        command_usage="transcription",
-        command="echo Hello",
-        script_type="bashScript",
-        output_location=file.currentlocation.decode(),
-    )
-
-
-@pytest.fixture
-def format_group():
-    return fprmodels.FormatGroup.objects.get(description="Image (Raster)")
-
-
-@pytest.fixture
-def format(format_group):
-    return fprmodels.Format.objects.create(group=format_group)
-
-
-@pytest.fixture
-def format_version(format):
-    return fprmodels.FormatVersion.objects.create(format=format)
-
-
-@pytest.fixture
-def file_format_version(file, format_version):
-    return models.FileFormatVersion.objects.create(
-        file_uuid=file, format_version=format_version
-    )
-
-
-@pytest.fixture
-def fprule(format_version, command):
-    return fprmodels.FPRule.objects.create(
-        format=format_version, command=command, purpose="transcription"
-    )
-
-
-@pytest.fixture
-def preservation_file(sip):
-    location = b"%SIPDirectory%objects/preservation/file.tiff"
-    return models.File.objects.create(
-        sip=sip,
-        filegrpuse="preservation",
-        currentlocation=location,
-        originallocation=location,
-    )
-
-
-@pytest.fixture
-def derivation(file, preservation_file):
+def derivation(sip_file, preservation_file):
     return models.Derivation.objects.create(
-        source_file=file, derived_file=preservation_file
+        source_file=sip_file, derived_file=preservation_file
     )
 
 
@@ -123,36 +52,30 @@ def preservation_file_format_version(preservation_file, format_version):
     )
 
 
-@pytest.fixture
-def derivative_file_fprule(format_version, command):
-    return fprmodels.FPRule.objects.create(
-        format=format_version,
-        command=command,
-        purpose="transcription",
-    )
-
-
-@pytest.fixture
-def task(job):
-    return models.Task.objects.create(job=job, createdtime=timezone.now())
-
-
 @pytest.mark.django_db
-def test_main(file, task, fprule, file_format_version, settings, sip_directory):
+def test_main(
+    sip_file,
+    task,
+    fprule_transcription,
+    file_format_version,
+    settings,
+    sip_directory_path,
+    create_sip_file,
+):
     job = mock.Mock(spec=Job)
-    settings.SHARED_DIRECTORY = f"{sip_directory}/"
+    settings.SHARED_DIRECTORY = f"{sip_directory_path}/"
 
-    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
+    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=sip_file.uuid)
 
     assert result == 0
 
     assert job.write_output.mock_calls == [mock.call(EXECUTE_OR_RUN_STDOUT)]
     assert (
         models.Event.objects.filter(
-            file_uuid_id=file.uuid,
+            file_uuid_id=sip_file.uuid,
             event_type="transcription",
             event_outcome="transcribed",
-            event_outcome_detail="%SIPDirectory%objects/file.jpg",
+            event_outcome_detail=sip_file.currentlocation.decode(),
         ).count()
         == 1
     )
@@ -160,23 +83,23 @@ def test_main(file, task, fprule, file_format_version, settings, sip_directory):
     assert (
         models.File.objects.filter(
             filegrpuse="original",
-            originallocation=file.originallocation,
-            currentlocation=file.currentlocation,
+            originallocation=sip_file.originallocation,
+            currentlocation=sip_file.currentlocation,
         ).count()
         == 1
     )
     assert (
         models.File.objects.filter(
             filegrpuse="text/ocr",
-            originallocation=file.originallocation,
-            currentlocation=file.currentlocation,
+            originallocation=sip_file.currentlocation,
+            currentlocation=sip_file.currentlocation,
         ).count()
         == 1
     )
     assert (
         models.Derivation.objects.filter(
             event__event_type="transcription",
-            source_file_id=file.uuid,
+            source_file_id=sip_file.uuid,
         ).count()
         == 1
     )
@@ -184,7 +107,7 @@ def test_main(file, task, fprule, file_format_version, settings, sip_directory):
 
 @pytest.mark.django_db
 def test_main_if_filegroup_is_not_original(
-    preservation_file, task, fprule, file_format_version, capsys
+    preservation_file, task, fprule_transcription, file_format_version, capsys
 ):
     job = mock.Mock(spec=Job)
 
@@ -202,10 +125,10 @@ def test_main_if_filegroup_is_not_original(
 
 
 @pytest.mark.django_db
-def test_main_if_no_rules_exist(file, task, file_format_version, capsys):
+def test_main_if_no_rules_exist(sip_file, task, file_format_version, capsys):
     job = mock.Mock(spec=Job)
 
-    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
+    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=sip_file.uuid)
 
     assert result == 0
 
@@ -213,14 +136,14 @@ def test_main_if_no_rules_exist(file, task, file_format_version, capsys):
     assert models.Event.objects.filter(event_type="transcription").count() == 0
     assert job.print_error.mock_calls == [
         mock.call(
-            f"No rules found for file {file.uuid} and its derivatives; not transcribing"
+            f"No rules found for file {sip_file.uuid} and its derivatives; not transcribing"
         )
     ]
 
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
-    derivation, fprule, file_format_version
+    derivation, fprule_transcription, file_format_version
 ):
     result = transcribe_file.fetch_rules_for_derivatives(file_=derivation.source_file)
 
@@ -229,7 +152,7 @@ def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives(
-    derivation, derivative_file_fprule, preservation_file_format_version
+    derivation, fprule_transcription, preservation_file_format_version
 ):
     derived_file, rules_of_derived_file = transcribe_file.fetch_rules_for_derivatives(
         file_=derivation.source_file
@@ -248,66 +171,53 @@ def test_fetch_rules_for_derivatives(
 
 
 @pytest.fixture
-def command_disabled(tool, file):
-    return fprmodels.FPCommand.objects.create(
-        tool=tool,
-        description="Transcribe using Tesseract",
-        command_usage="transcription",
-        command="echo Hello",
-        script_type="bashScript",
-        output_location=file.currentlocation.decode(),
-        enabled=0,
-    )
+def disabled_fprule_transcription(fprule_transcription):
+    fprule_transcription.enabled = 0
+    fprule_transcription.save()
 
-
-@pytest.fixture
-def disabled_fprule(format_version, command_disabled):
-    return fprmodels.FPRule.objects.create(
-        format=format_version,
-        command=command_disabled,
-        purpose="transcription",
-        enabled=0,
-    )
+    return fprule_transcription
 
 
 @pytest.mark.django_db
-def test_main_if_fprule_is_disabled(file, task, disabled_fprule, file_format_version):
+def test_main_if_fprule_is_disabled(
+    sip_file, task, disabled_fprule_transcription, file_format_version
+):
     job = mock.Mock(spec=Job)
 
-    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=file.uuid)
+    result = transcribe_file.main(job, task_uuid=task.taskuuid, file_uuid=sip_file.uuid)
 
     assert result == 0
 
     assert job.write_output.mock_calls == []
     assert (
         models.Event.objects.filter(
-            file_uuid_id=file.uuid,
+            file_uuid_id=sip_file.uuid,
             event_type="transcription",
             event_outcome="transcribed",
-            event_outcome_detail="%SIPDirectory%objects/file.jpg",
+            event_outcome_detail=sip_file.currentlocation.decode(),
         ).count()
         == 0
     )
     assert (
         models.File.objects.filter(
             filegrpuse="original",
-            originallocation=file.originallocation,
-            currentlocation=file.currentlocation,
+            originallocation=sip_file.originallocation,
+            currentlocation=sip_file.currentlocation,
         ).count()
         == 1
     )
     assert (
         models.File.objects.filter(
             filegrpuse="text/ocr",
-            originallocation=file.originallocation,
-            currentlocation=file.currentlocation,
+            originallocation=sip_file.originallocation,
+            currentlocation=sip_file.currentlocation,
         ).count()
         == 0
     )
     assert (
         models.Derivation.objects.filter(
             event__event_type="transcription",
-            source_file_id=file.uuid,
+            source_file_id=sip_file.uuid,
         ).count()
         == 0
     )

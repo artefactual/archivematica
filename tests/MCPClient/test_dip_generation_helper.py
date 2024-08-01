@@ -4,17 +4,10 @@ from unittest import mock
 import dip_generation_helper
 import pytest
 from main.models import ArchivesSpaceDIPObjectResourcePairing
-from main.models import File
 
 
-@pytest.fixture
-def file(sip):
-    return File.objects.create(
-        sip=sip,
-        originallocation=b"%SIPDirectory%objects/evelyn's photo.jpg",
-        filegrpuse="original",
-        currentlocation=b"%SIPDirectory%objects/evelyn_s_photo.jpg",
-    )
+def strip_sip_directory(location):
+    return location.replace("%SIPDirectory%", "")
 
 
 @pytest.mark.django_db
@@ -46,7 +39,7 @@ def test_empty_csv(sip, tmp_path):
 
 
 @pytest.mark.django_db
-def test_no_files_in_db(tmp_path):
+def test_no_files_in_db(tmp_path, sip_file):
     """It should do nothing if no files are found in the DB."""
     sip_path = tmp_path / "sip"
     metadata_dir = sip_path / "objects" / "metadata"
@@ -58,7 +51,7 @@ def test_no_files_in_db(tmp_path):
         "\n".join(
             [
                 "filename,dc.title,dc.description",
-                "objects/evelyn's photo.jpg,Mountain Tents,Tents on a mountain",
+                f"{strip_sip_directory(sip_file.currentlocation.decode())},Mountain Tents,Tents on a mountain",
                 "objects/evelyn's third photo/evelyn's third photo.jpg,Tents,Mountains blocked by tents",
             ]
         )
@@ -83,7 +76,7 @@ def test_no_files_in_db(tmp_path):
         }
     ),
 )
-def test_parse_to_db(create_archivesspace_client, sip, file, tmp_path):
+def test_parse_to_db(create_archivesspace_client, sip, sip_file, tmp_path):
     """
     It should create an entry in ArchivesSpaceDIPObjectResourcePairing for each file in archivesspaceids.csv
     It should match the reference ID to a resource ID.
@@ -95,7 +88,7 @@ def test_parse_to_db(create_archivesspace_client, sip, file, tmp_path):
     archivesspaceids = metadata_dir / "archivesspaceids.csv"
     archivesspaceids.touch()
     archivesspaceids.write_text(
-        "objects/evelyn's photo.jpg,a118514fab1b2ee6a7e9ad259e1de355"
+        f"{strip_sip_directory(sip_file.currentlocation.decode())},a118514fab1b2ee6a7e9ad259e1de355"
     )
 
     assert ArchivesSpaceDIPObjectResourcePairing.objects.all().exists() is False
@@ -104,5 +97,5 @@ def test_parse_to_db(create_archivesspace_client, sip, file, tmp_path):
     assert len(ArchivesSpaceDIPObjectResourcePairing.objects.all()) == 1
     r = ArchivesSpaceDIPObjectResourcePairing.objects.all()[0]
     assert str(r.dipuuid) == str(sip.uuid)
-    assert str(r.fileuuid) == str(file.uuid)
+    assert str(r.fileuuid) == str(sip_file.uuid)
     assert r.resourceid == "/repositories/2/archival_objects/752250"
