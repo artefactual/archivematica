@@ -123,6 +123,31 @@ def test_replacementdict_model_constructor_file_only(FILE):
     assert rd["%fileGrpUse%"] == FILE.filegrpuse
 
 
-def test_replacementdict_options():
-    d = ReplacementDict({"%relativeLocation%": "bar"})
-    assert d.to_gnu_options() == ["--relative-location=bar"]
+@pytest.mark.parametrize(
+    "replacementdict_key, regex_key_value",
+    [
+        ("%relativeLocation%", "--relative-location=bar"),
+        ("%SIPUUID%", "--sipuuid=bar"),
+        ("%SIPName%", "--sip-name=bar"),
+        ("%fileUUID%", "--file-uuid=bar"),
+        ("%SIPDirectoryBasename%", "--sip-directory-basename=bar"),
+        ("%SIPLogsDirectory%", "--sip-logs-directory=bar"),
+        ("%sipLogs%", "--sip-logs=bar"),
+        ("%outputLocation%", "--output-location=bar"),
+        ("%TransferDirectory%", "--transfer-directory=bar"),
+    ],
+    ids=[
+        "relative-location",
+        "sipuuid",
+        "sipname",
+        "fileuuid",
+        "sip-directory-basename",
+        "sip-logs-directory",
+        "sip-logs",
+        "output-location",
+        "transfer-directory",
+    ],
+)
+def test_replacementdict_options(replacementdict_key, regex_key_value):
+    d = ReplacementDict({replacementdict_key: "bar"})
+    assert d.to_gnu_options() == [regex_key_value]
