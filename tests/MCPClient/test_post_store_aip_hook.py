@@ -76,54 +76,26 @@ def test_dspace_handle_to_archivesspace(
 
 
 @pytest.fixture
-def shared_dir(tmp_path):
-    result = tmp_path / "sharedDirectory"
-    result.mkdir()
-    return result
-
-
-@pytest.fixture
-def processing_dir(shared_dir):
-    result = shared_dir / "currentlyProcessing"
-    result.mkdir()
-    return result
-
-
-@pytest.fixture
-def transfer(transfer, shared_dir, processing_dir):
-    transfer_location = processing_dir / "transfer"
+def transfer(transfer, shared_directory_path):
+    transfer_location = shared_directory_path / "currentlyProcessing" / "transfer"
     transfer_location.mkdir()
 
     transfer.currentlocation = (
-        f"%sharedPath%{transfer_location.relative_to(shared_dir)}"
+        f"%sharedPath%{transfer_location.relative_to(shared_directory_path)}"
     )
     transfer.save()
 
     return transfer
 
 
-@pytest.fixture
-def file_(db, sip, transfer):
-    return models.File.objects.create(sip=sip, transfer=transfer)
-
-
-@pytest.fixture
-def custom_settings(settings, shared_dir, processing_dir):
-    settings.SHARED_DIRECTORY = f"{shared_dir}/"
-    settings.PROCESSING_DIRECTORY = f"{processing_dir}/"
-    return settings
-
-
 def test_post_store_hook_deletes_transfer_directory(
-    db, sip, transfer, file_, custom_settings
+    db, sip, transfer, sip_file, settings
 ):
     job = mock.Mock(spec=Job)
 
     # The transfer directory exists before calling the delete function
     transfer_path = pathlib.Path(
-        transfer.currentlocation.replace(
-            "%sharedPath%", custom_settings.SHARED_DIRECTORY, 1
-        )
+        transfer.currentlocation.replace("%sharedPath%", settings.SHARED_DIRECTORY, 1)
     )
     assert transfer_path.exists()
 

@@ -218,17 +218,14 @@ def directories(transfer, sip):
 
 
 @pytest.fixture
-def data(db, sip, settings, transfer, files, directories):
-    return
-
-
-@pytest.fixture
 def pid_web_service(mocker):
     mocker.patch("requests.post", return_value=mocker.Mock(status_code=200))
 
 
 @pytest.mark.django_db
-def test_bind_pids_no_config(data, caplog, mcp_job):
+def test_bind_pids_no_config(
+    sip, settings, transfer, files, directories, caplog, mcp_job
+):
     """Test the output of the code without any args.
 
     In this instance, we want bind_pids to think that there is some
@@ -245,7 +242,9 @@ def test_bind_pids_no_config(data, caplog, mcp_job):
 
 
 @pytest.mark.django_db
-def test_bind_pids(data, sip, mocker, mcp_job, pid_web_service):
+def test_bind_pids(
+    sip, settings, transfer, files, directories, mocker, mcp_job, pid_web_service
+):
     """Test the bind_pids function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -307,7 +306,9 @@ def test_bind_pids(data, sip, mocker, mcp_job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_bind_pid_no_config(data, sip, caplog, mcp_job):
+def test_bind_pid_no_config(
+    sip, settings, transfer, files, directories, caplog, mcp_job
+):
     """Test the output of the code when bind_pids is set to True but there
     are no handle settings in the Dashboard. Conceivably then the dashboard
     settings could be in-between two states, complete and not-complete,
@@ -320,7 +321,9 @@ def test_bind_pid_no_config(data, sip, caplog, mcp_job):
 
 
 @pytest.mark.django_db
-def test_bind_pid(data, sip, mcp_job, pid_web_service):
+def test_bind_pid(
+    sip, settings, transfer, files, directories, mcp_job, pid_web_service
+):
     """Test the bind_pid function end-to-end and ensure that the
     result is that which is anticipated.
 
@@ -371,7 +374,9 @@ def test_bind_pid(data, sip, mcp_job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_bind_pid_no_settings(data, sip, caplog, mcp_job):
+def test_bind_pid_no_settings(
+    sip, settings, transfer, files, directories, caplog, mcp_job
+):
     """Test the output of the code when bind_pids is set to True but there
     are no handle settings in the Dashboard. Conceivably then the dashboard
     settings could be in-between two states, complete and not-complete,
@@ -389,7 +394,9 @@ def test_bind_pid_no_settings(data, sip, caplog, mcp_job):
 
 
 @pytest.mark.django_db
-def test_pid_declaration(data, sip, mocker, mcp_job, pid_web_service):
+def test_pid_declaration(
+    sip, settings, transfer, files, directories, mocker, mcp_job, pid_web_service
+):
     """Test that the overall functionality of the PID declaration functions
     work as expected.
     """
@@ -474,7 +481,9 @@ def test_pid_declaration(data, sip, mocker, mcp_job, pid_web_service):
 
 
 @pytest.mark.django_db
-def test_pid_declaration_exceptions(data, mocker, mcp_job):
+def test_pid_declaration_exceptions(
+    sip, settings, transfer, files, directories, mocker, mcp_job
+):
     """Ensure that the PID declaration feature exits when the JSOn cannot
     be loaded.
     """

@@ -8,38 +8,44 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture
-def dip_directory(tmpdir):
+def dip_directory_path(tmp_path):
+    result = tmp_path / "dip"
+    result.mkdir()
+    (result / "objects").mkdir()
+
     shutil.copy(
         os.path.join(THIS_DIR, "fixtures", "mets_sip_dc.xml"),
-        str(tmpdir / "METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml"),
+        result / "METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml",
     )
-    (tmpdir / "objects").mkdir()
 
-    return tmpdir
+    return result
 
 
 @pytest.fixture
-def dip_directory_optional_dc_columns(tmpdir):
+def dip_directory_with_optional_dc_columns_path(tmp_path):
+    result = tmp_path / "dip"
+    result.mkdir()
+    (result / "objects").mkdir()
+
     shutil.copy(
         os.path.join(THIS_DIR, "fixtures", "mets_sip_dc_with_optional_columns.xml"),
-        str(tmpdir / "METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml"),
+        result / "METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml",
     )
-    (tmpdir / "objects").mkdir()
 
-    return tmpdir
+    return result
 
 
-def test_restructure_dip_for_content_dm_upload(mcp_job, dip_directory):
+def test_restructure_dip_for_content_dm_upload(mcp_job, dip_directory_path):
     mcp_job.args = (
         None,
         "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
-        f"--dipDir={dip_directory}",
+        f"--dipDir={dip_directory_path}",
     )
     jobs = [mcp_job]
 
     restructure_dip_for_content_dm_upload.call(jobs)
     csv_data = (
-        (dip_directory / "objects/compound.txt")
+        (dip_directory_path / "objects/compound.txt")
         .read_text(encoding="utf-8")
         .splitlines()
     )
@@ -57,18 +63,18 @@ def test_restructure_dip_for_content_dm_upload(mcp_job, dip_directory):
 
 
 def test_restructure_dip_for_content_dm_upload_with_optional_dc_columns(
-    mcp_job, dip_directory_optional_dc_columns
+    mcp_job, dip_directory_with_optional_dc_columns_path
 ):
     mcp_job.args = (
         None,
         "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
-        f"--dipDir={dip_directory_optional_dc_columns}",
+        f"--dipDir={dip_directory_with_optional_dc_columns_path}",
     )
     jobs = [mcp_job]
 
     restructure_dip_for_content_dm_upload.call(jobs)
     csv_data = (
-        (dip_directory_optional_dc_columns / "objects/compound.txt")
+        (dip_directory_with_optional_dc_columns_path / "objects/compound.txt")
         .read_text(encoding="utf-8")
         .splitlines()
     )

@@ -8,11 +8,6 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture
-def file(sip, transfer):
-    return models.File.objects.create(sip=sip, transfer=transfer)
-
-
-@pytest.fixture
 def sip_job(job, sip, tmp_path):
     job_dir = tmp_path / "job"
     job_dir.mkdir()
@@ -62,7 +57,7 @@ def test_start_synchronously(db, mocker, mcp_job, sip, sip_job, access):
     assert access.target == "atom-description-id"
 
 
-def test_first_run(db, mocker, mcp_job, sip_job, sip, file):
+def test_first_run(db, mocker, mcp_job, sip_job, sip, sip_file):
     mocker.patch(
         "requests.request",
         return_value=mocker.Mock(

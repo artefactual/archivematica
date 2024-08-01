@@ -11,17 +11,11 @@ from create_mets_v2 import MetsState
 from main import models
 
 
-@pytest.mark.django_db
 @pytest.fixture
-def transfer_data(tmp_path):
+def transfer_data(transfer, transfer_directory_path):
     fixtures_dir = pathlib.Path(__file__).parent / "fixtures" / "dspace"
 
-    transfer_dir = tmp_path / "transfer"
-    transfer_dir.mkdir()
-
-    transfer = models.Transfer.objects.create(currentlocation=transfer_dir)
-
-    objects_dir = transfer_dir / "objects"
+    objects_dir = transfer_directory_path / "objects"
     objects_dir.mkdir()
 
     # Add a DSpace item with a PDF and a METS file.
@@ -34,7 +28,7 @@ def transfer_data(tmp_path):
 
     item1_file = models.File.objects.create(
         transfer=transfer,
-        currentlocation=f"%SIPDirectory%{item1_path.relative_to(transfer_dir)}".encode(),
+        currentlocation=f"%SIPDirectory%{item1_path.relative_to(transfer_directory_path)}".encode(),
     )
 
     item1_mets_path = item1_dir / "mets.xml"
@@ -43,7 +37,7 @@ def transfer_data(tmp_path):
 
     item1_mets_file = models.File.objects.create(
         transfer=transfer,
-        currentlocation=f"%SIPDirectory%{item1_mets_path.relative_to(transfer_dir)}".encode(),
+        currentlocation=f"%SIPDirectory%{item1_mets_path.relative_to(transfer_directory_path)}".encode(),
     )
 
     # Add a second DSpace item with a PDF and a METS file.
@@ -56,7 +50,7 @@ def transfer_data(tmp_path):
 
     item2_file = models.File.objects.create(
         transfer=transfer,
-        currentlocation=f"%SIPDirectory%{item2_path.relative_to(transfer_dir)}".encode(),
+        currentlocation=f"%SIPDirectory%{item2_path.relative_to(transfer_directory_path)}".encode(),
     )
 
     item2_mets_path = item2_dir / "mets.xml"
@@ -65,7 +59,7 @@ def transfer_data(tmp_path):
 
     item2_mets_file = models.File.objects.create(
         transfer=transfer,
-        currentlocation=f"%SIPDirectory%{item2_mets_path.relative_to(transfer_dir)}".encode(),
+        currentlocation=f"%SIPDirectory%{item2_mets_path.relative_to(transfer_directory_path)}".encode(),
     )
 
     return {
@@ -77,7 +71,7 @@ def transfer_data(tmp_path):
         "item2_file": item2_file,
         "item2_mets_file": item2_mets_file,
         "item2_mets_path": item2_mets_path,
-        "transfer_dir": transfer_dir,
+        "transfer_dir": transfer_directory_path,
         "transfer": transfer,
     }
 

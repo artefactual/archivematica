@@ -8,40 +8,6 @@ from main import models
 
 
 @pytest.fixture
-def file(sip):
-    location = b"%SIPDirectory%objects/file.mp3"
-    return models.File.objects.create(
-        sip=sip,
-        filegrpuse="original",
-        currentlocation=location,
-        originallocation=location,
-    )
-
-
-@pytest.fixture
-def format_version(db):
-    return fprmodels.FormatVersion.objects.create(
-        format=fprmodels.Format.objects.create()
-    )
-
-
-@pytest.fixture
-def file_format_version(file, format_version):
-    return models.FileFormatVersion.objects.create(
-        file_uuid=file, format_version=format_version
-    )
-
-
-@pytest.fixture
-def rule(format_version):
-    return fprmodels.FPRule.objects.create(
-        command=fprmodels.FPCommand.objects.create(),
-        format=format_version,
-        purpose="characterization",
-    )
-
-
-@pytest.fixture
 def rule_with_xml_output_format(format_version):
     return fprmodels.FPRule.objects.create(
         command=fprmodels.FPCommand.objects.create(
@@ -53,8 +19,10 @@ def rule_with_xml_output_format(format_version):
 
 
 @pytest.fixture
-def command_output(file, rule):
-    return models.FPCommandOutput.objects.create(file=file, rule=rule)
+def fpcommand_output(sip_file, fprule_characterization):
+    return models.FPCommandOutput.objects.create(
+        file=sip_file, rule=fprule_characterization
+    )
 
 
 @pytest.fixture
@@ -65,9 +33,14 @@ def delete_characterization_rules(db):
 
 
 @pytest.mark.django_db
-def test_job_succeeds_if_file_is_already_characterized(file, sip, command_output):
+def test_job_succeeds_if_file_is_already_characterized(sip_file, sip, fpcommand_output):
     job = mock.Mock(
-        args=["characterize_file", "file_path_not_used", str(file.uuid), str(sip.uuid)],
+        args=[
+            "characterize_file",
+            "file_path_not_used",
+            str(sip_file.uuid),
+            str(sip.uuid),
+        ],
         spec=Job,
     )
     job.JobContext = mock.MagicMock()
@@ -79,10 +52,15 @@ def test_job_succeeds_if_file_is_already_characterized(file, sip, command_output
 
 @pytest.mark.django_db
 def test_job_succeeds_if_no_characterization_rules_exist(
-    file, sip, delete_characterization_rules
+    sip_file, sip, delete_characterization_rules
 ):
     job = mock.Mock(
-        args=["characterize_file", "file_path_not_used", str(file.uuid), str(sip.uuid)],
+        args=[
+            "characterize_file",
+            "file_path_not_used",
+            str(sip_file.uuid),
+            str(sip.uuid),
+        ],
         spec=Job,
     )
     job.JobContext = mock.MagicMock()
@@ -100,16 +78,26 @@ def test_job_succeeds_if_no_characterization_rules_exist(
 )
 @mock.patch("characterize_file.executeOrRun")
 def test_job_executes_command(
-    execute_or_run, script_type, file, sip, rule, file_format_version
+    execute_or_run,
+    script_type,
+    sip_file,
+    sip,
+    fprule_characterization,
+    file_format_version,
 ):
-    rule.command.script_type = script_type
-    rule.command.save()
+    fprule_characterization.command.script_type = script_type
+    fprule_characterization.command.save()
     exit_code = 0
     stdout = "hello"
     stderr = ""
     execute_or_run.return_value = (exit_code, stdout, stderr)
     job = mock.Mock(
-        args=["characterize_file", "file_path_not_used", str(file.uuid), str(sip.uuid)],
+        args=[
+            "characterize_file",
+            "file_path_not_used",
+            str(sip_file.uuid),
+            str(sip.uuid),
+        ],
         spec=Job,
     )
     job.JobContext = mock.MagicMock()
@@ -121,7 +109,7 @@ def test_job_executes_command(
     assert job.write_error.mock_calls == [
         mock.call(stderr),
         mock.call(
-            f'Tool output for command "{rule.command.description}" ({rule.command.uuid}) is not XML; not saving to database'
+            f'Tool output for command "{fprule_characterization.command.description}" ({fprule_characterization.command.uuid}) is not XML; not saving to database'
         ),
     ]
 
@@ -129,14 +117,19 @@ def test_job_executes_command(
 @pytest.mark.django_db
 @mock.patch("characterize_file.executeOrRun")
 def test_job_fails_if_command_fails(
-    execute_or_run, file, sip, rule, file_format_version
+    execute_or_run, sip_file, sip, fprule_characterization, file_format_version
 ):
     exit_code = 1
     stdout = ""
     stderr = "error!"
     execute_or_run.return_value = (exit_code, stdout, stderr)
     job = mock.Mock(
-        args=["characterize_file", "file_path_not_used", str(file.uuid), str(sip.uuid)],
+        args=[
+            "characterize_file",
+            "file_path_not_used",
+            str(sip_file.uuid),
+            str(sip.uuid),
+        ],
         spec=Job,
     )
     job.JobContext = mock.MagicMock()
@@ -148,7 +141,7 @@ def test_job_fails_if_command_fails(
     assert job.write_error.mock_calls == [
         mock.call(stderr),
         mock.call(
-            f"Command {rule.command.description} failed with exit status {exit_code}; stderr:"
+            f"Command {fprule_characterization.command.description} failed with exit status {exit_code}; stderr:"
         ),
     ]
 
@@ -161,7 +154,7 @@ def test_job_saves_valid_xml_command_output(
     execute_or_run,
     etree,
     insert_into_fp_command_output,
-    file,
+    sip_file,
     sip,
     rule_with_xml_output_format,
     file_format_version,
@@ -171,7 +164,12 @@ def test_job_saves_valid_xml_command_output(
     stderr = ""
     execute_or_run.return_value = (exit_code, stdout, stderr)
     job = mock.Mock(
-        args=["characterize_file", "file_path_not_used", str(file.uuid), str(sip.uuid)],
+        args=[
+            "characterize_file",
+            "file_path_not_used",
+            str(sip_file.uuid),
+            str(sip.uuid),
+        ],
         spec=Job,
     )
     job.JobContext = mock.MagicMock()
@@ -188,7 +186,7 @@ def test_job_saves_valid_xml_command_output(
     job.write_error.assert_called_once_with(stderr)
     etree.fromstring.assert_called_once_with(stdout.encode())
     insert_into_fp_command_output.assert_called_once_with(
-        str(file.uuid), stdout, rule_with_xml_output_format.uuid
+        str(sip_file.uuid), stdout, rule_with_xml_output_format.uuid
     )
 
 
@@ -196,7 +194,7 @@ def test_job_saves_valid_xml_command_output(
 @mock.patch("characterize_file.executeOrRun")
 def test_job_fails_with_invalid_xml_command_output(
     execute_or_run,
-    file,
+    sip_file,
     sip,
     rule_with_xml_output_format,
     file_format_version,
@@ -206,7 +204,12 @@ def test_job_fails_with_invalid_xml_command_output(
     stderr = ""
     execute_or_run.return_value = (exit_code, stdout, stderr)
     job = mock.Mock(
-        args=["characterize_file", "file_path_not_used", str(file.uuid), str(sip.uuid)],
+        args=[
+            "characterize_file",
+            "file_path_not_used",
+            str(sip_file.uuid),
+            str(sip.uuid),
+        ],
         spec=Job,
     )
     job.JobContext = mock.MagicMock()

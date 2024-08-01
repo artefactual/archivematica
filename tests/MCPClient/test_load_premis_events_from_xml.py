@@ -706,55 +706,22 @@ def test_ensure_event_id_is_uuid(mocker, params):
 
 @pytest.fixture()
 def existent_event_id(transfer_file):
-    event_id = "44a8f6c5-257e-4dce-88a3-da2073489213"
-    Event.objects.create(
-        event_id=event_id, event_type="ingest", file_uuid=transfer_file
-    )
-    return event_id
+    event = Event.objects.create(event_type="ingest", file_uuid=transfer_file)
+    return str(event.event_id)
 
 
 @pytest.mark.django_db
 def test_ensure_event_id_is_uuid_with_existent_event(mocker, existent_event_id):
-    mocker.patch("uuid.uuid4", return_value="f11ea76b-1921-4152-b1b4-a93dbbfeaa11")
+    expected_uuid = uuid.uuid4()
+    mocker.patch("uuid.uuid4", return_value=expected_uuid)
     printfn = mocker.Mock()
     result = load_premis_events_from_xml.ensure_event_id_is_uuid(
         existent_event_id, printfn
     )
     assert result != existent_event_id
     printfn.assert_called_once_with(
-        f"Changed event identifier from {existent_event_id} to f11ea76b-1921-4152-b1b4-a93dbbfeaa11"
+        f"Changed event identifier from {existent_event_id} to {expected_uuid}"
     )
-
-
-@pytest.fixture()
-def subdir_path(tmp_path):
-    subdir = tmp_path / "subdir1"
-    subdir.mkdir()
-
-    return subdir
-
-
-@pytest.fixture()
-def file_path(subdir_path):
-    file_path = subdir_path / "file1"
-    file_path.write_text("Hello world")
-    return file_path
-
-
-@pytest.fixture()
-def transfer_file(db, transfer, tmp_path, file_path):
-    path = "".join([transfer.currentlocation, str(file_path.relative_to(tmp_path))])
-    result = File.objects.create(
-        uuid=uuid.uuid4(),
-        transfer=transfer,
-        originallocation=path.encode(),
-        currentlocation=path.encode(),
-        removedtime=None,
-        size=113318,
-        checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
-        checksumtype="sha256",
-    )
-    return result
 
 
 def test_get_valid_events(mocker):
@@ -800,7 +767,7 @@ def test_get_valid_events(mocker):
 
 
 @pytest.mark.django_db
-def test_save_events(mocker, transfer, transfer_file, tmp_path, file_path):
+def test_save_events(mocker, transfer, transfer_file):
     # check there are no events initially
     assert not Event.objects.count()
 
@@ -823,7 +790,9 @@ def test_save_events(mocker, transfer, transfer_file, tmp_path, file_path):
             "event_files": [
                 {
                     "identifier": ("f", "1"),
-                    "original_name": str(file_path.relative_to(tmp_path)),
+                    "original_name": transfer_file.originallocation.decode().replace(
+                        "%transferDirectory%", "", 1
+                    ),
                     "events": set(),
                 }
             ],

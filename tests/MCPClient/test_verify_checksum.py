@@ -41,20 +41,6 @@ class TestHashsum:
     assert_exception_string = "Hashsum exception string returned is incorrect"
     assert_return_value = "Hashsum comparison returned something other than 1: {}"
 
-    @pytest.fixture
-    def file(self, transfer):
-        return File.objects.create(
-            checksumtype="sha256",
-            transfer=transfer,
-            filegrpuse="original",
-            checksum="f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e",
-            enteredsystem="2017-01-04T19:35:20Z",
-            modificationtime="2017-01-04T19:35:20Z",
-            originallocation=b"%transferDirectory%objects/has space/lion.svg",
-            currentlocation=b"%transferDirectory%objects/has space/lion.svg",
-            size=18324,
-        )
-
     @staticmethod
     def setup_hashsum(path, job):
         """Return a hashsum instance to calling functions and perform any
@@ -272,7 +258,7 @@ class TestHashsum:
         ), "Invalid version string decoded by Hashsum"
 
     @pytest.mark.django_db
-    def test_write_premis_event_to_db(self, transfer, file):
+    def test_write_premis_event_to_db(self, transfer, transfer_file):
         """Test that the microservice job connects to the database as
         anticipated, writes its data, and that data can then be retrieved.
         """
@@ -356,7 +342,7 @@ class TestHashsum:
         ), "No all algorithms written to PREMIS events"
 
     @pytest.mark.django_db
-    def test_get_file_obj_queryset(self, transfer, file):
+    def test_get_file_obj_queryset(self, transfer, transfer_file):
         """Test the retrieval and failure of the queryset used for creating
         events for all the file objects associated with the transfer checksums.
         """

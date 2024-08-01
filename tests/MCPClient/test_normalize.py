@@ -5,7 +5,6 @@ from unittest import mock
 import normalize
 import pytest
 from client.job import Job
-from django.utils import timezone
 from fpr import models as fprmodels
 from main import models
 
@@ -38,42 +37,25 @@ def test_normalization_fails_if_original_file_does_not_exist():
     )
 
 
-@pytest.fixture
-def sip_directory(tmp_path):
-    result = tmp_path / "sip"
-    result.mkdir()
-
-    return result
-
-
-@pytest.fixture
-def file(sip):
-    location = b"%SIPDirectory%objects/file.mp3"
-    return models.File.objects.create(
-        sip=sip,
-        filegrpuse="original",
-        currentlocation=location,
-        originallocation=location,
-    )
-
-
 @pytest.mark.django_db
 def test_normalization_skips_submission_documentation_file_if_group_use_does_not_match(
-    file,
+    sip_file,
 ):
     file_path = "%SIPDirectory%objects/submissionDocumentation/file.mp3"
-    file.currentlocation = file_path.encode()
-    file.save()
+    sip_file.currentlocation = file_path.encode()
+    sip_file.save()
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid), file_path=file_path, normalize_file_grp_use="original"
+        file_uuid=str(sip_file.uuid),
+        file_path=file_path,
+        normalize_file_grp_use="original",
     )
 
     result = normalize.main(job, opts)
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file_path),
+        mock.call("File found:", sip_file.uuid, file_path),
         mock.call(
             "File",
             pathlib.Path(file_path).name,
@@ -83,13 +65,13 @@ def test_normalization_skips_submission_documentation_file_if_group_use_does_not
 
 
 @pytest.mark.django_db
-def test_normalization_skips_file_if_group_use_does_not_match(file):
-    file.filegrpuse = "original"
-    file.save()
+def test_normalization_skips_file_if_group_use_does_not_match(sip_file):
+    sip_file.filegrpuse = "original"
+    sip_file.save()
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
-        file_path=file.currentlocation.decode(),
+        file_uuid=str(sip_file.uuid),
+        file_path=sip_file.currentlocation.decode(),
         normalize_file_grp_use="access",
     )
 
@@ -97,11 +79,11 @@ def test_normalization_skips_file_if_group_use_does_not_match(file):
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
-            pathlib.Path(file.currentlocation.decode()).name,
+            pathlib.Path(sip_file.currentlocation.decode()).name,
             "is file group usage",
-            file.filegrpuse,
+            sip_file.filegrpuse,
             "instead of ",
             opts.normalize_file_grp_use,
             " - skipping",
@@ -110,21 +92,28 @@ def test_normalization_skips_file_if_group_use_does_not_match(file):
 
 
 @pytest.fixture
-def preservation_file(sip):
-    location = b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
-    return models.File.objects.create(
-        sip=sip, currentlocation=location, originallocation=location
+def manual_preservation_file(preservation_file):
+    preservation_file.originallocation = (
+        b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
     )
+    preservation_file.currentlocation = (
+        b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
+    )
+    preservation_file.save()
+
+    return preservation_file
 
 
 @pytest.fixture
-def normalization_csv(sip_directory, file, preservation_file):
-    manual_normalization_directory = sip_directory / "objects" / "manualNormalization"
+def normalization_csv(sip_directory_path, sip_file, manual_preservation_file):
+    manual_normalization_directory = (
+        sip_directory_path / "objects" / "manualNormalization"
+    )
     manual_normalization_directory.mkdir(parents=True)
 
-    original_file_path = pathlib.Path(file.currentlocation.decode()).name
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode()).name
     preservation_file_path = str(
-        pathlib.Path(preservation_file.originallocation.decode()).relative_to(
+        pathlib.Path(manual_preservation_file.originallocation.decode()).relative_to(
             "%SIPDirectory%objects"
         )
     )
@@ -145,21 +134,21 @@ def normalization_csv(sip_directory, file, preservation_file):
 
 @pytest.mark.django_db
 def test_manual_normalization_creates_event_and_derivation(
-    sip, sip_directory, normalization_csv, file, preservation_file
+    sip, sip_directory_path, normalization_csv, sip_file, manual_preservation_file
 ):
-    original_file_path = pathlib.Path(file.currentlocation.decode())
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     preservation_file_path = str(
-        pathlib.Path(preservation_file.originallocation.decode()).relative_to(
+        pathlib.Path(manual_preservation_file.originallocation.decode()).relative_to(
             "%SIPDirectory%objects"
         )
     )
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
+        file_uuid=str(sip_file.uuid),
         file_path=str(original_file_path),
         sip_uuid=str(sip.uuid),
         purpose="preservation",
-        sip_path=str(sip_directory),
+        sip_path=str(sip_directory_path),
         normalize_file_grp_use="original",
     )
 
@@ -167,7 +156,7 @@ def test_manual_normalization_creates_event_and_derivation(
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
             "Filename",
             original_file_path.name,
@@ -178,14 +167,14 @@ def test_manual_normalization_creates_event_and_derivation(
         mock.call(
             original_file_path.name,
             "was already manually normalized into",
-            preservation_file.currentlocation.decode(),
+            manual_preservation_file.currentlocation.decode(),
         ),
     ]
 
     # A normalization event is created.
     assert (
         models.Event.objects.filter(
-            file_uuid=file,
+            file_uuid=sip_file,
             event_type="normalization",
             event_detail="manual normalization",
         ).count()
@@ -195,7 +184,7 @@ def test_manual_normalization_creates_event_and_derivation(
     # A derivation from the original file to the normalized file is created.
     assert (
         models.Derivation.objects.filter(
-            source_file=file, derived_file=preservation_file
+            source_file=sip_file, derived_file=manual_preservation_file
         ).count()
         == 1
     )
@@ -218,16 +207,20 @@ def invalid_normalization_csv(normalization_csv):
 
 @pytest.mark.django_db
 def test_manual_normalization_fails_with_invalid_normalization_csv(
-    sip, sip_directory, invalid_normalization_csv, file, preservation_file
+    sip,
+    sip_directory_path,
+    invalid_normalization_csv,
+    sip_file,
+    manual_preservation_file,
 ):
-    original_file_path = pathlib.Path(file.currentlocation.decode())
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
+        file_uuid=str(sip_file.uuid),
         file_path=str(original_file_path),
         sip_uuid=str(sip.uuid),
         purpose="preservation",
-        sip_path=str(sip_directory),
+        sip_path=str(sip_directory_path),
         normalize_file_grp_use="original",
     )
 
@@ -240,10 +233,10 @@ def test_manual_normalization_fails_with_invalid_normalization_csv(
         mock.call(mock.ANY),
     ]
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
             "Not normalizing",
-            pathlib.Path(file.currentlocation.decode()).name,
+            pathlib.Path(sip_file.currentlocation.decode()).name,
             " - No rule or default rule found to normalize for",
             "preservation",
         ),
@@ -258,20 +251,20 @@ def test_manual_normalization_fails_with_invalid_normalization_csv(
 
 @pytest.mark.django_db
 def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
-    sip, sip_directory, file, preservation_file
+    sip, sip_directory_path, sip_file, manual_preservation_file
 ):
-    original_file_path = pathlib.Path(file.currentlocation.decode())
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     preservation_file_path_with_no_extension = str(
-        pathlib.Path(preservation_file.originallocation.decode())
+        pathlib.Path(manual_preservation_file.originallocation.decode())
     ).rsplit(".", 1)[0]
 
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
+        file_uuid=str(sip_file.uuid),
         file_path=str(original_file_path),
         sip_uuid=str(sip.uuid),
         purpose="preservation",
-        sip_path=str(sip_directory),
+        sip_path=str(sip_directory_path),
         normalize_file_grp_use="original",
     )
 
@@ -280,7 +273,7 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
     assert result == normalize.SUCCESS
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -289,13 +282,13 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
         mock.call(
             original_file_path.name,
             "was already manually normalized into",
-            preservation_file.currentlocation.decode(),
+            manual_preservation_file.currentlocation.decode(),
         ),
     ]
 
 
 @pytest.fixture
-def secondary_preservation_file(sip):
+def secondary_manual_preservation_file(sip):
     location = b"%SIPDirectory%objects/manualNormalization/preservation/file_1.wav"
     return models.File.objects.create(
         sip=sip, currentlocation=location, originallocation=location
@@ -304,21 +297,27 @@ def secondary_preservation_file(sip):
 
 @pytest.mark.django_db
 def test_manual_normalization_matches_from_multiple_filenames(
-    sip, sip_directory, file, preservation_file, secondary_preservation_file
+    sip,
+    sip_directory_path,
+    sip_file,
+    manual_preservation_file,
+    secondary_manual_preservation_file,
 ):
-    original_file_path = pathlib.Path(file.currentlocation.decode())
-    preservation_file_path = pathlib.Path(preservation_file.originallocation.decode())
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    preservation_file_path = pathlib.Path(
+        manual_preservation_file.originallocation.decode()
+    )
     preservation_file_path_with_no_extension = str(preservation_file_path).rsplit(
         ".", 1
     )[0]
 
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
+        file_uuid=str(sip_file.uuid),
         file_path=str(original_file_path),
         sip_uuid=str(sip.uuid),
         purpose="preservation",
-        sip_path=str(sip_directory),
+        sip_path=str(sip_directory_path),
         normalize_file_grp_use="original",
     )
 
@@ -327,7 +326,7 @@ def test_manual_normalization_matches_from_multiple_filenames(
     assert result == normalize.SUCCESS
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -340,46 +339,16 @@ def test_manual_normalization_matches_from_multiple_filenames(
         mock.call(
             original_file_path.name,
             "was already manually normalized into",
-            preservation_file.currentlocation.decode(),
+            manual_preservation_file.currentlocation.decode(),
         ),
     ]
 
 
 @pytest.fixture
-def tool():
-    return fprmodels.FPTool.objects.create()
-
-
-@pytest.fixture
-def command(tool):
-    return fprmodels.FPCommand.objects.create(tool=tool, description="my command")
-
-
-@pytest.fixture
-def format_group():
-    return fprmodels.FormatGroup.objects.create(description="a group")
-
-
-@pytest.fixture
-def format(format_group):
-    return fprmodels.Format.objects.create(group=format_group)
-
-
-@pytest.fixture
-def format_version(format):
-    return fprmodels.FormatVersion.objects.create(format=format)
-
-
-@pytest.fixture
-def default_preservation_rule(command, format_version):
+def default_preservation_rule(fpcommand, format_version):
     return fprmodels.FPRule.objects.create(
-        purpose="default_preservation", command=command, format=format_version
+        purpose="default_preservation", command=fpcommand, format=format_version
     )
-
-
-@pytest.fixture
-def task(job):
-    return models.Task.objects.create(job=job, createdtime=timezone.now())
 
 
 @pytest.mark.django_db
@@ -387,9 +356,15 @@ def task(job):
     "transcoder.CommandLinker", return_value=mock.Mock(**{"execute.return_value": 0})
 )
 def test_normalization_falls_back_to_default_rule(
-    command_linker, sip, sip_directory, file, task, command, default_preservation_rule
+    command_linker,
+    sip,
+    sip_directory_path,
+    sip_file,
+    task,
+    fpcommand,
+    default_preservation_rule,
 ):
-    original_file_path = pathlib.Path(file.currentlocation.decode())
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     expected_manually_normalized_file_path = (
         original_file_path.parent
         / "manualNormalization"
@@ -398,12 +373,12 @@ def test_normalization_falls_back_to_default_rule(
     )
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
+        file_uuid=str(sip_file.uuid),
         file_path=str(original_file_path),
         sip_uuid=str(sip.uuid),
         task_uuid=str(task.taskuuid),
         purpose="preservation",
-        sip_path=str(sip_directory),
+        sip_path=str(sip_directory_path),
         normalize_file_grp_use="original",
     )
 
@@ -413,7 +388,7 @@ def test_normalization_falls_back_to_default_rule(
     command_linker.assert_called_once()
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -428,25 +403,11 @@ def test_normalization_falls_back_to_default_rule(
             "rule",
         ),
         mock.call("Format Policy Rule:", default_preservation_rule),
-        mock.call("Format Policy Command", command.description),
+        mock.call("Format Policy Command", fpcommand.description),
         mock.call(
             "Successfully normalized ", original_file_path.name, "for", opts.purpose
         ),
     ]
-
-
-@pytest.fixture
-def file_format_version(file, format_version):
-    return models.FileFormatVersion.objects.create(
-        file_uuid=file, format_version=format_version
-    )
-
-
-@pytest.fixture
-def preservation_rule(command, format_version):
-    return fprmodels.FPRule.objects.create(
-        purpose="preservation", command=command, format=format_version
-    )
 
 
 @pytest.mark.django_db
@@ -456,15 +417,15 @@ def preservation_rule(command, format_version):
 def test_normalization_finds_rule_by_file_format_version(
     command_linker,
     sip,
-    sip_directory,
-    file,
+    sip_directory_path,
+    sip_file,
     task,
-    command,
+    fpcommand,
     format_version,
     file_format_version,
-    preservation_rule,
+    fprule_preservation,
 ):
-    original_file_path = pathlib.Path(file.currentlocation.decode())
+    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     expected_manually_normalized_file_path = (
         original_file_path.parent
         / "manualNormalization"
@@ -473,12 +434,12 @@ def test_normalization_finds_rule_by_file_format_version(
     )
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
-        file_uuid=str(file.uuid),
+        file_uuid=str(sip_file.uuid),
         file_path=str(original_file_path),
         sip_uuid=str(sip.uuid),
         task_uuid=str(task.taskuuid),
         purpose="preservation",
-        sip_path=str(sip_directory),
+        sip_path=str(sip_directory_path),
         normalize_file_grp_use="original",
     )
 
@@ -488,7 +449,7 @@ def test_normalization_finds_rule_by_file_format_version(
     command_linker.assert_called_once()
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", file.uuid, file.currentlocation.decode()),
+        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -496,8 +457,8 @@ def test_normalization_finds_rule_by_file_format_version(
         ),
         mock.call("No such file found."),
         mock.call("File format:", format_version),
-        mock.call("Format Policy Rule:", preservation_rule),
-        mock.call("Format Policy Command", command.description),
+        mock.call("Format Policy Rule:", fprule_preservation),
+        mock.call("Format Policy Command", fpcommand.description),
         mock.call(
             "Successfully normalized ", original_file_path.name, "for", opts.purpose
         ),

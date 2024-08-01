@@ -7,26 +7,23 @@ from main import models
 
 
 @pytest.fixture
-def sip_dir(tmp_path):
-    sip_dir = tmp_path / "dir"
-    sip_dir.mkdir()
-
+def sip_directory_path(sip_directory_path):
     # Create a directory to test subdirectory filtering.
-    contents_dir = sip_dir / "contents"
+    contents_dir = sip_directory_path / "contents"
     contents_dir.mkdir()
     (contents_dir / "file-in.txt").touch()
 
     # Create a file outside the contents directory.
-    (sip_dir / "file-out.txt").touch()
+    (sip_directory_path / "file-out.txt").touch()
 
     # Create a directory to represent a reingest.
-    (sip_dir / "reingest").mkdir()
+    (sip_directory_path / "reingest").mkdir()
 
-    return sip_dir
+    return sip_directory_path
 
 
 @pytest.mark.django_db
-def test_call_creates_transfer_files_and_events(mocker, sip_dir, transfer):
+def test_call_creates_transfer_files_and_events(mocker, sip_directory_path, transfer):
     job = mocker.MagicMock(
         spec=Job,
         args=[
@@ -34,7 +31,7 @@ def test_call_creates_transfer_files_and_events(mocker, sip_dir, transfer):
             "--transferUUID",
             str(transfer.uuid),
             "--sipDirectory",
-            str(sip_dir),
+            str(sip_directory_path),
             "--filterSubdir",
             "contents",
         ],
@@ -87,15 +84,15 @@ def test_call_validates_job_arguments(mocker, job_arguments):
 
 
 @pytest.mark.django_db
-def test_call_updates_transfer_file_on_reingest(mocker, sip_dir, transfer):
+def test_call_updates_transfer_file_on_reingest(mocker, sip_directory_path, transfer):
     # Fake METS parsing and return static file information.
     mocker.patch("metsrw.METSDocument.fromfile")
     mocker.patch("assign_file_uuids.find_mets_file")
     file_info = {
         "uuid": str(uuid.uuid4()),
         "filegrpuse": "original",
-        "original_path": str(sip_dir / "contents" / "file-in.txt"),
-        "current_path": str(sip_dir / "reingest" / "file-in.txt"),
+        "original_path": str(sip_directory_path / "contents" / "file-in.txt"),
+        "current_path": str(sip_directory_path / "reingest" / "file-in.txt"),
     }
     mocker.patch("assign_file_uuids.get_file_info_from_mets", return_value=file_info)
 
@@ -106,7 +103,7 @@ def test_call_updates_transfer_file_on_reingest(mocker, sip_dir, transfer):
             "--transferUUID",
             str(transfer.uuid),
             "--sipDirectory",
-            str(sip_dir),
+            str(sip_directory_path),
             "--filterSubdir",
             "contents",
         ],
