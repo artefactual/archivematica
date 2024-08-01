@@ -215,9 +215,18 @@ class ReplacementDict(dict):
         """
         args = []
         for key, value in self.items():
-            optname = re.sub(r"([A-Z]+)", r"-\1", key[1:-1]).lower()
-            opt = f"--{optname}={value}"
-            args.append(opt)
+            # Break the replacement dict key and add a dash between the terms, e.g. "fileUUID" -> "file-uuid".
+            #
+            # The inner regex prepends sequences of uppercase letters with a space. Then the outer regex does
+            # the same to uppercase letters followed by a sequence of lowercase letters,
+            # e.g. "SIPLogsDirectory" -> " SIP Logs  Directory".
+            #
+            # Finally, split them all and add dashes between them.
+            terms = re.sub(
+                "([A-Z][a-z]+)", r" \1", re.sub("([A-Z]+)", r" \1", key[1:-1])
+            ).split()
+            optname = "-".join(terms).lower()
+            args.append(f"--{optname}={value}")
 
         return args
 
