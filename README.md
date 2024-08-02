@@ -103,7 +103,7 @@ see the [getting started] page.
 [Website]: https://www.archivematica.org/
 [Slideshare repo]: https://fr.slideshare.net/Archivematica/presentations
 [YouTube channel]: https://www.youtube.com/@ArtefactualSystems
-[Archivematica API documentation]: https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
+[Archivematica API documentation]: https://archivematica.org/docs/archivematica-1.16/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
 [merging process]: https://wiki.archivematica.org/Merging
 [documentation update]: https://github.com/artefactual/archivematica-docs/wiki
 [Architectural Decisions Record]: https://adr.archivematica.org/
