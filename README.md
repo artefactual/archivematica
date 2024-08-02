@@ -101,7 +101,7 @@ see the [getting started] page.
 [Format Policy Registry]: https://github.com/artefactual/archivematica/tree/qa/1.x/src/dashboard/src/fpr
 [getting started]: https://wiki.archivematica.org/Getting_started#Projects
 [Website]: https://www.archivematica.org/
-[Slideshare repo]: https://fr.slideshare.net/Archivematica/presentations
+[Slideshare repo]: https://slideshare.net/Archivematica/presentations
 [YouTube channel]: https://www.youtube.com/@ArtefactualSystems
 [Archivematica API documentation]: https://archivematica.org/docs/archivematica-1.16/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
 [merging process]: https://wiki.archivematica.org/Merging
