@@ -5,15 +5,15 @@ By [Artefactual]
 [![GitHub CI]][Test workflow]
 [![codecov]][Archivematica Codecov]
 
-Archivematica is a web- and standards-based, open-source application
-which allows your institution to preserve long-term access to
-trustworthy, authentic and reliable digital content.  Our target users
-are archivists, librarians, and anyone working to preserve digital
-objects.
+Archivematica is a web- and standards-based, open-source application which
+allows your institution to preserve long-term access to trustworthy,
+authentic and reliable digital content.
+Our target users are archivists, librarians, and anyone working to preserve
+digital objects.
 
-You are free to copy, modify, and distribute Archivematica with
-attribution under the terms of the AGPLv3 license.  See the [LICENSE]
-file for details.
+You are free to copy, modify, and distribute Archivematica with attribution
+under the terms of the AGPLv3 license.
+See the [LICENSE] file for details.
 
 ## Installation
 
