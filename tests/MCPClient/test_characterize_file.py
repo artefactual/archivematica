@@ -83,7 +83,7 @@ def test_job_executes_command(
     sip_file,
     sip,
     fprule_characterization,
-    file_format_version,
+    sip_file_format_version,
 ):
     fprule_characterization.command.script_type = script_type
     fprule_characterization.command.save()
@@ -117,7 +117,7 @@ def test_job_executes_command(
 @pytest.mark.django_db
 @mock.patch("characterize_file.executeOrRun")
 def test_job_fails_if_command_fails(
-    execute_or_run, sip_file, sip, fprule_characterization, file_format_version
+    execute_or_run, sip_file, sip, fprule_characterization, sip_file_format_version
 ):
     exit_code = 1
     stdout = ""
@@ -157,7 +157,7 @@ def test_job_saves_valid_xml_command_output(
     sip_file,
     sip,
     rule_with_xml_output_format,
-    file_format_version,
+    sip_file_format_version,
 ):
     exit_code = 0
     stdout = "<mock>success</mock>"
@@ -197,7 +197,7 @@ def test_job_fails_with_invalid_xml_command_output(
     sip_file,
     sip,
     rule_with_xml_output_format,
-    file_format_version,
+    sip_file_format_version,
 ):
     exit_code = 0
     stdout = "invalid xml"

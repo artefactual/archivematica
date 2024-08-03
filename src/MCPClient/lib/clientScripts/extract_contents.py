@@ -134,7 +134,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
 
     for file_ in files:
         try:
-            format_id = FileFormatVersion.objects.get(file_uuid=file_.uuid)
+            file_format_version = FileFormatVersion.objects.get(file_uuid=file_.uuid)
         # Can't do anything if the file wasn't identified in the previous step
         except Exception:
             job.pyprint(
@@ -144,7 +144,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
                 file=sys.stderr,
             )
             continue
-        if format_id.format_version is None:
+        if file_format_version.format_version is None:
             job.pyprint(
                 "Not extracting contents from",
                 os.path.basename(file_.currentlocation.decode()),
@@ -156,7 +156,7 @@ def main(job, transfer_uuid, sip_directory, date, task_uuid, delete=False):
         # commands
         try:
             command = FPCommand.active.get(
-                fprule__format=format_id.format_version,
+                fprule__format=file_format_version.format_version,
                 fprule__purpose="extract",
                 fprule__enabled=True,
             )

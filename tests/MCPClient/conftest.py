@@ -91,10 +91,8 @@ def fptool():
 
 
 @pytest.fixture
-def fpcommand(fptool, sip_file):
-    return fprmodels.FPCommand.objects.create(
-        tool=fptool, output_location=sip_file.currentlocation.decode()
-    )
+def fpcommand(fptool):
+    return fprmodels.FPCommand.objects.create(tool=fptool)
 
 
 @pytest.fixture
@@ -178,7 +176,14 @@ def preservation_file(sip, transfer):
 
 
 @pytest.fixture
-def file_format_version(sip_file, format_version):
+def transfer_file_format_version(transfer_file, format_version):
+    return models.FileFormatVersion.objects.create(
+        file_uuid=transfer_file, format_version=format_version
+    )
+
+
+@pytest.fixture
+def sip_file_format_version(sip_file, format_version):
     return models.FileFormatVersion.objects.create(
         file_uuid=sip_file, format_version=format_version
     )

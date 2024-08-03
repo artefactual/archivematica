@@ -14,7 +14,7 @@ def test_main(
     format_version,
     fprule_validation,
     fpcommand,
-    file_format_version,
+    sip_file_format_version,
     mcp_job,
 ):
     exit_status = 0
