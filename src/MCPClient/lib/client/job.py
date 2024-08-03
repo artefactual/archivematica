@@ -5,11 +5,21 @@ batches by clientScript modules and populated with an exit code, standard out
 and standard error information.
 """
 
+import datetime
 import logging
 import sys
 import traceback
 from contextlib import contextmanager
 from logging.handlers import BufferingHandler
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import Iterable
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import TypeVar
+from typing import Union
 
 from django.conf import settings
 from django.utils import timezone
@@ -17,9 +27,18 @@ from main.models import Task
 
 logger = logging.getLogger("archivematica.mcp.client.job")
 
+SelfJob = TypeVar("SelfJob", bound="Job")
+TaskData = Dict[str, Union[int, Optional[datetime.datetime], str]]
+
 
 class Job:
-    def __init__(self, name, uuid, arguments, capture_output=False):
+    def __init__(
+        self,
+        name: str,
+        uuid: str,
+        arguments: List[str],
+        capture_output: bool = False,
+    ) -> None:
         """
         Arguments:
             name: job type, e.g. `move_sip`.
@@ -37,11 +56,11 @@ class Job:
         self.output = ""
         self.error = ""
 
-        self.start_time = None
-        self.end_time = None
+        self.start_time: Optional[datetime.datetime] = None
+        self.end_time: Optional[datetime.datetime] = None
 
     @classmethod
-    def bulk_set_start_times(cls, jobs):
+    def bulk_set_start_times(cls, jobs: List[SelfJob]) -> None:
         """Bulk set the processing start time for a batch of jobs."""
         start_time = timezone.now()
         uuids = [job.uuid for job in jobs]
@@ -50,7 +69,7 @@ class Job:
             job.start_time = start_time
 
     @classmethod
-    def bulk_mark_failed(cls, jobs, message):
+    def bulk_mark_failed(cls, jobs: List[SelfJob], message: str) -> None:
         uuids = [job.uuid for job in jobs]
 
         Task.objects.filter(taskuuid__in=uuids).update(
@@ -59,7 +78,7 @@ class Job:
         for job in jobs:
             job.set_status(1, status_code=message)
 
-    def log_results(self):
+    def log_results(self) -> None:
         logger.info(
             (
                 "#<%s; exit=%s; code=%s uuid=%s\n"
@@ -79,7 +98,7 @@ class Job:
             self.get_stderr(),
         )
 
-    def update_task_status(self):
+    def update_task_status(self) -> None:
         """Updates the Task model after a job has been completed."""
         # Not all jobs set an exit code. They expect a default of 0,
         # so keep compatibility with that
@@ -87,33 +106,41 @@ class Job:
             self.set_status(0)
         self.end_time = timezone.now()
 
-        kwargs = {"exitcode": self.get_exit_code(), "endtime": self.end_time}
+        kwargs: TaskData = {
+            "exitcode": self.get_exit_code(),
+            "endtime": self.end_time,
+        }
         if settings.CAPTURE_CLIENT_SCRIPT_OUTPUT:
-            kwargs.update({"stdout": self.get_stdout(), "stderror": self.get_stderr()})
+            kwargs.update(
+                {
+                    "stdout": self.get_stdout(),
+                    "stderror": self.get_stderr(),
+                }
+            )
         Task.objects.filter(taskuuid=self.uuid).update(**kwargs)
 
-    def set_status(self, int_code, status_code="success"):
+    def set_status(self, int_code: int, status_code: str = "success") -> None:
         if int_code:
             self.int_code = int(int_code)
         self.status_code = status_code
 
-    def write_output(self, s):
+    def write_output(self, s: str) -> None:
         self.output += s
 
-    def write_error(self, s):
+    def write_error(self, s: str) -> None:
         self.error += s
 
-    def print_output(self, *args):
+    def print_output(self, *args: Iterable[Any]) -> None:
         self.write_output(" ".join([str(x) for x in args]) + "\n")
 
-    def print_error(self, *args):
+    def print_error(self, *args: Iterable[Any]) -> None:
         self.write_error(" ".join([str(x) for x in args]) + "\n")
 
-    def pyprint(self, *objects, **kwargs):
+    def pyprint(self, *objects: Iterable[Any], **kwargs: Mapping[str, Any]) -> None:
         output_type = kwargs.get("file", sys.stdout)
         sep = kwargs.get("sep", " ")
         end = kwargs.get("end", "\n")
-        msg = sep.join([str(x) for x in objects]) + end
+        msg = str(sep).join([str(x) for x in objects]) + str(end)
 
         if output_type is sys.stdout:
             self.write_output(msg)
@@ -122,17 +149,19 @@ class Job:
         else:
             raise Exception("Unrecognised print file: " + str(output_type))
 
-    def get_exit_code(self):
+    def get_exit_code(self) -> int:
         return self.int_code
 
-    def get_stdout(self):
+    def get_stdout(self) -> str:
         return self.output
 
-    def get_stderr(self):
+    def get_stderr(self) -> str:
         return self.error
 
     @contextmanager
-    def JobContext(self, logger=None):
+    def JobContext(
+        self, logger: Optional[logging.Logger] = None
+    ) -> Generator[None, None, None]:
         if logger:
             handler = JobLogHandler(100, self)
             handler.setLevel(logging.INFO)
@@ -156,12 +185,12 @@ class JobLogHandler(BufferingHandler):
     when the buffer is full.
     """
 
-    def __init__(self, capacity, job):
+    def __init__(self, capacity: int, job: Job) -> None:
         super().__init__(capacity)
 
         self.job = job
 
-    def flush(self):
+    def flush(self) -> None:
         for record in self.buffer:
             message = record.getMessage()
             if record.levelno >= logging.ERROR:

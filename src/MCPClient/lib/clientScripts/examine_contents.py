@@ -5,7 +5,7 @@ import os
 from executeOrRunSubProcess import executeOrRun
 
 
-def concurrent_instances():
+def concurrent_instances() -> int:
     return multiprocessing.cpu_count()
 
 

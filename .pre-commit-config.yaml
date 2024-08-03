@@ -52,3 +52,10 @@ repos:
     additional_dependencies:
     - types-requests
     - types-python-dateutil
+    - pytest
+    files: |
+      (?x)^(
+        src/MCPClient/lib/client/.*\.py|
+        src/MCPClient/lib/clientScripts/store_file_modification_dates\.py|
+        tests/MCPClient/conftest\.py
+      )

@@ -17,26 +17,26 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import datetime
 import os
+from datetime import timezone
+from typing import List
 
 import django
 
 django.setup()
-# archivematicaCommon
+from client.job import Job
 from custom_handlers import get_script_logger
 from django.db import transaction
-
-# dashboard
 from main import models
 
 logger = get_script_logger("archivematica.mcp.client.storeFileModificationDates")
 
 
-def get_modification_date(file_path):
+def get_modification_date(file_path: str) -> datetime.datetime:
     mod_time = os.path.getmtime(file_path)
-    return datetime.datetime.utcfromtimestamp(int(mod_time))
+    return datetime.datetime.fromtimestamp(int(mod_time), tz=timezone.utc)
 
 
-def main(transfer_uuid, shared_directory_path):
+def main(transfer_uuid: str, shared_directory_path: str) -> None:
     transfer = models.Transfer.objects.get(uuid=transfer_uuid)
 
     files = models.File.objects.filter(transfer=transfer)
@@ -64,7 +64,7 @@ def main(transfer_uuid, shared_directory_path):
     logger.info("Stored modification dates of %d files.", mods_stored)
 
 
-def call(jobs):
+def call(jobs: List[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):

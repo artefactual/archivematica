@@ -1,6 +1,7 @@
 import pathlib
 
 import pytest
+import pytest_django
 from client.job import Job
 from django.utils import timezone
 from fpr import models as fprmodels
@@ -8,7 +9,7 @@ from main import models
 
 
 @pytest.fixture(autouse=True)
-def set_xml_catalog_files(monkeypatch):
+def set_xml_catalog_files(monkeypatch: pytest.MonkeyPatch) -> None:
     """Use local XML schemas for validation."""
     monkeypatch.setenv(
         "XML_CATALOG_FILES",
@@ -25,12 +26,12 @@ def set_xml_catalog_files(monkeypatch):
 
 
 @pytest.fixture()
-def mcp_job():
+def mcp_job() -> Job:
     return Job("stub", "stub", [])
 
 
 @pytest.fixture()
-def user():
+def user() -> models.User:
     return models.User.objects.create(
         id=1,
         username="kmindelan",
@@ -44,17 +45,17 @@ def user():
 
 
 @pytest.fixture
-def job():
+def job() -> models.Job:
     return models.Job.objects.create(createdtime=timezone.now())
 
 
 @pytest.fixture
-def task(job):
+def task(job: models.Job) -> models.Task:
     return models.Task.objects.create(job=job, createdtime=timezone.now())
 
 
 @pytest.fixture
-def transfer(user):
+def transfer(user: models.User) -> models.Transfer:
     result = models.Transfer.objects.create(
         currentlocation=r"%transferDirectory%",
         access_system_id="atom-description-id",
@@ -66,42 +67,44 @@ def transfer(user):
 
 
 @pytest.fixture
-def sip():
+def sip() -> models.SIP:
     return models.SIP.objects.create(currentpath=r"%SIPDirectory%", diruuids=True)
 
 
 @pytest.fixture
-def format_group():
+def format_group() -> fprmodels.FormatGroup:
     return fprmodels.FormatGroup.objects.create()
 
 
 @pytest.fixture
-def format(format_group):
+def format(format_group: fprmodels.FormatGroup) -> fprmodels.Format:
     return fprmodels.Format.objects.create(group=format_group)
 
 
 @pytest.fixture
-def format_version(format):
+def format_version(format: fprmodels.Format) -> fprmodels.FormatVersion:
     return fprmodels.FormatVersion.objects.create(format=format)
 
 
 @pytest.fixture
-def fptool():
+def fptool() -> fprmodels.FPTool:
     return fprmodels.FPTool.objects.create()
 
 
 @pytest.fixture
-def fpcommand(fptool):
+def fpcommand(fptool: fprmodels.FPTool) -> fprmodels.FPCommand:
     return fprmodels.FPCommand.objects.create(tool=fptool)
 
 
 @pytest.fixture
-def fprule(fpcommand, format_version):
+def fprule(
+    fpcommand: fprmodels.FPCommand, format_version: fprmodels.FormatVersion
+) -> fprmodels.FPRule:
     return fprmodels.FPRule.objects.create(command=fpcommand, format=format_version)
 
 
 @pytest.fixture()
-def fprule_characterization(fprule):
+def fprule_characterization(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
     fprule.purpose = fprmodels.FPRule.CHARACTERIZATION
     fprule.save()
 
@@ -109,7 +112,7 @@ def fprule_characterization(fprule):
 
 
 @pytest.fixture
-def fprule_extraction(fprule):
+def fprule_extraction(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
     fprule.purpose = fprmodels.FPRule.EXTRACTION
     fprule.save()
 
@@ -117,7 +120,7 @@ def fprule_extraction(fprule):
 
 
 @pytest.fixture
-def fprule_validation(fprule):
+def fprule_validation(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
     fprule.purpose = fprmodels.FPRule.VALIDATION
     fprule.save()
 
@@ -125,7 +128,7 @@ def fprule_validation(fprule):
 
 
 @pytest.fixture
-def fprule_transcription(fprule):
+def fprule_transcription(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
     fprule.purpose = fprmodels.FPRule.TRANSCRIPTION
     fprule.save()
 
@@ -133,7 +136,7 @@ def fprule_transcription(fprule):
 
 
 @pytest.fixture
-def fprule_preservation(fprule):
+def fprule_preservation(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
     fprule.purpose = fprmodels.FPRule.PRESERVATION
     fprule.save()
 
@@ -141,7 +144,7 @@ def fprule_preservation(fprule):
 
 
 @pytest.fixture
-def transfer_file(transfer):
+def transfer_file(transfer: models.Transfer) -> models.File:
     location = b"%transferDirectory%objects/file.mp3"
     return models.File.objects.create(
         transfer=transfer,
@@ -152,7 +155,7 @@ def transfer_file(transfer):
 
 
 @pytest.fixture
-def sip_file(sip, transfer):
+def sip_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
     location = "objects/file.mp3"
     return models.File.objects.create(
         transfer=transfer,
@@ -164,7 +167,7 @@ def sip_file(sip, transfer):
 
 
 @pytest.fixture
-def preservation_file(sip, transfer):
+def preservation_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
     location = b"%SIPDirectory%objects/file.wav"
     return models.File.objects.create(
         transfer=transfer,
@@ -176,21 +179,25 @@ def preservation_file(sip, transfer):
 
 
 @pytest.fixture
-def transfer_file_format_version(transfer_file, format_version):
+def transfer_file_format_version(
+    transfer_file: models.File, format_version: fprmodels.FormatVersion
+) -> models.FileFormatVersion:
     return models.FileFormatVersion.objects.create(
         file_uuid=transfer_file, format_version=format_version
     )
 
 
 @pytest.fixture
-def sip_file_format_version(sip_file, format_version):
+def sip_file_format_version(
+    sip_file: models.File, format_version: fprmodels.FormatVersion
+) -> models.FileFormatVersion:
     return models.FileFormatVersion.objects.create(
         file_uuid=sip_file, format_version=format_version
     )
 
 
 @pytest.fixture
-def shared_directory_path(tmp_path):
+def shared_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
     result = tmp_path / "sharedDirectory"
     result.mkdir()
 
@@ -201,7 +208,7 @@ def shared_directory_path(tmp_path):
 
 
 @pytest.fixture
-def transfer_directory_path(tmp_path):
+def transfer_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
     result = tmp_path / "transfer"
     result.mkdir()
 
@@ -209,7 +216,7 @@ def transfer_directory_path(tmp_path):
 
 
 @pytest.fixture
-def sip_directory_path(tmp_path):
+def sip_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
     result = tmp_path / "sip"
     result.mkdir()
 
@@ -217,7 +224,10 @@ def sip_directory_path(tmp_path):
 
 
 @pytest.fixture
-def settings(settings, shared_directory_path):
+def settings(
+    settings: pytest_django.fixtures.SettingsWrapper,
+    shared_directory_path: pathlib.Path,
+) -> pytest_django.fixtures.SettingsWrapper:
     settings.SHARED_DIRECTORY = f"{shared_directory_path}/"
     settings.PROCESSING_DIRECTORY = f'{shared_directory_path / "currentlyProcessing"}/'
 

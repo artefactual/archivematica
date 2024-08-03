@@ -22,7 +22,7 @@ from main.models import FileID
 from main.models import UnitVariable
 
 
-def concurrent_instances():
+def concurrent_instances() -> int:
     return multiprocessing.cpu_count()
 
 

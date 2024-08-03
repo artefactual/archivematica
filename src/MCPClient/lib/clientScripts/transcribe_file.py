@@ -24,7 +24,7 @@ from main.models import File
 from main.models import FileFormatVersion
 
 
-def concurrent_instances():
+def concurrent_instances() -> int:
     return multiprocessing.cpu_count()
 
 

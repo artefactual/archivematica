@@ -42,7 +42,7 @@ from main.models import File
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
 
-def concurrent_instances():
+def concurrent_instances() -> int:
     return multiprocessing.cpu_count()
 
 

@@ -66,7 +66,7 @@ better throughput. To instruct MCPClient to run your task in multiple
 concurrent processes, provide a function in your module as follows:
 
     import multiprocessing
-    def concurrent_instances():
+    def concurrent_instances() -> int:
         return multiprocessing.cpu_count()
 
 when your task includes `concurrent_instances`, MCPClient will call

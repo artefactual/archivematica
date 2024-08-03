@@ -7,8 +7,10 @@
 # If a tool has no defined characterization commands, then the default
 # will be run instead (currently FITS).
 import multiprocessing
+from typing import List
 
 import django
+from client.job import Job
 from lxml import etree
 
 django.setup()
@@ -29,11 +31,11 @@ from lib import setup_dicts
 from main.models import FPCommandOutput
 
 
-def concurrent_instances():
+def concurrent_instances() -> int:
     return multiprocessing.cpu_count()
 
 
-def main(job, file_path, file_uuid, sip_uuid):
+def main(job: Job, file_path: str, file_uuid: str, sip_uuid: str) -> int:
     setup_dicts(mcpclient_settings)
 
     failed = False
@@ -117,7 +119,7 @@ def main(job, file_path, file_uuid, sip_uuid):
         return 0
 
 
-def call(jobs):
+def call(jobs: List[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
