@@ -13,11 +13,14 @@ on:
 jobs:
   test:
     if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT') }}"
-    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
+    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }} on ${{ matrix.python-version }}"
     runs-on: "ubuntu-22.04"
     strategy:
       fail-fast: false
       matrix:
+        python-version:
+          - "3.8"
+          - "3.9"
         tag:
           - "aip-encrypt"
           - "aip-encrypt-mirror"
@@ -58,7 +61,7 @@ jobs:
         run: |
           make -C hack/ build
         env:
-          PYTHON_VERSION: "3.9"
+          PYTHON_VERSION: "${{ matrix.python-version }}"
       - name: "Start services"
         run: |
           docker compose up -d
@@ -88,5 +91,5 @@ jobs:
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
         uses: "actions/upload-artifact@v4"
         with:
-          name: "docker-logs-${{ matrix.tag }}-${{ matrix.browser }}"
+          name: "docker-logs-${{ matrix.tag }}-${{ matrix.browser }}-${{ matrix.python-version }}"
           path: "./hack/docker-logs"
