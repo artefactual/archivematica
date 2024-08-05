@@ -23,8 +23,8 @@ See the [LICENSE] file for details.
 ## Using Archivematica
 
 * [Website] for the user and administrator documentation
-* [Slideshare repo] and [YouTube channel] for previous trainings and talks
-* [User Google Group] is a forum/mailing list for user questions (both
+* [Presentations repo] and [YouTube channel] for previous trainings and talks
+* [User Group] is a forum/mailing list for user questions (both
 technical and end-user)
 * [Paid support] is for paid support, hosting, training, consulting
 and software development contracts from Artefactual
@@ -100,10 +100,10 @@ see the [getting started] page.
 [Paid support]: https://www.artefactual.com/services/
 [Production installation]: https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/
 [SECURITY file]: SECURITY.md
-[Slideshare repo]: https://fr.slideshare.net/Archivematica/presentations
+[Presentations repo]: https://fr.slideshare.net/Archivematica/presentations
 [Storage Service]: https://github.com/artefactual/archivematica-storage-service
 [Test workflow]: https://github.com/artefactual/archivematica/actions/workflows/test.yml
-[User Google Group]: https://groups.google.com/forum/#!forum/archivematica
+[User Group]: https://groups.google.com/forum/#!forum/archivematica
 [Website]: https://www.archivematica.org/
 [Wiki]: https://www.archivematica.org/wiki/Development
 [YouTube channel]: https://www.youtube.com/@ArtefactualSystems
