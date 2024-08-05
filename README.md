@@ -80,30 +80,30 @@ Archivematica consists of several projects working together, including:
 For more projects in the Archivematica ecosystem,
 see the [getting started] page.
 
+[Architectural Decisions Record]: https://adr.archivematica.org/
+[Archivematica API documentation]: https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
+[Archivematica Codecov]: https://codecov.io/gh/artefactual/archivematica
+[Archivematica GitHub]: https://github.com/artefactual/archivematica
 [Archivematica]: https://www.archivematica.org/
 [Artefactual]: https://www.artefactual.com/
-[GitHub CI]: https://github.com/artefactual/archivematica/actions/workflows/test.yml/badge.svg
-[Test workflow]: https://github.com/artefactual/archivematica/actions/workflows/test.yml
 [codecov]: https://codecov.io/gh/artefactual/archivematica/branch/qa/1.x/graph/badge.svg?token=tKlfjhmrlC
-[Archivematica Codecov]: https://codecov.io/gh/artefactual/archivematica
-[LICENSE]: LICENSE
-[Production installation]: https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/
-[Development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack
-[Developer guide]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md
-[Wiki]: https://www.archivematica.org/wiki/Development
-[Issues]: https://github.com/archivematica/Issues
-[User Google Group]: https://groups.google.com/forum/#!forum/archivematica
-[Paid support]: https://www.artefactual.com/services/
 [contributing guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/CONTRIBUTING.md
-[SECURITY file]: SECURITY.md
-[Archivematica GitHub]: https://github.com/artefactual/archivematica
-[Storage Service]: https://github.com/artefactual/archivematica-storage-service
+[Developer guide]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md
+[Development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack
+[documentation update]: https://github.com/artefactual/archivematica-docs/wiki
 [Format Policy Registry]: https://github.com/artefactual/archivematica/tree/qa/1.x/src/dashboard/src/fpr
 [getting started]: https://wiki.archivematica.org/Getting_started#Projects
-[Website]: https://www.archivematica.org/
-[Slideshare repo]: https://slideshare.net/Archivematica/presentations
-[YouTube channel]: https://www.youtube.com/@ArtefactualSystems
-[Archivematica API documentation]: https://archivematica.org/docs/archivematica-1.16/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
+[GitHub CI]: https://github.com/artefactual/archivematica/actions/workflows/test.yml/badge.svg
+[Issues]: https://github.com/archivematica/Issues
+[LICENSE]: LICENSE
 [merging process]: https://wiki.archivematica.org/Merging
-[documentation update]: https://github.com/artefactual/archivematica-docs/wiki
-[Architectural Decisions Record]: https://adr.archivematica.org/
+[Paid support]: https://www.artefactual.com/services/
+[Production installation]: https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/
+[SECURITY file]: SECURITY.md
+[Slideshare repo]: https://fr.slideshare.net/Archivematica/presentations
+[Storage Service]: https://github.com/artefactual/archivematica-storage-service
+[Test workflow]: https://github.com/artefactual/archivematica/actions/workflows/test.yml
+[User Google Group]: https://groups.google.com/forum/#!forum/archivematica
+[Website]: https://www.archivematica.org/
+[Wiki]: https://www.archivematica.org/wiki/Development
+[YouTube channel]: https://www.youtube.com/@ArtefactualSystems
