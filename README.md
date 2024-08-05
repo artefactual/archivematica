@@ -81,7 +81,7 @@ For more projects in the Archivematica ecosystem,
 see the [getting started] page.
 
 [Architectural Decisions Record]: https://adr.archivematica.org/
-[Archivematica API documentation]: https://archivematica.org/fr/docs/archivematica-1.15/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
+[Archivematica API documentation]: https://archivematica.org/docs/latest/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
 [Archivematica Codecov]: https://codecov.io/gh/artefactual/archivematica
 [Archivematica GitHub]: https://github.com/artefactual/archivematica
 [Archivematica]: https://www.archivematica.org/
@@ -100,7 +100,7 @@ see the [getting started] page.
 [Paid support]: https://www.artefactual.com/services/
 [Production installation]: https://www.archivematica.org/docs/latest/admin-manual/installation-setup/installation/installation/
 [SECURITY file]: SECURITY.md
-[Presentations repo]: https://fr.slideshare.net/Archivematica/presentations
+[Presentations repo]: https://slideshare.net/Archivematica/presentations
 [Storage Service]: https://github.com/artefactual/archivematica-storage-service
 [Test workflow]: https://github.com/artefactual/archivematica/actions/workflows/test.yml
 [User Group]: https://groups.google.com/forum/#!forum/archivematica
