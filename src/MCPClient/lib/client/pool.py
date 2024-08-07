@@ -14,9 +14,18 @@ Workers log events into a shared queue while the pool runs a background thread
 """
 
 import logging
+import logging.handlers
 import multiprocessing
 import threading
 import time
+from multiprocessing.synchronize import Event
+from types import ModuleType
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Protocol
+from typing import Tuple
+from typing import TypeVar
 
 import django
 
@@ -29,14 +38,46 @@ from client import loader
 from client import metrics
 from client.gearman import MCPGearmanWorker
 
+T = TypeVar("T")
+
+
+class QueueLike(Protocol[T]):
+    def get(self) -> T: ...
+    def put_nowait(self, item: T) -> None: ...
+
+
+LogQueue = QueueLike[logging.LogRecord]
+
+# This is how the return value of the `_get_worker_init_args` method looks
+# below:
+# [
+#     (
+#         (
+#             "<multiprocessing.queues.Queue object at 0x7609ba4badf0>",
+#             [
+#                 "archivematicaclamscan_v0.0",
+#                 "examinecontents_v0.0",
+#                 "identifyfileformat_v0.0",
+#                 "transcribefile_v0.0",
+#                 "characterizefile_v0.0",
+#             ],
+#         ),
+#         {
+#             "shutdown_event": "<multiprocessing.synchronize.Event object at 0x7609ba454340>"
+#         },
+#     ),
+#     ...
+# ]
+WorkerInitArgs = List[Tuple[Tuple[LogQueue, List[str]], Dict[str, Event]]]
+
 logger = logging.getLogger("archivematica.mcp.client.worker")
 
 
 def run_gearman_worker(
-    log_queue,
-    client_scripts,
-    shutdown_event=None,
-):
+    log_queue: LogQueue,
+    client_scripts: List[str],
+    shutdown_event: Optional[Event] = None,
+) -> None:
     """Target function executed by child processes in the pool."""
     # Set up logging, as we're in a new process now.
     logger = logging.getLogger("archivematica.mcp.client")
@@ -66,10 +107,10 @@ class WorkerPool:
     # Delay in the maintenance loop until workers are checked and restarted.
     WORKER_RESTART_DELAY = 1.0
 
-    def __init__(self):
-        self.log_queue = multiprocessing.Queue()
+    def __init__(self) -> None:
+        self.log_queue: LogQueue = multiprocessing.Queue()
         self.shutdown_event = multiprocessing.Event()
-        self.workers = []
+        self.workers: List[multiprocessing.Process] = []
         self.job_modules = loader.load_job_modules(settings.CLIENT_MODULES_FILE)
         self.worker_function = run_gearman_worker
 
@@ -80,10 +121,10 @@ class WorkerPool:
         self.pool_size = min(settings.WORKERS, max(workers_required.values()))
         self._worker_init_args = self._get_worker_init_args(workers_required)
 
-        self.pool_maintainance_thread = None
-        self.logging_listener = None
+        self.pool_maintainance_thread: Optional[threading.Thread] = None
+        self.logging_listener: Optional[logging.handlers.QueueListener] = None
 
-    def start(self):
+    def start(self) -> None:
         self.logging_listener = logging.handlers.QueueListener(
             self.log_queue,
             *logger.handlers,
@@ -99,9 +140,10 @@ class WorkerPool:
         self.pool_maintainance_thread.daemon = True
         self.pool_maintainance_thread.start()
 
-    def stop(self):
+    def stop(self) -> None:
         self.shutdown_event.set()
-        self.pool_maintainance_thread.join()
+        if self.pool_maintainance_thread is not None:
+            self.pool_maintainance_thread.join()
 
         for worker in self.workers:
             if worker.is_alive():
@@ -115,9 +157,12 @@ class WorkerPool:
             if not worker.is_alive():
                 metrics.worker_exit(worker.pid)
 
-        self.logging_listener.stop()
+        if self.logging_listener is not None:
+            self.logging_listener.stop()
 
-    def _get_script_workers_required(self, job_modules):
+    def _get_script_workers_required(
+        self, job_modules: Dict[str, Optional[ModuleType]]
+    ) -> Dict[str, int]:
         workers_required = {}
         for client_script, module in job_modules.items():
             concurrency = loader.get_module_concurrency(module)
@@ -125,10 +170,13 @@ class WorkerPool:
 
         return workers_required
 
-    def _get_worker_init_args(self, script_workers_required):
+    # Use Queue[logging.LogRecord] instead of Any
+    def _get_worker_init_args(
+        self, script_workers_required: Dict[str, int]
+    ) -> WorkerInitArgs:
         # Don't mutate the argument
         script_workers_required = script_workers_required.copy()
-        init_scripts = []
+        init_scripts: List[List[str]] = []
 
         for i in range(self.pool_size):
             init_scripts.append([])
@@ -147,7 +195,7 @@ class WorkerPool:
             for worker_init_scripts in init_scripts
         ]
 
-    def _maintain_pool(self):
+    def _maintain_pool(self) -> None:
         """Run as a loop in another thread; we check the pool size and spin up
         new workers as required.
         """
@@ -155,7 +203,7 @@ class WorkerPool:
             self._restart_exited_workers()
             time.sleep(self.WORKER_RESTART_DELAY)
 
-    def _restart_exited_workers(self):
+    def _restart_exited_workers(self) -> bool:
         """Restart any worker processes which have exited due to reaching
         their specified lifetime.  Returns True if any workers were restarted.
         """
@@ -169,7 +217,7 @@ class WorkerPool:
 
         return restarted
 
-    def _start_worker(self, index):
+    def _start_worker(self, index: int) -> multiprocessing.Process:
         """Start the new worker in a separate process."""
         worker_args, worker_kwargs = self._worker_init_args[index]
         worker = multiprocessing.Process(

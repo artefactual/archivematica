@@ -1,9 +1,12 @@
 import importlib
 import warnings
 from configparser import RawConfigParser
+from types import ModuleType
+from typing import Dict
+from typing import Optional
 
 
-def get_supported_modules(modules_file_path):
+def get_supported_modules(modules_file_path: str) -> Dict[str, str]:
     """Create and return the ``supported_modules`` dict by parsing the MCPClient
     modules config file (typically MCPClient/lib/archivematicaClientModules).
     """
@@ -18,7 +21,7 @@ def get_supported_modules(modules_file_path):
     return supported_modules
 
 
-def load_module(module_name):
+def load_module(module_name: str) -> Optional[ModuleType]:
     # No need to cache here as imports are already cached.
     try:
         return importlib.import_module(f"clientScripts.{module_name}")
@@ -28,16 +31,17 @@ def load_module(module_name):
             RuntimeWarning,
             stacklevel=2,
         )
+        return None
 
 
-def get_module_concurrency(module):
-    if hasattr(module, "concurrent_instances"):
-        return module.concurrent_instances()
-    else:
+def get_module_concurrency(module: ModuleType) -> int:
+    try:
+        return int(module.concurrent_instances())
+    except (AttributeError, TypeError, ValueError):
         return 1
 
 
-def load_job_modules(modules_file_path):
+def load_job_modules(modules_file_path: str) -> Dict[str, Optional[ModuleType]]:
     """Return a dict of {client script name: module}."""
     supported_modules = get_supported_modules(modules_file_path)
 
