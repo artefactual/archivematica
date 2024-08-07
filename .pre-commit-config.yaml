@@ -52,3 +52,4 @@ repos:
     additional_dependencies:
     - types-requests
     - types-python-dateutil
+    - pytest
