@@ -6,6 +6,8 @@ import logging
 import os
 import pathlib
 import signal
+from types import FrameType
+from typing import Optional
 
 from client import metrics
 from client.pool import WorkerPool
@@ -13,7 +15,7 @@ from client.pool import WorkerPool
 logger = logging.getLogger("archivematica.mcp.client")
 
 
-def main():
+def main() -> None:
     metrics.start_prometheus_server()
 
     # Use local XML schemas for validation.
@@ -24,7 +26,7 @@ def main():
     pool = WorkerPool()
     pool.start()
 
-    def signal_handler(signal, frame):
+    def signal_handler(signal: int, frame: Optional[FrameType]) -> None:
         """Used to handle the stop/kill command signals (SIGINT, SIGKILL)."""
         logger.info("Received termination signal (%s)", signal)
         pool.stop()

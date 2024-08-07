@@ -5,6 +5,12 @@ Exposes various metrics via Prometheus.
 import configparser
 import datetime
 import functools
+import threading
+from typing import Callable
+from typing import Optional
+from typing import Tuple
+from typing import TypeVar
+from wsgiref.simple_server import WSGIServer
 
 import django
 
@@ -188,9 +194,14 @@ PACKAGE_FAILURE_TYPES = ("fail", "reject")
 TRANSFER_TYPES = ("Standard", "Dataverse", "Dspace", "TRIM", "Maildir", "Unknown")
 
 
-def skip_if_prometheus_disabled(func):
+T = TypeVar("T")
+
+
+def skip_if_prometheus_disabled(
+    func: Callable[..., Optional[T]],
+) -> Callable[..., Optional[T]]:
     @functools.wraps(func)
-    def wrapper(*args, **kwds):
+    def wrapper(*args: object, **kwds: object) -> Optional[T]:
         if settings.PROMETHEUS_ENABLED:
             return func(*args, **kwds)
         return None
@@ -198,7 +209,7 @@ def skip_if_prometheus_disabled(func):
     return wrapper
 
 
-def init_counter_labels():
+def init_counter_labels() -> None:
     # Zero our counters to start, by intializing all labels. Non-zero starting points
     # cause problems when measuring rates.
     modules_config = configparser.RawConfigParser()
@@ -239,38 +250,39 @@ def init_counter_labels():
 
 
 @skip_if_prometheus_disabled
-def worker_exit(process_id):
+def worker_exit(process_id: Optional[int]) -> None:
     multiprocess.mark_process_dead(process_id)
 
 
 @skip_if_prometheus_disabled
-def start_prometheus_server():
+def start_prometheus_server() -> Tuple[WSGIServer, threading.Thread]:
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
 
     init_counter_labels()
 
-    return start_http_server(
+    result: Tuple[WSGIServer, threading.Thread] = start_http_server(
         settings.PROMETHEUS_BIND_PORT,
         addr=settings.PROMETHEUS_BIND_ADDRESS,
         registry=registry,
     )
+    return result
 
 
 @skip_if_prometheus_disabled
-def job_completed(script_name):
+def job_completed(script_name: str) -> None:
     job_counter.labels(script_name=script_name).inc()
     job_processed_timestamp.labels(script_name=script_name).set_to_current_time()
 
 
 @skip_if_prometheus_disabled
-def job_failed(script_name):
+def job_failed(script_name: str) -> None:
     job_counter.labels(script_name=script_name).inc()
     job_error_counter.labels(script_name=script_name).inc()
     job_error_timestamp.labels(script_name=script_name).set_to_current_time()
 
 
-def _get_file_group(raw_file_group_use):
+def _get_file_group(raw_file_group_use: str) -> str:
     """Convert one of the file group use values we know about into
     the smaller subset that we track:
 
@@ -292,7 +304,7 @@ def _get_file_group(raw_file_group_use):
 
 
 @skip_if_prometheus_disabled
-def aip_stored(sip_uuid, size):
+def aip_stored(sip_uuid: str, size: int) -> None:
     aips_stored_counter.inc()
     aips_stored_timestamp.set_to_current_time()
     aip_size_histogram.observe(size)
@@ -343,7 +355,7 @@ def aip_stored(sip_uuid, size):
 
 
 @skip_if_prometheus_disabled
-def dip_stored(sip_uuid, size):
+def dip_stored(sip_uuid: str, size: int) -> None:
     dips_stored_counter.inc()
     dips_stored_timestamp.set_to_current_time()
     dip_size_histogram.observe(size)
@@ -361,7 +373,7 @@ def dip_stored(sip_uuid, size):
 
 
 @skip_if_prometheus_disabled
-def transfer_started(transfer_type):
+def transfer_started(transfer_type: str) -> None:
     if not transfer_type:
         transfer_type = "Unknown"
     transfer_started_counter.labels(transfer_type=transfer_type).inc()
@@ -369,7 +381,7 @@ def transfer_started(transfer_type):
 
 
 @skip_if_prometheus_disabled
-def transfer_completed(transfer_uuid):
+def transfer_completed(transfer_uuid: str) -> None:
     try:
         transfer = Transfer.objects.get(uuid=transfer_uuid)
     except Transfer.DoesNotExist:
@@ -393,7 +405,7 @@ def transfer_completed(transfer_uuid):
 
 
 @skip_if_prometheus_disabled
-def transfer_failed(transfer_type, failure_type):
+def transfer_failed(transfer_type: str, failure_type: str) -> None:
     if not transfer_type:
         transfer_type = "Unknown"
 
@@ -406,12 +418,12 @@ def transfer_failed(transfer_type, failure_type):
 
 
 @skip_if_prometheus_disabled
-def sip_started():
+def sip_started() -> None:
     sip_started_counter.inc()
     sip_started_timestamp.set_to_current_time()
 
 
 @skip_if_prometheus_disabled
-def sip_failed(failure_type):
+def sip_failed(failure_type: str) -> None:
     sip_error_counter.labels(failure_type=failure_type).inc()
     sip_error_timestamp.labels(failure_type=failure_type).set_to_current_time()
