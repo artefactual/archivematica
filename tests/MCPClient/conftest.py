@@ -144,6 +144,14 @@ def fprule_preservation(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
 
 
 @pytest.fixture
+def fprule_policy_check(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
+    fprule.purpose = fprmodels.FPRule.POLICY
+    fprule.save()
+
+    return fprule
+
+
+@pytest.fixture
 def fprule_thumbnail(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
     fprule.purpose = fprmodels.FPRule.THUMBNAIL
     fprule.save()
