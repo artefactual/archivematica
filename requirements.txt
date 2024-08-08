@@ -12,7 +12,7 @@ ammcpc==0.2.0
     # via -r requirements.in
 asgiref==3.8.1
     # via django
-attrs==23.2.0
+attrs==24.2.0
     # via
     #   jsonschema
     #   referencing
@@ -22,18 +22,18 @@ brotli==1.1.0
     # via -r requirements.in
 certifi==2024.7.4
     # via requests
-cffi==1.16.0
+cffi==1.17.0
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-cryptography==42.0.8
+cryptography==43.0.0
     # via
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==4.2.14
+django==4.2.15
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -68,7 +68,7 @@ gunicorn==22.0.0
     # via -r requirements.in
 idna==3.7
     # via requests
-importlib-metadata==8.0.0
+importlib-metadata==8.2.0
     # via -r requirements.in
 importlib-resources==6.4.0
     # via opf-fido
@@ -114,7 +114,7 @@ pyasn1-modules==0.4.0
     # via python-ldap
 pycparser==2.22
     # via cffi
-pyopenssl==24.1.0
+pyopenssl==24.2.1
     # via josepy
 python-cas==1.6.0
     # via django-cas-ng
@@ -140,7 +140,7 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.19.0
+rpds-py==0.20.0
     # via
     #   jsonschema
     #   referencing
@@ -149,7 +149,7 @@ six==1.16.0
     #   opf-fido
     #   python-cas
     #   python-dateutil
-sqlparse==0.5.0
+sqlparse==0.5.1
     # via django
 typing-extensions==4.12.2
     # via asgiref
@@ -168,11 +168,11 @@ zipp==3.19.2
     #   importlib-resources
 zope-event==5.0
     # via gevent
-zope-interface==6.4.post2
+zope-interface==7.0.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==70.3.0
+setuptools==72.1.0
     # via
     #   zope-event
     #   zope-interface
