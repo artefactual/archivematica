@@ -15,18 +15,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-# archivematicaCommon
 from django.db.models import F
 from executeOrRunSubProcess import executeOrRun
-
-# dashboard
-
-
-def toStrFromUnicode(inputString, encoding="utf-8"):
-    """Converts to str, if it's unicode input type."""
-    if isinstance(inputString, str):
-        inputString = inputString.encode(encoding)
-    return inputString
 
 
 class Command:

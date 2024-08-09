@@ -374,7 +374,9 @@ def main(job, opts):
     derivatives = Derivation.objects.filter(
         source_file=file_, derived_file__filegrpuse=opts.purpose
     )
+    derivatives_to_delete = []
     for derivative in derivatives:
+        derivatives_to_delete.append(derivative.id)
         job.print_output(
             opts.purpose,
             "derivative",
@@ -389,7 +391,8 @@ def main(job, opts):
             databaseFunctions.insertIntoEvents(
                 fileUUID=derivative.derived_file_id, eventType="deletion"
             )
-    derivatives.delete()
+    if derivatives_to_delete:
+        Derivation.objects.filter(id__in=derivatives_to_delete).delete()
 
     # If a file has been manually normalized for this purpose, skip it
     manually_normalized_file = check_manual_normalization(job, opts)
@@ -412,16 +415,16 @@ def main(job, opts):
 
     do_fallback = False
     try:
-        format_id = FileFormatVersion.objects.get(file_uuid=opts.file_uuid)
+        file_format_version = FileFormatVersion.objects.get(file_uuid=opts.file_uuid)
     except (FileFormatVersion.DoesNotExist, ValidationError):
-        format_id = None
+        file_format_version = None
 
     # Look up the normalization command in the FPR
-    if format_id:
-        job.print_output("File format:", format_id.format_version)
+    if file_format_version:
+        job.print_output("File format:", file_format_version.format_version)
         try:
             rule = FPRule.active.get(
-                format=format_id.format_version, purpose=opts.purpose
+                format=file_format_version.format_version, purpose=opts.purpose
             )
         except FPRule.DoesNotExist:
             if (
@@ -434,7 +437,7 @@ def main(job, opts):
                 do_fallback = True
 
     # Try with default rule if no format_id or rule was found
-    if format_id is None or do_fallback:
+    if file_format_version is None or do_fallback:
         try:
             rule = get_default_rule(opts.purpose)
             job.print_output(

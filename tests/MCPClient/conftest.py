@@ -144,6 +144,22 @@ def fprule_preservation(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
 
 
 @pytest.fixture
+def fprule_thumbnail(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
+    fprule.purpose = fprmodels.FPRule.THUMBNAIL
+    fprule.save()
+
+    return fprule
+
+
+@pytest.fixture
+def fprule_access(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
+    fprule.purpose = fprmodels.FPRule.ACCESS
+    fprule.save()
+
+    return fprule
+
+
+@pytest.fixture
 def transfer_file(transfer: models.Transfer) -> models.File:
     location = b"%transferDirectory%objects/file.mp3"
     return models.File.objects.create(
