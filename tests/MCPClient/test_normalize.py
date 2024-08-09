@@ -16,17 +16,27 @@ from main import models
 
 
 @pytest.mark.django_db
-@mock.patch("argparse.ArgumentParser.parse_args")
-def test_thumbnail_mode_disables_thumbnail_generation(parse_args: mock.Mock) -> None:
-    parse_args.return_value = mock.Mock(
-        purpose="thumbnail", thumbnail_mode="do_not_generate"
+def test_thumbnail_mode_disables_thumbnail_generation() -> None:
+    job = mock.Mock(
+        args=[
+            "normalize.py",
+            "thumbnail",
+            "file_uuid_not_used",
+            "file_path_not_used",
+            "sip_path_not_used",
+            "sip_uuid_not_used",
+            "task_uuid_not_used",
+            "normalize_file_grp_use_not_used",
+            "--thumbnail_mode=do_not_generate",
+        ],
+        JobContext=mock.MagicMock(),
+        spec=Job,
     )
-    job = mock.Mock(args=[], JobContext=mock.MagicMock(), spec=Job)
 
     normalize.call([job])
 
-    job.pyprint.assert_called_once_with("Thumbnail generation has been disabled")
     job.set_status.assert_called_once_with(normalize.SUCCESS)
+    job.pyprint.assert_called_once_with("Thumbnail generation has been disabled")
 
 
 @pytest.mark.django_db

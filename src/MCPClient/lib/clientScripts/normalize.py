@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 import argparse
 import csv
+import dataclasses
+import datetime
 import errno
 import os
 import shutil
 import traceback
 import uuid
+from typing import Callable
+from typing import List
+from typing import Optional
 
 import django
 import transcoder
@@ -14,6 +19,7 @@ from django.utils import timezone
 django.setup()
 import databaseFunctions
 import fileOperations
+from client.job import Job
 from dicts import ReplacementDict
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
@@ -31,7 +37,19 @@ RULE_FAILED = 1
 NO_RULE_FOUND = 2
 
 
-def get_replacement_dict(job, opts):
+@dataclasses.dataclass
+class NormalizeArgs:
+    purpose: str
+    file_uuid: str
+    file_path: str
+    sip_path: str
+    sip_uuid: str
+    task_uuid: str
+    normalize_file_grp_use: str
+    thumbnail_mode: str
+
+
+def get_replacement_dict(job: Job, opts: NormalizeArgs) -> Optional[ReplacementDict]:
     """Generates values for all knows %var% replacement variables."""
     prefix = ""
     postfix = ""
@@ -73,7 +91,7 @@ def get_replacement_dict(job, opts):
     return replacement_dict
 
 
-def check_manual_normalization(job, opts):
+def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
     """Checks for manually normalized file, returns that path or None.
 
     Checks by looking for access/preservation files for a give original file.
@@ -191,7 +209,12 @@ def check_manual_normalization(job, opts):
     return matches[0]
 
 
-def once_normalized(job, command, opts, replacement_dict):
+def once_normalized(
+    job: Job,
+    command: transcoder.Command,
+    opts: NormalizeArgs,
+    replacement_dict: ReplacementDict,
+) -> None:
     """Updates the database if normalization completed successfully.
 
     Callback from transcoder.Command
@@ -204,7 +227,7 @@ def once_normalized(job, command, opts, replacement_dict):
     if not command.output_location:
         command.output_location = ""
     if os.path.isfile(command.output_location):
-        transcoded_files.append(command.output_location)
+        transcoded_files.append(str(command.output_location))
     elif os.path.isdir(command.output_location):
         for w in os.walk(command.output_location):
             path, _, files = w
@@ -287,21 +310,25 @@ def once_normalized(job, command, opts, replacement_dict):
         )
 
 
-def once_normalized_callback(job):
-    def wrapper(*args):
-        return once_normalized(job, *args)
+def once_normalized_callback(job: Job) -> Callable[..., None]:
+    def wrapper(
+        command: transcoder.Command,
+        opts: NormalizeArgs,
+        replacement_dict: ReplacementDict,
+    ) -> None:
+        return once_normalized(job, command, opts, replacement_dict)
 
     return wrapper
 
 
 def insert_derivation_event(
-    original_uuid,
-    output_uuid,
-    derivation_uuid,
-    event_detail_output,
-    outcome_detail_note,
-    today=None,
-):
+    original_uuid: str,
+    output_uuid: str,
+    derivation_uuid: str,
+    event_detail_output: str,
+    outcome_detail_note: Optional[str],
+    today: Optional[datetime.datetime] = None,
+) -> None:
     """Add the derivation link for preservation files and the event."""
     if today is None:
         today = timezone.now()
@@ -324,11 +351,11 @@ def insert_derivation_event(
     )
 
 
-def get_default_rule(purpose):
+def get_default_rule(purpose: str) -> FPRule:
     return FPRule.active.get(purpose="default_" + purpose)
 
 
-def main(job, opts):
+def main(job: Job, opts: NormalizeArgs) -> int:
     """Find and execute normalization commands on input file."""
     # TODO fix for maildir working only on attachments
 
@@ -550,9 +577,8 @@ def main(job, opts):
         return SUCCESS
 
 
-def call(jobs):
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Identify file formats.")
-    # sip dir
     parser.add_argument(
         "purpose", type=str, help='"preservation", "access", "thumbnail"'
     )
@@ -573,10 +599,22 @@ def call(jobs):
         help='"generate", "generate_non_default", "do_not_generate"',
     )
 
+    return parser
+
+
+def parse_args(parser: argparse.ArgumentParser, job: Job) -> NormalizeArgs:
+    namespace = parser.parse_args(job.args[1:])
+
+    return NormalizeArgs(**vars(namespace))
+
+
+def call(jobs: List[Job]) -> None:
+    parser = get_parser()
+
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
-                opts = parser.parse_args(job.args[1:])
+                opts = parse_args(parser, job)
 
                 if (
                     opts.purpose == "thumbnail"
