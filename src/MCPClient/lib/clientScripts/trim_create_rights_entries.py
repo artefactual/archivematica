@@ -41,11 +41,6 @@ from main.models import RightsStatementRightsGranted
 from main.models import RightsStatementRightsGrantedNote
 from main.models import RightsStatementRightsGrantedRestriction
 
-while False:
-    import time
-
-    time.sleep(10)
-
 
 def callWithException(exception):
     traceback
