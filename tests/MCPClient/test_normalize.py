@@ -11,7 +11,7 @@ from main import models
 
 @pytest.mark.django_db
 @mock.patch("argparse.ArgumentParser.parse_args")
-def test_thumbnail_mode_disables_thumbnail_generation(parse_args):
+def test_thumbnail_mode_disables_thumbnail_generation(parse_args: mock.Mock) -> None:
     parse_args.return_value = mock.Mock(
         purpose="thumbnail", thumbnail_mode="do_not_generate"
     )
@@ -24,7 +24,7 @@ def test_thumbnail_mode_disables_thumbnail_generation(parse_args):
 
 
 @pytest.mark.django_db
-def test_normalization_fails_if_original_file_does_not_exist():
+def test_normalization_fails_if_original_file_does_not_exist() -> None:
     file_uuid = str(uuid.uuid4())
     job = mock.Mock(spec=Job)
     opts = mock.Mock(file_uuid=file_uuid)
@@ -39,8 +39,8 @@ def test_normalization_fails_if_original_file_does_not_exist():
 
 @pytest.mark.django_db
 def test_normalization_skips_submission_documentation_file_if_group_use_does_not_match(
-    sip_file,
-):
+    sip_file: models.File,
+) -> None:
     file_path = "%SIPDirectory%objects/submissionDocumentation/file.mp3"
     sip_file.currentlocation = file_path.encode()
     sip_file.save()
@@ -65,7 +65,9 @@ def test_normalization_skips_submission_documentation_file_if_group_use_does_not
 
 
 @pytest.mark.django_db
-def test_normalization_skips_file_if_group_use_does_not_match(sip_file):
+def test_normalization_skips_file_if_group_use_does_not_match(
+    sip_file: models.File,
+) -> None:
     sip_file.filegrpuse = "original"
     sip_file.save()
     job = mock.Mock(spec=Job)
@@ -92,7 +94,7 @@ def test_normalization_skips_file_if_group_use_does_not_match(sip_file):
 
 
 @pytest.fixture
-def manual_preservation_file(preservation_file):
+def manual_preservation_file(preservation_file: models.File) -> models.File:
     preservation_file.originallocation = (
         b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
     )
@@ -105,7 +107,11 @@ def manual_preservation_file(preservation_file):
 
 
 @pytest.fixture
-def normalization_csv(sip_directory_path, sip_file, manual_preservation_file):
+def normalization_csv(
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    manual_preservation_file: models.File,
+) -> pathlib.Path:
     manual_normalization_directory = (
         sip_directory_path / "objects" / "manualNormalization"
     )
@@ -134,8 +140,12 @@ def normalization_csv(sip_directory_path, sip_file, manual_preservation_file):
 
 @pytest.mark.django_db
 def test_manual_normalization_creates_event_and_derivation(
-    sip, sip_directory_path, normalization_csv, sip_file, manual_preservation_file
-):
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    normalization_csv: pathlib.Path,
+    sip_file: models.File,
+    manual_preservation_file: models.File,
+) -> None:
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     preservation_file_path = str(
         pathlib.Path(manual_preservation_file.originallocation.decode()).relative_to(
@@ -191,7 +201,7 @@ def test_manual_normalization_creates_event_and_derivation(
 
 
 @pytest.fixture
-def invalid_normalization_csv(normalization_csv):
+def invalid_normalization_csv(normalization_csv: pathlib.Path) -> pathlib.Path:
     normalization_csv.write_text(
         "\n".join(
             [
@@ -207,12 +217,12 @@ def invalid_normalization_csv(normalization_csv):
 
 @pytest.mark.django_db
 def test_manual_normalization_fails_with_invalid_normalization_csv(
-    sip,
-    sip_directory_path,
-    invalid_normalization_csv,
-    sip_file,
-    manual_preservation_file,
-):
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    invalid_normalization_csv: pathlib.Path,
+    sip_file: models.File,
+    manual_preservation_file: models.File,
+) -> None:
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
@@ -251,8 +261,11 @@ def test_manual_normalization_fails_with_invalid_normalization_csv(
 
 @pytest.mark.django_db
 def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
-    sip, sip_directory_path, sip_file, manual_preservation_file
-):
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    manual_preservation_file: models.File,
+) -> None:
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     preservation_file_path_with_no_extension = str(
         pathlib.Path(manual_preservation_file.originallocation.decode())
@@ -288,7 +301,7 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
 
 
 @pytest.fixture
-def secondary_manual_preservation_file(sip):
+def secondary_manual_preservation_file(sip: models.SIP) -> models.File:
     location = b"%SIPDirectory%objects/manualNormalization/preservation/file_1.wav"
     return models.File.objects.create(
         sip=sip, currentlocation=location, originallocation=location
@@ -297,12 +310,12 @@ def secondary_manual_preservation_file(sip):
 
 @pytest.mark.django_db
 def test_manual_normalization_matches_from_multiple_filenames(
-    sip,
-    sip_directory_path,
-    sip_file,
-    manual_preservation_file,
-    secondary_manual_preservation_file,
-):
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    manual_preservation_file: models.File,
+    secondary_manual_preservation_file: models.File,
+) -> None:
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     preservation_file_path = pathlib.Path(
         manual_preservation_file.originallocation.decode()
@@ -345,7 +358,9 @@ def test_manual_normalization_matches_from_multiple_filenames(
 
 
 @pytest.fixture
-def default_preservation_rule(fpcommand, format_version):
+def default_preservation_rule(
+    fpcommand: fprmodels.FPCommand, format_version: fprmodels.FormatVersion
+) -> fprmodels.FPRule:
     return fprmodels.FPRule.objects.create(
         purpose="default_preservation", command=fpcommand, format=format_version
     )
@@ -356,14 +371,14 @@ def default_preservation_rule(fpcommand, format_version):
     "transcoder.CommandLinker", return_value=mock.Mock(**{"execute.return_value": 0})
 )
 def test_normalization_falls_back_to_default_rule(
-    command_linker,
-    sip,
-    sip_directory_path,
-    sip_file,
-    task,
-    fpcommand,
-    default_preservation_rule,
-):
+    command_linker: mock.Mock,
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    task: models.Task,
+    fpcommand: fprmodels.FPCommand,
+    default_preservation_rule: fprmodels.FPRule,
+) -> None:
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     expected_manually_normalized_file_path = (
         original_file_path.parent
@@ -415,16 +430,16 @@ def test_normalization_falls_back_to_default_rule(
     "transcoder.CommandLinker", return_value=mock.Mock(**{"execute.return_value": 0})
 )
 def test_normalization_finds_rule_by_file_format_version(
-    command_linker,
-    sip,
-    sip_directory_path,
-    sip_file,
-    task,
-    fpcommand,
-    format_version,
-    sip_file_format_version,
-    fprule_preservation,
-):
+    command_linker: mock.Mock,
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    task: models.Task,
+    fpcommand: fprmodels.FPCommand,
+    format_version: fprmodels.FormatVersion,
+    sip_file_format_version: models.FileFormatVersion,
+    fprule_preservation: fprmodels.FPRule,
+) -> None:
     original_file_path = pathlib.Path(sip_file.currentlocation.decode())
     expected_manually_normalized_file_path = (
         original_file_path.parent
