@@ -125,23 +125,11 @@ This is the full list of variables supported by MCPClient:
   - **Type:** `string`
   - **Default:** `/var/archivematica/sharedDirectory/watchedDirectories/`
 
-- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLIENTSCRIPTSDIRECTORY`**:
-  - **Description:** location of the client scripts directory.
-  - **Config file example:** `MCPClient.clientScriptsDirectory`
-  - **Type:** `string`
-  - **Default:** `/usr/lib/archivematica/MCPClient/clientScripts/`
-
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLIENTASSETSDIRECTORY`**:
   - **Description:** location of the client assets directory.
   - **Config file example:** `MCPClient.clientAssetsDirectory`
   - **Type:** `string`
   - **Default:** `/usr/lib/archivematica/MCPClient/assets/`
-
-- **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_LOADSUPPORTEDCOMMANDSSPECIAL`**:
-  - **Description:** enables loading special modules.
-  - **Config file example:** `MCPClient.LoadSupportedCommandsSpecial`
-  - **Type:** `boolean`
-  - **Default:** `true`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER`**:
   - **Description:** address of the Gearman server.

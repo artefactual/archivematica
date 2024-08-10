@@ -82,11 +82,6 @@ CONFIG_MAPPING = {
         "option": "watchDirectoryPath",
         "type": "string",
     },
-    "client_scripts_directory": {
-        "section": "MCPClient",
-        "option": "clientScriptsDirectory",
-        "type": "string",
-    },
     "client_assets_directory": {
         "section": "MCPClient",
         "option": "clientAssetsDirectory",
@@ -223,7 +218,6 @@ watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
 processingDirectory = /var/archivematica/sharedDirectory/currentlyProcessing/
 rejectedDirectory = /var/archivematica/sharedDirectory/rejected/
 archivematicaClientModules = /usr/lib/archivematica/MCPClient/archivematicaClientModules
-clientScriptsDirectory = /usr/lib/archivematica/MCPClient/clientScripts/
 clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
@@ -361,7 +355,6 @@ SHARED_DIRECTORY = config.get("shared_directory")
 PROCESSING_DIRECTORY = config.get("processing_directory")
 REJECTED_DIRECTORY = config.get("rejected_directory")
 WATCH_DIRECTORY = config.get("watch_directory")
-CLIENT_SCRIPTS_DIRECTORY = config.get("client_scripts_directory")
 CLIENT_ASSETS_DIRECTORY = config.get("client_assets_directory")
 GEARMAN_SERVER = config.get("gearman_server")
 CLIENT_MODULES_FILE = config.get("client_modules_file")
