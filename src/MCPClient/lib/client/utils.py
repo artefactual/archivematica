@@ -21,7 +21,6 @@ def replace_task_arguments(
 ) -> str:
     replacements = {
         r"%sharedPath%": settings.SHARED_DIRECTORY,
-        r"%clientScriptsDirectory%": settings.CLIENT_SCRIPTS_DIRECTORY,
         r"%clientAssetsDirectory%": settings.CLIENT_ASSETS_DIRECTORY,
         r"%date%": timezone.now().isoformat(),
         r"%taskUUID%": task_uuid,
