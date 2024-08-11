@@ -118,6 +118,8 @@ RUN set ex \
 
 FROM node:${NODE_VERSION} AS archivematica-dashboard-testing
 
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 ARG SELENIUM_DIR=/selenium
 ENV PATH=${SELENIUM_DIR}/bin:$PATH
 
