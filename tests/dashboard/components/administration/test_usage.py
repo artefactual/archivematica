@@ -53,7 +53,7 @@ class TestUsage(TestCase):
         mock_dir_size.assert_called_with("/")
         self.assertEqual(mock_mount_path.call_count, 5)
         self.assertEqual(mock_dir_size.call_count, 5)
-        self.assertEqual(mock_dir_used.call_count, 45)
+        self.assertEqual(mock_dir_used.call_count, 35)
 
     @mock.patch(
         "subprocess.check_output",
