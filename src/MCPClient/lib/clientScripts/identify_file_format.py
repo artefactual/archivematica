@@ -163,10 +163,10 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
     # go straight to the FormatVersion table to see if there's a matching PUID
     try:
         if command.config == "PUID":
-            version = FormatVersion.active.get(pronom_id=output)
+            format_version = FormatVersion.active.get(pronom_id=output)
         else:
             rule = IDRule.active.get(command_output=output, command=command)
-            version = rule.format
+            format_version = rule.format
     except IDRule.DoesNotExist:
         job.print_error(
             f'Error: No FPR identification rule for tool output "{output}" found'
@@ -185,15 +185,15 @@ def main(job, enabled, file_path, file_uuid, disable_reidentify):
         return 255
 
     (ffv, created) = FileFormatVersion.objects.get_or_create(
-        file_uuid=file_, defaults={"format_version": version}
+        file_uuid=file_, defaults={"format_version": format_version}
     )
     if not created:  # Update the version if it wasn't created new
-        ffv.format_version = version
+        ffv.format_version = format_version
         ffv.save()
-    job.print_output(f"{file_path} identified as a {version.description}")
+    job.print_output(f"{file_path} identified as a {format_version.description}")
 
-    write_identification_event(file_uuid, command, format=version.pronom_id)
-    write_file_id(file_uuid=file_uuid, format=version, output=output)
+    write_identification_event(file_uuid, command, format=format_version.pronom_id)
+    write_file_id(file_uuid=file_uuid, format=format_version, output=output)
 
     return 0
 
