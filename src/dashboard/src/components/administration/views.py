@@ -281,13 +281,6 @@ def _get_shared_dirs(calculate_usage=False):
                 },
             ),
             (
-                "dip_backups",
-                {
-                    "description": "DIP backups",
-                    "path": os.path.join(shared_path, "DIPbackups"),
-                },
-            ),
-            (
                 "failed",
                 {"description": "Failed", "path": os.path.join(shared_path, "failed")},
             ),
@@ -296,13 +289,6 @@ def _get_shared_dirs(calculate_usage=False):
                 {
                     "description": "Rejected",
                     "path": os.path.join(shared_path, "rejected"),
-                },
-            ),
-            (
-                "sip_backups",
-                {
-                    "description": "SIP backups",
-                    "path": os.path.join(shared_path, "SIPbackups"),
                 },
             ),
             (
