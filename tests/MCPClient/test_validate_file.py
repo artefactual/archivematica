@@ -1,29 +1,31 @@
 from unittest import mock
 
 import pytest
-from main.models import Event
-from validate_file import main
+import validate_file
+from client.job import Job
+from fpr import models as fprmodels
+from main import models
 
 
 @pytest.mark.django_db
 @mock.patch("validate_file.executeOrRun")
 def test_main(
-    execute_or_run,
-    sip,
-    sip_file,
-    format_version,
-    fprule_validation,
-    fpcommand,
-    sip_file_format_version,
-    mcp_job,
-):
+    execute_or_run: mock.Mock,
+    sip: models.SIP,
+    sip_file: models.File,
+    format_version: fprmodels.FormatVersion,
+    fprule_validation: fprmodels.FPRule,
+    fpcommand: fprmodels.FPCommand,
+    sip_file_format_version: models.FileFormatVersion,
+    mcp_job: Job,
+) -> None:
     exit_status = 0
     stdout = '{"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}'
     stderr = ""
     execute_or_run.return_value = (exit_status, stdout, stderr)
     file_type = "original"
 
-    main(
+    validate_file.main(
         job=mcp_job,
         file_path=sip_file.currentlocation,
         file_uuid=sip_file.uuid,
@@ -43,7 +45,7 @@ def test_main(
     # Verify a PREMIS validation event was created with the output of the
     # validation command.
     assert (
-        Event.objects.filter(
+        models.Event.objects.filter(
             file_uuid=sip_file.uuid,
             event_type="validation",
             event_outcome="pass",
