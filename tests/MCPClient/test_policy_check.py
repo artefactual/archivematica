@@ -6,11 +6,12 @@ from unittest import mock
 import policy_check
 import pytest
 from client.job import Job
+from fpr import models as fprmodels
 from main import models
 
 
 @pytest.fixture()
-def sip(sip):
+def sip(sip: models.SIP) -> models.SIP:
     # ReplacementDict expands SIP paths based on the shared directory.
     sip.currentpath = "%sharedPath%"
     sip.save()
@@ -18,26 +19,30 @@ def sip(sip):
 
 
 @pytest.fixture()
-def preservation_file(preservation_file):
+def preservation_file(preservation_file: models.File) -> models.File:
     preservation_file.filegrpuse = "preservation"
     preservation_file.save()
     return preservation_file
 
 
 @pytest.fixture
-def event(sip_file):
+def event(sip_file: models.SIP) -> models.Event:
     return models.Event.objects.create(file_uuid=sip_file, event_type="normalization")
 
 
 @pytest.fixture
-def derivation_for_preservation(sip_file, preservation_file, event):
+def derivation_for_preservation(
+    sip_file: models.File, preservation_file: models.File, event: models.Event
+) -> models.Derivation:
     return models.Derivation.objects.create(
         source_file=sip_file, derived_file=preservation_file, event=event
     )
 
 
 @pytest.fixture
-def preservation_file_format_version(preservation_file, format_version):
+def preservation_file_format_version(
+    preservation_file: models.File, format_version: fprmodels.FormatVersion
+) -> models.FileFormatVersion:
     return models.FileFormatVersion.objects.create(
         file_uuid=preservation_file, format_version=format_version
     )
@@ -56,14 +61,18 @@ def access_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
 
 
 @pytest.fixture
-def derivation_for_access(sip_file, access_file):
+def derivation_for_access(
+    sip_file: models.File, access_file: models.File
+) -> models.Derivation:
     return models.Derivation.objects.create(
         source_file=sip_file, derived_file=access_file
     )
 
 
 @pytest.fixture
-def access_file_format_version(access_file, format_version):
+def access_file_format_version(
+    access_file: models.File, format_version: fprmodels.FormatVersion
+) -> models.FileFormatVersion:
     return models.FileFormatVersion.objects.create(
         file_uuid=access_file, format_version=format_version
     )
@@ -72,15 +81,15 @@ def access_file_format_version(access_file, format_version):
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_check_if_rules_exist(
-    execute_or_run,
-    sip_file,
-    sip,
-    fprule_policy_check,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -131,14 +140,14 @@ def test_policy_check_if_rules_exist(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_checker_check_if_no_rules_exist(
-    execute_or_run,
-    sip_file,
-    sip,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -171,14 +180,14 @@ def test_policy_checker_check_if_no_rules_exist(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_checker_check_if_file_does_not_exist(
-    execute_or_run,
-    sip_file,
-    sip,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -211,15 +220,15 @@ def test_policy_checker_check_if_file_does_not_exist(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_checker_execute_rule_command_returns_failed(
-    execute_or_run,
-    sip_file,
-    sip,
-    fprule_policy_check,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -255,15 +264,15 @@ def test_policy_checker_execute_rule_command_returns_failed(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_checker_execute_rule_command_returns_failed_if_event_outcome_information_other_than_pass(
-    execute_or_run,
-    sip_file,
-    sip,
-    fprule_policy_check,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -292,11 +301,11 @@ def test_policy_checker_execute_rule_command_returns_failed_if_event_outcome_inf
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_check_verifies_file_type_is_preservation(
-    execute_or_run,
-    derivation_for_preservation,
-    preservation_file,
-    sip,
-    fprule_policy_check,
+    execute_or_run: mock.Mock,
+    derivation_for_preservation: models.Derivation,
+    preservation_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
     preservation_file_format_version,
     format,
     format_version,
@@ -339,15 +348,15 @@ def test_policy_check_verifies_file_type_is_preservation(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_check_fails_if_file_is_not_preservation_derivative(
-    execute_or_run,
-    preservation_file,
-    sip,
-    fprule_policy_check,
-    preservation_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    preservation_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    preservation_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -381,16 +390,16 @@ def test_policy_check_fails_if_file_is_not_preservation_derivative(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_check_verifies_file_type_is_access(
-    execute_or_run,
-    derivation_for_access,
-    access_file,
-    sip,
-    fprule_policy_check,
-    access_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    derivation_for_access: models.Derivation,
+    access_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    access_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -428,15 +437,15 @@ def test_policy_check_verifies_file_type_is_access(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_check_fails_if_file_is_not_access_derivative(
-    execute_or_run,
-    access_file,
-    sip,
-    fprule_policy_check,
-    access_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    access_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    access_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     job = mock.Mock(
         args=[
             "policy_check",
@@ -472,15 +481,15 @@ def test_policy_check_fails_if_file_is_not_access_derivative(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_checker_saves_policy_check_result_into_logs_directory(
-    execute_or_run,
-    sip_file,
-    sip,
-    fprule_policy_check,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: pathlib.Path,
+) -> None:
     log_directory = shared_directory_path / "logs"
     log_directory.mkdir()
     job = mock.Mock(
@@ -514,14 +523,14 @@ def test_policy_checker_saves_policy_check_result_into_logs_directory(
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
 def test_policy_checker_saves_policy_check_result_into_submission_documentation_directory(
-    execute_or_run,
-    sip_file,
-    sip,
-    fprule_policy_check,
-    sip_file_format_version,
-    format,
-    format_version,
-    shared_directory_path,
+    execute_or_run: mock.Mock,
+    sip_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    sip_file_format_version: models.FileFormatVersion,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: pathlib.Path,
 ):
     submission_documentation_directory = (
         shared_directory_path / "metadata" / "submissionDocumentation"
@@ -565,15 +574,15 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
     ),
 )
 def test_policy_checker_checks_manually_normalized_access_derivative_file(
-    execute_or_run,
-    transfer,
-    sip_file,
-    sip,
-    fprule_policy_check,
-    format,
-    format_version,
-    shared_directory_path,
-):
+    execute_or_run: mock.Mock,
+    transfer: models.Transfer,
+    sip_file: models.File,
+    sip: models.SIP,
+    fprule_policy_check: fprmodels.FPRule,
+    format: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
+    shared_directory_path: str,
+) -> None:
     sip_file_name = pathlib.Path(sip_file.currentlocation.decode()).name
     manually_access_derivative_file = models.File.objects.create(
         transfer=transfer,
