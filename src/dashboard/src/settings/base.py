@@ -644,6 +644,7 @@ if OIDC_AUTHENTICATION:
     )
 
     ALLOW_USER_EDITS = False
+    OIDC_STORE_ID_TOKEN = True
 
     OIDC_AUTHENTICATE_CLASS = (
         "components.accounts.views.CustomOIDCAuthenticationRequestView"

@@ -21,7 +21,6 @@ import traceback
 import elasticsearch
 from django.conf import settings
 from django.http import HttpResponseServerError
-from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.template import TemplateDoesNotExist
 from django.utils.deprecation import MiddlewareMixin

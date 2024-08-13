@@ -39,16 +39,19 @@ if "django_cas_ng" in settings.INSTALLED_APPS:
 
 elif "mozilla_django_oidc" in settings.INSTALLED_APPS:
     from components.accounts.views import CustomOIDCLoginView
+    from components.accounts.views import CustomOIDCLogoutView
 
     urlpatterns += [
         path(
             "login/",
-            CustomOIDCLoginView.as_view(
-                template_name="accounts/login.html"
-            ),
+            CustomOIDCLoginView.as_view(template_name="accounts/login.html"),
             name="login",
         ),
-        path("logout/", django.contrib.auth.views.logout_then_login, name="logout"),
+        path(
+            "logout/",
+            CustomOIDCLogoutView.as_view(),
+            name="logout",
+        ),
     ]
 
 else:

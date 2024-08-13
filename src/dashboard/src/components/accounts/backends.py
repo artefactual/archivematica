@@ -2,9 +2,9 @@ import json
 
 from components.helpers import generate_api_key
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
-from django.core.exceptions import ImproperlyConfigured
 from josepy.jws import JWS
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from shibboleth.backends import ShibbolethRemoteUserBackend
@@ -72,6 +72,9 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         self.request = request
         self.OIDC_RP_CLIENT_ID = self.get_settings("OIDC_RP_CLIENT_ID")
         self.OIDC_RP_CLIENT_SECRET = self.get_settings("OIDC_RP_CLIENT_SECRET")
+        self.OIDC_OP_TOKEN_ENDPOINT = self.get_settings("OIDC_OP_TOKEN_ENDPOINT")
+        self.OIDC_OP_USER_ENDPOINT = self.get_settings("OIDC_OP_USER_ENDPOINT")
+        self.OIDC_OP_JWKS_ENDPOINT = self.get_settings("OIDC_OP_JWKS_ENDPOINT")
 
         return super().authenticate(request, **kwargs)
 
