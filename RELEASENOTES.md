@@ -3,7 +3,7 @@
 Release notes are prepared by Artefactual for each release of
 Archivematica. Most releases also have a corresponding release of the
 Storage System, and may also include corresponding releases for various
-dependencies and libraries (i.e. FIDO, Automation Tools) - be sure to
+dependencies and libraries (i.e. AIPScan, Automation Tools) - be sure to
 check the release notes for more information.
 
 Features, enhancements, and bug fixes were often sponsored by members of
