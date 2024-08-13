@@ -23,6 +23,9 @@ from main.models import FileFormatVersion
 from main.models import FileID
 from main.models import UnitVariable
 
+SUCCESS = 0
+ERROR = 255
+
 
 @dataclasses.dataclass
 class IdentifyFileFormatArgs:
@@ -129,12 +132,12 @@ def main(
     enabled_bool = True if enabled == "True" else False
     if not enabled_bool:
         job.print_output("Skipping file format identification")
-        return 0
+        return SUCCESS
 
     command = _default_idcommand()
     if command is None:
         job.write_error("Unable to determine IDCommand.\n")
-        return 255
+        return ERROR
 
     command_uuid = command.uuid
     job.print_output("IDCommand:", command.description)
@@ -153,7 +156,7 @@ def main(
         job.print_output(
             "This file has already been identified, and re-identification is disabled. Skipping."
         )
-        return 0
+        return SUCCESS
 
     # Save whether identification was enabled by the user for use in a later
     # chain.
@@ -171,7 +174,7 @@ def main(
     if exitcode != 0:
         job.print_error(f"Error: IDCommand with UUID {command_uuid} exited non-zero.")
         job.print_error(f"Error: {err}")
-        return 255
+        return ERROR
 
     job.print_output("Command output:", output)
     # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
@@ -187,17 +190,17 @@ def main(
             f'Error: No FPR identification rule for tool output "{output}" found'
         )
         write_identification_event(file_uuid, command, success=False)
-        return 255
+        return ERROR
     except IDRule.MultipleObjectsReturned:
         job.print_error(
             f'Error: Multiple FPR identification rules for tool output "{output}" found'
         )
         write_identification_event(file_uuid, command, success=False)
-        return 255
+        return ERROR
     except FormatVersion.DoesNotExist:
         job.print_error(f"Error: No FPR format record found for PUID {output}")
         write_identification_event(file_uuid, command, success=False)
-        return 255
+        return ERROR
 
     (ffv, created) = FileFormatVersion.objects.get_or_create(
         file_uuid=file_, defaults={"format_version": format_version}
@@ -210,7 +213,7 @@ def main(
     write_identification_event(file_uuid, command, format=format_version.pronom_id)
     write_file_id(file_uuid=file_uuid, format=format_version, output=output)
 
-    return 0
+    return SUCCESS
 
 
 def get_parser() -> argparse.ArgumentParser:

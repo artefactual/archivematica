@@ -42,7 +42,7 @@ def test_job_skips_format_identification_explicitly(job: mock.Mock) -> None:
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
     job.print_output.assert_called_once_with("Skipping file format identification")
 
 
@@ -57,7 +57,7 @@ def test_job_skips_format_identification_if_file_has_format_identification_event
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
     assert job.print_output.mock_calls == [
         mock.call("IDCommand:", idcommand.description),
         mock.call("IDCommand UUID:", idcommand.uuid),
@@ -76,7 +76,7 @@ def test_job_fails_if_identification_command_does_not_exist(job: mock.Mock) -> N
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(255)
+    job.set_status.assert_called_once_with(identify_file_format.ERROR)
     job.write_error.assert_called_once_with("Unable to determine IDCommand.\n")
 
 
@@ -92,7 +92,7 @@ def test_job_fails_if_format_identification_command_fails(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(255)
+    job.set_status.assert_called_once_with(identify_file_format.ERROR)
     assert job.print_error.mock_calls == [
         mock.call(f"Error: IDCommand with UUID {idcommand.uuid} exited non-zero."),
         mock.call(f"Error: {command_error}"),
@@ -117,7 +117,7 @@ def test_job_fails_if_identification_rule_does_not_exist(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(255)
+    job.set_status.assert_called_once_with(identify_file_format.ERROR)
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -158,7 +158,7 @@ def test_job_fails_if_multiple_identification_rules_exist(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(255)
+    job.set_status.assert_called_once_with(identify_file_format.ERROR)
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -187,7 +187,7 @@ def test_job_fails_if_format_version_does_not_exist(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(255)
+    job.set_status.assert_called_once_with(identify_file_format.ERROR)
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -241,7 +241,7 @@ def test_job_adds_file_format_version(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
     assert (
         models.FileFormatVersion.objects.filter(
             file_uuid=sip_file, format_version=format_version
@@ -278,7 +278,7 @@ def test_job_updates_file_format_version(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
     assert (
         models.FileFormatVersion.objects.filter(
             file_uuid=sip_file, format_version=format_version
@@ -305,7 +305,7 @@ def test_job_adds_successful_format_identification_data(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -349,7 +349,7 @@ def test_job_falls_back_to_identification_rule_if_format_version_does_not_exist(
 
     identify_file_format.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
     assert (
         models.FileID.objects.filter(
             file=sip_file,
