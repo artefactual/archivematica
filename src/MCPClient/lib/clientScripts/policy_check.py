@@ -164,7 +164,7 @@ class PolicyChecker:
         else:
             return True
 
-    def _file_is_derivative(self, for_access=False) -> bool:
+    def _file_is_derivative(self, for_access: bool = False) -> bool:
         """Return ``True`` if the target file is a derivative; ``False``
         otherwise.
         """
@@ -466,20 +466,6 @@ class PolicyChecker:
         return self._sip_policy_checks_dir
 
 
-def _get_shared_path(argv):
-    try:
-        return argv[4]
-    except IndexError:
-        return None
-
-
-def _get_file_type(argv):
-    try:
-        return argv[5]
-    except IndexError:
-        return "original"
-
-
 def call(jobs: List[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
@@ -487,8 +473,8 @@ def call(jobs: List[Job]) -> None:
                 file_path = job.args[1]
                 file_uuid = job.args[2]
                 sip_uuid = job.args[3]
-                shared_path = _get_shared_path(job.args)
-                file_type = _get_file_type(job.args)
+                shared_path = job.args[4]
+                file_type = job.args[5]
 
                 try:
                     job.set_status(
