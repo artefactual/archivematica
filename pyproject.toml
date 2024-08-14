@@ -3,6 +3,32 @@ addopts = "--reuse-db -p no:cacheprovider"
 DJANGO_SETTINGS_MODULE="settings.test"
 norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
 
+[tool.ruff.lint]
+# Rule reference: https://docs.astral.sh/ruff/rules/
+select = [
+    "B",
+    "C4",
+    "E",
+    "F",
+    "I",
+    "UP",
+    "W",
+]
+ignore = [
+    "B018",
+    "B904",
+    "E402",
+    "E501",
+    "UP031",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/*/settings/*" = ["F403"]
+"src/dashboard/src/settings/*" = ["F405"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
 [tool.mypy]
 explicit_package_bases = true
 warn_redundant_casts = true
