@@ -1,0 +1,29 @@
+[tool.mypy]
+explicit_package_bases = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "src.MCPClient.lib.client.*",
+    "src.MCPClient.lib.clientScripts.identify_file_format",
+    "src.MCPClient.lib.clientScripts.normalize",
+    "src.MCPClient.lib.clientScripts.policy_check",
+    "src.MCPClient.lib.clientScripts.validate_file",
+    "tests.MCPClient.conftest",
+    "tests.MCPClient.test_identify_file_format",
+    "tests.MCPClient.test_normalize",
+    "tests.MCPClient.test_policy_check",
+    "tests.MCPClient.test_validate_file",
+]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+no_implicit_reexport = true
+strict_equality = true
+warn_return_any = true
+warn_unused_ignores = true
