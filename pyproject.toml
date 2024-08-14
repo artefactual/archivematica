@@ -3,6 +3,26 @@ addopts = "--reuse-db -p no:cacheprovider"
 DJANGO_SETTINGS_MODULE="settings.test"
 norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
 
+[tool.coverage.run]
+omit = [
+    "**/src/archivematicaCommon/lib/externals/*",
+    "**/migrations/*",
+    "**/south_migrations/*",
+    "**/management/commands/*",
+    "**/settings/*",
+    "**/tests/*",
+    "**/wsgi.py",
+    "**/manage.py",
+]
+include = [
+    "**/src/archivematicaCommon/lib/*",
+    "**/src/dashboard/src/*",
+    "**/src/MCPClient/lib/*",
+    "**/src/MCPClient/lib/clientScripts/*",
+    "**/src/MCPServer/lib/*",
+]
+branch = true
+
 [tool.ruff.lint]
 # Rule reference: https://docs.astral.sh/ruff/rules/
 select = [
