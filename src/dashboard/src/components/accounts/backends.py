@@ -44,7 +44,15 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
     """
 
     def get_settings(self, attr, *args):
-        if attr in ["OIDC_RP_CLIENT_ID", "OIDC_RP_CLIENT_SECRET"]:
+        if attr in [
+            "OIDC_RP_CLIENT_ID",
+            "OIDC_RP_CLIENT_SECRET",
+            "OIDC_OP_AUTHORIZATION_ENDPOINT",
+            "OIDC_OP_TOKEN_ENDPOINT",
+            "OIDC_OP_USER_ENDPOINT",
+            "OIDC_OP_JWKS_ENDPOINT",
+            "OIDC_OP_LOGOUT_ENDPOINT",
+        ]:
             # Retrieve the request object stored in the instance.
             request = getattr(self, "request", None)
 

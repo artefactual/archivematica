@@ -6,27 +6,37 @@ def get_oidc_secondary_providers(oidc_secondary_provider_names):
 
     for provider_name in oidc_secondary_provider_names:
         provider_name = provider_name.strip()
-        client_id = os.environ.get(f"OIDC_PROVIDER_CLIENT_ID_{provider_name.upper()}")
-        client_secret = os.environ.get(
-            f"OIDC_PROVIDER_CLIENT_SECRET_{provider_name.upper()}"
+        client_id = os.environ.get(f"OIDC_RP_CLIENT_ID_{provider_name.upper()}")
+        client_secret = os.environ.get(f"OIDC_RP_CLIENT_SECRET_{provider_name.upper()}")
+        authorization_endpoint = os.environ.get(
+            f"OIDC_OP_AUTHORIZATION_ENDPOINT_{provider_name.upper()}", ""
+        )
+        token_endpoint = os.environ.get(
+            f"OIDC_OP_TOKEN_ENDPOINT_{provider_name.upper()}", ""
+        )
+        user_endpoint = os.environ.get(
+            f"OIDC_OP_USER_ENDPOINT_{provider_name.upper()}", ""
+        )
+        jwks_endpoint = os.environ.get(
+            f"OIDC_OP_JWKS_ENDPOINT_{provider_name.upper()}", ""
+        )
+        logout_endpoint = os.environ.get(
+            f"OIDC_OP_LOGOUT_ENDPOINT_{provider_name.upper()}", ""
         )
 
         if client_id and client_secret:
             providers[provider_name] = {
                 "OIDC_RP_CLIENT_ID": client_id,
                 "OIDC_RP_CLIENT_SECRET": client_secret,
+                "OIDC_OP_AUTHORIZATION_ENDPOINT": authorization_endpoint,
+                "OIDC_OP_TOKEN_ENDPOINT": token_endpoint,
+                "OIDC_OP_USER_ENDPOINT": user_endpoint,
+                "OIDC_OP_JWKS_ENDPOINT": jwks_endpoint,
+                "OIDC_OP_LOGOUT_ENDPOINT": logout_endpoint,
             }
 
     return providers
 
-
-OIDC_SECONDARY_PROVIDER_NAMES = os.environ.get(
-    "OIDC_SECONDARY_PROVIDER_NAMES", ""
-).split(",")
-OIDC_PROVIDER_QUERY_PARAM_NAME = os.environ.get(
-    "OIDC_PROVIDER_QUERY_PARAM_NAME", "secondary"
-)
-OIDC_PROVIDERS = get_oidc_secondary_providers(OIDC_SECONDARY_PROVIDER_NAMES)
 
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
@@ -52,11 +62,21 @@ if AZURE_TENANT_ID:
         "https://login.microsoftonline.com/%s/discovery/v2.0/keys" % AZURE_TENANT_ID
     )
 else:
-    OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ["OIDC_OP_AUTHORIZATION_ENDPOINT"]
-    OIDC_OP_TOKEN_ENDPOINT = os.environ["OIDC_OP_TOKEN_ENDPOINT"]
-    OIDC_OP_USER_ENDPOINT = os.environ["OIDC_OP_USER_ENDPOINT"]
+    OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get(
+        "OIDC_OP_AUTHORIZATION_ENDPOINT", ""
+    )
+    OIDC_OP_TOKEN_ENDPOINT = os.environ.get("OIDC_OP_TOKEN_ENDPOINT", "")
+    OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT", "")
     OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT", "")
     OIDC_OP_LOGOUT_ENDPOINT = os.environ.get("OIDC_OP_LOGOUT_ENDPOINT", "")
+
+OIDC_SECONDARY_PROVIDER_NAMES = os.environ.get(
+    "OIDC_SECONDARY_PROVIDER_NAMES", ""
+).split(",")
+OIDC_PROVIDER_QUERY_PARAM_NAME = os.environ.get(
+    "OIDC_PROVIDER_QUERY_PARAM_NAME", "secondary"
+)
+OIDC_PROVIDERS = get_oidc_secondary_providers(OIDC_SECONDARY_PROVIDER_NAMES)
 
 if OIDC_OP_LOGOUT_ENDPOINT:
     OIDC_OP_LOGOUT_URL_METHOD = "components.accounts.views.get_oidc_logout_url"
