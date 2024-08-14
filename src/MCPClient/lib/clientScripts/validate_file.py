@@ -19,16 +19,22 @@ import ast
 import os
 import sys
 from pprint import pformat
+from typing import Any
+from typing import List
+from typing import Mapping
+from typing import Optional
 
 import django
-from django.core.exceptions import ValidationError
-from django.db import transaction
 
 django.setup()
+
 import databaseFunctions
+from client.job import Job
 from custom_handlers import get_script_logger
 from dicts import replace_string_values
 from django.conf import settings as mcpclient_settings
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from executeOrRunSubProcess import executeOrRun
 from fpr.models import FormatVersion
 from fpr.models import FPRule
@@ -44,7 +50,14 @@ NO_RULES_CODE = 0
 DERIVATIVE_TYPES = {"preservation", "access"}
 
 
-def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
+def main(
+    job: Job,
+    file_path: str,
+    file_uuid: str,
+    sip_uuid: str,
+    shared_path: Optional[str],
+    file_type: str,
+) -> int:
     setup_dicts(mcpclient_settings)
 
     validator = Validator(job, file_path, file_uuid, sip_uuid, shared_path, file_type)
@@ -67,18 +80,26 @@ class Validator:
     determine whether a given file conforms to a given specification.
     """
 
-    def __init__(self, job, file_path, file_uuid, sip_uuid, shared_path, file_type):
+    def __init__(
+        self,
+        job: Job,
+        file_path: str,
+        file_uuid: str,
+        sip_uuid: str,
+        shared_path: Optional[str],
+        file_type: str,
+    ):
         self.job = job
         self.file_path = file_path
         self.file_uuid = file_uuid
         self.sip_uuid = sip_uuid
-        self.shared_path = shared_path
+        self.shared_path = shared_path if shared_path else ""
         self.file_type = file_type
         self.purpose = "validation"
-        self._sip_logs_dir = None
-        self._sip_pres_val_dir = None
+        self._sip_logs_dir: Optional[str] = None
+        self._sip_pres_val_dir: Optional[str] = None
 
-    def validate(self):
+    def validate(self) -> int:
         """Validate the file identified by ``self.file_uuid``, using all rules
         that apply. Return an error code (1 or 0), which the script as a whole
         also returns. Side effects include printing to stdout/stderr (which
@@ -101,7 +122,7 @@ class Validator:
 
         return SUCCESS_CODE
 
-    def _get_rules(self):
+    def _get_rules(self) -> FPRule:
         """Return all FPR rules that apply to files of this type."""
         try:
             fmt = FormatVersion.active.get(fileformatversion__file_uuid=self.file_uuid)
@@ -114,7 +135,7 @@ class Validator:
             rules = FPRule.active.filter(purpose=f"default_{self.purpose}")
         return rules
 
-    def _execute_rule_command(self, rule):
+    def _execute_rule_command(self, rule: FPRule) -> str:
         """Run the command against the file and return either 'passed' or
         'failed'. If the command errors or determines that the file is invalid,
         return 'failed'. Non-errors will result in the creation of an Event
@@ -149,7 +170,7 @@ class Validator:
         # Parse output and generate an Event
         # TODO: Evaluating a python string from a user-definable script seems
         # insecure practice; should be JSON.
-        output = ast.literal_eval(stdout)
+        output: Mapping[str, Any] = ast.literal_eval(stdout)
         event_detail = (
             f'program="{rule.command.tool.description}";'
             f' version="{rule.command.tool.version}"'
@@ -190,7 +211,7 @@ class Validator:
         )
         return result
 
-    def _save_stdout_to_logs_dir(self, output):
+    def _save_stdout_to_logs_dir(self, output: Mapping[str, Any]) -> None:
         """Save the validation command's output from validating the file to a
         file at logs/implementationChecks/<input_filename>.xml in the SIP.
         ``output`` is expected to be a dict with a ``stdout`` key.
@@ -202,7 +223,7 @@ class Validator:
             with open(stdout_path, "w") as f:
                 f.write(stdout)
 
-    def _file_is_derivative(self):
+    def _file_is_derivative(self) -> bool:
         """Return ``True`` if the file we are validating is a derivative, i.e.,
         a modified version created for preservation or access.
         """
@@ -210,7 +231,7 @@ class Validator:
             return self._file_is_preservation_derivative()
         return self._file_is_access_derivative()
 
-    def _file_is_preservation_derivative(self):
+    def _file_is_preservation_derivative(self) -> bool:
         """Returns ``True`` if the file with UUID ``self.file_uuid`` is a
         preservation derivative.
         """
@@ -222,7 +243,7 @@ class Validator:
         except (Derivation.DoesNotExist, ValidationError):
             return False
 
-    def _file_is_access_derivative(self):
+    def _file_is_access_derivative(self) -> bool:
         """Returns ``True`` if the file with UUID ``self.file_uuid`` is an
         access derivative.
         """
@@ -241,14 +262,14 @@ class Validator:
         except (File.DoesNotExist, ValidationError):
             return False
 
-    def _not_derivative_msg(self):
+    def _not_derivative_msg(self) -> str:
         """Return the message to print if the file is not a derivative."""
         if self.file_type == "preservation":
             return "is not a preservation derivative"
         return "is not an access derivative"
 
     @property
-    def sip_logs_dir(self):
+    def sip_logs_dir(self) -> Optional[str]:
         """Return the absolute path the logs/ directory of the SIP that the
         target file is a part of.
         """
@@ -277,7 +298,7 @@ class Validator:
             return None
 
     @property
-    def sip_pres_val_dir(self):
+    def sip_pres_val_dir(self) -> Optional[str]:
         """Return the full path to the directory within the SIP where stdout
         from perservation derivative validation output should be written to
         disk.
@@ -303,21 +324,21 @@ class Validator:
         return self._sip_pres_val_dir
 
 
-def _get_shared_path(argv):
+def _get_shared_path(argv: List[str]) -> Optional[str]:
     try:
         return argv[4]
     except IndexError:
         return None
 
 
-def _get_file_type(argv):
+def _get_file_type(argv: List[str]) -> str:
     try:
         return argv[5]
     except IndexError:
         return "original"
 
 
-def call(jobs):
+def call(jobs: List[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
