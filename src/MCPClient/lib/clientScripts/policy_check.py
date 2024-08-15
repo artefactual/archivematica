@@ -18,7 +18,13 @@ import django
 from custom_handlers import get_script_logger
 
 django.setup()
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+
 import databaseFunctions
+from client.job import Job
 from dicts import replace_string_values
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
@@ -39,7 +45,14 @@ NOT_APPLICABLE_CODE = 0
 FAIL_CODE = 1
 
 
-def main(job, file_path, file_uuid, sip_uuid, shared_path, file_type):
+def main(
+    job: Job,
+    file_path: str,
+    file_uuid: str,
+    sip_uuid: str,
+    shared_path: str,
+    file_type: str,
+) -> int:
     """Entry point for policy checker."""
     setup_dicts(mcpclient_settings)
 
@@ -61,7 +74,15 @@ class PolicyChecker:
     ``check`` method.
     """
 
-    def __init__(self, job, file_path, file_uuid, sip_uuid, shared_path, file_type):
+    def __init__(
+        self,
+        job: Job,
+        file_path: str,
+        file_uuid: Optional[str],
+        sip_uuid: str,
+        shared_path: str,
+        file_type: str,
+    ) -> None:
         """Initiate a new policy check."""
         self.job = job
         self.file_path = file_path
@@ -73,11 +94,11 @@ class PolicyChecker:
         self.is_manually_normalized_access_derivative = (
             self._get_is_manually_normalized_access_derivative()
         )
-        self._sip_logs_dir = None
-        self._sip_subm_doc_dir = None
-        self._sip_policy_checks_dir = None
+        self._sip_logs_dir: Optional[str] = None
+        self._sip_subm_doc_dir: Optional[str] = None
+        self._sip_policy_checks_dir: Optional[str] = None
 
-    def check(self):
+    def check(self) -> int:
         """Check the file identified by ``self.file_uuid`` against any
         policy-check FPR commands that are applicable. If any fail, return a
         non-zero exit code; otherwise return ``0``.
@@ -110,7 +131,7 @@ class PolicyChecker:
 
     purpose = "policy_check"
 
-    def _we_check_this_type_of_file(self):
+    def _we_check_this_type_of_file(self) -> bool:
         """Return ``True`` if this policy checker should perform a check on
         this file; ``False`` otherwise. This will depend on ``self.file_type``
         and on whether the file is an original or a preservation/access
@@ -143,7 +164,7 @@ class PolicyChecker:
         else:
             return True
 
-    def _file_is_derivative(self, for_access=False):
+    def _file_is_derivative(self, for_access: bool = False) -> bool:
         """Return ``True`` if the target file is a derivative; ``False``
         otherwise.
         """
@@ -151,9 +172,7 @@ class PolicyChecker:
             return True
         # Access derivatives have Derivation rows with NULL event types (cf.
         # normalize.py client script).
-        event_type = "normalization"
-        if for_access:
-            event_type = None
+        event_type = None if for_access else "normalization"
         try:
             Derivation.objects.get(
                 derived_file__uuid=self.file_uuid, event__event_type=event_type
@@ -162,12 +181,12 @@ class PolicyChecker:
         except (Derivation.DoesNotExist, ValidationError):
             return False
 
-    def _get_policies_dir(self):
+    def _get_policies_dir(self) -> str:
         return os.path.join(
             self.shared_path, "sharedMicroServiceTasksConfigs", "policies"
         )
 
-    def _get_is_manually_normalized_access_derivative(self):
+    def _get_is_manually_normalized_access_derivative(self) -> bool:
         """Manually normalized access derivatives are never given UUIDs.
         Therefore, we need this heuristic for determining if that is what we
         are dealing with. TODO/QUESTION: will this return false positives?
@@ -178,7 +197,7 @@ class PolicyChecker:
             return True
         return False
 
-    def _file_is_for_access(self):
+    def _file_is_for_access(self) -> bool:
         """Return ``True`` if the file with UUID ``self.file_uuid`` is "for"
         access.
         """
@@ -189,7 +208,7 @@ class PolicyChecker:
             return True
         return False
 
-    def _get_manually_normalized_access_derivative_file_uuid(self):
+    def _get_manually_normalized_access_derivative_file_uuid(self) -> Optional[File]:
         """If the file-to-be-policy-checked is a manually normalized access
         derivative it will have no file UUID in the database. We therefore have
         to retrieve the UUID of the original file that was format-identified,
@@ -209,7 +228,7 @@ class PolicyChecker:
         except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError):
             return None
 
-    def _get_rules(self):
+    def _get_rules(self) -> FPRule:
         """Return the FPR rules with purpose ``self.purpose`` and that apply to
         the type/format of file given as input.
         """
@@ -227,7 +246,7 @@ class PolicyChecker:
             rules = FPRule.active.filter(purpose=f"default_{self.purpose}")
         return rules
 
-    def _execute_rule_command(self, rule):
+    def _execute_rule_command(self, rule: FPRule) -> str:
         """Execute the FPR command of FPR rule ``rule`` against the file passed
         in to this client script. The output of that command determines what we
         print to stdout and stderr, and the nature of the validation event that
@@ -296,7 +315,7 @@ class PolicyChecker:
             )
         return result
 
-    def _get_command_to_execute(self, rule):
+    def _get_command_to_execute(self, rule: FPRule) -> Tuple[str, List[str]]:
         """Return a 2-tuple consisting of a) the FPR rule ``rule``'s command
         and b) a list of arguments to pass to it.
         """
@@ -313,14 +332,14 @@ class PolicyChecker:
         else:
             return (rule.command.command, [self.file_path, self.policies_dir])
 
-    def _save_to_logs_dir(self, output):
+    def _save_to_logs_dir(self, output: Dict[str, str]) -> None:
         """Save the MediaConch policy file as well as the raw MediaConch stdout
         for the target file to the logs/ directory of the SIP.
         """
         self._save_stdout_to_logs_dir(output)
         self._save_policy_to_subm_doc_dir(output)
 
-    def _save_stdout_to_logs_dir(self, output):
+    def _save_stdout_to_logs_dir(self, output: Dict[str, str]) -> None:
         """Save the output of running MediaConch's policy checker against the
         input file to
         logs/policyChecks/<policy_filename>/<input_filename>.xml in the SIP.
@@ -337,7 +356,7 @@ class PolicyChecker:
             with open(stdout_path, "w") as f:
                 f.write(mc_stdout)
 
-    def _save_policy_to_subm_doc_dir(self, output):
+    def _save_policy_to_subm_doc_dir(self, output: Dict[str, str]) -> None:
         """Save the policy file text in ``output['policy']`` to a file named
         ``output['policyFileName']`` in
         metadata/submissionDocumentation/policies/ in the SIP, if it is not
@@ -355,7 +374,7 @@ class PolicyChecker:
                     fileo.write(policy)
 
     @property
-    def sip_logs_dir(self):
+    def sip_logs_dir(self) -> Optional[str]:
         """Return the absolute path the logs/ directory of the SIP (or
         Transfer) that the target file is a part of.
         """
@@ -398,7 +417,7 @@ class PolicyChecker:
             return None
 
     @property
-    def sip_subm_doc_dir(self):
+    def sip_subm_doc_dir(self) -> Optional[str]:
         """Return the absolute path the metadata/submissionDocumentation/
         directory of the SIP that the target file is a part of.
         """
@@ -428,7 +447,7 @@ class PolicyChecker:
             return None
 
     @property
-    def sip_policy_checks_dir(self):
+    def sip_policy_checks_dir(self) -> Optional[str]:
         if self._sip_policy_checks_dir:
             return self._sip_policy_checks_dir
         if self.sip_logs_dir:
@@ -445,29 +464,15 @@ class PolicyChecker:
         return self._sip_policy_checks_dir
 
 
-def _get_shared_path(argv):
-    try:
-        return argv[4]
-    except IndexError:
-        return None
-
-
-def _get_file_type(argv):
-    try:
-        return argv[5]
-    except IndexError:
-        return "original"
-
-
-def call(jobs):
+def call(jobs: List[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 file_path = job.args[1]
                 file_uuid = job.args[2]
                 sip_uuid = job.args[3]
-                shared_path = _get_shared_path(job.args)
-                file_type = _get_file_type(job.args)
+                shared_path = job.args[4]
+                file_type = job.args[5]
 
                 try:
                     job.set_status(
