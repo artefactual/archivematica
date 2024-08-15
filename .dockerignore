@@ -3,9 +3,8 @@
 
 # Include
 !/src/**
-!/pytest.ini
+!/pyproject.toml
 !/requirements*
-!/tox.ini
 !/LICENSE
 !/COPYRIGHT
 !/TRADEMARK
