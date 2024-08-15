@@ -155,7 +155,7 @@ def test_policy_checker_warns_if_rules_do_not_exist(
     sip_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -412,7 +412,7 @@ def test_policy_checker_verifies_file_type_is_access(
             str(access_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
-            "access",
+            access_file.filegrpuse,
         ],
         JobContext=mock.MagicMock(),
         spec=Job,
