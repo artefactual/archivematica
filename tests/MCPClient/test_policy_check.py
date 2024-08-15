@@ -1,7 +1,6 @@
 import json
 import pathlib
 import uuid
-from typing import Any
 from unittest import mock
 
 import policy_check
@@ -79,27 +78,9 @@ def access_file_format_version(
     )
 
 
-STDOUT = json.dumps(
-    {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
-)
-
-
-@pytest.fixture
-def EXECUTE_OR_RUN() -> Any:
-    with mock.patch(
-        "policy_check.executeOrRun",
-        return_value=(
-            0,
-            STDOUT,
-            "",
-        ),
-    ):
-        yield
-
-
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
-def test_policy_check_succeeds_if_rules_exist(
+def test_policy_checker_succeeds_if_rules_exist(
     execute_or_run: mock.Mock,
     sip_file: models.File,
     sip: models.SIP,
@@ -107,7 +88,7 @@ def test_policy_check_succeeds_if_rules_exist(
     sip_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -131,7 +112,7 @@ def test_policy_check_succeeds_if_rules_exist(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
     assert (
         models.Event.objects.filter(
             file_uuid_id=sip_file.uuid,
@@ -161,7 +142,9 @@ def test_policy_check_succeeds_if_rules_exist(
     "policy_check.executeOrRun",
     return_value=(
         1,
-        STDOUT,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
         "",
     ),
 )
@@ -189,7 +172,7 @@ def test_policy_checker_warns_if_rules_do_not_exist(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.NOT_APPLICABLE_CODE)
 
     job.pyprint.assert_called_once_with(
         "Not performing a policy check because there are no relevant FPR rules"
@@ -201,7 +184,9 @@ def test_policy_checker_warns_if_rules_do_not_exist(
     "policy_check.executeOrRun",
     return_value=(
         1,
-        STDOUT,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
         "",
     ),
 )
@@ -212,13 +197,14 @@ def test_policy_checker_warns_if_file_does_not_exist(
     sip_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
+    file_uuid = str(uuid.uuid4())
     job = mock.Mock(
         args=[
             "policy_check",
             "",
-            "",
+            file_uuid,
             str(sip.uuid),
             str(shared_directory_path),
             sip_file.filegrpuse,
@@ -229,23 +215,16 @@ def test_policy_checker_warns_if_file_does_not_exist(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.NOT_APPLICABLE_CODE)
 
     job.pyprint.assert_called_once_with(
-        "Not performing a policy check because there is no file with UUID ."
+        f"Not performing a policy check because there is no file with UUID {file_uuid}."
     )
 
 
 @pytest.mark.django_db
-@mock.patch(
-    "policy_check.executeOrRun",
-    return_value=(
-        1,
-        STDOUT,
-        "",
-    ),
-)
-def test_policy_checker_fails_if_execute_rule_command_fails(
+@mock.patch("policy_check.executeOrRun")
+def test_policy_checker_fails_if_rule_command_fails(
     execute_or_run: mock.Mock,
     sip_file: models.File,
     sip: models.SIP,
@@ -253,7 +232,7 @@ def test_policy_checker_fails_if_execute_rule_command_fails(
     sip_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -267,16 +246,22 @@ def test_policy_checker_fails_if_execute_rule_command_fails(
         JobContext=mock.MagicMock(),
         spec=Job,
     )
+    status = 1
+    expected_stdout = json.dumps(
+        {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+    )
+    stderr = ""
+    execute_or_run.return_value = (status, expected_stdout, stderr)
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(1)
+    job.set_status.assert_called_once_with(policy_check.FAIL_CODE)
     assert job.pyprint.mock_calls == [
         mock.call("Running", fprule_policy_check.command.description)
     ]
     job.print_error.assert_called_once_with(
-        f"Command {fprule_policy_check.command.description} failed with exit status 1; stderr:",
-        "",
+        f"Command {fprule_policy_check.command.description} failed with exit status {status}; stderr:",
+        stderr,
     )
 
 
@@ -285,7 +270,9 @@ def test_policy_checker_fails_if_execute_rule_command_fails(
     "policy_check.executeOrRun",
     return_value=(
         1,
-        STDOUT,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
         "",
     ),
 )
@@ -297,7 +284,7 @@ def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass
     sip_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -314,12 +301,12 @@ def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(1)
+    job.set_status.assert_called_once_with(policy_check.FAIL_CODE)
 
 
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
-def test_policy_check_verifies_file_type_is_preservation(
+def test_policy_checker_verifies_file_type_is_preservation(
     execute_or_run: mock.Mock,
     derivation_for_preservation: models.Derivation,
     preservation_file: models.File,
@@ -328,7 +315,7 @@ def test_policy_check_verifies_file_type_is_preservation(
     preservation_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -343,16 +330,13 @@ def test_policy_check_verifies_file_type_is_preservation(
         spec=Job,
     )
     expected_stdout = json.dumps(
-        {
-            "eventOutcomeInformation": "pass",
-            "eventOutcomeDetailNote": "a note",
-        }
+        {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
     )
     execute_or_run.return_value = (0, expected_stdout, "")
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
     assert job.pyprint.mock_calls == [
         mock.call("Running", ""),
         mock.call(
@@ -365,15 +349,25 @@ def test_policy_check_verifies_file_type_is_preservation(
 
 
 @pytest.mark.django_db
-def test_policy_check_fails_if_file_is_not_preservation_derivative(
-    EXECUTE_OR_RUN: mock.Mock,
+@mock.patch(
+    "policy_check.executeOrRun",
+    return_value=(
+        0,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
+        "",
+    ),
+)
+def test_policy_checker_fails_if_file_is_not_preservation_derivative(
+    execute_or_run: mock.Mock,
     preservation_file: models.File,
     sip: models.SIP,
     fprule_policy_check: fprmodels.FPRule,
     preservation_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -390,7 +384,7 @@ def test_policy_check_fails_if_file_is_not_preservation_derivative(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.NOT_APPLICABLE_CODE)
     assert job.pyprint.mock_calls == [
         mock.call(
             f"File {preservation_file.uuid} is not a preservation derivative; not performing a policy check."
@@ -400,7 +394,7 @@ def test_policy_check_fails_if_file_is_not_preservation_derivative(
 
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
-def test_policy_check_verifies_file_type_is_access(
+def test_policy_checker_verifies_file_type_is_access(
     execute_or_run: mock.Mock,
     derivation_for_access: models.Derivation,
     access_file: models.File,
@@ -409,7 +403,7 @@ def test_policy_check_verifies_file_type_is_access(
     access_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -424,16 +418,13 @@ def test_policy_check_verifies_file_type_is_access(
         spec=Job,
     )
     expected_stdout = json.dumps(
-        {
-            "eventOutcomeInformation": "pass",
-            "eventOutcomeDetailNote": "a note",
-        }
+        {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
     )
     execute_or_run.return_value = (0, expected_stdout, "")
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
     assert job.pyprint.mock_calls == [
         mock.call("Running", ""),
         mock.call(
@@ -447,7 +438,7 @@ def test_policy_check_verifies_file_type_is_access(
 
 @pytest.mark.django_db
 @mock.patch("policy_check.executeOrRun")
-def test_policy_check_fails_if_file_is_not_access_derivative(
+def test_policy_checker_fails_if_file_is_not_access_derivative(
     execute_or_run: mock.Mock,
     access_file: models.File,
     sip: models.SIP,
@@ -455,7 +446,7 @@ def test_policy_check_fails_if_file_is_not_access_derivative(
     access_file_format_version: models.FileFormatVersion,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -464,7 +455,7 @@ def test_policy_check_fails_if_file_is_not_access_derivative(
             str(access_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
-            "access",
+            access_file.filegrpuse,
         ],
         JobContext=mock.MagicMock(),
         spec=Job,
@@ -479,7 +470,7 @@ def test_policy_check_fails_if_file_is_not_access_derivative(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.NOT_APPLICABLE_CODE)
 
     assert job.pyprint.mock_calls == [
         mock.call(
@@ -490,8 +481,18 @@ def test_policy_check_fails_if_file_is_not_access_derivative(
 
 
 @pytest.mark.django_db
+@mock.patch(
+    "policy_check.executeOrRun",
+    return_value=(
+        0,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
+        "",
+    ),
+)
 def test_policy_checker_saves_policy_check_result_into_logs_directory(
-    EXECUTE_OR_RUN: mock.Mock,
+    execute_or_run: mock.Mock,
     sip_file: models.File,
     sip: models.SIP,
     fprule_policy_check: fprmodels.FPRule,
@@ -517,12 +518,22 @@ def test_policy_checker_saves_policy_check_result_into_logs_directory(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
 
 
 @pytest.mark.django_db
+@mock.patch(
+    "policy_check.executeOrRun",
+    return_value=(
+        0,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
+        "",
+    ),
+)
 def test_policy_checker_saves_policy_check_result_into_submission_documentation_directory(
-    EXECUTE_OR_RUN: mock.Mock,
+    execute_or_run: mock.Mock,
     sip_file: models.File,
     sip: models.SIP,
     fprule_policy_check: fprmodels.FPRule,
@@ -550,19 +561,29 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
 
 
 @pytest.mark.django_db
+@mock.patch(
+    "policy_check.executeOrRun",
+    return_value=(
+        0,
+        json.dumps(
+            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+        ),
+        "",
+    ),
+)
 def test_policy_checker_checks_manually_normalized_access_derivative_file(
-    EXECUTE_OR_RUN: mock.Mock,
+    execute_or_run: mock.Mock,
     transfer: models.Transfer,
     sip_file: models.File,
     sip: models.SIP,
     fprule_policy_check: fprmodels.FPRule,
     format: fprmodels.Format,
     format_version: fprmodels.FormatVersion,
-    shared_directory_path: str,
+    shared_directory_path: pathlib.Path,
 ) -> None:
     sip_file_name = pathlib.Path(sip_file.currentlocation.decode()).name
     manually_access_derivative_file = models.File.objects.create(
@@ -589,4 +610,4 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
 
     policy_check.call([job])
 
-    job.set_status.assert_called_once_with(0)
+    job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)

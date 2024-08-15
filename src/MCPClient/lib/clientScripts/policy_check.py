@@ -78,7 +78,7 @@ class PolicyChecker:
         self,
         job: Job,
         file_path: str,
-        file_uuid: str,
+        file_uuid: Optional[str],
         sip_uuid: str,
         shared_path: str,
         file_type: str,
@@ -172,9 +172,7 @@ class PolicyChecker:
             return True
         # Access derivatives have Derivation rows with NULL event types (cf.
         # normalize.py client script).
-        event_type: Optional[str] = "normalization"
-        if for_access:
-            event_type = None
+        event_type = None if for_access else "normalization"
         try:
             Derivation.objects.get(
                 derived_file__uuid=self.file_uuid, event__event_type=event_type
@@ -210,7 +208,7 @@ class PolicyChecker:
             return True
         return False
 
-    def _get_manually_normalized_access_derivative_file_uuid(self) -> File:
+    def _get_manually_normalized_access_derivative_file_uuid(self) -> Optional[File]:
         """If the file-to-be-policy-checked is a manually normalized access
         derivative it will have no file UUID in the database. We therefore have
         to retrieve the UUID of the original file that was format-identified,
