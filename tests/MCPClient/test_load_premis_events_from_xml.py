@@ -691,11 +691,14 @@ def test_get_event_files(mocker, params):
 )
 def test_ensure_event_id_is_uuid(mocker, params):
     if params["message_logged"]:
-        mocker.patch("uuid.uuid4", return_value="f4eea76b-1921-4152-b1b4-a93dbbfeaaef")
+        mocker.patch(
+            "uuid.uuid4", return_value=uuid.UUID("f4eea76b-1921-4152-b1b4-a93dbbfeaaef")
+        )
     printfn = mocker.Mock()
     result = load_premis_events_from_xml.ensure_event_id_is_uuid(
         params["event_id"], printfn
     )
+    assert isinstance(result, str)
     if not params["message_logged"]:
         assert result == params["event_id"]
         printfn.assert_not_called()
@@ -719,6 +722,7 @@ def test_ensure_event_id_is_uuid_with_existent_event(mocker, existent_event_id):
         existent_event_id, printfn
     )
     assert result != existent_event_id
+    assert isinstance(result, str)
     printfn.assert_called_once_with(
         f"Changed event identifier from {existent_event_id} to {expected_uuid}"
     )
