@@ -663,7 +663,7 @@ def ensure_event_id_is_uuid(event_id, printfn=print):
         if Event.objects.filter(event_id=event_id).exists():
             raise ValueError(f"There is already an event with this event_id {event_id}")
     except ValueError:
-        new_event_id = uuid.uuid4()
+        new_event_id = str(uuid.uuid4())
         log_event_id_change(event_id, new_event_id, printfn)
         event_id = new_event_id
     return event_id
