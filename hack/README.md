@@ -338,10 +338,9 @@ test-storage-service       Run Storage Service tests.
 ```
 
 `tox` sets up separate virtual environments for each target and calls
-`pytest` to run the tests. Their configurations live in the `tox.ini`
-and `pytest.ini` files but you can set the [`TOXARGS`][tox-cli] and
-[`PYTEST_ADDOPTS`][pytest-cli] environment variables to pass command
-line options to each.
+`pytest` to run the tests. Their configurations live in the `pyproject.toml`
+file but you can set the [`TOXARGS`][tox-cli] and [`PYTEST_ADDOPTS`][pytest-cli]
+environment variables to pass command line options to each.
 
 [tox-cli]: https://tox.readthedocs.io/en/latest/config.html#cli
 [pytest-cli]: https://docs.pytest.org/en/stable/example/simple.html#how-to-change-command-line-options-defaults

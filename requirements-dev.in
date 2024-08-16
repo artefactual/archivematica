@@ -1,6 +1,6 @@
 -r requirements.txt
 
-coverage
+coverage[toml]
 git+https://github.com/artefactual-labs/mockldap@v0.3.1#egg=mockldap
 pip-tools
 pytest

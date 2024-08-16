@@ -90,7 +90,7 @@ jobs:
           make -C hack/ test-${{ matrix.rule }}
         env:
           TOXARGS: -vv
-          PYTEST_ADDOPTS: -vv --cov /src/src/ --cov-config=/src/.coveragerc --cov-report xml:/src/coverage.xml
+          PYTEST_ADDOPTS: -vv --cov --cov-config=/src/pyproject.toml --cov-report xml:/src/coverage.xml
           PYTHON_VERSION: ${{ matrix.python-version }}
       - name: "Upload coverage report"
         if: matrix.rule != 'storage-service' && matrix.rule != 'migrations' && github.repository == 'artefactual/archivematica'
