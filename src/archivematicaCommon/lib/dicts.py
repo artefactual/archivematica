@@ -17,6 +17,7 @@
 import ast
 import os
 import re
+import uuid
 
 from main import models
 
@@ -83,9 +84,9 @@ class ReplacementDict(dict):
         # In order to make this code accessible to MCPServer,
         # we need to support passing in UUID strings instead
         # of models.
-        if isinstance(file_, str):
+        if isinstance(file_, (str, uuid.UUID)):
             file_ = models.File.objects.get(uuid=file_)
-        if isinstance(sip, str):
+        if isinstance(sip, (str, uuid.UUID)):
             # sip can be a SIP or Transfer
             try:
                 sip = models.SIP.objects.get(uuid=sip)
