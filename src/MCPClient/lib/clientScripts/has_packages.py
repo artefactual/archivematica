@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+from typing import List
+
 import django
 
 django.setup()
-# dashboard
+
+from client.job import Job
 from fpr.models import FPRule
 from main.models import Event
 from main.models import File
@@ -10,7 +13,7 @@ from main.models import FileFormatVersion
 from main.models import Transfer
 
 
-def is_extractable(f):
+def is_extractable(f: File) -> bool:
     """
     Returns True if this file can be extracted, False otherwise.
     """
@@ -27,7 +30,7 @@ def is_extractable(f):
         return False
 
 
-def already_extracted(f):
+def already_extracted(f: File) -> bool:
     """
     Returns True if this package has already been extracted, False otherwise.
     """
@@ -47,7 +50,7 @@ def already_extracted(f):
     return False
 
 
-def main(job, sip_uuid):
+def main(job: Job, sip_uuid: str) -> int:
     transfer = Transfer.objects.get(uuid=sip_uuid)
     for f in transfer.file_set.filter(removedtime__isnull=True).iterator():
         if is_extractable(f) and not already_extracted(f):
@@ -60,7 +63,7 @@ def main(job, sip_uuid):
     return 1
 
 
-def call(jobs):
+def call(jobs: List[Job]) -> None:
     for job in jobs:
         with job.JobContext():
             job.set_status(main(job, job.args[1]))
