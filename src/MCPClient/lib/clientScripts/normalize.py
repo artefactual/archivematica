@@ -578,7 +578,7 @@ def main(job: Job, opts: NormalizeArgs) -> int:
 
 
 def get_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Identify file formats.")
+    parser = argparse.ArgumentParser(description="Normalize.")
     parser.add_argument(
         "purpose", type=str, help='"preservation", "access", "thumbnail"'
     )
