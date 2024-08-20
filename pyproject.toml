@@ -57,11 +57,13 @@ warn_unused_configs = true
 [[tool.mypy.overrides]]
 module = [
     "src.MCPClient.lib.client.*",
+    "src.MCPClient.lib.clientScripts.characterize_file",
     "src.MCPClient.lib.clientScripts.identify_file_format",
     "src.MCPClient.lib.clientScripts.normalize",
     "src.MCPClient.lib.clientScripts.policy_check",
     "src.MCPClient.lib.clientScripts.validate_file",
     "tests.MCPClient.conftest",
+    "tests.MCPClient.test_characterize_file",
     "tests.MCPClient.test_identify_file_format",
     "tests.MCPClient.test_normalize",
     "tests.MCPClient.test_policy_check",

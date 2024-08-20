@@ -6,34 +6,42 @@
 #
 # If a tool has no defined characterization commands, then the default
 # will be run instead (currently FITS).
+import argparse
+import dataclasses
 import multiprocessing
+import uuid
+from typing import List
 
 import django
-from lxml import etree
 
 django.setup()
+
+from client.job import Job
 from databaseFunctions import insertIntoFPCommandOutput
 from dicts import ReplacementDict
 from dicts import replace_string_values
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-
-# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 from fpr.models import FormatVersion
 from fpr.models import FPRule
 from lib import setup_dicts
-
-# dashboard
+from lxml import etree
 from main.models import FPCommandOutput
 
 
-def concurrent_instances():
+@dataclasses.dataclass
+class CharacterizeFileArgs:
+    file_uuid: uuid.UUID
+    sip_uuid: uuid.UUID
+
+
+def concurrent_instances() -> int:
     return multiprocessing.cpu_count()
 
 
-def main(job, file_path, file_uuid, sip_uuid):
+def main(job: Job, file_uuid: uuid.UUID, sip_uuid: uuid.UUID) -> int:
     setup_dicts(mcpclient_settings)
 
     failed = False
@@ -117,8 +125,25 @@ def main(job, file_path, file_uuid, sip_uuid):
         return 0
 
 
-def call(jobs):
+def get_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Identify file formats.")
+    parser.add_argument("file_uuid", type=uuid.UUID)
+    parser.add_argument("sip_uuid", type=uuid.UUID)
+
+    return parser
+
+
+def parse_args(parser: argparse.ArgumentParser, job: Job) -> CharacterizeFileArgs:
+    namespace = parser.parse_args(job.args[1:])
+
+    return CharacterizeFileArgs(**vars(namespace))
+
+
+def call(jobs: List[Job]) -> None:
+    parser = get_parser()
+
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
-                job.set_status(main(job, *job.args[1:]))
+                args = parse_args(parser, job)
+                job.set_status(main(job, args.file_uuid, args.sip_uuid))

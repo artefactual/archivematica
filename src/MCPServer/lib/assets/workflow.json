@@ -1286,7 +1286,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "characterizeFile_v0.0",
         "filter_subdir": "objects/metadata/"
       },
@@ -3480,7 +3480,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "characterizeFile_v0.0",
         "filter_subdir": "objects"
       },
@@ -3703,7 +3703,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%relativeLocation%\" \"%fileUUID%\" \"%SIPUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%SIPUUID%\"",
         "execute": "characterizeFile_v0.0",
         "filter_subdir": "objects/submissionDocumentation"
       },
