@@ -1,13 +1,19 @@
+import pathlib
+from unittest import mock
+
 import has_packages
 import pytest
 from client.job import Job
-from main.models import Event
-from main.models import File
-from main.models import FileFormatVersion
+from fpr import models as fprmodels
+from main import models
 
 
 @pytest.fixture
-def compressed_file(transfer, transfer_directory_path, format_version):
+def compressed_file(
+    transfer: models.Transfer,
+    transfer_directory_path: pathlib.Path,
+    format_version: fprmodels.FormatVersion,
+) -> models.File:
     # Simulate a compressed file being extracted to a directory with the same name.
     d = transfer_directory_path / "compressed.zip"
     d.mkdir()
@@ -23,15 +29,17 @@ def compressed_file(transfer, transfer_directory_path, format_version):
     f_location = (
         f"{transfer.currentlocation}{f.relative_to(transfer_directory_path)}".encode()
     )
-    result = File.objects.create(
+    result = models.File.objects.create(
         transfer=transfer, originallocation=d_location, currentlocation=d_location
     )
-    File.objects.create(
+    models.File.objects.create(
         transfer=transfer, originallocation=f_location, currentlocation=f_location
     )
 
     # Create a file format version for the compressed file.
-    FileFormatVersion.objects.create(file_uuid=result, format_version=format_version)
+    models.FileFormatVersion.objects.create(
+        file_uuid=result, format_version=format_version
+    )
 
     return result
 
@@ -43,16 +51,15 @@ def compressed_file(transfer, transfer_directory_path, format_version):
     ids=["extract_rule", "not_extract_rule"],
 )
 def test_main_detects_file_is_extractable_based_on_extract_fpr_rule(
-    mocker,
-    transfer,
-    compressed_file,
-    format_version,
-    fpcommand,
-    fprule_fixture,
-    expected_exit_code,
-    request,
-):
-    job = mocker.Mock(spec=Job)
+    transfer: models.Transfer,
+    compressed_file: models.File,
+    format_version: fprmodels.FormatVersion,
+    fpcommand: fprmodels.FPCommand,
+    fprule_fixture: str,
+    expected_exit_code: int,
+    request: pytest.FixtureRequest,
+) -> None:
+    job = mock.Mock(spec=Job)
     request.getfixturevalue(fprule_fixture)
 
     result = has_packages.main(job, str(transfer.uuid))
@@ -67,21 +74,20 @@ def test_main_detects_file_is_extractable_based_on_extract_fpr_rule(
     ids=["unpacking_event", "not_unpacking_event"],
 )
 def test_main_detects_file_was_already_extracted_from_unpacking_event(
-    mocker,
-    transfer,
-    compressed_file,
-    format_version,
-    fpcommand,
-    fprule_extraction,
-    event_type,
-    expected_exit_code,
-):
-    job = mocker.Mock(spec=Job)
-    extracted_file = File.objects.get(
+    transfer: models.Transfer,
+    compressed_file: models.File,
+    format_version: fprmodels.FormatVersion,
+    fpcommand: fprmodels.FPCommand,
+    fprule_extraction: fprmodels.FPRule,
+    event_type: str,
+    expected_exit_code: int,
+) -> None:
+    job = mock.Mock(spec=Job)
+    extracted_file = models.File.objects.get(
         currentlocation__startswith=compressed_file.currentlocation.decode(),
         currentlocation__endswith="file.txt",
     )
-    Event.objects.create(
+    models.Event.objects.create(
         file_uuid=extracted_file,
         event_type=event_type,
         event_detail=f"Unpacked from: {extracted_file.currentlocation} ({compressed_file.uuid})",
