@@ -277,10 +277,12 @@ def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass
     format_version: fprmodels.FormatVersion,
     shared_directory_path: pathlib.Path,
 ) -> None:
+    event_outcome_information = "foobar"
+    event_outcome_detail_note = "a note"
     expected_stdout = json.dumps(
         {
-            "eventOutcomeInformation": "foobar",
-            "eventOutcomeDetailNote": "a note",
+            "eventOutcomeInformation": event_outcome_information,
+            "eventOutcomeDetailNote": event_outcome_detail_note,
         }
     )
     execute_or_run.return_value = (0, expected_stdout, "")
@@ -303,7 +305,7 @@ def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass
 
     assert job.print_error.mock_calls == [
         mock.call(
-            f"Command {fprule_policy_check.command.description} returned a non-pass outcome for the policy check;\n\noutcome: {json.loads(expected_stdout)['eventOutcomeInformation']}\n\ndetails: {json.loads(expected_stdout)['eventOutcomeDetailNote']}."
+            f"Command {fprule_policy_check.command.description} returned a non-pass outcome for the policy check;\n\noutcome: {event_outcome_information}\n\ndetails: {event_outcome_detail_note}."
         )
     ]
 
@@ -596,16 +598,7 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
 
 
 @pytest.mark.django_db
-@mock.patch(
-    "policy_check.executeOrRun",
-    return_value=(
-        0,
-        json.dumps(
-            {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
-        ),
-        "",
-    ),
-)
+@mock.patch("policy_check.executeOrRun")
 def test_policy_checker_checks_manually_normalized_access_derivative_file(
     execute_or_run: mock.Mock,
     transfer: models.Transfer,
@@ -616,6 +609,11 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
     format_version: fprmodels.FormatVersion,
     shared_directory_path: pathlib.Path,
 ) -> None:
+    expected_stdout = json.dumps(
+        {"eventOutcomeInformation": "pass", "eventOutcomeDetailNote": "a note"}
+    )
+
+    execute_or_run.return_value = (0, expected_stdout, "")
     sip_file_name = pathlib.Path(sip_file.currentlocation.decode()).name
     manually_access_derivative_file = models.File.objects.create(
         transfer=transfer,
@@ -626,11 +624,13 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
     models.FileFormatVersion.objects.create(
         file_uuid=manually_access_derivative_file, format_version=format_version
     )
+    file_path = f"{shared_directory_path}/DIP/objects/{uuid.uuid4()}-{sip_file_name}"
+    file_uuid = "None"
     job = mock.Mock(
         args=[
             "policy_check",
-            f"{shared_directory_path}/DIP/objects/{uuid.uuid4()}-{sip_file_name}",
-            "None",
+            file_path,
+            file_uuid,
             str(sip.uuid),
             str(shared_directory_path),
             sip_file.filegrpuse,
@@ -642,3 +642,10 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
     policy_check.call([job])
 
     job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
+    assert job.pyprint.mock_calls == [
+        mock.call("Running", fprule_policy_check.command.description),
+        mock.call(
+            f"Command {fprule_policy_check.command.description} completed with output {expected_stdout}"
+        ),
+        mock.call(f"Creating policy checking event for {file_path} ({file_uuid})"),
+    ]
