@@ -126,7 +126,7 @@ def main(job: Job, file_uuid: uuid.UUID, sip_uuid: uuid.UUID) -> int:
 
 
 def get_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Identify file formats.")
+    parser = argparse.ArgumentParser(description="Characterize file.")
     parser.add_argument("file_uuid", type=uuid.UUID)
     parser.add_argument("sip_uuid", type=uuid.UUID)
 
