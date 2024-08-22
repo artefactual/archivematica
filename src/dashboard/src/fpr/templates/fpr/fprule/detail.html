@@ -27,8 +27,12 @@
         <dd>{{ fprule.uuid }}</dd>
         <dt>{% trans "Purpose" %}</dt>
         <dd>{{ fprule.get_purpose_display }} Rule</dd>
-        <dt>{% trans "Format" %}</dt>
-        <dd><a href="{% url 'fpr:formatversion_detail' fprule.format.format.slug fprule.format.slug %}">{{ fprule.format.description }}</a></dd>
+        <dt>{% trans "Format version" %}</dt>
+        {% spaceless %}
+        {% with version=fprule.format.version pronom_id=fprule.format.pronom_id %}
+        <dd><a href="{% url 'fpr:formatversion_detail' fprule.format.format.slug fprule.format.slug %}">{{ fprule.format.description }}{% if version or pronom_id %} ({% if version %}{% trans "version" %}: {{ version }}{% if pronom_id %}, {% endif %}{% endif %}{% if pronom_id %}{{ pronom_id }}{% endif %}){% endif %}</a></dd>
+        {% endwith %}
+        {% endspaceless %}
         <dt>{% trans "Command" %}</dt>
         <dd><a href="{% url 'fpr:fpcommand_detail' fprule.command.uuid %}">{{ fprule.command.description }}</a></dd>
         <dt>{% trans "Stats" %}</dt>
