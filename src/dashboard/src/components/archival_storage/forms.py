@@ -14,7 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+import pathlib
+
 from agentarchives.atom.client import CommunicationError
+from components import helpers
 from components.archival_storage.atom import get_atom_client
 from django import forms
 from django.utils.translation import gettext as _
@@ -59,6 +62,19 @@ class UploadMetadataOnlyAtomForm(forms.Form):
         return slug
 
 
+def get_processing_configurations():
+    processing_configs_dir = pathlib.Path(helpers.processing_config_path())
+    suffix = "ProcessingMCP.xml"
+    return (
+        (processing_config, processing_config)
+        for processing_config in sorted(
+            path.name[: -len(suffix)]
+            for path in processing_configs_dir.iterdir()
+            if path.name.endswith(suffix)
+        )
+    )
+
+
 class ReingestAIPForm(forms.Form):
     METADATA_ONLY = "metadata"
     OBJECTS = "objects"
@@ -71,10 +87,10 @@ class ReingestAIPForm(forms.Form):
     reingest_type = forms.ChoiceField(
         choices=REINGEST_CHOICES, widget=forms.RadioSelect, required=True
     )
-    processing_config = forms.CharField(
+    processing_config = forms.ChoiceField(
+        choices=get_processing_configurations,
         required=False,
         initial="default",
-        widget=forms.TextInput(attrs={"placeholder": _("default")}),
     )
 
 
