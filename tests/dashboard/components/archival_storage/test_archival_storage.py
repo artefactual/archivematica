@@ -19,6 +19,7 @@ import os
 import pathlib
 import uuid
 from io import StringIO
+from unittest import mock
 from urllib.parse import urlencode
 
 import metsrw
@@ -365,9 +366,16 @@ class TestArchivalStorageDataTableState(TestCase):
         assert payload["message"] == "Setting not found"
 
 
+@mock.patch("components.helpers.processing_config_path")
 def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
-    mocker, amsetup, admin_client, tmpdir
+    processing_config_path,
+    mocker,
+    amsetup,
+    admin_client,
+    tmpdir,
+    processing_configurations_dir,
 ):
+    processing_config_path.return_value = str(processing_configurations_dir)
     sip_uuid = uuid.uuid4()
     file_path = tmpdir.mkdir("file")
     mocker.patch("elasticSearchFunctions.get_client")
@@ -508,3 +516,88 @@ def test_create_aic_creates_temporary_files(
     for path in (d / "tmp" / "1e23e6e2-02d7-4b2d-a648-caffa3b489f3").iterdir():
         temporary_files.add((path.name, path.read_text().strip()))
     assert expected_file_contents == temporary_files
+
+
+@pytest.fixture
+def processing_configurations_dir(tmp_path):
+    result = tmp_path / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs"
+    result.mkdir(parents=True)
+
+    (result / "defaultProcessingMCP.xml").touch()
+    (result / "automatedProcessingMCP.xml").touch()
+    (result / "customProcessingMCP.xml").touch()
+
+    return result
+
+
+@mock.patch("components.helpers.processing_config_path")
+@mock.patch(
+    "elasticSearchFunctions.get_aip_data",
+    return_value={"_source": {"name": "My AIP", "filePath": "path"}},
+)
+@mock.patch("elasticSearchFunctions.get_client")
+def test_view_aip_reingest_form_displays_processing_configurations_choices(
+    get_client,
+    get_aip_data,
+    processing_config_path,
+    amsetup,
+    admin_client,
+    processing_configurations_dir,
+):
+    processing_config_path.return_value = str(processing_configurations_dir)
+    response = admin_client.get(
+        reverse("archival_storage:view_aip", args=[uuid.uuid4()])
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode().replace("\n", "")
+    assert '<select name="reingest-processing_config"' in content
+    assert (
+        "  ".join(
+            [
+                '<option value="automated">automated</option>',
+                '<option value="custom">custom</option>',
+                '<option value="default" selected>default</option>',
+            ]
+        )
+        in content
+    )
+
+
+@pytest.mark.parametrize(
+    "error,message", [(False, "success!"), (True, "error!")], ids=["success", "error"]
+)
+@mock.patch("components.helpers.processing_config_path")
+@mock.patch("storageService.request_reingest")
+@mock.patch("elasticSearchFunctions.get_aip_data")
+@mock.patch("elasticSearchFunctions.get_client")
+def test_view_aip_reingest_form_submits_reingest(
+    get_client,
+    get_aip_data,
+    request_reingest,
+    processing_config_path,
+    error,
+    message,
+    amsetup,
+    admin_client,
+    processing_configurations_dir,
+):
+    processing_config_path.return_value = str(processing_configurations_dir)
+    request_reingest.return_value = {"error": error, "message": message}
+    aip_uuid = str(uuid.uuid4())
+    reingest_type = "metadata"
+    processing_config = "default"
+
+    response = admin_client.post(
+        reverse("archival_storage:view_aip", args=[aip_uuid]),
+        {
+            "submit-reingest-form": "true",
+            "reingest-reingest_type": reingest_type,
+            "reingest-processing_config": processing_config,
+        },
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    request_reingest.assert_called_once_with(aip_uuid, reingest_type, processing_config)
+    assert message in response.content.decode()
