@@ -38,7 +38,11 @@
         {% for fprule in fprules %}
           <tr>
             <td><a href="{% url 'fpr:fprule_detail' fprule.uuid %}">{{ fprule.get_purpose_display }}</a></td>
-            <td>{{ fprule.format.description }}</td>
+            {% spaceless %}
+            {% with version=fprule.format.version pronom_id=fprule.format.pronom_id %}
+            <td>{{ fprule.format.description }}{% if version or pronom_id %} ({% if version %}{% trans "version" %}: {{ version }}{% if pronom_id %}, {% endif %}{% endif %}{% if pronom_id %}{{ pronom_id }}{% endif %}){% endif %}</td>
+            {% endwith %}
+            {% endspaceless %}
             <td>{{ fprule.command.description }}</td>
             <td>{{ fprule.count_okay }} out of {{ fprule.count_attempts }}</td>
             <td>{{ fprule.enabled|yesno:_('Yes,No') }}</td>
