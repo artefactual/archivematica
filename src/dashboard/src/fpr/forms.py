@@ -168,6 +168,12 @@ class FPCommandForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields[
+            "output_format"
+        ].queryset = fprmodels.FormatVersion.active.all().prefetch_related(
+            "format__group"
+        )
+
         verification_commands = fprmodels.FPCommand.active.filter(
             command_usage="verification"
         )
