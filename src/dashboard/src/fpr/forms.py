@@ -116,7 +116,11 @@ class FPRuleForm(forms.ModelForm):
             self.fields["command"].initial = self.instance.command.uuid
 
         # Show only active format versions in the format dropdown
-        self.fields["format"].queryset = fprmodels.FormatVersion.active.all()
+        self.fields[
+            "format"
+        ].queryset = fprmodels.FormatVersion.active.all().prefetch_related(
+            "format__group"
+        )
 
     def clean(self):
         cleaned_data = super().clean()

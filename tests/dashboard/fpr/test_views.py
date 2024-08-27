@@ -223,3 +223,45 @@ def test_idrule_create(dashboard_uuid: None, admin_client: Client) -> None:
         ).count()
         == 1
     )
+
+
+@pytest.mark.django_db
+def test_fprule_create(dashboard_uuid: None, admin_client: Client) -> None:
+    url = reverse("fpr:fprule_create")
+
+    resp = admin_client.get(url)
+
+    assert resp.context["form"].initial == {}
+    assert "Create format policy rule" in resp.content.decode()
+
+    purpose = models.FPRule.CHARACTERIZATION
+    format_version = models.FormatVersion.objects.create(
+        format=models.Format.objects.create(
+            group=models.FormatGroup.objects.create(description="Group"),
+            description="Format",
+        ),
+        description="Format version",
+    )
+    command = models.FPCommand.objects.create(
+        tool=models.FPTool.objects.create(description="Tool")
+    )
+
+    resp = admin_client.post(
+        url,
+        {
+            "f-purpose": purpose,
+            "f-format": format_version.uuid,
+            "f-command": command.uuid,
+        },
+        follow=True,
+    )
+
+    assert "Saved." in resp.content.decode()
+    assert (
+        models.FPRule.objects.filter(
+            purpose=purpose,
+            format=format_version.uuid,
+            command=command.uuid,
+        ).count()
+        == 1
+    )
