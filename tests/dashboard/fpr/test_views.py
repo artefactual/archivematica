@@ -181,3 +181,45 @@ def test_format_edit_updates_format(dashboard_uuid: None, admin_client: Client) 
         ).count()
         == 1
     )
+
+
+@pytest.mark.django_db
+def test_idrule_create(dashboard_uuid: None, admin_client: Client) -> None:
+    url = reverse("fpr:idrule_create")
+
+    resp = admin_client.get(url)
+
+    assert resp.context["form"].initial == {}
+    assert "Create identification rule" in resp.content.decode()
+
+    format_version = models.FormatVersion.objects.create(
+        format=models.Format.objects.create(
+            group=models.FormatGroup.objects.create(description="Group"),
+            description="Format",
+        ),
+        description="Format version",
+    )
+    command = models.IDCommand.objects.create(
+        tool=models.IDTool.objects.create(description="Tool")
+    )
+    command_output = ".ppt"
+
+    resp = admin_client.post(
+        url,
+        {
+            "format": format_version.uuid,
+            "command": command.uuid,
+            "command_output": command_output,
+        },
+        follow=True,
+    )
+
+    assert "Saved." in resp.content.decode()
+    assert (
+        models.IDRule.objects.filter(
+            format=format_version.uuid,
+            command=command.uuid,
+            command_output=command_output,
+        ).count()
+        == 1
+    )

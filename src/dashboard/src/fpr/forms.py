@@ -79,8 +79,14 @@ class IDRuleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Limit to only enabled formats/commands
-        self.fields["format"].queryset = fprmodels.FormatVersion.active.all()
-        self.fields["command"].queryset = fprmodels.IDCommand.active.all()
+        self.fields[
+            "format"
+        ].queryset = fprmodels.FormatVersion.active.all().prefetch_related(
+            "format__group"
+        )
+        self.fields[
+            "command"
+        ].queryset = fprmodels.IDCommand.active.all().prefetch_related("tool")
 
     class Meta:
         model = fprmodels.IDRule
