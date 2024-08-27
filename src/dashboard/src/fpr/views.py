@@ -641,7 +641,7 @@ def fpcommand_edit(request, uuid=None):
         title = _("Replace command %(name)s") % {"name": fpcommand.description}
     else:
         fpcommand = None
-        title = _("Create format version")
+        title = _("Create format policy command")
     if request.method == "POST":
         form = fprforms.FPCommandForm(request.POST, instance=fpcommand)
         if form.is_valid():
