@@ -25,7 +25,7 @@ brotli==1.1.0
     # via -r requirements.txt
 build==1.2.1
     # via pip-tools
-cachetools==5.4.0
+cachetools==5.5.0
     # via tox
 certifi==2024.7.4
     # via
@@ -100,18 +100,18 @@ greenlet==3.0.3
     # via
     #   -r requirements.txt
     #   gevent
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements.txt
-idna==3.7
+idna==3.8
     # via
     #   -r requirements.txt
     #   requests
-importlib-metadata==8.2.0
+importlib-metadata==8.4.0
     # via
     #   -r requirements.txt
     #   build
     #   pytest-randomly
-importlib-resources==6.4.0
+importlib-resources==6.4.4
     # via
     #   -r requirements.txt
     #   opf-fido
@@ -131,7 +131,7 @@ jsonschema-specifications==2023.12.1
     #   jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.txt
-lxml==5.2.2
+lxml==5.3.0
     # via
     #   -r requirements.txt
     #   ammcpc
@@ -153,7 +153,7 @@ olefile==0.47
     #   opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
-orjson==3.10.6
+orjson==3.10.7
     # via -r requirements.txt
 packaging==24.1
     # via
@@ -228,7 +228,7 @@ python-ldap==3.4.4
     #   -r requirements.txt
     #   django-auth-ldap
     #   mockldap
-python-mimeparse==1.6.0
+python-mimeparse==2.0.0
     # via
     #   -r requirements.txt
     #   django-tastypie
@@ -268,7 +268,7 @@ tomli==2.0.1
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.17.1
+tox==4.18.0
     # via -r requirements-dev.in
 typing-extensions==4.12.2
     # via
@@ -288,7 +288,7 @@ wheel==0.44.0
     # via pip-tools
 whitenoise==6.7.0
     # via -r requirements.txt
-zipp==3.19.2
+zipp==3.20.1
     # via
     #   -r requirements.txt
     #   importlib-metadata
@@ -297,7 +297,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==7.0.1
+zope-interface==7.0.3
     # via
     #   -r requirements.txt
     #   gevent
@@ -305,7 +305,7 @@ zope-interface==7.0.1
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.2
     # via pip-tools
-setuptools==72.1.0
+setuptools==74.0.0
     # via
     #   -r requirements.txt
     #   pip-tools

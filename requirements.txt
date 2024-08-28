@@ -64,13 +64,13 @@ gevent==24.2.1
     # via -r requirements.in
 greenlet==3.0.3
     # via gevent
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via -r requirements.in
-idna==3.7
+idna==3.8
     # via requests
-importlib-metadata==8.2.0
+importlib-metadata==8.4.0
     # via -r requirements.in
-importlib-resources==6.4.0
+importlib-resources==6.4.4
     # via opf-fido
 inotify-simple==1.3.5
     # via -r requirements.in
@@ -82,7 +82,7 @@ jsonschema-specifications==2023.12.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.in
-lxml==5.2.2
+lxml==5.3.0
     # via
     #   -r requirements.in
     #   ammcpc
@@ -98,7 +98,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.in
-orjson==3.10.6
+orjson==3.10.7
     # via -r requirements.in
 packaging==24.1
     # via gunicorn
@@ -126,7 +126,7 @@ python-ldap==3.4.4
     # via
     #   -r requirements.in
     #   django-auth-ldap
-python-mimeparse==1.6.0
+python-mimeparse==2.0.0
     # via django-tastypie
 referencing==0.35.1
     # via
@@ -162,17 +162,17 @@ urllib3==2.2.2
     #   requests
 whitenoise==6.7.0
     # via -r requirements.in
-zipp==3.19.2
+zipp==3.20.1
     # via
     #   importlib-metadata
     #   importlib-resources
 zope-event==5.0
     # via gevent
-zope-interface==7.0.1
+zope-interface==7.0.3
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==72.1.0
+setuptools==74.0.0
     # via
     #   zope-event
     #   zope-interface
