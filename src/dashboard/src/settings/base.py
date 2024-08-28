@@ -284,6 +284,7 @@ DATABASES = {
         # CONN_MAX_AGE a value different than 0 - unless you're using a
         # thread-safe connection pool. More here: https://git.io/vd9qq.
         "CONN_MAX_AGE": config.get("db_conn_max_age"),
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 

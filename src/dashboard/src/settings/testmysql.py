@@ -9,6 +9,7 @@ DATABASES = {
         "HOST": "mysql",
         "PORT": "3306",
         "CONN_MAX_AGE": 600,
+        "CONN_HEALTH_CHECKS": True,
         "TEST": {"NAME": "test_DASHBOARDTEST"},
     }
 }
