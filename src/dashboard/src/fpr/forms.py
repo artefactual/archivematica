@@ -79,8 +79,14 @@ class IDRuleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Limit to only enabled formats/commands
-        self.fields["format"].queryset = fprmodels.FormatVersion.active.all()
-        self.fields["command"].queryset = fprmodels.IDCommand.active.all()
+        self.fields[
+            "format"
+        ].queryset = fprmodels.FormatVersion.active.all().prefetch_related(
+            "format__group"
+        )
+        self.fields[
+            "command"
+        ].queryset = fprmodels.IDCommand.active.all().prefetch_related("tool")
 
     class Meta:
         model = fprmodels.IDRule
@@ -110,7 +116,11 @@ class FPRuleForm(forms.ModelForm):
             self.fields["command"].initial = self.instance.command.uuid
 
         # Show only active format versions in the format dropdown
-        self.fields["format"].queryset = fprmodels.FormatVersion.active.all()
+        self.fields[
+            "format"
+        ].queryset = fprmodels.FormatVersion.active.all().prefetch_related(
+            "format__group"
+        )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -167,6 +177,12 @@ class FPCommandForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields[
+            "output_format"
+        ].queryset = fprmodels.FormatVersion.active.all().prefetch_related(
+            "format__group"
+        )
 
         verification_commands = fprmodels.FPCommand.active.filter(
             command_usage="verification"

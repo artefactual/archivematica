@@ -317,7 +317,9 @@ def idrule_list(request):
             "replaces_id"
         )
     ]
-    idrules = fprmodels.IDRule.objects.exclude(uuid__in=replacing_rules)
+    idrules = fprmodels.IDRule.objects.exclude(
+        uuid__in=replacing_rules
+    ).prefetch_related("format__format__group", "command")
     return render(request, "fpr/idrule/list.html", context(locals()))
 
 
@@ -391,7 +393,9 @@ def idcommand_list(request):
             "replaces_id"
         )
     ]
-    idcommands = fprmodels.IDCommand.objects.exclude(uuid__in=replacing_commands)
+    idcommands = fprmodels.IDCommand.objects.exclude(
+        uuid__in=replacing_commands
+    ).prefetch_related("tool")
     return render(request, "fpr/idcommand/list.html", context(locals()))
 
 
@@ -493,7 +497,11 @@ def fprule_list(request, usage=None):
     else:
         opts = {}
     # Display disabled rules as long as they aren't replaced by another rule
-    fprules = fprmodels.FPRule.objects.filter(**opts).exclude(uuid__in=replacing_rules)
+    fprules = (
+        fprmodels.FPRule.objects.filter(**opts)
+        .exclude(uuid__in=replacing_rules)
+        .prefetch_related("format__format__group", "command")
+    )
     return render(request, "fpr/fprule/list.html", context(locals()))
 
 
@@ -621,8 +629,10 @@ def fpcommand_list(request, usage=None):
             "replaces_id"
         )
     ]
-    fpcommands = fprmodels.FPCommand.objects.filter(**opts).exclude(
-        uuid__in=replacing_commands
+    fpcommands = (
+        fprmodels.FPCommand.objects.filter(**opts)
+        .exclude(uuid__in=replacing_commands)
+        .prefetch_related("tool")
     )
     return render(request, "fpr/fpcommand/list.html", context(locals()))
 
@@ -641,7 +651,7 @@ def fpcommand_edit(request, uuid=None):
         title = _("Replace command %(name)s") % {"name": fpcommand.description}
     else:
         fpcommand = None
-        title = _("Create format version")
+        title = _("Create format policy command")
     if request.method == "POST":
         form = fprforms.FPCommandForm(request.POST, instance=fpcommand)
         if form.is_valid():
