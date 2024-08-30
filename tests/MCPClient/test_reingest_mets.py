@@ -28,7 +28,12 @@ mcp_job = Job("stub", "stub", [])
 class TestUpdateObject(TestCase):
     """Test updating the PREMIS:OBJECT in the techMD. (update_object)."""
 
-    fixture_files = ["sip-reingest.json", "files.json", "events-reingest.json"]
+    fixture_files = [
+        "agents.json",
+        "sip-reingest.json",
+        "files.json",
+        "events-reingest.json",
+    ]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     def setUp(self):
@@ -1839,7 +1844,12 @@ class TestAddingNewFiles(TestCase):
 class TestDeleteFiles(TestCase):
     """Test marking files in the METS as deleted. (delete_files)"""
 
-    fixture_files = ["sip-reingest.json", "files.json", "events-reingest.json"]
+    fixture_files = [
+        "agents.json",
+        "sip-reingest.json",
+        "files.json",
+        "events-reingest.json",
+    ]
     fixtures = [os.path.join(FIXTURES_DIR, p) for p in fixture_files]
 
     sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"

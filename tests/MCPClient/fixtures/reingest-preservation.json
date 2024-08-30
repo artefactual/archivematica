@@ -26,7 +26,7 @@
     "fields": {
         "event_type": "normalization",
         "event_id": "291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1",
-        "agents": [1,2,3],
+        "agents": [2,3],
         "event_detail": "ArchivematicaFPRCommandID=\"a34ddc9b-c922-4bb6-8037-bbe713332175\"; program=\"convert\"; version=\"Version: ImageMagick 6.7.7-10 2014-03-06 Q16 http://www.imagemagick.org\"\n",
         "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
         "event_outcome_detail": "%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif",
@@ -59,7 +59,7 @@
     "fields": {
         "event_type": "creation",
         "event_id": "a89e6b45-1ac0-49cc-9dda-a4d11ed63f2f",
-        "agents": [1,2,3],
+        "agents": [2,3],
         "event_detail": "",
         "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
         "event_outcome_detail": "",
@@ -73,7 +73,7 @@
     "fields": {
         "event_type": "message digest calculation",
         "event_id": "5c505f21-4e9a-49aa-b7dd-ed699fd4f8ef",
-        "agents": [1,2,3],
+        "agents": [2,3],
         "event_detail": "program=\"python\"; module=\"hashlib.sha256()\"",
         "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
         "event_outcome_detail": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
@@ -87,7 +87,7 @@
     "fields": {
         "event_type": "fixity check",
         "event_id": "94ca2dee-b136-4a74-b477-a0b938bb49e9",
-        "agents": [1,2,3],
+        "agents": [2,3],
         "event_detail": "program=\"python\"; module=\"hashlib.sha256()\"",
         "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
         "event_outcome_detail": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9 verified",
