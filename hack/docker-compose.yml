@@ -76,14 +76,6 @@ services:
     ports:
       - "127.0.0.1:62004:4730"
 
-  fits:
-    image: "artefactual/fits-ngserver:0.8.4"
-    user: ${USER_ID:-1000}
-    ports:
-      - "127.0.0.1:62005:2113"
-    volumes:
-      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"  # Read and write needed!
-
   clamavd:
     image: "artefactual/clamav:latest"
     environment:
@@ -146,8 +138,6 @@ services:
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "settings.common"
-      NAILGUN_SERVER: "fits"
-      NAILGUN_PORT: "2113"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_USER: "archivematica"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_PASSWORD: "demo"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_HOST: "mysql"
@@ -169,7 +159,6 @@ services:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
     links:
-      - "fits"
       - "clamavd"
       - "mysql"
       - "gearmand"
