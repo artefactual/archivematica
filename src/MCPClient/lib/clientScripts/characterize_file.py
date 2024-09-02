@@ -5,7 +5,7 @@
 # b) Prints the tool's stdout, for tools which do not output XML
 #
 # If a tool has no defined characterization commands, then the default
-# will be run instead (currently FITS).
+# will be run instead.
 import argparse
 import dataclasses
 import multiprocessing
