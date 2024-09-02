@@ -168,7 +168,6 @@ RUN set -ex \
 		clamav \
 		coreutils \
 		ffmpeg \
-		fits \
 		g++ \
 		gcc \
 		gearman \
@@ -190,7 +189,6 @@ RUN set -ex \
 		md5deep \
 		mediaconch \
 		mediainfo \
-		nailgun \
 		nfs-common \
 		openjdk-8-jre-headless \
 		p7zip-full \
