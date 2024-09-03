@@ -1927,15 +1927,15 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%relativeLocation%\" \"%SIPLogsDirectory%fileMeta/%fileUUID%.xml\" \"%date%\" \"%taskUUID%\" \"%fileUUID%\" \"%fileGrpUse%\"",
-        "execute": "FITS_v0.0",
+        "arguments": "\"%fileUUID%\" \"%SIPUUID%\"",
+        "execute": "characterizeFile_v0.0",
         "filter_subdir": "objects/manualNormalization/preservation"
       },
       "description": {
-        "en": "Run FITS on manual normalized preservation files",
-        "no": "Kjør FITS på manuelt normaliserte bevaringsfiler",
-        "pt_BR": "Executar o FITS em arquivos de preservação normalizados manuaimente",
-        "sv": "Kör FITS på manuellt normaliserade bevarandefiler"
+        "en": "Characterize and extract metadata on manual normalized preservation files",
+        "no": "Karakteriser og hent ut metadata på manuelt normaliserte bevaringsfiler",
+        "pt_BR": "Caracterizar e extrair metadados em arquivos de preservação normalizados manuaimente",
+        "sv": "Karaktärisera och extrahera metadata på manuellt normaliserade bevarandefiler"
       },
       "exit_codes": {
         "0": {
