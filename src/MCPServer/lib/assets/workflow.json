@@ -2934,11 +2934,11 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "bd382151-afd0-41bf-bb7a-b39aef728a32"
+          "link_id": "1b1a4565-b501-407b-b40f-2f20889423f1"
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "bd382151-afd0-41bf-bb7a-b39aef728a32",
+      "fallback_link_id": "1b1a4565-b501-407b-b40f-2f20889423f1",
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -7667,7 +7667,7 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "bd382151-afd0-41bf-bb7a-b39aef728a32",
+      "fallback_link_id": "1b1a4565-b501-407b-b40f-2f20889423f1",
       "group": {
         "en": "Extract packages",
         "es": "Extraer paquetes",
@@ -9042,41 +9042,6 @@
         "no": "Normaliser",
         "pt_BR": "Normalizar",
         "sv": "Normalisera"
-      }
-    },
-    "bd382151-afd0-41bf-bb7a-b39aef728a32": {
-      "config": {
-        "@manager": "linkTaskManagerFiles",
-        "@model": "StandardTaskConfig",
-        "arguments": "\"%relativeLocation%\" \"%SIPLogsDirectory%fileMeta/%fileUUID%.xml\" \"%date%\" \"%taskUUID%\" \"%fileUUID%\" \"%fileGrpUse%\"",
-        "execute": "FITS_v0.0",
-        "filter_subdir": "objects/attachments"
-      },
-      "description": {
-        "en": "Characterize and extract metadata for attachments",
-        "es": "Caracterizar y extraer los metadatos de los adjuntos",
-        "fr": "Caractériser et extraire les métadonnées pour mettre en pièces jointes",
-        "ja": "添付ファイルのメタデータの特徴付けと抽出",
-        "no": "Karakteriser og hent ut metadata fra vedlegg",
-        "pt_BR": "Caracterizar e extrair metadados para anexos",
-        "sv": "Karaktärisera och extrahera metadata för bilagor"
-      },
-      "exit_codes": {
-        "0": {
-          "job_status": "Completed successfully",
-          "link_id": "1b1a4565-b501-407b-b40f-2f20889423f1"
-        }
-      },
-      "fallback_job_status": "Failed",
-      "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-      "group": {
-        "en": "Characterize and extract metadata",
-        "es": "Caracterizar y extraer metadatos",
-        "fr": "Caractériser et extraire les métadonnées",
-        "ja": "メタデータの特徴付けと抽出",
-        "no": "Karakteriser og hent ut metadata",
-        "pt_BR": "Caracterizar e extrair metadados",
-        "sv": "Karaktärisera och extrahera metadata"
       }
     },
     "bd792750-a55b-42e9-903a-8c898bb77df1": {
