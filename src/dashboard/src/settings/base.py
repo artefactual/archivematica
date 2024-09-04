@@ -637,21 +637,25 @@ OIDC_AUTHENTICATION = config.get("oidc_authentication")
 if OIDC_AUTHENTICATION:
     OIDC_ALLOW_LOCAL_AUTHENTICATION = config.get("oidc_allow_local_authentication")
 
-    # Insert OIDC before the redirect to LOGIN_URL
-    MIDDLEWARE.insert(
-        MIDDLEWARE.index("installer.middleware.ConfigurationCheckMiddleware") - 1,
-        "middleware.common.OidcCaptureQueryParamMiddleware",
-    )
-
+    INSTALLED_APPS += ["mozilla_django_oidc"]
     ALLOW_USER_EDITS = False
     OIDC_STORE_ID_TOKEN = True
 
     OIDC_AUTHENTICATE_CLASS = (
         "components.accounts.views.CustomOIDCAuthenticationRequestView"
     )
+    OIDC_CALLBACK_CLASS = (
+        "components.accounts.views.CustomOIDCAuthenticationCallbackView"
+    )
+
     AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
     LOGIN_EXEMPT_URLS.append(r"^oidc")
-    INSTALLED_APPS += ["mozilla_django_oidc"]
+
+    # Insert OIDC before the redirect to LOGIN_URL
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("installer.middleware.ConfigurationCheckMiddleware") - 1,
+        "middleware.common.OidcCaptureQueryParamMiddleware",
+    )
 
     from .components.oidc_auth import *
 
