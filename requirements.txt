@@ -20,20 +20,20 @@ bagit @ git+https://github.com/artefactual-labs/bagit-python.git@4b8fde73b4e6314
     # via -r requirements.in
 brotli==1.1.0
     # via -r requirements.in
-certifi==2024.7.4
+certifi==2024.8.30
     # via requests
-cffi==1.17.0
+cffi==1.17.1
     # via cryptography
 charset-normalizer==3.3.2
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-django==4.2.15
+django==4.2.16
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -172,7 +172,7 @@ zope-interface==7.0.3
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==74.0.0
+setuptools==74.1.2
     # via
     #   zope-event
     #   zope-interface

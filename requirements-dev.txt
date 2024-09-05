@@ -27,11 +27,11 @@ build==1.2.1
     # via pip-tools
 cachetools==5.5.0
     # via tox
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   -r requirements.txt
     #   requests
-cffi==1.17.0
+cffi==1.17.1
     # via
     #   -r requirements.txt
     #   cryptography
@@ -51,7 +51,7 @@ coverage[toml]==7.6.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   -r requirements.txt
     #   josepy
@@ -59,7 +59,7 @@ cryptography==43.0.0
     #   pyopenssl
 distlib==0.3.8
     # via virtualenv
-django==4.2.15
+django==4.2.16
     # via
     #   -r requirements.txt
     #   django-auth-ldap
@@ -209,7 +209,7 @@ pytest==8.3.2
     #   pytest-randomly
 pytest-cov==5.0.0
     # via -r requirements-dev.in
-pytest-django==4.8.0
+pytest-django==4.9.0
     # via -r requirements-dev.in
 pytest-mock==3.14.0
     # via -r requirements-dev.in
@@ -305,7 +305,7 @@ zope-interface==7.0.3
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.2
     # via pip-tools
-setuptools==74.0.0
+setuptools==74.1.2
     # via
     #   -r requirements.txt
     #   pip-tools
