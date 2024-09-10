@@ -1948,7 +1948,7 @@
       "group": {
         "en": "Process manually normalized files",
         "es": "Procesar manualmente ficheros normalizados",
-        "no": "Prosesser normaliserte filer manuelt",
+        "no": "Prosesser manuelt normaliserte filer",
         "pt_BR": "Processar arquivos normalizados manualmente",
         "sv": "Bearbeta manuellt normaliserade filer"
       }
@@ -9241,6 +9241,38 @@
         "sv": "Byt namn på SIP-mappen med SIP UUID"
       }
     },
+    "bf0ea0f6-211b-4b34-8f25-8a68145403c8": {
+      "config": {
+        "@manager": "linkTaskManagerFiles",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"True\" \"%relativeLocation%\" \"%fileUUID%\" --disable-reidentify",
+        "execute": "identifyFileFormat_v0.0",
+        "filter_subdir": "objects/manualNormalization/preservation"
+      },
+      "description": {
+        "en": "Identify file format",
+        "es": "Identificar formato de fichero",
+        "fr": "Identifier le format de fichier",
+        "no": "Identifiser filformat",
+        "pt_BR": "Identifique o formato do arquivo",
+        "sv": "Identifiera filformat"
+      },
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully",
+          "link_id": "10c40e41-fb10-48b5-9d01-336cd958afe8"
+        }
+      },
+      "fallback_job_status": "Failed",
+      "fallback_link_id": "10c40e41-fb10-48b5-9d01-336cd958afe8",
+      "group": {
+        "en": "Process manually normalized files",
+        "es": "Procesar manualmente ficheros normalizados",
+        "no": "Prosesser manuelt normaliserte filer",
+        "pt_BR": "Processar arquivos normalizados manualmente",
+        "sv": "Bearbeta manuellt normaliserade filer"
+      }
+    },
     "c103b2fb-9a6b-4b68-8112-b70597a6cd14": {
       "config": {
         "@manager": "linkTaskManagerDirectories",
@@ -10725,7 +10757,7 @@
       "exit_codes": {
         "0": {
           "job_status": "Completed successfully",
-          "link_id": "10c40e41-fb10-48b5-9d01-336cd958afe8"
+          "link_id": "bf0ea0f6-211b-4b34-8f25-8a68145403c8"
         }
       },
       "fallback_job_status": "Failed",
