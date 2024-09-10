@@ -25,6 +25,7 @@ jobs:
           - "icc"
           - "ipc preservation"
           - "ipc access"
+          - "man-norm"
           - "metadata-xml"
           - "tcc"
           - "tpc"
