@@ -22,6 +22,8 @@ import subprocess
 import sys
 import tempfile
 
+from archivematicaFunctions import escape
+
 
 def launchSubProcess(
     command,
@@ -103,8 +105,8 @@ def launchSubProcess(
                 env=my_env,
             )
             std_out, std_error = p.communicate(input=communicate_input)
-            stdOut = std_out.decode()
-            stdError = std_error.decode()
+            stdOut = escape(std_out)
+            stdError = escape(std_error)
         else:
             # Ignore the stdout of the subprocess, capturing only stderr
             with open(os.devnull, "w") as devnull:
@@ -116,7 +118,7 @@ def launchSubProcess(
                     stderr=subprocess.PIPE,
                 )
                 __, std_error = p.communicate(input=communicate_input)
-                stdError = std_error.decode()
+                stdError = escape(std_error)
         retcode = p.returncode
         # If we are not capturing output and the subprocess has succeeded, set
         # its stderr to the empty string.
