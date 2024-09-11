@@ -64,6 +64,7 @@ module = [
     "src.MCPClient.lib.clientScripts.policy_check",
     "src.MCPClient.lib.clientScripts.transcribe_file",
     "src.MCPClient.lib.clientScripts.validate_file",
+    "tests.archivematicaCommon.test_execute_functions",
     "tests.dashboard.fpr.test_views",
     "tests.MCPClient.conftest",
     "tests.MCPClient.test_characterize_file",
