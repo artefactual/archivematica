@@ -120,7 +120,12 @@ def main(job):
     # We found the original file somewhere above
     job.print_output(
         "Matched original file %s (%s) to  preservation file %s (%s)"
-        % (original_file.currentlocation, original_file.uuid, filePath, fileUUID)
+        % (
+            original_file.currentlocation.decode(),
+            original_file.uuid,
+            filePath,
+            fileUUID,
+        )
     )
     # Generate the new preservation path: path/to/original/filename-uuid.ext
     basename = os.path.basename(filePath)

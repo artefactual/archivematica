@@ -64,7 +64,6 @@ am-archivematica-mcp-server-1        39.43MiB / 7.763GiB
 am-archivematica-storage-service-1   83.96MiB / 7.763GiB
 am-nginx-1                           2.715MiB / 7.763GiB
 am-elasticsearch-1                   900.2MiB / 7.763GiB
-am-fits-1                            71.09MiB / 7.763GiB
 am-gearmand-1                        3.395MiB / 7.763GiB
 am-mysql-1                           551.9MiB / 7.763GiB
 am-clamavd-1                         570MiB / 7.763GiB
@@ -312,7 +311,6 @@ echo workers | socat - tcp:127.0.0.1:62004,shut-none | grep "_v0.0" | awk '{prin
 | mysql                                   | `tcp/3306`     | `tcp/62001` |
 | elasticsearch                           | `tcp/9200`     | `tcp/62002` |
 | gearman                                 | `tcp/4730`     | `tcp/62004` |
-| fits                                    | `tcp/2113`     | `tcp/62005` |
 | clamavd                                 | `tcp/3310`     | `tcp/62006` |
 | nginx » archivematica-dashboard         | `tcp/80`       | `tcp/62080` |
 | nginx » archivematica-storage-service   | `tcp/8000`     | `tcp/62081` |

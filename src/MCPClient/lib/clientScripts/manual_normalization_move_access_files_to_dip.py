@@ -106,7 +106,7 @@ def main(job):
             }
             f = File.objects.get(**kwargs)
         else:
-            if isinstance(e, File.DoesNotExist, ValidationError):
+            if isinstance(e, (File.DoesNotExist, ValidationError)):
                 job.print_error(
                     "No matching file for: ",
                     opts.filePath.replace(opts.SIPDirectory, "%SIPDirectory%", 1),
