@@ -1,6 +1,7 @@
 import shlex
 import tempfile
 from unittest.mock import ANY
+from unittest.mock import Mock
 from unittest.mock import patch
 
 import executeOrRunSubProcess as execsub
@@ -89,3 +90,20 @@ def test_createAndRunScript_creates_tmpfile_in_custom_dir(launchSubProcess, temp
     )
     args, _ = launchSubProcess.call_args
     assert args[0][0].startswith(temp_path)
+
+
+@patch("subprocess.Popen")
+def test_launchSubProcess_replaces_non_utf8_output_with_replacement_characters(Popen):
+    communicate_return_code = 0
+    communicate_output = b"Output \xae"
+    communicate_error = b"Error \xae"
+    Popen.return_value = Mock(
+        returncode=communicate_return_code,
+        **{"communicate.return_value": (communicate_output, communicate_error)},
+    )
+
+    code, stdout, stderr = execsub.launchSubProcess("mycommand", capture_output=True)
+
+    assert code == communicate_return_code
+    assert stdout == communicate_output.decode(errors="replace")
+    assert stderr == communicate_error.decode(errors="replace")
