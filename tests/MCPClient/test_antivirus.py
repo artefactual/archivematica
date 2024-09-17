@@ -55,7 +55,6 @@ args = OrderedDict()
 args["file_uuid"] = "ec26199f-72a4-4fd8-a94a-29144b02ddd8"
 args["path"] = "/path"
 args["date"] = "2019-12-01"
-args["task_uuid"] = "c380e94e-7a7b-4ab8-aa72-ec0644cc3f5d"
 
 
 class FileMock:

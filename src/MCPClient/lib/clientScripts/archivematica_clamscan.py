@@ -140,7 +140,7 @@ def get_size(file_uuid, path):
         return None
 
 
-def scan_file(event_queue, file_uuid, path, date, task_uuid):
+def scan_file(event_queue, file_uuid, path, date):
     if file_already_scanned(file_uuid):
         logger.info("Virus scan already performed, not running scan again")
         return 0

@@ -2524,7 +2524,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\"",
         "execute": "archivematicaClamscan_v0.0",
         "filter_subdir": "objects/submissionDocumentation",
         "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
@@ -2555,7 +2555,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\"",
         "execute": "archivematicaClamscan_v0.0",
         "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
       },
@@ -2884,7 +2884,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\"",
         "execute": "archivematicaClamscan_v0.0",
         "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
       },
@@ -6623,7 +6623,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\"",
         "execute": "archivematicaClamscan_v0.0",
         "filter_subdir": "objects/"
       },
@@ -7202,7 +7202,7 @@
       "config": {
         "@manager": "linkTaskManagerFiles",
         "@model": "StandardTaskConfig",
-        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\" \"%taskUUID%\"",
+        "arguments": "\"%fileUUID%\" \"%relativeLocation%\" \"%date%\"",
         "execute": "archivematicaClamscan_v0.0",
         "filter_subdir": "objects/metadata",
         "stderr_file": "%SIPLogsDirectory%clamAVScan.txt"
