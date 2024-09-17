@@ -1,12 +1,12 @@
-"""Tests for the archivematica_clamscan.py client script."""
+"""Tests for the antivirus.py client script."""
 
 from collections import OrderedDict
 from collections import namedtuple
 from unittest import mock
 
 import pytest
-from archivematica_clamscan import create_scanner
-from archivematica_clamscan import scan_file
+from antivirus import create_scanner
+from antivirus import scan_file
 from clamav_client.scanner import ClamdScanner
 from clamav_client.scanner import ClamscanScanner
 from clamav_client.scanner import Scanner
@@ -95,7 +95,7 @@ def setup_test_scan_file_mocks(
 ):
     deps = namedtuple("deps", ["file_already_scanned", "file_get", "scanner"])(
         file_already_scanned=mocker.patch(
-            "archivematica_clamscan.file_already_scanned",
+            "antivirus.file_already_scanned",
             return_value=file_already_scanned,
         ),
         file_get=mocker.patch(
@@ -104,7 +104,7 @@ def setup_test_scan_file_mocks(
         scanner=ScannerMock(should_except=scanner_should_except, passed=scanner_passed),
     )
 
-    mocker.patch("archivematica_clamscan.get_scanner", return_value=deps.scanner)
+    mocker.patch("antivirus.get_scanner", return_value=deps.scanner)
 
     return deps
 
@@ -183,8 +183,8 @@ def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings
     ret = scan_file(event_queue, **dict(args))
 
     # The integer returned by scan_file() is going to be used as the exit code
-    # of the archivematica_clamscan.py script which is important for the AM
-    # workflow in order to control what to do next.
+    # of the antivirus.py script which is important for the AM workflow in order
+    # to control what to do next.
     assert exit_code == ret
 
     # A side effect of scan_file() is to queue an event to be created in the
