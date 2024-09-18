@@ -5,6 +5,7 @@ import tempfile
 import store_file_modification_dates
 from django.test import TestCase
 from django.test import override_settings
+from django.utils.timezone import get_current_timezone
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -52,7 +53,9 @@ class TestStoreFileModification(TestCase):
             os.utime(path, (1049597970, 1049597970))
 
         # Store file modification dates
-        store_file_modification_dates.main(self.transfer_uuid, self.temp_dir + "/")
+        store_file_modification_dates.main(
+            self.transfer_uuid, self.temp_dir + "/", get_current_timezone()
+        )
 
         # Assert files have expected modification times
         expected_time = "2003-04-06 02:59:30+00:00"
