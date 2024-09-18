@@ -4,6 +4,7 @@ import tempfile
 
 import store_file_modification_dates
 from django.test import TestCase
+from django.test import override_settings
 from main import models
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +26,7 @@ class TestStoreFileModification(TestCase):
         )
         shutil.rmtree(transfer_path)
 
+    @override_settings(TIME_ZONE="US/Eastern")
     def test_store_file_modification_dates(self):
         """Test store_file_modification_dates.
 
@@ -47,13 +49,13 @@ class TestStoreFileModification(TestCase):
                 os.makedirs(dirname)
             with open(path, "wb") as f:
                 f.write(path.encode("utf8"))
-            os.utime(path, (1339485682, 1339485682))
+            os.utime(path, (1049597970, 1049597970))
 
         # Store file modification dates
         store_file_modification_dates.main(self.transfer_uuid, self.temp_dir + "/")
 
         # Assert files have expected modification times
-        expected_time = "2012-06-12 07:21:22+00:00"
+        expected_time = "2003-04-06 02:59:30+00:00"
         assert (
             str(
                 models.File.objects.get(
