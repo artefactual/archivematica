@@ -351,7 +351,7 @@ class CustomOIDCLogoutView(OIDCLogoutView):
 
 def get_oidc_logout_url(request):
     """
-    Constructs the OIDC logout URL for Keycloak.
+    Constructs the OIDC logout URL used in OIDCLogoutView.
     """
     # Retrieve the ID token from the session.
     id_token = request.session.get("oidc_id_token")
