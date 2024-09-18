@@ -53,13 +53,14 @@ class TestStoreFileModification(TestCase):
         store_file_modification_dates.main(self.transfer_uuid, self.temp_dir + "/")
 
         # Assert files have expected modification times
+        expected_time = "2012-06-12 07:21:22+00:00"
         assert (
             str(
                 models.File.objects.get(
                     pk="47813453-6872-442b-9d65-6515be3c5aa1"
                 ).modificationtime
             )
-            == "2012-06-12 07:21:22+00:00"
+            == expected_time
         )
         assert (
             str(
@@ -67,7 +68,7 @@ class TestStoreFileModification(TestCase):
                     pk="60e5c61b-14ef-4e92-89ec-9b9201e68adb"
                 ).modificationtime
             )
-            == "2012-06-12 07:21:22+00:00"
+            == expected_time
         )
         assert (
             str(
@@ -75,7 +76,7 @@ class TestStoreFileModification(TestCase):
                     pk="791e07ea-ad44-4315-b55b-44ec771e95cf"
                 ).modificationtime
             )
-            == "2012-06-12 07:21:22+00:00"
+            == expected_time
         )
         assert (
             str(
@@ -83,5 +84,5 @@ class TestStoreFileModification(TestCase):
                     pk="8a1f0b59-cf94-47ef-8078-647b77c8a147"
                 ).modificationtime
             )
-            == "2012-06-12 07:21:22+00:00"
+            == expected_time
         )
