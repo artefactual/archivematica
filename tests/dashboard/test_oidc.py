@@ -1,7 +1,20 @@
 from components.accounts.backends import CustomOIDCBackend
 from django.test import TestCase
+from django.test import override_settings
 
 
+@override_settings(OIDC_OP_TOKEN_ENDPOINT="https://example.com/token")
+@override_settings(OIDC_OP_USER_ENDPOINT="https://example.com/user")
+@override_settings(OIDC_RP_CLIENT_ID="rp_client_id")
+@override_settings(OIDC_RP_CLIENT_SECRET="rp_client_secret")
+@override_settings(
+    OIDC_ACCESS_ATTRIBUTE_MAP={
+        "given_name": "first_name",
+        "family_name": "last_name",
+    }
+)
+@override_settings(OIDC_ID_ATTRIBUTE_MAP={"email": "email"})
+@override_settings(OIDC_USERNAME_ALGO=lambda email: email)
 class TestOIDC(TestCase):
     def test_create_user(self):
         backend = CustomOIDCBackend()
