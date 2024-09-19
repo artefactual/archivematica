@@ -1,12 +1,7 @@
-import pytest
 from components.accounts.backends import CustomOIDCBackend
-from django.conf import settings
 from django.test import TestCase
 
 
-@pytest.mark.skipif(
-    not settings.OIDC_AUTHENTICATION, reason="tests will only pass if OIDC is enabled"
-)
 class TestOIDC(TestCase):
     def test_create_user(self):
         backend = CustomOIDCBackend()
