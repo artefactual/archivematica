@@ -62,15 +62,15 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via -r requirements.in
 gevent==24.2.1
     # via -r requirements.in
-greenlet==3.0.3
+greenlet==3.1.0
     # via gevent
 gunicorn==23.0.0
     # via -r requirements.in
-idna==3.8
+idna==3.10
     # via requests
-importlib-metadata==8.4.0
+importlib-metadata==8.5.0
     # via -r requirements.in
-importlib-resources==6.4.4
+importlib-resources==6.4.5
     # via opf-fido
 inotify-simple==1.3.5
     # via -r requirements.in
@@ -106,11 +106,11 @@ prometheus-client==0.20.0
     # via
     #   -r requirements.in
     #   django-prometheus
-pyasn1==0.6.0
+pyasn1==0.6.1
     # via
     #   pyasn1-modules
     #   python-ldap
-pyasn1-modules==0.4.0
+pyasn1-modules==0.4.1
     # via python-ldap
 pycparser==2.22
     # via cffi
@@ -155,14 +155,14 @@ typing-extensions==4.12.2
     # via asgiref
 unidecode==1.3.8
     # via -r requirements.in
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   amclient
     #   elasticsearch
     #   requests
 whitenoise==6.7.0
     # via -r requirements.in
-zipp==3.20.1
+zipp==3.20.2
     # via
     #   importlib-metadata
     #   importlib-resources
@@ -172,7 +172,7 @@ zope-interface==7.0.3
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==74.1.2
+setuptools==75.1.0
     # via
     #   zope-event
     #   zope-interface
