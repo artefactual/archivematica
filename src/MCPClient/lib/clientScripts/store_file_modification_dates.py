@@ -21,22 +21,20 @@ import os
 import django
 
 django.setup()
-# archivematicaCommon
 from custom_handlers import get_script_logger
 from django.db import transaction
-
-# dashboard
+from django.utils.timezone import get_current_timezone
 from main import models
 
 logger = get_script_logger("archivematica.mcp.client.storeFileModificationDates")
 
 
-def get_modification_date(file_path):
+def get_modification_date(file_path, timezone):
     mod_time = os.path.getmtime(file_path)
-    return datetime.datetime.utcfromtimestamp(int(mod_time))
+    return datetime.datetime.fromtimestamp(int(mod_time), tz=timezone)
 
 
-def main(transfer_uuid, shared_directory_path):
+def main(transfer_uuid, shared_directory_path, timezone):
     transfer = models.Transfer.objects.get(uuid=transfer_uuid)
 
     files = models.File.objects.filter(transfer=transfer)
@@ -57,7 +55,7 @@ def main(transfer_uuid, shared_directory_path):
             file_path = file_path_relative_to_shared_directory.replace(
                 "%sharedPath%", shared_directory_path, 1
             )
-            transfer_file.modificationtime = get_modification_date(file_path)
+            transfer_file.modificationtime = get_modification_date(file_path, timezone)
             transfer_file.save()
             mods_stored += 1
 
@@ -65,10 +63,11 @@ def main(transfer_uuid, shared_directory_path):
 
 
 def call(jobs):
+    timezone = get_current_timezone()
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 transfer_uuid = job.args[1]
                 shared_directory_path = job.args[2]
-                main(transfer_uuid, shared_directory_path)
+                main(transfer_uuid, shared_directory_path, timezone)
                 job.set_status(0)
