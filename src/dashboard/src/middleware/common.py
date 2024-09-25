@@ -131,7 +131,9 @@ class OidcCaptureQueryParamMiddleware:
     def __call__(self, request):
         if not request.user.is_authenticated:
             # Capture query parameter value and store it in the session.
-            provider_name = request.GET.get(settings.OIDC_PROVIDER_QUERY_PARAM_NAME)
+            provider_name = request.GET.get(
+                settings.OIDC_PROVIDER_QUERY_PARAM_NAME, ""
+            ).upper()
 
             if provider_name and provider_name in settings.OIDC_PROVIDERS:
                 request.session["providername"] = provider_name
