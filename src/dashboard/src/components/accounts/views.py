@@ -305,45 +305,17 @@ class CustomOIDCLogoutView(OIDCLogoutView):
     Provide OpenID Logout capability
     """
 
-    def get_settings(self, attr, *args):
-        if attr in [
-            "OIDC_RP_CLIENT_ID",
-            "OIDC_RP_CLIENT_SECRET",
-            "OIDC_OP_AUTHORIZATION_ENDPOINT",
-            "OIDC_OP_TOKEN_ENDPOINT",
-            "OIDC_OP_USER_ENDPOINT",
-            "OIDC_OP_JWKS_ENDPOINT",
-            "OIDC_OP_LOGOUT_ENDPOINT",
-        ]:
-            # Retrieve the request object stored in the instance.
-            request = getattr(self, "request", None)
-
-            if request:
-                provider_name = request.session.get("providername")
-
-                if (
-                    provider_name
-                    and provider_name in settings.OIDC_SECONDARY_PROVIDER_NAMES
-                ):
-                    provider_settings = settings.OIDC_PROVIDERS.get(provider_name, {})
-                    value = provider_settings.get(attr)
-
-                    if value is None:
-                        raise ImproperlyConfigured(
-                            f"Setting {attr} for provider {provider_name} not found"
-                        )
-                    return value
-
-        # If request is None or provider_name session var is not set or attr is
-        # not in the list, call the superclass's get_settings method.
-        return OIDCLogoutView.get_settings(attr, *args)
-
     def get(self, request):
         self.request = request
 
         if "oidc_id_token" in request.session:
             # If the user authenticated via OIDC, perform the OIDC logout.
-            return super().post(request)
+            redirect = super().post(request)
+
+            if "providername" in request.session:
+                del request.session["providername"]
+
+            return redirect
         else:
             # If the user did not authenticate via OIDC, perform a local logout and redirect to login.
             return logout_then_login(request)
@@ -359,8 +331,21 @@ def get_oidc_logout_url(request):
     if not id_token:
         raise ValueError("ID token not found in session.")
 
-    # Get the end session endpoint from the provider settings.
-    end_session_endpoint = settings.OIDC_OP_LOGOUT_ENDPOINT
+    # Get the end session endpoint.
+    end_session_endpoint = getattr(settings, "OIDC_OP_LOGOUT_ENDPOINT", None)
+
+    # Override the end session endpoint from the provider settings if available.
+    if request:
+        provider_name = request.session.get("providername")
+
+        if provider_name and provider_name in settings.OIDC_SECONDARY_PROVIDER_NAMES:
+            provider_settings = settings.OIDC_PROVIDERS.get(provider_name, {})
+            end_session_endpoint = provider_settings.get("OIDC_OP_LOGOUT_ENDPOINT")
+
+            if end_session_endpoint is None:
+                raise ImproperlyConfigured(
+                    f"Setting OIDC_OP_LOGOUT_ENDPOINT for provider {provider_name} not found"
+                )
 
     if not end_session_endpoint:
         raise ValueError("OIDC logout endpoint not configured for provider.")
