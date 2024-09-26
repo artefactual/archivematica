@@ -62,7 +62,7 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via -r requirements.in
 gevent==24.2.1
     # via -r requirements.in
-greenlet==3.1.0
+greenlet==3.1.1
     # via gevent
 gunicorn==23.0.0
     # via -r requirements.in
@@ -102,7 +102,7 @@ orjson==3.10.7
     # via -r requirements.in
 packaging==24.1
     # via gunicorn
-prometheus-client==0.20.0
+prometheus-client==0.21.0
     # via
     #   -r requirements.in
     #   django-prometheus

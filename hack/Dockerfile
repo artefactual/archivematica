@@ -292,4 +292,21 @@ FROM base AS archivematica-tests
 
 # -----------------------------------------------------------------------------
 
+FROM base AS archivematica-dashboard-integration-tests
+
+USER root
+
+RUN set -ex \
+	&& python3 -m playwright install-deps firefox
+
+USER archivematica
+
+RUN set -ex \
+	&& mkdir -p /var/archivematica/.cache/ms-playwright \
+	&& python3 -m playwright install firefox
+
+ENV PYTHONPATH=/src/src/dashboard/src/:/src/src/archivematicaCommon/lib/
+
+# -----------------------------------------------------------------------------
+
 FROM ${TARGET}

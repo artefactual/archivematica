@@ -1,0 +1,52 @@
+[
+  {
+    "id": "demo",
+    "realm": "demo",
+    "sslRequired": "none",
+    "enabled": true,
+    "eventsEnabled": true,
+    "eventsExpiration": 900,
+    "adminEventsEnabled": true,
+    "adminEventsDetailsEnabled": true,
+    "attributes": {
+      "adminEventsExpiration": "900"
+    },
+    "clients": [
+      {
+        "id": "am-dashboard",
+        "clientId": "am-dashboard",
+        "name": "am-dashboard",
+        "enabled": true,
+        "rootUrl": "http://archivematica-dashboard:8000",
+        "adminUrl": "http://archivematica-dashboard:8000",
+        "baseUrl": "http://archivematica-dashboard:8000",
+        "clientAuthenticatorType": "client-secret",
+        "secret": "example-secret",
+        "redirectUris": ["http://archivematica-dashboard:8000/*"],
+        "webOrigins": ["http://archivematica-dashboard:8000"],
+        "standardFlowEnabled": true,
+        "serviceAccountsEnabled": true,
+        "authorizationServicesEnabled": true,
+        "publicClient": false
+      }
+    ],
+    "users": [
+      {
+        "id": "demo",
+        "email": "demo@example.com",
+        "username": "demo",
+        "firstName": "Demo",
+        "lastName": "User",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "temporary": false,
+            "type": "password",
+            "value": "demo"
+          }
+        ]
+      }
+    ]
+  }
+]
