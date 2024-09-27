@@ -648,6 +648,9 @@ if OIDC_AUTHENTICATION:
         "components.accounts.views.CustomOIDCAuthenticationCallbackView"
     )
 
+    if not OIDC_ALLOW_LOCAL_AUTHENTICATION:
+        LOGIN_URL = "oidc_authentication_init"
+
     AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
     LOGIN_EXEMPT_URLS.append(r"^oidc")
 

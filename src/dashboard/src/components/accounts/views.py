@@ -203,17 +203,6 @@ def delete(request, id):
         raise Http404
 
 
-class CustomOIDCLoginView(LoginView):
-    def get(self, request, *args, **kwargs):
-        if settings.OIDC_ALLOW_LOCAL_AUTHENTICATION:
-            return super().get(request, *args, **kwargs)
-
-        login_url = reverse("oidc_authentication_init")
-
-        # Redirect to the OIDC authentication URL.
-        return redirect(f"{login_url}")
-
-
 class CustomOIDCAuthenticationCallbackView(OIDCAuthenticationCallbackView):
     """
     OIDC client authentication callback HTTP endpoint
