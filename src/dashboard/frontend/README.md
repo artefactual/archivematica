@@ -315,8 +315,6 @@ cleaner. For example, instance methods on controller objects can be easily
 referenced from templates, which obviates the need to assign functions to
 properties.
 
-Here's a good guide that covers over how this works: <https://angular-tips.com/blog/2015/06/using-angular-1-dot-x-with-es6-and-webpack/>
-
 ### Modules
 
 ES6 provides support for real modules with their own separate namespaces.
@@ -380,7 +378,7 @@ The contents of `app/locale` should be tracked in git.
 
 [webpack]: https://webpack.github.io
 [community Angular style-guide]: https://github.com/johnpapa/angular-styleguide#application-structure
-[Jasmine]: https://jasmine.github.io/2.3/introduction.html
+[Jasmine]: https://jasmine.github.io/
 [Babel]: https://babeljs.io
 [in the Babel documentation]: https://babeljs.io/docs/learn-es2015/
 [template string]: https://babeljs.io/docs/learn-es2015/#template-strings

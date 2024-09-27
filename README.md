@@ -105,5 +105,5 @@ see the [getting started] page.
 [Test workflow]: https://github.com/artefactual/archivematica/actions/workflows/test.yml
 [User Group]: https://groups.google.com/forum/#!forum/archivematica
 [Website]: https://www.archivematica.org/
-[Wiki]: https://www.archivematica.org/wiki/Development
+[Wiki]: https://wiki.archivematica.org/Development
 [YouTube channel]: https://www.youtube.com/@ArtefactualSystems
