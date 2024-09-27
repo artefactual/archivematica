@@ -44,7 +44,7 @@ Artefactual developers use Docker Compose on Linux heavily so it's important
 that you're familiar with it, and some choices in the configuration of this
 environment break in other operative systems.
 
-[audience-compose-reference]: https://docs.docker.com/compose/reference/overview/
+[audience-compose-reference]: https://docs.docker.com/reference/cli/docker/compose/
 
 ## Requirements
 

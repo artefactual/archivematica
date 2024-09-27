@@ -792,7 +792,7 @@ provides an example that implements the logging behaviour used in Archivematica
 [DATABASES]: https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 [Sending email]: https://docs.djangoproject.com/en/1.8/topics/email/
 [USER]: https://docs.gunicorn.org/en/stable/settings.html#user
-[GROUP]: https://docs.gunicorn.org/en/styable/settings.html#group
+[GROUP]: https://docs.gunicorn.org/en/stable/settings.html#group
 [BIND]: https://docs.gunicorn.org/en/stable/settings.html#bind
 [WORKERS]: https://docs.gunicorn.org/en/stable/settings.html#workers
 [How Many Workers?]: https://docs.gunicorn.org/en/stable/design.html#how-many-workers
@@ -805,4 +805,4 @@ provides an example that implements the logging behaviour used in Archivematica
 [ERRORLOG]: https://docs.gunicorn.org/en/stable/settings.html#errorlog
 [LOGLEVEL]: https://docs.gunicorn.org/en/stable/settings.html#loglevel
 [PROC-NAME]: https://docs.gunicorn.org/en/stable/settings.html#proc-name
-[django-csp policy settings]: (<https://django-csp.readthedocs.io/en/latest/configuration.html#policy-settings>
+[django-csp policy settings]: https://django-csp.readthedocs.io/en/latest/configuration.html#policy-settings

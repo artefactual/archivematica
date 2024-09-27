@@ -50,7 +50,7 @@ the original report, there are a couple steps you can take:
 
 - Email the Archivematica Program Manager directly at
   [sromkey@artefactual.com](mailto:sromkey@artefactual.com)
-- Email Artefactual's info address: [info@artefactual.com](info@artefactual.com)
+- Email Artefactual's info address: [info@artefactual.com](mailto:info@artefactual.com)
 
 Any information you share with the Archivematica development team as a part of
 this process will be kept confidential within the team. If we determine that the
