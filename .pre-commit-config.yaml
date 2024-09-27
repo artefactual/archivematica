@@ -59,3 +59,7 @@ repos:
   - id: markdown-link-check
     stages: [manual]
     args: [--quiet, --config, .markdown-link-check.json]
+    exclude: |
+      (?x)^(
+        src/dashboard/src/media/vendor/.*\.md
+      )
