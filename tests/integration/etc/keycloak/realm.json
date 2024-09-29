@@ -48,5 +48,55 @@
         ]
       }
     ]
+  },
+  {
+    "id": "secondary",
+    "realm": "secondary",
+    "sslRequired": "none",
+    "enabled": true,
+    "eventsEnabled": true,
+    "eventsExpiration": 900,
+    "adminEventsEnabled": true,
+    "adminEventsDetailsEnabled": true,
+    "attributes": {
+      "adminEventsExpiration": "900"
+    },
+    "clients": [
+      {
+        "id": "am-dashboard-secondary",
+        "clientId": "am-dashboard-secondary",
+        "name": "am-dashboard-secondary",
+        "enabled": true,
+        "rootUrl": "http://archivematica-dashboard:8000",
+        "adminUrl": "http://archivematica-dashboard:8000",
+        "baseUrl": "http://archivematica-dashboard:8000",
+        "clientAuthenticatorType": "client-secret",
+        "secret": "example-secret-secondary",
+        "redirectUris": ["http://archivematica-dashboard:8000/*"],
+        "webOrigins": ["http://archivematica-dashboard:8000"],
+        "standardFlowEnabled": true,
+        "serviceAccountsEnabled": true,
+        "authorizationServicesEnabled": true,
+        "publicClient": false
+      }
+    ],
+    "users": [
+      {
+        "id": "support",
+        "email": "support@example.com",
+        "username": "support",
+        "firstName": "Support",
+        "lastName": "User",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "temporary": false,
+            "type": "password",
+            "value": "support"
+          }
+        ]
+      }
+    ]
   }
 ]
