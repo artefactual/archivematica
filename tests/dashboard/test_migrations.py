@@ -7,7 +7,7 @@ mod = importlib.import_module("main.migrations.0066_archivesspace_base_url")
 
 
 @pytest.mark.parametrize(
-    "host_and_port, base_url",
+    "host_and_port, expected_result",
     [
         ((None, None), ""),
         (("", ""), ""),
@@ -19,15 +19,15 @@ mod = importlib.import_module("main.migrations.0066_archivesspace_base_url")
         (("http://foobar.tld:789/asdf", "8089"), "http://foobar.tld:789/asdf"),
     ],
 )
-def test_0066_get_base_url(host_and_port, base_url):
+def test_0066_get_base_url(host_and_port, expected_result):
     """Test _get_baseurl."""
-    assert base_url == mod._get_base_url(*host_and_port), "Failed with args %s" % (
-        host_and_port
+    assert expected_result == mod._get_base_url(*host_and_port), (
+        "Failed with args %s" % (host_and_port)
     )
 
 
 @pytest.mark.parametrize(
-    "base_url, host_and_port",
+    "url, expected_result",
     [
         (None, ("", "")),
         ("", ("", "")),
@@ -38,8 +38,6 @@ def test_0066_get_base_url(host_and_port, base_url):
         ("http://foobar.tld:8089/subpath", ("foobar.tld", "8089")),
     ],
 )
-def test_0066_get_host_and_port(base_url, host_and_port):
+def test_0066_get_host_and_port(url, expected_result):
     """Test _get_host_and_port."""
-    assert host_and_port == mod._get_host_and_port(
-        base_url
-    ), f"Failed with arg {base_url}"
+    assert expected_result == mod._get_host_and_port(url), f"Failed with arg {url}"
