@@ -656,7 +656,7 @@ if OIDC_AUTHENTICATION:
 
     # Insert OIDC before the redirect to LOGIN_URL
     MIDDLEWARE.insert(
-        MIDDLEWARE.index("installer.middleware.ConfigurationCheckMiddleware") - 1,
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") - 1,
         "middleware.common.OidcCaptureQueryParamMiddleware",
     )
 
