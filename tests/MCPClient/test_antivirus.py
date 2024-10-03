@@ -1,60 +1,60 @@
-"""Tests for the archivematica_clamscan.py client script."""
+"""Tests for the antivirus.py client script."""
 
 from collections import OrderedDict
 from collections import namedtuple
+from unittest import mock
 
-import archivematica_clamscan
 import pytest
+from antivirus import create_scanner
+from antivirus import scan_file
+from clamav_client.scanner import ClamdScanner
+from clamav_client.scanner import ClamscanScanner
+from clamav_client.scanner import Scanner
+from clamav_client.scanner import ScanResult
 
-from . import test_antivirus_clamdscan
 
-
-def test_get_scanner(settings):
-    """Test that get_scanner returns the correct instance of antivirus
+def test_create_scanner(settings):
+    """Test that create_scanner returns the correct instance of antivirus
     per the user's configuration. Test return of clamdscanner by default."""
-
-    # Ensure that environment settings are available to the mock classes.
-    test_antivirus_clamdscan.setup_clamdscanner(settings)
 
     # Testing to ensure clamscanner is returned when explicitly set.
     settings.CLAMAV_CLIENT_BACKEND = "clamscanner"
-    scanner = archivematica_clamscan.get_scanner()
-    assert isinstance(scanner, archivematica_clamscan.ClamScanner)
+    scanner = create_scanner()
+    assert isinstance(scanner, ClamscanScanner)
 
     # Testing to ensure that clamdscanner is returned when explicitly set.
     settings.CLAMAV_CLIENT_BACKEND = "clamdscanner"
-    scanner = archivematica_clamscan.get_scanner()
-    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
+    scanner = create_scanner()
+    assert isinstance(scanner, ClamdScanner)
 
     # Testing to ensure that clamdscanner is the default returned scanner.
     settings.CLAMAV_CLIENT_BACKEND = "fprot"
-    scanner = archivematica_clamscan.get_scanner()
-    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
+    scanner = create_scanner()
+    assert isinstance(scanner, ClamdScanner)
 
     # Testing to ensure that clamdscanner is the default returned scanner when
     # the user configures an empty string.
     settings.CLAMAV_CLIENT_BACKEND = ""
-    scanner = archivematica_clamscan.get_scanner()
-    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
+    scanner = create_scanner()
+    assert isinstance(scanner, ClamdScanner)
 
     # Testing to ensure that clamdscanner is returned when the environment
     # hasn't been configured appropriately and None is returned.
     settings.CLAMAV_CLIENT_BACKEND = None
-    scanner = archivematica_clamscan.get_scanner()
-    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
+    scanner = create_scanner()
+    assert isinstance(scanner, ClamdScanner)
 
     # Testing to ensure that clamdscanner is returned when another variable
     # type is specified, e.g. in this instance, an integer.
     settings.CLAMAV_CLIENT_BACKEND = 10
-    scanner = archivematica_clamscan.get_scanner()
-    assert isinstance(scanner, archivematica_clamscan.ClamdScanner)
+    scanner = create_scanner()
+    assert isinstance(scanner, ClamdScanner)
 
 
 args = OrderedDict()
 args["file_uuid"] = "ec26199f-72a4-4fd8-a94a-29144b02ddd8"
 args["path"] = "/path"
 args["date"] = "2019-12-01"
-args["task_uuid"] = "c380e94e-7a7b-4ab8-aa72-ec0644cc3f5d"
 
 
 class FileMock:
@@ -62,8 +62,9 @@ class FileMock:
         self.size = size
 
 
-class ScannerMock(archivematica_clamscan.ScannerBase):
-    PROGRAM = "Mock"
+class ScannerMock(Scanner):
+    _program = "ClamAV (clamd)"
+    _command = "mock"
 
     def __init__(self, should_except=False, passed=False):
         self.should_except = should_except
@@ -72,10 +73,17 @@ class ScannerMock(archivematica_clamscan.ScannerBase):
     def scan(self, path):
         if self.should_except:
             raise Exception("Something really bad happened!")
-        return self.passed, None, None
+        result = ScanResult(filename=path, state="OK", details="details", err=None)
+        mock.patch.object(
+            result.__class__,
+            "passed",
+            new_callable=mock.PropertyMock,
+            return_value=self.passed,
+        ).start()
+        return result
 
-    def version_attrs(self):
-        return ("version", "virus_definitions")
+    def _get_version(self):
+        return "ClamAV 0.103.11/27400/Mon Sep 16 10:52:36 2024"
 
 
 def setup_test_scan_file_mocks(
@@ -87,7 +95,7 @@ def setup_test_scan_file_mocks(
 ):
     deps = namedtuple("deps", ["file_already_scanned", "file_get", "scanner"])(
         file_already_scanned=mocker.patch(
-            "archivematica_clamscan.file_already_scanned",
+            "antivirus.file_already_scanned",
             return_value=file_already_scanned,
         ),
         file_get=mocker.patch(
@@ -96,7 +104,7 @@ def setup_test_scan_file_mocks(
         scanner=ScannerMock(should_except=scanner_should_except, passed=scanner_passed),
     )
 
-    mocker.patch("archivematica_clamscan.get_scanner", return_value=deps.scanner)
+    mocker.patch("antivirus.get_scanner", return_value=deps.scanner)
 
     return deps
 
@@ -104,7 +112,7 @@ def setup_test_scan_file_mocks(
 def test_scan_file_already_scanned(mocker):
     deps = setup_test_scan_file_mocks(mocker, file_already_scanned=True)
 
-    exit_code = archivematica_clamscan.scan_file([], **dict(args))
+    exit_code = scan_file([], **dict(args))
 
     assert exit_code == 0
     deps.file_already_scanned.assert_called_once_with(args["file_uuid"])
@@ -172,11 +180,11 @@ def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings
 
     event_queue = []
 
-    ret = archivematica_clamscan.scan_file(event_queue, **dict(args))
+    ret = scan_file(event_queue, **dict(args))
 
     # The integer returned by scan_file() is going to be used as the exit code
-    # of the archivematica_clamscan.py script which is important for the AM
-    # workflow in order to control what to do next.
+    # of the antivirus.py script which is important for the AM workflow in order
+    # to control what to do next.
     assert exit_code == ret
 
     # A side effect of scan_file() is to queue an event to be created in the
