@@ -126,6 +126,11 @@ CONFIG_MAPPING = {
         "option": "oidc_authentication",
         "type": "boolean",
     },
+    "oidc_allow_local_authentication": {
+        "section": "Dashboard",
+        "option": "oidc_allow_local_authentication",
+        "type": "boolean",
+    },
     "storage_service_client_timeout": {
         "section": "Dashboard",
         "option": "storage_service_client_timeout",
@@ -204,6 +209,7 @@ ldap_authentication = False
 csrf_trusted_origins =
 use_x_forwarded_host = False
 oidc_authentication = False
+oidc_allow_local_authentication = True
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 agentarchives_client_timeout = 300
@@ -629,11 +635,32 @@ if CAS_AUTHENTICATION:
 
 OIDC_AUTHENTICATION = config.get("oidc_authentication")
 if OIDC_AUTHENTICATION:
+    OIDC_ALLOW_LOCAL_AUTHENTICATION = config.get("oidc_allow_local_authentication")
+
+    INSTALLED_APPS += ["mozilla_django_oidc"]
     ALLOW_USER_EDITS = False
+    OIDC_STORE_ID_TOKEN = True
+
+    OIDC_AUTHENTICATE_CLASS = (
+        "components.accounts.views.CustomOIDCAuthenticationRequestView"
+    )
 
     AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
     LOGIN_EXEMPT_URLS.append(r"^oidc")
-    INSTALLED_APPS += ["mozilla_django_oidc"]
+
+    if not OIDC_ALLOW_LOCAL_AUTHENTICATION:
+        LOGIN_URL = "/oidc/authenticate/"
+        AUTHENTICATION_BACKENDS = [
+            backend
+            for backend in AUTHENTICATION_BACKENDS
+            if backend != "django.contrib.auth.backends.ModelBackend"
+        ]
+
+    # Insert OIDC before the redirect to LOGIN_URL
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1,
+        "middleware.common.OidcCaptureQueryParamMiddleware",
+    )
 
     from .components.oidc_auth import *
 

@@ -149,3 +149,73 @@ def test_setting_login_url_redirects_to_oidc_login_page(
     page.goto(live_server.url)
 
     assert page.url.startswith(settings.OIDC_OP_AUTHORIZATION_ENDPOINT)
+
+
+@pytest.mark.django_db
+def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_provider(
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: None,
+    settings: SettingsWrapper,
+) -> None:
+    page.goto(
+        f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"
+    )
+
+    page.get_by_role("link", name="Log in with OpenID Connect").click()
+    page.get_by_label("Username or email").fill("support@example.com")
+    page.get_by_label("Password", exact=True).fill("support")
+    page.get_by_role("button", name="Sign In").click()
+
+    assert page.url == f"{live_server.url}/transfer/"
+    page.get_by_text("support@example.com").click()
+    page.get_by_role("link", name="Your profile").click()
+
+    assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
+    assert [
+        i.strip()
+        for i in page.locator("dl.dl-horizontal").text_content().splitlines()
+        if i.strip()
+    ] == [
+        "Username",
+        "support@example.com",
+        "Name",
+        "Support User",
+        "E-mail",
+        "support@example.com",
+        "Admin",
+        "no",
+    ]
+
+
+@pytest.mark.django_db
+def test_logging_out_logs_out_user_from_secondary_provider(
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: None,
+    settings: SettingsWrapper,
+) -> None:
+    page.goto(
+        f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"
+    )
+
+    page.get_by_role("link", name="Log in with OpenID Connect").click()
+    page.get_by_label("Username or email").fill("support@example.com")
+    page.get_by_label("Password", exact=True).fill("support")
+    page.get_by_role("button", name="Sign In").click()
+
+    assert page.url == f"{live_server.url}/transfer/"
+
+    # Logging out redirects the user to the login url.
+    page.get_by_text("support@example.com").click()
+    page.get_by_role("link", name="Log out").click()
+    assert page.url == f"{live_server.url}{reverse('accounts:login')}"
+
+    # Logging in through the OIDC provider requires to authenticate again.
+    page.goto(
+        f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"
+    )
+    page.get_by_role("link", name="Log in with OpenID Connect").click()
+    assert page.url.startswith(
+        settings.OIDC_PROVIDERS["SECONDARY"]["OIDC_OP_AUTHORIZATION_ENDPOINT"]
+    )
