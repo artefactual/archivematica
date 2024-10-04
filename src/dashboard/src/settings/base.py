@@ -644,9 +644,6 @@ if OIDC_AUTHENTICATION:
     OIDC_AUTHENTICATE_CLASS = (
         "components.accounts.views.CustomOIDCAuthenticationRequestView"
     )
-    OIDC_CALLBACK_CLASS = (
-        "components.accounts.views.CustomOIDCAuthenticationCallbackView"
-    )
 
     AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
     LOGIN_EXEMPT_URLS.append(r"^oidc")

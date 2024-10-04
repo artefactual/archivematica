@@ -26,7 +26,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
@@ -36,7 +35,6 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from main.models import UserProfile
-from mozilla_django_oidc.views import OIDCAuthenticationCallbackView
 from mozilla_django_oidc.views import OIDCAuthenticationRequestView
 from mozilla_django_oidc.views import OIDCLogoutView
 from tastypie.models import ApiKey
@@ -201,45 +199,6 @@ def delete(request, id):
         return redirect("accounts:accounts_index")
     except Exception:
         raise Http404
-
-
-class CustomOIDCAuthenticationCallbackView(OIDCAuthenticationCallbackView):
-    """
-    OIDC client authentication callback HTTP endpoint
-    """
-
-    def get_settings(self, attr, *args):
-        if attr in [
-            "OIDC_RP_CLIENT_ID",
-            "OIDC_RP_CLIENT_SECRET",
-            "OIDC_OP_AUTHORIZATION_ENDPOINT",
-            "OIDC_OP_TOKEN_ENDPOINT",
-            "OIDC_OP_USER_ENDPOINT",
-            "OIDC_OP_JWKS_ENDPOINT",
-            "OIDC_OP_LOGOUT_ENDPOINT",
-        ]:
-            # Retrieve the request object stored in the instance.
-            request = getattr(self, "request", None)
-
-            if request:
-                provider_name = request.session.get("providername")
-
-                if (
-                    provider_name
-                    and provider_name in settings.OIDC_SECONDARY_PROVIDER_NAMES
-                ):
-                    provider_settings = settings.OIDC_PROVIDERS.get(provider_name, {})
-                    value = provider_settings.get(attr)
-
-                    if value is None:
-                        raise ImproperlyConfigured(
-                            f"Setting {attr} for provider {provider_name} not found"
-                        )
-                    return value
-
-        # If request is None or provider_name session var is not set or attr is
-        # not in the list, call the superclass's get_settings method.
-        return OIDCAuthenticationCallbackView.get_settings(attr, *args)
 
 
 class CustomOIDCAuthenticationRequestView(OIDCAuthenticationRequestView):
