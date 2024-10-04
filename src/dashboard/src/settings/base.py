@@ -648,11 +648,16 @@ if OIDC_AUTHENTICATION:
         "components.accounts.views.CustomOIDCAuthenticationCallbackView"
     )
 
-    if not OIDC_ALLOW_LOCAL_AUTHENTICATION:
-        LOGIN_URL = "oidc_authentication_init"
-
     AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
     LOGIN_EXEMPT_URLS.append(r"^oidc")
+
+    if not OIDC_ALLOW_LOCAL_AUTHENTICATION:
+        LOGIN_URL = "/oidc/authenticate/"
+        AUTHENTICATION_BACKENDS = [
+            backend
+            for backend in AUTHENTICATION_BACKENDS
+            if backend != "django.contrib.auth.backends.ModelBackend"
+        ]
 
     # Insert OIDC before the redirect to LOGIN_URL
     MIDDLEWARE.insert(
