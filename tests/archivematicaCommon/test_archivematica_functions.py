@@ -105,3 +105,84 @@ def test_package_name_from_path():
             current_path, remove_uuid_suffix=True
         )
         assert package_name_without_uuid == test_package["package_name_without_uuid"]
+
+
+def test_get_oidc_secondary_providers_ignores_provider_if_client_id_and_secret_are_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_FOO", "foo-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_FOO", "foo-client-secret")
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAZ", "foo-secret")
+
+    assert am.get_oidc_secondary_providers(["FOO", "BAR", "BAZ"]) == {
+        "FOO": {
+            "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
+            "OIDC_OP_JWKS_ENDPOINT": "",
+            "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_TOKEN_ENDPOINT": "",
+            "OIDC_OP_USER_ENDPOINT": "",
+            "OIDC_RP_CLIENT_ID": "foo-client-id",
+            "OIDC_RP_CLIENT_SECRET": "foo-client-secret",
+        }
+    }
+
+
+def test_get_oidc_secondary_providers_strips_provider_names(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_FOO", "foo-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_FOO", "foo-client-secret")
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAR", "bar-client-secret")
+
+    assert am.get_oidc_secondary_providers(["  FOO", " BAR  "]) == {
+        "FOO": {
+            "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
+            "OIDC_OP_JWKS_ENDPOINT": "",
+            "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_TOKEN_ENDPOINT": "",
+            "OIDC_OP_USER_ENDPOINT": "",
+            "OIDC_RP_CLIENT_ID": "foo-client-id",
+            "OIDC_RP_CLIENT_SECRET": "foo-client-secret",
+        },
+        "BAR": {
+            "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
+            "OIDC_OP_JWKS_ENDPOINT": "",
+            "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_TOKEN_ENDPOINT": "",
+            "OIDC_OP_USER_ENDPOINT": "",
+            "OIDC_RP_CLIENT_ID": "bar-client-id",
+            "OIDC_RP_CLIENT_SECRET": "bar-client-secret",
+        },
+    }
+
+
+def test_get_oidc_secondary_providers_capitalizes_provider_names(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_FOO", "foo-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_FOO", "foo-client-secret")
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAR", "bar-client-secret")
+
+    assert am.get_oidc_secondary_providers(["fOo", "bar"]) == {
+        "FOO": {
+            "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
+            "OIDC_OP_JWKS_ENDPOINT": "",
+            "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_TOKEN_ENDPOINT": "",
+            "OIDC_OP_USER_ENDPOINT": "",
+            "OIDC_RP_CLIENT_ID": "foo-client-id",
+            "OIDC_RP_CLIENT_SECRET": "foo-client-secret",
+        },
+        "BAR": {
+            "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
+            "OIDC_OP_JWKS_ENDPOINT": "",
+            "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_TOKEN_ENDPOINT": "",
+            "OIDC_OP_USER_ENDPOINT": "",
+            "OIDC_RP_CLIENT_ID": "bar-client-id",
+            "OIDC_RP_CLIENT_SECRET": "bar-client-secret",
+        },
+    }

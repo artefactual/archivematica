@@ -61,7 +61,7 @@ services:
       OIDC_OP_USER_ENDPOINT: "http://keycloak:8080/realms/demo/protocol/openid-connect/userinfo"
       OIDC_OP_JWKS_ENDPOINT: "http://keycloak:8080/realms/demo/protocol/openid-connect/certs"
       OIDC_OP_LOGOUT_ENDPOINT: "http://keycloak:8080/realms/demo/protocol/openid-connect/logout"
-      OIDC_SECONDARY_PROVIDER_NAMES: "SECONDARY"
+      OIDC_SECONDARY_PROVIDER_NAMES: "secondary"
       OIDC_RP_CLIENT_ID_SECONDARY: "am-dashboard-secondary"
       OIDC_RP_CLIENT_SECRET_SECONDARY: "example-secret-secondary"
       OIDC_OP_AUTHORIZATION_ENDPOINT_SECONDARY: "http://keycloak:8080/realms/secondary/protocol/openid-connect/auth"

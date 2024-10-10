@@ -59,10 +59,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             if request:
                 provider_name = request.session.get("providername")
 
-                if (
-                    provider_name
-                    and provider_name in settings.OIDC_SECONDARY_PROVIDER_NAMES
-                ):
+                if provider_name and provider_name in settings.OIDC_PROVIDERS:
                     provider_settings = settings.OIDC_PROVIDERS.get(provider_name, {})
                     value = provider_settings.get(attr)
 
