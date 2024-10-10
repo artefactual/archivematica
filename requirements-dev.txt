@@ -37,7 +37,7 @@ cffi==1.17.1
     #   cryptography
 chardet==5.2.0
     # via tox
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via
     #   -r requirements.txt
     #   requests
@@ -57,7 +57,7 @@ cryptography==43.0.1
     #   josepy
     #   mozilla-django-oidc
     #   pyopenssl
-distlib==0.3.8
+distlib==0.3.9
     # via virtualenv
 django==4.2.16
     # via
@@ -66,7 +66,7 @@ django==4.2.16
     #   django-cas-ng
     #   django-csp
     #   mozilla-django-oidc
-django-auth-ldap==4.8.0
+django-auth-ldap==5.0.0
     # via -r requirements.txt
 django-autoslug==1.9.9
     # via -r requirements.txt
@@ -317,7 +317,7 @@ zope-event==5.0
     # via
     #   -r requirements.txt
     #   gevent
-zope-interface==7.0.3
+zope-interface==7.1.0
     # via
     #   -r requirements.txt
     #   gevent

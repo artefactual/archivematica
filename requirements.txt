@@ -24,7 +24,7 @@ certifi==2024.8.30
     # via requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 clamd==1.0.2
     # via -r requirements.in
@@ -40,7 +40,7 @@ django==4.2.16
     #   django-cas-ng
     #   django-csp
     #   mozilla-django-oidc
-django-auth-ldap==4.8.0
+django-auth-ldap==5.0.0
     # via -r requirements.in
 django-autoslug==1.9.9
     # via -r requirements.in
@@ -79,7 +79,9 @@ josepy==1.14.0
 jsonschema==4.23.0
     # via -r requirements.in
 jsonschema-specifications==2023.12.1
-    # via jsonschema
+    # via
+    #   -r requirements.in
+    #   jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.in
 lxml==5.3.0
@@ -168,7 +170,7 @@ zipp==3.20.2
     #   importlib-resources
 zope-event==5.0
     # via gevent
-zope-interface==7.0.3
+zope-interface==7.1.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
