@@ -39,6 +39,18 @@ module.exports = {
         test: /\.(png|eot|woff|woff2|ttf|svg)(\?v=\d\.\d\.\d)?$/,
         type: 'asset/inline',
       },
+      {
+        test: /\.html$/,
+        use: [
+          {
+            loader: 'html-loader',
+            options: {
+              minimize: true,
+              sources: false,
+            }
+          }
+        ],
+      }
     ],
   },
   resolve: {
