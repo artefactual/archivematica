@@ -1,7 +1,7 @@
 """
 Configuration helper for MCPServer, MCPClient and Dashboard, used in:
 
-    - MCPClient/lib/settings/common.py
+    - MCPClient/settings/common.py
     - MCPServer/lib/settings/common.py
     - dashboard/settings/base.py
 

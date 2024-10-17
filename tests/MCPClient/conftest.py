@@ -17,7 +17,6 @@ def set_xml_catalog_files(monkeypatch: pytest.MonkeyPatch) -> None:
             pathlib.Path(__file__).parent.parent.parent
             / "src"
             / "MCPClient"
-            / "lib"
             / "assets"
             / "catalog"
             / "catalog.xml"
