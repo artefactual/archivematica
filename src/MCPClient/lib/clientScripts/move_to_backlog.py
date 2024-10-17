@@ -196,7 +196,7 @@ def main(job, transfer_id, transfer_path, created_at):
     relative_transfer_path = transfer_path.replace(shared_path, "")
 
     # TODO this should use the same value as
-    # dashboard/src/components/filesystem_ajax/views.py DEFAULT_BACKLOG_PATH
+    # dashboard/components/filesystem_ajax/views.py DEFAULT_BACKLOG_PATH
     transfer_name = os.path.basename(transfer_path.rstrip("/"))
     backlog_path = os.path.join("originals", transfer_name)
 

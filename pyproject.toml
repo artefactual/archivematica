@@ -16,7 +16,7 @@ omit = [
 ]
 include = [
     "**/src/archivematicaCommon/lib/*",
-    "**/src/dashboard/src/*",
+    "**/src/dashboard/*",
     "**/src/MCPClient/lib/*",
     "**/src/MCPClient/lib/clientScripts/*",
     "**/src/MCPServer/lib/*",
@@ -44,7 +44,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/*/settings/*" = ["F403"]
-"src/dashboard/src/settings/*" = ["F405"]
+"src/dashboard/settings/*" = ["F405"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
@@ -122,8 +122,7 @@ legacy_tox_ini = """
         ARCHIVEMATICA_COMMON_ROOT = {env:SRC_DIR}/archivematicaCommon
         ARCHIVEMATICA_COMMON_DIR = {env:ARCHIVEMATICA_COMMON_ROOT}/lib
         # Dashboard
-        DASHBOARD_ROOT = {env:SRC_DIR}/dashboard
-        DASHBOARD_DIR = {env:DASHBOARD_ROOT}/src
+        DASHBOARD_DIR = {env:SRC_DIR}/dashboard
         DASHBOARD_PYTHONPATH = {env:DASHBOARD_DIR}:{env:ARCHIVEMATICA_COMMON_DIR}
         # MCP Server
         MCPSERVER_ROOT = {env:SRC_DIR}/MCPServer
