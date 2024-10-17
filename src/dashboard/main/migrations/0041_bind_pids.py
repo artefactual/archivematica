@@ -23,7 +23,7 @@ def data_migration(apps, schema_editor):
     PID---generally the UUID of the entity---is passed during handle creation.)
     That the PURL (i.e., PID's URL) may be configured to resolve to
     different external (resolve) URLs depending on the qualifier (GET query
-    parameter) that is appended to it. See archivematicaCommon/lib/bindpid.py
+    parameter) that is appended to it. See archivematicaCommon/bindpid.py
     for more details.
     """
 

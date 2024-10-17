@@ -5,7 +5,7 @@ norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
 
 [tool.coverage.run]
 omit = [
-    "**/src/archivematicaCommon/lib/externals/*",
+    "**/src/archivematicaCommon/externals/*",
     "**/migrations/*",
     "**/south_migrations/*",
     "**/management/commands/*",
@@ -15,7 +15,7 @@ omit = [
     "**/manage.py",
 ]
 include = [
-    "**/src/archivematicaCommon/lib/*",
+    "**/src/archivematicaCommon/*",
     "**/src/dashboard/*",
     "**/src/MCPClient/*",
     "**/src/MCPServer/*",
@@ -55,7 +55,7 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = [
-    "src.archivematicaCommon.lib.executeOrRunSubProcess",
+    "src.archivematicaCommon.executeOrRunSubProcess",
     "src.MCPClient.client.*",
     "src.MCPClient.clientScripts.characterize_file",
     "src.MCPClient.clientScripts.has_packages",
@@ -118,8 +118,7 @@ legacy_tox_ini = """
         SRC_DIR = {toxinidir}/src
         HACK_DIR = {toxinidir}/hack
         # Archivematica Common
-        ARCHIVEMATICA_COMMON_ROOT = {env:SRC_DIR}/archivematicaCommon
-        ARCHIVEMATICA_COMMON_DIR = {env:ARCHIVEMATICA_COMMON_ROOT}/lib
+        ARCHIVEMATICA_COMMON_DIR = {env:SRC_DIR}/archivematicaCommon
         # Dashboard
         DASHBOARD_DIR = {env:SRC_DIR}/dashboard
         DASHBOARD_PYTHONPATH = {env:DASHBOARD_DIR}:{env:ARCHIVEMATICA_COMMON_DIR}
