@@ -17,8 +17,7 @@ omit = [
 include = [
     "**/src/archivematicaCommon/lib/*",
     "**/src/dashboard/*",
-    "**/src/MCPClient/lib/*",
-    "**/src/MCPClient/lib/clientScripts/*",
+    "**/src/MCPClient/*",
     "**/src/MCPServer/lib/*",
 ]
 branch = true
@@ -57,14 +56,14 @@ warn_unused_configs = true
 [[tool.mypy.overrides]]
 module = [
     "src.archivematicaCommon.lib.executeOrRunSubProcess",
-    "src.MCPClient.lib.client.*",
-    "src.MCPClient.lib.clientScripts.characterize_file",
-    "src.MCPClient.lib.clientScripts.has_packages",
-    "src.MCPClient.lib.clientScripts.identify_file_format",
-    "src.MCPClient.lib.clientScripts.normalize",
-    "src.MCPClient.lib.clientScripts.policy_check",
-    "src.MCPClient.lib.clientScripts.transcribe_file",
-    "src.MCPClient.lib.clientScripts.validate_file",
+    "src.MCPClient.client.*",
+    "src.MCPClient.clientScripts.characterize_file",
+    "src.MCPClient.clientScripts.has_packages",
+    "src.MCPClient.clientScripts.identify_file_format",
+    "src.MCPClient.clientScripts.normalize",
+    "src.MCPClient.clientScripts.policy_check",
+    "src.MCPClient.clientScripts.transcribe_file",
+    "src.MCPClient.clientScripts.validate_file",
     "tests.archivematicaCommon.test_execute_functions",
     "tests.dashboard.fpr.test_views",
     "tests.dashboard.test_oidc",
@@ -129,8 +128,7 @@ legacy_tox_ini = """
         MCPSERVER_DIR = {env:MCPSERVER_ROOT}/lib
         MCPSERVER_PYTHONPATH = {env:MCPSERVER_DIR}:{env:ARCHIVEMATICA_COMMON_DIR}:{env:DASHBOARD_DIR}
         # MCP Client
-        MCPCLIENT_ROOT = {env:SRC_DIR}/MCPClient
-        MCPCLIENT_DIR = {env:MCPCLIENT_ROOT}/lib
+        MCPCLIENT_DIR = {env:SRC_DIR}/MCPClient
         MCPCLIENT_PYTHONPATH = {env:MCPCLIENT_DIR}:{env:MCPCLIENT_DIR}/clientScripts:{env:ARCHIVEMATICA_COMMON_DIR}:{env:DASHBOARD_DIR}
         # Storage Service
         STORAGE_SERVICE_ROOT = {env:HACK_DIR}/submodules/archivematica-storage-service

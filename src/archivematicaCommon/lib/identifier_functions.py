@@ -1,7 +1,7 @@
 """
 Functions to fetch identifiers for indexing in ElasticSearch.
 
-See also src/MCPClient/lib/clientScripts/index_aip.py where these are used.
+See also src/MCPClient/clientScripts/index_aip.py where these are used.
 """
 
 from lxml import etree

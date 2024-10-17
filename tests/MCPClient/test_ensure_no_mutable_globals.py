@@ -154,7 +154,6 @@ def test_ensure_no_mutable_globals():
         pathlib.Path(__file__).parent.parent.parent
         / "src"
         / "MCPClient"
-        / "lib"
         / "archivematicaClientModules"
     )
 
