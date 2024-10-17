@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-# /src/dashboard/src/main/models.py
 import sys
 import uuid
 
@@ -24,9 +23,6 @@ import lxml.etree as etree
 import namespaces as ns
 from countryCodes import getCodeForCountry
 from main.models import RightsStatement
-
-# dashboard
-# archivematicaCommon
 
 RIGHTS_BASIS_OTHER = ["Policy", "Donor"]
 

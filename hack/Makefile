@@ -134,7 +134,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/src/manage.py \
+		--entrypoint /src/src/dashboard/manage.py \
 			archivematica-dashboard \
 				$(ARG)
 
@@ -152,13 +152,13 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/src/manage.py \
+		--entrypoint /src/src/dashboard/manage.py \
 			archivematica-dashboard \
 				migrate --noinput
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/src/manage.py \
+		--entrypoint /src/src/dashboard/manage.py \
 			archivematica-dashboard \
 				install \
 					--username="test" \

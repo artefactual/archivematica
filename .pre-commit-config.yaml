@@ -27,7 +27,7 @@ repos:
     exclude: |
       (?x)^(
         ISSUE_TEMPLATE\.md|
-        src/dashboard/(frontend/app|src/media)/vendor/.*
+        src/dashboard/(frontend/app|media)/vendor/.*
       )
 - repo: https://github.com/thlorenz/doctoc
   rev: v2.2.0
@@ -61,5 +61,5 @@ repos:
     args: [--quiet, --config, .markdown-link-check.json]
     exclude: |
       (?x)^(
-        src/dashboard/src/media/vendor/.*\.md
+        src/dashboard/media/vendor/.*\.md
       )
