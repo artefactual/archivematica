@@ -6,7 +6,7 @@ from server import workflow
 from server.workflow_abilities import choice_is_available
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "lib" / "assets"
+    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
 )
 
 

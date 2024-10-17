@@ -6,7 +6,7 @@ repos:
     args: [--no-ensure-ascii, --autofix]
     files: |
       (?x)^(
-        src/MCPServer/lib/assets/.*\.json|
+        src/MCPServer/assets/.*\.json|
         src/(MCPClient/MCPServer|dashboard)/install/.*\.json
       )
 - repo: https://github.com/astral-sh/ruff-pre-commit

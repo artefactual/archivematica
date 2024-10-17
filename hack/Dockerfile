@@ -241,9 +241,9 @@ ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/archivematicaClient.
 FROM base AS archivematica-mcp-server
 
 ENV DJANGO_SETTINGS_MODULE=settings.common
-ENV PYTHONPATH=/src/src/MCPServer/lib/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/
+ENV PYTHONPATH=/src/src/MCPServer/:/src/src/archivematicaCommon/lib/:/src/src/dashboard/
 
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/lib/archivematicaMCP.py"]
+ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/archivematicaMCP.py"]
 
 # -----------------------------------------------------------------------------
 
