@@ -11,8 +11,6 @@ from django.core.exceptions import ValidationError
 from lxml import etree
 from main import models
 
-# dashboard
-
 
 def _create_premis_object(premis_object_type):
     """Return new PREMIS element container (``lxml._Element`` instance).

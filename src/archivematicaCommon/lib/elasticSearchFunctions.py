@@ -37,9 +37,6 @@ from main.models import File
 from main.models import Identifier
 from main.models import Transfer
 
-# archivematicaCommon
-
-
 logger = logging.getLogger("archivematica.common")
 
 STATUS_DELETE_REQUESTED = "DEL_REQ"

@@ -23,11 +23,7 @@ import django
 
 django.setup()
 from django.db import transaction
-
-# archivematicaCommon
 from fileOperations import rename
-
-# dashboard
 from main.models import SIP
 
 

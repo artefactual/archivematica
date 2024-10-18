@@ -29,11 +29,7 @@ from lxml import etree as etree
 
 django.setup()
 from django.db import transaction
-
-# archivematicaCommon
 from fileOperations import getFileUUIDLike
-
-# dashboard
 from main.models import RightsStatement
 from main.models import RightsStatementOtherRightsDocumentationIdentifier
 from main.models import RightsStatementOtherRightsInformation

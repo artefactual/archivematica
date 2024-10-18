@@ -8,8 +8,6 @@ import django
 
 django.setup()
 import databaseFunctions
-
-# archivematicaCommon
 from archivematicaFunctions import get_setting
 from bagit import Bag
 from bagit import BagError

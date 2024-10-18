@@ -18,13 +18,11 @@ import django
 from django.db import transaction
 
 django.setup()
-# archivematicaCommon
+
 import databaseFunctions
 import fileOperations
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-
-# dashboard
 from main.models import Event
 from main.models import File
 

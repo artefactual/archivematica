@@ -28,17 +28,13 @@ import django
 import requests
 from custom_handlers import get_script_logger
 
-# archivematicaCommon
-# externals
-
 django.setup()
-# dashboard
+
 import main.models as models
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-# moved after django.setup()
 logger = get_script_logger("archivematica.upload.qubit")
 
 PREFIX = "[uploadDIP]"

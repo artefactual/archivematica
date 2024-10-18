@@ -23,7 +23,7 @@ from django.db import transaction
 from lxml import etree
 
 django.setup()
-# dashboard
+
 from main.models import File
 
 

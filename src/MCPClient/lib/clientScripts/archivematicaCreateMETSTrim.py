@@ -25,8 +25,6 @@ import namespaces as ns
 from django.core.exceptions import ValidationError
 from main.models import File
 
-# dashboard
-
 
 def getTrimDmdSec(job, baseDirectoryPath, sipUUID):
     # containerMetadata

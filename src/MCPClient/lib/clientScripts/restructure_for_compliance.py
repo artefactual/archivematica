@@ -25,8 +25,6 @@ django.setup()
 import bag
 from archivematicaFunctions import OPTIONAL_FILES
 from archivematicaFunctions import REQUIRED_DIRECTORIES
-
-# archivematicaCommon
 from archivematicaFunctions import create_structured_directory
 from archivematicaFunctions import reconstruct_empty_directories
 from custom_handlers import get_script_logger

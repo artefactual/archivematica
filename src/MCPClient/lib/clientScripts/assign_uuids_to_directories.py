@@ -34,12 +34,10 @@ from functools import wraps
 import django
 
 django.setup()
-# dashboard
+
 from archivematicaFunctions import format_subdir_path
 from archivematicaFunctions import get_dir_uuids
 from archivematicaFunctions import str2bool
-
-# archivematicaCommon
 from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.db import transaction

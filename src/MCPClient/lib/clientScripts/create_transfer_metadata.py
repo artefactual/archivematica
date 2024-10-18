@@ -5,7 +5,7 @@ import django
 from lxml import etree
 
 django.setup()
-# dashboard
+
 from client import metrics
 from main.models import Transfer
 
