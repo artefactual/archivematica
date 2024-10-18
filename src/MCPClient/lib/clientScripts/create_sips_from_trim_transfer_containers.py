@@ -24,8 +24,8 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
-# archivematicaCommon
+
+
 import archivematicaFunctions
 import databaseFunctions
 from main.models import File

@@ -21,9 +21,6 @@ import shutil
 import archivematicaFunctions
 from custom_handlers import get_script_logger
 
-# archivematicaCommon
-
-
 logger = get_script_logger("archivematica.mcp.client.restructureBagAIPToSIP")
 
 

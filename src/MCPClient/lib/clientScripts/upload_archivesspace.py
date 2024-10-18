@@ -11,10 +11,6 @@ from main.models import ArchivesSpaceDIPObjectResourcePairing
 from main.models import File
 from xml2obj import mets_file
 
-# archivematicaCommon
-# Third party dependencies, alphabetical by import source
-# initialize Django (required for Django 1.7)
-
 django.setup()
 from django.core.exceptions import ValidationError
 from django.db import transaction

@@ -36,11 +36,9 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
+
 import metsrw
 import namespaces as ns
-
-# archivematicaCommon
 from archivematicaFunctions import chunk_iterable
 from archivematicaFunctions import find_mets_file
 from custom_handlers import get_script_logger

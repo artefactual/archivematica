@@ -9,11 +9,9 @@ from django.db import transaction
 from lxml import etree
 
 django.setup()
-# dashboard
+
 import databaseFunctions
 import fileOperations
-
-# archivematicaCommon
 import namespaces as ns
 from fpr import models as fpr_models
 from main import models

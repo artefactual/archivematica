@@ -5,10 +5,8 @@ import shutil
 
 import django
 
-# fileOperations requires Django to be set up
-
 django.setup()
-# archivematicaCommon
+
 import archivematicaFunctions
 import fileOperations
 from archivematicaFunctions import OPTIONAL_FILES

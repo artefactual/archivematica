@@ -10,13 +10,9 @@ import uuid
 
 import django
 
-# databaseFunctions requires Django to be set up
-
 django.setup()
 import databaseFunctions
 import metsrw
-
-# archivematicaCommon
 from archivematicaFunctions import get_file_checksum
 from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError

@@ -24,12 +24,8 @@ import django
 
 django.setup()
 from django.db import transaction
-
-# archivematicaCommon
 from executeOrRunSubProcess import executeOrRun
 from fileOperations import get_extract_dir_name
-
-# dashboard
 from main.models import Transfer
 
 

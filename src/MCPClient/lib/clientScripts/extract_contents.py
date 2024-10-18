@@ -7,19 +7,15 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
+
 from archivematicaFunctions import format_subdir_path
 from archivematicaFunctions import get_dir_uuids
-
-# archivematicaCommon
 from custom_handlers import get_script_logger
 from databaseFunctions import fileWasRemoved
 from executeOrRunSubProcess import executeOrRun
 from fileOperations import addFileToTransfer
 from fileOperations import updateSizeAndChecksum
 from fpr.models import FPCommand
-
-# clientScripts
 from has_packages import already_extracted
 from main.models import Directory
 from main.models import File

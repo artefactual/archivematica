@@ -11,10 +11,8 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 django.setup()
-# dashboard
-import create_mets_v2
 
-# archivematicaCommon
+import create_mets_v2
 import databaseFunctions
 import fileOperations
 import namespaces as ns

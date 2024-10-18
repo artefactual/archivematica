@@ -3,11 +3,9 @@ import json
 
 import django
 
-# storageService requires Django to be set up
-
 django.setup()
 
-# archivematicaCommon
+
 import storageService as storage_service
 from custom_handlers import get_script_logger
 

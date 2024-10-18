@@ -16,15 +16,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-# /src/dashboard/src/main/models.py
 import collections
 import csv
 import sys
 import traceback
 
 import archivematicaFunctions
-
-# archivematicaCommon
 
 
 def parseMetadata(job, SIPPath, state):

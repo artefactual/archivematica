@@ -21,11 +21,9 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
-# --sipUUID "%SIPUUID%" --sipDirectory "%SIPDirectory%" --filePath "%relativeLocation%"
+
 from optparse import OptionParser
 
-# archivematicaCommon
 import fileOperations
 from django.core.exceptions import ValidationError
 from main.models import File

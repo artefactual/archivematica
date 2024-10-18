@@ -18,7 +18,7 @@
 import django
 
 django.setup()
-# dashboard
+
 from django.db import transaction
 from main.models import File
 

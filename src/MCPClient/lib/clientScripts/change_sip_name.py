@@ -23,8 +23,6 @@ import django
 django.setup()
 from change_names import change_path
 from django.db import transaction
-
-# dashboard
 from main.models import SIP
 from main.models import Transfer
 

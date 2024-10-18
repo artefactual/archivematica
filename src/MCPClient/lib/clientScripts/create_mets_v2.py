@@ -34,7 +34,7 @@ import lxml.etree as etree
 import metsrw
 
 django.setup()
-# dashboard
+
 import archivematicaCreateMETSMetadataXML
 import archivematicaCreateMETSReingest
 import namespaces as ns
@@ -47,8 +47,6 @@ from archivematicaCreateMETSTrim import getTrimAmdSec
 from archivematicaCreateMETSTrim import getTrimDmdSec
 from archivematicaCreateMETSTrim import getTrimFileAmdSec
 from archivematicaCreateMETSTrim import getTrimFileDmdSec
-
-# archivematicaCommon
 from archivematicaFunctions import normalizeNonDcElementName
 from bagit import Bag
 from bagit import BagError

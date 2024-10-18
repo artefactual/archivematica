@@ -9,9 +9,6 @@ from common_metrics import ss_api_timer
 from django.conf import settings as django_settings
 from requests.auth import AuthBase
 
-# archivematicaCommon
-
-
 LOGGER = logging.getLogger("archivematica.common")
 
 

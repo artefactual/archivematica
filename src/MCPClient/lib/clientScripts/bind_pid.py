@@ -46,8 +46,8 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
-# archivematicaCommon
+
+
 import bindpid
 from archivematicaFunctions import str2bool
 from custom_handlers import get_script_logger

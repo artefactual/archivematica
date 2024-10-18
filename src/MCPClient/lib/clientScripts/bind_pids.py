@@ -48,8 +48,6 @@ import django
 
 django.setup()
 import namespaces as ns
-
-# archivematicaCommon
 from archivematicaFunctions import str2bool
 from bindpid import BindPIDException
 from bindpid import _validate_entity_type_required_params
@@ -60,8 +58,6 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from lxml import etree
 from main.models import SIP
-
-# dashboard
 from main.models import DashboardSetting
 from main.models import Directory
 

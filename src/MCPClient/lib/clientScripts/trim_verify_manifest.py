@@ -22,13 +22,9 @@ import uuid
 
 import django
 
-# fileOperations, databaseFunctions requires Django to be set up
-
 django.setup()
 import databaseFunctions
 from django.db import transaction
-
-# archivematicaCommon
 from fileOperations import getFileUUIDLike
 
 
