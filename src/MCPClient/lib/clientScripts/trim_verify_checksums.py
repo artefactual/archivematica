@@ -22,12 +22,8 @@ import uuid
 import django
 from lxml import etree as etree
 
-# fileOperations, databaseFunctions requires Django to be set up
-
 django.setup()
 import databaseFunctions
-
-# archivematicaCommon
 from archivematicaFunctions import get_file_checksum
 from django.db import transaction
 from fileOperations import getFileUUIDLike

@@ -18,10 +18,8 @@
 import django
 
 django.setup()
-# dashboard
-from client import metrics
 
-# archivematicaCommon
+from client import metrics
 from custom_handlers import get_script_logger
 from django.db import transaction
 from main.models import Transfer

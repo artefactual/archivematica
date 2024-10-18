@@ -22,12 +22,10 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
+
 import bag
 import fileOperations
 from archivematicaFunctions import OPTIONAL_FILES
-
-# archivematicaCommon
 from archivematicaFunctions import REQUIRED_DIRECTORIES
 from databaseFunctions import insertIntoEvents
 from main.models import File

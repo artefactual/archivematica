@@ -13,10 +13,8 @@ import shutil
 import django
 from django.db import transaction
 
-# databaseFunctions requires Django to be set up
-
 django.setup()
-# archivematicaCommon
+
 from databaseFunctions import fileWasRemoved
 from django.conf import settings as mcpclient_settings
 

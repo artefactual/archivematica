@@ -23,7 +23,7 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
+
 from main.models import File
 
 

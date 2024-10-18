@@ -26,8 +26,6 @@ import archivematicaFunctions
 import namespaces as ns
 from lxml import etree
 
-# archivematicaCommon
-
 
 def parseDmdSec(dmdSec, label="[Placeholder title]"):
     """

@@ -7,8 +7,8 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
-# archivematicaCommon
+
+
 import databaseFunctions
 from executeOrRunSubProcess import executeOrRun
 from main.models import SIP

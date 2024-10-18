@@ -28,12 +28,8 @@ from lxml import etree
 
 django.setup()
 import metsrw
-
-# archivematicaCommon
 from archivematicaFunctions import get_dashboard_uuid
 from countryCodes import getCodeForCountry
-
-# dashboard
 from main.models import Agent
 from main.models import Derivation
 from main.models import Directory

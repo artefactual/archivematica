@@ -22,14 +22,10 @@ from uuid import uuid4
 
 import django
 
-# storageService requires Django to be set up
-
 django.setup()
 import storageService as storage_service
 from archivematicaFunctions import escape
 from client import metrics
-
-# archivematicaCommon
 from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.db import transaction

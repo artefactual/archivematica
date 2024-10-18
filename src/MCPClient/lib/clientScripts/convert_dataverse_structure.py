@@ -30,8 +30,6 @@ import uuid
 import django
 from lxml import etree
 
-# Database functions requires Django to be set up.
-
 django.setup()
 
 import metsrw

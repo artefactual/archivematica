@@ -5,8 +5,8 @@ import django
 from django.db import transaction
 
 django.setup()
-# dashboard
-# archivematicaCommon
+
+
 import storageService as storage_service
 from client import metrics
 from main import models

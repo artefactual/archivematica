@@ -21,11 +21,9 @@ import sys
 import django
 
 django.setup()
-# archivematicaCommon
+
 import databaseFunctions
 from django.db import transaction
-
-# dashboard
 from main.models import File
 
 

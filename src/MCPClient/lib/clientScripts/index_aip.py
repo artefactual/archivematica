@@ -12,9 +12,6 @@ from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from main.models import UnitVariable
 
-# dashboard
-# archivematicaCommon
-
 django.setup()
 
 from django.conf import settings as mcpclient_settings
