@@ -134,7 +134,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/manage.py \
+		--entrypoint /src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard \
 				$(ARG)
 
@@ -152,13 +152,13 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/manage.py \
+		--entrypoint /src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard \
 				migrate --noinput
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/manage.py \
+		--entrypoint /src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard \
 				install \
 					--username="test" \
@@ -182,7 +182,7 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		-e HOME=/tmp/npm-config \
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
-		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
+		--volume "$(SRCDIR)/dashboard:/src/src/archivematica/dashboard" \
 		--entrypoint npm \
 			archivematica-dashboard-frontend-builder \
 				install --no-package-lock
@@ -400,13 +400,13 @@ test-frontend:  ## Run Dashboard JS tests.
 		-e HOME=/tmp/npm-config \
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
-		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
+		--volume "$(SRCDIR)/dashboard:/src/src/archivematica/dashboard" \
 		--entrypoint npm \
 			archivematica-dashboard-testing \
 				install
 	docker run \
 		--rm \
-		--volume "$(SRCDIR)/dashboard/frontend:/src/src/dashboard/frontend" \
+		--volume "$(SRCDIR)/dashboard/frontend:/src/src/archivematica/dashboard/frontend" \
 			archivematica-dashboard-testing
 
 stop:  # Stop all containers.

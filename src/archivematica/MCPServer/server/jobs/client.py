@@ -11,7 +11,6 @@ from dbconns import auto_close_old_connections
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from main import models
-
 from server import metrics
 from server.jobs.base import Job
 from server.tasks import Task

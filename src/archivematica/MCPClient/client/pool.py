@@ -31,12 +31,11 @@ import django
 
 django.setup()
 
-from django import db
-from django.conf import settings
-
 from client import loader
 from client import metrics
 from client.gearman import MCPGearmanWorker
+from django import db
+from django.conf import settings
 
 T = TypeVar("T")
 

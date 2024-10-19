@@ -12,7 +12,11 @@ from server.processing_config import processing_fields
 from server.workflow import load
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
+    pathlib.Path(__file__).parent.parent.parent
+    / "src"
+    / "archivematica"
+    / "MCPServer"
+    / "assets"
 )
 
 

@@ -10,8 +10,8 @@
 !/TRADEMARK
 
 # Exclude
-src/dashboard/frontend/node_modules
-src/dashboard/media/js/build
+src/archivematica/dashboard/frontend/node_modules
+src/archivematica/dashboard/media/js/build
 **/*~
 **/*.log
 **/node_modules

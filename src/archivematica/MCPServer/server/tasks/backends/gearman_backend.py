@@ -13,7 +13,6 @@ from gearman.constants import JOB_COMPLETE
 from gearman.constants import JOB_FAILED
 from gearman.constants import JOB_UNKNOWN
 from gearman_encoder import JSONDataEncoder
-
 from server import metrics
 from server.tasks.backends.base import TaskBackend
 from server.tasks.task import Task

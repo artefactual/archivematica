@@ -23,5 +23,5 @@
 .tox/
 
 # frontend builds
-src/dashboard/static/
-src/dashboard/media/js/build
+src/archivematica/dashboard/static/
+src/archivematica/dashboard/media/js/build

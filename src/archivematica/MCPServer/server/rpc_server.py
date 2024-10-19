@@ -27,7 +27,6 @@ from lxml import etree
 from main.models import SIP
 from main.models import Job
 from main.models import Transfer
-
 from server.packages import create_package
 from server.packages import get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields

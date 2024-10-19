@@ -16,6 +16,7 @@ def set_xml_catalog_files(monkeypatch: pytest.MonkeyPatch) -> None:
         str(
             pathlib.Path(__file__).parent.parent.parent
             / "src"
+            / "archivematica"
             / "MCPClient"
             / "assets"
             / "catalog"

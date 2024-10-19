@@ -21,7 +21,6 @@ from django.conf import settings as django_settings
 from jsonschema import FormatChecker
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-
 from server.jobs import Job
 from server.translation import FALLBACK_LANG
 from server.translation import TranslationLabel

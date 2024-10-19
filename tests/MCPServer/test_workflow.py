@@ -8,7 +8,11 @@ from server import translation
 from server import workflow
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
+    pathlib.Path(__file__).parent.parent.parent
+    / "src"
+    / "archivematica"
+    / "MCPServer"
+    / "assets"
 )
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 

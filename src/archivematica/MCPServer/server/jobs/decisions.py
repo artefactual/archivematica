@@ -9,7 +9,6 @@ from collections import OrderedDict
 
 from dbconns import auto_close_old_connections
 from main import models
-
 from server.jobs.base import Job
 from server.processing_config import load_preconfigured_choice
 from server.processing_config import load_processing_xml

@@ -9,7 +9,11 @@ from server import rpc_server
 from server import workflow
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
+    pathlib.Path(__file__).parent.parent.parent
+    / "src"
+    / "archivematica"
+    / "MCPServer"
+    / "assets"
 )
 
 
