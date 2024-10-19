@@ -248,7 +248,7 @@ timeout = 300
 
 config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO(CONFIG_DEFAULTS))
-config.read_files(["/etc/archivematica/archivematicaCommon/dbsettings"])
+config.read_files(["/etc/archivematica/common/dbsettings"])
 
 
 path_of_this_file = os.path.abspath(os.path.dirname(__file__))

@@ -181,7 +181,7 @@ config = Config(env_prefix="ARCHIVEMATICA_MCPSERVER", attrs=CONFIG_MAPPING)
 config.read_defaults(StringIO(CONFIG_DEFAULTS))
 config.read_files(
     [
-        "/etc/archivematica/archivematicaCommon/dbsettings",
+        "/etc/archivematica/common/dbsettings",
         "/etc/archivematica/MCPServer/serverConfig.conf",
     ]
 )

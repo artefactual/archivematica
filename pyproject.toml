@@ -5,7 +5,7 @@ norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
 
 [tool.coverage.run]
 omit = [
-    "**/src/archivematicaCommon/externals/*",
+    "**/src/common/externals/*",
     "**/migrations/*",
     "**/south_migrations/*",
     "**/management/commands/*",
@@ -15,7 +15,7 @@ omit = [
     "**/manage.py",
 ]
 include = [
-    "**/src/archivematicaCommon/*",
+    "**/src/common/*",
     "**/src/dashboard/*",
     "**/src/MCPClient/*",
     "**/src/MCPServer/*",
@@ -55,7 +55,7 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = [
-    "src.archivematicaCommon.executeOrRunSubProcess",
+    "src.common.executeOrRunSubProcess",
     "src.MCPClient.client.*",
     "src.MCPClient.clientScripts.characterize_file",
     "src.MCPClient.clientScripts.has_packages",
@@ -64,7 +64,7 @@ module = [
     "src.MCPClient.clientScripts.policy_check",
     "src.MCPClient.clientScripts.transcribe_file",
     "src.MCPClient.clientScripts.validate_file",
-    "tests.archivematicaCommon.test_execute_functions",
+    "tests.common.test_execute_functions",
     "tests.dashboard.fpr.test_views",
     "tests.dashboard.test_oidc",
     "tests.integration.test_oidc_auth",
@@ -118,7 +118,7 @@ legacy_tox_ini = """
         SRC_DIR = {toxinidir}/src
         HACK_DIR = {toxinidir}/hack
         # Archivematica Common
-        ARCHIVEMATICA_COMMON_DIR = {env:SRC_DIR}/archivematicaCommon
+        ARCHIVEMATICA_COMMON_DIR = {env:SRC_DIR}/common
         # Dashboard
         DASHBOARD_DIR = {env:SRC_DIR}/dashboard
         DASHBOARD_PYTHONPATH = {env:DASHBOARD_DIR}:{env:ARCHIVEMATICA_COMMON_DIR}
@@ -145,7 +145,7 @@ legacy_tox_ini = """
         # dependencies in the tox host
         linting: HOME = {temp_dir}/user
     changedir =
-        archivematica-common: {toxinidir}/tests/archivematicaCommon
+        archivematica-common: {toxinidir}/tests/common
         dashboard: {toxinidir}/tests/dashboard
         mcp-server: {toxinidir}/tests/MCPServer
         mcp-client: {toxinidir}/tests/MCPClient

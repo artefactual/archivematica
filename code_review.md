@@ -28,7 +28,7 @@ expectations for contributors about what to expect.
 - [ ] Does this duplicate functionality found elsewhere?
 - [ ] Does it make more sense for this to be implemented elsewhere? E.g. Should
   this happen in the storage service vs. a client script, or should a helper
-  function live in archivematicaCommon?
+  function live in common?
 - [ ] Does this add or reduce technical debt?
 - [ ] Does this conflict with or benefit from work being done in parallel?
 - [ ] Does this have security implications? Does it add or close a security

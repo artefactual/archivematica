@@ -64,7 +64,7 @@ of these settings or provide values to mandatory fields.
 
 The Dashboard will look for a configuration file in one location:
 
-- `/etc/archivematica/archivematicaCommon/dbsettings`
+- `/etc/archivematica/common/dbsettings`
 
 Traditionally, the dbsettings file was used to hold mysql login credentials,
 which are then shared with other Archivematica components like MCPClient.

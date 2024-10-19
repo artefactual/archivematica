@@ -57,7 +57,7 @@ class HandleForm(SettingsForm):
     directories, as well as the resolution of URLs based on those PIDs, i.e.,
     PURLs, to specified URLs.
     Note: the attributes of this form are (and must remain) identical to
-    archivematicaCommon/bindpid::CFGABLE_PARAMS.
+    common/bindpid::CFGABLE_PARAMS.
     """
 
     pid_web_service_endpoint = forms.URLField(

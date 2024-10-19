@@ -173,7 +173,7 @@ def _bind_pid_to_model(job, mdl, shared_path, config):
     """Binds a PID (Handle persistent identifier) to the (SIP or Directory)
     model ``mdl`` by making a request to a Handle web service endpoint, given
     the configuration in ``config`` (which is configured in a dashboard form).
-    Uses ``bind_pid`` from the bindpid.py module in archivematicaCommon. If
+    Uses ``bind_pid`` from the bindpid.py module in common. If
     successful, adds the PID to the model's ``identifiers`` attribute.
     """
     is_sip = isinstance(mdl, SIP)

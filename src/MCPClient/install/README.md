@@ -62,7 +62,7 @@ code: (see [`the example`](./clientConfig.conf))
 
 MCPClient will look for a configuration file in one of two locations:
 
-- `/etc/archivematica/archivematicaCommon/dbsettings`
+- `/etc/archivematica/common/dbsettings`
 - `/etc/archivematica/MCPClient/clientConfig.conf`
 
 Traditionally, the dbsettings file was used to hold mysql login credentials,

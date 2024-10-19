@@ -224,15 +224,15 @@ COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 FROM base AS archivematica-mcp-client
 
 ENV DJANGO_SETTINGS_MODULE=settings.common
-ENV PYTHONPATH=/src/src/MCPClient/:/src/src/MCPClient/clientScripts:/src/src/archivematicaCommon/:/src/src/dashboard/
+ENV PYTHONPATH=/src/src/MCPClient/:/src/src/MCPClient/clientScripts:/src/src/common/:/src/src/dashboard/
 ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES=/src/src/MCPClient/archivematicaClientModules
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY=/src/src/MCPClient/assets/
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY=/src/src/MCPClient/clientScripts/
 
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
-COPY --link src/archivematicaCommon/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
-COPY --link src/archivematicaCommon/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
+COPY --link src/common/externals/fido/ /usr/lib/archivematica/common/externals/fido/
+COPY --link src/common/externals/fiwalk_plugins/ /usr/lib/archivematica/common/externals/fiwalk_plugins/
 
 ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/archivematicaClient.py"]
 
@@ -241,7 +241,7 @@ ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/archivematicaClient.
 FROM base AS archivematica-mcp-server
 
 ENV DJANGO_SETTINGS_MODULE=settings.common
-ENV PYTHONPATH=/src/src/MCPServer/:/src/src/archivematicaCommon/:/src/src/dashboard/
+ENV PYTHONPATH=/src/src/MCPServer/:/src/src/common/:/src/src/dashboard/
 
 ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/archivematicaMCP.py"]
 
@@ -271,7 +271,7 @@ COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-buil
 WORKDIR /src/src/dashboard
 
 ENV DJANGO_SETTINGS_MODULE=settings.local
-ENV PYTHONPATH=/src/src/dashboard/:/src/src/archivematicaCommon/
+ENV PYTHONPATH=/src/src/dashboard/:/src/src/common/
 ENV AM_GUNICORN_BIND=0.0.0.0:8000
 ENV AM_GUNICORN_CHDIR=/src/src/dashboard
 ENV FORWARDED_ALLOW_IPS=*
@@ -305,7 +305,7 @@ RUN set -ex \
 	&& mkdir -p /var/archivematica/.cache/ms-playwright \
 	&& python3 -m playwright install firefox
 
-ENV PYTHONPATH=/src/src/dashboard/:/src/src/archivematicaCommon/
+ENV PYTHONPATH=/src/src/dashboard/:/src/src/common/
 
 # -----------------------------------------------------------------------------
 
