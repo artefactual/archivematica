@@ -2,10 +2,12 @@ from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
 import pytest
+import pytest_django
 from components.accounts.views import get_oidc_logout_url
+from django.test import RequestFactory
 
 
-def test_get_oidc_logout_url_fails_if_token_is_not_set(rf):
+def test_get_oidc_logout_url_fails_if_token_is_not_set(rf: RequestFactory) -> None:
     request = rf.get("/")
     request.session = {}
 
@@ -13,7 +15,9 @@ def test_get_oidc_logout_url_fails_if_token_is_not_set(rf):
         get_oidc_logout_url(request)
 
 
-def test_get_oidc_logout_url_fails_if_logout_endpoint_is_not_set(rf):
+def test_get_oidc_logout_url_fails_if_logout_endpoint_is_not_set(
+    rf: RequestFactory,
+) -> None:
     request = rf.get("/")
     request.session = {"oidc_id_token": "mytoken"}
 
@@ -23,7 +27,9 @@ def test_get_oidc_logout_url_fails_if_logout_endpoint_is_not_set(rf):
         get_oidc_logout_url(request)
 
 
-def test_get_oidc_logout_url_returns_logout_url(rf, settings):
+def test_get_oidc_logout_url_returns_logout_url(
+    rf: RequestFactory, settings: pytest_django.fixtures.SettingsWrapper
+) -> None:
     settings.OIDC_OP_LOGOUT_ENDPOINT = "http://example.com/logout"
     token = "mytoken"
     request = rf.get("/")
