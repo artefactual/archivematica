@@ -2,18 +2,19 @@ import uuid
 
 import pytest
 from components import helpers
+from django.test import Client
 from django.urls import reverse
 from main.models import Report
 
 
 @pytest.fixture
 @pytest.mark.django_db
-def dashboard_uuid():
+def dashboard_uuid() -> None:
     helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
 
 
 @pytest.mark.django_db
-def test_admin_set_language(dashboard_uuid, admin_client):
+def test_admin_set_language(dashboard_uuid: None, admin_client: Client) -> None:
     response = admin_client.get(reverse("administration:admin_set_language"))
     assert response.status_code == 200
 
@@ -23,7 +24,7 @@ def test_admin_set_language(dashboard_uuid, admin_client):
 
 
 @pytest.mark.django_db
-def test_failure_report_delete(dashboard_uuid, admin_client):
+def test_failure_report_delete(dashboard_uuid: None, admin_client: Client) -> None:
     report = Report.objects.create(content="my report")
 
     response = admin_client.post(
@@ -38,7 +39,7 @@ def test_failure_report_delete(dashboard_uuid, admin_client):
 
 
 @pytest.mark.django_db
-def test_failure_report(dashboard_uuid, admin_client):
+def test_failure_report(dashboard_uuid: None, admin_client: Client) -> None:
     report = Report.objects.create(content="my report")
 
     response = admin_client.get(reverse("administration:reports_failures_index"))
