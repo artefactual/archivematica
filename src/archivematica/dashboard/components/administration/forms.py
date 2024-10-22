@@ -231,6 +231,8 @@ class StorageSettingsForm(SettingsForm):
         help_text=_(
             "API key of the storage service user. E.g. 45f7684483044809b2de045ba59dc876b11b9810"
         ),
+        required=False,
+        widget=forms.PasswordInput,
     )
     storage_service_use_default_config = forms.BooleanField(
         required=False,
@@ -240,6 +242,13 @@ class StorageSettingsForm(SettingsForm):
             "You have to manually set up a custom configuration if the default configuration is not selected."
         ),
     )
+
+    def save(self, *args, **kwargs):
+        if not self.cleaned_data["storage_service_apikey"]:
+            # If the API key was not provided, remove it from the cleaned data
+            # to avoid overwriting its existing stored value.
+            del self.cleaned_data["storage_service_apikey"]
+        return super().save(*args, **kwargs)
 
 
 class ChecksumSettingsForm(SettingsForm):

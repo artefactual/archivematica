@@ -127,10 +127,6 @@ def test_general_view_renders_initial_dashboard_settings(
     assert (
         f'name="storage-storage_service_user" value="{storage_service_user}"' in content
     )
-    assert (
-        f'name="storage-storage_service_apikey" value="{storage_service_apikey}"'
-        in content
-    )
     assert f'<option value="{checksum_type}" selected>' in content
 
 
@@ -252,3 +248,43 @@ def test_general_view_registers_pipeline_in_storage_service(
             "api_key": admin_user_apikey.key,
         },
     )
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "requests.Session.get",
+    side_effect=[mock.Mock(status_code=200, spec=requests.Response)],
+)
+def test_general_view_updates_dashboard_settings_when_storage_service_apikey_is_not_set(
+    get: mock.Mock,
+    dashboard_uuid: str,
+    site_url: str,
+    storage_service_url: str,
+    storage_service_user: str,
+    storage_service_apikey: str,
+    checksum_type: str,
+    admin_client: Client,
+) -> None:
+    new_site_url = "https://other.example.com"
+    new_storage_service_url = "https://other.ss.example.com"
+    new_storage_service_user = "foobar"
+    new_checksum_type = "sha512"
+
+    data = {
+        "general-site_url": new_site_url,
+        "storage-storage_service_url": new_storage_service_url,
+        "storage-storage_service_user": new_storage_service_user,
+        "checksum algorithm-checksum_type": new_checksum_type,
+    }
+
+    response = admin_client.post(reverse("administration:general"), data)
+    assert response.status_code == 200
+
+    assert "Saved" in response.content.decode()
+    assert helpers.get_setting("site_url", new_site_url)
+    assert helpers.get_setting("storage_service_url", new_storage_service_url)
+    assert helpers.get_setting("storage_service_user", new_storage_service_user)
+    assert helpers.get_setting("checksum_type", new_checksum_type)
+
+    # The existing API key value was not modified.
+    assert helpers.get_setting("storage_service_apikey", storage_service_apikey)
