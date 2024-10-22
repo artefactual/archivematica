@@ -38,6 +38,7 @@ django-cas-ng
 # Required for OpenID Connect authentication
 mozilla-django-oidc
 
-# These dependencies dropped support for Python 3.8, so pinning it for now.
+# These dependencies dropped support for Python 3.8, so pinning them for now.
+django-auth-ldap==5.0.0
 gevent==24.2.1
 jsonschema-specifications==2023.12.1
