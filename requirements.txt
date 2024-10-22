@@ -28,7 +28,7 @@ charset-normalizer==3.4.0
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-cryptography==43.0.1
+cryptography==43.0.3
     # via
     #   josepy
     #   mozilla-django-oidc
@@ -94,13 +94,13 @@ metsrw==0.5.1
     # via -r requirements.in
 mozilla-django-oidc==4.0.1
     # via -r requirements.in
-mysqlclient==2.2.4
+mysqlclient==2.2.5
     # via agentarchives
 olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.in
-orjson==3.10.7
+orjson==3.10.9
     # via -r requirements.in
 packaging==24.1
     # via gunicorn
@@ -174,7 +174,7 @@ zope-interface==7.1.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.1.0
+setuptools==75.2.0
     # via
     #   zope-event
     #   zope-interface

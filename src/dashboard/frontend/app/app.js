@@ -9,21 +9,21 @@ import 'angular-tree-control/css/tree-control-attribute.css';
 import 'angular';
 
 // Partials
-import 'ng-cache-loader?prefix=[dir]!./analysis/analysis.html';
-import 'ng-cache-loader?prefix=[dir]!./archivesspace/form.html';
-import 'ng-cache-loader?prefix=[dir]!./arrangement/edit_metadata_form.html';
-import 'ng-cache-loader?prefix=[dir]!./examine_contents/examine_contents.html';
-import 'ng-cache-loader?prefix=[dir]!./examine_contents/file_info.html';
-import 'ng-cache-loader?prefix=[dir]!./front_page/appraisal_tab.html';
-import 'ng-cache-loader?prefix=[dir]!./front_page/transfer_browser.html';
-import 'ng-cache-loader?prefix=[dir]!./preview/preview.html';
-import 'ng-cache-loader?prefix=[dir]!./report/format.html';
-import 'ng-cache-loader?prefix=[dir]!./report/tags.html';
-import 'ng-cache-loader?prefix=[dir]!./ui/minimize-bar.html';
-import 'ng-cache-loader?prefix=[dir]!./ui/minimize-panel.html';
-import 'ng-cache-loader?prefix=[dir]!./visualizations/formats_by_files.html';
-import 'ng-cache-loader?prefix=[dir]!./visualizations/formats_by_size.html';
-import 'ng-cache-loader?prefix=[dir]!./visualizations/visualizations.html';
+import analysisTemplate from './analysis/analysis.html';
+import archivesSpaceFormTemplate from './archivesspace/form.html';
+import editMetadataFormTemplate from './arrangement/edit_metadata_form.html';
+import examineContentsTemplate from './examine_contents/examine_contents.html';
+import fileInfoTemplate from './examine_contents/file_info.html';
+import appraisalTabTemplate from './front_page/appraisal_tab.html';
+import transferBrowserTemplate from './front_page/transfer_browser.html';
+import previewTemplate from './preview/preview.html';
+import reportFormatTemplate from './report/format.html';
+import reportTagsTemplate from './report/tags.html';
+import minimizeBarTemplate from './ui/minimize-bar.html';
+import minimizePanelTemplate from './ui/minimize-panel.html';
+import formatsByFilesTemplate from './visualizations/formats_by_files.html';
+import formatsBySizeTemplate from './visualizations/formats_by_size.html';
+import visualizationsTemplate from './visualizations/visualizations.html';
 
 // Third-party modules
 import angular from 'angular';
@@ -126,7 +126,7 @@ module.exports = angular.module('dashboard', [
   'controllers.header',
 ]).
 
-run(function ($window, gettextCatalog) {
+run(function ($window, gettextCatalog, $templateCache) {
     // Look up current language, fallback to English
     var currentLanguage;
     try {
@@ -140,6 +140,23 @@ run(function ($window, gettextCatalog) {
     for (let [langCode, translations] of Object.entries(require('./locale/translations.json'))) {
       gettextCatalog.setStrings(langCode, translations);
     }
+
+    // Cache partials.
+    $templateCache.put('analysis/analysis.html', analysisTemplate);
+    $templateCache.put('archivesspace/form.html', archivesSpaceFormTemplate);
+    $templateCache.put('arrangement/edit_metadata_form.html', editMetadataFormTemplate);
+    $templateCache.put('examine_contents/examine_contents.html', examineContentsTemplate);
+    $templateCache.put('examine_contents/file_info.html', fileInfoTemplate);
+    $templateCache.put('front_page/appraisal_tab.html', appraisalTabTemplate);
+    $templateCache.put('front_page/transfer_browser.html', transferBrowserTemplate);
+    $templateCache.put('preview/preview.html', previewTemplate);
+    $templateCache.put('report/format.html', reportFormatTemplate);
+    $templateCache.put('report/tags.html', reportTagsTemplate);
+    $templateCache.put('ui/minimize-bar.html', minimizeBarTemplate);
+    $templateCache.put('ui/minimize-panel.html', minimizePanelTemplate);
+    $templateCache.put('visualizations/formats_by_files.html', formatsByFilesTemplate);
+    $templateCache.put('visualizations/formats_by_size.html', formatsBySizeTemplate);
+    $templateCache.put('visualizations/visualizations.html', visualizationsTemplate);
 }).
 
 // See https://code.angularjs.org/1.5.11/docs/api/ng/service/$http#cross-site-request-forgery-xsrf-protection

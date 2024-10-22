@@ -51,7 +51,7 @@ coverage[toml]==7.6.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==43.0.1
+cryptography==43.0.3
     # via
     #   -r requirements.txt
     #   josepy
@@ -144,7 +144,7 @@ mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via -r requirements-dev.in
 mozilla-django-oidc==4.0.1
     # via -r requirements.txt
-mysqlclient==2.2.4
+mysqlclient==2.2.5
     # via
     #   -r requirements.txt
     #   agentarchives
@@ -154,7 +154,7 @@ olefile==0.47
     #   opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
-orjson==3.10.7
+orjson==3.10.9
     # via -r requirements.txt
 packaging==24.1
     # via
@@ -286,7 +286,7 @@ tomli==2.0.2
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.21.2
+tox==4.23.1
     # via -r requirements-dev.in
 typing-extensions==4.12.2
     # via
@@ -302,7 +302,7 @@ urllib3==2.2.3
     #   amclient
     #   elasticsearch
     #   requests
-virtualenv==20.26.6
+virtualenv==20.27.0
     # via tox
 wheel==0.44.0
     # via pip-tools
@@ -325,7 +325,7 @@ zope-interface==7.1.0
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.2
     # via pip-tools
-setuptools==75.1.0
+setuptools==75.2.0
     # via
     #   -r requirements.txt
     #   pip-tools
