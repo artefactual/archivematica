@@ -88,7 +88,7 @@ def profile(request):
         form = ApiKeyForm(request.POST)
         userprofileform = UserProfileForm(request.POST, instance=user_profile)
         if form.is_valid() and userprofileform.is_valid():
-            if form["regenerate_api_key"] != "":
+            if form.cleaned_data["regenerate_api_key"]:
                 generate_api_key(user)
             userprofileform.save()
 
