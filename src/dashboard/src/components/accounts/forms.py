@@ -149,7 +149,7 @@ class UserChangeForm(DjangoUserChangeForm):
 
 
 class ApiKeyForm(forms.Form):
-    regenerate_api_key = forms.CharField(
+    regenerate_api_key = forms.BooleanField(
         widget=forms.CheckboxInput,
         label="Regenerate API key (shown below)?",
         required=False,

@@ -211,6 +211,8 @@ class StorageSettingsForm(SettingsForm):
         """
 
         def to_python(self, value):
+            if value is None:
+                value = ""
             return super(forms.CharField, self).to_python(value).strip()
 
     storage_service_url = forms.CharField(
