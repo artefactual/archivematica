@@ -184,3 +184,96 @@ def test_edit_user_view_regenerates_api_key(
 
     non_administrative_user_apikey.refresh_from_db()
     assert non_administrative_user_apikey.key == expected_key
+
+
+@pytest.mark.django_db
+def test_user_profile_view_allows_users_to_edit_their_profile_fields(
+    dashboard_uuid: None,
+    non_administrative_user: User,
+    non_administrative_user_apikey: ApiKey,
+    client: Client,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    settings.ALLOW_USER_EDITS = True
+    client.force_login(non_administrative_user)
+
+    response = client.get(
+        reverse("accounts:profile"),
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    assert f"Edit your profile ({non_administrative_user.username})" in content
+    assert f'name="username" value="{non_administrative_user.username}"' in content
+    assert f'name="first_name" value="{non_administrative_user.first_name}"' in content
+    assert f'name="last_name" value="{non_administrative_user.last_name}"' in content
+    assert f'name="email" value="{non_administrative_user.email}"' in content
+    assert f"<code>{non_administrative_user_apikey.key}</code>" in content
+
+
+@pytest.mark.django_db
+def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
+    dashboard_uuid: None,
+    non_administrative_user: User,
+    non_administrative_user_apikey: ApiKey,
+    client: Client,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    settings.ALLOW_USER_EDITS = False
+    client.force_login(non_administrative_user)
+
+    response = client.get(
+        reverse("accounts:profile"),
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    assert f"Your profile ({non_administrative_user.username})" in content
+    assert f"<dd>{non_administrative_user.username}</dd>" in content
+    assert (
+        f"<dd>{non_administrative_user.first_name} {non_administrative_user.last_name}</dd>"
+        in content
+    )
+    assert f"<dd>{non_administrative_user.email}</dd>" in content
+    assert (
+        f'<dd>{"yes" if non_administrative_user.is_superuser else "no"}</dd>' in content
+    )
+    assert f"<code>{non_administrative_user_apikey.key}</code>" in content
+
+
+@pytest.mark.django_db
+def test_user_profile_view_regenerates_api_key_if_setting_disables_editing(
+    dashboard_uuid: None,
+    non_administrative_user: User,
+    non_administrative_user_apikey: ApiKey,
+    client: Client,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    settings.ALLOW_USER_EDITS = False
+    client.force_login(non_administrative_user)
+    data = {"regenerate_api_key": True}
+    expected_uuid = uuid.uuid4()
+    expected_key = hmac.new(expected_uuid.bytes, digestmod=sha1).hexdigest()
+
+    with mock.patch("uuid.uuid4", return_value=expected_uuid):
+        response = client.post(
+            reverse("accounts:profile"),
+            data,
+            follow=True,
+        )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    assert f"Your profile ({non_administrative_user.username})" in content
+    assert f"<dd>{non_administrative_user.username}</dd>" in content
+    assert (
+        f"<dd>{non_administrative_user.first_name} {non_administrative_user.last_name}</dd>"
+        in content
+    )
+    assert f"<dd>{non_administrative_user.email}</dd>" in content
+    assert (
+        f'<dd>{"yes" if non_administrative_user.is_superuser else "no"}</dd>' in content
+    )
+    assert f"<code>{expected_key}</code>" in content
