@@ -85,7 +85,7 @@ class UserChangeForm(DjangoUserChangeForm):
     is_superuser = forms.BooleanField(label="Administrator", required=False)
     regenerate_api_key = forms.CharField(
         widget=forms.CheckboxInput,
-        label="Regenerate API key (shown below)?",
+        label="Regenerate API key?",
         required=False,
     )
 
@@ -152,7 +152,7 @@ class UserChangeForm(DjangoUserChangeForm):
 class ApiKeyForm(forms.Form):
     regenerate_api_key = forms.BooleanField(
         widget=forms.CheckboxInput,
-        label="Regenerate API key (shown below)?",
+        label="Regenerate API key?",
         required=False,
     )
 

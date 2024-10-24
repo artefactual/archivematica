@@ -101,6 +101,8 @@ def test_edit_user_view_renders_user_profile_fields(
     non_administrative_user_apikey: ApiKey,
     admin_client: Client,
 ) -> None:
+    expected_apikey = non_administrative_user_apikey.key
+
     response = admin_client.get(
         reverse("accounts:edit", kwargs={"id": non_administrative_user.id}), follow=True
     )
@@ -112,7 +114,9 @@ def test_edit_user_view_renders_user_profile_fields(
     assert f'name="first_name" value="{non_administrative_user.first_name}"' in content
     assert f'name="last_name" value="{non_administrative_user.last_name}"' in content
     assert f'name="email" value="{non_administrative_user.email}"' in content
-    assert f"<code>{non_administrative_user_apikey.key}</code>" in content
+
+    non_administrative_user_apikey.refresh_from_db()
+    assert non_administrative_user_apikey.key == expected_apikey
 
 
 @pytest.mark.django_db
@@ -196,6 +200,7 @@ def test_user_profile_view_allows_users_to_edit_their_profile_fields(
 ) -> None:
     settings.ALLOW_USER_EDITS = True
     client.force_login(non_administrative_user)
+    expected_apikey = non_administrative_user_apikey.key
 
     response = client.get(
         reverse("accounts:profile"),
@@ -209,7 +214,9 @@ def test_user_profile_view_allows_users_to_edit_their_profile_fields(
     assert f'name="first_name" value="{non_administrative_user.first_name}"' in content
     assert f'name="last_name" value="{non_administrative_user.last_name}"' in content
     assert f'name="email" value="{non_administrative_user.email}"' in content
-    assert f"<code>{non_administrative_user_apikey.key}</code>" in content
+
+    non_administrative_user_apikey.refresh_from_db()
+    assert non_administrative_user_apikey.key == expected_apikey
 
 
 @pytest.mark.django_db
@@ -222,6 +229,7 @@ def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
 ) -> None:
     settings.ALLOW_USER_EDITS = False
     client.force_login(non_administrative_user)
+    expected_apikey = non_administrative_user_apikey.key
 
     response = client.get(
         reverse("accounts:profile"),
@@ -240,7 +248,9 @@ def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
     assert (
         f"<dd>{'yes' if non_administrative_user.is_superuser else 'no'}</dd>" in content
     )
-    assert f"<code>{non_administrative_user_apikey.key}</code>" in content
+
+    non_administrative_user_apikey.refresh_from_db()
+    assert non_administrative_user_apikey.key == expected_apikey
 
 
 @pytest.mark.django_db
@@ -276,7 +286,9 @@ def test_user_profile_view_regenerates_api_key_if_setting_disables_editing(
     assert (
         f"<dd>{'yes' if non_administrative_user.is_superuser else 'no'}</dd>" in content
     )
-    assert f"<code>{expected_key}</code>" in content
+
+    non_administrative_user_apikey.refresh_from_db()
+    assert non_administrative_user_apikey.key == expected_key
 
 
 @pytest.mark.django_db
@@ -289,6 +301,7 @@ def test_user_profile_view_does_not_regenerate_api_key_if_not_requested(
 ) -> None:
     settings.ALLOW_USER_EDITS = False
     client.force_login(non_administrative_user)
+    expected_apikey = non_administrative_user_apikey.key
 
     response = client.post(reverse("accounts:profile"), {}, follow=True)
     assert response.status_code == 200
@@ -304,4 +317,6 @@ def test_user_profile_view_does_not_regenerate_api_key_if_not_requested(
     assert (
         f"<dd>{'yes' if non_administrative_user.is_superuser else 'no'}</dd>" in content
     )
-    assert f"<code>{non_administrative_user_apikey.key}</code>" in content
+
+    non_administrative_user_apikey.refresh_from_db()
+    assert non_administrative_user_apikey.key == expected_apikey
