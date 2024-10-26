@@ -1,5 +1,6 @@
 import threading
 import uuid
+from unittest import mock
 
 import pytest
 from server.mcp import main
@@ -7,7 +8,14 @@ from server.mcp import watched_dir_handler
 
 
 @pytest.mark.django_db(transaction=True)
-def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdir):
+@mock.patch("server.packages.models.Transfer.objects.create")
+@mock.patch("server.packages.uuid4")
+@mock.patch(
+    "server.mcp.JobChain", mock.MagicMock(return_value=iter(["some_chain_link"]))
+)
+def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(
+    uuid4, create_mock, tmpdir
+):
     """Test that a models.Transfer object exists for an unknown path.
 
     This for example simulates the case when a user drops a directory
@@ -20,22 +28,17 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdi
     """
     # We're not interested in the package queue or the link chaining logics here,
     # so we mock very limited implementations for those.
-    job_chain_mock = mocker.MagicMock()
-    job_chain_mock.return_value = iter(["some_chain_link"])
-    mocker.patch("server.mcp.JobChain", job_chain_mock)
-    package_queue = mocker.Mock()
-    watched_dir = mocker.MagicMock(unit_type="Transfer")
+    package_queue = mock.Mock()
+    watched_dir = mock.MagicMock(unit_type="Transfer")
 
     # Mock a known UUID for the new transfer.
     transfer_uuid = uuid.uuid4()
-    mocker.patch("server.packages.uuid4", return_value=transfer_uuid)
+    uuid4.return_value = transfer_uuid
 
     # Mock the Django manager for the Transfer model. This is mocked from the
     # `server.packages` module since its path from the Dashboard is not available.
-    transfer_mock = mocker.Mock(uuid=transfer_uuid)
-    create_mock = mocker.patch(
-        "server.packages.models.Transfer.objects.create", return_value=transfer_mock
-    )
+    transfer_mock = mock.Mock(uuid=transfer_uuid)
+    create_mock.return_value = transfer_mock
 
     # The new/unknown path for creating the transfer.
     path = tmpdir.mkdir("some_transfer")
@@ -48,26 +51,26 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(mocker, tmpdi
 
 
 @pytest.mark.django_db(transaction=True)
-def test_watched_dir_handler_creates_transfer_for_file(mocker, tmpdir):
+@mock.patch("server.packages.models.Transfer.objects.create")
+@mock.patch("server.packages.uuid4")
+@mock.patch(
+    "server.mcp.JobChain", mock.MagicMock(return_value=iter(["some_chain_link"]))
+)
+def test_watched_dir_handler_creates_transfer_for_file(uuid4, create_mock, tmpdir):
     """Test that a models.Transfer object exists for a file path."""
     # We're not interested in the package queue or the link chaining logics here,
     # so we mock very limited implementations for those.
-    job_chain_mock = mocker.MagicMock()
-    job_chain_mock.return_value = iter(["some_chain_link"])
-    mocker.patch("server.mcp.JobChain", job_chain_mock)
-    package_queue = mocker.Mock()
-    watched_dir = mocker.MagicMock(unit_type="Transfer")
+    package_queue = mock.Mock()
+    watched_dir = mock.MagicMock(unit_type="Transfer")
 
     # Mock a known UUID for the new transfer.
     transfer_uuid = uuid.uuid4()
-    mocker.patch("server.packages.uuid4", return_value=transfer_uuid)
+    uuid4.return_value = transfer_uuid
 
     # Mock the Django manager for the Transfer model. This is mocked from the
     # `server.packages` module since its path from the Dashboard is not available.
-    transfer_mock = mocker.Mock(uuid=transfer_uuid)
-    create_mock = mocker.patch(
-        "server.packages.models.Transfer.objects.create", return_value=transfer_mock
-    )
+    transfer_mock = mock.Mock(uuid=transfer_uuid)
+    create_mock.return_value = transfer_mock
 
     # The new/unknown path of a file for creating the transfer.
     path = tmpdir.join("file.txt")
@@ -80,7 +83,21 @@ def test_watched_dir_handler_creates_transfer_for_file(mocker, tmpdir):
     create_mock.assert_called_once_with(uuid=transfer_uuid, currentlocation=str(path))
 
 
-def test_mcp_main(mocker, settings):
+@mock.patch("server.mcp.metrics")
+@mock.patch("server.mcp.Task")
+@mock.patch("server.mcp.Job")
+@mock.patch("server.mcp.Package")
+@mock.patch("server.mcp.shared_dirs")
+@mock.patch("server.mcp.load_workflow")
+def test_mcp_main(
+    mock_load_workflow,
+    mock_shared_dirs,
+    mock_package,
+    mock_job,
+    mock_task,
+    mock_metrics,
+    settings,
+):
     """Test spin up with immediate shutdown.
 
     This test has limited utility because everything is mocked, but it should
@@ -90,13 +107,6 @@ def test_mcp_main(mocker, settings):
     settings.RPC_THREADS = 1
     settings.WORKER_THREADS = 1
     settings.PROMETHEUS_ENABLED = True
-
-    mock_load_workflow = mocker.patch("server.mcp.load_workflow")
-    mock_shared_dirs = mocker.patch("server.mcp.shared_dirs")
-    mock_package = mocker.patch("server.mcp.Package")
-    mock_job = mocker.patch("server.mcp.Job")
-    mock_task = mocker.patch("server.mcp.Task")
-    mock_metrics = mocker.patch("server.mcp.metrics")
 
     shutdown_event = threading.Event()
     shutdown_event.set()

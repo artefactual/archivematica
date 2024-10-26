@@ -1,4 +1,5 @@
 import uuid
+from unittest import mock
 
 import pytest
 from assign_file_uuids import call
@@ -23,8 +24,8 @@ def sip_directory_path(sip_directory_path):
 
 
 @pytest.mark.django_db
-def test_call_creates_transfer_files_and_events(mocker, sip_directory_path, transfer):
-    job = mocker.MagicMock(
+def test_call_creates_transfer_files_and_events(sip_directory_path, transfer):
+    job = mock.MagicMock(
         spec=Job,
         args=[
             "assign_file_uuids.py",
@@ -68,8 +69,8 @@ def test_call_creates_transfer_files_and_events(mocker, sip_directory_path, tran
     ],
     ids=["no_transfer_nor_sip_provided", "transfer_and_sip_provided"],
 )
-def test_call_validates_job_arguments(mocker, job_arguments):
-    job = mocker.MagicMock(
+def test_call_validates_job_arguments(job_arguments):
+    job = mock.MagicMock(
         spec=Job,
         args=job_arguments,
     )
@@ -84,19 +85,27 @@ def test_call_validates_job_arguments(mocker, job_arguments):
 
 
 @pytest.mark.django_db
-def test_call_updates_transfer_file_on_reingest(mocker, sip_directory_path, transfer):
+@mock.patch("metsrw.METSDocument.fromfile")
+@mock.patch("assign_file_uuids.find_mets_file")
+@mock.patch("assign_file_uuids.get_file_info_from_mets")
+def test_call_updates_transfer_file_on_reingest(
+    get_file_info_from_mets,
+    find_mets_file,
+    fromfile,
+    sip_directory_path,
+    transfer,
+):
     # Fake METS parsing and return static file information.
-    mocker.patch("metsrw.METSDocument.fromfile")
-    mocker.patch("assign_file_uuids.find_mets_file")
+
     file_info = {
         "uuid": str(uuid.uuid4()),
         "filegrpuse": "original",
         "original_path": str(sip_directory_path / "contents" / "file-in.txt"),
         "current_path": str(sip_directory_path / "reingest" / "file-in.txt"),
     }
-    mocker.patch("assign_file_uuids.get_file_info_from_mets", return_value=file_info)
+    get_file_info_from_mets.return_value = file_info
 
-    job = mocker.MagicMock(
+    job = mock.MagicMock(
         spec=Job,
         args=[
             "assign_file_uuids.py",

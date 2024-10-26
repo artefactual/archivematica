@@ -3,6 +3,7 @@ import queue as Queue
 import threading
 import time
 import uuid
+from unittest import mock
 
 import pytest
 from server.jobs import DecisionJob
@@ -120,8 +121,8 @@ dip_1 = dip
 dip_2 = dip
 
 
-def test_schedule_job(package_queue, transfer, workflow_link, mocker):
-    test_job = MockJob(mocker.Mock(), workflow_link, transfer)
+def test_schedule_job(package_queue, transfer, workflow_link):
+    test_job = MockJob(mock.Mock(), workflow_link, transfer)
 
     package_queue.schedule_job(test_job)
 
@@ -140,9 +141,9 @@ def test_schedule_job(package_queue, transfer, workflow_link, mocker):
     assert package_queue.dip_queue.qsize() == 0
 
 
-def test_active_transfer_limit(package_queue, transfer, sip, workflow_link, mocker):
-    test_job1 = MockJob(mocker.Mock(), workflow_link, transfer)
-    test_job2 = MockJob(mocker.Mock(), workflow_link, sip)
+def test_active_transfer_limit(package_queue, transfer, sip, workflow_link):
+    test_job1 = MockJob(mock.Mock(), workflow_link, transfer)
+    test_job2 = MockJob(mock.Mock(), workflow_link, sip)
 
     package_queue.schedule_job(test_job1)
 
@@ -176,11 +177,9 @@ def test_activate_and_deactivate_package(package_queue, transfer):
     assert transfer.uuid not in package_queue.active_packages
 
 
-def test_queue_next_job_raises_full(
-    package_queue, transfer, sip, workflow_link, mocker
-):
-    test_job1 = MockJob(mocker.Mock(), workflow_link, transfer)
-    test_job2 = MockJob(mocker.Mock(), workflow_link, sip)
+def test_queue_next_job_raises_full(package_queue, transfer, sip, workflow_link):
+    test_job1 = MockJob(mock.Mock(), workflow_link, transfer)
+    test_job2 = MockJob(mock.Mock(), workflow_link, sip)
 
     package_queue.schedule_job(test_job1)
     package_queue.schedule_job(test_job2)
@@ -191,8 +190,8 @@ def test_queue_next_job_raises_full(
         package_queue.queue_next_job()
 
 
-def test_await_job_decision(package_queue, transfer, workflow_link, mocker):
-    test_job = MockDecisionJob(mocker.Mock(), workflow_link, transfer)
+def test_await_job_decision(package_queue, transfer, workflow_link):
+    test_job = MockDecisionJob(mock.Mock(), workflow_link, transfer)
     package_queue.await_decision(test_job)
 
     assert package_queue.job_queue.qsize() == 0
@@ -203,10 +202,10 @@ def test_await_job_decision(package_queue, transfer, workflow_link, mocker):
 
 
 def test_decision_job_moved_to_awaiting_decision(
-    package_queue, transfer, sip, workflow_link, mocker
+    package_queue, transfer, sip, workflow_link
 ):
-    test_job1 = MockDecisionJob(mocker.Mock(), workflow_link, transfer)
-    test_job2 = MockJob(mocker.Mock(), workflow_link, sip)
+    test_job1 = MockDecisionJob(mock.Mock(), workflow_link, transfer)
+    test_job2 = MockJob(mock.Mock(), workflow_link, sip)
 
     package_queue.schedule_job(test_job1)
 
@@ -229,12 +228,12 @@ def test_decision_job_moved_to_awaiting_decision(
 
 
 def test_all_scheduled_decisions_are_processed(
-    package_queue_regular, dip_1, dip_2, workflow_link, mocker
+    package_queue_regular, dip_1, dip_2, workflow_link
 ):
     package_queue = package_queue_regular
 
-    test_job1 = MockDecisionJob(mocker.Mock(), workflow_link, dip_1)
-    test_job2 = MockDecisionJob(mocker.Mock(), workflow_link, dip_2)
+    test_job1 = MockDecisionJob(mock.Mock(), workflow_link, dip_1)
+    test_job2 = MockDecisionJob(mock.Mock(), workflow_link, dip_2)
 
     # Schedule two jobs simultaneously.
     # We want to confirm that both are eventually processed.
@@ -271,7 +270,7 @@ def test_all_scheduled_decisions_are_processed(
 
 @pytest.mark.django_db(transaction=True)
 def test_all_scheduled_jobs_are_processed(
-    package_queue_regular, dip_1, dip_2, workflow_link, mocker
+    package_queue_regular, dip_1, dip_2, workflow_link
 ):
     package_queue = package_queue_regular
 
@@ -279,8 +278,8 @@ def test_all_scheduled_jobs_are_processed(
     # It causes the queue manager to hit the database.
     workflow_link._src["end"] = True
 
-    test_job1 = MockJob(mocker.Mock(), workflow_link, dip_1)
-    test_job2 = MockJob(mocker.Mock(), workflow_link, dip_2)
+    test_job1 = MockJob(mock.Mock(), workflow_link, dip_1)
+    test_job2 = MockJob(mock.Mock(), workflow_link, dip_2)
 
     # Schedule two jobs simultaneously.
     # We want to confirm that both are eventually processed.

@@ -1,5 +1,6 @@
 import uuid
 from contextlib import ExitStack as does_not_raise
+from unittest import mock
 
 import pytest
 from create_mets_v2 import createDMDIDsFromCSVMetadata
@@ -12,11 +13,9 @@ from main.models import SIPArrange
 from namespaces import NSMAP
 
 
-def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(mocker):
-    dmd_secs_creator_mock = mocker.patch(
-        "create_mets_v2.createDmdSecsFromCSVParsedMetadata", return_value=[]
-    )
-    state_mock = mocker.Mock(
+@mock.patch("create_mets_v2.createDmdSecsFromCSVParsedMetadata", return_value=[])
+def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(dmd_secs_creator_mock):
+    state_mock = mock.Mock(
         **{
             "CSV_METADATA": {
                 "montréal": "montreal metadata",
@@ -31,9 +30,9 @@ def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(mocker):
 
     dmd_secs_creator_mock.assert_has_calls(
         [
-            mocker.call(None, "montreal metadata", state_mock),
-            mocker.call(None, {}, state_mock),
-            mocker.call(None, "dvorak metadata", state_mock),
+            mock.call(None, "montreal metadata", state_mock),
+            mock.call(None, {}, state_mock),
+            mock.call(None, "dvorak metadata", state_mock),
         ]
     )
 
@@ -263,8 +262,9 @@ def test_aip_mets_normative_directory_structure(
         (None, [], does_not_raise()),
     ],
 )
+@mock.patch("create_mets_v2.archivematicaCreateMETSMetadataXML.process_xml_metadata")
 def test_xml_validation_fail_on_error(
-    mocker,
+    process_xml_metadata,
     settings,
     mcp_job,
     sip_directory_path,
@@ -274,16 +274,13 @@ def test_xml_validation_fail_on_error(
     errors,
     expectation,
 ):
-    mock_mets = mocker.Mock(
+    mock_mets = mock.Mock(
         **{
             "serialize.return_value": etree.Element("tag"),
             "get_subsections_counts.return_value": {},
         }
     )
-    mocker.patch(
-        "create_mets_v2.archivematicaCreateMETSMetadataXML.process_xml_metadata",
-        return_value=(mock_mets, errors),
-    )
+    process_xml_metadata.return_value = (mock_mets, errors)
     if fail_on_error is not None:
         settings.XML_VALIDATION_FAIL_ON_ERROR = fail_on_error
     with expectation:

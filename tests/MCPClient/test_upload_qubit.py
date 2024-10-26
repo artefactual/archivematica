@@ -1,4 +1,5 @@
 import os
+from unittest import mock
 
 import pytest
 import upload_qubit
@@ -28,15 +29,12 @@ def access(db, sip):
     )
 
 
-def test_start_synchronously(db, mocker, mcp_job, sip, sip_job, access):
-    mocker.patch(
-        "requests.request",
-        return_value=mocker.Mock(
-            status_code=200, headers={"Location": "http://example.com"}
-        ),
-    )
-
-    opts = mocker.Mock(
+@mock.patch(
+    "requests.request",
+    return_value=mock.Mock(status_code=200, headers={"Location": "http://example.com"}),
+)
+def test_start_synchronously(request, db, mcp_job, sip, sip_job, access):
+    opts = mock.Mock(
         uuid=sip.uuid,
         rsync_target=False,
         rsync_command=None,
@@ -57,15 +55,12 @@ def test_start_synchronously(db, mocker, mcp_job, sip, sip_job, access):
     assert access.target == "atom-description-id"
 
 
-def test_first_run(db, mocker, mcp_job, sip_job, sip, sip_file):
-    mocker.patch(
-        "requests.request",
-        return_value=mocker.Mock(
-            status_code=200, headers={"Location": "http://example.com"}
-        ),
-    )
-
-    opts = mocker.Mock(
+@mock.patch(
+    "requests.request",
+    return_value=mock.Mock(status_code=200, headers={"Location": "http://example.com"}),
+)
+def test_first_run(request, db, mcp_job, sip_job, sip, sip_file):
+    opts = mock.Mock(
         uuid=sip.uuid,
         rsync_target=False,
         rsync_command=None,

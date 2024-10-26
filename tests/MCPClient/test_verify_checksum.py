@@ -23,6 +23,7 @@ debugging their preservation workflow.
 """
 
 import subprocess
+from unittest import mock
 
 import pytest
 from client.job import Job
@@ -84,7 +85,7 @@ class TestHashsum:
                     "Expecting NoHashCommandAvailable for a filename we shouldn't be able to handle"
                 )
 
-    def test_provenance_string(self, mocker):
+    def test_provenance_string(self):
         """Test to ensure that the string output to the PREMIS event for this
         microservice Job is consistent with what we're expecting. Provenance
         string includes the command called, plus the utility's version string.
@@ -95,21 +96,23 @@ class TestHashsum:
             "md5sum (GNU coreutils) 8.28",
             "Copyright (C) 2017 Free Software Foundation, Inc.",
         ]
-        mock = mocker.patch.object(hashsum, "_call", return_value=version_string)
-        assert (
-            hashsum.version() == "md5sum (GNU coreutils) 8.28"
-        ), "Hashsum version retrieved is incorrect"
-        mock.assert_called_once_with("--version")
-        mocker.patch.object(
-            hashsum,
-            "command_called",
-            (hashsum.COMMAND,) + ("-c", "--strict", hash_file),
-        )
-        expected_provenance = 'program="md5sum -c --strict metadata/checksum.md5"; version="md5sum (GNU coreutils) 8.28"'
-        provenance_output = hashsum.get_command_detail()
-        assert (
-            provenance_output == expected_provenance
-        ), f"Provenance output is incorrect: {provenance_output}"
+        with mock.patch.object(
+            hashsum, "_call", return_value=version_string
+        ) as mock_call:
+            assert (
+                hashsum.version() == "md5sum (GNU coreutils) 8.28"
+            ), "Hashsum version retrieved is incorrect"
+            mock_call.assert_called_once_with("--version")
+            expected_provenance = 'program="md5sum -c --strict metadata/checksum.md5"; version="md5sum (GNU coreutils) 8.28"'
+            with mock.patch.object(
+                hashsum,
+                "command_called",
+                (hashsum.COMMAND,) + ("-c", "--strict", hash_file),
+            ):
+                provenance_output = hashsum.get_command_detail()
+                assert (
+                    provenance_output == expected_provenance
+                ), f"Provenance output is incorrect: {provenance_output}"
 
     def test_provenance_string_no_command(self):
         """When nothing has happened, e.g. the checksums haven't been validated
@@ -123,7 +126,7 @@ class TestHashsum:
         except PREMISFailure:
             pass
 
-    def test_compare_hashes_failed(self, mocker):
+    def test_compare_hashes_failed(self):
         """Ensure we get consistent output when the checksum comparison fails."""
         hash_file = "metadata/checksum.sha256"
         job = Job("stub", "stub", ["", ""])
@@ -143,21 +146,24 @@ class TestHashsum:
             "sha256: objects/nested/ファイル3.bin: FAILED\n"
             "sha256: objects/readonly.file: FAILED open or read"
         )
-        mock = mocker.patch.object(hashsum, "_call", return_value=output_string)
-        mocker.patch.object(hashsum, "count_and_compare_lines", return_value=True)
-        mock.side_effect = subprocess.CalledProcessError(
-            returncode=1, cmd=toolname, output=output_string
-        )
-        ret = hashsum.compare_hashes("")
-        mock.assert_called_once_with(
-            "-c", "--strict", hash_file, transfer_dir=objects_dir
-        )
-        assert ret == 1, self.assert_return_value.format(ret)
-        assert (
-            job.get_stderr().strip() == exception_string
-        ), self.assert_exception_string
+        with mock.patch.object(
+            hashsum, "_call", return_value=output_string
+        ) as mock_call, mock.patch.object(
+            hashsum, "count_and_compare_lines", return_value=True
+        ):
+            mock_call.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=toolname, output=output_string
+            )
+            ret = hashsum.compare_hashes("")
+            mock_call.assert_called_once_with(
+                "-c", "--strict", hash_file, transfer_dir=objects_dir
+            )
+            assert ret == 1, self.assert_return_value.format(ret)
+            assert (
+                job.get_stderr().strip() == exception_string
+            ), self.assert_exception_string
 
-    def test_compare_hashes_with_bad_files(self, mocker):
+    def test_compare_hashes_with_bad_files(self):
         """Ensure that the formatting of errors is consistent if improperly
         formatted files are provided to hashsum.
         """
@@ -180,49 +186,57 @@ class TestHashsum:
             "sha1: comparison exited with status: 1. Please check the formatting of the checksums or integrity of the files.\n"
             "sha1: sha1sum: WARNING: 1 line is improperly formatted"
         )
-        mock = mocker.patch.object(hashsum, "_call", return_value=no_proper_output)
-        mocker.patch.object(hashsum, "count_and_compare_lines", return_value=True)
-        mock.side_effect = subprocess.CalledProcessError(
-            returncode=1, cmd=toolname, output=no_proper_output
-        )
-        ret = hashsum.compare_hashes("")
-        mock.assert_called_once_with(
-            "-c", "--strict", hash_file, transfer_dir=objects_dir
-        )
-        assert (
-            job.get_stderr().strip() == except_string_no_proper_out
-        ), self.assert_exception_string
-        assert ret == 1, self.assert_return_value.format(ret)
-        # Flush job.error as it isn't flushed automatically.
-        job.error = ""
-        mock = mocker.patch.object(hashsum, "_call", return_value=improper_formatting)
-        mock.side_effect = subprocess.CalledProcessError(
-            returncode=1, cmd="sha1sum", output=improper_formatting
-        )
-        ret = hashsum.compare_hashes("")
-        assert (
-            job.get_stderr().strip() == except_string_improper_format
-        ), self.assert_exception_string
-        mock.assert_called_once_with(
-            "-c", "--strict", hash_file, transfer_dir=objects_dir
-        )
-        assert ret == 1, self.assert_return_value.format(ret)
+        with mock.patch.object(
+            hashsum, "_call", return_value=no_proper_output
+        ) as mock_call, mock.patch.object(
+            hashsum, "count_and_compare_lines", return_value=True
+        ):
+            mock_call.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=toolname, output=no_proper_output
+            )
+            ret = hashsum.compare_hashes("")
+            mock_call.assert_called_once_with(
+                "-c", "--strict", hash_file, transfer_dir=objects_dir
+            )
+            assert (
+                job.get_stderr().strip() == except_string_no_proper_out
+            ), self.assert_exception_string
+            assert ret == 1, self.assert_return_value.format(ret)
+            # Flush job.error as it isn't flushed automatically.
+            job.error = ""
+            with mock.patch.object(
+                hashsum, "_call", return_value=improper_formatting
+            ) as mock_call:
+                mock_call.side_effect = subprocess.CalledProcessError(
+                    returncode=1, cmd="sha1sum", output=improper_formatting
+                )
+                ret = hashsum.compare_hashes("")
+                assert (
+                    job.get_stderr().strip() == except_string_improper_format
+                ), self.assert_exception_string
+                mock_call.assert_called_once_with(
+                    "-c", "--strict", hash_file, transfer_dir=objects_dir
+                )
+                assert ret == 1, self.assert_return_value.format(ret)
 
-    def test_line_comparison_fail(self, mocker):
+    def test_line_comparison_fail(self):
         """If the checksum line and object comparison function fails then
         we want to return early and _call shouldn't be called.
         """
         hash_file = "metadata/checksum.sha1"
         hashsum = self.setup_hashsum(hash_file, Job("stub", "stub", ["", ""]))
         toolname = "sha1sum"
-        mock = mocker.patch.object(hashsum, "_call", return_value=None)
-        mocker.patch.object(hashsum, "count_and_compare_lines", return_value=False)
-        mock.side_effect = subprocess.CalledProcessError(
-            returncode=1, cmd=toolname, output=None
-        )
-        ret = hashsum.compare_hashes("")
-        mock.assert_not_called()
-        assert ret == 1, self.assert_return_value.format(ret)
+        with mock.patch.object(
+            hashsum, "_call", return_value=None
+        ) as mock_call, mock.patch.object(
+            hashsum, "count_and_compare_lines", return_value=False
+        ):
+            mock_call.side_effect = subprocess.CalledProcessError(
+                returncode=1, cmd=toolname, output=None
+            )
+            ret = hashsum.compare_hashes("")
+            mock_call.assert_not_called()
+            assert ret == 1, self.assert_return_value.format(ret)
 
     @pytest.mark.parametrize(
         "fixture",

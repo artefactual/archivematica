@@ -2,6 +2,7 @@
 
 from collections import OrderedDict
 from collections import namedtuple
+from unittest import mock
 
 import archivematica_clamscan
 import pytest
@@ -79,30 +80,39 @@ class ScannerMock(archivematica_clamscan.ScannerBase):
 
 
 def setup_test_scan_file_mocks(
-    mocker,
+    get_scanner,
+    file_already_scanned_mock,
+    file_objects_get,
     file_already_scanned=False,
     file_size=1024,
     scanner_should_except=False,
     scanner_passed=False,
 ):
+    file_already_scanned_mock.return_value = file_already_scanned
+    file_objects_get.return_value = FileMock(size=file_size)
     deps = namedtuple("deps", ["file_already_scanned", "file_get", "scanner"])(
-        file_already_scanned=mocker.patch(
-            "archivematica_clamscan.file_already_scanned",
-            return_value=file_already_scanned,
-        ),
-        file_get=mocker.patch(
-            "main.models.File.objects.get", return_value=FileMock(size=file_size)
-        ),
+        file_already_scanned=file_already_scanned_mock,
+        file_get=file_objects_get,
         scanner=ScannerMock(should_except=scanner_should_except, passed=scanner_passed),
     )
 
-    mocker.patch("archivematica_clamscan.get_scanner", return_value=deps.scanner)
+    get_scanner.return_value = deps.scanner
 
     return deps
 
 
-def test_scan_file_already_scanned(mocker):
-    deps = setup_test_scan_file_mocks(mocker, file_already_scanned=True)
+@mock.patch("archivematica_clamscan.file_already_scanned")
+@mock.patch("main.models.File.objects.get")
+@mock.patch("archivematica_clamscan.get_scanner")
+def test_scan_file_already_scanned(
+    get_scanner, file_objects_get, file_already_scanned_mock
+):
+    deps = setup_test_scan_file_mocks(
+        get_scanner,
+        file_already_scanned_mock,
+        file_objects_get,
+        file_already_scanned=True,
+    )
 
     exit_code = archivematica_clamscan.scan_file([], **dict(args))
 
@@ -160,8 +170,21 @@ QueueEventParams = namedtuple("QueueEventParams", ["scanner_is_None", "passed"])
         ),
     ],
 )
-def test_scan_file(mocker, setup_kwargs, exit_code, queue_event_params, settings):
-    setup_test_scan_file_mocks(mocker, **setup_kwargs)
+@mock.patch("archivematica_clamscan.file_already_scanned")
+@mock.patch("main.models.File.objects.get")
+@mock.patch("archivematica_clamscan.get_scanner")
+def test_scan_file(
+    get_scanner,
+    file_objects_get,
+    file_already_scanned_mock,
+    setup_kwargs,
+    exit_code,
+    queue_event_params,
+    settings,
+):
+    setup_test_scan_file_mocks(
+        get_scanner, file_already_scanned_mock, file_objects_get, **setup_kwargs
+    )
 
     # Here the user configurable thresholds for maimum file size, and maximum
     # scan size are being tested. The scan size is offset so as to enable the

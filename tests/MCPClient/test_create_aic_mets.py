@@ -1,8 +1,10 @@
 import os
 import uuid
+from unittest import mock
 
 import create_aic_mets
 import namespaces as ns
+import pytest
 from lxml import etree
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,18 +15,25 @@ def extract_file_mock(aip_uuid, mets_in_aip, mets_path):
         f.write("<placeholder></placeholder>")
 
 
-def test_create_aic_mets(db, mocker, tmp_path):
-    mocker.patch("fileOperations.addFileToSIP")
-    mocker.patch("databaseFunctions.insertIntoDerivations")
-    mocker.patch("storageService.extract_file", side_effect=extract_file_mock)
-    mocker.patch(
-        "create_mets_v2.getDublinCore",
-        return_value=etree.Element(
-            ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, "dc": ns.dcNS}
-        ),
-    )
-    mocker.patch("create_mets_v2.SIPMetadataAppliesToType")
-
+@pytest.mark.django_db
+@mock.patch("fileOperations.addFileToSIP")
+@mock.patch("databaseFunctions.insertIntoDerivations")
+@mock.patch("storageService.extract_file", side_effect=extract_file_mock)
+@mock.patch(
+    "create_mets_v2.getDublinCore",
+    return_value=etree.Element(
+        ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, "dc": ns.dcNS}
+    ),
+)
+@mock.patch("create_mets_v2.SIPMetadataAppliesToType")
+def test_create_aic_mets(
+    SIPMetadataAppliesToType,
+    getDublinCore,
+    extract_file,
+    insertIntoDerivations,
+    addFileToSIP,
+    tmp_path,
+):
     # The client script expects an AIC directory that contains files whose
     # filenames are AIP UUIDs and their contents are the AIP names, so we create
     # a couple of those files here
@@ -49,7 +58,7 @@ def test_create_aic_mets(db, mocker, tmp_path):
     # The AIC METS is created in the metadata directory of the AIC
     (aic_dir / "metadata").mkdir()
 
-    job = mocker.Mock()
+    job = mock.Mock()
     create_aic_mets.create_aic_mets(aic_uuid, str(aic_dir), job)
 
     # The AIC METS has a new UUID suffixed name, so we search for it instead of

@@ -1,6 +1,7 @@
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from unittest import mock
 
 import pytest
 from django.core.exceptions import ValidationError
@@ -396,10 +397,10 @@ def test_package_statuses(tmp_path, package_class, model_class):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_create_package(mocker, tmp_path, admin_user, settings):
-    package_queue = mocker.Mock(spec=PackageQueue)
-    executor = mocker.Mock(spec=ThreadPoolExecutor)
-    workflow = mocker.Mock(spec=Workflow)
+def test_create_package(tmp_path, admin_user, settings):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    workflow = mock.Mock(spec=Workflow)
 
     d = tmp_path / "sub"
     d.mkdir()

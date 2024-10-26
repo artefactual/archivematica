@@ -2,6 +2,7 @@ import os
 import pathlib
 import sys
 import uuid
+from unittest import mock
 
 import load_premis_events_from_xml
 import pytest
@@ -102,9 +103,9 @@ def simple_xml_path(tmp_path):
     return file_path
 
 
-def test_get_premis_schema_with_nonexistent_path(mocker):
-    mocker.patch("os.path.isfile", return_value=False)
-    printfn = mocker.Mock()
+@mock.patch("os.path.isfile", return_value=False)
+def test_get_premis_schema_with_nonexistent_path(is_file):
+    printfn = mock.Mock()
     result = load_premis_events_from_xml.get_premis_schema("mock/xsd/path", printfn)
     printfn.assert_called_once_with(
         "The PREMIS XML schema asset mock/xsd/path is unavailable", file=sys.stderr
@@ -112,8 +113,8 @@ def test_get_premis_schema_with_nonexistent_path(mocker):
     assert result is None
 
 
-def test_get_premis_schema_with_invalid_schema(mocker, invalid_xsd_path):
-    printfn = mocker.Mock()
+def test_get_premis_schema_with_invalid_schema(invalid_xsd_path):
+    printfn = mock.Mock()
     result = load_premis_events_from_xml.get_premis_schema(
         invalid_xsd_path.as_posix(), printfn
     )
@@ -125,14 +126,14 @@ def test_get_premis_schema_with_invalid_schema(mocker, invalid_xsd_path):
     assert result is None
 
 
-def test_get_premis_schema_with_valid_schema(mocker, xsd_path):
+def test_get_premis_schema_with_valid_schema(xsd_path):
     result = load_premis_events_from_xml.get_premis_schema(xsd_path)
     assert result is not None
 
 
-def test_get_validated_etree_with_nonexistent_path(mocker):
-    mocker.patch("os.path.isfile", return_value=False)
-    printfn = mocker.Mock()
+@mock.patch("os.path.isfile", return_value=False)
+def test_get_validated_etree_with_nonexistent_path(is_file):
+    printfn = mock.Mock()
     result = load_premis_events_from_xml.get_validated_etree(
         "mock/xml/path", None, printfn
     )
@@ -140,8 +141,8 @@ def test_get_validated_etree_with_nonexistent_path(mocker):
     assert result is None
 
 
-def test_get_validated_etree_with_invalid_xml(mocker, invalid_xml_path, xsd_path):
-    printfn = mocker.Mock()
+def test_get_validated_etree_with_invalid_xml(invalid_xml_path, xsd_path):
+    printfn = mock.Mock()
     schema = etree.XMLSchema(etree.parse(xsd_path))
     result = load_premis_events_from_xml.get_validated_etree(
         invalid_xml_path["path"].as_posix(), schema, printfn
@@ -156,7 +157,7 @@ def test_get_validated_etree_with_invalid_xml(mocker, invalid_xml_path, xsd_path
     assert result is None
 
 
-def test_get_validated_etree_with_valid_xml(mocker, simple_xml_path, xsd_path):
+def test_get_validated_etree_with_valid_xml(simple_xml_path, xsd_path):
     schema = etree.XMLSchema(etree.parse(xsd_path))
     result = load_premis_events_from_xml.get_validated_etree(
         simple_xml_path.as_posix(), schema
@@ -194,14 +195,14 @@ def test_parse_datetime_with_empty_string():
     assert load_premis_events_from_xml.parse_datetime("") is None
 
 
-def test_get_elements(mocker):
-    root = mocker.Mock(**{"get.return_value": "3.0"})
-    element = mocker.Mock(**{"get.return_value": None})
-    tree = mocker.Mock(
+def test_get_elements():
+    root = mock.Mock(**{"get.return_value": "3.0"})
+    element = mock.Mock(**{"get.return_value": None})
+    tree = mock.Mock(
         **{"getroot.return_value": root, "findall.return_value": [element]}
     )
     selector = "premis:object"
-    element_factory = mocker.Mock(return_value={"identifier": "id"})
+    element_factory = mock.Mock(return_value={"identifier": "id"})
     result = load_premis_events_from_xml.get_elements(tree, selector, element_factory)
     element.get.assert_called_once_with("version")
     element.set.assert_called_once_with("version", "3.0")
@@ -209,10 +210,10 @@ def test_get_elements(mocker):
     assert list(result.values()) == [{"identifier": "id"}]
 
 
-def test_get_premis_element_children_identifiers(mocker):
-    identifier1 = mocker.Mock(type="t", value="1")
-    identifier2 = mocker.Mock(type="t", value="2")
-    premis_element = mocker.Mock(**{"findall.return_value": [identifier1, identifier2]})
+def test_get_premis_element_children_identifiers():
+    identifier1 = mock.Mock(type="t", value="1")
+    identifier2 = mock.Mock(type="t", value="2")
+    premis_element = mock.Mock(**{"findall.return_value": [identifier1, identifier2]})
     result = load_premis_events_from_xml.get_premis_element_children_identifiers(
         premis_element, "premis:object"
     )
@@ -227,15 +228,19 @@ def test_get_premis_element_children_identifiers(mocker):
     ],
     ids=["original_name_as_string", "original_name_as_empty_string"],
 )
-def test_file_element_factory(mocker, params):
-    premis_element = mocker.Mock(
-        identifier_type="f", identifier_value="1", original_name=params["original_name"]
-    )
-    mocker.patch("metsrw.plugins.premisrw.premis_to_data")
-    mocker.patch("load_premis_events_from_xml.PREMISFile", return_value=premis_element)
-    mocker.patch(
-        "load_premis_events_from_xml.get_premis_element_children_identifiers",
-        return_value=set(),
+@mock.patch("metsrw.plugins.premisrw.premis_to_data")
+@mock.patch("load_premis_events_from_xml.PREMISFile")
+@mock.patch(
+    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    return_value=set(),
+)
+def test_file_element_factory(
+    get_premis_element_children_identifiers, premis_file, premis_to_data, params
+):
+    premis_file.return_value = mock.Mock(
+        identifier_type="f",
+        identifier_value="1",
+        original_name=params["original_name"],
     )
     result = load_premis_events_from_xml.file_element_factory(None)
     assert result == {
@@ -245,18 +250,21 @@ def test_file_element_factory(mocker, params):
     }
 
 
-def test_agent_element_factory(mocker):
-    premis_element = mocker.Mock(
+@mock.patch("metsrw.plugins.premisrw.premis_to_data")
+@mock.patch("metsrw.plugins.premisrw.PREMISAgent")
+@mock.patch(
+    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    return_value=set(),
+)
+def test_agent_element_factory(
+    get_premis_element_children_identifiers, premis_agent, premis_to_data
+):
+    premis_element = mock.Mock(
         identifier_type="a", identifier_value="1", type="agenttype"
     )
     # a "name" attribute can't be set on a mock at creation time
     premis_element.name = "name"
-    mocker.patch("metsrw.plugins.premisrw.premis_to_data")
-    mocker.patch("metsrw.plugins.premisrw.PREMISAgent", return_value=premis_element)
-    mocker.patch(
-        "load_premis_events_from_xml.get_premis_element_children_identifiers",
-        return_value=set(),
-    )
+    premis_agent.return_value = premis_element
     result = load_premis_events_from_xml.agent_element_factory(None)
     assert result == {
         "identifier": ("a", "1"),
@@ -277,14 +285,22 @@ def test_agent_element_factory(mocker):
     ],
     ids=["detail_note_as_None", "detail_note_as_string"],
 )
-def test_event_element_factory(mocker, params):
-    event_detail = mocker.Mock(event_detail="event detail")
-    event_outcome_part1 = mocker.Mock(event_outcome="joined")
-    event_outcome_part2 = mocker.Mock(event_outcome="string")
-    event_outcome_detail = mocker.Mock(
+@mock.patch("metsrw.plugins.premisrw.premis_to_data")
+@mock.patch("metsrw.plugins.premisrw.PREMISEvent")
+@mock.patch(
+    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    return_value=set(),
+)
+def test_event_element_factory(
+    get_premis_element_children_identifiers, premis_event, premis_to_data, params
+):
+    event_detail = mock.Mock(event_detail="event detail")
+    event_outcome_part1 = mock.Mock(event_outcome="joined")
+    event_outcome_part2 = mock.Mock(event_outcome="string")
+    event_outcome_detail = mock.Mock(
         event_outcome_detail_note=params["event_outcome_detail_note"]
     )
-    premis_element = mocker.Mock(
+    premis_element = mock.Mock(
         identifier_type="e",
         identifier_value="1",
         type="ingestion",
@@ -297,12 +313,7 @@ def test_event_element_factory(mocker, params):
             ]
         },
     )
-    mocker.patch("metsrw.plugins.premisrw.premis_to_data")
-    mocker.patch("metsrw.plugins.premisrw.PREMISEvent", return_value=premis_element)
-    mocker.patch(
-        "load_premis_events_from_xml.get_premis_element_children_identifiers",
-        return_value=set(),
-    )
+    premis_event.return_value = premis_element
     result = load_premis_events_from_xml.event_element_factory(None)
     event_datetime = result.pop("event_datetime")
     if params["event_outcome_detail_note"] is not None:
@@ -331,20 +342,24 @@ def test_event_element_factory(mocker, params):
     )
 
 
-def test_event_element_factory_prints_datetime_error(mocker):
-    printfn = mocker.Mock()
-    premis_element = mocker.Mock(
+@mock.patch("metsrw.plugins.premisrw.premis_to_data")
+@mock.patch(
+    "metsrw.plugins.premisrw.PREMISEvent",
+    return_value=mock.Mock(
         identifier_type="e",
         identifier_value="1",
         date_time="foobar",
         **{"findall.return_value": []},
-    )
-    mocker.patch("metsrw.plugins.premisrw.premis_to_data")
-    mocker.patch("metsrw.plugins.premisrw.PREMISEvent", return_value=premis_element)
-    mocker.patch(
-        "load_premis_events_from_xml.get_premis_element_children_identifiers",
-        return_value=set(),
-    )
+    ),
+)
+@mock.patch(
+    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    return_value=set(),
+)
+def test_event_element_factory_prints_datetime_error(
+    get_premis_element_children_identifiers, premis_event, premis_to_data
+):
+    printfn = mock.Mock()
     load_premis_events_from_xml.event_element_factory(None, printfn)
     printfn.assert_called_once_with(
         "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='1' contains a premis:eventDateTime value that could not be parsed: foobar",
@@ -407,21 +422,21 @@ def test_event_element_factory_with_no_event_outcome_detail():
     assert result["identifier"] == ("NRI Repository Event ID", "NRI-016")
 
 
-def test_get_or_create_agents(mocker):
-    mock_agent_model = mocker.Mock(
-        **{"objects.get_or_create.return_value": (None, None)}
-    )
-    mocker.patch("load_premis_events_from_xml.Agent", mock_agent_model)
-    agents = [{"identifier": ("type", "value"), "name": "agent1", "type": "agenttype"}]
-    load_premis_events_from_xml.get_or_create_agents(agents)
-    mock_agent_model.objects.get_or_create.assert_called_once_with(
-        **{
-            "identifiertype": "type",
-            "identifiervalue": "value",
-            "name": "agent1",
-            "agenttype": "agenttype",
-        }
-    )
+def test_get_or_create_agents():
+    mock_agent_model = mock.Mock(**{"objects.get_or_create.return_value": (None, None)})
+    with mock.patch("load_premis_events_from_xml.Agent", mock_agent_model):
+        agents = [
+            {"identifier": ("type", "value"), "name": "agent1", "type": "agenttype"}
+        ]
+        load_premis_events_from_xml.get_or_create_agents(agents)
+        mock_agent_model.objects.get_or_create.assert_called_once_with(
+            **{
+                "identifiertype": "type",
+                "identifiervalue": "value",
+                "name": "agent1",
+                "agenttype": "agenttype",
+            }
+        )
 
 
 def test_premis_file_class():
@@ -430,16 +445,16 @@ def test_premis_file_class():
     assert getattr(premis_element, "original_name", default) is not default
 
 
-def test_get_invalid_file_identifiers(mocker):
-    printfn = mocker.Mock()
+def test_get_invalid_file_identifiers():
+    printfn = mock.Mock()
     prefix = load_premis_events_from_xml.TRANSFER_ORIGINAL_LOCATION_PREFIX
     valid_filenames = ["".join([prefix, "object1"]), "".join([prefix, "object2"])]
 
     def mock_filter(originallocation):
         return_value = originallocation.decode() in valid_filenames
-        return mocker.Mock(**{"exists.return_value": return_value})
+        return mock.Mock(**{"exists.return_value": return_value})
 
-    file_queryset = mocker.Mock(**{"filter.side_effect": mock_filter})
+    file_queryset = mock.Mock(**{"filter.side_effect": mock_filter})
     files = {
         ("f", "valid"): {"original_name": "object1"},
         ("f", "no-original-name"): {"original_name": ""},
@@ -450,11 +465,11 @@ def test_get_invalid_file_identifiers(mocker):
     )
     assert result == {("f", "no-original-name"), ("f", "nonexistent-name")}
     calls = [
-        mocker.call(
+        mock.call(
             "The premis:object element with premis:objectIdentifierType='f' and premis:objectIdentifierValue='no-original-name' does not contain a premis:originalName element",
             file=sys.stderr,
         ),
-        mocker.call(
+        mock.call(
             "The premis:object element with premis:objectIdentifierType='f' and premis:objectIdentifierValue='nonexistent-name' contains a premis:originalName value that does not match any filename in this transfer: 'object3'",
             file=sys.stderr,
         ),
@@ -462,8 +477,8 @@ def test_get_invalid_file_identifiers(mocker):
     printfn.assert_has_calls(calls, any_order=True)
 
 
-def test_print_unrelated_files(mocker):
-    printfn = mocker.Mock()
+def test_print_unrelated_files():
+    printfn = mock.Mock()
     files = {
         ("f", "1"): {"identifier": ("f", "1")},
         ("f", "2"): {"identifier": ("f", "2")},
@@ -481,8 +496,8 @@ def test_print_unrelated_files(mocker):
     )
 
 
-def test_print_unrelated_agents(mocker):
-    printfn = mocker.Mock()
+def test_print_unrelated_agents():
+    printfn = mock.Mock()
     agents = {
         ("a", "1"): {"identifier": ("a", "1")},
         ("a", "2"): {"identifier": ("a", "2")},
@@ -500,8 +515,8 @@ def test_print_unrelated_agents(mocker):
     )
 
 
-def test_print_unrelated_events(mocker):
-    printfn = mocker.Mock()
+def test_print_unrelated_events():
+    printfn = mock.Mock()
     events = {
         ("e", "1"): {"files": {"f1"}, "agents": set()},
         ("e", "2"): {"files": {"f1"}, "agents": {"a1"}},
@@ -510,19 +525,19 @@ def test_print_unrelated_events(mocker):
     }
     load_premis_events_from_xml.print_unrelated_events(events, printfn)
     calls = [
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='1' is not related to any premis:agent element",
             file=sys.stderr,
         ),
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='3' is not related to any premis:object element",
             file=sys.stderr,
         ),
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='4' is not related to any premis:object element",
             file=sys.stderr,
         ),
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='4' is not related to any premis:agent element",
             file=sys.stderr,
         ),
@@ -530,8 +545,8 @@ def test_print_unrelated_events(mocker):
     printfn.assert_has_calls(calls, any_order=True)
 
 
-def test_print_files_related_to_nonexistent_events(mocker):
-    printfn = mocker.Mock()
+def test_print_files_related_to_nonexistent_events():
+    printfn = mock.Mock()
     files = {
         ("f", "1"): {"events": set()},
         ("f", "2"): {"events": {("e", "1"), ("e", "2"), ("e", "3")}},
@@ -548,8 +563,8 @@ def test_print_files_related_to_nonexistent_events(mocker):
     )
 
 
-def test_print_agents_related_to_nonexistent_events(mocker):
-    printfn = mocker.Mock()
+def test_print_agents_related_to_nonexistent_events():
+    printfn = mock.Mock()
     agents = {
         ("a", "1"): {"events": set()},
         ("a", "2"): {"events": {("e", "1"), ("e", "2"), ("e", "3")}},
@@ -566,8 +581,8 @@ def test_print_agents_related_to_nonexistent_events(mocker):
     )
 
 
-def test_print_events_related_to_nonexistent_files(mocker):
-    printfn = mocker.Mock()
+def test_print_events_related_to_nonexistent_files():
+    printfn = mock.Mock()
     files = {("f", "1"): {}, ("f", "2"): {}}
     events = {
         ("e", "1"): {"files": set()},
@@ -584,8 +599,8 @@ def test_print_events_related_to_nonexistent_files(mocker):
     )
 
 
-def test_print_events_related_to_nonexistent_agents(mocker):
-    printfn = mocker.Mock()
+def test_print_events_related_to_nonexistent_agents():
+    printfn = mock.Mock()
     agents = {("a", "1"): {}, ("a", "2"): {}}
     events = {
         ("e", "1"): {"agents": set()},
@@ -640,8 +655,8 @@ def test_relate_agents_to_events():
     }
 
 
-def test_get_event_agents(mocker):
-    printfn = mocker.Mock()
+def test_get_event_agents():
+    printfn = mock.Mock()
     event = {"agents": {"a2", "a3"}}
     agents = {"a1": {"identifier": "a1"}, "a2": {"identifier": "a2"}}
     agent_identifiers = set(agents)
@@ -666,8 +681,8 @@ def test_get_event_agents(mocker):
     ],
     ids=["no_file_identifiers_to_ignore", "with_file_identifiers_to_ignore"],
 )
-def test_get_event_files(mocker, params):
-    printfn = mocker.Mock()
+def test_get_event_files(params):
+    printfn = mock.Mock()
     event = {"files": {"f1", "f2", "f3"}}
     files = {"f1": {"identifier": "f1"}, "f2": {"identifier": "f2"}}
     file_identifiers = set(files)
@@ -689,12 +704,11 @@ def test_get_event_files(mocker, params):
         },
     ],
 )
-def test_ensure_event_id_is_uuid(mocker, params):
+@mock.patch("uuid.uuid4")
+def test_ensure_event_id_is_uuid(uuid4, params):
     if params["message_logged"]:
-        mocker.patch(
-            "uuid.uuid4", return_value=uuid.UUID("f4eea76b-1921-4152-b1b4-a93dbbfeaaef")
-        )
-    printfn = mocker.Mock()
+        uuid4.return_value = uuid.UUID("f4eea76b-1921-4152-b1b4-a93dbbfeaaef")
+    printfn = mock.Mock()
     result = load_premis_events_from_xml.ensure_event_id_is_uuid(
         params["event_id"], printfn
     )
@@ -714,10 +728,11 @@ def existent_event_id(transfer_file):
 
 
 @pytest.mark.django_db
-def test_ensure_event_id_is_uuid_with_existent_event(mocker, existent_event_id):
+@mock.patch("uuid.uuid4")
+def test_ensure_event_id_is_uuid_with_existent_event(uuid4, existent_event_id):
     expected_uuid = uuid.uuid4()
-    mocker.patch("uuid.uuid4", return_value=expected_uuid)
-    printfn = mocker.Mock()
+    uuid4.return_value = expected_uuid
+    printfn = mock.Mock()
     result = load_premis_events_from_xml.ensure_event_id_is_uuid(
         existent_event_id, printfn
     )
@@ -728,8 +743,8 @@ def test_ensure_event_id_is_uuid_with_existent_event(mocker, existent_event_id):
     )
 
 
-def test_get_valid_events(mocker):
-    printfn = mocker.Mock()
+def test_get_valid_events():
+    printfn = mock.Mock()
     files = {"f1": {"identifier": "f1"}, "f2": {"identifier": "f2"}}
     agents = {"a1": {"identifier": "a1"}, "a2": {"identifier": "a2"}}
     events = {
@@ -754,15 +769,15 @@ def test_get_valid_events(mocker):
     ]
 
     calls = [
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='2' is not related to any filename in the transfer files",
             file=sys.stderr,
         ),
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='3' is not related to any agents",
             file=sys.stderr,
         ),
-        mocker.call(
+        mock.call(
             "The premis:event element with premis:eventIdentifierType='e' and premis:eventIdentifierValue='4' is not related to any agents",
             file=sys.stderr,
         ),
@@ -771,7 +786,7 @@ def test_get_valid_events(mocker):
 
 
 @pytest.mark.django_db
-def test_save_events(mocker, transfer, transfer_file):
+def test_save_events(transfer, transfer_file):
     # check there are no events initially
     assert not Event.objects.count()
 
@@ -812,7 +827,7 @@ def test_save_events(mocker, transfer, transfer_file):
     ]
 
     file_queryset = File.objects.filter(transfer=transfer)
-    printfn = mocker.Mock()
+    printfn = mock.Mock()
 
     # save the event
     load_premis_events_from_xml.save_events(valid_events, file_queryset, printfn)

@@ -1,3 +1,5 @@
+from unittest import mock
+
 from components.mcp import views
 from django.urls import reverse
 from externals import xmltodict
@@ -36,21 +38,19 @@ MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT = f"""
 """
 
 
-def test_list(mocker, rf, admin_user):
+@mock.patch("contrib.mcp.client.GearmanClient")
+@mock.patch(
+    "contrib.mcp.client.gearman.JOB_COMPLETE",
+)
+def test_list(job_complete, gearman_client, rf, admin_user):
     # Make the Gearman interactions return known values.
-    job_complete = mocker.patch(
-        "contrib.mcp.client.gearman.JOB_COMPLETE",
-    )
-    mocker.patch(
-        "contrib.mcp.client.GearmanClient",
-        return_value=mocker.Mock(
-            **{
-                "submit_job.return_value": mocker.Mock(
-                    state=job_complete,
-                    result=MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT,
-                )
-            }
-        ),
+    gearman_client.return_value = mock.Mock(
+        **{
+            "submit_job.return_value": mock.Mock(
+                state=job_complete,
+                result=MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT,
+            )
+        }
     )
 
     # Call the view we are testing.

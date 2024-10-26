@@ -26,7 +26,6 @@ prometheus_client
 python-dateutil
 requests
 unidecode
-whitenoise
 
 # Required by LDAP authentication
 django-auth-ldap
@@ -42,3 +41,4 @@ mozilla-django-oidc
 django-auth-ldap==5.0.0
 gevent==24.2.1
 jsonschema-specifications==2023.12.1
+whitenoise==6.7.0

@@ -111,31 +111,34 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
-def test_get_mets_unknown_mets(mocker, amsetup, admin_client):
-    mocker.patch("elasticSearchFunctions.get_client")
-    mocker.patch("elasticSearchFunctions.get_aip_data", side_effect=IndexError())
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.get_aip_data", side_effect=IndexError())
+def test_get_mets_unknown_mets(get_aip_data, get_client, amsetup, admin_client):
     response = admin_client.get(
         "/archival-storage/download/aip/11111111-1111-1111-1111-111111111111/mets_download/"
     )
     assert isinstance(response, HttpResponseNotFound)
 
 
-def test_get_mets_known_mets(mocker, amsetup, admin_client, mets_hdr):
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.get_aip_data")
+@mock.patch("components.helpers.stream_mets_from_storage_service")
+def test_get_mets_known_mets(
+    stream_mets_from_storage_service,
+    get_aip_data,
+    get_client,
+    amsetup,
+    admin_client,
+    mets_hdr,
+):
     sip_uuid = "22222222-2222-2222-2222-222222222222"
-    mocker.patch("elasticSearchFunctions.get_client")
-    mocker.patch(
-        "elasticSearchFunctions.get_aip_data",
-        return_value={"_source": {"name": f"transfer-{sip_uuid}"}},
-    )
+    get_aip_data.return_value = {"_source": {"name": f"transfer-{sip_uuid}"}}
     mock_response = StreamingHttpResponse(mets_hdr)
     mock_content_type = "application/xml"
     mock_content_disposition = f"attachment; filename=METS.{sip_uuid}.xml;"
     mock_response[CONTENT_TYPE] = mock_content_type
     mock_response[CONTENT_DISPOSITION] = mock_content_disposition
-    mocker.patch(
-        "components.helpers.stream_mets_from_storage_service",
-        return_value=mock_response,
-    )
+    stream_mets_from_storage_service.return_value = mock_response
     response = admin_client.get(
         f"/archival-storage/download/aip/{sip_uuid}/mets_download/"
     )
@@ -145,20 +148,25 @@ def test_get_mets_known_mets(mocker, amsetup, admin_client, mets_hdr):
     assert response.get(CONTENT_DISPOSITION) == mock_content_disposition
 
 
-def test_get_pointer_unknown_pointer(mocker, amsetup, admin_client):
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("storageService.pointer_file_url")
+@mock.patch("components.helpers.stream_file_from_storage_service")
+def test_get_pointer_unknown_pointer(
+    stream_file_from_storage_service,
+    pointer_file_url,
+    get_client,
+    amsetup,
+    admin_client,
+):
     sip_uuid = "33333333-3333-3333-3333-333333333331"
     pointer_url = (
         f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
-    mocker.patch("elasticSearchFunctions.get_client")
-    mocker.patch("storageService.pointer_file_url", return_value=pointer_url)
+    pointer_file_url.return_value = pointer_url
     mock_status_code = 404
     mock_error_message = {"status": "False", "message": "an error status"}
     mock_response = helpers.json_response(mock_error_message, mock_status_code)
-    mocker.patch(
-        "components.helpers.stream_file_from_storage_service",
-        return_value=mock_response,
-    )
+    stream_file_from_storage_service.return_value = mock_response
     response = admin_client.get(
         f"/archival-storage/download/aip/{sip_uuid}/pointer_file/"
     )
@@ -167,22 +175,23 @@ def test_get_pointer_unknown_pointer(mocker, amsetup, admin_client):
     assert json.loads(response.content) == mock_error_message
 
 
-def test_get_pointer_known_pointer(mocker, amsetup, admin_client, mets_hdr):
+@mock.patch("storageService.pointer_file_url")
+@mock.patch("components.helpers.stream_file_from_storage_service")
+def test_get_pointer_known_pointer(
+    stream_file_from_storage_service, pointer_file_url, amsetup, admin_client, mets_hdr
+):
     sip_uuid = "44444444-4444-4444-4444-444444444444"
     pointer_url = (
         f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
     pointer_file = f"pointer.{sip_uuid}.xml"
     content_disposition = f'attachment; filename="{pointer_file}"'
-    mocker.patch("storageService.pointer_file_url", return_value=pointer_url)
+    pointer_file_url.return_value = pointer_url
     mock_content_type = "application/xml"
     mock_response = StreamingHttpResponse(mets_hdr)
     mock_response[CONTENT_TYPE] = mock_content_type
     mock_response[CONTENT_DISPOSITION] = content_disposition
-    mocker.patch(
-        "components.helpers.stream_file_from_storage_service",
-        return_value=mock_response,
-    )
+    stream_file_from_storage_service.return_value = mock_response
     response = admin_client.get(
         f"/archival-storage/download/aip/{sip_uuid}/pointer_file/"
     )
@@ -205,15 +214,11 @@ def test_search_rejects_unsupported_file_mime(amsetup, admin_client):
     assert response.content == b"Please use ?mimeType=text/csv"
 
 
-def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
-    """Test search as CSV
-
-    Test the new route via the Archival Storage tab to be able to
-    download the Elasticsearch AIP index as a CSV. Here we make sure
-    that various headers are set as well as testing whether or not the
-    data is returned correctly.
-    """
-    mock_augmented_result = [
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticsearch.Elasticsearch.search")
+@mock.patch(
+    "components.archival_storage.views.search_augment_aip_results",
+    return_value=[
         {
             "status": "Stored",
             "encrypted": False,
@@ -246,13 +251,18 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
             "size": "152.1\xa0KB",
             "type": "AIP",
         },
-    ]
-    mocker.patch("elasticSearchFunctions.get_client")
-    mocker.patch("elasticsearch.Elasticsearch.search")
-    mocker.patch(
-        "components.archival_storage.views.search_augment_aip_results",
-        return_value=mock_augmented_result,
-    )
+    ],
+)
+def test_search_as_csv(
+    search_augment_aip_results, search, get_client, amsetup, admin_client, tmp_path
+):
+    """Test search as CSV
+
+    Test the new route via the Archival Storage tab to be able to
+    download the Elasticsearch AIP index as a CSV. Here we make sure
+    that various headers are set as well as testing whether or not the
+    data is returned correctly.
+    """
     REQUEST_PARAMS = {
         "requestFile": True,
         "mimeType": "text/csv",
@@ -282,7 +292,17 @@ def test_search_as_csv(mocker, amsetup, admin_client, tmp_path):
     )
 
 
-def test_search_as_csv_invalid_route(mocker, amsetup, admin_client, tmp_path):
+@mock.patch("elasticSearchFunctions.get_client", return_value=Elasticsearch())
+@mock.patch("elasticSearchFunctions.Elasticsearch.search")
+@mock.patch("components.archival_storage.views.search_augment_aip_results")
+def test_search_as_csv_invalid_route(
+    search_augment_aip_results,
+    search,
+    get_client,
+    amsetup,
+    admin_client,
+    tmp_path,
+):
     """Test search as CSV invalid rute
 
     Given the ability to download the Elasticsearch AIP index table as a
@@ -293,20 +313,13 @@ def test_search_as_csv_invalid_route(mocker, amsetup, admin_client, tmp_path):
     """
     MOCK_TOTAL = 10
     AUG_RESULTS = {"mock": "response"}
-    mocker.patch("elasticSearchFunctions.get_client", return_value=Elasticsearch())
-    mocker.patch(
-        "elasticSearchFunctions.Elasticsearch.search",
-        return_value={
-            "hits": {"total": MOCK_TOTAL},
-            "aggregations": {
-                "aip_uuids": {"buckets": [{"key": "mocked", "doc_count": "mocked"}]}
-            },
+    search.return_value = {
+        "hits": {"total": MOCK_TOTAL},
+        "aggregations": {
+            "aip_uuids": {"buckets": [{"key": "mocked", "doc_count": "mocked"}]}
         },
-    )
-    mocker.patch(
-        "components.archival_storage.views.search_augment_aip_results",
-        return_value=[AUG_RESULTS],
-    )
+    }
+    search_augment_aip_results.return_value = [AUG_RESULTS]
     REQUEST_PARAMS = {"requestFile": False}
     response = admin_client.get(
         "{}?{}".format(
@@ -367,9 +380,14 @@ class TestArchivalStorageDataTableState(TestCase):
 
 
 @mock.patch("components.helpers.processing_config_path")
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("elasticSearchFunctions.get_aip_data")
+@mock.patch("components.archival_storage.forms.get_atom_client")
 def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
+    get_atom_client,
+    get_aip_data,
+    get_client,
     processing_config_path,
-    mocker,
     amsetup,
     admin_client,
     tmpdir,
@@ -378,25 +396,18 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     processing_config_path.return_value = str(processing_configurations_dir)
     sip_uuid = uuid.uuid4()
     file_path = tmpdir.mkdir("file")
-    mocker.patch("elasticSearchFunctions.get_client")
-    mocker.patch(
-        "elasticSearchFunctions.get_aip_data",
-        return_value={
-            "_source": {
-                "name": f"transfer-{sip_uuid}",
-                "filePath": str(file_path),
-            }
-        },
-    )
-    mocker.patch(
-        "components.archival_storage.forms.get_atom_client",
-        return_value=mocker.Mock(
-            **{
-                "find_parent_id_for_component.side_effect": CommunicationError(
-                    404, mocker.Mock(url="http://example.com")
-                )
-            }
-        ),
+    get_aip_data.return_value = {
+        "_source": {
+            "name": f"transfer-{sip_uuid}",
+            "filePath": str(file_path),
+        }
+    }
+    get_atom_client.return_value = mock.Mock(
+        **{
+            "find_parent_id_for_component.side_effect": CommunicationError(
+                404, mock.Mock(url="http://example.com")
+            )
+        }
     )
 
     response = admin_client.post(
@@ -422,8 +433,13 @@ def test_create_aic_fails_if_query_is_not_passed(amsetup, admin_client):
     assert "Unable to create AIC: No AIPs selected" in response.content.decode()
 
 
+@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("databaseFunctions.createSIP")
+@mock.patch(
+    "uuid.uuid4", return_value=uuid.UUID("1e23e6e2-02d7-4b2d-a648-caffa3b489f3")
+)
 def test_create_aic_creates_temporary_files(
-    mocker, admin_client, settings, tmp_path, amsetup
+    uuid4, creat_sip, get_client, admin_client, settings, tmp_path, amsetup
 ):
     aipfiles_search_results = {
         "aggregations": {
@@ -486,14 +502,9 @@ def test_create_aic_creates_temporary_files(
         "timed_out": False,
         "took": 4,
     }
-    mocker.patch(
-        "elasticSearchFunctions.get_client",
-        return_value=mocker.Mock(
-            **{"search.side_effect": [aipfiles_search_results, aip_search_results]}
-        ),
+    get_client.return_value = mock.Mock(
+        **{"search.side_effect": [aipfiles_search_results, aip_search_results]}
     )
-    mocker.patch("databaseFunctions.createSIP")
-    mocker.patch("uuid.uuid4", return_value="1e23e6e2-02d7-4b2d-a648-caffa3b489f3")
     d = tmp_path / "test-aic"
     d.mkdir()
     (d / "tmp").mkdir()

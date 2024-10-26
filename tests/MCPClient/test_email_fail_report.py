@@ -1,4 +1,5 @@
 from smtplib import SMTPException
+from unittest import mock
 
 import email_fail_report
 import pytest
@@ -46,18 +47,6 @@ def test_send_email_err(monkeypatch):
         email_fail_report.send_email("Foobar", ["to@domain.tld"], "<html>...</html>")
 
 
-@pytest.fixture
-def args(mocker):
-    args_mock = mocker.Mock(
-        unit_type="Transfer", unit_name="My transfer", unit_uuid="uuid", stdout=False
-    )
-    mocker.patch(
-        "argparse.ArgumentParser",
-        return_value=mocker.Mock(**{"parse_args.return_value": args_mock}),
-    )
-    return args_mock
-
-
 @pytest.mark.parametrize(
     "test_case",
     [
@@ -89,24 +78,35 @@ def args(mocker):
     ids=["no-users-exist", "users-exist", "send-email-fails"],
 )
 @pytest.mark.django_db
-def test_report_is_always_stored(mocker, args, test_case):
-    mocker.patch(
-        "email_fail_report.get_emails_from_dashboard_users",
-        return_value=test_case["users"],
+@mock.patch("argparse.ArgumentParser")
+@mock.patch("email_fail_report.get_emails_from_dashboard_users")
+@mock.patch("email_fail_report.get_content_for", return_value="my report")
+@mock.patch("email_fail_report.send_email")
+@mock.patch("email_fail_report.store_report")
+def test_report_is_always_stored(
+    store_report_mock,
+    send_email_mock,
+    get_content_for,
+    get_emails_from_dashboard_users,
+    argument_parser,
+    test_case,
+):
+    args_mock = mock.Mock(
+        unit_type="Transfer", unit_name="My transfer", unit_uuid="uuid", stdout=False
     )
-    mocker.patch("email_fail_report.get_content_for", return_value="my report")
-    send_email_mock = mocker.patch(
-        "email_fail_report.send_email", side_effect=test_case["send_email_result"]
-    )
-    store_report_mock = mocker.patch("email_fail_report.store_report")
-    job = mocker.MagicMock()
+    argument_parser.return_value = mock.Mock(**{"parse_args.return_value": args_mock})
+    get_emails_from_dashboard_users.return_value = test_case["users"]
+
+    send_email_mock.side_effect = test_case["send_email_result"]
+
+    job = mock.MagicMock()
     email_fail_report.call([job])
     store_report_mock.assert_called_once_with(
-        "my report", args.unit_type, args.unit_name, args.unit_uuid
+        "my report", args_mock.unit_type, args_mock.unit_name, args_mock.unit_uuid
     )
     send_email_mock.assert_has_calls(
-        [mocker.call(*a) for a in test_case["send_email_calls"]]
+        [mock.call(*a) for a in test_case["send_email_calls"]]
     )
     job.set_status.assert_has_calls(
-        [mocker.call(*a) for a in test_case["set_status_calls"]]
+        [mock.call(*a) for a in test_case["set_status_calls"]]
     )

@@ -1,6 +1,7 @@
 import pathlib
 import threading
 import uuid
+from unittest import mock
 
 import pytest
 from django.utils import timezone
@@ -14,7 +15,7 @@ ASSETS_DIR = (
 
 
 @pytest.mark.django_db
-def test_approve_partial_reingest_handler(mocker):
+def test_approve_partial_reingest_handler():
     sip = models.SIP.objects.create(uuid=str(uuid.uuid4()))
     models.Job.objects.create(
         sipuuid=sip.pk,
@@ -22,7 +23,7 @@ def test_approve_partial_reingest_handler(mocker):
         createdtime=timezone.now(),
         currentstep=models.Job.STATUS_AWAITING_DECISION,
     )
-    package_queue = mocker.MagicMock()
+    package_queue = mock.MagicMock()
     with open(ASSETS_DIR / "workflow.json") as fp:
         wf = workflow.load(fp)
     shutdown_event = threading.Event()

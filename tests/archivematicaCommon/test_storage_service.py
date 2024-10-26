@@ -4,6 +4,7 @@ Tests for the Archivematica Common Storage Service helpers.
 """
 
 import json
+from unittest import mock
 
 import pytest
 from requests import Response
@@ -32,18 +33,19 @@ def mock_response(status_code, content_type, content):
         (0, "", {}),
     ],
 )
-def test_location_desc_from_slug(status_code, content_type, expected_result, mocker):
+@mock.patch("storageService._storage_service_url")
+@mock.patch("requests.Session.get")
+def test_location_desc_from_slug(
+    get, _storage_service_url, status_code, content_type, expected_result
+):
     """Test location description from slug
 
     Rudimentary test to ensure that we're returning something that
     implements .get() for any potential return from this function. And
     that we get something sensible for unexpected status codes.
     """
-    mocker.patch("storageService._storage_service_url")
-    mocker.patch(
-        "requests.Session.get",
-        return_value=mock_response(status_code, content_type, expected_result),
-    )
+
+    get.return_value = mock_response(status_code, content_type, expected_result)
     res = location_description_from_slug("mock_uri")
     assert res == expected_result, f"Unexpected result for status test: {status_code}"
 
@@ -74,7 +76,10 @@ def test_location_desc_from_slug(status_code, content_type, expected_result, moc
         ("/api/v2/location/fd46760b-567f-4c17-a2f4-a05e79074932/", {}, ""),
     ],
 )
-def test_retrieve_storage_location(slug, return_value, expected_result, mocker):
+@mock.patch("storageService.location_description_from_slug")
+def test_retrieve_storage_location(
+    location_description_from_slug, slug, return_value, expected_result
+):
     """Test retrieve storage location
 
     Ensure that we're able to retrieve the resource description for the
@@ -84,8 +89,6 @@ def test_retrieve_storage_location(slug, return_value, expected_result, mocker):
     specified a description, we should be able to fall-back on something
     else. Likewise if we receive something unexpected.
     """
-    mocker.patch(
-        "storageService.location_description_from_slug", return_value=return_value
-    )
+    location_description_from_slug.return_value = return_value
     res = retrieve_storage_location_description(slug)
     assert res == expected_result

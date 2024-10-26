@@ -1,6 +1,7 @@
 import os
 import pathlib
 from io import StringIO
+from unittest import mock
 
 import pytest
 from django.utils.translation import gettext_lazy
@@ -13,15 +14,15 @@ ASSETS_DIR = (
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
 
-def test_invert_job_statuses(mocker):
-    mocker.patch(
-        "server.jobs.Job.STATUSES",
-        (
-            (1, gettext_lazy("Uno")),
-            (2, gettext_lazy("Dos")),
-            (3, gettext_lazy("Tres")),
-        ),
-    )
+@mock.patch(
+    "server.jobs.Job.STATUSES",
+    (
+        (1, gettext_lazy("Uno")),
+        (2, gettext_lazy("Dos")),
+        (3, gettext_lazy("Tres")),
+    ),
+)
+def test_invert_job_statuses():
     ret = workflow._invert_job_statuses()
     assert ret == {"Uno": 1, "Dos": 2, "Tres": 3}
 
@@ -98,7 +99,7 @@ def test_load_valid_document(path):
     assert first_link.get_label("foobar") is None
 
 
-def test_link_browse_methods(mocker):
+def test_link_browse_methods():
     with open(os.path.join(ASSETS_DIR, "workflow.json")) as fp:
         wf = workflow.load(fp)
     ln = wf.get_link("1ba589db-88d1-48cf-bb1a-a5f9d2b17378")
@@ -113,7 +114,7 @@ def test_get_schema():
     assert schema["$id"] == "https://www.archivematica.org/labs/workflow/schema/v1.json"
 
 
-def test_get_schema_not_found(mocker):
-    mocker.patch("server.workflow._LATEST_SCHEMA", "non-existen-schema")
+@mock.patch("server.workflow._LATEST_SCHEMA", "non-existen-schema")
+def test_get_schema_not_found():
     with pytest.raises(IOError):
         workflow._get_schema()

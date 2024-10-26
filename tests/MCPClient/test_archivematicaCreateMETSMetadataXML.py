@@ -6,6 +6,7 @@ archivematicaCreateMETSMetadataXML.process_xml_metadata()
 """
 
 from pathlib import Path
+from unittest import mock
 from uuid import uuid4
 
 import metsrw
@@ -84,19 +85,19 @@ def make_metadata_file(sip, sip_directory_path):
 
 
 @pytest.fixture
-def make_mock_fsentry(mocker):
+def make_mock_fsentry():
     def _make_mock_fsentry(**kwargs):
         mock_fsentry = metsrw.FSEntry(**kwargs)
-        mock_fsentry.add_dmdsec = mocker.Mock()
-        mock_fsentry.delete_dmdsec = mocker.Mock()
-        mock_fsentry.add_premis_event = mocker.Mock()
+        mock_fsentry.add_dmdsec = mock.Mock()
+        mock_fsentry.delete_dmdsec = mock.Mock()
+        mock_fsentry.add_premis_event = mock.Mock()
         return mock_fsentry
 
     return _make_mock_fsentry
 
 
 @pytest.fixture
-def make_mock_mets(mocker, make_mock_fsentry):
+def make_mock_mets(make_mock_fsentry):
     def _make_mock_mets(metadata_file_uuids=None):
         if metadata_file_uuids is None:
             metadata_file_uuids = []
@@ -108,7 +109,7 @@ def make_mock_mets(mocker, make_mock_fsentry):
         files = [sip, objects, directory, file_txt]
         for uuid in metadata_file_uuids:
             files.append(make_mock_fsentry(file_uuid=uuid, use="metadata"))
-        mock_mets = mocker.Mock()
+        mock_mets = mock.Mock()
         mock_mets.all_files.return_value = files
         mock_mets.get_file.side_effect = lambda **kwargs: next(
             (
@@ -124,45 +125,49 @@ def make_mock_mets(mocker, make_mock_fsentry):
 
 
 @pytest.fixture
-def insert_into_events_mock(mocker):
-    return mocker.patch(
+def insert_into_events_mock():
+    with mock.patch(
         "archivematicaCreateMETSMetadataXML.insertIntoEvents",
         return_value="fake_event",
-    )
+    ) as result:
+        yield result
 
 
 @pytest.fixture
-def create_event_mock(mocker):
-    return mocker.patch(
+def create_event_mock():
+    with mock.patch(
         "archivematicaCreateMETSMetadataXML.createmets2.createEvent",
         return_value="fake_element",
-    )
+    ) as result:
+        yield result
 
 
 @pytest.fixture
-def requests_get(mocker):
+def requests_get():
     # Return a mock response good enough to be parsed as an XML schema.
-    return mocker.patch(
+    with mock.patch(
         "requests.get",
-        return_value=mocker.Mock(text=IMPORTED_SCHEMA),
-    )
+        return_value=mock.Mock(text=IMPORTED_SCHEMA),
+    ) as result:
+        yield result
 
 
 @pytest.fixture
-def requests_get_error(mocker):
+def requests_get_error():
     # Simulate an error retrieving an imported schema.
-    return mocker.patch(
+    with mock.patch(
         "requests.get",
         side_effect=requests.RequestException("error"),
-    )
+    ) as result:
+        yield result
 
 
 @pytest.fixture
-def etree_parse(mocker):
+def etree_parse():
     # Mocked etree.parse used in the resolver tests that returns None before the first
     # XMLSchema call, which triggers an etree.XMLSchemaParseError exception
     # and forces reparsing the validation schema with a custom etree.Resolver.
-    class mock:
+    class mock_parse:
         def __init__(self, *args, **kwargs):
             self.call_count = 0
 
@@ -174,10 +179,11 @@ def etree_parse(mocker):
                 return
             return parse(*args, **kwargs)
 
-    mocker.patch(
+    with mock.patch(
         "archivematicaCreateMETSMetadataXML.etree.parse",
-        mock(),
-    )
+        mock_parse(),
+    ):
+        yield
 
 
 @pytest.fixture
@@ -268,7 +274,6 @@ def test_validation(
     make_schema_file,
     sip,
     sip_directory_path,
-    mocker,
     insert_into_events_mock,
     create_event_mock,
     xml_file,
@@ -296,7 +301,7 @@ def test_validation(
     if should_pass:
         # Use ANY to avoid comparision with etree.Element, but confirm element tag.
         objects_fsentry.add_dmdsec.assert_called_once_with(
-            mocker.ANY, "OTHER", othermdtype="mdtype", status="original"
+            mock.ANY, "OTHER", othermdtype="mdtype", status="original"
         )
         assert objects_fsentry.add_dmdsec.call_args[0][0].tag == "foo"
     else:
@@ -323,7 +328,7 @@ def test_validation(
 
 @pytest.mark.django_db
 def test_skipped_validation(
-    settings, make_metadata_file, make_mock_mets, sip, sip_directory_path, mocker
+    settings, make_metadata_file, make_mock_mets, sip, sip_directory_path
 ):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": None}
@@ -345,7 +350,7 @@ def test_skipped_validation(
     assert not errors
     # Use ANY to avoid comparision with etree.Element, but confirm element tag.
     objects_fsentry.add_dmdsec.assert_called_once_with(
-        mocker.ANY, "OTHER", othermdtype="mdtype", status="original"
+        mock.ANY, "OTHER", othermdtype="mdtype", status="original"
     )
     assert objects_fsentry.add_dmdsec.call_args[0][0].tag == "foo"
     metadata_fsentry.add_premis_event.assert_not_called()
@@ -552,7 +557,6 @@ def test_reingest(
     make_mock_mets,
     sip,
     sip_directory_path,
-    mocker,
 ):
     settings.METADATA_XML_VALIDATION_ENABLED = True
     xml_validation = {"foo": str(make_schema_file("xsd"))}
@@ -571,7 +575,7 @@ def test_reingest(
     assert not errors
     # Use ANY to avoid comparision with etree.Element, but confirm element tag.
     objects_fsentry.add_dmdsec.assert_called_once_with(
-        mocker.ANY, "OTHER", othermdtype="mdtype", status="update"
+        mock.ANY, "OTHER", othermdtype="mdtype", status="update"
     )
     assert objects_fsentry.add_dmdsec.call_args[0][0].tag == "foo"
     metadata_fsentry.add_premis_event.assert_called()

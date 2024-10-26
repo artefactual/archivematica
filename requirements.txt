@@ -100,7 +100,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.in
-orjson==3.10.9
+orjson==3.10.10
     # via -r requirements.in
 packaging==24.1
     # via gunicorn
@@ -170,7 +170,7 @@ zipp==3.20.2
     #   importlib-resources
 zope-event==5.0
     # via gevent
-zope-interface==7.1.0
+zope-interface==7.1.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:

@@ -1,5 +1,6 @@
 import math
 import uuid
+from unittest import mock
 
 import gearman
 import pytest
@@ -18,8 +19,8 @@ class MockJob(Job):
 
 
 @pytest.fixture
-def simple_job(request, mocker):
-    return MockJob(mocker.Mock(), mocker.Mock(), mocker.Mock(), name="test_job_name")
+def simple_job(request):
+    return MockJob(mock.Mock(), mock.Mock(), mock.Mock(), name="test_job_name")
 
 
 @pytest.fixture
@@ -57,12 +58,10 @@ def format_gearman_response(task_results):
     return response
 
 
-def test_gearman_task_submission(simple_job, simple_task, mocker):
-    # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
-    mocker.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 1)
-    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
-
+@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch("server.tasks.GearmanTaskBackend.TASK_BATCH_SIZE", 1)
+@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+def test_gearman_task_submission(bulk_log, mock_client, simple_job, simple_task):
     backend = GearmanTaskBackend()
     backend.submit_task(simple_job, simple_task)
 
@@ -81,14 +80,12 @@ def test_gearman_task_submission(simple_job, simple_task, mocker):
     assert submit_job_kwargs["max_retries"] == GearmanTaskBackend.MAX_RETRIES
 
 
-def test_gearman_task_result_success(simple_job, simple_task, mocker):
-    # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
-
-    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+def test_gearman_task_result_success(bulk_log, mock_client, simple_job, simple_task):
     backend = GearmanTaskBackend()
 
-    mock_gearman_job = mocker.Mock()
+    mock_gearman_job = mock.Mock()
     job_request = gearman.job.GearmanJobRequest(
         mock_gearman_job, background=True, max_attempts=0
     )
@@ -130,14 +127,12 @@ def test_gearman_task_result_success(simple_job, simple_task, mocker):
     assert task_result.done is True
 
 
-def test_gearman_task_result_error(simple_job, simple_task, mocker):
-    # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
-
-    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+def test_gearman_task_result_error(bulk_log, mock_client, simple_job, simple_task):
     backend = GearmanTaskBackend()
 
-    mock_gearman_job = mocker.Mock()
+    mock_gearman_job = mock.Mock()
     job_request = gearman.job.GearmanJobRequest(
         mock_gearman_job, background=True, max_attempts=0
     )
@@ -169,14 +164,12 @@ def test_gearman_task_result_error(simple_job, simple_task, mocker):
 @pytest.mark.parametrize(
     "reverse_result_order", (False, True), ids=["regular", "reversed"]
 )
+@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 2)
+@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
 def test_gearman_multiple_batches(
-    simple_job, simple_task, mocker, reverse_result_order
+    bulk_log, mock_client, simple_job, simple_task, reverse_result_order
 ):
-    # Mock to avoid db writes
-    mocker.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
-    mocker.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 2)
-    mock_client = mocker.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
-
     tasks = []
     for i in range(5):
         task = Task(
@@ -192,7 +185,7 @@ def test_gearman_multiple_batches(
 
     job_requests = []
     for _ in range(3):
-        mock_gearman_job = mocker.Mock()
+        mock_gearman_job = mock.Mock()
         job_request = gearman.job.GearmanJobRequest(
             mock_gearman_job, background=True, max_attempts=0
         )
