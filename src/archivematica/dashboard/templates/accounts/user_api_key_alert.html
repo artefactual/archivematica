@@ -1,0 +1,16 @@
+{% load i18n %}
+<p>{% trans "Make sure to copy the API key now as you will not be able to see it again." %}</p>
+<br>
+{% trans 'Copy' as label_copy %}
+{% trans 'Copied!' as label_copied %}
+<div class="input-group">
+  <span class="input-group-btn">
+    <button id="copy-api-key-button" class="btn btn-default" style="height: 34px; line-height: 1;"
+        title="{{ label_copy }}"
+        data-original-label="{{ label_copy }}"
+        data-clicked-label="{{ label_copied }}">
+        <span id="copy-button-icon" class="glyphicon glyphicon-copy" data-icon-original-class="glyphicon-copy" data-icon-clicked-class="glyphicon-ok"></span>
+    </button>
+  </span>
+  <input type="text" id="api-key" value="{{ key }}" class="form-control" disabled style="cursor: default; height: 34px;">
+</div>

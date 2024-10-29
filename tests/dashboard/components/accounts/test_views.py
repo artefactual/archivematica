@@ -184,7 +184,10 @@ def test_edit_user_view_regenerates_api_key(
         )
     assert response.status_code == 200
 
-    assert "Saved" in response.content.decode()
+    content = response.content.decode()
+    assert "Saved" in content
+    assert "Make sure to copy the API key now as you will not be able to see it again."
+    assert f'value="{expected_key}"' in content
 
     non_administrative_user_apikey.refresh_from_db()
     assert non_administrative_user_apikey.key == expected_key

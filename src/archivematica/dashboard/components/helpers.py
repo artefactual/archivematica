@@ -452,8 +452,11 @@ def generate_api_key(user):
     Generate API key for a user
     """
     api_key, _ = ApiKey.objects.get_or_create(user=user)
-    api_key.key = api_key.generate_key()
+    result = api_key.generate_key()
+    api_key.key = result
     api_key.save()
+
+    return result
 
 
 def get_api_allowlist():
