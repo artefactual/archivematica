@@ -147,15 +147,15 @@ def test_edit_user_view_updates_user_profile_fields(
     assert response.status_code == 200
 
     content = response.content.decode()
-    assert "Saved" in content
-    assert (
-        f'<a href="{reverse("accounts:edit", kwargs={"id": non_administrative_user.id})}">{new_username}</a>'
-        in content
-    )
-    assert f"<td>{new_first_name} {new_last_name}</td>" in content
-    assert f"<td>{new_email}</td>" in content
-
     non_administrative_user.refresh_from_db()
+
+    assert "Saved" in content
+    assert f"Edit user {non_administrative_user.username}" in content
+    assert f'name="username" value="{non_administrative_user.username}"' in content
+    assert f'name="first_name" value="{non_administrative_user.first_name}"' in content
+    assert f'name="last_name" value="{non_administrative_user.last_name}"' in content
+    assert f'name="email" value="{non_administrative_user.email}"' in content
+
     assert non_administrative_user.check_password(new_password)
 
 

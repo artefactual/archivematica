@@ -79,7 +79,7 @@ def add(request):
 def profile(request):
     # If users are editable in this setup, go to the editable profile view
     if settings.ALLOW_USER_EDITS:
-        return edit(request)
+        return edit(request, return_view="accounts:profile")
 
     user = request.user
     user_profile = UserProfile.objects.get(user=user)
@@ -105,7 +105,7 @@ def profile(request):
     )
 
 
-def edit(request, id=None):
+def edit(request, id=None, return_view=None):
     # Forbidden if user isn't an admin and is trying to edit another user
     if str(request.user.id) != str(id) and id is not None:
         if request.user.is_superuser is False:
@@ -147,7 +147,11 @@ def edit(request, id=None):
 
             # determine where to redirect to
             if request.user.is_superuser:
-                return_view = "accounts:accounts_index"
+                return_view = request.POST.get("return_view")
+                if return_view:
+                    return_view = return_view
+                else:
+                    return_view = reverse("accounts:edit", kwargs={"id": user.pk})
             else:
                 return_view = "accounts:profile"
 
@@ -170,6 +174,7 @@ def edit(request, id=None):
             "userprofileform": userprofileform,
             "user": user,
             "title": title,
+            "return_view": return_view,
         },
     )
 
