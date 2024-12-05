@@ -18,14 +18,100 @@ contributors - thank you!
 Questions about a release or the release notes? Ask on the
 [Archivematica User Group](https://groups.google.com/g/archivematica)!
 
-## (Current Release) Archivematica 1.16.0 and Storage Service 0.22.0
+## (Current Release) Archivematica 1.17.0 and Storage Service 0.23.0
+
+*Release date*: December 6, 2024
+
+[Original release
+notes](https://wiki.archivematica.org/Archivematica_1.17.0_and_Storage_Service_0.23.0_release_notes).
+
+### Environments for 1.17.0
+
+Please see the [installation
+instructions](https://www.archivematica.org/en/docs/archivematica-1.17/admin-manual/installation-setup/installation/installation/#installation).
+
+Archivematica 1.17.0 and Storage Service 0.23.0 have been tested in the
+following environments:
+
+- Ubuntu 22.04 64-bit Server Edition
+- Rocky Linux 9 x86_64
+
+For development purposes, most of our developers prefer to use Docker
+containers. These and all above environments are linked from the installation
+instructions above.
+
+### Changed in 1.17.0
+
+#### Fixity reports sort failures
+
+- Issue: <https://github.com/archivematica/Issues/issues/1681>
+
+AIPs that fail fixity scan are displayed at the top of the list.
+
+### Removed in 1.17.0
+
+#### FITS
+
+- Issue: <https://github.com/archivematica/Issues/issues/703>
+
+[FITS](https://harvard-lts.github.io/fits/about) has been removed in
+Archivematica 1.17.0 to mitigate potential vulnerabilities identified by
+various security scanners.
+
+The [Upgrading Archivematica](https://www.archivematica.org/en/docs/archivematica-1.17/admin-manual/installation-setup/upgrading/upgrading/#upgrade)
+section of the documentation now includes detailed instructions for
+uninstalling the FITS and nailgun packages.
+
+### Fixed in 1.17.0
+
+<!-- markdownlint-disable-next-line MD013 -->
+#### Write-Only Replica Staging space works with transfers that include dots in their names
+
+- Issue: <https://github.com/archivematica/Issues/issues/1697>
+
+#### Fixity runs do not email inactive users anymore
+
+- Issue: <https://github.com/archivematica/Issues/issues/1523>
+
+#### AIP recovery updates
+
+- Issue: <https://github.com/archivematica/Issues/issues/420>
+
+AIP recovery places the recovered AIP inside the appropriate quad directory and
+the documentation details the permission and directory requirements of the
+process.
+
+#### Subprocess non-UTF8 output is now escaped in MCPClient jobs
+
+- Issue: <https://github.com/archivematica/Issues/issues/1702>
+
+#### Tesseract OCR command can be disabled through Preservation Planning
+
+- Issue: <https://github.com/archivematica/Issues/issues/1630>
+
+#### The `purge_transient_processing_data` management command deletes transfer files
+
+- Issue: <https://github.com/archivematica/Issues/issues/1714>
+
+#### The `import_aip management command` sets the correct group ownership
+
+- Issue: <https://github.com/archivematica/Issues/issues/1703>
+
+#### RPM packages set the correct ownership of the static asset files
+
+- Issue: <https://github.com/archivematica/Issues/issues/1700>
+
+Please see the 1.17.0 milestone in GitHub for all issues addressed in this
+release: <https://github.com/archivematica/Issues/milestone/26?closed=1>.
+
+## Archivematica 1.16.0 and Storage Service 0.22.0
 
 *Release date*: May 16, 2024
 
 [Original release
 notes](https://wiki.archivematica.org/Archivematica_1.16.0_and_Storage_Service_0.22.0_release_notes).
 
-### Environments
+### Environments for 1.16.0
 
 Please see the [installation
 instructions](https://www.archivematica.org/en/docs/archivematica-1.16/admin-manual/installation-setup/installation/installation/#installation).
@@ -40,7 +126,7 @@ For development purposes, most of our developers prefer to use Docker
 containers. These and all above environments are linked from the
 installation instructions above.
 
-### Added
+### Added in 1.16.0
 
 #### List jobs API endpoint returns detailed output
 
@@ -53,7 +139,7 @@ will return all the task properties returned by the
 [Task](https://www.archivematica.org/en/docs/archivematica-1.16/dev-manual/api/api-reference-archivematica/#task)
 endpoint.
 
-### Changed
+### Changed in 1.16.0
 
 #### PRONOM v.116
 
@@ -75,7 +161,7 @@ to 3.12.
 
 Archivematica 1.16 dropped support for Django 3.2.
 
-### Fixed
+### Fixed in 1.16.0
 
 #### Update MCPClient forking model
 
