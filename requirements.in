@@ -13,6 +13,7 @@ django-prometheus
 django-tastypie
 elasticsearch>=6.0.0,<7.0.0
 git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797#egg=gearman3
+gevent
 gunicorn
 importlib-metadata
 inotify_simple
@@ -26,6 +27,7 @@ prometheus_client
 python-dateutil
 requests
 unidecode
+whitenoise
 
 # Required by LDAP authentication
 django-auth-ldap
@@ -36,9 +38,3 @@ django-cas-ng
 
 # Required for OpenID Connect authentication
 mozilla-django-oidc
-
-# These dependencies dropped support for Python 3.8, so pinning them for now.
-django-auth-ldap==5.0.0
-gevent==24.2.1
-jsonschema-specifications==2023.12.1
-whitenoise==6.7.0

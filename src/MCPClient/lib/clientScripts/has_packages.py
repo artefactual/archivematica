@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from typing import List
 
 import django
 
@@ -63,7 +62,7 @@ def main(job: Job, sip_uuid: str) -> int:
     return 1
 
 
-def call(jobs: List[Job]) -> None:
+def call(jobs: list[Job]) -> None:
     for job in jobs:
         with job.JobContext():
             job.set_status(main(job, job.args[1]))

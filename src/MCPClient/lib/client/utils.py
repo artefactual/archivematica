@@ -1,11 +1,10 @@
 import shlex
-from typing import List
 
 from django.conf import settings
 from django.utils import timezone
 
 
-def parse_command_line(s: str) -> List[str]:
+def parse_command_line(s: str) -> list[str]:
     return [_shlex_unescape(x) for x in shlex.split(s)]
 
 

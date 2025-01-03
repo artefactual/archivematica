@@ -8,7 +8,6 @@ import functools
 import threading
 from typing import Callable
 from typing import Optional
-from typing import Tuple
 from typing import TypeVar
 from wsgiref.simple_server import WSGIServer
 
@@ -255,13 +254,13 @@ def worker_exit(process_id: Optional[int]) -> None:
 
 
 @skip_if_prometheus_disabled
-def start_prometheus_server() -> Tuple[WSGIServer, threading.Thread]:
+def start_prometheus_server() -> tuple[WSGIServer, threading.Thread]:
     registry = CollectorRegistry()
     multiprocess.MultiProcessCollector(registry)
 
     init_counter_labels()
 
-    result: Tuple[WSGIServer, threading.Thread] = start_http_server(
+    result: tuple[WSGIServer, threading.Thread] = start_http_server(
         settings.PROMETHEUS_BIND_PORT,
         addr=settings.PROMETHEUS_BIND_ADDRESS,
         registry=registry,

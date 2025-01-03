@@ -19,8 +19,6 @@ import logging.config
 import os
 from io import StringIO
 from typing import Any
-from typing import Dict
-from typing import List
 
 import email_settings
 from appconfig import Config
@@ -378,7 +376,7 @@ STORAGES = {
     },
 }
 
-TEMPLATES: List[Dict[str, Any]] = [
+TEMPLATES: list[dict[str, Any]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [os.path.join(BASE_PATH, "templates")],

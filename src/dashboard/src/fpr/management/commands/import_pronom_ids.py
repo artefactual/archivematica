@@ -1,7 +1,6 @@
 import os
 import sys
 import uuid
-from typing import Dict
 
 from django.core.management.base import BaseCommand
 from django.db import connection
@@ -15,7 +14,7 @@ from lxml import etree
 # Introduced in fpr/migrations/0035_python3_compatibility.py
 FILE_BY_EXTENSION_CMD_UUID = "8546b624-7894-4201-8df6-f239d5e0d5ba"
 
-archivematica_formats: Dict[str, Format] = {}
+archivematica_formats: dict[str, Format] = {}
 unknown_format_group = FormatGroup.objects.get(description="Unknown")
 file_by_extension = IDCommand.objects.get(uuid=FILE_BY_EXTENSION_CMD_UUID)
 

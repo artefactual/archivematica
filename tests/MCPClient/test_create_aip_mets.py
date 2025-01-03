@@ -7,7 +7,6 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from typing import List
 
 import archivematicaCreateMETSMetadataCSV
 import archivematicaCreateMETSRights
@@ -30,7 +29,7 @@ mcp_job = Job("stub", "stub", [])
 class TestNormativeStructMap(TestCase):
     """Test creation of normative structMap."""
 
-    fixture_files: List[str] = []
+    fixture_files: list[str] = []
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
     @pytest.fixture(autouse=True)

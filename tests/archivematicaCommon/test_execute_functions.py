@@ -1,7 +1,7 @@
 import pathlib
 import shlex
 import tempfile
-from typing import Generator
+from collections.abc import Generator
 from unittest.mock import ANY
 from unittest.mock import Mock
 from unittest.mock import patch

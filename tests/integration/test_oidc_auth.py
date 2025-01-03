@@ -1,6 +1,5 @@
 import os
 import uuid
-from typing import Type
 
 import pytest
 from components import helpers
@@ -20,7 +19,7 @@ def dashboard_uuid() -> None:
 
 
 @pytest.fixture
-def user(django_user_model: Type[User]) -> User:
+def user(django_user_model: type[User]) -> User:
     user = django_user_model.objects.create(
         username="foobar",
         email="foobar@example.com",
@@ -38,7 +37,7 @@ def test_oidc_backend_creates_local_user(
     page: Page,
     live_server: LiveServer,
     dashboard_uuid: None,
-    django_user_model: Type[User],
+    django_user_model: type[User],
 ) -> None:
     page.goto(live_server.url)
 

@@ -1,5 +1,4 @@
 from typing import Any
-from typing import Dict
 
 from south.db import db
 from south.v2 import SchemaMigration
@@ -552,7 +551,7 @@ class Migration(SchemaMigration):
             ),
         )
 
-    models: Dict[str, Any] = {
+    models: dict[str, Any] = {
         "fpr.agent": {
             "Meta": {"object_name": "Agent", "db_table": "u'Agent'"},
             "agentIdentifierType": (

@@ -1,5 +1,6 @@
 -r requirements.txt
 
+coverage[toml]
 git+https://github.com/artefactual-labs/mockldap@v0.3.1#egg=mockldap
 pip-tools
 pytest
@@ -13,7 +14,3 @@ tox
 # gevent dependency in requirements.txt.
 # See https://github.com/microsoft/playwright-python/issues/2190
 git+https://github.com/microsoft/playwright-python.git@d9cdfbb1e178b6770625e9f857139aff77516af0#egg=playwright
-
-# These dependencies dropped support for Python 3.8, so pinning them for now.
-coverage[toml]==7.6.1
-pytest-randomly==3.15.0

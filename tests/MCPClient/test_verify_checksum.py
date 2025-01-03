@@ -146,10 +146,11 @@ class TestHashsum:
             "sha256: objects/nested/ファイル3.bin: FAILED\n"
             "sha256: objects/readonly.file: FAILED open or read"
         )
-        with mock.patch.object(
-            hashsum, "_call", return_value=output_string
-        ) as mock_call, mock.patch.object(
-            hashsum, "count_and_compare_lines", return_value=True
+        with (
+            mock.patch.object(
+                hashsum, "_call", return_value=output_string
+            ) as mock_call,
+            mock.patch.object(hashsum, "count_and_compare_lines", return_value=True),
         ):
             mock_call.side_effect = subprocess.CalledProcessError(
                 returncode=1, cmd=toolname, output=output_string
@@ -186,10 +187,11 @@ class TestHashsum:
             "sha1: comparison exited with status: 1. Please check the formatting of the checksums or integrity of the files.\n"
             "sha1: sha1sum: WARNING: 1 line is improperly formatted"
         )
-        with mock.patch.object(
-            hashsum, "_call", return_value=no_proper_output
-        ) as mock_call, mock.patch.object(
-            hashsum, "count_and_compare_lines", return_value=True
+        with (
+            mock.patch.object(
+                hashsum, "_call", return_value=no_proper_output
+            ) as mock_call,
+            mock.patch.object(hashsum, "count_and_compare_lines", return_value=True),
         ):
             mock_call.side_effect = subprocess.CalledProcessError(
                 returncode=1, cmd=toolname, output=no_proper_output
@@ -226,10 +228,9 @@ class TestHashsum:
         hash_file = "metadata/checksum.sha1"
         hashsum = self.setup_hashsum(hash_file, Job("stub", "stub", ["", ""]))
         toolname = "sha1sum"
-        with mock.patch.object(
-            hashsum, "_call", return_value=None
-        ) as mock_call, mock.patch.object(
-            hashsum, "count_and_compare_lines", return_value=False
+        with (
+            mock.patch.object(hashsum, "_call", return_value=None) as mock_call,
+            mock.patch.object(hashsum, "count_and_compare_lines", return_value=False),
         ):
             mock_call.side_effect = subprocess.CalledProcessError(
                 returncode=1, cmd=toolname, output=None

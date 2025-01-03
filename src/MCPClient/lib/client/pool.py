@@ -20,11 +20,8 @@ import threading
 import time
 from multiprocessing.synchronize import Event
 from types import ModuleType
-from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Protocol
-from typing import Tuple
 from typing import TypeVar
 
 import django
@@ -68,14 +65,14 @@ LogQueue = QueueLike[logging.LogRecord]
 #     ),
 #     ...
 # ]
-WorkerInitArgs = List[Tuple[Tuple[LogQueue, List[str]], Dict[str, Event]]]
+WorkerInitArgs = list[tuple[tuple[LogQueue, list[str]], dict[str, Event]]]
 
 logger = logging.getLogger("archivematica.mcp.client.worker")
 
 
 def run_gearman_worker(
     log_queue: LogQueue,
-    client_scripts: List[str],
+    client_scripts: list[str],
     shutdown_event: Optional[Event] = None,
 ) -> None:
     """Target function executed by child processes in the pool."""
@@ -110,7 +107,7 @@ class WorkerPool:
     def __init__(self) -> None:
         self.log_queue: LogQueue = multiprocessing.Queue()
         self.shutdown_event = multiprocessing.Event()
-        self.workers: List[multiprocessing.Process] = []
+        self.workers: list[multiprocessing.Process] = []
         self.job_modules = loader.load_job_modules(settings.CLIENT_MODULES_FILE)
         self.worker_function = run_gearman_worker
 
@@ -161,8 +158,8 @@ class WorkerPool:
             self.logging_listener.stop()
 
     def _get_script_workers_required(
-        self, job_modules: Dict[str, Optional[ModuleType]]
-    ) -> Dict[str, int]:
+        self, job_modules: dict[str, Optional[ModuleType]]
+    ) -> dict[str, int]:
         workers_required = {}
         for client_script, module in job_modules.items():
             concurrency = loader.get_module_concurrency(module)
@@ -172,11 +169,11 @@ class WorkerPool:
 
     # Use Queue[logging.LogRecord] instead of Any
     def _get_worker_init_args(
-        self, script_workers_required: Dict[str, int]
+        self, script_workers_required: dict[str, int]
     ) -> WorkerInitArgs:
         # Don't mutate the argument
         script_workers_required = script_workers_required.copy()
-        init_scripts: List[List[str]] = []
+        init_scripts: list[list[str]] = []
 
         for i in range(self.pool_size):
             init_scripts.append([])

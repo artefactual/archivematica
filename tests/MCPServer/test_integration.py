@@ -114,10 +114,13 @@ def test_workflow_integration(
     settings.PROCESSING_DIRECTORY = str(tmp_path / "processing")
     mock_get_task_backend.return_value = echo_backend
 
-    with mock.patch.dict(
-        "server.packages.BASE_REPLACEMENTS",
-        {r"%processingDirectory%": settings.PROCESSING_DIRECTORY},
-    ), mock.patch.object(transfer, "files", return_value=dummy_file_replacements):
+    with (
+        mock.patch.dict(
+            "server.packages.BASE_REPLACEMENTS",
+            {r"%processingDirectory%": settings.PROCESSING_DIRECTORY},
+        ),
+        mock.patch.object(transfer, "files", return_value=dummy_file_replacements),
+    ):
         # Schedule the first job
         first_workflow_chain = workflow.get_chains()[
             "3816f689-65a8-4ad0-ac27-74292a70b093"

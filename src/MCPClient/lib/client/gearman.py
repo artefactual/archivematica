@@ -4,11 +4,7 @@ import multiprocessing
 from datetime import datetime
 from multiprocessing.synchronize import Event
 from types import TracebackType
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Type
 from typing import Union
 
 import gearman
@@ -34,8 +30,8 @@ from client.worker import run_task
 #     },
 #     ...
 # }
-TaskData = Dict[str, Union[str, bool]]
-GearmanJobTasks = Dict[str, TaskData]
+TaskData = dict[str, Union[str, bool]]
+GearmanJobTasks = dict[str, TaskData]
 
 # This is how `results` looks in the `_format_job_results` method below:
 # {
@@ -49,8 +45,8 @@ GearmanJobTasks = Dict[str, TaskData]
 #     },
 #     ...
 # }
-JobData = Dict[str, Union[int, Optional[datetime], str]]
-JobResults = Dict[str, JobData]
+JobData = dict[str, Union[int, Optional[datetime], str]]
+JobResults = dict[str, JobData]
 
 logger = logging.getLogger("archivematica.mcp.client.gearman")
 
@@ -60,8 +56,8 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
 
     def __init__(
         self,
-        hosts: List[str],
-        client_scripts: List[str],
+        hosts: list[str],
+        client_scripts: list[str],
         shutdown_event: Optional[Event] = None,
         max_jobs_to_process: Optional[int] = None,
     ) -> None:
@@ -82,7 +78,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         logger.debug("Worker %s registered tasks: %s", self.client_id, client_scripts)
 
     @staticmethod
-    def _format_job_results(jobs: List[Job]) -> JobResults:
+    def _format_job_results(jobs: list[Job]) -> JobResults:
         results = {}
 
         for job in jobs:
@@ -103,7 +99,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         return results
 
     @staticmethod
-    def _prepare_jobs(task_name: str, gearman_job: GearmanJob) -> List[Job]:
+    def _prepare_jobs(task_name: str, gearman_job: GearmanJob) -> list[Job]:
         """Given a tasks dictionary, return a list of Job objects."""
         tasks: GearmanJobTasks = gearman_job.data["tasks"]
 
@@ -132,7 +128,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         task_name: str,
         gearman_worker: gearman.GearmanWorker,
         gearman_job: GearmanJob,
-    ) -> Dict[str, JobResults]:
+    ) -> dict[str, JobResults]:
         job_module = self.job_modules[task_name]
         logger.debug(
             "Gearman job request %s received for %s",
@@ -152,7 +148,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
     def on_job_exception(
         self,
         current_job: GearmanJob,
-        exc_info: Tuple[Type[BaseException], BaseException, TracebackType],
+        exc_info: tuple[type[BaseException], BaseException, TracebackType],
     ) -> bool:
         logger.error(
             "An unhandled exception occurred processing a Gearman job",

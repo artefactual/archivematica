@@ -9,7 +9,6 @@ import shutil
 import traceback
 import uuid
 from typing import Callable
-from typing import List
 from typing import Optional
 
 import django
@@ -608,7 +607,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> NormalizeArgs:
     return NormalizeArgs(**vars(namespace))
 
 
-def call(jobs: List[Job]) -> None:
+def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
     with transaction.atomic():

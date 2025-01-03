@@ -2,11 +2,10 @@ import importlib
 import warnings
 from configparser import RawConfigParser
 from types import ModuleType
-from typing import Dict
 from typing import Optional
 
 
-def get_supported_modules(modules_file_path: str) -> Dict[str, str]:
+def get_supported_modules(modules_file_path: str) -> dict[str, str]:
     """Create and return the ``supported_modules`` dict by parsing the MCPClient
     modules config file (typically MCPClient/lib/archivematicaClientModules).
     """
@@ -41,7 +40,7 @@ def get_module_concurrency(module: ModuleType) -> int:
         return 1
 
 
-def load_job_modules(modules_file_path: str) -> Dict[str, Optional[ModuleType]]:
+def load_job_modules(modules_file_path: str) -> dict[str, Optional[ModuleType]]:
     """Return a dict of {client script name: module}."""
     supported_modules = get_supported_modules(modules_file_path)
 

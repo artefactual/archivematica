@@ -85,11 +85,10 @@ def test_clamdscanner_scan(settings):
 
     scanner = setup_clamdscanner(settings, stream=False)
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         deps = patch(pass_by_stream, pass_by_reference, scanner, ret=OKAY_RET)
         passed, state, details = scanner.scan("/file")
         assert passed is True
@@ -99,11 +98,10 @@ def test_clamdscanner_scan(settings):
         deps.pass_by_reference.assert_called_once()
 
     scanner = setup_clamdscanner(settings, stream=True)
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         deps = patch(pass_by_stream, pass_by_reference, scanner, ret=OKAY_RET)
         passed, state, details = scanner.scan("/file")
         assert passed is True
@@ -112,33 +110,30 @@ def test_clamdscanner_scan(settings):
         deps.pass_by_stream.assert_called_once()
         deps.pass_by_reference.assert_not_called()
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         patch(pass_by_stream, pass_by_reference, scanner, ret=ERROR_RET)
         passed, state, details = scanner.scan("/file")
         assert passed is False
         assert state == "ERROR"
         assert details == "Permission denied"
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         patch(pass_by_stream, pass_by_reference, scanner, ret=FOUND_RET)
         passed, state, details = scanner.scan("/file")
         assert passed is False
         assert state == "FOUND"
         assert details == "Eicar-Test-Signature"
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         # Testing a generic Exception returned by the clamdscan micorservice.
         patch(pass_by_stream, pass_by_reference, scanner, ret=OKAY_RET, excepts=True)
         passed, state, details = scanner.scan("/file")
@@ -146,11 +141,10 @@ def test_clamdscanner_scan(settings):
         assert state is None
         assert details is None
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         # Testing a generic IOError that is not a broken pipe error that we're
         # expecting to be able to manage from clamdscan.
         patch(
@@ -165,11 +159,10 @@ def test_clamdscanner_scan(settings):
         assert state is None
         assert details is None
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         # Broken pipe is a known error from the clamd library.
         brokenpipe_error = OSError("Testing a broken pipe error")
         brokenpipe_error.errno = errno.EPIPE
@@ -185,11 +178,10 @@ def test_clamdscanner_scan(settings):
         assert state is None
         assert details is None
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         # The INSTREAM size limit error is known to us; test it here.
         instream_error = BufferTooLongError("INSTREAM size limit exceeded. ERROR.")
         patch(
@@ -204,11 +196,10 @@ def test_clamdscanner_scan(settings):
         assert state is None
         assert details is None
 
-    with mock.patch.object(
-        scanner, "pass_by_stream"
-    ) as pass_by_stream, mock.patch.object(
-        scanner, "pass_by_reference"
-    ) as pass_by_reference:
+    with (
+        mock.patch.object(scanner, "pass_by_stream") as pass_by_stream,
+        mock.patch.object(scanner, "pass_by_reference") as pass_by_reference,
+    ):
         # The clamd library can return a further error code here, and we we test it
         # to make sure that if it does, it is managed.
         connection_error = ConnectionError("Error while reading from socket.")

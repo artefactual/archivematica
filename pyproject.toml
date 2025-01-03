@@ -23,6 +23,9 @@ include = [
 ]
 branch = true
 
+[tool.ruff]
+target-version = "py39"
+
 [tool.ruff.lint]
 # Rule reference: https://docs.astral.sh/ruff/rules/
 select = [

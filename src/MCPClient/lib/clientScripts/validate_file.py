@@ -18,10 +18,9 @@ Arguments:
 import ast
 import os
 import sys
+from collections.abc import Mapping
 from pprint import pformat
 from typing import Any
-from typing import List
-from typing import Mapping
 from typing import Optional
 
 import django
@@ -324,21 +323,21 @@ class Validator:
         return self._sip_pres_val_dir
 
 
-def _get_shared_path(argv: List[str]) -> Optional[str]:
+def _get_shared_path(argv: list[str]) -> Optional[str]:
     try:
         return argv[4]
     except IndexError:
         return None
 
 
-def _get_file_type(argv: List[str]) -> str:
+def _get_file_type(argv: list[str]) -> str:
     try:
         return argv[5]
     except IndexError:
         return "original"
 
 
-def call(jobs: List[Job]) -> None:
+def call(jobs: list[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):

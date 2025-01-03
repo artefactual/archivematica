@@ -1,7 +1,6 @@
 import hmac
 import uuid
 from hashlib import sha1
-from typing import Type
 from unittest import mock
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
@@ -60,7 +59,7 @@ def dashboard_uuid() -> None:
 
 
 @pytest.fixture
-def non_administrative_user(django_user_model: Type[User]) -> User:
+def non_administrative_user(django_user_model: type[User]) -> User:
     return django_user_model.objects.create_user(
         username="test",
         password="test",

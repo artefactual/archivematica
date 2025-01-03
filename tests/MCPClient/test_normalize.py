@@ -1,10 +1,9 @@
 import argparse
 import pathlib
 import uuid
-from typing import Mapping
+from collections.abc import Mapping
+from collections.abc import Sequence
 from typing import Optional
-from typing import Sequence
-from typing import Tuple
 from unittest import mock
 
 import normalize
@@ -579,7 +578,7 @@ def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory
         arguments: Optional[Sequence[str]] = None,
         env_updates: Optional[Mapping[str, str]] = None,
         capture_output: bool = True,
-    ) -> Tuple[int, str, str]:
+    ) -> tuple[int, str, str]:
         """Mock thumbnail generation by creating a new temporary file."""
         parser = argparse.ArgumentParser()
         parser.add_argument("--output-directory", required=True)
@@ -707,7 +706,7 @@ def test_normalization_fallbacks_to_default_thumbnail_rule_if_initial_command_fa
         arguments: Optional[Sequence[str]] = None,
         env_updates: Optional[Mapping[str, str]] = None,
         capture_output: bool = True,
-    ) -> Tuple[int, str, str]:
+    ) -> tuple[int, str, str]:
         """Mock a complex normalization command that initially fails and then
         falls back to its default rule and also runs its own verification and
         event detail commands.

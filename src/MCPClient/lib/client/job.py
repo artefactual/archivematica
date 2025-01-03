@@ -9,14 +9,12 @@ import datetime
 import logging
 import sys
 import traceback
+from collections.abc import Generator
+from collections.abc import Iterable
+from collections.abc import Mapping
 from contextlib import contextmanager
 from logging.handlers import BufferingHandler
 from typing import Any
-from typing import Dict
-from typing import Generator
-from typing import Iterable
-from typing import List
-from typing import Mapping
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -28,7 +26,7 @@ from main.models import Task
 logger = logging.getLogger("archivematica.mcp.client.job")
 
 SelfJob = TypeVar("SelfJob", bound="Job")
-TaskData = Dict[str, Union[int, Optional[datetime.datetime], str]]
+TaskData = dict[str, Union[int, Optional[datetime.datetime], str]]
 
 
 class Job:
@@ -36,7 +34,7 @@ class Job:
         self,
         name: str,
         uuid: str,
-        arguments: List[str],
+        arguments: list[str],
         capture_output: bool = False,
     ) -> None:
         """
@@ -60,7 +58,7 @@ class Job:
         self.end_time: Optional[datetime.datetime] = None
 
     @classmethod
-    def bulk_set_start_times(cls, jobs: List[SelfJob]) -> None:
+    def bulk_set_start_times(cls, jobs: list[SelfJob]) -> None:
         """Bulk set the processing start time for a batch of jobs."""
         start_time = timezone.now()
         uuids = [job.uuid for job in jobs]
@@ -69,7 +67,7 @@ class Job:
             job.start_time = start_time
 
     @classmethod
-    def bulk_mark_failed(cls, jobs: List[SelfJob], message: str) -> None:
+    def bulk_mark_failed(cls, jobs: list[SelfJob], message: str) -> None:
         uuids = [job.uuid for job in jobs]
 
         Task.objects.filter(taskuuid__in=uuids).update(

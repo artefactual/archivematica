@@ -4,10 +4,8 @@ import dataclasses
 import multiprocessing
 import os
 import uuid
-from typing import List
+from collections.abc import Sequence
 from typing import Optional
-from typing import Sequence
-from typing import Tuple
 
 import django
 
@@ -105,7 +103,7 @@ def fetch_rules_for(file_: File) -> Sequence[FPRule]:
         return []
 
 
-def fetch_rules_for_derivatives(file_: File) -> Tuple[Optional[File], Sequence[FPRule]]:
+def fetch_rules_for_derivatives(file_: File) -> tuple[Optional[File], Sequence[FPRule]]:
     derivs = Derivation.objects.filter(source_file=file_)
     for deriv in derivs:
         derived_file = deriv.derived_file
@@ -203,7 +201,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> TranscribeFileArgs:
     return TranscribeFileArgs(**vars(namespace))
 
 
-def call(jobs: List[Job]) -> None:
+def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
     with transaction.atomic():

@@ -21,19 +21,16 @@ import shlex
 import subprocess
 import sys
 import tempfile
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from archivematicaFunctions import escape
 
-Arguments = List[str]
+Arguments = list[str]
 Input = Union[str, bytes, io.IOBase]
-Environment = Dict[str, str]
-Command = Union[str, List[str]]
-Result = Tuple[int, str, str]
+Environment = dict[str, str]
+Command = Union[str, list[str]]
+Result = tuple[int, str, str]
 
 
 def launchSubProcess(

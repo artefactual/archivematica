@@ -1,6 +1,5 @@
 import logging
 from types import ModuleType
-from typing import List
 
 from dbconns import auto_close_old_connections
 
@@ -11,7 +10,7 @@ logger = logging.getLogger("archivematica.mcp.client.worker")
 
 
 @auto_close_old_connections()  # type: ignore
-def run_task(task_name: str, job_module: ModuleType, jobs: List[Job]) -> None:
+def run_task(task_name: str, job_module: ModuleType, jobs: list[Job]) -> None:
     """Do actual processing of the jobs given."""
     logger.info("\n\n*** RUNNING TASK: %s***", task_name)
     Job.bulk_set_start_times(jobs)

@@ -27,10 +27,9 @@ import locale
 import os
 import pprint
 import re
+from collections.abc import Iterable
 from itertools import zip_longest
 from pathlib import Path
-from typing import Dict
-from typing import Iterable
 from uuid import uuid4
 
 from amclient import AMClient
@@ -530,7 +529,7 @@ def chunk_iterable(iterable, chunk_size=10, fillvalue=None):
 
 def get_oidc_secondary_providers(
     oidc_secondary_provider_names: Iterable[str],
-) -> Dict[str, Dict[str, str]]:
+) -> dict[str, dict[str, str]]:
     """Build secondary OIDC provider details dict. Takes a list of secondary
     OIDC providers and gathers details about these providers from env vars.
     Output dict contains details for each OIDC connection which can then be
