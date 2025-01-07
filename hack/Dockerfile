@@ -156,8 +156,8 @@ ARG PYENV_DIR=/pyenv
 ARG MEDIAAREA_VERSION
 
 RUN set -ex \
-	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.17.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.17.x.gpg \
-	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.17.x.gpg] http://packages.archivematica.org/1.17.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
+	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
+	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.18.x.gpg] http://packages.archivematica.org/1.18.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
 	&& curl --retry 3 -so /tmp/repo-mediaarea.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_${MEDIAAREA_VERSION}_all.deb \
 	&& dpkg -i /tmp/repo-mediaarea.deb \
 	&& rm /tmp/repo-mediaarea.deb \
