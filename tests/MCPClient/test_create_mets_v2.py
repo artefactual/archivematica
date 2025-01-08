@@ -1,11 +1,15 @@
+import pathlib
 import uuid
 from contextlib import ExitStack as does_not_raise
 from unittest import mock
 
 import pytest
+import pytest_django
+from client.job import Job
 from create_mets_v2 import createDMDIDsFromCSVMetadata
 from create_mets_v2 import main
 from lxml import etree
+from main.models import SIP
 from main.models import DublinCore
 from main.models import File
 from main.models import MetadataAppliesToType
@@ -14,7 +18,9 @@ from namespaces import NSMAP
 
 
 @mock.patch("create_mets_v2.createDmdSecsFromCSVParsedMetadata", return_value=[])
-def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(dmd_secs_creator_mock):
+def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(
+    dmd_secs_creator_mock: mock.Mock,
+) -> None:
     state_mock = mock.Mock(
         **{
             "CSV_METADATA": {
@@ -38,7 +44,7 @@ def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(dmd_secs_creator_mock
 
 
 @pytest.fixture()
-def objects_path(sip_directory_path):
+def objects_path(sip_directory_path: pathlib.Path) -> pathlib.Path:
     objects_path = sip_directory_path / "objects"
     objects_path.mkdir()
 
@@ -46,7 +52,7 @@ def objects_path(sip_directory_path):
 
 
 @pytest.fixture()
-def empty_dir_path(objects_path):
+def empty_dir_path(objects_path: pathlib.Path) -> pathlib.Path:
     empty_dir_path = objects_path / "empty_dir"
     empty_dir_path.mkdir()
 
@@ -54,7 +60,9 @@ def empty_dir_path(objects_path):
 
 
 @pytest.fixture()
-def metadata_csv(sip, sip_directory_path, objects_path):
+def metadata_csv(
+    sip: SIP, sip_directory_path: pathlib.Path, objects_path: pathlib.Path
+) -> File:
     (objects_path / "metadata").mkdir()
     metadata_csv = objects_path / "metadata" / "metadata.csv"
     metadata_csv.write_text("Filename,dc.title\nobjects/file1,File 1")
@@ -80,7 +88,7 @@ def metadata_csv(sip, sip_directory_path, objects_path):
 
 
 @pytest.fixture()
-def sip_dublincore(sip):
+def sip_dublincore(sip: SIP) -> DublinCore:
     return DublinCore.objects.create(
         metadataappliestotype_id=MetadataAppliesToType.SIP_TYPE,
         metadataappliestoidentifier=sip.pk,
@@ -91,7 +99,7 @@ def sip_dublincore(sip):
 
 
 @pytest.fixture()
-def file_path(objects_path):
+def file_path(objects_path: pathlib.Path) -> pathlib.Path:
     file_path = objects_path / "file1"
     file_path.write_text("Hello world")
 
@@ -99,7 +107,9 @@ def file_path(objects_path):
 
 
 @pytest.fixture()
-def sip_file(sip_file, sip_directory_path, file_path):
+def sip_file(
+    sip_file: File, sip_directory_path: pathlib.Path, file_path: pathlib.Path
+) -> File:
     sip_file.originallocation = (
         f"%transferDirectory%{file_path.relative_to(sip_directory_path)}".encode()
     )
@@ -112,7 +122,9 @@ def sip_file(sip_file, sip_directory_path, file_path):
 
 
 @pytest.mark.django_db
-def test_simple_mets(mcp_job, sip_directory_path, sip, sip_file):
+def test_simple_mets(
+    mcp_job: Job, sip_directory_path: pathlib.Path, sip: SIP, sip_file: File
+) -> None:
     mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
     main(
         mcp_job,
@@ -145,8 +157,12 @@ def test_simple_mets(mcp_job, sip_directory_path, sip, sip_file):
 
 @pytest.mark.django_db
 def test_aip_mets_includes_dublincore(
-    mcp_job, sip_directory_path, sip, sip_dublincore, sip_file
-):
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_dublincore: DublinCore,
+    sip_file: File,
+) -> None:
     mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
     main(
         mcp_job,
@@ -180,8 +196,12 @@ def test_aip_mets_includes_dublincore(
 
 @pytest.mark.django_db
 def test_aip_mets_includes_dublincore_via_metadata_csv(
-    mcp_job, sip_directory_path, sip, sip_file, metadata_csv
-):
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    metadata_csv: File,
+) -> None:
     mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
     main(
         mcp_job,
@@ -211,8 +231,13 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
 
 @pytest.mark.django_db
 def test_aip_mets_normative_directory_structure(
-    mcp_job, sip_directory_path, sip, sip_file, metadata_csv, empty_dir_path
-):
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    metadata_csv: File,
+    empty_dir_path: pathlib.Path,
+) -> None:
     mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
     main(
         mcp_job,
@@ -264,16 +289,16 @@ def test_aip_mets_normative_directory_structure(
 )
 @mock.patch("create_mets_v2.archivematicaCreateMETSMetadataXML.process_xml_metadata")
 def test_xml_validation_fail_on_error(
-    process_xml_metadata,
-    settings,
-    mcp_job,
-    sip_directory_path,
-    sip,
-    sip_file,
-    fail_on_error,
-    errors,
-    expectation,
-):
+    process_xml_metadata: mock.Mock,
+    settings: pytest_django.fixtures.SettingsWrapper,
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    fail_on_error: bool,
+    errors: list[str],
+    expectation: does_not_raise,
+) -> None:
     mock_mets = mock.Mock(
         **{
             "serialize.return_value": etree.Element("tag"),
@@ -301,7 +326,7 @@ def test_xml_validation_fail_on_error(
 
 
 @pytest.fixture
-def arranged_sip_path(tmp_path):
+def arranged_sip_path(tmp_path: pathlib.Path) -> pathlib.Path:
     sip_path = tmp_path / "sip"
     sip_path.mkdir()
 
@@ -309,7 +334,7 @@ def arranged_sip_path(tmp_path):
 
 
 @pytest.fixture
-def create_arrangement(sip, arranged_sip_path):
+def create_arrangement(sip: SIP, arranged_sip_path: pathlib.Path) -> None:
     # Create the directory structure representing the new arrangement.
     objects_path = arranged_sip_path / "objects"
     objects_path.mkdir()
@@ -351,8 +376,8 @@ def create_arrangement(sip, arranged_sip_path):
 
 @pytest.mark.django_db
 def test_structmap_is_created_from_sip_arrangement(
-    mcp_job, create_arrangement, arranged_sip_path, sip
-):
+    mcp_job: Job, create_arrangement: None, arranged_sip_path: pathlib.Path, sip: SIP
+) -> None:
     mets_path = f"{arranged_sip_path}/METS.{sip.uuid}.xml"
 
     main(

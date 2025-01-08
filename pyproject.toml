@@ -76,6 +76,7 @@ module = [
     "tests.integration.test_oidc_auth",
     "tests.MCPClient.conftest",
     "tests.MCPClient.test_characterize_file",
+    "tests.MCPClient.test_create_mets_v2",
     "tests.MCPClient.test_has_packages",
     "tests.MCPClient.test_identify_file_format",
     "tests.MCPClient.test_normalize",
