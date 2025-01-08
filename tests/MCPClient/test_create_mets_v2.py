@@ -416,3 +416,46 @@ def test_structmap_is_created_from_sip_arrangement(
     assert file3_div.attrib["TYPE"] == "File"
     assert subdir_second_div.attrib["TYPE"] == "Subseries"
     assert file4_div.attrib["TYPE"] == "File"
+
+
+@pytest.fixture
+def bag_path(sip_directory_path: pathlib.Path, sip: SIP) -> pathlib.Path:
+    result = (
+        sip_directory_path / "logs" / "transfers" / str(sip.uuid) / "logs" / "BagIt"
+    )
+    result.mkdir(parents=True)
+    (result / "bag-info.txt").touch()
+
+    return result
+
+
+@pytest.mark.django_db
+@mock.patch("create_mets_v2.Bag")
+def test_bag_metadata_is_recorded_in_a_amdsec(
+    bag_class: mock.Mock,
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    bag_path: pathlib.Path,
+) -> None:
+    info = {"Bagging-Date": "2025-01-08", "Payload-Oxum": "0.2"}
+    bag_class.return_value = mock.Mock(info=info)
+    mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
+
+    main(
+        mcp_job,
+        sipType="SIP",
+        baseDirectoryPath=str(sip_directory_path),
+        XMLFile=str(mets_path),
+        sipUUID=sip.pk,
+        includeAmdSec=False,
+        createNormativeStructmap=False,
+    )
+
+    mets_xml = etree.parse(mets_path.open())
+    transfer_metadata = mets_xml.xpath(
+        ".//mets:amdSec//transfer_metadata/*",
+        namespaces=NSMAP,
+    )
+    assert {e.tag: e.text for e in transfer_metadata} == info
