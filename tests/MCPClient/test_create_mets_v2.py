@@ -513,3 +513,64 @@ def test_transfer_metadata_xml_is_recorded_in_a_amdsec(
         namespaces=NSMAP,
     )
     assert {e.tag: e.text for e in transfer_metadata} == info
+
+
+@pytest.fixture()
+def source_metadata_xml_path(sip: SIP, sip_directory_path: pathlib.Path) -> File:
+    metadata_dir_path = (
+        sip_directory_path / "objects" / "metadata" / "transfers" / "sourceMD"
+    )
+    metadata_dir_path.mkdir(parents=True)
+
+    result = metadata_dir_path / "file.xml"
+    result.touch()
+
+    return result
+
+
+@pytest.fixture()
+def source_metadata_xml(
+    sip: SIP, sip_directory_path: pathlib.Path, source_metadata_xml_path: pathlib.Path
+) -> File:
+    return File.objects.create(
+        sip=sip,
+        currentlocation=f"%SIPDirectory%{source_metadata_xml_path.relative_to(sip_directory_path)}".encode(),
+        filegrpuse="metadata",
+    )
+
+
+@pytest.mark.django_db
+def test_source_metadata_xml_is_recorded_in_a_amdsec(
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    source_metadata_xml_path: pathlib.Path,
+    source_metadata_xml: File,
+) -> None:
+    mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
+
+    main(
+        mcp_job,
+        sipType="SIP",
+        baseDirectoryPath=str(sip_directory_path),
+        XMLFile=str(mets_path),
+        sipUUID=sip.pk,
+        includeAmdSec=False,
+        createNormativeStructmap=False,
+    )
+
+    mets_xml = etree.parse(mets_path.open())
+    transfer_metadata = mets_xml.xpath(
+        ".//mets:amdSec//mets:mdRef",
+        namespaces=NSMAP,
+    )
+    assert len(transfer_metadata) == 1
+    assert transfer_metadata[0].attrib == {
+        f"{{{NSMAP['xlink']}}}href": str(
+            source_metadata_xml_path.relative_to(sip_directory_path)
+        ),
+        "MDTYPE": "OTHER",
+        "LOCTYPE": "OTHER",
+        "OTHERLOCTYPE": "SYSTEM",
+    }
