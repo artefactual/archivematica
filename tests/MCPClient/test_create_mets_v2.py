@@ -459,3 +459,57 @@ def test_bag_metadata_is_recorded_in_a_amdsec(
         namespaces=NSMAP,
     )
     assert {e.tag: e.text for e in transfer_metadata} == info
+
+
+@pytest.fixture()
+def transfer_metadata_xml_path(sip: SIP, sip_directory_path: pathlib.Path) -> File:
+    metadata_dir_path = sip_directory_path / "objects" / "metadata" / "transfers"
+    metadata_dir_path.mkdir(parents=True)
+
+    result = metadata_dir_path / "transfer_metadata.xml"
+    result.touch()
+
+    return result
+
+
+@pytest.fixture()
+def transfer_metadata_xml(
+    sip: SIP, sip_directory_path: pathlib.Path, transfer_metadata_xml_path: pathlib.Path
+) -> File:
+    return File.objects.create(
+        sip=sip,
+        currentlocation=f"%SIPDirectory%{transfer_metadata_xml_path.relative_to(sip_directory_path)}".encode(),
+        filegrpuse="metadata",
+    )
+
+
+@pytest.mark.django_db
+def test_transfer_metadata_xml_is_recorded_in_a_amdsec(
+    mcp_job: Job,
+    sip_directory_path: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    transfer_metadata_xml_path: pathlib.Path,
+    transfer_metadata_xml: File,
+) -> None:
+    info = {"test": "foobar"}
+    for tag, value in info.items():
+        transfer_metadata_xml_path.write_text(f"<{tag}>{value}</{tag}>")
+    mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
+
+    main(
+        mcp_job,
+        sipType="SIP",
+        baseDirectoryPath=str(sip_directory_path),
+        XMLFile=str(mets_path),
+        sipUUID=sip.pk,
+        includeAmdSec=False,
+        createNormativeStructmap=False,
+    )
+
+    mets_xml = etree.parse(mets_path.open())
+    transfer_metadata = mets_xml.xpath(
+        ".//mets:amdSec//mets:xmlData/*",
+        namespaces=NSMAP,
+    )
+    assert {e.tag: e.text for e in transfer_metadata} == info
