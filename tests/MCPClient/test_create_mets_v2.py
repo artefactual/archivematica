@@ -435,9 +435,11 @@ def bag_path(sip_directory_path: pathlib.Path, sip: SIP) -> pathlib.Path:
     "info",
     [
         {"Bagging-Date": "2025-01-08", "Payload-Oxum": "0.2"},
+        {},
     ],
     ids=[
         "populated",
+        "empty",
     ],
 )
 def test_bag_metadata_is_recorded_in_a_amdsec(
