@@ -431,15 +431,24 @@ def bag_path(sip_directory_path: pathlib.Path, sip: SIP) -> pathlib.Path:
 
 @pytest.mark.django_db
 @mock.patch("create_mets_v2.Bag")
+@pytest.mark.parametrize(
+    "info",
+    [
+        {"Bagging-Date": "2025-01-08", "Payload-Oxum": "0.2"},
+    ],
+    ids=[
+        "populated",
+    ],
+)
 def test_bag_metadata_is_recorded_in_a_amdsec(
     bag_class: mock.Mock,
+    info: dict[str, str],
     mcp_job: Job,
     sip_directory_path: pathlib.Path,
     sip: SIP,
     sip_file: File,
     bag_path: pathlib.Path,
 ) -> None:
-    info = {"Bagging-Date": "2025-01-08", "Payload-Oxum": "0.2"}
     bag_class.return_value = mock.Mock(info=info)
     mets_path = sip_directory_path / f"METS.{sip.uuid}.xml"
 
