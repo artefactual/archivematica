@@ -16,7 +16,7 @@ on:
 jobs:
   test:
     name: "Test ${{ matrix.rule }} on ${{ matrix.python-version }}"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     strategy:
       fail-fast: false
       matrix:
@@ -103,7 +103,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   frontend:
     name: "Test frontend"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     defaults:
       run:
         working-directory: "./src/dashboard/frontend/"
@@ -131,7 +131,7 @@ jobs:
           npm run "test-single-run"
   linting:
     name: "Lint"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     steps:
       - name: "Check out repository"
         if: "${{ github.event_name != 'workflow_dispatch' }}"
