@@ -95,7 +95,7 @@ def data_migration(apps, schema_editor):
         id=ccss_drvtv_policy_check_stc_pk,
         execute="policyCheck_v0.0",
         arguments=(
-            '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"' ' "%sharedPath%" "access"'
+            '"%relativeLocation%" "%fileUUID%" "%SIPUUID%" "%sharedPath%" "access"'
         ),
     )
 
@@ -315,7 +315,7 @@ def data_migration(apps, schema_editor):
         id=rgnl_policy_check_stc_pk,
         execute="policyCheck_v0.0",
         arguments=(
-            '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"' ' "%sharedPath%" "original"'
+            '"%relativeLocation%" "%fileUUID%" "%SIPUUID%" "%sharedPath%" "original"'
         ),
         # filter_subdir='objects/'  <- not needed during transfer, I believe ...
     )

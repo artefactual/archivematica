@@ -408,7 +408,7 @@ def _start_package_transfer_with_auto_approval(
     """
     transfer_rel, filepath, path = _determine_transfer_paths(name, path, tmpdir)
     logger.debug(
-        "Package %s: determined vars" " transfer_rel=%s, filepath=%s, path=%s",
+        "Package %s: determined vars transfer_rel=%s, filepath=%s, path=%s",
         transfer.pk,
         transfer_rel,
         filepath,
@@ -416,7 +416,7 @@ def _start_package_transfer_with_auto_approval(
     )
 
     logger.debug(
-        "Package %s: copying chosen contents from transfer sources" " (from=%s, to=%s)",
+        "Package %s: copying chosen contents from transfer sources (from=%s, to=%s)",
         transfer.pk,
         path,
         transfer_rel,
@@ -450,7 +450,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     """
     transfer_rel, filepath, path = _determine_transfer_paths(name, path, tmpdir)
     logger.debug(
-        "Package %s: determined vars" " transfer_rel=%s, filepath=%s, path=%s",
+        "Package %s: determined vars transfer_rel=%s, filepath=%s, path=%s",
         transfer.pk,
         transfer_rel,
         filepath,
@@ -458,7 +458,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     )
 
     logger.debug(
-        "Package %s: copying chosen contents from transfer sources" " (from=%s, to=%s)",
+        "Package %s: copying chosen contents from transfer sources (from=%s, to=%s)",
         transfer.pk,
         path,
         transfer_rel,
@@ -466,7 +466,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     _copy_from_transfer_sources([path], transfer_rel)
 
     logger.debug(
-        "Package %s: moving package to activeTransfers dir (from=%s," " to=%s)",
+        "Package %s: moving package to activeTransfers dir (from=%s, to=%s)",
         transfer.pk,
         filepath,
         starting_point.watched_dir,
@@ -701,7 +701,7 @@ class Package(metaclass=abc.ABCMeta):
         if created:
             message = "New UnitVariable %s created for %s: %s (MSCL: %s)"
         else:
-            message = "Existing UnitVariable %s for %s updated to %s (MSCL" " %s)"
+            message = "Existing UnitVariable %s for %s updated to %s (MSCL %s)"
 
         logger.info(message, key, self.uuid, value, chain_link_id)
 

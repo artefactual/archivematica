@@ -53,7 +53,7 @@ def data_migration(apps, schema_editor):
     ###########################################################################
 
     assign_magic_link = namedtuple(
-        "AssignMagicLink", "mscl_pk tc_pk tcmagic_pk goto_mscl_pk " "new_uuid new_var"
+        "AssignMagicLink", "mscl_pk tc_pk tcmagic_pk goto_mscl_pk new_uuid new_var"
     )
     assign_magic_links = [
         # These two determine the path after the package is moved to quarantine.

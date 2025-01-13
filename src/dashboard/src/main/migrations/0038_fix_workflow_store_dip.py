@@ -152,9 +152,7 @@ def data_migration(apps, schema_editor):
     completed_tc.save()
     completed_stc = StandardTaskConfig.objects.get(id=completed_stc_uuid)
     completed_stc.arguments = (
-        '"%SIPDirectory%" '
-        '"%rejectedDirectory%" '
-        '"%watchDirectoryPath%uploadedDIPs/"'
+        '"%SIPDirectory%" "%rejectedDirectory%" "%watchDirectoryPath%uploadedDIPs/"'
     )
     completed_stc.execute = "handleUnstoredDIP_v0.0"
     completed_stc.save()
@@ -169,7 +167,7 @@ def data_migration(apps, schema_editor):
     move_uploaded_dips_stc_uuid = "302be9f9-af3f-45da-9305-02706d81b742"
     StandardTaskConfig.objects.filter(id=move_uploaded_dips_stc_uuid).update(
         execute="copy_v0.0",
-        arguments='"%SIPDirectory%" ' '"%watchDirectoryPath%uploadedDIPs/." ' "-R",
+        arguments='"%SIPDirectory%" "%watchDirectoryPath%uploadedDIPs/." -R',
     )
 
 

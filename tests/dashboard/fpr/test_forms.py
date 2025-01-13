@@ -36,7 +36,7 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.non_field_errors(),
-            ["An identical FP rule already exists." f" See rule {fprule.uuid}."],
+            [f"An identical FP rule already exists. See rule {fprule.uuid}."],
         )
 
     @staticmethod

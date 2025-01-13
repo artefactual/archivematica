@@ -57,7 +57,7 @@ class IDToolForm(forms.ModelForm):
             ).exists()
         ):
             raise forms.ValidationError(
-                _("An ID tool with this description and version already" " exists")
+                _("An ID tool with this description and version already exists")
             )
         return cleaned_data
 
@@ -137,9 +137,9 @@ class FPRuleForm(forms.ModelForm):
             # give its UUID so that the user can reasonably track it down.
             else:
                 ex_fpr_uuid = existing_fprule.uuid
-                msg = _(
-                    "An identical FP rule already exists. See rule" " %(uuid)s."
-                ) % {"uuid": ex_fpr_uuid}
+                msg = _("An identical FP rule already exists. See rule %(uuid)s.") % {
+                    "uuid": ex_fpr_uuid
+                }
                 if not existing_fprule.enabled:
                     replacers = fprmodels.FPRule.objects.filter(
                         replaces=existing_fprule.uuid

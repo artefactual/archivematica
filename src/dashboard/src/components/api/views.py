@@ -413,7 +413,7 @@ def _completed_units(unit_type="transfer"):
             completed.append(str(unit.uuid))
     if status_err:
         LOGGER.warning(
-            "Unable to determine status of at least one unit," " e.g.: unit %s (%s)",
+            "Unable to determine status of at least one unit, e.g.: unit %s (%s)",
             unit.uuid,
             model_name,
         )

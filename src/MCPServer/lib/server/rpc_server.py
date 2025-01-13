@@ -309,8 +309,7 @@ class RPCServer(GearmanWorker):
         ).first()
         if not job:  # No job to be found.
             raise NotFoundError(
-                'There is no "Reingest AIP" job awaiting a'
-                f" decision for SIP {sip_uuid}"
+                f'There is no "Reingest AIP" job awaiting a decision for SIP {sip_uuid}'
             )
         not_found = NotFoundError("Could not find choice for approve AIP reingest")
         try:
@@ -498,7 +497,7 @@ def start(workflow, shutdown_event, package_queue, executor):
             worker.work(poll_timeout=5.0)
         except gearman.errors.ServerUnavailable as inst:
             logger.error(
-                "Gearman server is unavailable: %s. Retrying in %d" " seconds.",
+                "Gearman server is unavailable: %s. Retrying in %d seconds.",
                 inst.args,
                 fail_sleep,
             )

@@ -139,7 +139,7 @@ def is_uuid(uuid_):
 
 def verify_event_details(event):
     assert (
-        'prohibited characters removed: program="change_names"; ' 'version="1.10.'
+        'prohibited characters removed: program="change_names"; version="1.10.'
     ) in event.event_detail
     assertQuerysetEqual(
         event.agents.all(),

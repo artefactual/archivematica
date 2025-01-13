@@ -73,7 +73,7 @@ def _create_file(
 def _index_transfer(job, transfer_id, transfer_path, size):
     """Index the transfer and its files in Elasticsearch."""
     if "transfers" not in mcpclient_settings.SEARCH_ENABLED:
-        logger.info("Skipping indexing:" " Transfers indexing is currently disabled.")
+        logger.info("Skipping indexing: Transfers indexing is currently disabled.")
         return
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()

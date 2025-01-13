@@ -202,9 +202,9 @@ class TestDataverseExample:
         except metsrw.MetsError:
             pytest.fail(f"Could not parse mets {mets_path}")
 
-        assert (
-            len(mets.all_files()) == fixture.all_file_count
-        ), f"File count incorrect: '{len(mets.all_files())}', expected '{fixture.all_file_count}'"
+        assert len(mets.all_files()) == fixture.all_file_count, (
+            f"File count incorrect: '{len(mets.all_files())}', expected '{fixture.all_file_count}'"
+        )
 
         dir_counter = 0
         item_counter = 0
@@ -214,12 +214,12 @@ class TestDataverseExample:
             if file_.type == "Item":
                 item_counter += 1
 
-        assert (
-            dir_counter == fixture.dir_count
-        ), f"Directory count incorrect: '{dir_counter}', expected: '{fixture.dir_count}'"
-        assert (
-            item_counter == fixture.item_count
-        ), f"Item count incorrect: '{item_counter}', expected: '{fixture.item_count}'"
+        assert dir_counter == fixture.dir_count, (
+            f"Directory count incorrect: '{dir_counter}', expected: '{fixture.dir_count}'"
+        )
+        assert item_counter == fixture.item_count, (
+            f"Item count incorrect: '{item_counter}', expected: '{fixture.item_count}'"
+        )
 
     @pytest.mark.parametrize(
         "fixture", [dv_1, dv_2, dv_3, dv_4, dv_5, dv_6, dv_7, dv_8]
@@ -254,9 +254,9 @@ class TestDataverseExample:
         # is expected.
         title = mets_root.findall(".//ddi:titl", namespace)
         assert len(title) == 1
-        assert (
-            title[0].text == fixture.ddi_title
-        ), f"DDI title: '{title[0].text}' is not what was expected: '{fixture.ddi_title}'"
+        assert title[0].text == fixture.ddi_title, (
+            f"DDI title: '{title[0].text}' is not what was expected: '{fixture.ddi_title}'"
+        )
 
         # Test that we have a single PID and that it matches what is expected.
         pid = mets_root.findall(".//ddi:IDNo", namespace)
@@ -264,21 +264,21 @@ class TestDataverseExample:
         # Agency is synonymous with Type in our use of the PID Agency value.
         # N.B. The agency providing the persistent identifier.
         pid_agency = pid[0].get("agency")
-        assert (
-            pid_agency == fixture.pid_type
-        ), f"PID type: '{pid_agency}' is not what was expected: '{fixture.pid_type}'"
-        assert (
-            pid[0].text == fixture.pid_value
-        ), f"PID value: '{pid[0].text}' is not what was expected: '{fixture.pid_value}"
+        assert pid_agency == fixture.pid_type, (
+            f"PID type: '{pid_agency}' is not what was expected: '{fixture.pid_type}'"
+        )
+        assert pid[0].text == fixture.pid_value, (
+            f"PID value: '{pid[0].text}' is not what was expected: '{fixture.pid_value}"
+        )
 
         # Title is used in three other locations in the METS. Make sure that
         # they are found as well.
         for map_ in mets_root.findall("{http://www.loc.gov/METS/}structMap"):
             for entry in map_:
                 if entry.get("Type") == "Directory" and entry.get("DMDID") is not None:
-                    assert (
-                        entry.get("LABEL") == fixture.ddi_title
-                    ), "Title not found in METS struct maps where expected"
+                    assert entry.get("LABEL") == fixture.ddi_title, (
+                        "Title not found in METS struct maps where expected"
+                    )
 
         # Test that the MDRef count is what is expected.
         refs = mets_root.findall(".//{http://www.loc.gov/METS/}mdRef")

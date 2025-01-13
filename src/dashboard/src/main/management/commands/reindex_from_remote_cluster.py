@@ -43,7 +43,7 @@ class Command(DashboardCommand):
             "--size",
             type=int,
             default=10,
-            help="Batch size, reduce it to limit request chunk size. " "Default: 10.",
+            help="Batch size, reduce it to limit request chunk size. Default: 10.",
         )
         parser.add_argument(
             "-t",

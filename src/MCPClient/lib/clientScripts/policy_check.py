@@ -114,8 +114,7 @@ class PolicyChecker:
         rules = self._get_rules()
         if not rules:
             self.job.pyprint(
-                "Not performing a policy check because there are no relevant"
-                " FPR rules"
+                "Not performing a policy check because there are no relevant FPR rules"
             )
             return NOT_APPLICABLE_CODE
         rule_outputs = []

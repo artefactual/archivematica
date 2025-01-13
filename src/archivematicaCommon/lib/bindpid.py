@@ -383,15 +383,14 @@ def _add_parser_args(parser):
         "desired_pid",
         type=str,
         action="store",
-        help="The PID that you want to create or whose resolve"
-        " URL you want to modify.",
+        help="The PID that you want to create or whose resolve URL you want to modify.",
         default=None,
     )
     parser.add_argument(
         "entity_type",
         type=str,
         action="store",
-        help="The type of entity---file or unit---that you want" " to create a PID for",
+        help="The type of entity---file or unit---that you want to create a PID for",
         choices=tuple(ENTITY_TYPES.keys()),
         default=None,
     )
@@ -401,9 +400,7 @@ def _add_parser_args(parser):
         type=str,
         action="store",
         dest="naming_authority",
-        help="A handle naming"
-        " authority that you can create PIDs under, e.g.,"
-        " 12345.",
+        help="A handle naming authority that you can create PIDs under, e.g., 12345.",
     )
     parser.add_argument(
         "-e",
@@ -453,7 +450,7 @@ def _add_parser_args(parser):
         type=str,
         action="store",
         dest="resolve_url_template_archive",
-        help="Template for the URL that a DIP's PURL should" " resolve to",
+        help="Template for the URL that a DIP's PURL should resolve to",
         default=None,
     )
     parser.add_argument(

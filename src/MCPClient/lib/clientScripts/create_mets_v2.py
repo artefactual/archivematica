@@ -1477,7 +1477,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
                     bag_tag = etree.SubElement(bag_metadata, key)
                 except ValueError:
                     job.pyprint(
-                        f"Skipping bag key {key}; not a valid" " XML tag name",
+                        f"Skipping bag key {key}; not a valid XML tag name",
                         file=sys.stderr,
                     )
                     continue

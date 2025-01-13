@@ -203,9 +203,9 @@ def test_reload_file_list(tmp_path):
             "transfer_id": transfer_uuid,
         }
         models.File.objects.create(**kwargs)
-    assert (
-        _file_count == 2
-    ), "Database and file objects were not returned by the generator"
+    assert _file_count == 2, (
+        "Database and file objects were not returned by the generator"
+    )
     assert models.File.objects.filter(transfer_id=str(transfer_uuid)).count() == 2
 
     # Simulate an additional file object being added later on in the transfer
@@ -229,9 +229,9 @@ def test_reload_file_list(tmp_path):
             "transfer_id": transfer_uuid,
         }
         models.File.objects.create(**kwargs)
-    assert (
-        _file_count == 3
-    ), "Database and file objects were not returned by the generator"
+    assert _file_count == 3, (
+        "Database and file objects were not returned by the generator"
+    )
     assert models.File.objects.filter(transfer_id=str(transfer_uuid)).count() == 3
 
     # Now the database is updated, we will still have the same file count, but

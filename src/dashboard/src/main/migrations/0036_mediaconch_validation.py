@@ -160,7 +160,7 @@ def data_migration(apps, schema_editor):
         id=vldt_ccss_drvtv_stc_pk,
         execute="validateFile_v1.0",
         arguments=(
-            '"%relativeLocation%" "%fileUUID%" "%SIPUUID%"' ' "%sharedPath%" "access"'
+            '"%relativeLocation%" "%fileUUID%" "%SIPUUID%" "%sharedPath%" "access"'
         ),
         filter_subdir="DIP/objects/",
     )

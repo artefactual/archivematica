@@ -36,8 +36,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--output-filename",
             "-o",
-            help='File to output the migration to. "stdout" outputs to '
-            "standard output",
+            help='File to output the migration to. "stdout" outputs to standard output',
             default="stdout",
         )
 

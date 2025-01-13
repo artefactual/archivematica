@@ -188,7 +188,7 @@ class AvalonValidator(BaseValidator):
                 q in row[c] for q in [".high.", ".medium.", ".low"]
             ):
                 raise ValidationError(
-                    "Filepath " + row[c] + " contains" " more than one period."
+                    "Filepath " + row[c] + " contains more than one period."
                 )
 
     @staticmethod

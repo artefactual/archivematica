@@ -393,7 +393,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
         is_restricted = file_json.get("restricted")
         if is_restricted is True and contact_information:
             logger.error(
-                "Restricted dataset files may not have transferred " "correctly: %s",
+                "Restricted dataset files may not have transferred correctly: %s",
                 contact_information,
             )
 
@@ -407,7 +407,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
                 sip.add_child(bundle)
             else:
                 logger.error(
-                    "Create Dataverse transfer METS failed. " "Bundle returned: %s",
+                    "Create Dataverse transfer METS failed. Bundle returned: %s",
                     bundle,
                 )
                 return None

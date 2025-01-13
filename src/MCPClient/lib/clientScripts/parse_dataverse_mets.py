@@ -75,7 +75,7 @@ def get_db_objects(job, mets, transfer_uuid):
                 continue
         except (File.DoesNotExist, ValidationError):
             logger.debug(
-                "Could not find file type: '%s' in the database: %s with " "path: %s",
+                "Could not find file type: '%s' in the database: %s with path: %s",
                 entry.type,
                 entry.path,
                 item_path,
@@ -252,7 +252,7 @@ def verify_checksum(
 
     checksumtype = checksumtype.lower()
     generated_checksum = get_file_checksum(path, checksumtype)
-    event_detail = 'program="python"; ' f'module="hashlib.{checksumtype}()"'
+    event_detail = f'program="python"; module="hashlib.{checksumtype}()"'
     if checksum != generated_checksum:
         job.pyprint("Checksum failed")
         event_outcome = "Fail"
@@ -299,7 +299,7 @@ def init_parse_dataverse_mets(job):
         transfer_dir = job.args[1]
         transfer_uuid = job.args[2]
         logger.info(
-            "Parse Dataverse METS with dir: '%s' and transfer " "uuid: %s",
+            "Parse Dataverse METS with dir: '%s' and transfer uuid: %s",
             transfer_dir,
             transfer_uuid,
         )

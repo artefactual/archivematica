@@ -73,7 +73,7 @@ class TestIngest(TestCase):
         response = self.client.get(url)
         assert response.status_code == 200
         title = "".join(
-            ["<h1>" "Normalization Event Detail<br />", "<small>test</small>", "</h1>"]
+            ["<h1>Normalization Event Detail<br />", "<small>test</small>", "</h1>"]
         )
         assert title in response.content.decode("utf8")
 

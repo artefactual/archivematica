@@ -127,9 +127,7 @@ def setup(hosts, timeout=DEFAULT_TIMEOUT, enabled=(AIPS_INDEX, TRANSFERS_INDEX))
     if len(indexes) > 0:
         create_indexes_if_needed(_es_client, indexes)
     else:
-        logger.warning(
-            "Setting up the Elasticsearch client " "without enabled indexes."
-        )
+        logger.warning("Setting up the Elasticsearch client without enabled indexes.")
 
 
 def setup_reading_from_conf(settings):
@@ -1206,7 +1204,7 @@ def search_all_results(client, body, index):
 
     if results["hits"]["total"] > MAX_QUERY_SIZE:
         logger.warning(
-            "Number of items in backlog (%s) exceeds maximum amount " "fetched (%s)",
+            "Number of items in backlog (%s) exceeds maximum amount fetched (%s)",
             results["hits"]["total"],
             MAX_QUERY_SIZE,
         )

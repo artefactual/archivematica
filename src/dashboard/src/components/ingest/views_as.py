@@ -25,7 +25,7 @@ def get_as_system_client():
     config = models.DashboardSetting.objects.get_dict("upload-archivesspace_v0.0")
 
     config_err = ArchivesSpaceError(
-        "ArchivesSpace has not been configured properly" " - base URL is missing"
+        "ArchivesSpace has not been configured properly - base URL is missing"
     )
     try:
         base_url = config["base_url"]

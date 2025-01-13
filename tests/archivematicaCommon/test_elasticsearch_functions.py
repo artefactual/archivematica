@@ -391,7 +391,7 @@ def test_index_mets_file_metadata(bulk, get_dashboard_uuid, es_client):
             "path": "objects/beihai.tif",
             "title": "Beihai, Guanxi, China, 1988",
             "creator": (
-                "NASA/GSFC/METI/ERSDAC/JAROS and U.S./Japan " "ASTER Science Team"
+                "NASA/GSFC/METI/ERSDAC/JAROS and U.S./Japan ASTER Science Team"
             ),
         },
         {

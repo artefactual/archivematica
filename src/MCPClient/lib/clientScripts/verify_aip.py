@@ -215,9 +215,7 @@ def verify_aip(job):
         except VerifyChecksumsError:
             return_code = 1
     else:
-        job.pyprint(
-            "Not verifying checksums because other tests have already" " failed."
-        )
+        job.pyprint("Not verifying checksums because other tests have already failed.")
 
     # cleanup
     if not is_uncompressed_aip:

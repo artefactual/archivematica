@@ -33,7 +33,7 @@ def parse_mediaconch_data(target):
         return Parse(etree_el=etree.fromstring(output), stdout=output)
     except etree.XMLSyntaxError:
         raise MediaConchException(
-            "MediaConch failed when attempting to parse the XML output by" " MediaConch"
+            "MediaConch failed when attempting to parse the XML output by MediaConch"
         )
 
 

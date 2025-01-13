@@ -53,7 +53,7 @@ def data_migration(apps, schema_editor):
         uuid=mediaconch_policy_check_command_uuid,
         tool=mediaconch_tool,
         description=(
-            "Check against policy PLACEHOLDER_FOR_POLICY_FILE_NAME" " using MediaConch"
+            "Check against policy PLACEHOLDER_FOR_POLICY_FILE_NAME using MediaConch"
         ),
         command=POLICY_CHECK_CMD,
         script_type="pythonScript",

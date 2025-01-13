@@ -145,7 +145,7 @@ class ClamdScanner(ScannerBase):
             return None
         elif isinstance(err, ConnectionError):
             logger.error(
-                "Clamd ConnectionError. File not scanned. Check Clamd " "output: %s",
+                "Clamd ConnectionError. File not scanned. Check Clamd output: %s",
                 err,
             )
             return None
@@ -274,7 +274,7 @@ def get_scanner():
     choice = str(mcpclient_settings.CLAMAV_CLIENT_BACKEND).lower()
     if choice not in SCANNERS_NAMES:
         logger.warning(
-            "Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND):" ' "%s"; using %s.',
+            'Unexpected antivirus scanner (CLAMAV_CLIENT_BACKEND): "%s"; using %s.',
             choice,
             DEFAULT_SCANNER.__name__,
         )

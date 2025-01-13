@@ -237,7 +237,7 @@ def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
     )
     assert f"<dd>{non_administrative_user.email}</dd>" in content
     assert (
-        f'<dd>{"yes" if non_administrative_user.is_superuser else "no"}</dd>' in content
+        f"<dd>{'yes' if non_administrative_user.is_superuser else 'no'}</dd>" in content
     )
     assert f"<code>{non_administrative_user_apikey.key}</code>" in content
 
@@ -273,7 +273,7 @@ def test_user_profile_view_regenerates_api_key_if_setting_disables_editing(
     )
     assert f"<dd>{non_administrative_user.email}</dd>" in content
     assert (
-        f'<dd>{"yes" if non_administrative_user.is_superuser else "no"}</dd>' in content
+        f"<dd>{'yes' if non_administrative_user.is_superuser else 'no'}</dd>" in content
     )
     assert f"<code>{expected_key}</code>" in content
 
@@ -301,6 +301,6 @@ def test_user_profile_view_does_not_regenerate_api_key_if_not_requested(
     )
     assert f"<dd>{non_administrative_user.email}</dd>" in content
     assert (
-        f'<dd>{"yes" if non_administrative_user.is_superuser else "no"}</dd>' in content
+        f"<dd>{'yes' if non_administrative_user.is_superuser else 'no'}</dd>" in content
     )
     assert f"<code>{non_administrative_user_apikey.key}</code>" in content
