@@ -138,13 +138,13 @@ lxml==5.3.0
     #   ammcpc
     #   metsrw
     #   python-cas
-metsrw==0.6.0
+metsrw==0.6.1
     # via -r requirements.txt
 mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via -r requirements-dev.in
 mozilla-django-oidc==4.0.1
     # via -r requirements.txt
-mysqlclient==2.2.6
+mysqlclient==2.2.7
     # via
     #   -r requirements.txt
     #   agentarchives
@@ -154,7 +154,7 @@ olefile==0.47
     #   opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
     # via -r requirements.txt
-orjson==3.10.13
+orjson==3.10.14
     # via -r requirements.txt
 packaging==24.2
     # via
@@ -197,7 +197,7 @@ pycparser==2.22
     #   cffi
 pyee==12.0.0
     # via playwright
-pyopenssl==24.3.0
+pyopenssl==25.0.0
     # via
     #   -r requirements.txt
     #   josepy
@@ -290,6 +290,7 @@ typing-extensions==4.12.2
     #   -r requirements.txt
     #   asgiref
     #   pyee
+    #   pyopenssl
     #   tox
 unidecode==1.3.8
     # via -r requirements.txt
@@ -322,7 +323,7 @@ zope-interface==7.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==24.3.1
     # via pip-tools
-setuptools==75.6.0
+setuptools==75.8.0
     # via
     #   -r requirements.txt
     #   pip-tools
