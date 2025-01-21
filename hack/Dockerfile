@@ -6,7 +6,7 @@ ARG PYTHON_VERSION=3.9
 ARG NODE_VERSION=20
 ARG PYENV_DIR=/pyenv
 ARG SELENIUM_DIR=/selenium
-ARG MEDIAAREA_VERSION=1.0-24
+ARG MEDIAAREA_VERSION=1.0-25
 
 # -----------------------------------------------------------------------------
 
