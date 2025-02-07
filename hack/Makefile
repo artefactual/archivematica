@@ -337,7 +337,7 @@ test-at-build:  ## AMAUAT: build image.
 
 test-at-check: test-at-build  ## AMAUAT: test browsers.
 	$(call compose_amauat, \
-		run --rm --no-deps archivematica-acceptance-tests /home/archivematica/acceptance-tests/simplebrowsertest.py)
+		run --rm --no-deps archivematica-acceptance-tests /home/artefactual/acceptance-tests/simplebrowsertest.py)
 
 define AT_HELP
 
