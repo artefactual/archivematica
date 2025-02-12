@@ -10,7 +10,7 @@ repos:
         src/(MCPClient/MCPServer|dashboard)/install/.*\.json
       )
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.9.1
+  rev: v0.9.6
   hooks:
   - id: ruff
     args: [--fix, --exit-non-zero-on-fix]
@@ -21,7 +21,7 @@ repos:
   - id: django-upgrade
     args: [--target-version, "4.2"]
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.43.0
+  rev: v0.44.0
   hooks:
   - id: markdownlint
     exclude: |
@@ -46,7 +46,7 @@ repos:
   hooks:
     - id: validate-cff
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.14.1
+  rev: v1.15.0
   hooks:
   - id: mypy
     additional_dependencies:
