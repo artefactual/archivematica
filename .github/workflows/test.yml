@@ -27,7 +27,7 @@ jobs:
           "archivematica-common",
         ]
         ubuntu-version: [
-          "22.04",
+          "24.04",
         ]
         python-version: [
           "3.9",
@@ -37,10 +37,10 @@ jobs:
         ]
         include:
           - rule: "storage-service"
-            ubuntu-version: "22.04"
+            ubuntu-version: "24.04"
             python-version: "3.9"
           - rule: "migrations"
-            ubuntu-version: "22.04"
+            ubuntu-version: "24.04"
             python-version: "3.9"
     steps:
       - name: "Check out repository"

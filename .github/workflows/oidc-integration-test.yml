@@ -27,7 +27,7 @@ jobs:
         env:
           USER_ID: ${{ steps.user_id.outputs.user_id }}
           GROUP_ID: ${{ steps.group_id.outputs.group_id }}
-          UBUNTU_VERSION: "22.04"
+          UBUNTU_VERSION: "24.04"
           PYTHON_VERSION: "3.9"
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1

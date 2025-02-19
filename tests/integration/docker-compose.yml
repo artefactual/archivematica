@@ -29,7 +29,7 @@ services:
         TARGET: "archivematica-dashboard-integration-tests"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        UBUNTU_VERSION: ${UBUNTU_VERSION:-22.04}
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
         PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     entrypoint: ""
     working_dir: "/src"

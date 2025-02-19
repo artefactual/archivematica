@@ -1,5 +1,5 @@
 ARG TARGET=archivematica-mcp-server
-ARG UBUNTU_VERSION=22.04
+ARG UBUNTU_VERSION=24.04
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG PYTHON_VERSION=3.9
@@ -16,6 +16,13 @@ ARG PYENV_DIR=/pyenv
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
+
+# Ubuntu 24.04 and later Docker images include a default user with UID (1000)
+# and GID (1000). Remove this user to prevent conflicts with the USER_ID and
+# GROUP_ID build arguments.
+RUN set -ex \
+	&& id -u ubuntu >/dev/null 2>&1 \
+	&& userdel --remove ubuntu || true
 
 RUN set -ex \
 	&& apt-get update \
