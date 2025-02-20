@@ -42,6 +42,59 @@ class QueryFilters(TypedDict):
                 "description": "Get event detail text for ffmpeg extraction",
             },
         ),
+        (
+            'ps2pdf"; program="Ghostscript',
+            r"^\d+\.\d+\.\d+",
+            {
+                "command_usage": "event_detail",
+                "description": "ps2pdf event detail",
+            },
+        ),
+        (
+            "Ghostscript",
+            r"^\d+\.\d+\.\d+",
+            {
+                "command_usage": "event_detail",
+                "description": "Ghostscript event detail",
+            },
+        ),
+        (
+            "inkscape",
+            r"^Inkscape",
+            {
+                "command_usage": "event_detail",
+                "description": "inkscape event detail",
+            },
+        ),
+        pytest.param(
+            "unrar-nonfree",
+            "^UNRAR",
+            {
+                "command_usage": "event_detail",
+                "description": "Get event detail text for unrar extraction",
+            },
+            marks=pytest.mark.skip(
+                reason="Skipping because unrar-nonfree is not installed by default in Archivematica"
+            ),
+        ),
+        (
+            "readpst",
+            r"^ReadPST / LibPST",
+            {
+                "command_usage": "event_detail",
+                "description": "readpst event detail",
+            },
+        ),
+    ],
+    ids=[
+        "7z",
+        "convert",
+        "ffmpeg",
+        "ps2pdf",
+        "Ghostscript",
+        "inkscape",
+        "unrar-nonfree",
+        "readpst",
     ],
 )
 def test_event_detail_command_returns_tool_version(
@@ -56,3 +109,17 @@ def test_event_detail_command_returns_tool_version(
     result = match.groupdict()
     assert result["program"] == expected_program
     assert re.search(expected_version_pattern, result["version"]) is not None
+
+
+@pytest.mark.django_db
+def test_mbox_event_detail_command_returns_tool_path() -> None:
+    expected_detail_pattern = r"^/usr/lib/archivematica/transcoder/transcoderScripts/ "
+    filters = {
+        "command_usage": "event_detail",
+        "description": "Transcoding maildir to mbox event detail",
+    }
+    command = FPCommand.active.get(**filters)
+
+    _, output, _ = executeOrRun(command.script_type, command.command)
+
+    assert re.search(expected_detail_pattern, output) is not None
