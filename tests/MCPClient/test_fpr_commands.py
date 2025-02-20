@@ -11,12 +11,17 @@ class QueryFilters(TypedDict):
     description: str
 
 
+class EventDetailResult(TypedDict):
+    programs: list[str]
+    version: str
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "expected_program,expected_version_pattern,filters",
+    "expected_programs,expected_version_pattern,filters",
     [
         (
-            "7z",
+            ["7z"],
             # The event detail command extracts different lines depending on the 7z version.
             # Older versions report the version on a line starting with "p7zip Version"
             # while more recent versions use a line starting with "7-Zip".
@@ -27,7 +32,7 @@ class QueryFilters(TypedDict):
             },
         ),
         (
-            "convert",
+            ["convert"],
             "^Version: ImageMagick",
             {
                 "command_usage": "event_detail",
@@ -35,7 +40,7 @@ class QueryFilters(TypedDict):
             },
         ),
         (
-            "ffmpeg",
+            ["ffmpeg"],
             r"^ffmpeg version",
             {
                 "command_usage": "event_detail",
@@ -43,7 +48,7 @@ class QueryFilters(TypedDict):
             },
         ),
         (
-            'ps2pdf"; program="Ghostscript',
+            ["ps2pdf", "Ghostscript"],
             r"^\d+\.\d+\.\d+",
             {
                 "command_usage": "event_detail",
@@ -51,7 +56,7 @@ class QueryFilters(TypedDict):
             },
         ),
         (
-            "Ghostscript",
+            ["Ghostscript"],
             r"^\d+\.\d+\.\d+",
             {
                 "command_usage": "event_detail",
@@ -59,7 +64,7 @@ class QueryFilters(TypedDict):
             },
         ),
         (
-            "inkscape",
+            ["inkscape"],
             r"^Inkscape",
             {
                 "command_usage": "event_detail",
@@ -67,7 +72,7 @@ class QueryFilters(TypedDict):
             },
         ),
         pytest.param(
-            "unrar-nonfree",
+            ["unrar-nonfree"],
             "^UNRAR",
             {
                 "command_usage": "event_detail",
@@ -78,7 +83,7 @@ class QueryFilters(TypedDict):
             ),
         ),
         (
-            "readpst",
+            ["readpst"],
             r"^ReadPST / LibPST",
             {
                 "command_usage": "event_detail",
@@ -98,16 +103,25 @@ class QueryFilters(TypedDict):
     ],
 )
 def test_event_detail_command_returns_tool_version(
-    expected_program: str, expected_version_pattern: str, filters: QueryFilters
+    expected_programs: list[str], expected_version_pattern: str, filters: QueryFilters
 ) -> None:
     command = FPCommand.active.get(**filters)
 
     _, output, _ = executeOrRun(command.script_type, command.command)
 
-    match = re.search(r'program="(?P<program>.*?)"; version="(?P<version>.*?)"', output)
-    assert match is not None
-    result = match.groupdict()
-    assert result["program"] == expected_program
+    result: EventDetailResult = {"programs": [], "version": ""}
+
+    for match in re.finditer(
+        r'program="(?P<program>.*?)";|version="(?P<version>.*?)"', output
+    ):
+        program = match.group("program")
+        version = match.group("version")
+        if program is not None:
+            result["programs"].append(program)
+        if version is not None:
+            result["version"] = version
+
+    assert result["programs"] == expected_programs
     assert re.search(expected_version_pattern, result["version"]) is not None
 
 
