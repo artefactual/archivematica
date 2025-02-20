@@ -44,3 +44,22 @@ def test_convert_event_detail_command_returns_convert_version() -> None:
     result = match.groupdict()
     assert result["program"] == expected_program
     assert re.search(expected_version_pattern, result["version"]) is not None
+
+
+@pytest.mark.django_db
+def test_ffmpeg_extraction_event_detail_command_returns_ffmpeg_version() -> None:
+    expected_program = "ffmpeg"
+    expected_version_pattern = r"^ffmpeg version"
+    filters = {
+        "command_usage": "event_detail",
+        "description": "Get event detail text for ffmpeg extraction",
+    }
+    command = FPCommand.active.get(**filters)
+
+    _, output, _ = executeOrRun(command.script_type, command.command)
+
+    match = re.search(r'program="(?P<program>.*?)"; version="(?P<version>.*?)"', output)
+    assert match is not None
+    result = match.groupdict()
+    assert result["program"] == expected_program
+    assert re.search(expected_version_pattern, result["version"]) is not None
