@@ -7,7 +7,6 @@ norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
 omit = [
     "**/src/archivematicaCommon/lib/externals/*",
     "**/migrations/*",
-    "**/south_migrations/*",
     "**/management/commands/*",
     "**/settings/*",
     "**/tests/*",
