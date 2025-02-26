@@ -18,7 +18,7 @@ include = [
     "**/src/dashboard/*",
     "**/src/MCPClient/*",
     "**/src/MCPClient/clientScripts/*",
-    "**/src/MCPServer/lib/*",
+    "**/src/MCPServer/*",
 ]
 branch = true
 
@@ -131,8 +131,7 @@ legacy_tox_ini = """
         DASHBOARD_DIR = {env:SRC_DIR}/dashboard
         DASHBOARD_PYTHONPATH = {env:DASHBOARD_DIR}:{env:ARCHIVEMATICA_COMMON_DIR}
         # MCP Server
-        MCPSERVER_ROOT = {env:SRC_DIR}/MCPServer
-        MCPSERVER_DIR = {env:MCPSERVER_ROOT}/lib
+        MCPSERVER_DIR = {env:SRC_DIR}/MCPServer
         MCPSERVER_PYTHONPATH = {env:MCPSERVER_DIR}:{env:ARCHIVEMATICA_COMMON_DIR}:{env:DASHBOARD_DIR}
         # MCP Client
         MCPCLIENT_DIR = {env:SRC_DIR}/MCPClient
