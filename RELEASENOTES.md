@@ -762,7 +762,7 @@ which should no longer be relevant since resolving [Issue
 1446](https://github.com/archivematica/Issues/issues/1446)- active
 transfers or SIPs can no longer be hidden. However as a precaution, we
 have made that command available within Archivematica
-(<https://github.com/artefactual/archivematica/blob/qa/1.x/src/dashboard/src/main/management/commands/resolve_pending_jobs.py>).
+(<https://github.com/artefactual/archivematica/blob/stable/1.13.x/src/dashboard/src/main/management/commands/resolve_pending_jobs.py>).
 
 #### DIP storage locations now allowed in S3 spaces
 
