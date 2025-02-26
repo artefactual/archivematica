@@ -5,7 +5,7 @@ This directory contains the Archivematica MCP client, frequently referred to as
 `MCPServer`. These tasks are dispatched via Gearman.
 
 The programs responsible for performing the Gearman jobs are contained in the
-`lib/clientScripts/` directory. Each program is a Python module that
+`clientScripts/` directory. Each program is a Python module that
 implements the following function:
 
     def call(jobs)

@@ -753,7 +753,7 @@ class TestCustomStructMap(TestCase):
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
     mets_xsd_path = os.path.abspath(
-        os.path.join(THIS_DIR, "../../src/MCPClient/lib/assets/mets/mets.xsd")
+        os.path.join(THIS_DIR, "../../src/MCPClient/assets/mets/mets.xsd")
     )
 
     @pytest.fixture(autouse=True)

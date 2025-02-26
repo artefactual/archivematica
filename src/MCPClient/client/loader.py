@@ -7,7 +7,7 @@ from typing import Optional
 
 def get_supported_modules(modules_file_path: str) -> dict[str, str]:
     """Create and return the ``supported_modules`` dict by parsing the MCPClient
-    modules config file (typically MCPClient/lib/archivematicaClientModules).
+    modules config file (typically MCPClient/archivematicaClientModules).
     """
     supported_modules = {}
     supported_modules_config = RawConfigParser()

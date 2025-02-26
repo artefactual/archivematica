@@ -17,7 +17,7 @@ THIS_DIR = pathlib.Path(__file__).parent
 @pytest.fixture()
 def xsd_path():
     return os.path.abspath(
-        os.path.join(THIS_DIR, "../../src/MCPClient/lib/assets/premis/premis.xsd")
+        os.path.join(THIS_DIR, "../../src/MCPClient/assets/premis/premis.xsd")
     )
 
 
