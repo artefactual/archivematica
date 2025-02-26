@@ -16,3 +16,4 @@ src/dashboard/media/js/build
 **/*.log
 **/node_modules
 **/Thumbs.db
+**/*.egg-info

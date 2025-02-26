@@ -1,3 +1,35 @@
+[build-system]
+requires = ["setuptools>=74", "wheel>=0.44"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name="archivematica"
+description="Web- and standards-based, open-source application which allows your institution to preserve long-term access to trustworthy, authentic and reliable digital content."
+requires-python = ">=3.9"
+authors = [
+  {name = "Artefactual Systems Inc.", email = "info@artefactual.com"},
+]
+maintainers = [
+  {name = "Artefactual Systems Inc.", email = "info@artefactual.com"},
+]
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+dynamic = [
+  "version",
+]
+
+[project.urls]
+homepage = "https://www.archivematica.org/"
+documentation = "https://www.archivematica.org/en/docs/archivematica-latest/"
+repository = "https://github.com/artefacutal/archivematica"
+issues = "https://github.com/archivematica/Issues/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "archivematicaCommon.version.get_full_version"}
+
 [tool.pytest.ini_options]
 addopts = "--reuse-db -p no:cacheprovider"
 DJANGO_SETTINGS_MODULE="settings.test"

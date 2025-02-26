@@ -25,3 +25,6 @@
 # frontend builds
 src/dashboard/static/
 src/dashboard/media/js/build
+
+# setuptools build
+**/*.egg-info
