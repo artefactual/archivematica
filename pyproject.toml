@@ -132,7 +132,6 @@ warn_unused_ignores = true
 [tool.tox]
 legacy_tox_ini = """
     [tox]
-    skipsdist = True
     envlist =
         archivematica-common
         dashboard
@@ -144,7 +143,7 @@ legacy_tox_ini = """
         linting
 
     [testenv]
-    skip_install = True
+    package = editable
     deps = -r{toxinidir}/requirements-dev.txt
     commands = py.test {posargs}
     allowlist_externals =
