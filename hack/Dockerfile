@@ -7,6 +7,7 @@ ARG NODE_VERSION=20
 ARG PYENV_DIR=/pyenv
 ARG SELENIUM_DIR=/selenium
 ARG MEDIAAREA_VERSION=1.0-25
+ARG JHOVE_VERSION=1.26.1-1~22.04
 
 # -----------------------------------------------------------------------------
 
@@ -162,6 +163,7 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG PYENV_DIR=/pyenv
 ARG MEDIAAREA_VERSION
+ARG JHOVE_VERSION
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
@@ -184,7 +186,7 @@ RUN set -ex \
 		hashdeep \
 		imagemagick \
 		inkscape \
-		jhove \
+		jhove=${JHOVE_VERSION} \
 		libffi-dev \
 		libimage-exiftool-perl \
 		libldap2-dev \
