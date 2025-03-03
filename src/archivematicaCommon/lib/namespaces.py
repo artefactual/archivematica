@@ -9,6 +9,7 @@ premisNS = "http://www.loc.gov/premis/v3"
 premisNS_V2 = "info:lc/xmlns/premis-v2"
 xlinkNS = "http://www.w3.org/1999/xlink"
 xsiNS = "http://www.w3.org/2001/XMLSchema-instance"
+jhoveNS = "http://schema.openpreservation.org/ois/xml/ns/jhove"
 
 dcBNS = "{" + dcNS + "}"
 dctermsBNS = "{" + dctermsNS + "}"
@@ -19,6 +20,7 @@ premisBNS = "{" + premisNS + "}"
 premisBNS_V2 = "{" + premisNS_V2 + "}"
 xlinkBNS = "{" + xlinkNS + "}"
 xsiBNS = "{" + xsiNS + "}"
+jhoveBNS = "{" + jhoveNS + "}"
 
 NSMAP = {
     "dc": dcNS,
@@ -29,6 +31,7 @@ NSMAP = {
     "premis": premisNS,
     "xlink": xlinkNS,
     "xsi": xsiNS,
+    "jhove": jhoveNS,
 }
 
 
