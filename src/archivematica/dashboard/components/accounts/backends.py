@@ -1,6 +1,8 @@
 import json
+from typing import Any
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
@@ -44,6 +46,18 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
     Provide OpenID Connect authentication
     """
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Store additional settings as instance attributes.
+        self.OIDC_OP_SET_ROLES_FROM_CLAIMS = getattr(
+            settings, "OIDC_OP_SET_ROLES_FROM_CLAIMS", False
+        )
+        self.OIDC_OP_ROLE_CLAIM_PATH = getattr(
+            settings, "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
+        )
+
+        self.USER_ROLE_ADMIN = getattr(settings, "USER_ROLE_ADMIN", "admin")
+
     def get_settings(self, attr, *args):
         if attr in [
             "OIDC_RP_CLIENT_ID",
@@ -53,6 +67,8 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             "OIDC_OP_USER_ENDPOINT",
             "OIDC_OP_JWKS_ENDPOINT",
             "OIDC_OP_LOGOUT_ENDPOINT",
+            "OIDC_OP_SET_ROLES_FROM_CLAIMS",
+            "OIDC_OP_ROLE_CLAIM_PATH",
         ]:
             # Retrieve the request object stored in the instance.
             request = getattr(self, "request", None)
@@ -74,13 +90,17 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         # not in the list, call the superclass's get_settings method.
         return OIDCAuthenticationBackend.get_settings(attr, *args)
 
-    def authenticate(self, request, **kwargs):
+    def authenticate(self, request, **kwargs) -> Any:
         self.request = request
         self.OIDC_RP_CLIENT_ID = self.get_settings("OIDC_RP_CLIENT_ID")
         self.OIDC_RP_CLIENT_SECRET = self.get_settings("OIDC_RP_CLIENT_SECRET")
         self.OIDC_OP_TOKEN_ENDPOINT = self.get_settings("OIDC_OP_TOKEN_ENDPOINT")
         self.OIDC_OP_USER_ENDPOINT = self.get_settings("OIDC_OP_USER_ENDPOINT")
         self.OIDC_OP_JWKS_ENDPOINT = self.get_settings("OIDC_OP_JWKS_ENDPOINT")
+        self.OIDC_OP_SET_ROLES_FROM_CLAIMS = self.get_settings(
+            "OIDC_OP_SET_ROLES_FROM_CLAIMS"
+        )
+        self.OIDC_OP_ROLE_CLAIM_PATH = self.get_settings("OIDC_OP_ROLE_CLAIM_PATH")
 
         return super().authenticate(request, **kwargs)
 
@@ -110,10 +130,46 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
 
         return info
 
-    def create_user(self, user_info):
+    def create_user(self, user_info: dict[str, Any]) -> User:
         user = super().create_user(user_info)
         for attr, value in user_info.items():
             setattr(user, attr, value)
         user.save()
+        self.set_user_role(user, user_info)
         generate_api_key(user)
         return user
+
+    def update_user(self, user: User, user_info: dict[str, Any]) -> User:
+        """Updates the user's role only if the setting allows roles to be set from OIDC claims."""
+        if self.OIDC_OP_SET_ROLES_FROM_CLAIMS:
+            self.set_user_role(user, user_info)
+        return user
+
+    def set_user_role(self, user: User, user_info: dict[str, Any]) -> None:
+        """
+        Assigns the user's role based on OIDC token claims if enabled in settings.
+        Otherwise, assigns the default role.
+        """
+        if self.OIDC_OP_SET_ROLES_FROM_CLAIMS:
+            # Get the role claim path from settings (e.g. "realm_access.roles").
+            claim_path = self.OIDC_OP_ROLE_CLAIM_PATH.split(".")  # Convert to a list
+
+            role = user_info
+            for key in claim_path:
+                if isinstance(role, dict):
+                    role = role.get(key, {})
+                else:
+                    role = {}
+                    break
+
+            # If role is a list, pick the first one.
+            if isinstance(role, list) and role:
+                role = role[0]
+
+            is_superuser = False
+            if role and role in self.USER_ROLE_ADMIN:
+                is_superuser = True
+
+            if user.is_superuser != is_superuser:
+                user.is_superuser = is_superuser
+                user.save()

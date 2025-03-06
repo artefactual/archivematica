@@ -30,6 +30,7 @@ import re
 from collections.abc import Iterable
 from itertools import zip_longest
 from pathlib import Path
+from typing import Union
 from uuid import uuid4
 
 from amclient import AMClient
@@ -530,7 +531,7 @@ def chunk_iterable(iterable, chunk_size=10, fillvalue=None):
 
 def get_oidc_secondary_providers(
     oidc_secondary_provider_names: Iterable[str],
-) -> dict[str, dict[str, str]]:
+) -> dict[str, dict[str, Union[str, bool]]]:
     """Build secondary OIDC provider details dict. Takes a list of secondary
     OIDC providers and gathers details about these providers from env vars.
     Output dict contains details for each OIDC connection which can then be
@@ -550,6 +551,12 @@ def get_oidc_secondary_providers(
         user_endpoint = os.environ.get(f"OIDC_OP_USER_ENDPOINT_{provider_name}", "")
         jwks_endpoint = os.environ.get(f"OIDC_OP_JWKS_ENDPOINT_{provider_name}", "")
         logout_endpoint = os.environ.get(f"OIDC_OP_LOGOUT_ENDPOINT_{provider_name}", "")
+        set_roles_from_claims = os.environ.get(
+            f"OIDC_OP_SET_ROLES_FROM_CLAIMS_{provider_name}", False
+        )
+        role_claim_path = os.environ.get(
+            f"OIDC_OP_ROLE_CLAIM_PATH_{provider_name}", "realm_access.roles"
+        )
 
         if client_id and client_secret:
             providers[provider_name] = {
@@ -560,6 +567,8 @@ def get_oidc_secondary_providers(
                 "OIDC_OP_USER_ENDPOINT": user_endpoint,
                 "OIDC_OP_JWKS_ENDPOINT": jwks_endpoint,
                 "OIDC_OP_LOGOUT_ENDPOINT": logout_endpoint,
+                "OIDC_OP_SET_ROLES_FROM_CLAIMS": set_roles_from_claims,
+                "OIDC_OP_ROLE_CLAIM_PATH": role_claim_path,
             }
 
     return providers
