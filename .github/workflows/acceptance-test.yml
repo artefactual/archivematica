@@ -35,7 +35,7 @@ jobs:
           - "Chrome"
         exclude:
           - tag: "black-box"
-            browser: Firefox
+            browser: "Chrome"
     steps:
       - name: "Check out repository"
         if: "${{ github.event_name != 'workflow_dispatch' }}"
