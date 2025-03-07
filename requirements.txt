@@ -28,11 +28,11 @@ charset-normalizer==3.4.1
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-cryptography==44.0.1
+cryptography==44.0.2
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.19
+django==4.2.20
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -53,7 +53,7 @@ django-prometheus==2.3.1
     # via -r requirements.in
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via -r requirements.in
-django-tastypie==0.15.0
+django-tastypie==0.15.1
     # via -r requirements.in
 elasticsearch==6.8.2
     # via -r requirements.in
@@ -137,7 +137,7 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.22.3
+rpds-py==0.23.1
     # via
     #   jsonschema
     #   referencing
@@ -171,7 +171,7 @@ zope-interface==7.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==75.8.0
+setuptools==75.8.2
     # via
     #   zope-event
     #   zope-interface
