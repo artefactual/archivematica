@@ -223,6 +223,15 @@ NEW_JHOVE_COMMAND_CHANGES = [
 
 def data_migration_up(apps, schema_editor):
     """Update commands and rules."""
+    FPCommand = apps.get_model("fpr", "FPCommand")
+
+    # Get the old command
+    old_command = FPCommand.objects.get(uuid=OLD_JHOVE_CMD_ID)
+
+    # Disable the old command
+    old_command.enabled = False
+    old_command.save()
+
     for d in NEW_JHOVE_COMMAND_CHANGES:
         _upgrade_jhove_validation_command(
             apps,
@@ -240,9 +249,6 @@ def _upgrade_jhove_validation_command(
     FPCommand = apps.get_model("fpr", "FPCommand")
     FPRule = apps.get_model("fpr", "FPRule")
 
-    # Get the old command
-    old_command = FPCommand.objects.get(uuid=old_cmd_uuid)
-
     # Add new command with the following
     FPCommand.objects.create(
         uuid=new_cmd_uuid,
@@ -258,18 +264,21 @@ def _upgrade_jhove_validation_command(
         command_id=new_cmd_uuid,
     )
 
-    # Disable the old command
-    old_command.enabled = False
-    old_command.save()
-
 
 def data_migration_down(apps, schema_editor):
+    FPCommand = apps.get_model("fpr", "FPCommand")
+
+    # Enable the old command
+    old_command = FPCommand.objects.get(uuid=OLD_JHOVE_CMD_ID)
+    old_command.enabled = True
+    old_command.save()
+
     for d in NEW_JHOVE_COMMAND_CHANGES:
         _downgrade_jhove_validation_command(
             apps,
             d["NEW_JHOVE_CMD_ID"],
             OLD_JHOVE_CMD_ID,
-            JHOVE_VALIDATION_RULES,
+            d["JHOVE_VALIDATION_RULES"],
         )
 
 
@@ -282,17 +291,10 @@ def _downgrade_jhove_validation_command(apps, new_cmd_uuid, old_cmd_uuid, rule_u
         command_id=old_cmd_uuid,
     )
 
-    # Enable the old command. At this point we do not know if the
-    # command was in fact enabled before the migration was run, so
-    # this may have unexpected consequences
-    old_command = FPCommand.objects.get(uuid=old_cmd_uuid)
-    old_command.enabled = True
-    old_command.save()
-
     # Delete the new command
     FPCommand.objects.filter(uuid=new_cmd_uuid).delete()
 
 
 class Migration(migrations.Migration):
     dependencies = [("fpr", "0045_update_event_detail_commands")]
-    operations = [migrations.RunPython(data_migration_up)]
+    operations = [migrations.RunPython(data_migration_up, data_migration_down)]

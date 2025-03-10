@@ -571,7 +571,7 @@ import subprocess
 import sys
 
 from lxml import etree
-from namespaces import NSMAP
+from namespaces import jhoveBNS
 
 class JhoveException(Exception):
     pass
@@ -586,7 +586,7 @@ def parse_jhove_data(target):
     return etree.fromstring(output.encode("utf8"))
 
 def get_status(doc):
-    status = doc.find(".{" + NSMAP["jhove"] + "}repInfo/{" + NSMAP["jhove"] + "}status")
+    status = doc.find(f".{jhoveBNS}repInfo/{jhoveBNS}status")
     if status is None:
         raise JhoveException("Unable to find status!")
 
@@ -609,8 +609,8 @@ def get_outcome(status, format=None):
         return "fail"
 
 def get_format(doc):
-    format = doc.find(".{" + NSMAP["jhove"] + "}repInfo/{" + NSMAP["jhove"] + "}format")
-    version = doc.find(".{" + NSMAP["jhove"] + "}repInfo/{" + NSMAP["jhove"] + "}version")
+    format = doc.find(f".{jhoveBNS}repInfo/{jhoveBNS}format")
+    version = doc.find(f".{jhoveBNS}repInfo/{jhoveBNS}version")
 
     if format is None:
         format = "Not detected"

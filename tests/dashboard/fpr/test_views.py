@@ -103,12 +103,11 @@ def test_fpcommand_delete(dashboard_uuid: None, admin_client: Client) -> None:
 
 @pytest.mark.django_db
 def test_fpcommand_revisions(dashboard_uuid: None, admin_client: Client) -> None:
-    fpcommand_id = "cb335c49-e6ce-445f-a774-494a6f2300c6"
+    fpcommand_id = "fd8edea2-e251-4fa7-9592-f033d965696c"
     url = reverse("fpr:revision_list", args=["fpcommand", fpcommand_id])
     fpcommand = models.FPCommand.active.get(uuid=fpcommand_id)
 
     resp = admin_client.get(url, follow=True)
-
     # Assert that the revision list shows multiple instances.
     content = resp.content.decode()
     assert str(fpcommand.uuid) in content
