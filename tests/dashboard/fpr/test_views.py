@@ -108,6 +108,7 @@ def test_fpcommand_revisions(dashboard_uuid: None, admin_client: Client) -> None
     fpcommand = models.FPCommand.active.get(uuid=fpcommand_id)
 
     resp = admin_client.get(url, follow=True)
+
     # Assert that the revision list shows multiple instances.
     content = resp.content.decode()
     assert str(fpcommand.uuid) in content
