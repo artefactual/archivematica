@@ -7,7 +7,7 @@ ARG NODE_VERSION=20
 ARG PYENV_DIR=/pyenv
 ARG SELENIUM_DIR=/selenium
 ARG MEDIAAREA_VERSION=1.0-25
-ARG JHOVE_VERSION=1.26.1-1~22.04
+ARG JHOVE_VERSION=1.32.1-1~22.04
 
 # -----------------------------------------------------------------------------
 
