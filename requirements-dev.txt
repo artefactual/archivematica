@@ -14,7 +14,7 @@ asgiref==3.8.1
     # via
     #   -r /src/requirements.txt
     #   django
-attrs==25.1.0
+attrs==25.3.0
     # via
     #   -r /src/requirements.txt
     #   jsonschema
@@ -85,7 +85,7 @@ elasticsearch==6.8.2
     # via -r /src/requirements.txt
 exceptiongroup==1.2.2
     # via pytest
-filelock==3.17.0
+filelock==3.18.0
     # via
     #   tox
     #   virtualenv
@@ -150,7 +150,7 @@ olefile==0.47
     # via
     #   -r /src/requirements.txt
     #   opf-fido
-opf-fido @ git+https://github.com/artefactual-labs/fido.git@564ceb8018a8650fe931cf20e6780ee008e60fca
+opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via -r /src/requirements.txt
 orjson==3.10.15
     # via -r /src/requirements.txt
@@ -277,7 +277,7 @@ tomli==2.2.1
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.24.1
+tox==4.24.2
     # via -r requirements-dev.in
 typing-extensions==4.12.2
     # via
@@ -317,7 +317,7 @@ zope-interface==7.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==25.0.1
     # via pip-tools
-setuptools==75.8.2
+setuptools==76.0.0
     # via
     #   -r /src/requirements.txt
     #   pip-tools
