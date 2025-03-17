@@ -6,13 +6,14 @@ import uuid
 from unittest import mock
 
 import pytest
-from server.jobs import DecisionJob
-from server.jobs import Job
-from server.packages import DIP
-from server.packages import SIP
-from server.packages import Transfer
-from server.queues import PackageQueue
-from server.workflow import Link
+
+from archivematica.MCPServer.server.jobs import DecisionJob
+from archivematica.MCPServer.server.jobs import Job
+from archivematica.MCPServer.server.packages import DIP
+from archivematica.MCPServer.server.packages import SIP
+from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.workflow import Link
 
 
 def _process_one_job(queue):

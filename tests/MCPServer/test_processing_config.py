@@ -3,17 +3,24 @@ import pathlib
 from unittest import mock
 
 import pytest
-from server.processing_config import ChainChoicesField
-from server.processing_config import ReplaceDictField
-from server.processing_config import SharedChainChoicesField
-from server.processing_config import StorageLocationField
-from server.processing_config import get_processing_fields
-from server.processing_config import processing_configuration_file_exists
-from server.processing_config import processing_fields
-from server.workflow import load
+
+from archivematica.MCPServer.server.processing_config import ChainChoicesField
+from archivematica.MCPServer.server.processing_config import ReplaceDictField
+from archivematica.MCPServer.server.processing_config import SharedChainChoicesField
+from archivematica.MCPServer.server.processing_config import StorageLocationField
+from archivematica.MCPServer.server.processing_config import get_processing_fields
+from archivematica.MCPServer.server.processing_config import (
+    processing_configuration_file_exists,
+)
+from archivematica.MCPServer.server.processing_config import processing_fields
+from archivematica.MCPServer.server.workflow import load
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
+    pathlib.Path(__file__).parent.parent.parent
+    / "src"
+    / "archivematica"
+    / "MCPServer"
+    / "assets"
 )
 
 
@@ -24,7 +31,9 @@ def _workflow():
         return load(fp)
 
 
-@mock.patch("storageService.get_location", return_value=[])
+@mock.patch(
+    "archivematica.archivematicaCommon.storageService.get_location", return_value=[]
+)
 def test_get_processing_fields(_workflow):
     fields = get_processing_fields(_workflow)
 
@@ -32,7 +41,7 @@ def test_get_processing_fields(_workflow):
 
 
 @mock.patch(
-    "server.processing_config.processing_fields",
+    "archivematica.MCPServer.server.processing_config.processing_fields",
     new=[
         StorageLocationField(
             link_id="b320ce81-9982-408a-9502-097d0daa48fa",
@@ -46,7 +55,7 @@ def test_get_processing_fields(_workflow):
         ),
     ],
 )
-@mock.patch("storageService.get_location")
+@mock.patch("archivematica.archivematicaCommon.storageService.get_location")
 def test_storage_location_field(get_location, _workflow):
     def mocked_get_location(purpose):
         return [
@@ -122,7 +131,7 @@ def test_storage_location_field(get_location, _workflow):
 
 
 @mock.patch(
-    "server.processing_config.processing_fields",
+    "archivematica.MCPServer.server.processing_config.processing_fields",
     new=[
         ReplaceDictField(
             link_id="f09847c2-ee51-429a-9478-a860477f6b8d",
@@ -197,7 +206,7 @@ def test_replace_dict_field(_workflow):
 
 
 @mock.patch(
-    "server.processing_config.processing_fields",
+    "archivematica.MCPServer.server.processing_config.processing_fields",
     new=[
         ChainChoicesField(
             link_id="eeb23509-57e2-4529-8857-9d62525db048", name="reminder"
@@ -317,7 +326,7 @@ def test_chain_choices_field(_workflow):
 
 
 @mock.patch(
-    "server.processing_config.processing_fields",
+    "archivematica.MCPServer.server.processing_config.processing_fields",
     new=[
         SharedChainChoicesField(
             link_id="856d2d65-cd25-49fa-8da9-cabb78292894",
@@ -414,7 +423,7 @@ def test_processing_configuration_file_exists_with_existent_file(isfile):
     assert processing_configuration_file_exists("defaultProcessingMCP.xml")
 
 
-@mock.patch("server.processing_config.logger")
+@mock.patch("archivematica.MCPServer.server.processing_config.logger")
 @mock.patch("os.path.isfile", return_value=False)
 def test_processing_configuration_file_exists_with_nonexistent_file(isfile, logger):
     assert not processing_configuration_file_exists("bogus.xml")

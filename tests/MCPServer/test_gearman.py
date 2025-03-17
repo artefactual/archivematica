@@ -4,9 +4,10 @@ from unittest import mock
 
 import gearman
 import pytest
-from server.jobs import Job
-from server.tasks import GearmanTaskBackend
-from server.tasks import Task
+
+from archivematica.MCPServer.server.jobs import Job
+from archivematica.MCPServer.server.tasks import GearmanTaskBackend
+from archivematica.MCPServer.server.tasks import Task
 
 
 class MockJob(Job):
@@ -58,9 +59,15 @@ def format_gearman_response(task_results):
     return response
 
 
-@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
-@mock.patch("server.tasks.GearmanTaskBackend.TASK_BATCH_SIZE", 1)
-@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.MCPGearmanClient"
+)
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.GearmanTaskBackend.TASK_BATCH_SIZE", 1
+)
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.Task.bulk_log"
+)
 def test_gearman_task_submission(bulk_log, mock_client, simple_job, simple_task):
     backend = GearmanTaskBackend()
     backend.submit_task(simple_job, simple_task)
@@ -80,8 +87,12 @@ def test_gearman_task_submission(bulk_log, mock_client, simple_job, simple_task)
     assert submit_job_kwargs["max_retries"] == GearmanTaskBackend.MAX_RETRIES
 
 
-@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
-@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.MCPGearmanClient"
+)
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.Task.bulk_log"
+)
 def test_gearman_task_result_success(bulk_log, mock_client, simple_job, simple_task):
     backend = GearmanTaskBackend()
 
@@ -127,8 +138,12 @@ def test_gearman_task_result_success(bulk_log, mock_client, simple_job, simple_t
     assert task_result.done is True
 
 
-@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
-@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.MCPGearmanClient"
+)
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.Task.bulk_log"
+)
 def test_gearman_task_result_error(bulk_log, mock_client, simple_job, simple_task):
     backend = GearmanTaskBackend()
 
@@ -164,9 +179,13 @@ def test_gearman_task_result_error(bulk_log, mock_client, simple_job, simple_tas
 @pytest.mark.parametrize(
     "reverse_result_order", (False, True), ids=["regular", "reversed"]
 )
-@mock.patch("server.tasks.backends.gearman_backend.MCPGearmanClient")
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.MCPGearmanClient"
+)
 @mock.patch.object(GearmanTaskBackend, "TASK_BATCH_SIZE", 2)
-@mock.patch("server.tasks.backends.gearman_backend.Task.bulk_log")
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.Task.bulk_log"
+)
 def test_gearman_multiple_batches(
     bulk_log, mock_client, simple_job, simple_task, reverse_result_order
 ):

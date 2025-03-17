@@ -5,17 +5,20 @@ from unittest import mock
 
 import pytest
 from django.core.exceptions import ValidationError
-from main import models
-from server.packages import DIP
-from server.packages import SIP
-from server.packages import Package
-from server.packages import Transfer
-from server.packages import _determine_transfer_paths
-from server.packages import _move_to_internal_shared_dir
-from server.packages import _pad_destination_filepath_if_it_already_exists
-from server.packages import create_package
-from server.queues import PackageQueue
-from server.workflow import Workflow
+
+from archivematica.dashboard.main import models
+from archivematica.MCPServer.server.packages import DIP
+from archivematica.MCPServer.server.packages import SIP
+from archivematica.MCPServer.server.packages import Package
+from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.packages import _determine_transfer_paths
+from archivematica.MCPServer.server.packages import _move_to_internal_shared_dir
+from archivematica.MCPServer.server.packages import (
+    _pad_destination_filepath_if_it_already_exists,
+)
+from archivematica.MCPServer.server.packages import create_package
+from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.workflow import Workflow
 
 
 @pytest.mark.parametrize(

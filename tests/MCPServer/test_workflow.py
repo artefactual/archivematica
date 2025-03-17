@@ -5,17 +5,22 @@ from unittest import mock
 
 import pytest
 from django.utils.translation import gettext_lazy
-from server import translation
-from server import workflow
+
+from archivematica.MCPServer.server import translation
+from archivematica.MCPServer.server import workflow
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
+    pathlib.Path(__file__).parent.parent.parent
+    / "src"
+    / "archivematica"
+    / "MCPServer"
+    / "assets"
 )
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
 
 @mock.patch(
-    "server.jobs.Job.STATUSES",
+    "archivematica.MCPServer.server.jobs.Job.STATUSES",
     (
         (1, gettext_lazy("Uno")),
         (2, gettext_lazy("Dos")),
@@ -114,7 +119,9 @@ def test_get_schema():
     assert schema["$id"] == "https://www.archivematica.org/labs/workflow/schema/v1.json"
 
 
-@mock.patch("server.workflow._LATEST_SCHEMA", "non-existen-schema")
+@mock.patch(
+    "archivematica.MCPServer.server.workflow._LATEST_SCHEMA", "non-existen-schema"
+)
 def test_get_schema_not_found():
     with pytest.raises(IOError):
         workflow._get_schema()

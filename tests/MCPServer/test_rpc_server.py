@@ -5,12 +5,17 @@ from unittest import mock
 
 import pytest
 from django.utils import timezone
-from main import models
-from server import rpc_server
-from server import workflow
+
+from archivematica.dashboard.main import models
+from archivematica.MCPServer.server import rpc_server
+from archivematica.MCPServer.server import workflow
 
 ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent / "src" / "MCPServer" / "assets"
+    pathlib.Path(__file__).parent.parent.parent
+    / "src"
+    / "archivematica"
+    / "MCPServer"
+    / "assets"
 )
 
 

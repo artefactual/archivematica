@@ -8,20 +8,21 @@ from unittest import mock
 import pytest
 from django.utils import timezone
 from lxml import etree
-from main import models
-from server.jobs import DirectoryClientScriptJob
-from server.jobs import FilesClientScriptJob
-from server.jobs import GetUnitVarLinkJob
-from server.jobs import JobChain
-from server.jobs import NextChainDecisionJob
-from server.jobs import OutputClientScriptJob
-from server.jobs import OutputDecisionJob
-from server.jobs import SetUnitVarLinkJob
-from server.jobs import UpdateContextDecisionJob
-from server.packages import Transfer
-from server.queues import PackageQueue
-from server.tasks import TaskBackend
-from server.workflow import load as load_workflow
+
+from archivematica.dashboard.main import models
+from archivematica.MCPServer.server.jobs import DirectoryClientScriptJob
+from archivematica.MCPServer.server.jobs import FilesClientScriptJob
+from archivematica.MCPServer.server.jobs import GetUnitVarLinkJob
+from archivematica.MCPServer.server.jobs import JobChain
+from archivematica.MCPServer.server.jobs import NextChainDecisionJob
+from archivematica.MCPServer.server.jobs import OutputClientScriptJob
+from archivematica.MCPServer.server.jobs import OutputDecisionJob
+from archivematica.MCPServer.server.jobs import SetUnitVarLinkJob
+from archivematica.MCPServer.server.jobs import UpdateContextDecisionJob
+from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.tasks import TaskBackend
+from archivematica.MCPServer.server.workflow import load as load_workflow
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 INTEGRATION_TEST_PATH = os.path.join(FIXTURES_DIR, "workflow-integration-test.json")
@@ -94,9 +95,9 @@ def dummy_file_replacements(request):
 
 
 @pytest.mark.django_db(transaction=True)
-@mock.patch("server.jobs.decisions.load_processing_xml")
-@mock.patch("server.jobs.decisions.load_preconfigured_choice")
-@mock.patch("server.jobs.client.get_task_backend")
+@mock.patch("archivematica.MCPServer.server.jobs.decisions.load_processing_xml")
+@mock.patch("archivematica.MCPServer.server.jobs.decisions.load_preconfigured_choice")
+@mock.patch("archivematica.MCPServer.server.jobs.client.get_task_backend")
 def test_workflow_integration(
     mock_get_task_backend,
     mock_load_preconfigured_choice,
@@ -116,7 +117,7 @@ def test_workflow_integration(
 
     with (
         mock.patch.dict(
-            "server.packages.BASE_REPLACEMENTS",
+            "archivematica.MCPServer.server.packages.BASE_REPLACEMENTS",
             {r"%processingDirectory%": settings.PROCESSING_DIRECTORY},
         ),
         mock.patch.object(transfer, "files", return_value=dummy_file_replacements),

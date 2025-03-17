@@ -3,15 +3,17 @@ import uuid
 from unittest import mock
 
 import pytest
-from server.mcp import main
-from server.mcp import watched_dir_handler
+
+from archivematica.MCPServer.server.mcp import main
+from archivematica.MCPServer.server.mcp import watched_dir_handler
 
 
 @pytest.mark.django_db(transaction=True)
-@mock.patch("server.packages.models.Transfer.objects.create")
-@mock.patch("server.packages.uuid4")
+@mock.patch("archivematica.MCPServer.server.packages.models.Transfer.objects.create")
+@mock.patch("archivematica.MCPServer.server.packages.uuid4")
 @mock.patch(
-    "server.mcp.JobChain", mock.MagicMock(return_value=iter(["some_chain_link"]))
+    "archivematica.MCPServer.server.mcp.JobChain",
+    mock.MagicMock(return_value=iter(["some_chain_link"])),
 )
 def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(
     uuid4, create_mock, tmpdir
@@ -51,10 +53,11 @@ def test_watched_dir_handler_creates_transfer_if_it_does_not_exist(
 
 
 @pytest.mark.django_db(transaction=True)
-@mock.patch("server.packages.models.Transfer.objects.create")
-@mock.patch("server.packages.uuid4")
+@mock.patch("archivematica.MCPServer.server.packages.models.Transfer.objects.create")
+@mock.patch("archivematica.MCPServer.server.packages.uuid4")
 @mock.patch(
-    "server.mcp.JobChain", mock.MagicMock(return_value=iter(["some_chain_link"]))
+    "archivematica.MCPServer.server.mcp.JobChain",
+    mock.MagicMock(return_value=iter(["some_chain_link"])),
 )
 def test_watched_dir_handler_creates_transfer_for_file(uuid4, create_mock, tmpdir):
     """Test that a models.Transfer object exists for a file path."""
@@ -83,12 +86,12 @@ def test_watched_dir_handler_creates_transfer_for_file(uuid4, create_mock, tmpdi
     create_mock.assert_called_once_with(uuid=transfer_uuid, currentlocation=str(path))
 
 
-@mock.patch("server.mcp.metrics")
-@mock.patch("server.mcp.Task")
-@mock.patch("server.mcp.Job")
-@mock.patch("server.mcp.Package")
-@mock.patch("server.mcp.shared_dirs")
-@mock.patch("server.mcp.load_workflow")
+@mock.patch("archivematica.MCPServer.server.mcp.metrics")
+@mock.patch("archivematica.MCPServer.server.mcp.Task")
+@mock.patch("archivematica.MCPServer.server.mcp.Job")
+@mock.patch("archivematica.MCPServer.server.mcp.Package")
+@mock.patch("archivematica.MCPServer.server.mcp.shared_dirs")
+@mock.patch("archivematica.MCPServer.server.mcp.load_workflow")
 def test_mcp_main(
     mock_load_workflow,
     mock_shared_dirs,
