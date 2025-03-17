@@ -35,8 +35,9 @@ from uuid import uuid4
 from amclient import AMClient
 from django.apps import apps
 from lxml import etree
-from namespaces import NSMAP
-from namespaces import xml_find_premis
+
+from archivematica.archivematicaCommon.namespaces import NSMAP
+from archivematica.archivematicaCommon.namespaces import xml_find_premis
 
 REQUIRED_DIRECTORIES = (
     "logs",
@@ -571,7 +572,7 @@ import subprocess
 import sys
 
 from lxml import etree
-from namespaces import jhoveBNS
+from archivematica.archivematicaCommon.namespaces import jhoveBNS
 
 class JhoveException(Exception):
     pass

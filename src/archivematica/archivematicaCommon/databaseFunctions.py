@@ -19,12 +19,13 @@ import sys
 import uuid
 
 from django.utils import timezone
-from main.models import SIP
-from main.models import Agent
-from main.models import Derivation
-from main.models import Event
-from main.models import File
-from main.models import FPCommandOutput
+
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FPCommandOutput
 
 LOGGER = logging.getLogger("archivematica.common")
 

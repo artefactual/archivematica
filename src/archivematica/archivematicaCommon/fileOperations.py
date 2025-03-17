@@ -22,13 +22,13 @@ import sys
 import uuid
 from pathlib import Path
 
-from archivematicaFunctions import get_file_checksum
-from archivematicaFunctions import get_setting
-from databaseFunctions import insertIntoEvents
-from databaseFunctions import insertIntoFiles
-from executeOrRunSubProcess import executeOrRun
-from main.models import File
-from main.models import Transfer
+from archivematica.archivematicaCommon.archivematicaFunctions import get_file_checksum
+from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoFiles
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
 
 
 def get_size_and_checksum(file_path, file_size=None, checksum=None, checksum_type=None):

@@ -17,7 +17,8 @@ current appconfig Config object and the section.
 import configparser
 
 from django.core.exceptions import ImproperlyConfigured
-from env_configparser import EnvConfigParser
+
+from archivematica.archivematicaCommon.env_configparser import EnvConfigParser
 
 
 class Config:

@@ -24,7 +24,7 @@ import tempfile
 from typing import Optional
 from typing import Union
 
-from archivematicaFunctions import escape
+from archivematica.archivematicaCommon.archivematicaFunctions import escape
 
 Arguments = list[str]
 Input = Union[str, bytes, io.IOBase]

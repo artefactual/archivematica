@@ -18,7 +18,7 @@ import os
 import re
 import uuid
 
-from main import models
+from archivematica.dashboard.main import models
 
 config = {}
 

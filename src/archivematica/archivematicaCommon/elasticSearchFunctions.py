@@ -23,19 +23,20 @@ import re
 import sys
 import time
 
-import namespaces as ns
-import version
-from archivematicaFunctions import get_dashboard_uuid
 from django.db.models import Min
 from django.db.models import Q
 from elasticsearch import Elasticsearch
 from elasticsearch import ImproperlyConfigured
 from elasticsearch.helpers import bulk
-from externals import xmltodict
 from lxml import etree
-from main.models import File
-from main.models import Identifier
-from main.models import Transfer
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon import version
+from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
+from archivematica.archivematicaCommon.externals import xmltodict
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Identifier
+from archivematica.dashboard.main.models import Transfer
 
 logger = logging.getLogger("archivematica.common")
 
