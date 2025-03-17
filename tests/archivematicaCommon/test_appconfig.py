@@ -2,9 +2,10 @@ import os
 from io import StringIO
 
 import pytest
-from appconfig import Config
-from appconfig import process_search_enabled
 from django.core.exceptions import ImproperlyConfigured
+
+from archivematica.archivematicaCommon.appconfig import Config
+from archivematica.archivematicaCommon.appconfig import process_search_enabled
 
 CONFIG_MAPPING = {
     "search_enabled": {

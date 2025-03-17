@@ -1,7 +1,7 @@
 import os
 import unittest
 
-import identifier_functions
+from archivematica.archivematicaCommon import identifier_functions
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")

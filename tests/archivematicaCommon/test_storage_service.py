@@ -8,8 +8,13 @@ from unittest import mock
 
 import pytest
 from requests import Response
-from storageService import location_description_from_slug
-from storageService import retrieve_storage_location_description
+
+from archivematica.archivematicaCommon.storageService import (
+    location_description_from_slug,
+)
+from archivematica.archivematicaCommon.storageService import (
+    retrieve_storage_location_description,
+)
 
 
 def mock_response(status_code, content_type, content):
@@ -33,7 +38,7 @@ def mock_response(status_code, content_type, content):
         (0, "", {}),
     ],
 )
-@mock.patch("storageService._storage_service_url")
+@mock.patch("archivematica.archivematicaCommon.storageService._storage_service_url")
 @mock.patch("requests.Session.get")
 def test_location_desc_from_slug(
     get, _storage_service_url, status_code, content_type, expected_result
@@ -76,7 +81,9 @@ def test_location_desc_from_slug(
         ("/api/v2/location/fd46760b-567f-4c17-a2f4-a05e79074932/", {}, ""),
     ],
 )
-@mock.patch("storageService.location_description_from_slug")
+@mock.patch(
+    "archivematica.archivematicaCommon.storageService.location_description_from_slug"
+)
 def test_retrieve_storage_location(
     location_description_from_slug, slug, return_value, expected_result
 ):

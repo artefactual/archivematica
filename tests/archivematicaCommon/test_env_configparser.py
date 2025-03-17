@@ -4,7 +4,8 @@ from io import StringIO
 
 import pytest
 from django.test import TestCase
-from env_configparser import EnvConfigParser
+
+from archivematica.archivematicaCommon.env_configparser import EnvConfigParser
 
 
 class TestConfigReader(TestCase):

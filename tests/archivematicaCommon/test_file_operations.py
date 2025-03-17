@@ -3,14 +3,17 @@ from unittest import mock
 
 import pytest
 from django.db.models import Q
-from fileOperations import FindFileInNormalizatonCSVError
-from fileOperations import addAccessionEvent
-from fileOperations import findFileInNormalizationCSV
-from fileOperations import get_extract_dir_name
-from main.models import SIP
-from main.models import Event
-from main.models import File
-from main.models import Transfer
+
+from archivematica.archivematicaCommon.fileOperations import (
+    FindFileInNormalizatonCSVError,
+)
+from archivematica.archivematicaCommon.fileOperations import addAccessionEvent
+from archivematica.archivematicaCommon.fileOperations import findFileInNormalizationCSV
+from archivematica.archivematicaCommon.fileOperations import get_extract_dir_name
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
 
 
 @pytest.mark.parametrize(

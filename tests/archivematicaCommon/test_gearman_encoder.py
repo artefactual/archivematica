@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from django.utils.timezone import make_aware
-from gearman_encoder import JSONDataEncoder
+
+from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 
 
 def test_encoder():

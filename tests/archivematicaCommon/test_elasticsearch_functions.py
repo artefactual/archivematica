@@ -4,16 +4,17 @@ import pathlib
 import uuid
 from unittest import mock
 
-import elasticSearchFunctions
 import pytest
-from components import helpers
 from django.utils.timezone import make_aware
 from lxml import etree
-from main.models import SIP
-from main.models import Directory
-from main.models import File
-from main.models import Identifier
-from main.models import Transfer
+
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Identifier
+from archivematica.dashboard.main.models import Transfer
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -331,8 +332,10 @@ def test_set_tags_fails_when_file_cant_be_found(perform_request, es_client):
 
 
 @pytest.mark.django_db
-@mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-@mock.patch("elasticSearchFunctions.bulk")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.get_dashboard_uuid"
+)
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
 def test_index_mets_file_metadata(bulk, get_dashboard_uuid, es_client):
     # Set up mocked functions
     get_dashboard_uuid.return_value = "test-uuid"
@@ -435,7 +438,7 @@ def test_index_mets_file_metadata(bulk, get_dashboard_uuid, es_client):
 
 
 @pytest.mark.django_db
-@mock.patch("elasticSearchFunctions.bulk")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
 def test_index_mets_file_metadata_with_utf8(bulk, es_client):
     def _bulk(client, actions, stats_only=False, *args, **kwargs):
         pass
@@ -453,7 +456,9 @@ def test_index_mets_file_metadata_with_utf8(bulk, es_client):
     )
 
 
-@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.create_indexes_if_needed"
+)
 def test_default_setup(create_indexes_if_needed):
     elasticSearchFunctions.setup("elasticsearch:9200")
     create_indexes_if_needed.assert_called_with(
@@ -461,13 +466,17 @@ def test_default_setup(create_indexes_if_needed):
     )
 
 
-@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.create_indexes_if_needed"
+)
 def test_only_aips_setup(create_indexes_if_needed):
     elasticSearchFunctions.setup("elasticsearch:9200", enabled=["aips"])
     create_indexes_if_needed.assert_called_with(mock.ANY, ["aips", "aipfiles"])
 
 
-@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.create_indexes_if_needed"
+)
 def test_only_transfers_setup(create_indexes_if_needed):
     elasticSearchFunctions.setup("elasticsearch:9200", enabled=["transfers"])
     create_indexes_if_needed.assert_called_with(
@@ -475,7 +484,9 @@ def test_only_transfers_setup(create_indexes_if_needed):
     )
 
 
-@mock.patch("elasticSearchFunctions.create_indexes_if_needed")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.create_indexes_if_needed"
+)
 def test_no_indexes_setup(create_indexes_if_needed):
     elasticSearchFunctions.setup("elasticsearch:9200", enabled=[])
     elasticSearchFunctions.setup("elasticsearch:9200", enabled=["unknown"])
@@ -569,8 +580,10 @@ fileuuid_premisv2_no_ns = (
         ),
     ],
 )
-@mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-@mock.patch("elasticSearchFunctions.bulk")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.get_dashboard_uuid"
+)
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
 def test_index_aipfile_fileuuid(
     bulk, get_dashboard_uuid, metsfile, fileuuid_dict, aipuuid, aipname
 ):
@@ -625,8 +638,10 @@ dmdsec_dconly = {
         ),
     ],
 )
-@mock.patch("elasticSearchFunctions.get_dashboard_uuid")
-@mock.patch("elasticSearchFunctions.bulk")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.get_dashboard_uuid"
+)
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
 def test_index_aipfile_dmdsec(bulk, get_dashboard_uuid, metsfile, dmdsec_dict):
     """Check AIP file dmdSec is correctly parsed from METS files.
 
@@ -927,7 +942,7 @@ def test_index_aip_and_files_logs_error_if_mets_does_not_exist(
     "elasticsearch.client.cluster.ClusterClient.health",
     return_value={"status": "green"},
 )
-@mock.patch("elasticSearchFunctions._index_aip_files")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions._index_aip_files")
 def test_index_aip_and_files(_index_aip_files, health, index, es_client, tmp_path):
     dashboard_uuid = uuid.uuid4()
     helpers.set_setting("dashboard_uuid", str(dashboard_uuid))
@@ -1129,7 +1144,7 @@ def test_index_transfer_and_files(health, index, es_client, transfer, transfer_f
 
 
 @mock.patch(
-    "elasticSearchFunctions.search_all_results",
+    "archivematica.archivematicaCommon.elasticSearchFunctions.search_all_results",
     return_value={
         "hits": {
             "hits": [
@@ -1164,7 +1179,7 @@ def test_get_transfer_file_info_when_search_returns_a_single_document(
 
 
 @mock.patch(
-    "elasticSearchFunctions.search_all_results",
+    "archivematica.archivematicaCommon.elasticSearchFunctions.search_all_results",
     return_value={
         "hits": {
             "hits": [
@@ -1200,8 +1215,10 @@ def test_get_transfer_file_info_logs_multiple_results(search_all_results, es_cli
 
 
 @pytest.mark.django_db
-@mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions.search_all_results")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.search_all_results"
+)
 def test_remove_backlog_transfer_files(search_all_results, client, transfer):
     file_doc_id = "123"
     search_all_results.return_value = {
@@ -1230,8 +1247,10 @@ def test_remove_backlog_transfer_files(search_all_results, client, transfer):
 
 
 @pytest.mark.django_db
-@mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions.search_all_results")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.search_all_results"
+)
 def test_remove_sip_transfer_files(search_all_results, client, transfer, transfer_file):
     file_doc_id = "123"
     search_all_results.return_value = {
@@ -1259,8 +1278,11 @@ def test_remove_sip_transfer_files(search_all_results, client, transfer, transfe
     )
 
 
-@mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions._document_ids_from_field_query", return_value=[])
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions._document_ids_from_field_query",
+    return_value=[],
+)
 def test_mark_aip_stored_logs_error(_document_ids_from_field_query, client, caplog):
     aip_uuid = str(uuid.uuid4())
 
@@ -1277,8 +1299,10 @@ def test_mark_aip_stored_logs_error(_document_ids_from_field_query, client, capl
     ]
 
 
-@mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions._document_ids_from_field_query")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions._document_ids_from_field_query"
+)
 def test_mark_aip_stored(_document_ids_from_field_query, client):
     aip_uuid = str(uuid.uuid4())
     aip_doc_id = str(uuid.uuid4())
@@ -1347,8 +1371,10 @@ def test_mark_aip_stored(_document_ids_from_field_query, client):
         "revert_backlog_deletion_request",
     ],
 )
-@mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions._document_ids_from_field_query")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions._document_ids_from_field_query"
+)
 def test_update_helpers(
     _document_ids_from_field_query,
     client,
@@ -1406,7 +1432,7 @@ def test_augment_raw_search_results():
     ]
 
 
-@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
 def test_try_to_index_fails_with_invalid_maximum_retries(client):
     with pytest.raises(ValueError, match="max_tries must be 1 or greater"):
         elasticSearchFunctions._try_to_index(
@@ -1414,7 +1440,7 @@ def test_try_to_index_fails_with_invalid_maximum_retries(client):
         )
 
 
-@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
 def test_try_to_index_retries_after_error(client):
     error = Exception("error")
     client.index.side_effect = [error, None]
@@ -1436,7 +1462,7 @@ def test_try_to_index_retries_after_error(client):
     ]
 
 
-@mock.patch("elasticSearchFunctions.get_client")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
 def test_try_to_index_raises_exception_after_retries(client):
     error = Exception("error")
     client.index.side_effect = [error, None]

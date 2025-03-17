@@ -1,9 +1,10 @@
 import os
 
 import pytest
-from dicts import ReplacementDict
-from dicts import setup as setup_dicts
-from main import models
+
+from archivematica.archivematicaCommon.dicts import ReplacementDict
+from archivematica.archivematicaCommon.dicts import setup as setup_dicts
+from archivematica.dashboard.main import models
 
 
 @pytest.fixture

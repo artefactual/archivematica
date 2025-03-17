@@ -6,8 +6,9 @@ from unittest.mock import ANY
 from unittest.mock import Mock
 from unittest.mock import patch
 
-import executeOrRunSubProcess as execsub
 import pytest
+
+import archivematica.archivematicaCommon.executeOrRunSubProcess as execsub
 
 
 def test_capture_output() -> None:
@@ -75,7 +76,7 @@ def temp_path(tmp_path: pathlib.Path) -> Generator[str, None, None]:
     tempfile.tempdir = original_tempdir
 
 
-@patch("executeOrRunSubProcess.launchSubProcess")
+@patch("archivematica.archivematicaCommon.executeOrRunSubProcess.launchSubProcess")
 def test_createAndRunScript_creates_tmpfile_in_custom_dir(
     launchSubProcess: Mock, temp_path: str
 ) -> None:

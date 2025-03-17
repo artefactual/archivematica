@@ -1,6 +1,7 @@
-import bindpid
 import pytest
 from django.test import TestCase
+
+from archivematica.archivematicaCommon import bindpid
 
 VALID_ARG_DICT = {
     "entity_type": "file",
