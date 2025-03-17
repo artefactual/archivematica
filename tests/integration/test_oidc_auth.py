@@ -2,12 +2,13 @@ import os
 import uuid
 
 import pytest
-from components import helpers
 from django.contrib.auth.models import User
 from django.urls import reverse
 from playwright.sync_api import Page
 from pytest_django.fixtures import SettingsWrapper
 from pytest_django.live_server_helper import LiveServer
+
+from archivematica.dashboard.components import helpers
 
 if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
