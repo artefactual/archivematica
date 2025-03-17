@@ -20,8 +20,8 @@ function dashboard::manage {
 	docker compose run \
 		--user=$(id -u):$(id -g) \
 		--rm --no-deps \
-		--workdir=/src/src/dashboard \
-		--entrypoint=/src/src/dashboard/manage.py \
+		--workdir=/src/src/archivematica/dashboard \
+		--entrypoint=/src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard "$@"
 }
 
@@ -46,7 +46,7 @@ dashboard::manage makemessages --all --domain djangojs --ignore build/*
 docker compose run \
 	--user=$(id -u):$(id -g) \
 	--rm --no-deps \
-	--workdir=/src/src/dashboard/frontend \
+	--workdir=/src/src/archivematica/dashboard/frontend \
 	--entrypoint=yarn \
 		archivematica-dashboard run extract-messages
 

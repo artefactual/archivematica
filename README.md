@@ -91,7 +91,7 @@ see the [getting started] page.
 [Developer guide]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md
 [Development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack
 [documentation update]: https://github.com/artefactual/archivematica-docs/wiki
-[Format Policy Registry]: https://github.com/artefactual/archivematica/tree/qa/1.x/src/dashboard/fpr
+[Format Policy Registry]: https://github.com/artefactual/archivematica/tree/qa/1.x/src/archivematica/dashboard/fpr
 [getting started]: https://wiki.archivematica.org/Getting_started#Projects
 [GitHub CI]: https://github.com/artefactual/archivematica/actions/workflows/test.yml/badge.svg
 [Issues]: https://github.com/archivematica/Issues

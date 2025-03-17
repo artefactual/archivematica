@@ -37,7 +37,7 @@ norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
 
 [tool.coverage.run]
 omit = [
-    "**/src/archivematicaCommon/externals/*",
+    "**/src/archivematica/archivematicaCommon/externals/*",
     "**/migrations/*",
     "**/settings/*",
     "**/tests/*",
@@ -45,11 +45,11 @@ omit = [
     "**/manage.py",
 ]
 include = [
-    "**/src/archivematicaCommon/*",
-    "**/src/dashboard/*",
-    "**/src/MCPClient/*",
-    "**/src/MCPClient/clientScripts/*",
-    "**/src/MCPServer/*",
+    "**/src/archivematica/archivematicaCommon/*",
+    "**/src/archivematica/dashboard/*",
+    "**/src/archivematica/MCPClient/*",
+    "**/src/archivematica/MCPClient/clientScripts/*",
+    "**/src/archivematica/MCPServer/*",
 ]
 branch = true
 

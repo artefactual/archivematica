@@ -106,7 +106,7 @@ jobs:
     runs-on: "ubuntu-24.04"
     defaults:
       run:
-        working-directory: "./src/dashboard/frontend/"
+        working-directory: "./src/archivematica/dashboard/frontend/"
     steps:
       - name: "Check out repository"
         if: "${{ github.event_name != 'workflow_dispatch' }}"
