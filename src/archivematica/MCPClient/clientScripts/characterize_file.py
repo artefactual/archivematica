@@ -15,19 +15,22 @@ import django
 
 django.setup()
 
-from client.job import Job
-from databaseFunctions import insertIntoFPCommandOutput
-from dicts import ReplacementDict
-from dicts import replace_string_values
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from executeOrRunSubProcess import executeOrRun
-from fpr.models import FormatVersion
-from fpr.models import FPRule
-from lib import setup_dicts
 from lxml import etree
-from main.models import FPCommandOutput
+
+from archivematica.archivematicaCommon.databaseFunctions import (
+    insertIntoFPCommandOutput,
+)
+from archivematica.archivematicaCommon.dicts import ReplacementDict
+from archivematica.archivematicaCommon.dicts import replace_string_values
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
 
 @dataclasses.dataclass

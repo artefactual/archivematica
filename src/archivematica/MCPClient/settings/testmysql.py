@@ -1,4 +1,4 @@
-from .test import *
+from archivematica.MCPClient.settings.test import *
 
 DATABASES = {
     "default": {

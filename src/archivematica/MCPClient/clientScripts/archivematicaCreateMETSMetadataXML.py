@@ -23,14 +23,15 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
-import create_mets_v2 as createmets2
-import namespaces as ns
 import requests
-from databaseFunctions import insertIntoEvents
 from django.core.exceptions import ValidationError
 from importlib_metadata import version
 from lxml import etree
-from main import models
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.clientScripts import create_mets_v2 as createmets2
 
 
 def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):

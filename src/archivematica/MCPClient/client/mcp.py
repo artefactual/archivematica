@@ -9,8 +9,8 @@ import signal
 from types import FrameType
 from typing import Optional
 
-from client import metrics
-from client.pool import WorkerPool
+from archivematica.MCPClient.client import metrics
+from archivematica.MCPClient.client.pool import WorkerPool
 
 logger = logging.getLogger("archivematica.mcp.client")
 

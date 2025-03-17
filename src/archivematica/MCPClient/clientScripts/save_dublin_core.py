@@ -6,7 +6,8 @@ import django
 
 django.setup()
 from django.db import transaction
-from main import models
+
+from archivematica.dashboard.main import models
 
 FIELDS = (
     "title",

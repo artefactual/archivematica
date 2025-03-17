@@ -21,10 +21,11 @@ import sys
 import django
 
 django.setup()
-from change_names import change_path
 from django.db import transaction
-from main.models import SIP
-from main.models import Transfer
+
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.clientScripts.change_names import change_path
 
 
 def call(jobs):

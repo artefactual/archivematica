@@ -48,11 +48,11 @@ from django.db import transaction
 django.setup()
 
 
-import bindpid
-from archivematicaFunctions import str2bool
-from custom_handlers import get_script_logger
-from main.models import DashboardSetting
-from main.models import File
+from archivematica.archivematicaCommon import bindpid
+from archivematica.archivematicaCommon.archivematicaFunctions import str2bool
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import File
 
 logger = get_script_logger("archivematica.mcp.client.bind_pid")
 

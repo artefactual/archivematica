@@ -28,11 +28,12 @@ import django
 
 django.setup()
 
-from client import loader
-from client import metrics
-from client.gearman import MCPGearmanWorker
 from django import db
 from django.conf import settings
+
+from archivematica.MCPClient.client import loader
+from archivematica.MCPClient.client import metrics
+from archivematica.MCPClient.client.gearman import MCPGearmanWorker
 
 T = TypeVar("T")
 

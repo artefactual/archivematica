@@ -10,11 +10,11 @@ from lxml import etree
 
 django.setup()
 
-import databaseFunctions
-import fileOperations
-import namespaces as ns
-from fpr import models as fpr_models
-from main import models
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.dashboard.fpr import models as fpr_models
+from archivematica.dashboard.main import models
 
 MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
 

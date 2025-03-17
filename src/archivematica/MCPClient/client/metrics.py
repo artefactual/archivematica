@@ -15,23 +15,24 @@ import django
 
 django.setup()
 
-from common_metrics import PACKAGE_FILE_COUNT_BUCKETS
-from common_metrics import PACKAGE_SIZE_BUCKETS
-from common_metrics import PROCESSING_TIME_BUCKETS
-from common_metrics import TASK_DURATION_BUCKETS
 from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
-from fpr.models import FormatVersion
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import Transfer
 from prometheus_client import CollectorRegistry
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Histogram
 from prometheus_client import multiprocess
 from prometheus_client import start_http_server
+
+from archivematica.archivematicaCommon.common_metrics import PACKAGE_FILE_COUNT_BUCKETS
+from archivematica.archivematicaCommon.common_metrics import PACKAGE_SIZE_BUCKETS
+from archivematica.archivematicaCommon.common_metrics import PROCESSING_TIME_BUCKETS
+from archivematica.archivematicaCommon.common_metrics import TASK_DURATION_BUCKETS
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import Transfer
 
 job_counter = Counter(
     "mcpclient_job_total",

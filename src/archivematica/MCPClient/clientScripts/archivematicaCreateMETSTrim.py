@@ -21,9 +21,10 @@ import sys
 from datetime import datetime
 
 import lxml.etree as etree
-import namespaces as ns
 from django.core.exceptions import ValidationError
-from main.models import File
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.dashboard.main.models import File
 
 
 def getTrimDmdSec(job, baseDirectoryPath, sipUUID):

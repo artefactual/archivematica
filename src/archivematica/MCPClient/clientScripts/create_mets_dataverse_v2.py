@@ -20,9 +20,10 @@
 
 import sys
 
-import archivematicaFunctions
 import metsrw
-from custom_handlers import get_script_logger
+
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 
 logger = get_script_logger("archivematica.mcp.client.createMETSDataverse")
 

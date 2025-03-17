@@ -25,10 +25,9 @@ from django.db import transaction
 
 django.setup()
 
-
-import archivematicaFunctions
-import databaseFunctions
-from main.models import File
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.dashboard.main.models import File
 
 
 def call(jobs):

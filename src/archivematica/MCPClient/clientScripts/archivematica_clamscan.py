@@ -31,13 +31,14 @@ from clamd import BufferTooLongError
 from clamd import ClamdNetworkSocket
 from clamd import ClamdUnixSocket
 from clamd import ConnectionError
-from custom_handlers import get_script_logger
-from databaseFunctions import insertIntoEvents
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from main.models import Event
-from main.models import File
+
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 

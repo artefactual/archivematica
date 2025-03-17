@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from executeOrRunSubProcess import executeOrRun
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
 
 
 def call(jobs):

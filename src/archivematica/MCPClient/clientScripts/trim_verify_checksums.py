@@ -23,10 +23,11 @@ import django
 from lxml import etree as etree
 
 django.setup()
-import databaseFunctions
-from archivematicaFunctions import get_file_checksum
 from django.db import transaction
-from fileOperations import getFileUUIDLike
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon.archivematicaFunctions import get_file_checksum
+from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
 
 
 def call(jobs):

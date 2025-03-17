@@ -17,21 +17,22 @@ import uuid
 import django
 
 django.setup()
-import elasticSearchFunctions
 import metsrw
-import storageService as storage_service
-from archivematicaFunctions import get_bag_size
-from archivematicaFunctions import get_setting
 from bagit import make_bag
-from custom_handlers import get_script_logger
-from databaseFunctions import insertIntoEvents
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
-from main.models import Agent
-from main.models import File
-from main.models import UnitVariable
+
+import archivematica.archivematicaCommon.storageService as storage_service
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon.archivematicaFunctions import get_bag_size
+from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import UnitVariable
 
 logger = get_script_logger("archivematica.mcp.client.move_to_backlog")
 

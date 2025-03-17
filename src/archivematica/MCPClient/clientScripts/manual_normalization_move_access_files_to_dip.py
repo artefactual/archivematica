@@ -16,17 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import os
+from optparse import OptionParser
 
 import django
 from django.db import transaction
 
 django.setup()
 
-from optparse import OptionParser
-
-import fileOperations
 from django.core.exceptions import ValidationError
-from main.models import File
+
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.dashboard.main.models import File
 
 
 def main(job):

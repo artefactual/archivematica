@@ -10,18 +10,19 @@ import django
 
 django.setup()
 
-from client.job import Job
-from databaseFunctions import insertIntoEvents
 from django.db import transaction
 from django.utils import timezone
-from executeOrRunSubProcess import executeOrRun
-from fpr.models import FormatVersion
-from fpr.models import IDCommand
-from fpr.models import IDRule
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import FileID
-from main.models import UnitVariable
+
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.fpr.models import IDCommand
+from archivematica.dashboard.fpr.models import IDRule
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import FileID
+from archivematica.dashboard.main.models import UnitVariable
+from archivematica.MCPClient.client.job import Job
 
 SUCCESS = 0
 ERROR = 255

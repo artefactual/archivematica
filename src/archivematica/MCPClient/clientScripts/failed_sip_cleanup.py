@@ -6,10 +6,9 @@ from django.db import transaction
 
 django.setup()
 
-
-import storageService as storage_service
-from client import metrics
-from main import models
+import archivematica.archivematicaCommon.storageService as storage_service
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client import metrics
 
 REJECTED = "reject"
 FAILED = "fail"

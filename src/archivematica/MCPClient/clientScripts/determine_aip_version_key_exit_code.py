@@ -19,8 +19,9 @@ import os
 import sys
 from typing import Optional
 
-import namespaces as ns
 from lxml import etree
+
+from archivematica.archivematicaCommon import namespaces as ns
 
 VERSION_MAP: dict[Optional[str], int] = {
     # Only change exit code if AIP format changes. If unknown, default to latest

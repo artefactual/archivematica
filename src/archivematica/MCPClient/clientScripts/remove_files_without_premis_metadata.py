@@ -21,7 +21,7 @@ import os
 import django
 
 django.setup()
-from main.models import File
+from archivematica.dashboard.main.models import File
 
 
 def verifyFileUUID(job, fileUUID, filePath, sipDirectory):

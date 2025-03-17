@@ -4,12 +4,12 @@ import django
 
 django.setup()
 
-from client.job import Job
-from fpr.models import FPRule
-from main.models import Event
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import Transfer
+from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client.job import Job
 
 
 def is_extractable(f: File) -> bool:

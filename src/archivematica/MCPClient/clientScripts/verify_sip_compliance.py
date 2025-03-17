@@ -18,7 +18,7 @@
 import os
 import sys
 
-from client import metrics
+from archivematica.MCPClient.client import metrics
 
 REQUIRED_DIRECTORIES = (
     "objects",

@@ -12,13 +12,14 @@ from lxml.builder import ElementMaker
 
 django.setup()
 
-import create_mets_v2
-import databaseFunctions
-import fileOperations
-import namespaces as ns
-import storageService as storage_service
 from django.utils import timezone
-from main.models import UnitVariable
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.dashboard.main.models import UnitVariable
+from archivematica.MCPClient.clientScripts import create_mets_v2
 
 
 def get_aip_info(aic_dir, job):

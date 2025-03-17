@@ -20,9 +20,10 @@ import sys
 import uuid
 
 import lxml.etree as etree
-import namespaces as ns
-from countryCodes import getCodeForCountry
-from main.models import RightsStatement
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon.countryCodes import getCodeForCountry
+from archivematica.dashboard.main.models import RightsStatement
 
 RIGHTS_BASIS_OTHER = ["Policy", "Donor"]
 

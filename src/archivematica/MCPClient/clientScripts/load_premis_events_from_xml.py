@@ -9,9 +9,10 @@ from django.db import transaction
 from django.utils import dateparse
 from django.utils import timezone
 from lxml import etree
-from main.models import Agent
-from main.models import Event
-from main.models import File
+
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
 
 logger = logging.getLogger(__name__)
 FAILURE = 1

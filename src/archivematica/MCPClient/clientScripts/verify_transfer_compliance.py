@@ -18,7 +18,7 @@
 import os
 import sys
 
-from verify_sip_compliance import checkDirectory
+from archivematica.MCPClient.clientScripts.verify_sip_compliance import checkDirectory
 
 REQUIRED_DIRECTORIES = (
     "objects",

@@ -23,10 +23,11 @@ import os
 from io import StringIO
 from pathlib import Path
 
-import email_settings
-from appconfig import Config
-from appconfig import process_search_enabled
 from django.core.exceptions import ImproperlyConfigured
+
+from archivematica.archivematicaCommon import email_settings
+from archivematica.archivematicaCommon.appconfig import Config
+from archivematica.archivematicaCommon.appconfig import process_search_enabled
 
 
 def _get_settings_from_file(path):
@@ -304,11 +305,11 @@ INSTALLED_APPS = (
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "components.accounts",
-    "main",
-    "components.mcp",
-    "components.administration",
-    "fpr",
+    "archivematica.dashboard.components.accounts",
+    "archivematica.dashboard.main",
+    "archivematica.dashboard.components.mcp",
+    "archivematica.dashboard.components.administration",
+    "archivematica.dashboard.fpr",
     # Only needed because archivematicaClient calls django.setup()
     # which imports the ApiAccess model through the helpers module of
     # the dashboard

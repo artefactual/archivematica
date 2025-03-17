@@ -6,10 +6,11 @@ import os
 import django
 from agentarchives.archivesspace import ArchivesSpaceClient
 from agentarchives.archivesspace import ArchivesSpaceError
-from fpr.models import FormatVersion
-from main.models import ArchivesSpaceDIPObjectResourcePairing
-from main.models import File
-from xml2obj import mets_file
+
+from archivematica.archivematicaCommon.xml2obj import mets_file
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
+from archivematica.dashboard.main.models import File
 
 django.setup()
 from django.core.exceptions import ValidationError

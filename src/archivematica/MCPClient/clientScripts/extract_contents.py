@@ -8,19 +8,19 @@ from django.db import transaction
 
 django.setup()
 
-from archivematicaFunctions import format_subdir_path
-from archivematicaFunctions import get_dir_uuids
-from custom_handlers import get_script_logger
-from databaseFunctions import fileWasRemoved
-from executeOrRunSubProcess import executeOrRun
-from fileOperations import addFileToTransfer
-from fileOperations import updateSizeAndChecksum
-from fpr.models import FPCommand
-from has_packages import already_extracted
-from main.models import Directory
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import Transfer
+from archivematica.archivematicaCommon.archivematicaFunctions import format_subdir_path
+from archivematica.archivematicaCommon.archivematicaFunctions import get_dir_uuids
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import fileWasRemoved
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
+from archivematica.archivematicaCommon.fileOperations import updateSizeAndChecksum
+from archivematica.dashboard.fpr.models import FPCommand
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.clientScripts.has_packages import already_extracted
 
 logger = get_script_logger("archivematica.mcp.client.extractContents")
 

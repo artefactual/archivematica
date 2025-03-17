@@ -21,7 +21,7 @@ from django.db import transaction
 
 django.setup()
 
-from fileOperations import updateFileGrpUse
+from archivematica.archivematicaCommon.fileOperations import updateFileGrpUse
 
 
 def call(jobs):

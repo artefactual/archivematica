@@ -18,14 +18,16 @@
 import os
 
 import django
-from custom_handlers import get_script_logger
+
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 
 django.setup()
 from django.db import connection
 from django.db import transaction
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import FileID
+
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import FileID
 
 logger = get_script_logger("archivematica.mcp.client.setMaildirFileGrpUseAndFileIDs")
 

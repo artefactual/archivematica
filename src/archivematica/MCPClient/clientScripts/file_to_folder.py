@@ -6,7 +6,8 @@ import django
 
 django.setup()
 from django.db import transaction
-from main.models import Transfer
+
+from archivematica.dashboard.main.models import Transfer
 
 
 def main(job, transfer_path, transfer_uuid, shared_path):

@@ -19,12 +19,13 @@ from django.db import transaction
 
 django.setup()
 
-import databaseFunctions
-import fileOperations
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from main.models import Event
-from main.models import File
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
 
 
 def main(job):

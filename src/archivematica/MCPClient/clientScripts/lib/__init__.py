@@ -1,4 +1,4 @@
-import dicts
+from archivematica.archivematicaCommon import dicts
 
 
 def setup_dicts(settings):

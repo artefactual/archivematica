@@ -22,9 +22,10 @@ import django
 
 django.setup()
 
-import databaseFunctions
 from django.db import transaction
-from main.models import File
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.dashboard.main.models import File
 
 
 def recursivelyRemoveEmptyDirectories(job, dir):

@@ -23,13 +23,15 @@ from django.db import transaction
 
 django.setup()
 
-import bag
-import fileOperations
-from archivematicaFunctions import OPTIONAL_FILES
-from archivematicaFunctions import REQUIRED_DIRECTORIES
-from databaseFunctions import insertIntoEvents
-from main.models import File
-from move_or_merge import move_or_merge
+from archivematica.archivematicaCommon import bag
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.archivematicaFunctions import OPTIONAL_FILES
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    REQUIRED_DIRECTORIES,
+)
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.clientScripts.move_or_merge import move_or_merge
 
 
 def restructureBagForComplianceFileUUIDsAssigned(

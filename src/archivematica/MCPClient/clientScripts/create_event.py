@@ -22,8 +22,9 @@ import django
 
 django.setup()
 
-from databaseFunctions import insertIntoEvents
 from django.db import transaction
+
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
 
 
 def call(jobs):

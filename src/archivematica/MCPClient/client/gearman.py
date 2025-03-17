@@ -8,15 +8,16 @@ from typing import Optional
 from typing import Union
 
 import gearman
-from client import metrics
-from client.job import Job
-from client.loader import load_job_modules
-from client.utils import parse_command_line
-from client.utils import replace_task_arguments
-from client.worker import run_task
 from django.conf import settings
 from gearman.job import GearmanJob
-from gearman_encoder import JSONDataEncoder
+
+from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
+from archivematica.MCPClient.client import metrics
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.client.loader import load_job_modules
+from archivematica.MCPClient.client.utils import parse_command_line
+from archivematica.MCPClient.client.utils import replace_task_arguments
+from archivematica.MCPClient.client.worker import run_task
 
 # This is how `gearman_job.data["tasks"]` looks in the `_prepare_jobs`` method
 # below:

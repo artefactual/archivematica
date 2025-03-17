@@ -27,20 +27,21 @@ import django
 
 django.setup()
 
-import databaseFunctions
-from client.job import Job
-from custom_handlers import get_script_logger
-from dicts import replace_string_values
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from executeOrRunSubProcess import executeOrRun
-from fpr.models import FormatVersion
-from fpr.models import FPRule
-from lib import setup_dicts
-from main.models import SIP
-from main.models import Derivation
-from main.models import File
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.dicts import replace_string_values
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
 SUCCESS_CODE = 0
 FAIL_CODE = 1

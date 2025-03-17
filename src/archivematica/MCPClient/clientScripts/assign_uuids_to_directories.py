@@ -35,14 +35,15 @@ import django
 
 django.setup()
 
-from archivematicaFunctions import format_subdir_path
-from archivematicaFunctions import get_dir_uuids
-from archivematicaFunctions import str2bool
-from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from main.models import Directory
-from main.models import Transfer
+
+from archivematica.archivematicaCommon.archivematicaFunctions import format_subdir_path
+from archivematica.archivematicaCommon.archivematicaFunctions import get_dir_uuids
+from archivematica.archivematicaCommon.archivematicaFunctions import str2bool
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.assignUUIDsToDirectories")
 

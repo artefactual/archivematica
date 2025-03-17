@@ -16,11 +16,12 @@ import django
 
 django.setup()
 
-from change_names import change_name
 from django.core.exceptions import ValidationError
-from main.models import SIP
-from main.models import Directory
-from main.models import File
+
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.clientScripts.change_names import change_name
 
 
 class DeclarePIDsException(Exception):

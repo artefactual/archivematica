@@ -21,7 +21,8 @@ from typing import Union
 
 from django.conf import settings
 from django.utils import timezone
-from main.models import Task
+
+from archivematica.dashboard.main.models import Task
 
 logger = logging.getLogger("archivematica.mcp.client.job")
 

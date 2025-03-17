@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django.db.models import F
-from executeOrRunSubProcess import executeOrRun
+
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
 
 
 class Command:

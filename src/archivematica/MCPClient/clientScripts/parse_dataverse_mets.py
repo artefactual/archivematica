@@ -11,14 +11,15 @@ import uuid
 import django
 
 django.setup()
-import databaseFunctions
 import metsrw
-from archivematicaFunctions import get_file_checksum
-from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from main.models import Agent
-from main.models import File
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon.archivematicaFunctions import get_file_checksum
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import File
 
 logger = get_script_logger("archivematica.mcp.client.parse_dataverse_mets")
 transfer_objects_directory = "%transferDirectory%objects"

@@ -29,13 +29,16 @@ from lxml import etree as etree
 
 django.setup()
 from django.db import transaction
-from fileOperations import getFileUUIDLike
-from main.models import RightsStatement
-from main.models import RightsStatementOtherRightsDocumentationIdentifier
-from main.models import RightsStatementOtherRightsInformation
-from main.models import RightsStatementRightsGranted
-from main.models import RightsStatementRightsGrantedNote
-from main.models import RightsStatementRightsGrantedRestriction
+
+from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import (
+    RightsStatementOtherRightsDocumentationIdentifier,
+)
+from archivematica.dashboard.main.models import RightsStatementOtherRightsInformation
+from archivematica.dashboard.main.models import RightsStatementRightsGranted
+from archivematica.dashboard.main.models import RightsStatementRightsGrantedNote
+from archivematica.dashboard.main.models import RightsStatementRightsGrantedRestriction
 
 
 def callWithException(exception):

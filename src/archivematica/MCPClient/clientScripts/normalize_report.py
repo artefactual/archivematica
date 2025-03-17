@@ -3,9 +3,7 @@ import logging
 import os.path
 from argparse import ArgumentParser
 
-import components.helpers as helpers
 import django
-from custom_handlers import get_script_logger
 from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -13,11 +11,14 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.template import Context
 from django.template import Template
-from main.models import SIP
-from main.models import File
-from main.models import Job
-from main.models import Report
-from main.models import Task
+
+import archivematica.dashboard.components.helpers as helpers
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Job
+from archivematica.dashboard.main.models import Report
+from archivematica.dashboard.main.models import Task
 
 django.setup()
 

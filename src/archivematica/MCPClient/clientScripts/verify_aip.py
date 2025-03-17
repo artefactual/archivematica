@@ -7,15 +7,16 @@ from pprint import pformat
 import django
 
 django.setup()
-import databaseFunctions
-from archivematicaFunctions import get_setting
 from bagit import Bag
 from bagit import BagError
 from django.conf import settings as mcpclient_settings
 from django.db import transaction
-from executeOrRunSubProcess import executeOrRun
-from main.models import SIP
-from main.models import File
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import File
 
 
 class VerifyChecksumsError(Exception):

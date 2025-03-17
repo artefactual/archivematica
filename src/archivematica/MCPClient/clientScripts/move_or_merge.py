@@ -4,7 +4,7 @@ import filecmp
 import os
 import shutil
 
-from custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 
 logger = get_script_logger("archivematica.mcp.client.move_or_merge")
 

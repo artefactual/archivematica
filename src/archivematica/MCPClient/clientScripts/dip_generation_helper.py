@@ -2,13 +2,14 @@
 import argparse
 import csv
 
-import archivematicaFunctions
 import django
 from agentarchives import archivesspace
-from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from main import models
+
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main import models
 
 django.setup()
 from django.db import transaction

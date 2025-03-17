@@ -27,9 +27,10 @@ django.setup()
 
 from django.db import transaction
 from django.utils import timezone
-from main.models import Derivation
-from main.models import Event
-from main.models import File
+
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
 
 
 def removeDIP(job, SIPDirectory, SIPUUID):

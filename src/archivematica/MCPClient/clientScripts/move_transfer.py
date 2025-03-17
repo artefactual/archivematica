@@ -21,8 +21,9 @@ import django
 
 django.setup()
 from django.db import transaction
-from fileOperations import rename
-from main.models import Transfer
+
+from archivematica.archivematicaCommon.fileOperations import rename
+from archivematica.dashboard.main.models import Transfer
 
 
 def updateDB(dst, transferUUID):

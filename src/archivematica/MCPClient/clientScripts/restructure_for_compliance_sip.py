@@ -7,11 +7,14 @@ import django
 
 django.setup()
 
-import archivematicaFunctions
-import fileOperations
-from archivematicaFunctions import OPTIONAL_FILES
-from archivematicaFunctions import REQUIRED_DIRECTORIES
 from django.db import transaction
+
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.archivematicaFunctions import OPTIONAL_FILES
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    REQUIRED_DIRECTORIES,
+)
 
 
 def restructureForComplianceFileUUIDsAssigned(

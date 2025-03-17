@@ -21,7 +21,7 @@ import csv
 import sys
 import traceback
 
-import archivematicaFunctions
+from archivematica.archivematicaCommon import archivematicaFunctions
 
 
 def parseMetadata(job, SIPPath, state):

@@ -24,7 +24,7 @@ from django.db import transaction
 
 django.setup()
 
-from main.models import File
+from archivematica.dashboard.main.models import File
 
 
 def something(job, SIPDirectory, serviceDirectory, objectsDirectory, SIPUUID, date):

@@ -23,8 +23,9 @@ import django
 
 django.setup()
 from django.db import transaction
-from fileOperations import rename
-from main.models import SIP
+
+from archivematica.archivematicaCommon.fileOperations import rename
+from archivematica.dashboard.main.models import SIP
 
 
 def updateDB(dst, sip_uuid):

@@ -23,9 +23,10 @@ import uuid
 import django
 
 django.setup()
-import databaseFunctions
 from django.db import transaction
-from fileOperations import getFileUUIDLike
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
 
 
 def call(jobs):

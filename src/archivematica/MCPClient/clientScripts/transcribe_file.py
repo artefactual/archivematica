@@ -11,20 +11,21 @@ import django
 
 django.setup()
 
-import databaseFunctions
-import fileOperations
-from client.job import Job
-from dicts import ReplacementDict
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
-from executeOrRunSubProcess import executeOrRun
-from fpr.models import FPRule
-from lib import setup_dicts
-from main.models import Derivation
-from main.models import File
-from main.models import FileFormatVersion
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.dicts import ReplacementDict
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
 
 @dataclasses.dataclass

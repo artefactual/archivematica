@@ -7,7 +7,8 @@ import django
 
 django.setup()
 from django.db import transaction
-from main import models
+
+from archivematica.dashboard.main import models
 
 # This is the UUID of SIP from the `MetadataAppliesToTypes` table
 INGEST_METADATA_TYPE = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"

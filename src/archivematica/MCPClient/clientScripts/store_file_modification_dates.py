@@ -21,10 +21,11 @@ import os
 import django
 
 django.setup()
-from custom_handlers import get_script_logger
 from django.db import transaction
 from django.utils.timezone import get_current_timezone
-from main import models
+
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main import models
 
 logger = get_script_logger("archivematica.mcp.client.storeFileModificationDates")
 

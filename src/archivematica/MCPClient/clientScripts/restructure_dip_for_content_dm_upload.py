@@ -22,9 +22,10 @@ import os
 import re
 import sys
 
-import archivematicaFunctions
-import namespaces as ns
 from lxml import etree
+
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon import namespaces as ns
 
 
 def parseDmdSec(dmdSec, label="[Placeholder title]"):

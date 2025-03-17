@@ -25,14 +25,15 @@ from django.db import transaction
 django.setup()
 
 import metsrw
-import parse_mets_to_db
-from archivematicaFunctions import find_mets_file
-from custom_handlers import get_script_logger
-from databaseFunctions import insertIntoDerivations
-from fileOperations import get_size_and_checksum
-from fileOperations import updateSizeAndChecksum
-from main.models import File
-from main.models import FileFormatVersion
+
+from archivematica.archivematicaCommon.archivematicaFunctions import find_mets_file
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import insertIntoDerivations
+from archivematica.archivematicaCommon.fileOperations import get_size_and_checksum
+from archivematica.archivematicaCommon.fileOperations import updateSizeAndChecksum
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.MCPClient.clientScripts import parse_mets_to_db
 
 logger = get_script_logger("archivematica.mcp.client.updateSizeAndChecksum")
 

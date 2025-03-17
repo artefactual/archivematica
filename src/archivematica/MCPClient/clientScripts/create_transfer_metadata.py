@@ -6,8 +6,8 @@ from lxml import etree
 
 django.setup()
 
-from client import metrics
-from main.models import Transfer
+from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import metrics
 
 
 def fetch_set(sip_uuid):

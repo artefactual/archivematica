@@ -20,7 +20,8 @@ import os
 import sys
 
 import lxml.etree as etree
-from archivematicaFunctions import get_file_checksum
+
+from archivematica.archivematicaCommon.archivematicaFunctions import get_file_checksum
 
 
 def verifyMetsFileSecChecksums(job, metsFile, date, taskUUID, relativeDirectory="./"):

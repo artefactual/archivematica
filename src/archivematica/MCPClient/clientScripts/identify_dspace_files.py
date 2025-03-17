@@ -18,13 +18,14 @@
 import os
 
 import django
-import namespaces
 from django.db import transaction
 from lxml import etree
 
+from archivematica.archivematicaCommon import namespaces
+
 django.setup()
 
-from main.models import File
+from archivematica.dashboard.main.models import File
 
 
 def identify_dspace_files(

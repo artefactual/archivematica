@@ -15,8 +15,9 @@ from django.db import transaction
 
 django.setup()
 
-from databaseFunctions import fileWasRemoved
 from django.conf import settings as mcpclient_settings
+
+from archivematica.archivematicaCommon.databaseFunctions import fileWasRemoved
 
 
 def remove_file(job, target_file, file_uuid):

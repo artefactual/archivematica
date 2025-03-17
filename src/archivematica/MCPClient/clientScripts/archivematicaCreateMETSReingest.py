@@ -2,14 +2,15 @@
 import copy
 import os
 
-import archivematicaCreateMETSMetadataCSV as createmetscsv
-import archivematicaCreateMETSRights as createmetsrights
-import create_mets_v2 as createmets2
 import metsrw
-import namespaces as ns
 from django.core.exceptions import ValidationError
 from lxml import etree
-from main import models
+
+import archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataCSV as createmetscsv
+import archivematica.MCPClient.clientScripts.archivematicaCreateMETSRights as createmetsrights
+import archivematica.MCPClient.clientScripts.create_mets_v2 as createmets2
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.dashboard.main import models
 
 
 def _create_premis_object(premis_object_type):

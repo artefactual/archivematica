@@ -23,17 +23,18 @@ from uuid import uuid4
 import django
 
 django.setup()
-import storageService as storage_service
-from archivematicaFunctions import escape
-from client import metrics
-from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from main.models import Agent
-from main.models import DublinCore
-from main.models import Event
-from main.models import UnitVariable
 from metsrw.plugins import premisrw
+
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.archivematicaFunctions import escape
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import UnitVariable
+from archivematica.MCPClient.client import metrics
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
 

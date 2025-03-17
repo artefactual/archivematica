@@ -28,15 +28,16 @@ from lxml import etree
 
 django.setup()
 import metsrw
-from archivematicaFunctions import get_dashboard_uuid
-from countryCodes import getCodeForCountry
-from main.models import Agent
-from main.models import Derivation
-from main.models import Directory
-from main.models import File
-from main.models import FPCommandOutput
-from main.models import RightsStatement
-from main.models import Transfer
+
+from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
+from archivematica.archivematicaCommon.countryCodes import getCodeForCountry
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import Transfer
 
 PREMIS_META = metsrw.plugins.premisrw.PREMIS_3_0_META
 FILE_PREMIS_META = PREMIS_META.copy()

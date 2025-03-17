@@ -5,12 +5,13 @@ import traceback
 from glob import glob
 
 import django
-import elasticSearchFunctions
-import identifier_functions
-import storageService as storage_service
-from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
-from main.models import UnitVariable
+
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon import identifier_functions
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import UnitVariable
 
 django.setup()
 

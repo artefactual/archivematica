@@ -12,23 +12,25 @@ from typing import Callable
 from typing import Optional
 
 import django
-import transcoder
 from django.utils import timezone
 
+from archivematica.MCPClient.clientScripts import transcoder
+
 django.setup()
-import databaseFunctions
-import fileOperations
-from client.job import Job
-from dicts import ReplacementDict
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from fpr.models import FPRule
-from lib import setup_dicts
-from main.models import Derivation
-from main.models import File
-from main.models import FileFormatVersion
-from main.models import FileID
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.dicts import ReplacementDict
+from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import FileID
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
 # Return codes
 SUCCESS = 0

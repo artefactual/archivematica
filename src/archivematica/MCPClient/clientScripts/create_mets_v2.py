@@ -35,37 +35,56 @@ import metsrw
 
 django.setup()
 
-import archivematicaCreateMETSMetadataXML
-import archivematicaCreateMETSReingest
-import namespaces as ns
-from archivematicaCreateMETSMetadataCSV import parseMetadata
-from archivematicaCreateMETSRights import archivematicaGetRights
-from archivematicaCreateMETSRightsDspaceMDRef import (
-    archivematicaCreateMETSRightsDspaceMDRef,
-)
-from archivematicaCreateMETSTrim import getTrimAmdSec
-from archivematicaCreateMETSTrim import getTrimDmdSec
-from archivematicaCreateMETSTrim import getTrimFileAmdSec
-from archivematicaCreateMETSTrim import getTrimFileDmdSec
-from archivematicaFunctions import normalizeNonDcElementName
 from bagit import Bag
 from bagit import BagError
-from change_names import change_name
-from create_mets_dataverse_v2 import create_dataverse_sip_dmdsec
-from create_mets_dataverse_v2 import create_dataverse_tabfile_dmdsec
-from custom_handlers import get_script_logger
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
-from main.models import SIP
-from main.models import Agent
-from main.models import Derivation
-from main.models import Directory
-from main.models import DublinCore
-from main.models import Event
-from main.models import File
-from main.models import FileID
-from main.models import FPCommandOutput
-from main.models import SIPArrange
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    normalizeNonDcElementName,
+)
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FileID
+from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import SIPArrange
+from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataXML
+from archivematica.MCPClient.clientScripts import archivematicaCreateMETSReingest
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataCSV import (
+    parseMetadata,
+)
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSRights import (
+    archivematicaGetRights,
+)
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSRightsDspaceMDRef import (
+    archivematicaCreateMETSRightsDspaceMDRef,
+)
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSTrim import (
+    getTrimAmdSec,
+)
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSTrim import (
+    getTrimDmdSec,
+)
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSTrim import (
+    getTrimFileAmdSec,
+)
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSTrim import (
+    getTrimFileDmdSec,
+)
+from archivematica.MCPClient.clientScripts.change_names import change_name
+from archivematica.MCPClient.clientScripts.create_mets_dataverse_v2 import (
+    create_dataverse_sip_dmdsec,
+)
+from archivematica.MCPClient.clientScripts.create_mets_dataverse_v2 import (
+    create_dataverse_tabfile_dmdsec,
+)
 
 SIP_DIR_VAR = r"%SIPDirectory%"
 

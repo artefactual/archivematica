@@ -22,7 +22,8 @@ import django
 
 django.setup()
 from django.db import transaction
-from main.models import File
+
+from archivematica.dashboard.main.models import File
 
 
 def call(jobs):

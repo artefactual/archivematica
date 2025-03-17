@@ -26,14 +26,16 @@ import time
 
 import django
 import requests
-from custom_handlers import get_script_logger
+
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 
 django.setup()
 
-import main.models as models
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+
+import archivematica.dashboard.main.models as models
 
 logger = get_script_logger("archivematica.upload.qubit")
 

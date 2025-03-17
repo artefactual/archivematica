@@ -38,14 +38,15 @@ from django.db import transaction
 django.setup()
 
 import metsrw
-import namespaces as ns
-from archivematicaFunctions import chunk_iterable
-from archivematicaFunctions import find_mets_file
-from custom_handlers import get_script_logger
-from fileOperations import addFileToSIP
-from fileOperations import addFileToTransfer
-from main.models import File
-from main.models import Transfer
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon.archivematicaFunctions import chunk_iterable
+from archivematica.archivematicaCommon.archivematicaFunctions import find_mets_file
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.fileOperations import addFileToSIP
+from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.assignFileUUID")
 

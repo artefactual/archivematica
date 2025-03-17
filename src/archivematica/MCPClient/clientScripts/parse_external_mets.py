@@ -2,10 +2,11 @@
 import argparse
 import os
 
-import parse_mets_to_db
-from archivematicaFunctions import find_mets_file
-from custom_handlers import get_script_logger
 from lxml import etree
+
+from archivematica.archivematicaCommon.archivematicaFunctions import find_mets_file
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.MCPClient.clientScripts import parse_mets_to_db
 
 logger = get_script_logger("archivematica.mcp.client.parse_external_mets")
 

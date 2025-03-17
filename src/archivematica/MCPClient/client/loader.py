@@ -23,7 +23,9 @@ def get_supported_modules(modules_file_path: str) -> dict[str, str]:
 def load_module(module_name: str) -> Optional[ModuleType]:
     # No need to cache here as imports are already cached.
     try:
-        return importlib.import_module(f"clientScripts.{module_name}")
+        return importlib.import_module(
+            f"archivematica.MCPClient.clientScripts.{module_name}"
+        )
     except ImportError as err:
         warnings.warn(
             f"Failed to load client script {module_name}: {err}",

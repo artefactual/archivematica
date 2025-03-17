@@ -37,10 +37,10 @@ import django
 from django.db import transaction
 
 django.setup()
-from custom_handlers import get_script_logger
-from main.models import Event
-from main.models import File
-from main.models import Transfer
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
 
 logger = get_script_logger("archivematica.mcp.client.verify_checksum")
 

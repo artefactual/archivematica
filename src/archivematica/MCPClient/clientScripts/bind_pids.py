@@ -47,19 +47,22 @@ from itertools import chain
 import django
 
 django.setup()
-import namespaces as ns
-from archivematicaFunctions import str2bool
-from bindpid import BindPIDException
-from bindpid import _validate_entity_type_required_params
-from bindpid import _validate_handle_server_config
-from bindpid import bind_pid
-from custom_handlers import get_script_logger
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from lxml import etree
-from main.models import SIP
-from main.models import DashboardSetting
-from main.models import Directory
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon.archivematicaFunctions import str2bool
+from archivematica.archivematicaCommon.bindpid import BindPIDException
+from archivematica.archivematicaCommon.bindpid import (
+    _validate_entity_type_required_params,
+)
+from archivematica.archivematicaCommon.bindpid import _validate_handle_server_config
+from archivematica.archivematicaCommon.bindpid import bind_pid
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import Directory
 
 logger = get_script_logger("archivematica.mcp.client.bind_pids")
 

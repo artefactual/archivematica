@@ -13,27 +13,29 @@ Arguments::
 
 import json
 import os
-
-import django
-from custom_handlers import get_script_logger
-
-django.setup()
 from typing import Optional
 
-import databaseFunctions
-from client.job import Job
-from dicts import replace_string_values
+import django
+
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+
+django.setup()
+
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from executeOrRunSubProcess import executeOrRun
-from fpr.models import FormatVersion
-from fpr.models import FPRule
-from lib import setup_dicts
-from main.models import SIP
-from main.models import Derivation
-from main.models import File
-from main.models import Transfer
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon.dicts import replace_string_values
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Derivation
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
 # Note that linkTaskManagerFiles.py will take the highest exit code it has seen
 # from all tasks and will use that as the exit code of the job as a whole.

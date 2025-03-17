@@ -16,7 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 """Test settings and globals."""
 
-from .common import *
+from archivematica.MCPClient.settings.common import *
 
 DATABASES = {
     "default": {
