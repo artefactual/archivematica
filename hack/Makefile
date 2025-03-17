@@ -25,10 +25,10 @@ define compose_tests
 	docker compose -f docker-compose.yml -f docker-compose.tests.yml $(1)
 endef
 
-define run_toxenvs
+define run_toxenv
 	$(call compose_tests, \
 		run \
-			-e DJANGO_SETTINGS_MODULE=settings.testmysql \
+			-e DJANGO_SETTINGS_MODULE=$(2) \
 			-e PYTEST_ADDOPTS=$(subst $(SPACE),\$(SPACE),${PYTEST_ADDOPTS}) \
 			--user $(CALLER_UID):$(CALLER_GID) \
 			--workdir /src \
@@ -134,7 +134,7 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/manage.py \
+		--entrypoint /src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard \
 				$(ARG)
 
@@ -152,13 +152,13 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/manage.py \
+		--entrypoint /src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard \
 				migrate --noinput
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/src/dashboard/manage.py \
+		--entrypoint /src/src/archivematica/dashboard/manage.py \
 			archivematica-dashboard \
 				install \
 					--username="test" \
@@ -182,7 +182,7 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		-e HOME=/tmp/npm-config \
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
-		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
+		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
 		--entrypoint npm \
 			archivematica-dashboard-frontend-builder \
 				install --no-package-lock
@@ -292,22 +292,22 @@ test-build:  ## Build archivematica-tests image.
 __TOXENVS_MCPSERVER := mcp-server
 test-mcp-server: start-mysql  ## Run MCPServer tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER))
-	$(call run_toxenvs,$(__TOXENVS_MCPSERVER))
+	$(call run_toxenv,$(__TOXENVS_MCPSERVER),archivematica.MCPServer.settings.testmysql)
 
 __TOXENVS_MCPCLIENT = mcp-client
 test-mcp-client: start-mysql  ## Run MCPClient tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_MCPCLIENT))
-	$(call run_toxenvs,$(__TOXENVS_MCPCLIENT))
+	$(call run_toxenv,$(__TOXENVS_MCPCLIENT),archivematica.MCPClient.settings.testmysql)
 
 __TOXENVS_DASHBOARD = dashboard
 test-dashboard: start-mysql  ## Run Dashboard tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_DASHBOARD))
-	$(call run_toxenvs,$(__TOXENVS_DASHBOARD))
+	$(call run_toxenv,$(__TOXENVS_DASHBOARD),archivematica.dashboard.settings.testmysql)
 
 __TOXENVS_STORAGE_SERVICE = storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_STORAGE_SERVICE))
-	$(call run_toxenvs,$(__TOXENVS_STORAGE_SERVICE))
+	$(call run_toxenv,$(__TOXENVS_STORAGE_SERVICE),settings.testmysql)
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/tests/integration/run.sh
@@ -315,21 +315,25 @@ test-storage-service-integration:  ## Run Storage Service unit and integration t
 __TOXENVS_ARCHIVEMATICA_COMMON = archivematica-common
 test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_DASHBOARD))
-	$(call run_toxenvs,$(__TOXENVS_ARCHIVEMATICA_COMMON))
+	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA_COMMON),archivematica.dashboard.settings.testmysql)
 
-__TOXENVS_MIGRATIONS = migrations-dashboard migrations-storage-service
 test-migrations: start-mysql  ## Check there are no pending migrations.
 	$(call create_dbs,$(__TEST_DBS_MIGRATIONS))
-	$(call run_toxenvs,$(__TOXENVS_MIGRATIONS))
+	$(call run_toxenv,migrations-dashboard,archivematica.dashboard.settings.testmysql)
+	$(call run_toxenv,migrations-storage-service,settings.testmysql)
 
 __TOXENVS_LINTING = linting
 test-linting:  ## Check linting.
-	$(call run_toxenvs,$(__TOXENVS_LINTING))
+	$(call run_toxenv,$(__TOXENVS_LINTING),archivematica.dashboard.settings.testmysql)
 
-__TOXENVS_ALL := $(__TOXENVS_MCPSERVER) $(__TOXENVS_MCPCLIENT) $(__TOXENVS_DASHBOARD) $(__TOXENVS_STORAGE_SERVICE) $(__TOXENVS_ARCHIVEMATICA_COMMON)
 test-all: start-mysql  ## Run all tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_ARCHIVEMATICA_COMMON))
-	$(call run_toxenvs,$(__TOXENVS_ALL))
+	$(call run_toxenv,$(__TOXENVS_MCPSERVER),archivematica.MCPServer.settings.testmysql)
+	$(call run_toxenv,$(__TEST_DBS_MCPCLIENT),archivematica.MCPClient.settings.testmysql)
+	$(call run_toxenv,$(__TEST_DBS_DASHBOARD),archivematica.dashboard.settings.testmysql)
+	$(call run_toxenv,$(__TEST_DBS_ARCHIVEMATICA_COMMON),archivematica.dashboard.settings.testmysql)
+	$(call run_toxenv,$(__TEST_DBS_STORAGE_SERVICE),settings.testmysql)
+
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \
@@ -400,13 +404,13 @@ test-frontend:  ## Run Dashboard JS tests.
 		-e HOME=/tmp/npm-config \
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
-		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
+		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
 		--entrypoint npm \
 			archivematica-dashboard-testing \
 				install
 	docker run \
 		--rm \
-		--volume "$(SRCDIR)/dashboard/frontend:/src/src/dashboard/frontend" \
+		--volume "$(SRCDIR)/archivematica/dashboard/frontend:/src/src/archivematica/dashboard/frontend" \
 			archivematica-dashboard-testing
 
 stop:  # Stop all containers.
