@@ -10,17 +10,18 @@ import os
 from itertools import chain
 from unittest import mock
 
-import bind_pid
-import bind_pids
-import create_mets_v2
-import namespaces as ns
 import pytest
-from main.models import SIP
-from main.models import DashboardSetting
-from main.models import Directory
-from main.models import File
-from pid_declaration import DeclarePIDs
-from pid_declaration import DeclarePIDsException
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.clientScripts import bind_pid
+from archivematica.MCPClient.clientScripts import bind_pids
+from archivematica.MCPClient.clientScripts import create_mets_v2
+from archivematica.MCPClient.clientScripts.pid_declaration import DeclarePIDs
+from archivematica.MCPClient.clientScripts.pid_declaration import DeclarePIDsException
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -244,8 +245,10 @@ def test_bind_pids_no_config(
 
 
 @pytest.mark.django_db
-@mock.patch("bind_pids._get_unique_acc_no")
-@mock.patch("bind_pids._validate_handle_server_config")
+@mock.patch("archivematica.MCPClient.clientScripts.bind_pids._get_unique_acc_no")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.bind_pids._validate_handle_server_config"
+)
 def test_bind_pids(
     _get_unique_acc_no,
     _validate_handle_server_config,
@@ -413,8 +416,11 @@ def test_bind_pid_no_settings(
         THIS_DIR, "fixtures", "pid_declaration", "identifiers.json"
     ),
 )
-@mock.patch("bind_pids._get_unique_acc_no")
-@mock.patch("bind_pids._validate_handle_server_config", return_value=None)
+@mock.patch("archivematica.MCPClient.clientScripts.bind_pids._get_unique_acc_no")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.bind_pids._validate_handle_server_config",
+    return_value=None,
+)
 def test_pid_declaration(
     _validate_handle_server_config,
     _get_unique_acc_no,
@@ -518,7 +524,7 @@ def test_pid_declaration_exceptions(
         "Expecting no identifiers.json file, but got something else"
     )
     with mock.patch(
-        "pid_declaration.DeclarePIDs._retrieve_identifiers_path",
+        "archivematica.MCPClient.clientScripts.pid_declaration.DeclarePIDs._retrieve_identifiers_path",
         return_value=os.path.join(
             THIS_DIR, "fixtures", "pid_declaration", "bad_identifiers.json"
         ),

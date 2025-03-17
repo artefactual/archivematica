@@ -1,10 +1,11 @@
 import uuid
 
 import metsrw
-import move_to_backlog
 import pytest
 from lxml import etree
-from main.models import Agent
+
+from archivematica.dashboard.main.models import Agent
+from archivematica.MCPClient.clientScripts import move_to_backlog
 
 
 @pytest.mark.django_db

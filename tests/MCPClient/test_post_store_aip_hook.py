@@ -1,10 +1,11 @@
 import pathlib
 from unittest import mock
 
-import post_store_aip_hook
 import pytest
-from client.job import Job
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import post_store_aip_hook
 
 
 @pytest.fixture()
@@ -29,7 +30,7 @@ def test_no_archivesspace(sip, archivesspace_components, mcp_job):
 
 @pytest.mark.django_db
 @mock.patch(
-    "storageService.get_file_info",
+    "archivematica.archivematicaCommon.storageService.get_file_info",
     return_value=[{"misc_attributes": {}}],
 )
 def test_no_dspace(get_file_info, sip, mcp_job):
@@ -40,7 +41,7 @@ def test_no_dspace(get_file_info, sip, mcp_job):
 
 @pytest.mark.django_db
 @mock.patch(
-    "storageService.get_file_info",
+    "archivematica.archivematicaCommon.storageService.get_file_info",
     return_value=[{"misc_attributes": {"handle": "123456789/41"}}],
 )
 @mock.patch(

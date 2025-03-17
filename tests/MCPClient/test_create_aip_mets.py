@@ -8,16 +8,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import archivematicaCreateMETSMetadataCSV
-import archivematicaCreateMETSRights
-import create_mets_v2
-import namespaces as ns
 import pytest
-from client.job import Job
 from django.test import TestCase
 from lxml import etree
-from main.models import RightsStatement
-from version import get_preservation_system_identifier
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataCSV
+from archivematica.MCPClient.clientScripts import archivematicaCreateMETSRights
+from archivematica.MCPClient.clientScripts import create_mets_v2
 
 THIS_DIR = pathlib.Path(__file__).parent
 
@@ -753,7 +754,7 @@ class TestCustomStructMap(TestCase):
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
     mets_xsd_path = os.path.abspath(
-        os.path.join(THIS_DIR, "../../src/MCPClient/assets/mets/mets.xsd")
+        os.path.join(THIS_DIR, "../../src/archivematica/MCPClient/assets/mets/mets.xsd")
     )
 
     @pytest.fixture(autouse=True)

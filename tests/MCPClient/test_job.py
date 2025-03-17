@@ -1,7 +1,7 @@
 import os
 from uuid import uuid4
 
-from client.job import Job
+from archivematica.MCPClient.client.job import Job
 
 THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 

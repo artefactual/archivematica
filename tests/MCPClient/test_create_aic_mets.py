@@ -2,10 +2,11 @@ import os
 import uuid
 from unittest import mock
 
-import create_aic_mets
-import namespaces as ns
 import pytest
 from lxml import etree
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.MCPClient.clientScripts import create_aic_mets
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -16,16 +17,21 @@ def extract_file_mock(aip_uuid, mets_in_aip, mets_path):
 
 
 @pytest.mark.django_db
-@mock.patch("fileOperations.addFileToSIP")
-@mock.patch("databaseFunctions.insertIntoDerivations")
-@mock.patch("storageService.extract_file", side_effect=extract_file_mock)
+@mock.patch("archivematica.archivematicaCommon.fileOperations.addFileToSIP")
+@mock.patch("archivematica.archivematicaCommon.databaseFunctions.insertIntoDerivations")
 @mock.patch(
-    "create_mets_v2.getDublinCore",
+    "archivematica.archivematicaCommon.storageService.extract_file",
+    side_effect=extract_file_mock,
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.create_mets_v2.getDublinCore",
     return_value=etree.Element(
         ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, "dc": ns.dcNS}
     ),
 )
-@mock.patch("create_mets_v2.SIPMetadataAppliesToType")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.create_mets_v2.SIPMetadataAppliesToType"
+)
 def test_create_aic_mets(
     SIPMetadataAppliesToType,
     getDublinCore,

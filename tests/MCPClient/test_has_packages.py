@@ -1,11 +1,12 @@
 import pathlib
 from unittest import mock
 
-import has_packages
 import pytest
-from client.job import Job
-from fpr import models as fprmodels
-from main import models
+
+from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import has_packages
 
 
 @pytest.fixture

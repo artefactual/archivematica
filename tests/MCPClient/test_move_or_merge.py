@@ -1,5 +1,6 @@
 import pytest
-from move_or_merge import move_or_merge
+
+from archivematica.MCPClient.clientScripts.move_or_merge import move_or_merge
 
 
 @pytest.fixture

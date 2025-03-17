@@ -2,18 +2,19 @@ import os
 import shutil
 import uuid
 
-import change_names
-import change_object_names
 import pytest
-from client.job import Job
 from django.test import TestCase
-from main.models import Agent
-from main.models import Directory
-from main.models import Event
-from main.models import File
-from main.models import Transfer
-from main.models import UnitVariable
 from pytest_django.asserts import assertQuerysetEqual
+
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
+from archivematica.dashboard.main.models import UnitVariable
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import change_names
+from archivematica.MCPClient.clientScripts import change_object_names
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

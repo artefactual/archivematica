@@ -1,14 +1,15 @@
 import pathlib
 from unittest import mock
 
-import namespaces as ns
 import pytest
-from archivematicaCreateMETSRightsDspaceMDRef import (
+
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSRightsDspaceMDRef import (
     archivematicaCreateMETSRightsDspaceMDRef,
 )
-from client.job import Job
-from create_mets_v2 import MetsState
-from main import models
+from archivematica.MCPClient.clientScripts.create_mets_v2 import MetsState
 
 
 @pytest.fixture
@@ -142,7 +143,7 @@ def test_archivematicaCreateMETSRightsDspaceMDRef(transfer_data):
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematicaCreateMETSRightsDspaceMDRef.createMDRefDMDSec",
+    "archivematica.MCPClient.clientScripts.archivematicaCreateMETSRightsDspaceMDRef.createMDRefDMDSec",
     side_effect=Exception("error"),
 )
 def test_archivematicaCreateMETSRightsDspaceMDRef_handle_exceptions(

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 from unittest import mock
 
-import dip_generation_helper
 import pytest
-from main.models import ArchivesSpaceDIPObjectResourcePairing
+
+from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
+from archivematica.MCPClient.clientScripts import dip_generation_helper
 
 
 def strip_sip_directory(location):
@@ -67,7 +68,7 @@ def test_no_files_in_db(tmp_path, sip_file):
 
 @pytest.mark.django_db
 @mock.patch(
-    "dip_generation_helper.create_archivesspace_client",
+    "archivematica.MCPClient.clientScripts.dip_generation_helper.create_archivesspace_client",
     return_value=mock.Mock(
         **{
             "find_by_id.return_value": [

@@ -6,10 +6,11 @@ from unittest import mock
 
 import pytest
 import pytest_django
-import validate_file
-from client.job import Job
-from fpr import models as fprmodels
-from main import models
+
+from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import validate_file
 
 
 @pytest.fixture
@@ -59,7 +60,7 @@ def preservation_derivation(
 
 @pytest.mark.django_db
 @mock.patch(
-    "validate_file.executeOrRun",
+    "archivematica.MCPClient.clientScripts.validate_file.executeOrRun",
     return_value=(
         0,
         json.dumps(
@@ -83,7 +84,7 @@ def test_job_warns_if_preservation_derivative_sip_does_not_exist(
     sip_uuid = uuid.uuid4()
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip_uuid),
@@ -105,7 +106,7 @@ def test_job_warns_if_preservation_derivative_sip_does_not_exist(
 
 @pytest.mark.django_db
 @mock.patch(
-    "validate_file.executeOrRun",
+    "archivematica.MCPClient.clientScripts.validate_file.executeOrRun",
     return_value=(
         0,
         json.dumps(
@@ -129,7 +130,7 @@ def test_job_warns_if_preservation_derivative_sip_logs_directory_does_not_exist(
 ) -> None:
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),
@@ -155,7 +156,7 @@ def test_job_warns_if_preservation_derivative_sip_logs_directory_does_not_exist(
     [("pass", "successful"), ("partial pass", "partially successful")],
     ids=["pass", "partial-pass"],
 )
-@mock.patch("validate_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.validate_file.executeOrRun")
 def test_job_succeeds_with_passing_validation_outcome(
     execute_or_run: mock.Mock,
     outcome_information: str,
@@ -179,7 +180,7 @@ def test_job_succeeds_with_passing_validation_outcome(
     )
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),
@@ -223,7 +224,7 @@ def test_job_succeeds_with_passing_validation_outcome(
 
 
 @pytest.mark.django_db
-@mock.patch("validate_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.validate_file.executeOrRun")
 def test_job_saves_command_output_as_preservation_logs(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -248,7 +249,7 @@ def test_job_saves_command_output_as_preservation_logs(
     )
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),
@@ -273,7 +274,7 @@ def test_job_saves_command_output_as_preservation_logs(
 
 @pytest.mark.django_db
 @mock.patch(
-    "validate_file.executeOrRun",
+    "archivematica.MCPClient.clientScripts.validate_file.executeOrRun",
     return_value=(
         0,
         json.dumps(
@@ -306,7 +307,7 @@ def test_job_falls_back_to_default_validation_rule(
     )
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),
@@ -347,7 +348,7 @@ def test_job_skips_validation_if_rules_do_not_exist(
 
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             sip_file.currentlocation.decode(),
             str(sip_file.uuid),
             str(sip.uuid),
@@ -384,7 +385,7 @@ def test_job_skips_validation_if_file_is_not_a_derivative(
 
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),
@@ -405,7 +406,7 @@ def test_job_skips_validation_if_file_is_not_a_derivative(
 
 
 @pytest.mark.django_db
-@mock.patch("validate_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.validate_file.executeOrRun")
 def test_job_fails_if_rule_command_fails(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -420,7 +421,7 @@ def test_job_fails_if_rule_command_fails(
     execute_or_run.return_value = (exit_status, "", stderr)
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),
@@ -442,7 +443,7 @@ def test_job_fails_if_rule_command_fails(
 
 
 @pytest.mark.django_db
-@mock.patch("validate_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.validate_file.executeOrRun")
 def test_job_fails_with_non_passing_validation_outcome(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -461,7 +462,7 @@ def test_job_fails_with_non_passing_validation_outcome(
     execute_or_run.return_value = (0, stdout, "")
     job = mock.Mock(
         args=[
-            "validate_file.py",
+            "archivematica.MCPClient.clientScripts.validate_file.py",
             preservation_file.currentlocation.decode(),
             str(preservation_file.uuid),
             str(sip.uuid),

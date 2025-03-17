@@ -5,7 +5,9 @@ Tests for CSV metadata management on the METS creation process
 
 from unittest import mock
 
-from archivematicaCreateMETSMetadataCSV import parseMetadataCSV
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataCSV import (
+    parseMetadataCSV,
+)
 
 content_when_value_has_empty_strings = """
 filename,dc.title,dc.type,dc.type,Other metadata

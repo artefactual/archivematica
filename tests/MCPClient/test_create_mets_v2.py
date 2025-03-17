@@ -5,19 +5,25 @@ from unittest import mock
 
 import pytest
 import pytest_django
-from client.job import Job
-from create_mets_v2 import createDMDIDsFromCSVMetadata
-from create_mets_v2 import main
 from lxml import etree
-from main.models import SIP
-from main.models import DublinCore
-from main.models import File
-from main.models import MetadataAppliesToType
-from main.models import SIPArrange
-from namespaces import NSMAP
+
+from archivematica.archivematicaCommon.namespaces import NSMAP
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import SIPArrange
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.create_mets_v2 import (
+    createDMDIDsFromCSVMetadata,
+)
+from archivematica.MCPClient.clientScripts.create_mets_v2 import main
 
 
-@mock.patch("create_mets_v2.createDmdSecsFromCSVParsedMetadata", return_value=[])
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.create_mets_v2.createDmdSecsFromCSVParsedMetadata",
+    return_value=[],
+)
 def test_createDMDIDsFromCSVMetadata_finds_non_ascii_paths(
     dmd_secs_creator_mock: mock.Mock,
 ) -> None:
@@ -287,7 +293,9 @@ def test_aip_mets_normative_directory_structure(
         (None, [], does_not_raise()),
     ],
 )
-@mock.patch("create_mets_v2.archivematicaCreateMETSMetadataXML.process_xml_metadata")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.create_mets_v2.archivematicaCreateMETSMetadataXML.process_xml_metadata"
+)
 def test_xml_validation_fail_on_error(
     process_xml_metadata: mock.Mock,
     settings: pytest_django.fixtures.SettingsWrapper,
@@ -430,7 +438,7 @@ def bag_path(sip_directory_path: pathlib.Path, sip: SIP) -> pathlib.Path:
 
 
 @pytest.mark.django_db
-@mock.patch("create_mets_v2.Bag")
+@mock.patch("archivematica.MCPClient.clientScripts.create_mets_v2.Bag")
 @pytest.mark.parametrize(
     "info",
     [

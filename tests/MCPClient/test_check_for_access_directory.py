@@ -1,11 +1,12 @@
 from unittest import mock
 
-import check_for_access_directory
 import pytest
-from client.job import Job
 from django.utils import timezone
-from main.models import Event
-from main.models import File
+
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import check_for_access_directory
 
 
 @pytest.mark.django_db

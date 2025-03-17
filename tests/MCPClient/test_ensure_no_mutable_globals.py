@@ -22,7 +22,8 @@ from dis import opmap
 
 import django
 import prometheus_client
-from client.loader import get_supported_modules
+
+from archivematica.MCPClient.client.loader import get_supported_modules
 
 django.setup()
 
@@ -92,7 +93,9 @@ def analyze_module(module_name):
     methods.
     """
     global2modules_funcs_2 = {}
-    module = importlib.import_module("clientScripts." + module_name)
+    module = importlib.import_module(
+        "archivematica.MCPClient.clientScripts." + module_name
+    )
     for attr in dir(module):
         val = getattr(module, attr)
         if attr.startswith("__"):
@@ -153,6 +156,7 @@ def test_ensure_no_mutable_globals():
     config_path = (
         pathlib.Path(__file__).parent.parent.parent
         / "src"
+        / "archivematica"
         / "MCPClient"
         / "archivematicaClientModules"
     )

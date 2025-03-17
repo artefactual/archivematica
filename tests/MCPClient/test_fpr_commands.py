@@ -2,8 +2,9 @@ import re
 from typing import TypedDict
 
 import pytest
-from executeOrRunSubProcess import executeOrRun
-from fpr.models import FPCommand
+
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
+from archivematica.dashboard.fpr.models import FPCommand
 
 
 class QueryFilters(TypedDict):

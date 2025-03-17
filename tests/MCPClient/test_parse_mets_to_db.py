@@ -2,13 +2,14 @@ import os
 import uuid
 from unittest import mock
 
-import fpr
-import parse_mets_to_db
 import pytest
-from client.job import Job
 from django.test import TestCase
 from lxml import etree
-from main import models
+
+from archivematica.dashboard import fpr
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import parse_mets_to_db
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -666,8 +667,8 @@ class TestParseFiles(TestCase):
 
 
 @pytest.mark.django_db
-@mock.patch("parse_mets_to_db.os")
-@mock.patch("parse_mets_to_db.etree")
+@mock.patch("archivematica.MCPClient.clientScripts.parse_mets_to_db.os")
+@mock.patch("archivematica.MCPClient.clientScripts.parse_mets_to_db.etree")
 def test_main_sets_aip_reingest_type(etree, os, sip):
     job = None
     assert not models.SIP.objects.filter(uuid=sip.uuid, sip_type="AIP-REIN").exists()
@@ -678,8 +679,8 @@ def test_main_sets_aip_reingest_type(etree, os, sip):
 
 
 @pytest.mark.django_db
-@mock.patch("parse_mets_to_db.os")
-@mock.patch("parse_mets_to_db.etree")
+@mock.patch("archivematica.MCPClient.clientScripts.parse_mets_to_db.os")
+@mock.patch("archivematica.MCPClient.clientScripts.parse_mets_to_db.etree")
 def test_main_unsets_partial_reingest_flag(etree, os, sip):
     job = None
     sip.set_partial_reingest()

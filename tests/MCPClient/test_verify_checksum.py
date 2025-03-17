@@ -26,14 +26,17 @@ import subprocess
 from unittest import mock
 
 import pytest
-from client.job import Job
-from main.models import Event
-from main.models import File
-from verify_checksum import Hashsum
-from verify_checksum import NoHashCommandAvailable
-from verify_checksum import PREMISFailure
-from verify_checksum import get_file_queryset
-from verify_checksum import write_premis_event_per_file
+
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.verify_checksum import Hashsum
+from archivematica.MCPClient.clientScripts.verify_checksum import NoHashCommandAvailable
+from archivematica.MCPClient.clientScripts.verify_checksum import PREMISFailure
+from archivematica.MCPClient.clientScripts.verify_checksum import get_file_queryset
+from archivematica.MCPClient.clientScripts.verify_checksum import (
+    write_premis_event_per_file,
+)
 
 
 class TestHashsum:

@@ -2,10 +2,11 @@ import pathlib
 
 import pytest
 import pytest_django
-from client.job import Job
 from django.utils import timezone
-from fpr import models as fprmodels
-from main import models
+
+from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
 
 
 @pytest.fixture(autouse=True)

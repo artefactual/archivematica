@@ -4,12 +4,13 @@ import sys
 import uuid
 from unittest import mock
 
-import load_premis_events_from_xml
 import pytest
 from lxml import etree
-from main.models import Agent
-from main.models import Event
-from main.models import File
+
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.clientScripts import load_premis_events_from_xml
 
 THIS_DIR = pathlib.Path(__file__).parent
 
@@ -17,7 +18,9 @@ THIS_DIR = pathlib.Path(__file__).parent
 @pytest.fixture()
 def xsd_path():
     return os.path.abspath(
-        os.path.join(THIS_DIR, "../../src/MCPClient/assets/premis/premis.xsd")
+        os.path.join(
+            THIS_DIR, "../../src/archivematica/MCPClient/assets/premis/premis.xsd"
+        )
     )
 
 
@@ -229,9 +232,11 @@ def test_get_premis_element_children_identifiers():
     ids=["original_name_as_string", "original_name_as_empty_string"],
 )
 @mock.patch("metsrw.plugins.premisrw.premis_to_data")
-@mock.patch("load_premis_events_from_xml.PREMISFile")
 @mock.patch(
-    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    "archivematica.MCPClient.clientScripts.load_premis_events_from_xml.PREMISFile"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.load_premis_events_from_xml.get_premis_element_children_identifiers",
     return_value=set(),
 )
 def test_file_element_factory(
@@ -253,7 +258,7 @@ def test_file_element_factory(
 @mock.patch("metsrw.plugins.premisrw.premis_to_data")
 @mock.patch("metsrw.plugins.premisrw.PREMISAgent")
 @mock.patch(
-    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    "archivematica.MCPClient.clientScripts.load_premis_events_from_xml.get_premis_element_children_identifiers",
     return_value=set(),
 )
 def test_agent_element_factory(
@@ -288,7 +293,7 @@ def test_agent_element_factory(
 @mock.patch("metsrw.plugins.premisrw.premis_to_data")
 @mock.patch("metsrw.plugins.premisrw.PREMISEvent")
 @mock.patch(
-    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    "archivematica.MCPClient.clientScripts.load_premis_events_from_xml.get_premis_element_children_identifiers",
     return_value=set(),
 )
 def test_event_element_factory(
@@ -353,7 +358,7 @@ def test_event_element_factory(
     ),
 )
 @mock.patch(
-    "load_premis_events_from_xml.get_premis_element_children_identifiers",
+    "archivematica.MCPClient.clientScripts.load_premis_events_from_xml.get_premis_element_children_identifiers",
     return_value=set(),
 )
 def test_event_element_factory_prints_datetime_error(
@@ -424,7 +429,10 @@ def test_event_element_factory_with_no_event_outcome_detail():
 
 def test_get_or_create_agents():
     mock_agent_model = mock.Mock(**{"objects.get_or_create.return_value": (None, None)})
-    with mock.patch("load_premis_events_from_xml.Agent", mock_agent_model):
+    with mock.patch(
+        "archivematica.MCPClient.clientScripts.load_premis_events_from_xml.Agent",
+        mock_agent_model,
+    ):
         agents = [
             {"identifier": ("type", "value"), "name": "agent1", "type": "agenttype"}
         ]

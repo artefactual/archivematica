@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # upload-qubit script location
-UPLOAD_QUBIT_PATH="${HOME}/archivematica/src/MCPClient/clientScripts/upload-qubit.py"
+UPLOAD_QUBIT_PATH="${HOME}/archivematica/src/archivematica/MCPClient/clientScripts/upload-qubit.py"
 
 # Qubit URL and login
 URL="http://localhost/ica-atom/index.php/sword/deposit/archivematica"

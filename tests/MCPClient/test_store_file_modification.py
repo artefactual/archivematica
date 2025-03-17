@@ -2,11 +2,12 @@ import os
 import shutil
 import tempfile
 
-import store_file_modification_dates
 from django.test import TestCase
 from django.test import override_settings
 from django.utils.timezone import get_current_timezone
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.clientScripts import store_file_modification_dates
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

@@ -3,11 +3,12 @@ import pathlib
 import uuid
 from unittest import mock
 
-import policy_check
 import pytest
-from client.job import Job
-from fpr import models as fprmodels
-from main import models
+
+from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import policy_check
 
 
 @pytest.fixture()
@@ -79,7 +80,7 @@ def access_file_format_version(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_succeeds_if_rules_exist(
     execute_or_run: mock.Mock,
     sip_file: models.File,
@@ -139,7 +140,7 @@ def test_policy_checker_succeeds_if_rules_exist(
 
 @pytest.mark.django_db
 @mock.patch(
-    "policy_check.executeOrRun",
+    "archivematica.MCPClient.clientScripts.policy_check.executeOrRun",
     return_value=(
         1,
         json.dumps(
@@ -181,7 +182,7 @@ def test_policy_checker_warns_if_rules_do_not_exist(
 
 @pytest.mark.django_db
 @mock.patch(
-    "policy_check.executeOrRun",
+    "archivematica.MCPClient.clientScripts.policy_check.executeOrRun",
     return_value=(
         1,
         json.dumps(
@@ -223,7 +224,7 @@ def test_policy_checker_warns_if_file_does_not_exist(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_fails_if_rule_command_fails(
     execute_or_run: mock.Mock,
     sip_file: models.File,
@@ -266,7 +267,7 @@ def test_policy_checker_fails_if_rule_command_fails(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass(
     execute_or_run: mock.Mock,
     sip_file: models.File,
@@ -311,7 +312,7 @@ def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_verifies_file_type_is_preservation(
     execute_or_run: mock.Mock,
     derivation_for_preservation: models.Derivation,
@@ -356,7 +357,7 @@ def test_policy_checker_verifies_file_type_is_preservation(
 
 @pytest.mark.django_db
 @mock.patch(
-    "policy_check.executeOrRun",
+    "archivematica.MCPClient.clientScripts.policy_check.executeOrRun",
     return_value=(
         0,
         json.dumps(
@@ -399,7 +400,7 @@ def test_policy_checker_fails_if_file_is_not_preservation_derivative(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_verifies_file_type_is_access(
     execute_or_run: mock.Mock,
     derivation_for_access: models.Derivation,
@@ -443,7 +444,7 @@ def test_policy_checker_verifies_file_type_is_access(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_fails_if_file_is_not_access_derivative(
     execute_or_run: mock.Mock,
     access_file: models.File,
@@ -487,7 +488,7 @@ def test_policy_checker_fails_if_file_is_not_access_derivative(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_saves_policy_check_result_into_logs_directory(
     execute_or_run: mock.Mock,
     preservation_file: models.File,
@@ -544,7 +545,7 @@ def test_policy_checker_saves_policy_check_result_into_logs_directory(
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_saves_policy_check_result_into_submission_documentation_directory(
     execute_or_run: mock.Mock,
     sip_file: models.File,
@@ -598,7 +599,7 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
 
 
 @pytest.mark.django_db
-@mock.patch("policy_check.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_checks_manually_normalized_access_derivative_file(
     execute_or_run: mock.Mock,
     transfer: models.Transfer,

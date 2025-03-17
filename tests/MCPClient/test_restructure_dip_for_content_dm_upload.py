@@ -2,7 +2,8 @@ import os
 import shutil
 
 import pytest
-import restructure_dip_for_content_dm_upload
+
+from archivematica.MCPClient.clientScripts import restructure_dip_for_content_dm_upload
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

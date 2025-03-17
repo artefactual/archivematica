@@ -12,10 +12,13 @@ from uuid import uuid4
 import metsrw
 import pytest
 import requests
-from archivematicaCreateMETSMetadataXML import process_xml_metadata
 from importlib_metadata import version
 from lxml.etree import parse
-from main.models import File
+
+from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML import (
+    process_xml_metadata,
+)
 
 METADATA_DIR = Path("objects") / "metadata"
 TRANSFER_METADATA_DIR = METADATA_DIR / "transfers" / "transfer_a"
@@ -127,7 +130,7 @@ def make_mock_mets(make_mock_fsentry):
 @pytest.fixture
 def insert_into_events_mock():
     with mock.patch(
-        "archivematicaCreateMETSMetadataXML.insertIntoEvents",
+        "archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML.insertIntoEvents",
         return_value="fake_event",
     ) as result:
         yield result
@@ -136,7 +139,7 @@ def insert_into_events_mock():
 @pytest.fixture
 def create_event_mock():
     with mock.patch(
-        "archivematicaCreateMETSMetadataXML.createmets2.createEvent",
+        "archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML.createmets2.createEvent",
         return_value="fake_element",
     ) as result:
         yield result
@@ -180,7 +183,7 @@ def etree_parse():
             return parse(*args, **kwargs)
 
     with mock.patch(
-        "archivematicaCreateMETSMetadataXML.etree.parse",
+        "archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML.etree.parse",
         mock_parse(),
     ):
         yield

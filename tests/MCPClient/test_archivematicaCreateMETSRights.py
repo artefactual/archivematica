@@ -1,8 +1,9 @@
-import archivematicaCreateMETSRights
 import pytest
-from create_mets_v2 import MetsState
-from main import models
-from namespaces import NSMAP
+
+from archivematica.archivematicaCommon.namespaces import NSMAP
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.clientScripts import archivematicaCreateMETSRights
+from archivematica.MCPClient.clientScripts.create_mets_v2 import MetsState
 
 
 @pytest.fixture()

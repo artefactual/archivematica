@@ -1,10 +1,11 @@
 import pathlib
 from unittest import mock
 
-import load_labels_from_csv
 import pytest
-from client.job import Job
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import load_labels_from_csv
 
 LABEL = "my file"
 OBJECTS_DIRECTORY = "%transferDirectory%objects"

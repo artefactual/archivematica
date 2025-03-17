@@ -1,9 +1,10 @@
 from unittest import mock
 
 import pytest
-from assign_uuids_to_directories import main
-from client.job import Job
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.assign_uuids_to_directories import main
 
 
 @pytest.fixture

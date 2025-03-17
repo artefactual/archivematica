@@ -4,16 +4,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import archivematicaCreateMETSReingest
 import metsrw
-from client.job import Job
 from django.core.management import call_command
 from django.test import TestCase
 from lxml import etree
-from main import models
-from namespaces import NSMAP
-from namespaces import nsmap_for_premis2
-from version import get_preservation_system_identifier
+
+from archivematica.archivematicaCommon.namespaces import NSMAP
+from archivematica.archivematicaCommon.namespaces import nsmap_for_premis2
+from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import archivematicaCreateMETSReingest
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")

@@ -1,9 +1,10 @@
 import os
 
-import rights_from_csv
-from client.job import Job
 from django.test import TestCase
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import rights_from_csv
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

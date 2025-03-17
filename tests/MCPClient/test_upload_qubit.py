@@ -2,8 +2,9 @@ import os
 from unittest import mock
 
 import pytest
-import upload_qubit
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.clientScripts import upload_qubit
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 

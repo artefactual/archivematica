@@ -4,7 +4,8 @@ import uuid
 from unittest import mock
 
 import pytest
-import upload_archivesspace
+
+from archivematica.MCPClient.clientScripts import upload_archivesspace
 
 
 def test_recursive_file_gen(tmpdir):
@@ -25,7 +26,7 @@ def test_get_files_from_dip_finds_files(tmpdir):
     assert sorted(result) == [str(object1), str(object2)]
 
 
-@mock.patch("upload_archivesspace.logger")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.logger")
 def test_get_files_from_dip_with_empty_dip_location(logger, tmpdir):
     dip = tmpdir.mkdir("mydip")
     with pytest.raises(ValueError):
@@ -35,7 +36,7 @@ def test_get_files_from_dip_with_empty_dip_location(logger, tmpdir):
 
 
 @mock.patch(
-    "upload_archivesspace.ArchivesSpaceDIPObjectResourcePairing.objects.filter",
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceDIPObjectResourcePairing.objects.filter",
     return_value=[
         mock.Mock(fileuuid="1", resourceid="myresource"),
         mock.Mock(fileuuid="2", resourceid="myresource"),
@@ -48,7 +49,9 @@ def test_get_pairs(filter_mock):
     filter_mock.assert_called_once_with(dipuuid=dip_uuid)
 
 
-@mock.patch("upload_archivesspace.ArchivesSpaceDIPObjectResourcePairing.objects.filter")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceDIPObjectResourcePairing.objects.filter"
+)
 def test_delete_pairs(filter_mock):
     dip_uuid = "somedipuuid"
     queryset_mock = mock.Mock()
@@ -63,8 +66,8 @@ def test_delete_pairs(filter_mock):
     ["http://some/uri/", "http://some/uri"],
     ids=["uri_with_trailing_slash", "uri_with_no_trailing_slash"],
 )
-@mock.patch("upload_archivesspace.mets_file")
-@mock.patch("upload_archivesspace.get_pairs")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
 def test_upload_to_archivesspace_adds_trailing_slash_to_uri(
     get_pairs, mest_file, db, uri
 ):
@@ -117,9 +120,9 @@ def test_upload_to_archivesspace_adds_trailing_slash_to_uri(
     ],
     ids=["with_restrictions", "with_access_conditions", "with_use_conditions"],
 )
-@mock.patch("upload_archivesspace.get_pairs")
-@mock.patch("upload_archivesspace.logger")
-@mock.patch("upload_archivesspace.mets_file")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.logger")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
 def test_upload_to_archivesspace_gets_mets_if_needed(
     mets_file_mock, logger, get_pairs, params
 ):
@@ -147,9 +150,9 @@ def test_upload_to_archivesspace_gets_mets_if_needed(
     )
 
 
-@mock.patch("upload_archivesspace.get_pairs")
-@mock.patch("upload_archivesspace.logger")
-@mock.patch("upload_archivesspace.mets_file")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.logger")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
 def test_upload_to_archivesspace_logs_files_with_no_pairs(
     mets_file, logger, get_pairs, db
 ):
@@ -176,9 +179,9 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(
     assert not success
 
 
-@mock.patch("upload_archivesspace.get_pairs")
-@mock.patch("upload_archivesspace.logger")
-@mock.patch("upload_archivesspace.mets_file")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.logger")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
 def test_upload_to_archivesspace_when_upload_fails(mets_file, logger, get_pairs, db):
     file1_uuid = uuid.uuid4()
     file2_uuid = uuid.uuid4()
@@ -212,7 +215,7 @@ def test_upload_to_archivesspace_when_upload_fails(mets_file, logger, get_pairs,
 
 
 @mock.patch(
-    "upload_archivesspace.get_parser",
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.get_parser",
     return_value=mock.Mock(
         **{
             "parse_args.return_value": mock.Mock(
@@ -237,9 +240,16 @@ def test_upload_to_archivesspace_when_upload_fails(mets_file, logger, get_pairs,
         }
     ),
 )
-@mock.patch("upload_archivesspace.ArchivesSpaceClient")
-@mock.patch("upload_archivesspace.get_files_from_dip", return_value=[])
-@mock.patch("upload_archivesspace.upload_to_archivesspace")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceClient"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.get_files_from_dip",
+    return_value=[],
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.upload_to_archivesspace"
+)
 def test_call(
     upload_to_archivesspace,
     get_files_from_dip_mock,
@@ -282,10 +292,16 @@ def test_call(
     ],
     ids=["no_files_found", "unknown_error_raised"],
 )
-@mock.patch("upload_archivesspace.get_parser")
-@mock.patch("upload_archivesspace.ArchivesSpaceClient")
-@mock.patch("upload_archivesspace.get_files_from_dip")
-@mock.patch("upload_archivesspace.upload_to_archivesspace")
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_parser")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceClient"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.get_files_from_dip"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.upload_to_archivesspace"
+)
 def test_call_when_files_from_dip_cant_be_retrieved(
     upload_to_archivesspace,
     get_files_from_dip,
@@ -303,10 +319,17 @@ def test_call_when_files_from_dip_cant_be_retrieved(
     upload_to_archivesspace.assert_not_called()
 
 
-@mock.patch("upload_archivesspace.get_parser")
-@mock.patch("upload_archivesspace.ArchivesSpaceClient")
-@mock.patch("upload_archivesspace.get_files_from_dip")
-@mock.patch("upload_archivesspace.upload_to_archivesspace", return_value=False)
+@mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_parser")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceClient"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.get_files_from_dip"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.upload_archivesspace.upload_to_archivesspace",
+    return_value=False,
+)
 def test_call_when_not_all_files_can_be_paired(
     upload_to_archivesspace, get_files_from_dip, client_factory, get_parser, db
 ):

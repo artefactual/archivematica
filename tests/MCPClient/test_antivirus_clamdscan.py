@@ -4,11 +4,12 @@ import errno
 from collections import namedtuple
 from unittest import mock
 
-import archivematica_clamscan
 from clamd import BufferTooLongError
 from clamd import ClamdNetworkSocket
 from clamd import ClamdUnixSocket
 from clamd import ConnectionError
+
+from archivematica.MCPClient.clientScripts import archivematica_clamscan
 
 
 def setup_clamdscanner(

@@ -4,10 +4,11 @@
 import os
 from collections import namedtuple
 
-import convert_dataverse_structure
 import metsrw
 import pytest
-from client.job import Job
+
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import convert_dataverse_structure
 
 # List of Dataverse metadata fixtures. We use a named-tuple to provide some
 # structure to this index so that we can keep track of information regarding

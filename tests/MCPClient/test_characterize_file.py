@@ -1,10 +1,11 @@
 from unittest import mock
 
-import characterize_file
 import pytest
-from client.job import Job
-from fpr import models as fprmodels
-from main import models
+
+from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts import characterize_file
 
 
 @pytest.fixture
@@ -80,7 +81,7 @@ def test_job_succeeds_if_no_characterization_rules_exist(
     ["bashScript", "pythonScript"],
     ids=["bashScript", "pythonScript"],
 )
-@mock.patch("characterize_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.characterize_file.executeOrRun")
 def test_job_executes_command(
     execute_or_run: mock.Mock,
     script_type: str,
@@ -118,7 +119,7 @@ def test_job_executes_command(
 
 
 @pytest.mark.django_db
-@mock.patch("characterize_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.characterize_file.executeOrRun")
 def test_job_fails_if_command_fails(
     execute_or_run: mock.Mock,
     sip_file: models.File,
@@ -153,9 +154,11 @@ def test_job_fails_if_command_fails(
 
 
 @pytest.mark.django_db
-@mock.patch("characterize_file.insertIntoFPCommandOutput")
-@mock.patch("characterize_file.etree")
-@mock.patch("characterize_file.executeOrRun")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.characterize_file.insertIntoFPCommandOutput"
+)
+@mock.patch("archivematica.MCPClient.clientScripts.characterize_file.etree")
+@mock.patch("archivematica.MCPClient.clientScripts.characterize_file.executeOrRun")
 def test_job_saves_valid_xml_command_output(
     execute_or_run: mock.Mock,
     etree: mock.Mock,
@@ -196,7 +199,7 @@ def test_job_saves_valid_xml_command_output(
 
 
 @pytest.mark.django_db
-@mock.patch("characterize_file.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.characterize_file.executeOrRun")
 def test_job_fails_with_invalid_xml_command_output(
     execute_or_run: mock.Mock,
     sip_file: models.File,

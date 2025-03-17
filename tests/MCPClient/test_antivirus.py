@@ -4,8 +4,9 @@ from collections import OrderedDict
 from collections import namedtuple
 from unittest import mock
 
-import archivematica_clamscan
 import pytest
+
+from archivematica.MCPClient.clientScripts import archivematica_clamscan
 
 from . import test_antivirus_clamdscan
 
@@ -101,9 +102,11 @@ def setup_test_scan_file_mocks(
     return deps
 
 
-@mock.patch("archivematica_clamscan.file_already_scanned")
-@mock.patch("main.models.File.objects.get")
-@mock.patch("archivematica_clamscan.get_scanner")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.archivematica_clamscan.file_already_scanned"
+)
+@mock.patch("archivematica.dashboard.main.models.File.objects.get")
+@mock.patch("archivematica.MCPClient.clientScripts.archivematica_clamscan.get_scanner")
 def test_scan_file_already_scanned(
     get_scanner, file_objects_get, file_already_scanned_mock
 ):
@@ -170,9 +173,11 @@ QueueEventParams = namedtuple("QueueEventParams", ["scanner_is_None", "passed"])
         ),
     ],
 )
-@mock.patch("archivematica_clamscan.file_already_scanned")
-@mock.patch("main.models.File.objects.get")
-@mock.patch("archivematica_clamscan.get_scanner")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.archivematica_clamscan.file_already_scanned"
+)
+@mock.patch("archivematica.dashboard.main.models.File.objects.get")
+@mock.patch("archivematica.MCPClient.clientScripts.archivematica_clamscan.get_scanner")
 def test_scan_file(
     get_scanner,
     file_objects_get,

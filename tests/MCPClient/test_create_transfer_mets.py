@@ -4,40 +4,53 @@ import uuid
 
 import metsrw
 import pytest
-from create_transfer_mets import FSEntriesTree
-from create_transfer_mets import agent_to_premis
-from create_transfer_mets import dir_obj_to_premis
-from create_transfer_mets import event_to_premis
-from create_transfer_mets import file_obj_to_premis
-from create_transfer_mets import rights_to_premis
-from create_transfer_mets import write_mets
 from django.db.models import prefetch_related_objects
 from lxml import etree
-from main.models import Agent
-from main.models import DashboardSetting
-from main.models import Directory
-from main.models import Event
-from main.models import File
-from main.models import FPCommandOutput
-from main.models import MetadataAppliesToType
-from main.models import RightsStatement
-from main.models import RightsStatementCopyright
-from main.models import RightsStatementCopyrightDocumentationIdentifier
-from main.models import RightsStatementCopyrightNote
-from main.models import RightsStatementLicense
-from main.models import RightsStatementLicenseDocumentationIdentifier
-from main.models import RightsStatementLicenseNote
-from main.models import RightsStatementOtherRightsDocumentationIdentifier
-from main.models import RightsStatementOtherRightsInformation
-from main.models import RightsStatementOtherRightsInformationNote
-from main.models import RightsStatementRightsGranted
-from main.models import RightsStatementRightsGrantedNote
-from main.models import RightsStatementRightsGrantedRestriction
-from main.models import RightsStatementStatuteDocumentationIdentifier
-from main.models import RightsStatementStatuteInformation
-from main.models import RightsStatementStatuteInformationNote
 from metsrw.plugins.premisrw import PREMIS_3_0_NAMESPACES
-from version import get_preservation_system_identifier
+
+from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import Directory
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import RightsStatementCopyright
+from archivematica.dashboard.main.models import (
+    RightsStatementCopyrightDocumentationIdentifier,
+)
+from archivematica.dashboard.main.models import RightsStatementCopyrightNote
+from archivematica.dashboard.main.models import RightsStatementLicense
+from archivematica.dashboard.main.models import (
+    RightsStatementLicenseDocumentationIdentifier,
+)
+from archivematica.dashboard.main.models import RightsStatementLicenseNote
+from archivematica.dashboard.main.models import (
+    RightsStatementOtherRightsDocumentationIdentifier,
+)
+from archivematica.dashboard.main.models import RightsStatementOtherRightsInformation
+from archivematica.dashboard.main.models import (
+    RightsStatementOtherRightsInformationNote,
+)
+from archivematica.dashboard.main.models import RightsStatementRightsGranted
+from archivematica.dashboard.main.models import RightsStatementRightsGrantedNote
+from archivematica.dashboard.main.models import RightsStatementRightsGrantedRestriction
+from archivematica.dashboard.main.models import (
+    RightsStatementStatuteDocumentationIdentifier,
+)
+from archivematica.dashboard.main.models import RightsStatementStatuteInformation
+from archivematica.dashboard.main.models import RightsStatementStatuteInformationNote
+from archivematica.MCPClient.clientScripts.create_transfer_mets import FSEntriesTree
+from archivematica.MCPClient.clientScripts.create_transfer_mets import agent_to_premis
+from archivematica.MCPClient.clientScripts.create_transfer_mets import dir_obj_to_premis
+from archivematica.MCPClient.clientScripts.create_transfer_mets import event_to_premis
+from archivematica.MCPClient.clientScripts.create_transfer_mets import (
+    file_obj_to_premis,
+)
+from archivematica.MCPClient.clientScripts.create_transfer_mets import rights_to_premis
+from archivematica.MCPClient.clientScripts.create_transfer_mets import write_mets
 
 PREMIS_NAMESPACES = PREMIS_3_0_NAMESPACES
 

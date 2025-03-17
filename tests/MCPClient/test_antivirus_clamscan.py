@@ -3,8 +3,9 @@
 import subprocess
 from unittest import mock
 
-import archivematica_clamscan
 import pytest
+
+from archivematica.MCPClient.clientScripts import archivematica_clamscan
 
 
 @pytest.mark.parametrize(

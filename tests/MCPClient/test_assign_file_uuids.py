@@ -2,9 +2,10 @@ import uuid
 from unittest import mock
 
 import pytest
-from assign_file_uuids import call
-from client.job import Job
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.assign_file_uuids import call
 
 
 @pytest.fixture
@@ -28,7 +29,7 @@ def test_call_creates_transfer_files_and_events(sip_directory_path, transfer):
     job = mock.MagicMock(
         spec=Job,
         args=[
-            "assign_file_uuids.py",
+            "archivematica.MCPClient.clientScripts.assign_file_uuids.py",
             "--transferUUID",
             str(transfer.uuid),
             "--sipDirectory",
@@ -56,10 +57,10 @@ def test_call_creates_transfer_files_and_events(sip_directory_path, transfer):
 @pytest.mark.parametrize(
     "job_arguments",
     [
-        (["assign_file_uuids.py"]),
+        (["archivematica.MCPClient.clientScripts.assign_file_uuids.py"]),
         (
             [
-                "assign_file_uuids.py",
+                "archivematica.MCPClient.clientScripts.assign_file_uuids.py",
                 "--transferUUID",
                 str(uuid.uuid4()),
                 "--sipUUID",
@@ -86,8 +87,10 @@ def test_call_validates_job_arguments(job_arguments):
 
 @pytest.mark.django_db
 @mock.patch("metsrw.METSDocument.fromfile")
-@mock.patch("assign_file_uuids.find_mets_file")
-@mock.patch("assign_file_uuids.get_file_info_from_mets")
+@mock.patch("archivematica.MCPClient.clientScripts.assign_file_uuids.find_mets_file")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.assign_file_uuids.get_file_info_from_mets"
+)
 def test_call_updates_transfer_file_on_reingest(
     get_file_info_from_mets,
     find_mets_file,
@@ -108,7 +111,7 @@ def test_call_updates_transfer_file_on_reingest(
     job = mock.MagicMock(
         spec=Job,
         args=[
-            "assign_file_uuids.py",
+            "archivematica.MCPClient.clientScripts.assign_file_uuids.py",
             "--transferUUID",
             str(transfer.uuid),
             "--sipDirectory",

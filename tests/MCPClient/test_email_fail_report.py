@@ -1,9 +1,10 @@
 from smtplib import SMTPException
 from unittest import mock
 
-import email_fail_report
 import pytest
 from django.core import mail
+
+from archivematica.MCPClient.clientScripts import email_fail_report
 
 
 def fake_send_email_with_exception(
@@ -79,10 +80,15 @@ def test_send_email_err(monkeypatch):
 )
 @pytest.mark.django_db
 @mock.patch("argparse.ArgumentParser")
-@mock.patch("email_fail_report.get_emails_from_dashboard_users")
-@mock.patch("email_fail_report.get_content_for", return_value="my report")
-@mock.patch("email_fail_report.send_email")
-@mock.patch("email_fail_report.store_report")
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.email_fail_report.get_emails_from_dashboard_users"
+)
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.email_fail_report.get_content_for",
+    return_value="my report",
+)
+@mock.patch("archivematica.MCPClient.clientScripts.email_fail_report.send_email")
+@mock.patch("archivematica.MCPClient.clientScripts.email_fail_report.store_report")
 def test_report_is_always_stored(
     store_report_mock,
     send_email_mock,

@@ -1,9 +1,10 @@
 import os
 import shutil
 
-import parse_external_mets
 import pytest
-from main import models
+
+from archivematica.dashboard.main import models
+from archivematica.MCPClient.clientScripts import parse_external_mets
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
