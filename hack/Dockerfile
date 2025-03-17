@@ -116,9 +116,9 @@ RUN set -ex \
 
 FROM node:${NODE_VERSION} AS archivematica-dashboard-frontend-builder
 
-COPY --link src/dashboard/frontend /src/src/dashboard/frontend
+COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboard/frontend
 
-WORKDIR /src/src/dashboard/frontend
+WORKDIR /src/src/archivematica/dashboard/frontend
 
 RUN set ex \
 	&& npm install --no-package-lock
@@ -148,10 +148,10 @@ RUN set -ex \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=browsers-builder --link ${SELENIUM_DIR} ${SELENIUM_DIR}
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/dashboard/frontend/node_modules /src/src/dashboard/frontend/node_modules
-COPY --link src/dashboard/frontend /src/src/dashboard/frontend
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/frontend/node_modules /src/src/archivematica/dashboard/frontend/node_modules
+COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboard/frontend
 
-WORKDIR /src/src/dashboard/frontend
+WORKDIR /src/src/archivematica/dashboard/frontend
 
 ENTRYPOINT ["npm", "run", "test-single-run"]
 
@@ -229,31 +229,31 @@ USER archivematica
 COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
 COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
+ENV PYTHONPATH=/src/src
+
 # -----------------------------------------------------------------------------
 
 FROM base AS archivematica-mcp-client
 
-ENV DJANGO_SETTINGS_MODULE=settings.common
-ENV PYTHONPATH=/src/src/MCPClient/:/src/src/MCPClient/clientScripts:/src/src/archivematicaCommon/:/src/src/dashboard/
-ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES=/src/src/MCPClient/archivematicaClientModules
-ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY=/src/src/MCPClient/assets/
-ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY=/src/src/MCPClient/clientScripts/
+ENV DJANGO_SETTINGS_MODULE=archivematica.MCPClient.settings.common
+ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES=/src/src/archivematica/MCPClient/archivematicaClientModules
+ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY=/src/src/archivematica/MCPClient/assets/
+ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY=/src/src/archivematica/MCPClient/clientScripts/
 
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
-COPY --link src/archivematicaCommon/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
-COPY --link src/archivematicaCommon/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
+COPY --link src/archivematica/archivematicaCommon/externals/fido/ /usr/lib/archivematicaCommon/externals/fido/
+COPY --link src/archivematica/archivematicaCommon/externals/fiwalk_plugins/ /usr/lib/archivematicaCommon/externals/fiwalk_plugins/
 
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPClient/archivematicaClient.py"]
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "archivematica.MCPClient.archivematicaClient"]
 
 # -----------------------------------------------------------------------------
 
 FROM base AS archivematica-mcp-server
 
-ENV DJANGO_SETTINGS_MODULE=settings.common
-ENV PYTHONPATH=/src/src/MCPServer/:/src/src/archivematicaCommon/:/src/src/dashboard/
+ENV DJANGO_SETTINGS_MODULE=archivematica.MCPServer.settings.common
 
-ENTRYPOINT ["pyenv", "exec", "python3", "/src/src/MCPServer/archivematicaMCP.py"]
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "archivematica.MCPServer.archivematicaMCP"]
 
 # -----------------------------------------------------------------------------
 
@@ -267,34 +267,31 @@ USER root
 
 RUN set -ex \
 	&& internalDirs=' \
-		/src/src/dashboard/frontend \
-		/src/src/dashboard/static \
-		/src/src/dashboard/media \
+		/src/src/archivematica/dashboard/frontend \
+		/src/src/archivematica/dashboard/static \
+		/src/src/archivematica/dashboard/media \
 	' \
 	&& mkdir -p $internalDirs \
 	&& chown -R archivematica $internalDirs
 
 USER archivematica
 
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/dashboard/media/js/ /src/src/dashboard/media/js
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/media/js/ /src/src/archivematica/dashboard/media/js
 
-WORKDIR /src/src/dashboard
-
-ENV DJANGO_SETTINGS_MODULE=settings.local
-ENV PYTHONPATH=/src/src/dashboard/:/src/src/archivematicaCommon/
+ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.local
 ENV AM_GUNICORN_BIND=0.0.0.0:8000
-ENV AM_GUNICORN_CHDIR=/src/src/dashboard
+ENV AM_GUNICORN_CHDIR=/src/src/archivematica/dashboard
 ENV FORWARDED_ALLOW_IPS=*
 
 RUN set -ex \
-	&& ./manage.py collectstatic --noinput --clear \
-	&& ./manage.py compilemessages
+	&& python3 -m archivematica.dashboard.manage collectstatic --noinput --clear \
+	&& python3 -m archivematica.dashboard.manage compilemessages
 
-ENV DJANGO_SETTINGS_MODULE=settings.production
+ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.production
 
 EXPOSE 8000
 
-ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/dashboard/install/dashboard.gunicorn-config.py", "wsgi:application"]
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/archivematica/dashboard/install/dashboard.gunicorn-config.py", "wsgi:application"]
 
 # -----------------------------------------------------------------------------
 
@@ -314,8 +311,6 @@ USER archivematica
 RUN set -ex \
 	&& mkdir -p /var/archivematica/.cache/ms-playwright \
 	&& python3 -m playwright install firefox
-
-ENV PYTHONPATH=/src/src/dashboard/:/src/src/archivematicaCommon/
 
 # -----------------------------------------------------------------------------
 
