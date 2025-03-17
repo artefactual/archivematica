@@ -9,10 +9,11 @@ import abc
 import logging
 import os
 
-import storageService as storage_service
 from django.conf import settings
 from lxml import etree
-from server.workflow_abilities import choice_is_available
+
+import archivematica.archivematicaCommon.storageService as storage_service
+from archivematica.MCPServer.server.workflow_abilities import choice_is_available
 
 logger = logging.getLogger("archivematica.mcp.server.processing_config")
 

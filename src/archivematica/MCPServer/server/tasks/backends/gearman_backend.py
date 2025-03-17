@@ -12,10 +12,11 @@ from gearman import GearmanClient
 from gearman.constants import JOB_COMPLETE
 from gearman.constants import JOB_FAILED
 from gearman.constants import JOB_UNKNOWN
-from gearman_encoder import JSONDataEncoder
-from server import metrics
-from server.tasks.backends.base import TaskBackend
-from server.tasks.task import Task
+
+from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
+from archivematica.MCPServer.server import metrics
+from archivematica.MCPServer.server.tasks.backends.base import TaskBackend
+from archivematica.MCPServer.server.tasks.task import Task
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.tasks")
 

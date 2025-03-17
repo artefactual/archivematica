@@ -18,18 +18,19 @@ from io import StringIO
 from socket import gethostname
 
 import gearman
-from dbconns import auto_close_old_connections
 from django.conf import settings as django_settings
 from django.db import connection
 from gearman import GearmanWorker
-from gearman_encoder import JSONDataEncoder
 from lxml import etree
-from main.models import SIP
-from main.models import Job
-from main.models import Transfer
-from server.packages import create_package
-from server.packages import get_approve_transfer_chain_id
-from server.processing_config import get_processing_fields
+
+from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
+from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Job
+from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPServer.server.packages import create_package
+from archivematica.MCPServer.server.packages import get_approve_transfer_chain_id
+from archivematica.MCPServer.server.processing_config import get_processing_fields
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
 

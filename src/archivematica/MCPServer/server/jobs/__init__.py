@@ -13,19 +13,19 @@ concrete types of jobs, handled by subclasses:
     * `LocalJob`, handling work done directly on MCPServer
 """
 
-from server.jobs.base import Job
-from server.jobs.chain import JobChain
-from server.jobs.client import ClientScriptJob
-from server.jobs.client import DirectoryClientScriptJob
-from server.jobs.client import FilesClientScriptJob
-from server.jobs.client import OutputClientScriptJob
-from server.jobs.decisions import DecisionJob
-from server.jobs.decisions import NextChainDecisionJob
-from server.jobs.decisions import OutputDecisionJob
-from server.jobs.decisions import UpdateContextDecisionJob
-from server.jobs.local import GetUnitVarLinkJob
-from server.jobs.local import LocalJob
-from server.jobs.local import SetUnitVarLinkJob
+from archivematica.MCPServer.server.jobs.base import Job
+from archivematica.MCPServer.server.jobs.chain import JobChain
+from archivematica.MCPServer.server.jobs.client import ClientScriptJob
+from archivematica.MCPServer.server.jobs.client import DirectoryClientScriptJob
+from archivematica.MCPServer.server.jobs.client import FilesClientScriptJob
+from archivematica.MCPServer.server.jobs.client import OutputClientScriptJob
+from archivematica.MCPServer.server.jobs.decisions import DecisionJob
+from archivematica.MCPServer.server.jobs.decisions import NextChainDecisionJob
+from archivematica.MCPServer.server.jobs.decisions import OutputDecisionJob
+from archivematica.MCPServer.server.jobs.decisions import UpdateContextDecisionJob
+from archivematica.MCPServer.server.jobs.local import GetUnitVarLinkJob
+from archivematica.MCPServer.server.jobs.local import LocalJob
+from archivematica.MCPServer.server.jobs.local import SetUnitVarLinkJob
 
 __all__ = (
     "ClientScriptJob",

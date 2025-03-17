@@ -5,14 +5,15 @@ Exposes various metrics via Prometheus.
 import functools
 import os
 
-from common_metrics import TASK_DURATION_BUCKETS
 from django.conf import settings
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Histogram
 from prometheus_client import Info
 from prometheus_client import start_http_server
-from version import get_full_version
+
+from archivematica.archivematicaCommon.common_metrics import TASK_DURATION_BUCKETS
+from archivematica.archivematicaCommon.version import get_full_version
 
 gearman_active_jobs_gauge = Gauge(
     "mcpserver_gearman_active_jobs", "Number of gearman jobs currently being processed"

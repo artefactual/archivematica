@@ -7,13 +7,13 @@ import logging
 import threading
 from collections import OrderedDict
 
-from dbconns import auto_close_old_connections
-from main import models
-from server.jobs.base import Job
-from server.processing_config import load_preconfigured_choice
-from server.processing_config import load_processing_xml
-from server.translation import TranslationLabel
-from server.workflow_abilities import choice_is_available
+from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
+from archivematica.dashboard.main import models
+from archivematica.MCPServer.server.jobs.base import Job
+from archivematica.MCPServer.server.processing_config import load_preconfigured_choice
+from archivematica.MCPServer.server.processing_config import load_processing_xml
+from archivematica.MCPServer.server.translation import TranslationLabel
+from archivematica.MCPServer.server.workflow_abilities import choice_is_available
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.decisions")
 
@@ -111,7 +111,7 @@ class NextChainDecisionJob(DecisionJob):
     @auto_close_old_connections()
     def decide(self, choice):
         # TODO: fix circular imports :(
-        from server.jobs import JobChain
+        from archivematica.MCPServer.server.jobs import JobChain
 
         if choice not in self.get_choices():
             raise ValueError(f"{choice} is not one of the available choices")

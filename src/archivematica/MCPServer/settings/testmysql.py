@@ -1,4 +1,4 @@
-from .test import *
+from archivematica.MCPServer.settings.test import *
 
 DATABASES = {
     "default": {

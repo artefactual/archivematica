@@ -21,10 +21,12 @@ import multiprocessing
 import os
 from io import StringIO
 
-import email_settings
-from appconfig import Config
-from appconfig import process_search_enabled
-from appconfig import process_watched_directory_interval
+from archivematica.archivematicaCommon import email_settings
+from archivematica.archivematicaCommon.appconfig import Config
+from archivematica.archivematicaCommon.appconfig import process_search_enabled
+from archivematica.archivematicaCommon.appconfig import (
+    process_watched_directory_interval,
+)
 
 CONFIG_MAPPING = {
     # [MCPServer]
@@ -204,9 +206,9 @@ DATABASES = {
 INSTALLED_APPS = (
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "main",
-    "components.administration",
-    "fpr",
+    "archivematica.dashboard.main",
+    "archivematica.dashboard.components.administration",
+    "archivematica.dashboard.fpr",
 )
 
 # Make this unique, and don't share it with anybody.

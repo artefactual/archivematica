@@ -21,9 +21,10 @@ from django.conf import settings as django_settings
 from jsonschema import FormatChecker
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from server.jobs import Job
-from server.translation import FALLBACK_LANG
-from server.translation import TranslationLabel
+
+from archivematica.MCPServer.server.jobs import Job
+from archivematica.MCPServer.server.translation import FALLBACK_LANG
+from archivematica.MCPServer.server.translation import TranslationLabel
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
 ASSETS_DIR = os.path.join(

@@ -6,14 +6,15 @@ import abc
 import json
 import logging
 
-from dbconns import auto_close_old_connections
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from main import models
-from server import metrics
-from server.jobs.base import Job
-from server.tasks import Task
-from server.tasks import get_task_backend
+
+from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
+from archivematica.dashboard.main import models
+from archivematica.MCPServer.server import metrics
+from archivematica.MCPServer.server.jobs.base import Job
+from archivematica.MCPServer.server.tasks import Task
+from archivematica.MCPServer.server.tasks import get_task_backend
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.client")
 

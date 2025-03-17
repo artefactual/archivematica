@@ -4,8 +4,9 @@ import logging
 import os
 
 from django.conf import settings
-from processing import BUILTIN_CONFIGS
-from processing import install_builtin_config
+
+from archivematica.archivematicaCommon.processing import BUILTIN_CONFIGS
+from archivematica.archivematicaCommon.processing import install_builtin_config
 
 logger = logging.getLogger("archivematica.mcp.server.shareddirs")
 

@@ -8,10 +8,11 @@ import queue as Queue
 import threading
 
 from django.conf import settings
-from server import metrics
-from server.jobs import DecisionJob
-from server.packages import DIP
-from server.packages import SIP
+
+from archivematica.MCPServer.server import metrics
+from archivematica.MCPServer.server.jobs import DecisionJob
+from archivematica.MCPServer.server.packages import DIP
+from archivematica.MCPServer.server.packages import SIP
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
 

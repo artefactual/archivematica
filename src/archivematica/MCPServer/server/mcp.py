@@ -33,19 +33,20 @@ import django
 django.setup()
 
 from django.conf import settings
-from server import metrics
-from server import rpc_server
-from server import shared_dirs
-from server.jobs import Job
-from server.jobs import JobChain
-from server.packages import DIP
-from server.packages import SIP
-from server.packages import Package
-from server.packages import Transfer
-from server.queues import PackageQueue
-from server.tasks import Task
-from server.watch_dirs import watch_directories
-from server.workflow import load_workflow
+
+from archivematica.MCPServer.server import metrics
+from archivematica.MCPServer.server import rpc_server
+from archivematica.MCPServer.server import shared_dirs
+from archivematica.MCPServer.server.jobs import Job
+from archivematica.MCPServer.server.jobs import JobChain
+from archivematica.MCPServer.server.packages import DIP
+from archivematica.MCPServer.server.packages import SIP
+from archivematica.MCPServer.server.packages import Package
+from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.tasks import Task
+from archivematica.MCPServer.server.watch_dirs import watch_directories
+from archivematica.MCPServer.server.workflow import load_workflow
 
 logger = logging.getLogger("archivematica.mcp.server")
 
