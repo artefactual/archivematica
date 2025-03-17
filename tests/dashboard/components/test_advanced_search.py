@@ -1,5 +1,6 @@
 import pytest
-from components.advanced_search import _normalize_date
+
+from archivematica.dashboard.components.advanced_search import _normalize_date
 
 
 @pytest.mark.parametrize(

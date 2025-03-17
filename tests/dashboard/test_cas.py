@@ -1,15 +1,18 @@
 from unittest import mock
 
 import pytest
-from components import helpers
-from components.accounts.backends import CustomCASBackend
-from components.accounts.signals import _cas_user_is_administrator
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.accounts.backends import CustomCASBackend
+from archivematica.dashboard.components.accounts.signals import (
+    _cas_user_is_administrator,
+)
 
 TEST_CAS_USER = "casuser"
 TEST_CAS_ADMIN_ATTRIBUTE = "usertype"

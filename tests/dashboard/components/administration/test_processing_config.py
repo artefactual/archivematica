@@ -5,11 +5,12 @@ import tempfile
 from unittest import mock
 
 import pytest
-from components import helpers
 from django.http import HttpResponse
 from django.test import TestCase
-from processing import AUTOMATED_PROCESSING_CONFIG
-from processing import DEFAULT_PROCESSING_CONFIG
+
+from archivematica.archivematicaCommon.processing import AUTOMATED_PROCESSING_CONFIG
+from archivematica.archivematicaCommon.processing import DEFAULT_PROCESSING_CONFIG
+from archivematica.dashboard.components import helpers
 
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
@@ -35,14 +36,18 @@ class TestProcessingConfig(TestCase):
         self.client.login(username="test", password="test")
         helpers.set_setting("dashboard_uuid", "test-uuid")
 
-    @mock.patch("components.administration.views_processing.os.path.isfile")
+    @mock.patch(
+        "archivematica.dashboard.components.administration.views_processing.os.path.isfile"
+    )
     def test_download_404(self, mock_is_file):
         mock_is_file.return_value = False
         response = self.client.get("/administration/processing/download/default/")
         self.assertEqual(response.status_code, 404)
 
-    @mock.patch("components.helpers.send_file")
-    @mock.patch("components.administration.views_processing.os.path.isfile")
+    @mock.patch("archivematica.dashboard.components.helpers.send_file")
+    @mock.patch(
+        "archivematica.dashboard.components.administration.views_processing.os.path.isfile"
+    )
     def test_download_ok(self, mock_is_file, mock_send_file):
         mock_is_file.return_value = True
         mock_send_file.return_value = HttpResponse(
@@ -54,7 +59,7 @@ class TestProcessingConfig(TestCase):
         )
 
     @mock.patch(
-        "components.administration.forms.MCPClient.get_processing_config_fields",
+        "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
         return_value={},
     )
     def test_edit_new_config(self, mock_conf_fields):
@@ -63,11 +68,11 @@ class TestProcessingConfig(TestCase):
         self.assertNotIn("name", response.context["form"].initial)
 
     @mock.patch(
-        "components.administration.forms.MCPClient.get_processing_config_fields",
+        "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
         return_value={},
     )
     @mock.patch(
-        "components.administration.forms.ProcessingConfigurationForm.load_config",
+        "archivematica.dashboard.components.administration.forms.ProcessingConfigurationForm.load_config",
         side_effect=OSError(),
     )
     def test_edit_not_found_config(self, mock_load_config, mock_conf_fields):
@@ -76,11 +81,11 @@ class TestProcessingConfig(TestCase):
         mock_load_config.assert_called_once_with("not_found_config")
 
     @mock.patch(
-        "components.administration.forms.MCPClient.get_processing_config_fields",
+        "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
         return_value={},
     )
     @mock.patch(
-        "components.administration.forms.ProcessingConfigurationForm.load_config"
+        "archivematica.dashboard.components.administration.forms.ProcessingConfigurationForm.load_config"
     )
     def test_edit_found_config(self, mock_load_config, mock_conf_fields):
         response = self.client.get("/administration/processing/edit/found_config/")
@@ -88,11 +93,11 @@ class TestProcessingConfig(TestCase):
         mock_load_config.assert_called_once_with("found_config")
 
     @mock.patch(
-        "components.administration.forms.MCPClient.get_processing_config_fields",
+        "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
         return_value={},
     )
     @mock.patch(
-        "components.administration.forms.ProcessingConfigurationForm.load_config"
+        "archivematica.dashboard.components.administration.forms.ProcessingConfigurationForm.load_config"
     )
     def test_name_field_is_required(self, mock_load_config, mock_conf_fields):
         response = self.client.post("/administration/processing/add/", data={1: 2})
@@ -100,7 +105,7 @@ class TestProcessingConfig(TestCase):
         self.assertContains(response, "This field is required.")
 
     @mock.patch(
-        "components.administration.forms.MCPClient.get_processing_config_fields",
+        "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
         return_value={},
     )
     def test_name_field_is_validated(self, mock_conf_fields):

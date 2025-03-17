@@ -5,7 +5,8 @@ from unittest import mock
 import pytest
 from django.db import IntegrityError
 from django.test import TestCase
-from main import models
+
+from archivematica.dashboard.main import models
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 
@@ -66,7 +67,7 @@ class TestActiveAgent(TestCase):
         )
 
 
-@mock.patch("main.models.Agent")
+@mock.patch("archivematica.dashboard.main.models.Agent")
 def test_create_user_agent(agent_mock):
     agent_mock.objects.update_or_create.return_value = (None, False)
     user_mock = mock.Mock(
@@ -94,7 +95,10 @@ def test_sip_arrange_create_many(db):
     assert models.SIPArrange.objects.count() == 2
 
 
-@mock.patch("main.models.SIPArrange.objects.bulk_create", side_effect=IntegrityError())
+@mock.patch(
+    "archivematica.dashboard.main.models.SIPArrange.objects.bulk_create",
+    side_effect=IntegrityError(),
+)
 def test_sip_arrange_create_many_with_integrity_error(bulk_create):
     arrange1_mock = mock.Mock()
     arrange2_mock = mock.Mock()

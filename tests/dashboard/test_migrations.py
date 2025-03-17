@@ -3,7 +3,9 @@ import importlib
 import pytest
 
 # Import package that starts with a number.
-mod = importlib.import_module("main.migrations.0066_archivesspace_base_url")
+mod = importlib.import_module(
+    "archivematica.dashboard.main.migrations.0066_archivesspace_base_url"
+)
 
 
 @pytest.mark.parametrize(

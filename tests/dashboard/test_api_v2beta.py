@@ -2,13 +2,14 @@ import json
 import pathlib
 from unittest import mock
 
-from archivematicaFunctions import b64encode_string
-from components import helpers
-from components.api import validators
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
-from version import get_full_version
+
+from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
+from archivematica.archivematicaCommon.version import get_full_version
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.api import validators
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 
@@ -79,7 +80,10 @@ class TestAPIv2(TestCase):
         )
         assert resp.status_code == 400
 
-    @mock.patch("components.api.views.MCPClient", return_value=MCPClientMock())
+    @mock.patch(
+        "archivematica.dashboard.components.api.views.MCPClient",
+        return_value=MCPClientMock(),
+    )
     def test_package_create_mcpclient_ok(self, patcher):
         resp = self.client.post(
             "/api/v2beta/package/",
@@ -92,7 +96,8 @@ class TestAPIv2(TestCase):
         )
 
     @mock.patch(
-        "components.api.views.MCPClient", return_value=MCPClientMock(fails=True)
+        "archivematica.dashboard.components.api.views.MCPClient",
+        return_value=MCPClientMock(fails=True),
     )
     def test_package_create_mcpclient_fails(self, patcher):
         resp = self.client.post(

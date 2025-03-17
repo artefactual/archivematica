@@ -1,11 +1,16 @@
 import pathlib
 
-from components import helpers
-from components.administration.views_dip_upload import _AS_DICTNAME
-from components.administration.views_dip_upload import _ATOM_DICTNAME
 from django.test import TestCase
 from django.urls import reverse
-from main.models import DashboardSetting
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.administration.views_dip_upload import (
+    _AS_DICTNAME,
+)
+from archivematica.dashboard.components.administration.views_dip_upload import (
+    _ATOM_DICTNAME,
+)
+from archivematica.dashboard.main.models import DashboardSetting
 
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"

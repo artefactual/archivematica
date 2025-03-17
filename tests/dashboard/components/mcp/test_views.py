@@ -1,9 +1,10 @@
 from unittest import mock
 
-from components.mcp import views
 from django.urls import reverse
-from externals import xmltodict
 from lxml import etree
+
+from archivematica.archivematicaCommon.externals import xmltodict
+from archivematica.dashboard.components.mcp import views
 
 FILE_FORMAT_IDENTIFICATION_CHOICES = """
 <choicesAvailableForUnit>
@@ -38,9 +39,9 @@ MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT = f"""
 """
 
 
-@mock.patch("contrib.mcp.client.GearmanClient")
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 @mock.patch(
-    "contrib.mcp.client.gearman.JOB_COMPLETE",
+    "archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE",
 )
 def test_list(job_complete, gearman_client, rf, admin_user):
     # Make the Gearman interactions return known values.

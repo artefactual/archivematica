@@ -1,8 +1,9 @@
 import uuid
 
 from django.test import TestCase
-from fpr.models import IDCommand
-from fpr.utils import get_revision_descendants
+
+from archivematica.dashboard.fpr.models import IDCommand
+from archivematica.dashboard.fpr.utils import get_revision_descendants
 
 
 class TestUtils(TestCase):

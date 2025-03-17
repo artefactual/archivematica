@@ -3,28 +3,29 @@ import json
 import uuid
 from unittest import mock
 
-import archivematicaFunctions
 import pytest
 import requests
-from components import helpers
-from components.api import views
 from django.core.management import call_command
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
-from main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
-from main.models import SIP
-from main.models import DashboardSetting
-from main.models import DublinCore
-from main.models import File
-from main.models import Job
-from main.models import LevelOfDescription
-from main.models import MetadataAppliesToType
-from main.models import RightsStatement
-from main.models import SIPArrange
-from main.models import Task
-from main.models import Transfer
-from processing import install_builtin_config
+
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon.processing import install_builtin_config
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.api import views
+from archivematica.dashboard.main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Job
+from archivematica.dashboard.main.models import LevelOfDescription
+from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import SIPArrange
+from archivematica.dashboard.main.models import Task
+from archivematica.dashboard.main.models import Transfer
 
 
 def load_fixture(fixtures):
@@ -850,9 +851,12 @@ def test_get_unit_status_multiple(
 
 
 @pytest.mark.django_db
-@mock.patch("components.api.views.authenticate_request", return_value=None)
 @mock.patch(
-    "components.filesystem_ajax.views._copy_from_transfer_sources",
+    "archivematica.dashboard.components.api.views.authenticate_request",
+    return_value=None,
+)
+@mock.patch(
+    "archivematica.dashboard.components.filesystem_ajax.views._copy_from_transfer_sources",
     return_value=(None, ""),
 )
 def test_copy_metadata_files_api(_copy_from_transfer_sources, authenticate_request):
@@ -885,7 +889,7 @@ def test_copy_metadata_files_api(_copy_from_transfer_sources, authenticate_reque
 
 
 @mock.patch(
-    "components.filesystem_ajax.views.start_transfer",
+    "archivematica.dashboard.components.filesystem_ajax.views.start_transfer",
     return_value={},
 )
 def test_start_transfer_api_decodes_paths(start_transfer_view, admin_client):
@@ -907,9 +911,9 @@ def test_start_transfer_api_decodes_paths(start_transfer_view, admin_client):
 
 
 @mock.patch(
-    "contrib.mcp.client.gearman.JOB_COMPLETE",
+    "archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE",
 )
-@mock.patch("contrib.mcp.client.GearmanClient")
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_reingest_approve(gearman_client, job_complete, admin_client):
     gearman_client.return_value = mock.Mock(
         **{
@@ -1070,7 +1074,9 @@ def test_unapproved_transfers(admin_client):
         "mcpclient_error",
     ],
 )
-@mock.patch("contrib.mcp.client.GearmanClient", side_effect=Exception())
+@mock.patch(
+    "archivematica.dashboard.contrib.mcp.client.GearmanClient", side_effect=Exception()
+)
 def test_approve_transfer_failures(
     gearman_client, post_data, expected_error, admin_client
 ):
@@ -1083,8 +1089,8 @@ def test_approve_transfer_failures(
     assert payload == {"error": True, "message": expected_error}
 
 
-@mock.patch("contrib.mcp.client.gearman.JOB_COMPLETE")
-@mock.patch("contrib.mcp.client.GearmanClient")
+@mock.patch("archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE")
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_approve_transfer(gearman_client, job_complete, admin_client):
     helpers.set_setting("dashboard_uuid", "test-uuid")
 

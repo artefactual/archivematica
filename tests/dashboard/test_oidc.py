@@ -1,6 +1,7 @@
 import pytest
 import pytest_django
-from components.accounts.backends import CustomOIDCBackend
+
+from archivematica.dashboard.components.accounts.backends import CustomOIDCBackend
 
 
 @pytest.fixture

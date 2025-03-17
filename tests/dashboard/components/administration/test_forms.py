@@ -1,4 +1,4 @@
-from components.administration.forms import PreconfiguredChoices
+from archivematica.dashboard.components.administration.forms import PreconfiguredChoices
 
 EXPECTED_PROCESSING_CONFIGURATION = """
 <processingMCP>

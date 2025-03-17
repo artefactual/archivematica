@@ -2,9 +2,10 @@ import pathlib
 
 from django.contrib.auth.models import User
 from django.test import TestCase
-from main.templatetags.user import api_key
-from main.templatetags.user import logout_link
 from tastypie.models import ApiKey
+
+from archivematica.dashboard.main.templatetags.user import api_key
+from archivematica.dashboard.main.templatetags.user import logout_link
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 

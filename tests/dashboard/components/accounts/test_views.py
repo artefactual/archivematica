@@ -7,13 +7,14 @@ from urllib.parse import urlparse
 
 import pytest
 import pytest_django
-from components import helpers
-from components.accounts.views import get_oidc_logout_url
 from django.contrib.auth.models import User
 from django.test import Client
 from django.test import RequestFactory
 from django.urls import reverse
 from tastypie.models import ApiKey
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.accounts.views import get_oidc_logout_url
 
 
 def test_get_oidc_logout_url_fails_if_token_is_not_set(rf: RequestFactory) -> None:

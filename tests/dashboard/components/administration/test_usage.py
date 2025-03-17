@@ -2,9 +2,10 @@ import pathlib
 import subprocess
 from unittest import mock
 
-from components import helpers
 from django.conf import settings
 from django.test import TestCase
+
+from archivematica.dashboard.components import helpers
 
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
@@ -32,15 +33,16 @@ class TestUsage(TestCase):
             self.assertIn("Calculate disk usage", content)
 
     @mock.patch(
-        "components.administration.views._usage_get_directory_used_bytes",
+        "archivematica.dashboard.components.administration.views._usage_get_directory_used_bytes",
         return_value=5368709120,
     )
     @mock.patch(
-        "components.administration.views._usage_check_directory_volume_size",
+        "archivematica.dashboard.components.administration.views._usage_check_directory_volume_size",
         return_value=10737418240,
     )
     @mock.patch(
-        "components.administration.views._get_mount_point_path", return_value="/"
+        "archivematica.dashboard.components.administration.views._get_mount_point_path",
+        return_value="/",
     )
     def test_calculation(self, mock_mount_path, mock_dir_size, mock_dir_used):
         for calculate in ["true", "True", "ON", "yes", "1"]:
@@ -65,11 +67,11 @@ class TestUsage(TestCase):
         ],
     )
     @mock.patch(
-        "components.administration.views._usage_check_directory_volume_size",
+        "archivematica.dashboard.components.administration.views._usage_check_directory_volume_size",
         return_value=10737418240,
     )
     @mock.patch(
-        "components.administration.views._get_shared_dirs",
+        "archivematica.dashboard.components.administration.views._get_shared_dirs",
         return_value={},
     )
     def test_calculation_with_disk_usage_errors(

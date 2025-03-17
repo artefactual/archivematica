@@ -6,17 +6,22 @@ from unittest import mock
 
 import pytest
 from agentarchives.archivesspace import ArchivesSpaceError
-from archivematicaFunctions import b64decode_string
-from components import helpers
-from components.ingest.views import _adjust_directories_draggability
-from components.ingest.views import _es_results_to_appraisal_tab_format
-from components.ingest.views_as import get_as_system_client
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
-from main.models import Access
-from main.models import ArchivesSpaceDIPObjectResourcePairing
-from main.models import DashboardSetting
+
+from archivematica.archivematicaCommon.archivematicaFunctions import b64decode_string
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.ingest.views import (
+    _adjust_directories_draggability,
+)
+from archivematica.dashboard.components.ingest.views import (
+    _es_results_to_appraisal_tab_format,
+)
+from archivematica.dashboard.components.ingest.views_as import get_as_system_client
+from archivematica.dashboard.main.models import Access
+from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
+from archivematica.dashboard.main.models import DashboardSetting
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 SIP_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "sip.json"

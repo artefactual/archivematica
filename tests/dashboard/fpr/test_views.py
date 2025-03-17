@@ -1,10 +1,11 @@
 import uuid
 
 import pytest
-from components import helpers
 from django.test import Client
 from django.urls import reverse
-from fpr import models
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.fpr import models
 
 
 @pytest.fixture

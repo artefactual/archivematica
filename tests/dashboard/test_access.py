@@ -2,13 +2,14 @@ import json
 import pathlib
 from unittest import mock
 
-import archivematicaFunctions
 import pytest
-from components import helpers
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
-from main import models
+
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main import models
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 ACCESS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "access.json"
@@ -92,7 +93,7 @@ def test_access_arrange_start_sip_fails_if_arrange_mapping_does_not_exist(
 
 
 @pytest.mark.django_db
-@mock.patch("components.access.views.get_as_system_client")
+@mock.patch("archivematica.dashboard.components.access.views.get_as_system_client")
 def test_access_arrange_start_sip_fails_if_arrange_does_not_exist(
     get_as_system_client, dashboard_uuid, admin_client
 ):
@@ -120,7 +121,7 @@ def test_access_arrange_start_sip_fails_if_arrange_does_not_exist(
 
 @pytest.mark.django_db
 @mock.patch(
-    "components.access.views.get_as_system_client",
+    "archivematica.dashboard.components.access.views.get_as_system_client",
     return_value=mock.Mock(
         **{
             "get_record.side_effect": [
@@ -161,8 +162,10 @@ def test_access_arrange_start_sip_fails_if_resource_creators_cannot_be_fetched(
 
 
 @pytest.mark.django_db
-@mock.patch("components.filesystem_ajax.views.copy_from_arrange_to_completed_common")
-@mock.patch("components.access.views.get_as_system_client")
+@mock.patch(
+    "archivematica.dashboard.components.filesystem_ajax.views.copy_from_arrange_to_completed_common"
+)
+@mock.patch("archivematica.dashboard.components.access.views.get_as_system_client")
 def test_access_arrange_start_sip(
     get_as_system_client,
     copy_from_arrange_to_completed_common,

@@ -29,7 +29,9 @@ from django.core.exceptions import ValidationError
 )
 def test_password_complexity_validator(password, raises_exception):
     VALIDATOR_CONFIG = [
-        {"NAME": "components.accounts.validators.PasswordComplexityValidator"}
+        {
+            "NAME": "archivematica.dashboard.components.accounts.validators.PasswordComplexityValidator"
+        }
     ]
     validators = get_password_validators(VALIDATOR_CONFIG)
 

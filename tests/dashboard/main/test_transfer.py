@@ -1,7 +1,8 @@
 import uuid
 
 import pytest
-from main import models
+
+from archivematica.dashboard.main import models
 
 
 @pytest.mark.parametrize(

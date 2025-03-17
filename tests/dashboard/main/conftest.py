@@ -2,7 +2,8 @@ import uuid
 
 import pytest
 from django.utils import timezone
-from main import models
+
+from archivematica.dashboard.main import models
 
 
 @pytest.fixture

@@ -1,12 +1,13 @@
 import uuid
 from unittest import mock
 
-import elasticSearchFunctions as es
 import pytest
 from django.core.management import call_command
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
-from main import models
+
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.dashboard.main import models
 
 
 @pytest.fixture
@@ -87,13 +88,13 @@ def test_purge_command_removes_all_packages(
 
 @pytest.mark.django_db
 @mock.patch(
-    "main.management.commands.purge_transient_processing_data.es.create_indexes_if_needed"
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.create_indexes_if_needed"
 )
 @mock.patch(
-    "main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer"
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer"
 )
 @mock.patch(
-    "main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer_files"
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer_files"
 )
 def test_purge_command_removes_search_documents(
     mock_remove_backlog_transfer_files,
@@ -110,13 +111,13 @@ def test_purge_command_removes_search_documents(
 
 
 @mock.patch(
-    "main.management.commands.purge_transient_processing_data.es.create_indexes_if_needed"
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.create_indexes_if_needed"
 )
 @mock.patch(
-    "main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer"
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer"
 )
 @mock.patch(
-    "main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer_files"
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer_files"
 )
 @pytest.mark.django_db
 def test_purge_command_keeps_search_documents(

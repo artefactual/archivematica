@@ -1,12 +1,13 @@
 import pathlib
 
 import pytest
-from components import helpers
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
-from main.models import DublinCore
-from main.models import TransferMetadataFieldValue
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import TransferMetadataFieldValue
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 TRANSFER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "transfer.json"

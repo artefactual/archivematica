@@ -1,10 +1,11 @@
 import json
 import pathlib
 
-from components import helpers
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
+
+from archivematica.dashboard.components import helpers
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 

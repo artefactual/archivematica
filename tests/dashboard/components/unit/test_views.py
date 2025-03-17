@@ -2,10 +2,11 @@ import uuid
 from unittest import mock
 
 import pytest
-from components import helpers
 from django.urls import reverse
 from django.utils import timezone
-from main import models
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main import models
 
 
 @pytest.fixture()
@@ -60,7 +61,10 @@ class TestMarkHiddenView:
         assert resp.status_code == 409
         assert resp.json() == {"removed": False}
 
-    @mock.patch("main.models.Transfer.objects.done", side_effect=Exception())
+    @mock.patch(
+        "archivematica.dashboard.main.models.Transfer.objects.done",
+        side_effect=Exception(),
+    )
     def test_it_handles_unknown_errors(self, done, install, admin_client, transfer):
         url = reverse(
             "unit:mark_hidden",
@@ -96,7 +100,10 @@ class TestMarkCompletedHiddenView:
 
         assert resp.status_code == 405
 
-    @mock.patch("components.helpers.completed_units_efficient", side_effect=Exception())
+    @mock.patch(
+        "archivematica.dashboard.components.helpers.completed_units_efficient",
+        side_effect=Exception(),
+    )
     def test_it_handles_unknown_errors(
         self, completed_units_efficient, install, admin_client, transfer
     ):

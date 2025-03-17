@@ -3,7 +3,8 @@ from unittest import mock
 
 import pytest
 import requests
-from components import helpers
+
+from archivematica.dashboard.components import helpers
 
 CONTENT_TYPE = "content-type"
 CONTENT_DISPOSITION = "content-disposition"
@@ -54,7 +55,8 @@ def mets_stream(tmpdir, mets_hdr):
 
 
 @mock.patch(
-    "components.helpers.get_setting", return_value="http://storage-service-url/"
+    "archivematica.dashboard.components.helpers.get_setting",
+    return_value="http://storage-service-url/",
 )
 @mock.patch("amclient.AMClient.extract_file")
 def test_stream_mets_from_disconnected_storage(extract_file, get_setting):
@@ -71,7 +73,8 @@ def test_stream_mets_from_disconnected_storage(extract_file, get_setting):
 
 
 @mock.patch(
-    "components.helpers.get_setting", return_value="http://storage-service-url/"
+    "archivematica.dashboard.components.helpers.get_setting",
+    return_value="http://storage-service-url/",
 )
 @mock.patch("amclient.AMClient.extract_file")
 def test_stream_mets_from_storage_no_file(extract_file, get_setting, tmp_path):
@@ -91,7 +94,8 @@ def test_stream_mets_from_storage_no_file(extract_file, get_setting, tmp_path):
 
 
 @mock.patch(
-    "components.helpers.get_setting", return_value="http://storage-service-url/"
+    "archivematica.dashboard.components.helpers.get_setting",
+    return_value="http://storage-service-url/",
 )
 @mock.patch("amclient.AMClient.extract_file")
 def test_stream_mets_from_storage_success(extract_file, get_setting, mets_hdr, tmpdir):

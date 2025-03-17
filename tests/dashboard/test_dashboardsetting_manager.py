@@ -1,5 +1,6 @@
 import pytest
-from main.models import DashboardSetting
+
+from archivematica.dashboard.main.models import DashboardSetting
 
 
 @pytest.mark.django_db

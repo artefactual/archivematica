@@ -1,7 +1,8 @@
 import pathlib
 
 from django.test import TestCase
-from main import models
+
+from archivematica.dashboard.main import models
 
 METADATA_TYPE_FIXTURE = (
     pathlib.Path(__file__).parent / "fixtures" / "metadata_type.json"

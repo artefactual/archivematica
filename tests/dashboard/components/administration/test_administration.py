@@ -4,13 +4,14 @@ from unittest import mock
 import pytest
 import pytest_django
 import requests
-from components import helpers
 from django.contrib.auth.models import User
 from django.http import HttpResponseNotFound
 from django.test import Client
 from django.urls import reverse
-from main.models import Report
 from tastypie.models import ApiKey
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main.models import Report
 
 
 @pytest.fixture
@@ -201,7 +202,10 @@ def admin_user_apikey(admin_user: User) -> ApiKey:
 
 
 @pytest.mark.django_db
-@mock.patch("storageService.get_pipeline", side_effect=NotFound)
+@mock.patch(
+    "archivematica.archivematicaCommon.storageService.get_pipeline",
+    side_effect=NotFound,
+)
 @mock.patch("requests.Session.post")
 @mock.patch("platform.node")
 def test_general_view_registers_pipeline_in_storage_service(

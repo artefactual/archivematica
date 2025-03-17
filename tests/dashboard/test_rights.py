@@ -1,12 +1,13 @@
 import uuid
 
 import pytest
-from components.rights import load
-from main.models import SIP
-from main.models import File
-from main.models import MetadataAppliesToType
-from main.models import Transfer
 from metsrw.plugins import premisrw
+
+from archivematica.dashboard.components.rights import load
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import Transfer
 
 RIGHTS_STATEMENT_IDENTIFIER = (
     "rights_statement_identifier",

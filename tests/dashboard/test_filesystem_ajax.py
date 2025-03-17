@@ -6,14 +6,15 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
-from archivematicaFunctions import b64encode_string
-from components import helpers
-from components.filesystem_ajax import views
 from django.test import TestCase
 from django.test.client import Client
 from django.test.client import RequestFactory
 from django.urls import reverse
-from main import models
+
+from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.filesystem_ajax import views
+from archivematica.dashboard.main import models
 
 TEST_USER_FIXTURE = Path(__file__).parent / "fixtures" / "test_user.json"
 SIP_ARRANGE_FIXTURE = Path(__file__).parent / "fixtures" / "sip_arrange.json"
@@ -233,11 +234,11 @@ class TestSIPArrange(TestCase):
         sip_uuid = "a29e7e86-eca9-43b6-b059-6f23a9802dc8"
         models.SIP.objects.create(uuid=sip_uuid)
         with mock.patch(
-            "components.filesystem_ajax.views.storage_service.get_files_from_backlog",
+            "archivematica.dashboard.components.filesystem_ajax.views.storage_service.get_files_from_backlog",
             return_value=("12345", None),
         ):
             with mock.patch(
-                "components.filesystem_ajax.views._create_arranged_sip",
+                "archivematica.dashboard.components.filesystem_ajax.views._create_arranged_sip",
                 return_value=None,
             ) as create_arranged_sip_mock:
                 response = self.client.post(
@@ -312,11 +313,11 @@ class TestSIPArrange(TestCase):
         )
 
         with mock.patch(
-            "components.filesystem_ajax.views.storage_service.get_files_from_backlog",
+            "archivematica.dashboard.components.filesystem_ajax.views.storage_service.get_files_from_backlog",
             return_value=("369cdbfc-69b1-4003-8f8c-31a537d03e85", None),
         ):
             with mock.patch(
-                "components.filesystem_ajax.views._create_arranged_sip",
+                "archivematica.dashboard.components.filesystem_ajax.views._create_arranged_sip",
                 return_value=None,
             ) as create_arranged_sip_mock:
                 response = self.client.post(
@@ -462,7 +463,7 @@ class TestSIPArrange(TestCase):
 
         with self.settings(SHARED_DIRECTORY=str(shared_dir)):
             with mock.patch(
-                "components.filesystem_ajax.views.storage_service.get_files_from_backlog",
+                "archivematica.dashboard.components.filesystem_ajax.views.storage_service.get_files_from_backlog",
                 return_value=("12345", None),
             ):
                 with mock.patch("shutil.move") as move_mock:
@@ -499,7 +500,7 @@ class TestSIPArrange(TestCase):
     ids=["regular_sip", "partial_reingest"],
 )
 @mock.patch(
-    "components.filesystem_ajax.views._copy_from_transfer_sources",
+    "archivematica.dashboard.components.filesystem_ajax.views._copy_from_transfer_sources",
     return_value=(None, ""),
 )
 def test_copy_metadata_files(
@@ -556,13 +557,17 @@ def test_copy_metadata_files(
         (False, False),  # Download
     ],
 )
-@mock.patch("components.helpers.stream_file_from_storage_service")
-@mock.patch("components.helpers.send_file")
-@mock.patch("storageService.extract_file_url")
+@mock.patch(
+    "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
+)
+@mock.patch("archivematica.dashboard.components.helpers.send_file")
+@mock.patch("archivematica.archivematicaCommon.storageService.extract_file_url")
 @mock.patch("os.path.exists")
-@mock.patch("storageService.get_first_location")
-@mock.patch("elasticSearchFunctions.get_client")
-@mock.patch("elasticSearchFunctions.get_transfer_file_info")
+@mock.patch("archivematica.archivematicaCommon.storageService.get_first_location")
+@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch(
+    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
+)
 def test_download_by_uuid(
     mock_get_file_info,
     get_client,
@@ -630,11 +635,11 @@ def test_contents_sorting(db, tmp_path, admin_client):
 
 @pytest.mark.django_db
 @mock.patch(
-    "storageService.get_first_location",
+    "archivematica.archivematicaCommon.storageService.get_first_location",
     return_value={"uuid": "355d110f-b641-4b6b-b1c0-8426e63951e5"},
 )
 @mock.patch(
-    "storageService.get_file_metadata",
+    "archivematica.archivematicaCommon.storageService.get_file_metadata",
     side_effect=[
         [
             {
@@ -651,7 +656,7 @@ def test_contents_sorting(db, tmp_path, admin_client):
     ],
 )
 @mock.patch(
-    "storageService.browse_location",
+    "archivematica.archivematicaCommon.storageService.browse_location",
     return_value={
         "directories": [],
         "entries": ["file1.txt", "file2.txt"],
