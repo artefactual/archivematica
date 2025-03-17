@@ -6,8 +6,8 @@ repos:
     args: [--no-ensure-ascii, --autofix]
     files: |
       (?x)^(
-        src/MCPServer/assets/.*\.json|
-        src/(MCPClient|MCPServer|dashboard)/install/.*\.json
+        src/archivematica/MCPServer/assets/.*\.json|
+        src/archivematica/(MCPClient|MCPServer|dashboard)/install/.*\.json
       )
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.9.9
@@ -27,7 +27,7 @@ repos:
     exclude: |
       (?x)^(
         ISSUE_TEMPLATE\.md|
-        src/dashboard/(frontend/app|media)/vendor/.*
+        src/archivematica/dashboard/(frontend/app|media)/vendor/.*
       )
 - repo: https://github.com/thlorenz/doctoc
   rev: v2.2.0
@@ -37,7 +37,7 @@ repos:
       (?x)^(
         (CONTRIBUTING|SECURITY).*\.md|
         hack/README\.md|
-        src/(MCPServer|MCPClient|dashboard)/install/README\.md
+        src/archivematica/(MCPServer|MCPClient|dashboard)/install/README\.md
       )
 - repo: https://github.com/citation-file-format/cffconvert
   # Current "2.0.0" git tag does not work because of
@@ -61,5 +61,5 @@ repos:
     args: [--quiet, --config, .markdown-link-check.json]
     exclude: |
       (?x)^(
-        src/dashboard/media/vendor/.*\.md
+        src/archivematica/dashboard/media/vendor/.*\.md
       )

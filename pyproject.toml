@@ -26,6 +26,7 @@ issues = "https://github.com/archivematica/Issues/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["archivematica*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "archivematicaCommon.version.get_full_version"}
@@ -76,8 +77,8 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"src/*/settings/*" = ["F403"]
-"src/dashboard/settings/*" = ["F405"]
+"src/archivematica/*/settings/*" = ["F403"]
+"src/archivematica/dashboard/settings/*" = ["F405"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
@@ -89,15 +90,15 @@ warn_unused_configs = true
 
 [[tool.mypy.overrides]]
 module = [
-    "src.archivematicaCommon.executeOrRunSubProcess",
-    "src.MCPClient.client.*",
-    "src.MCPClient.clientScripts.characterize_file",
-    "src.MCPClient.clientScripts.has_packages",
-    "src.MCPClient.clientScripts.identify_file_format",
-    "src.MCPClient.clientScripts.normalize",
-    "src.MCPClient.clientScripts.policy_check",
-    "src.MCPClient.clientScripts.transcribe_file",
-    "src.MCPClient.clientScripts.validate_file",
+    "src.archivematica.archivematicaCommon.executeOrRunSubProcess",
+    "src.archivematica.MCPClient.client.*",
+    "src.archivematica.MCPClient.clientScripts.characterize_file",
+    "src.archivematica.MCPClient.clientScripts.has_packages",
+    "src.archivematica.MCPClient.clientScripts.identify_file_format",
+    "src.archivematica.MCPClient.clientScripts.normalize",
+    "src.archivematica.MCPClient.clientScripts.policy_check",
+    "src.archivematica.MCPClient.clientScripts.transcribe_file",
+    "src.archivematica.MCPClient.clientScripts.validate_file",
     "tests.archivematicaCommon.test_execute_functions",
     "tests.dashboard.components.accounts.test_views",
     "tests.dashboard.components.administration.test_administration",

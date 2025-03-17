@@ -8,7 +8,6 @@ import queue as Queue
 import threading
 
 from django.conf import settings
-
 from server import metrics
 from server.jobs import DecisionJob
 from server.packages import DIP

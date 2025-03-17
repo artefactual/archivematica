@@ -12,7 +12,6 @@ import os
 import storageService as storage_service
 from django.conf import settings
 from lxml import etree
-
 from server.workflow_abilities import choice_is_available
 
 logger = logging.getLogger("archivematica.mcp.server.processing_config")

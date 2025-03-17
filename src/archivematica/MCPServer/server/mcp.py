@@ -33,7 +33,6 @@ import django
 django.setup()
 
 from django.conf import settings
-
 from server import metrics
 from server import rpc_server
 from server import shared_dirs
