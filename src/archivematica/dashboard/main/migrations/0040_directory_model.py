@@ -1,8 +1,9 @@
 import uuid
 
-import main.models
 from django.db import migrations
 from django.db import models
+
+import archivematica.dashboard.main.models as main_models
 
 
 def data_migration(apps, schema_editor):
@@ -228,7 +229,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         max_length=36,
                         serialize=False,
                         primary_key=True,

@@ -16,8 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
-from components import helpers
 from django.db import connection
+
+from archivematica.dashboard.components import helpers
 
 
 def getNormalizationReportQuery(sipUUID, idsRestriction=""):

@@ -29,7 +29,7 @@ where = ["src"]
 include = ["archivematica*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "archivematicaCommon.version.get_full_version"}
+version = {attr = "archivematica.archivematicaCommon.version.get_full_version"}
 
 [tool.pytest.ini_options]
 addopts = "--reuse-db -p no:cacheprovider"

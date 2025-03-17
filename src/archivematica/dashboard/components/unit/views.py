@@ -17,10 +17,11 @@
 import logging
 
 import django.http
-from components import helpers
-from contrib.mcp.client import MCPClient
 from django.shortcuts import render
-from main import models
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 

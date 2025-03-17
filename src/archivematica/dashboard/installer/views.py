@@ -14,8 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from components import helpers
-from components.administration.forms import StorageSettingsForm
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
@@ -23,11 +21,14 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.translation import gettext as _
-from installer.forms import OrganizationForm
-from installer.forms import SuperUserCreationForm
-from installer.steps import setup_pipeline
-from installer.steps import setup_pipeline_in_ss
 from tastypie.models import ApiKey
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.administration.forms import StorageSettingsForm
+from archivematica.dashboard.installer.forms import OrganizationForm
+from archivematica.dashboard.installer.forms import SuperUserCreationForm
+from archivematica.dashboard.installer.steps import setup_pipeline
+from archivematica.dashboard.installer.steps import setup_pipeline_in_ss
 
 
 def welcome(request):

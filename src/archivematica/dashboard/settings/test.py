@@ -16,10 +16,14 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 """Test settings and globals."""
 
+from typing import Any
+
 import ldap
 from django_auth_ldap.config import LDAPSearch
 
-from .local import *
+from archivematica.dashboard.settings.local import *
+from archivematica.dashboard.settings.local import MIDDLEWARE
+from archivematica.dashboard.settings.local import STORAGES
 
 # Import local settings (base settings + debug + fixture dirs)
 
@@ -66,5 +70,5 @@ AUTH_LDAP_SERVER_URI = "ldap://localhost/"
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
     "ou=example,o=test", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"
 )
-AUTH_LDAP_USER_FLAGS_BY_GROUP = {}
+AUTH_LDAP_USER_FLAGS_BY_GROUP: dict[str, Any] = {}
 AUTH_LDAP_USERNAME_SUFFIX = "_ldap"

@@ -17,16 +17,17 @@
 import logging
 import re
 
-from components import decorators
-from components import helpers
-from components.rights import forms
 from django.forms.models import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from main import models
+
+from archivematica.dashboard.components import decorators
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.rights import forms
+from archivematica.dashboard.main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 

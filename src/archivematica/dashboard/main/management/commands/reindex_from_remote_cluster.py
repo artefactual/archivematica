@@ -16,9 +16,10 @@ import json
 import sys
 
 import elasticsearch
-import elasticSearchFunctions
 from django.conf import settings
-from main.management.commands import DashboardCommand
+
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.dashboard.main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):

@@ -20,16 +20,6 @@ import os
 import shutil
 import subprocess
 
-import components.administration.views_processing as processing_views
-import components.decorators as decorators
-import components.helpers as helpers
-import storageService as storage_service
-from components.administration.forms import AgentForm
-from components.administration.forms import ChecksumSettingsForm
-from components.administration.forms import GeneralSettingsForm
-from components.administration.forms import HandleForm
-from components.administration.forms import StorageSettingsForm
-from components.administration.forms import TaxonomyTermForm
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -43,10 +33,21 @@ from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from installer.steps import setup_pipeline_in_ss
-from main import models
-from version import get_full_version
-from version import get_preservation_system_identifier
+
+import archivematica.archivematicaCommon.storageService as storage_service
+import archivematica.dashboard.components.administration.views_processing as processing_views
+import archivematica.dashboard.components.decorators as decorators
+import archivematica.dashboard.components.helpers as helpers
+from archivematica.archivematicaCommon.version import get_full_version
+from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.components.administration.forms import AgentForm
+from archivematica.dashboard.components.administration.forms import ChecksumSettingsForm
+from archivematica.dashboard.components.administration.forms import GeneralSettingsForm
+from archivematica.dashboard.components.administration.forms import HandleForm
+from archivematica.dashboard.components.administration.forms import StorageSettingsForm
+from archivematica.dashboard.components.administration.forms import TaxonomyTermForm
+from archivematica.dashboard.installer.steps import setup_pipeline_in_ss
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

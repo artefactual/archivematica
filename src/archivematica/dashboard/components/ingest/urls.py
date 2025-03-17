@@ -14,11 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from components.ingest import views
-from components.ingest import views_as
 from django.conf import settings
 from django.urls import path
 from django.urls import re_path
+
+from archivematica.dashboard.components.ingest import views
+from archivematica.dashboard.components.ingest import views_as
 
 app_name = "ingest"
 urlpatterns = [

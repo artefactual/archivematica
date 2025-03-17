@@ -14,10 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from components.unit import views
 from django.conf import settings
 from django.urls import path
 from django.urls import re_path
+
+from archivematica.dashboard.components.unit import views
 
 app_name = "unit"
 # The first segment of these urls is '^(?P<unit_type>transfer|ingest)/'

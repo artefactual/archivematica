@@ -7,9 +7,10 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from fpr import forms as fprforms
-from fpr import models as fprmodels
-from fpr import utils
+
+from archivematica.dashboard.fpr import forms as fprforms
+from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.fpr import utils
 
 CLASS_CATEGORY_MAP = {
     "format": fprmodels.Format,

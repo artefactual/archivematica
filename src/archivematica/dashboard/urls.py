@@ -20,32 +20,45 @@ from django.urls import path
 from django.urls import re_path
 
 urlpatterns = [
-    path("mcp/", include("components.mcp.urls")),
-    path("installer/", include("installer.urls")),
-    path("administration/accounts/", include("components.accounts.urls")),
-    path("archival-storage/", include("components.archival_storage.urls")),
-    path("fpr/", include("fpr.urls")),
+    path("mcp/", include("archivematica.dashboard.components.mcp.urls")),
+    path("installer/", include("archivematica.dashboard.installer.urls")),
+    path(
+        "administration/accounts/",
+        include("archivematica.dashboard.components.accounts.urls"),
+    ),
+    path(
+        "archival-storage/",
+        include("archivematica.dashboard.components.archival_storage.urls"),
+    ),
+    path("fpr/", include("archivematica.dashboard.fpr.urls")),
     re_path(
-        r"^(?P<unit_type>transfer|ingest)/", include("components.unit.urls")
+        r"^(?P<unit_type>transfer|ingest)/",
+        include("archivematica.dashboard.components.unit.urls"),
     ),  # URLs common to transfer & ingest
     re_path(
         r"^transfer/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
-        include("components.rights.transfer_urls"),
+        include("archivematica.dashboard.components.rights.transfer_urls"),
     ),
-    path("transfer/", include("components.transfer.urls")),
-    path("appraisal/", include("components.appraisal.urls")),
+    path("transfer/", include("archivematica.dashboard.components.transfer.urls")),
+    path("appraisal/", include("archivematica.dashboard.components.appraisal.urls")),
     re_path(
         r"^ingest/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
-        include("components.rights.ingest_urls"),
+        include("archivematica.dashboard.components.rights.ingest_urls"),
     ),
-    path("ingest/", include("components.ingest.urls")),
-    path("administration/", include("components.administration.urls")),
-    path("filesystem/", include("components.filesystem_ajax.urls")),
-    path("api/", include("components.api.urls")),
-    path("file/", include("components.file.urls")),
-    path("access/", include("components.access.urls")),
-    path("backlog/", include("components.backlog.urls")),
-    path("", include("main.urls")),
+    path("ingest/", include("archivematica.dashboard.components.ingest.urls")),
+    path(
+        "administration/",
+        include("archivematica.dashboard.components.administration.urls"),
+    ),
+    path(
+        "filesystem/",
+        include("archivematica.dashboard.components.filesystem_ajax.urls"),
+    ),
+    path("api/", include("archivematica.dashboard.components.api.urls")),
+    path("file/", include("archivematica.dashboard.components.file.urls")),
+    path("access/", include("archivematica.dashboard.components.access.urls")),
+    path("backlog/", include("archivematica.dashboard.components.backlog.urls")),
+    path("", include("archivematica.dashboard.main.urls")),
 ]
 
 if settings.PROMETHEUS_ENABLED:

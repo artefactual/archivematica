@@ -3,7 +3,8 @@ selected." chain link to exit with the successful status.
 """
 
 from django.db import migrations
-from main.models import Job
+
+from archivematica.dashboard.main.models import Job
 
 # Can't use apps.get_model for this model as we need to access class attributes.
 

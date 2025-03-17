@@ -14,15 +14,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from components import helpers
-from components.administration.forms import StorageSettingsForm
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from django.http import QueryDict
 from django.utils import termcolors
-from installer.steps import create_super_user
-from installer.steps import setup_pipeline
-from installer.steps import setup_pipeline_in_ss
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.administration.forms import StorageSettingsForm
+from archivematica.dashboard.installer.steps import create_super_user
+from archivematica.dashboard.installer.steps import setup_pipeline
+from archivematica.dashboard.installer.steps import setup_pipeline_in_ss
 
 
 class Command(BaseCommand):

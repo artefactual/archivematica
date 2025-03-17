@@ -20,7 +20,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
-from main.models import DashboardSetting
+
+from archivematica.dashboard.main.models import DashboardSetting
 
 site_url_field = forms.CharField(
     label=_("Site URL"),

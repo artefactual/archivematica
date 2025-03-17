@@ -1,6 +1,6 @@
 """Settings for basic user authentication."""
 
-from settings.base import config
+from archivematica.dashboard.settings.base import config
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -30,5 +30,7 @@ DISABLE_PASSWORD_COMPLEXITY_VALIDATION = config.get(
 )
 if not DISABLE_PASSWORD_COMPLEXITY_VALIDATION:
     AUTH_PASSWORD_VALIDATORS.append(
-        {"NAME": "components.accounts.validators.PasswordComplexityValidator"}
+        {
+            "NAME": "archivematica.dashboard.components.accounts.validators.PasswordComplexityValidator"
+        }
     )

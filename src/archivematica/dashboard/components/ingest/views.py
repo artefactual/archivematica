@@ -22,16 +22,7 @@ import shutil
 import uuid
 from urllib.parse import urljoin
 
-import elasticSearchFunctions
 import requests
-import storageService as storage_service
-from archivematicaFunctions import b64encode_string
-from components import advanced_search
-from components import decorators
-from components import helpers
-from components.ingest import forms as ingest_forms
-from components.ingest.views_NormalizationReport import getNormalizationReportQuery
-from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -45,8 +36,20 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.generic import View
-from main import forms
-from main import models
+
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
+from archivematica.dashboard.components import advanced_search
+from archivematica.dashboard.components import decorators
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.ingest import forms as ingest_forms
+from archivematica.dashboard.components.ingest.views_NormalizationReport import (
+    getNormalizationReportQuery,
+)
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main import forms
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

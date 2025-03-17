@@ -1,6 +1,7 @@
-from components.access import views
 from django.urls import path
 from django.urls import re_path
+
+from archivematica.dashboard.components.access import views
 
 app_name = "access"
 urlpatterns = [

@@ -22,24 +22,26 @@ import shutil
 import uuid
 from cgi import parse_header
 
-import archivematicaFunctions
 import django.http
-from components import helpers
-from components.filesystem_ajax import views as filesystem_ajax_views
-from components.unit import views as unit_views
-from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
-from main import models
-from processing import install_builtin_config
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authentication import MultiAuthentication
 from tastypie.authentication import SessionAuthentication
-from version import get_full_version
 
-from . import validators
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon.processing import install_builtin_config
+from archivematica.archivematicaCommon.version import get_full_version
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.api import validators
+from archivematica.dashboard.components.filesystem_ajax import (
+    views as filesystem_ajax_views,
+)
+from archivematica.dashboard.components.unit import views as unit_views
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
 SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"

@@ -1,6 +1,5 @@
 import json
 
-from components.helpers import generate_api_key
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django_auth_ldap.backend import LDAPBackend
@@ -8,6 +7,8 @@ from django_cas_ng.backends import CASBackend
 from josepy.jws import JWS
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from shibboleth.backends import ShibbolethRemoteUserBackend
+
+from archivematica.dashboard.components.helpers import generate_api_key
 
 
 class CustomShibbolethRemoteUserBackend(ShibbolethRemoteUserBackend):

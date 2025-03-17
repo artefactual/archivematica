@@ -2,9 +2,10 @@ import ast
 
 from django.db import migrations
 from django.db import models
-from main.models import DashboardSetting
-from main.models import DashboardSettingManager
-from main.models import Job
+
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import DashboardSettingManager
+from archivematica.dashboard.main.models import Job
 
 
 def data_migration_atom_to_dict(apps, schema_editor):

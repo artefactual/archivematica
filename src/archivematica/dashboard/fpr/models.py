@@ -14,7 +14,8 @@ from django.core.validators import ValidationError
 from django.db import connection
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from main.models import UUIDField
+
+from archivematica.dashboard.main.models import UUIDField
 
 logger = logging.getLogger(__name__)
 

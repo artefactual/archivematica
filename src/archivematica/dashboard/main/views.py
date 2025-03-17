@@ -14,9 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from archivematicaFunctions import escape
-from components import helpers
-from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -29,7 +26,11 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import last_modified
 from django.views.i18n import JavaScriptCatalog
 from lxml import etree
-from main import models
+
+from archivematica.archivematicaCommon.archivematicaFunctions import escape
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main import models
 
 
 @cache_page(86400, key_prefix="js18n-%s" % get_language())

@@ -39,13 +39,14 @@ import shutil
 import sys
 import tempfile
 
-import archivematicaFunctions as am
-import elasticSearchFunctions as es
-import storageService
 from elasticsearch import ElasticsearchException
 from lxml import etree
-from main.management.commands import DashboardCommand
-from main.management.commands import setup_es_for_aip_reindexing
+
+from archivematica.archivematicaCommon import archivematicaFunctions as am
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.archivematicaCommon import storageService
+from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.dashboard.main.management.commands import setup_es_for_aip_reindexing
 
 PACKAGE_TYPES_TO_INDEX = ("AIP", "AIC")
 

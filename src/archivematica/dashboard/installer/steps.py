@@ -17,14 +17,15 @@
 import logging
 import uuid
 
-import components.helpers as helpers
-import storageService as storage_service
 from django.conf import settings as django_settings
 from django.contrib.auth import get_user_model
-from main.models import Agent
-from main.models import DashboardSetting
-from main.models import User
 from tastypie.models import ApiKey
+
+import archivematica.dashboard.components.helpers as helpers
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import DashboardSetting
+from archivematica.dashboard.main.models import User
 
 logger = logging.getLogger("archivematica.dashboard")
 

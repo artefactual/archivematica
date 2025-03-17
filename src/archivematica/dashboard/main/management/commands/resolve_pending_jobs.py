@@ -13,11 +13,12 @@ interactive command-line interface in the future it will rely on
 public APIs. This is an alternative to the old mcp-rpc-cli command.
 """
 
-from contrib.mcp.client import MCPClient
 from django.contrib.auth import get_user_model
 from django.core.management.base import CommandError
 from lxml import etree
-from main.management.commands import DashboardCommand
+
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):

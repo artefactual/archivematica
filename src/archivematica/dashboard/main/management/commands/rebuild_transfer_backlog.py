@@ -47,24 +47,25 @@ import traceback
 from pathlib import Path
 from subprocess import CalledProcessError
 
-import archivematicaFunctions as am
 import bagit
-import elasticSearchFunctions as es
 import metsrw
-import storageService
-from components.rights.load import load_rights
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
-from fileOperations import addFileToTransfer
-from fileOperations import extract_package
-from fpr.models import FormatVersion
-from main.management.commands import DashboardCommand
-from main.management.commands import boolean_input
-from main.models import Agent
-from main.models import FileFormatVersion
-from main.models import FileID
-from main.models import Transfer
+
+from archivematica.archivematicaCommon import archivematicaFunctions as am
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.archivematicaCommon import storageService
+from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
+from archivematica.archivematicaCommon.fileOperations import extract_package
+from archivematica.dashboard.components.rights.load import load_rights
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.dashboard.main.management.commands import boolean_input
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.dashboard.main.models import FileID
+from archivematica.dashboard.main.models import Transfer
 
 logger = logging.getLogger("archivematica.dashboard")
 

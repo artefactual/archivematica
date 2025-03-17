@@ -17,8 +17,8 @@
 import logging
 import os
 
-from archivematicaFunctions import b64encode_string
-from components import helpers
+from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
+from archivematica.dashboard.components import helpers
 
 logger = logging.getLogger("archivematica.dashboard")
 

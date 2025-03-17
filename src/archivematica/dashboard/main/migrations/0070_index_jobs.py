@@ -1,7 +1,8 @@
 import uuid
 
-import main.models
 from django.db import migrations
+
+import archivematica.dashboard.main.models as main_models
 
 
 class Migration(migrations.Migration):
@@ -11,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="job",
             name="sipuuid",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 max_length=36, db_column="SIPUUID", db_index=True, default=uuid.uuid4
             ),
         ),

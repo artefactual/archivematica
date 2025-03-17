@@ -1,9 +1,10 @@
 import uuid
 
-import main.models
 from django.db import OperationalError
 from django.db import migrations
 from django.db import models
+
+import archivematica.dashboard.main.models as main_models
 
 
 def drop_original_path_unique_key(apps, schema_editor):
@@ -47,7 +48,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="siparrange",
             name="file_uuid",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 null=True,
                 default=uuid.uuid4,
                 editable=False,

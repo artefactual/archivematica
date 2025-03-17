@@ -16,7 +16,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 """Production settings and globals."""
 
-from .base import *
+from archivematica.dashboard.settings.base import *
+from archivematica.dashboard.settings.base import config
 
 ALLOWED_HOSTS = config.get("allowed_hosts").split(",")
 

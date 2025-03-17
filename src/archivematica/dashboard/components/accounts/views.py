@@ -16,12 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from urllib.parse import urlencode
 
-import components.decorators as decorators
-from components.accounts.forms import ApiKeyForm
-from components.accounts.forms import UserChangeForm
-from components.accounts.forms import UserCreationForm
-from components.accounts.forms import UserProfileForm
-from components.helpers import generate_api_key
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -34,10 +28,17 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from main.models import UserProfile
 from mozilla_django_oidc.views import OIDCAuthenticationRequestView
 from mozilla_django_oidc.views import OIDCLogoutView
 from tastypie.models import ApiKey
+
+import archivematica.dashboard.components.decorators as decorators
+from archivematica.dashboard.components.accounts.forms import ApiKeyForm
+from archivematica.dashboard.components.accounts.forms import UserChangeForm
+from archivematica.dashboard.components.accounts.forms import UserCreationForm
+from archivematica.dashboard.components.accounts.forms import UserProfileForm
+from archivematica.dashboard.components.helpers import generate_api_key
+from archivematica.dashboard.main.models import UserProfile
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")

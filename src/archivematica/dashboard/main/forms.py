@@ -16,7 +16,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django import forms
 from django.conf import settings
-from main import models
+
+from archivematica.dashboard.main import models
 
 
 class EventDetailForm(forms.ModelForm):

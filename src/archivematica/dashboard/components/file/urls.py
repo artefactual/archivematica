@@ -1,6 +1,7 @@
-from components.file import views
 from django.conf import settings
 from django.urls import re_path
+
+from archivematica.dashboard.components.file import views
 
 app_name = "file"
 urlpatterns = [

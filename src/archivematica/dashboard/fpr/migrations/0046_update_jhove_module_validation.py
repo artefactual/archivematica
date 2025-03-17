@@ -1,5 +1,8 @@
-from archivematicaFunctions import jhove_validation_command
 from django.db import migrations
+
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    jhove_validation_command,
+)
 
 JHOVE_TOOL_ID = "085d8690-93b7-4d31-84f7-2c5f4cbf6735"
 OLD_JHOVE_CMD_ID = "cb335c49-e6ce-445f-a774-494a6f2300c6"

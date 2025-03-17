@@ -1,10 +1,11 @@
 import time
 
-import elasticSearchFunctions as es
 from django.conf import settings as django_settings
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from elasticsearch import ElasticsearchException
+
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
 
 
 class DashboardCommand(BaseCommand):

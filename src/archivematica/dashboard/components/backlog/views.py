@@ -17,14 +17,7 @@
 import json
 import logging
 
-import elasticSearchFunctions as es
 import requests
-import storageService as storage_service
-from archivematicaFunctions import AMCLIENT_ERROR_CODES
-from archivematicaFunctions import setup_amclient
-from components import advanced_search
-from components import decorators
-from components import helpers
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404
@@ -34,6 +27,16 @@ from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    AMCLIENT_ERROR_CODES,
+)
+from archivematica.archivematicaCommon.archivematicaFunctions import setup_amclient
+from archivematica.dashboard.components import advanced_search
+from archivematica.dashboard.components import decorators
+from archivematica.dashboard.components import helpers
 
 logger = logging.getLogger("archivematica.dashboard")
 

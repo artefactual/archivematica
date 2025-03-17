@@ -2,9 +2,10 @@ from django.conf import settings
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from main.models import RightsStatement
-from main.models import RightsStatementRightsGranted
 from prometheus_client import Counter
+
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import RightsStatementRightsGranted
 
 
 @receiver(post_delete, sender=RightsStatementRightsGranted)

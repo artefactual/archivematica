@@ -40,14 +40,15 @@ import subprocess
 import sys
 import tempfile
 
-import archivematicaFunctions as am
-import elasticSearchFunctions
-import namespaces as ns
-import storageService as storage_service
 from django.core.management.base import CommandError
 from lxml import etree
-from main.management.commands import DashboardCommand
-from main.management.commands import setup_es_for_aip_reindexing
+
+from archivematica.archivematicaCommon import archivematicaFunctions as am
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon import namespaces as ns
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.dashboard.main.management.commands import setup_es_for_aip_reindexing
 
 
 def extract_file(archive_path, destination_dir, relative_path):

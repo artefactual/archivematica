@@ -2,8 +2,9 @@
 
 import uuid
 
-import main.models
 from django.db import migrations
+
+import archivematica.dashboard.main.models as main_models
 
 
 class Migration(migrations.Migration):
@@ -13,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="event",
             name="event_id",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 db_column="eventIdentifierUUID",
                 null=True,
                 unique=True,
@@ -23,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="job",
             name="microservicechainlink",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 blank=True,
                 db_column="MicroServiceChainLinksPK",
                 null=True,
@@ -33,19 +34,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="siparrange",
             name="file_uuid",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 blank=True, default=uuid.uuid4, null=True, unique=True
             ),
         ),
         migrations.AlterField(
             model_name="siparrange",
             name="transfer_uuid",
-            field=main.models.UUIDField(blank=True, default=uuid.uuid4, null=True),
+            field=main_models.UUIDField(blank=True, default=uuid.uuid4, null=True),
         ),
         migrations.AlterField(
             model_name="unitvariable",
             name="microservicechainlink",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 blank=True,
                 db_column="microServiceChainLink",
                 null=True,

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 
 django.setup()
-import elasticSearchFunctions
+from archivematica.archivematicaCommon import elasticSearchFunctions
 
 application = get_wsgi_application()
 

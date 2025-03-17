@@ -22,9 +22,10 @@ import requests
 from agentarchives.atom.client import AtomClient
 from agentarchives.atom.client import AtomError
 from agentarchives.atom.client import CommunicationError
-from main.models import DashboardSetting
 from metsrw import METSDocument
-from storageService import extract_file
+
+from archivematica.archivematicaCommon.storageService import extract_file
+from archivematica.dashboard.main.models import DashboardSetting
 
 logger = logging.getLogger("archivematica.dashboard")
 

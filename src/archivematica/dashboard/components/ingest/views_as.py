@@ -6,9 +6,6 @@ from agentarchives.archivesspace import ArchivesSpaceClient
 from agentarchives.archivesspace import ArchivesSpaceError
 from agentarchives.archivesspace import AuthenticationError
 from agentarchives.archivesspace import ConnectionError
-from components import advanced_search
-from components.ingest import pair_matcher
-from contrib.mcp.client import MCPClient
 from django.contrib import messages
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -16,7 +13,11 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from main import models
+
+from archivematica.dashboard.components import advanced_search
+from archivematica.dashboard.components.ingest import pair_matcher
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

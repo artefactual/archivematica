@@ -16,18 +16,19 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
-from components import helpers
-from contrib.mcp.client import MCPClient
 from django import forms
 from django.conf import settings
 from django.forms.widgets import Select
 from django.forms.widgets import TextInput
 from django.utils.translation import gettext_lazy as _
-from installer.forms import load_site_url
-from installer.forms import site_url_field
 from lxml import etree
-from main.models import Agent
-from main.models import TaxonomyTerm
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.installer.forms import load_site_url
+from archivematica.dashboard.installer.forms import site_url_field
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import TaxonomyTerm
 
 
 class AgentForm(forms.ModelForm):

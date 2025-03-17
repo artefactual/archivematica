@@ -1,8 +1,9 @@
 import uuid
 
-import main.models
 from django.db import migrations
 from django.db import models
+
+import archivematica.dashboard.main.models as main_models
 
 
 class Migration(migrations.Migration):
@@ -18,13 +19,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dipuuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         max_length=50, db_column="dipUUID", default=uuid.uuid4
                     ),
                 ),
                 (
                     "fileuuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         max_length=50, db_column="fileUUID", default=uuid.uuid4
                     ),
                 ),

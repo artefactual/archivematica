@@ -1,6 +1,8 @@
 import os
 
-from archivematicaFunctions import get_oidc_secondary_providers
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    get_oidc_secondary_providers,
+)
 
 OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "")
 OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
@@ -43,7 +45,9 @@ OIDC_PROVIDER_QUERY_PARAM_NAME = os.environ.get(
 OIDC_PROVIDERS = get_oidc_secondary_providers(OIDC_SECONDARY_PROVIDER_NAMES)
 
 if OIDC_OP_LOGOUT_ENDPOINT:
-    OIDC_OP_LOGOUT_URL_METHOD = "components.accounts.views.get_oidc_logout_url"
+    OIDC_OP_LOGOUT_URL_METHOD = (
+        "archivematica.dashboard.components.accounts.views.get_oidc_logout_url"
+    )
 
 OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO", "HS256")
 

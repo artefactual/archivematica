@@ -17,7 +17,8 @@
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.functional import wraps
-from main import models
+
+from archivematica.dashboard.main import models
 
 
 # Try to update context instead of sending new params

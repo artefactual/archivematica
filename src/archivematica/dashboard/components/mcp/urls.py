@@ -14,8 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from components.mcp import views
 from django.urls import path
+
+from archivematica.dashboard.components.mcp import views
 
 app_name = "mcp"
 urlpatterns = [

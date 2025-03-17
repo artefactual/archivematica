@@ -19,8 +19,9 @@ import logging
 import gearman
 from django.conf import settings
 from django.utils.translation import get_language
-from gearman_encoder import JSONDataEncoder
-from main.models import Job
+
+from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
+from archivematica.dashboard.main.models import Job
 
 LOGGER = logging.getLogger("archivematica.dashboard.mcp.client")
 

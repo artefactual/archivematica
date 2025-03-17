@@ -1,4 +1,4 @@
-from .test import *
+from archivematica.dashboard.settings.test import *
 
 DATABASES = {
     "default": {

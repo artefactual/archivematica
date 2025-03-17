@@ -2,7 +2,6 @@ import json
 import os
 import xml.etree.ElementTree as ElementTree
 
-from components import helpers
 from django.conf import settings as django_settings
 from django.http import Http404
 from django.http import HttpResponse
@@ -10,7 +9,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from lazy_paged_sequence import LazyPagedSequence
-from main import models
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main import models
 
 PAGE_SIZE = 30
 

@@ -2,13 +2,14 @@ import json
 import logging
 import os
 
-import elasticSearchFunctions
 import requests
-import storageService as storage_service
-from components import helpers
 from django.conf import settings as django_settings
 from django.views.generic import View
-from main import models
+
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

@@ -16,11 +16,12 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from re import compile as re_compile
 
-import components.helpers as helpers
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+
+import archivematica.dashboard.components.helpers as helpers
 
 EXEMPT_URLS = None
 

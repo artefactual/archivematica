@@ -19,15 +19,17 @@ import os
 import re
 from glob import iglob
 
-from components import helpers
 from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.translation import gettext as _
-from processing import install_builtin_config
 
-from .forms import ProcessingConfigurationForm
+from archivematica.archivematicaCommon.processing import install_builtin_config
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.administration.forms import (
+    ProcessingConfigurationForm,
+)
 
 logger = logging.getLogger("archivematica.dashboard")
 

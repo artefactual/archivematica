@@ -1,9 +1,14 @@
-from components.administration.forms_dip_upload import ArchivesSpaceConfigForm
-from components.administration.forms_dip_upload import AtomConfigForm
 from django.contrib import messages
 from django.shortcuts import render
 from django.utils.translation import gettext as _
-from main.models import DashboardSetting
+
+from archivematica.dashboard.components.administration.forms_dip_upload import (
+    ArchivesSpaceConfigForm,
+)
+from archivematica.dashboard.components.administration.forms_dip_upload import (
+    AtomConfigForm,
+)
+from archivematica.dashboard.main.models import DashboardSetting
 
 _AS_DICTNAME = "upload-archivesspace_v0.0"
 _ATOM_DICTNAME = "upload-qubit_v0.0"

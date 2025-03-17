@@ -12,10 +12,11 @@ Execution example:
 
 import sys
 
-import elasticSearchFunctions as es
 from django.conf import settings
 from elasticsearch import ElasticsearchException
-from main.management.commands import DashboardCommand
+
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.dashboard.main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):

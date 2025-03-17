@@ -17,7 +17,8 @@
 from django.conf import settings
 from django.urls import path
 from django.urls import re_path
-from main import views
+
+from archivematica.dashboard.main import views
 
 app_name = "main"
 urlpatterns = [

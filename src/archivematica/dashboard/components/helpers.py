@@ -38,8 +38,9 @@ from django.http import StreamingHttpResponse
 from django.urls import reverse
 from django.utils.dateformat import format
 from django.utils.translation import gettext as _
-from main import models
 from tastypie.models import ApiKey
+
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

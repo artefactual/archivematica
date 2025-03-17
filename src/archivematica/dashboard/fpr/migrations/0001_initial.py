@@ -1,9 +1,10 @@
 import uuid
 
 import autoslug.fields
-import main.models
 from django.db import migrations
 from django.db import models
+
+import archivematica.dashboard.main.models as main_models
 
 
 class Migration(migrations.Migration):
@@ -272,7 +273,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -304,7 +305,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -338,7 +339,7 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -404,7 +405,7 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -497,7 +498,7 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -569,7 +570,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -605,7 +606,7 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -679,7 +680,7 @@ class Migration(migrations.Migration):
                 ("lastmodified", models.DateTimeField(auto_now_add=True)),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,
@@ -731,7 +732,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "uuid",
-                    main.models.UUIDField(
+                    main_models.UUIDField(
                         help_text="Unique identifier",
                         unique=True,
                         max_length=36,

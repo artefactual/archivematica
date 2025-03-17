@@ -4,20 +4,21 @@ import os
 import uuid
 from functools import wraps
 
-import archivematicaFunctions
-import components.filesystem_ajax.views as filesystem_views
 import django.http
 from agentarchives.archivesspace import ArchivesSpaceError
 from agentarchives.archivesspace import AuthenticationError
-from components import helpers
-from components.ingest.views_as import get_as_system_client
 from django.shortcuts import redirect
 from django.utils import timezone
-from main.models import SIP
-from main.models import ArchivesSpaceDigitalObject
-from main.models import DublinCore
-from main.models import SIPArrange
-from main.models import SIPArrangeAccessMapping
+
+import archivematica.dashboard.components.filesystem_ajax.views as filesystem_views
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.ingest.views_as import get_as_system_client
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import ArchivesSpaceDigitalObject
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import SIPArrange
+from archivematica.dashboard.main.models import SIPArrangeAccessMapping
 
 logger = logging.getLogger("archivematica.dashboard")
 

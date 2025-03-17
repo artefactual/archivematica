@@ -14,9 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from contrib.mcp.client import MCPClient
 from django.http import HttpResponse
 from lxml import etree
+
+from archivematica.dashboard.contrib.mcp.client import MCPClient
 
 
 def execute(request):

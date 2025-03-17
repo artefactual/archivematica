@@ -22,20 +22,21 @@ import shutil
 import tempfile
 import uuid
 
-import archivematicaFunctions
-import components.filesystem_ajax.helpers as filesystem_ajax_helpers
-import databaseFunctions
 import django.http
 import django.template.defaultfilters
-import elasticSearchFunctions
-import storageService as storage_service
-from archivematicaFunctions import b64decode_string
-from archivematicaFunctions import b64encode_string
-from components import helpers
 from django.conf import settings as django_settings
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
-from main import models
+
+import archivematica.dashboard.components.filesystem_ajax.helpers as filesystem_ajax_helpers
+from archivematica.archivematicaCommon import archivematicaFunctions
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.archivematicaFunctions import b64decode_string
+from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

@@ -4,12 +4,13 @@ import uuid
 
 from django.core.management.base import BaseCommand
 from django.db import connection
-from fpr.models import Format
-from fpr.models import FormatGroup
-from fpr.models import FormatVersion
-from fpr.models import IDCommand
-from fpr.models import IDRule
 from lxml import etree
+
+from archivematica.dashboard.fpr.models import Format
+from archivematica.dashboard.fpr.models import FormatGroup
+from archivematica.dashboard.fpr.models import FormatVersion
+from archivematica.dashboard.fpr.models import IDCommand
+from archivematica.dashboard.fpr.models import IDRule
 
 # Introduced in fpr/migrations/0035_python3_compatibility.py
 FILE_BY_EXTENSION_CMD_UUID = "8546b624-7894-4201-8df6-f239d5e0d5ba"

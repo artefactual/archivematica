@@ -22,16 +22,6 @@ import uuid
 from collections import OrderedDict
 from datetime import datetime
 
-import databaseFunctions
-import elasticSearchFunctions as es
-import storageService as storage_service
-from archivematicaFunctions import AMCLIENT_ERROR_CODES
-from archivematicaFunctions import setup_amclient
-from components import advanced_search
-from components import helpers
-from components.archival_storage import forms
-from components.archival_storage.atom import AtomMetadataUploadError
-from components.archival_storage.atom import upload_dip_metadata_to_atom
 from django.conf import settings
 from django.contrib import messages
 from django.http import Http404
@@ -44,6 +34,23 @@ from django.utils.timezone import get_current_timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
 from elasticsearch import ElasticsearchException
+
+from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.archivematicaFunctions import (
+    AMCLIENT_ERROR_CODES,
+)
+from archivematica.archivematicaCommon.archivematicaFunctions import setup_amclient
+from archivematica.dashboard.components import advanced_search
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.archival_storage import forms
+from archivematica.dashboard.components.archival_storage.atom import (
+    AtomMetadataUploadError,
+)
+from archivematica.dashboard.components.archival_storage.atom import (
+    upload_dip_metadata_to_atom,
+)
 
 logger = logging.getLogger("archivematica.dashboard")
 

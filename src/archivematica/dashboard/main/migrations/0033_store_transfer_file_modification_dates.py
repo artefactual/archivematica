@@ -1,6 +1,7 @@
 from django.db import migrations
 from django.db import models
-from main.models import Job
+
+from archivematica.dashboard.main.models import Job
 
 # Can't use apps.get_model for this model as we need to access class attributes
 

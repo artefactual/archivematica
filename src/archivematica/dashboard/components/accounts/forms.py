@@ -22,7 +22,8 @@ from django.contrib.auth.password_validation import password_validators_help_tex
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
-from main.models import UserProfile
+
+from archivematica.dashboard.main.models import UserProfile
 
 
 class UserCreationForm(DjangoUserCreationForm):

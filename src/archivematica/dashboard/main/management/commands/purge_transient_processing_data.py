@@ -34,14 +34,15 @@ recently purged transfers.
 import logging
 import traceback
 
-import elasticSearchFunctions as es
 from django.conf import settings as django_settings
 from django.core.management.base import CommandError
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from elasticsearch import ElasticsearchException
-from main import models
-from main.management.commands import DashboardCommand
+
+from archivematica.archivematicaCommon import elasticSearchFunctions as es
+from archivematica.dashboard.main import models
+from archivematica.dashboard.main.management.commands import DashboardCommand
 
 
 class Command(DashboardCommand):

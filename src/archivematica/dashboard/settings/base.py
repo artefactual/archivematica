@@ -20,11 +20,12 @@ import os
 from io import StringIO
 from typing import Any
 
-import email_settings
-from appconfig import Config
-from appconfig import process_search_enabled
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
+
+from archivematica.archivematicaCommon import email_settings
+from archivematica.archivematicaCommon.appconfig import Config
+from archivematica.archivematicaCommon.appconfig import process_search_enabled
 
 
 def _get_settings_from_file(path):
@@ -390,8 +391,8 @@ TEMPLATES: list[dict[str, Any]] = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "main.context_processors.search_enabled",
-                "main.context_processors.auth_methods",
+                "archivematica.dashboard.main.context_processors.search_enabled",
+                "archivematica.dashboard.main.context_processors.auth_methods",
             ],
             "debug": DEBUG,
         },
@@ -405,28 +406,28 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     # Automatic language selection is disabled.
     # See #723 for more details.
-    "middleware.locale.ForceDefaultLanguageMiddleware",
+    "archivematica.dashboard.middleware.locale.ForceDefaultLanguageMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "middleware.common.AJAXSimpleExceptionResponseMiddleware",
-    "installer.middleware.ConfigurationCheckMiddleware",
-    "middleware.common.SpecificExceptionErrorPageResponseMiddleware",
-    "middleware.common.ElasticsearchMiddleware",
+    "archivematica.dashboard.middleware.common.AJAXSimpleExceptionResponseMiddleware",
+    "archivematica.dashboard.installer.middleware.ConfigurationCheckMiddleware",
+    "archivematica.dashboard.middleware.common.SpecificExceptionErrorPageResponseMiddleware",
+    "archivematica.dashboard.middleware.common.ElasticsearchMiddleware",
 ]
 
 AUDIT_LOG_MIDDLEWARE = config.get("audit_log_middleware")
 if AUDIT_LOG_MIDDLEWARE:
-    MIDDLEWARE.append("middleware.common.AuditLogMiddleware")
+    MIDDLEWARE.append("archivematica.dashboard.middleware.common.AuditLogMiddleware")
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
 # Import basic authentication settings from component module.
-from .components.auth import *
+from archivematica.dashboard.settings.components.auth import *
 
-ROOT_URLCONF = "urls"
+ROOT_URLCONF = "archivematica.dashboard.urls"
 
 INSTALLED_APPS = [
     # Django basics
@@ -439,12 +440,12 @@ INSTALLED_APPS = [
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Internal apps
-    "installer",
-    "components.accounts",
-    "main",
-    "components.mcp",
-    "components.administration",
-    "fpr",
+    "archivematica.dashboard.installer",
+    "archivematica.dashboard.components.accounts",
+    "archivematica.dashboard.main",
+    "archivematica.dashboard.components.mcp",
+    "archivematica.dashboard.components.administration",
+    "archivematica.dashboard.fpr",
     # For REST API
     "tastypie",
     "django_forms_bootstrap",
@@ -584,27 +585,29 @@ if SHIBBOLETH_AUTHENTICATION:
     INSTALLED_APPS += ["shibboleth"]
 
     AUTHENTICATION_BACKENDS += [
-        "components.accounts.backends.CustomShibbolethRemoteUserBackend"
+        "archivematica.dashboard.components.accounts.backends.CustomShibbolethRemoteUserBackend"
     ]
 
     # Insert Shibboleth after the authentication middleware
     MIDDLEWARE.insert(
         MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1,
-        "middleware.common.CustomShibbolethRemoteUserMiddleware",
+        "archivematica.dashboard.middleware.common.CustomShibbolethRemoteUserMiddleware",
     )
 
     TEMPLATES[0]["OPTIONS"]["context_processors"] += [
         "shibboleth.context_processors.logout_link"
     ]
 
-    from .components.shibboleth_auth import *
+    from archivematica.dashboard.settings.components.shibboleth_auth import *
 
 LDAP_AUTHENTICATION = config.get("ldap_authentication")
 if LDAP_AUTHENTICATION:
     ALLOW_USER_EDITS = False
-    AUTHENTICATION_BACKENDS.insert(0, "components.accounts.backends.CustomLDAPBackend")
+    AUTHENTICATION_BACKENDS.insert(
+        0, "archivematica.dashboard.components.accounts.backends.CustomLDAPBackend"
+    )
 
-    from .components.ldap_auth import *
+    from archivematica.dashboard.settings.components.ldap_auth import *
 
 CAS_AUTHENTICATION = config.get("cas_authentication")
 if CAS_AUTHENTICATION:
@@ -621,7 +624,9 @@ if CAS_AUTHENTICATION:
     ALLOW_USER_EDITS = False
     INSTALLED_APPS += ["django_cas_ng"]
 
-    AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomCASBackend"]
+    AUTHENTICATION_BACKENDS += [
+        "archivematica.dashboard.components.accounts.backends.CustomCASBackend"
+    ]
 
     # Insert CAS after the authentication middleware
     MIDDLEWARE.insert(
@@ -629,7 +634,7 @@ if CAS_AUTHENTICATION:
         "django_cas_ng.middleware.CASMiddleware",
     )
 
-    from .components.cas_auth import *
+    from archivematica.dashboard.settings.components.cas_auth import *
 
 OIDC_AUTHENTICATION = config.get("oidc_authentication")
 if OIDC_AUTHENTICATION:
@@ -639,11 +644,11 @@ if OIDC_AUTHENTICATION:
     ALLOW_USER_EDITS = False
     OIDC_STORE_ID_TOKEN = True
 
-    OIDC_AUTHENTICATE_CLASS = (
-        "components.accounts.views.CustomOIDCAuthenticationRequestView"
-    )
+    OIDC_AUTHENTICATE_CLASS = "archivematica.dashboard.components.accounts.views.CustomOIDCAuthenticationRequestView"
 
-    AUTHENTICATION_BACKENDS += ["components.accounts.backends.CustomOIDCBackend"]
+    AUTHENTICATION_BACKENDS += [
+        "archivematica.dashboard.components.accounts.backends.CustomOIDCBackend"
+    ]
     LOGIN_EXEMPT_URLS.append(r"^oidc")
 
     if not OIDC_ALLOW_LOCAL_AUTHENTICATION:
@@ -657,16 +662,16 @@ if OIDC_AUTHENTICATION:
     # Insert OIDC before the redirect to LOGIN_URL
     MIDDLEWARE.insert(
         MIDDLEWARE.index("django.contrib.auth.middleware.AuthenticationMiddleware") + 1,
-        "middleware.common.OidcCaptureQueryParamMiddleware",
+        "archivematica.dashboard.middleware.common.OidcCaptureQueryParamMiddleware",
     )
 
-    from .components.oidc_auth import *
+    from archivematica.dashboard.settings.components.oidc_auth import *
 
 CSP_ENABLED = config.get("csp_enabled")
 if CSP_ENABLED:
     MIDDLEWARE.insert(0, "csp.middleware.CSPMiddleware")
 
-    from .components.csp import *
+    from archivematica.dashboard.settings.components.csp import *
 
     CSP_SETTINGS_FILE = os.environ.get("CSP_SETTINGS_FILE", "")
     if CSP_SETTINGS_FILE:

@@ -18,18 +18,19 @@ import json
 import logging
 from uuid import uuid4
 
-import components.decorators as decorators
-import storageService as storage_service
-from components import helpers
-from components.ingest.forms import DublinCoreMetadataForm
-from contrib.mcp.client import MCPClient
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.translation import gettext as _
-from main import models
+
+import archivematica.dashboard.components.decorators as decorators
+from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.ingest.forms import DublinCoreMetadataForm
+from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
 

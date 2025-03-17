@@ -17,14 +17,17 @@
 """Development settings and globals."""
 
 import os
+from typing import Any
 
-from .base import *
+from archivematica.dashboard.settings.base import *
+from archivematica.dashboard.settings.base import BASE_PATH
+from archivematica.dashboard.settings.base import TEMPLATES
 
 DEBUG = True
 TEMPLATES[0]["OPTIONS"]["debug"] = True
 
 # Disable password validation in local development environment.
-AUTH_PASSWORD_VALIDATORS = []
+AUTH_PASSWORD_VALIDATORS: list[dict[str, Any]] = []
 
 # Fixture directories are only configured in local and test environments.
 # In Django 1.8, if you create a fixture named initial_data.[xml/yaml/json],

@@ -14,15 +14,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from components.administration import views
-from components.administration import views_dip_upload
-from components.administration import views_processing
-from components.administration.forms import ProcessingConfigurationForm
 from django.conf import settings
 from django.urls import include
 from django.urls import path
 from django.urls import re_path
 from django.views.generic import TemplateView
+
+from archivematica.dashboard.components.administration import views
+from archivematica.dashboard.components.administration import views_dip_upload
+from archivematica.dashboard.components.administration import views_processing
+from archivematica.dashboard.components.administration.forms import (
+    ProcessingConfigurationForm,
+)
 
 app_name = "administration"
 urlpatterns = [

@@ -17,12 +17,13 @@
 import pathlib
 
 from agentarchives.atom.client import CommunicationError
-from components import helpers
-from components.archival_storage.atom import get_atom_client
 from django import forms
 from django.utils.translation import gettext as _
 from requests import ConnectionError
 from requests import Timeout
+
+from archivematica.dashboard.components import helpers
+from archivematica.dashboard.components.archival_storage.atom import get_atom_client
 
 
 class CreateAICForm(forms.Form):

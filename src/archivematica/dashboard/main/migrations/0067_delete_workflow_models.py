@@ -1,7 +1,8 @@
 import uuid
 
-import main.models
 from django.db import migrations
+
+import archivematica.dashboard.main.models as main_models
 
 
 class Migration(migrations.Migration):
@@ -57,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="job",
             name="microservicechainlink",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 max_length=36,
                 null=True,
                 editable=False,
@@ -69,7 +70,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="unitvariable",
             name="microservicechainlink",
-            field=main.models.UUIDField(
+            field=main_models.UUIDField(
                 max_length=36,
                 null=True,
                 editable=False,

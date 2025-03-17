@@ -1,6 +1,7 @@
 from django.urls import path
 from django.urls import re_path
-from fpr import views
+
+from archivematica.dashboard.fpr import views
 
 UUID_REGEX = r"[\w]{8}(-[\w]{4}){3}-[\w]{12}"
 

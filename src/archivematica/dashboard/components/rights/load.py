@@ -7,16 +7,18 @@ This module does not use the ``__`` notation for accessors offered by
 ``premisrw``.
 """
 
-from components.helpers import get_metadata_type_id_by_description
-from main.models import SIP
-from main.models import File
-from main.models import RightsStatement
-from main.models import RightsStatementCopyright
-from main.models import RightsStatementLicense
-from main.models import RightsStatementOtherRightsInformation
-from main.models import RightsStatementRightsGranted
-from main.models import RightsStatementStatuteInformation
-from main.models import Transfer
+from archivematica.dashboard.components.helpers import (
+    get_metadata_type_id_by_description,
+)
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import RightsStatementCopyright
+from archivematica.dashboard.main.models import RightsStatementLicense
+from archivematica.dashboard.main.models import RightsStatementOtherRightsInformation
+from archivematica.dashboard.main.models import RightsStatementRightsGranted
+from archivematica.dashboard.main.models import RightsStatementStatuteInformation
+from archivematica.dashboard.main.models import Transfer
 
 
 def load_rights(obj, rights):
