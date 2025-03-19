@@ -109,7 +109,7 @@ services:
         PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     environment:
       DJANGO_SECRET_KEY: "12345"
-      DJANGO_SETTINGS_MODULE: "settings.common"
+      DJANGO_SETTINGS_MODULE: "archivematica.MCPServer.settings.common"
       ARCHIVEMATICA_MCPSERVER_CLIENT_USER: "archivematica"
       ARCHIVEMATICA_MCPSERVER_CLIENT_PASSWORD: "demo"
       ARCHIVEMATICA_MCPSERVER_CLIENT_HOST: "mysql"
@@ -137,7 +137,7 @@ services:
         PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
     environment:
       DJANGO_SECRET_KEY: "12345"
-      DJANGO_SETTINGS_MODULE: "settings.common"
+      DJANGO_SETTINGS_MODULE: "archivematica.MCPClient.settings.common"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_USER: "archivematica"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_PASSWORD: "demo"
       ARCHIVEMATICA_MCPCLIENT_CLIENT_HOST: "mysql"
@@ -180,7 +180,7 @@ services:
       AM_GUNICORN_ACCESSLOG: "/dev/null"
       AM_GUNICORN_RELOAD: "true"
       AM_GUNICORN_RELOAD_ENGINE: "auto"
-      DJANGO_SETTINGS_MODULE: "settings.local"
+      DJANGO_SETTINGS_MODULE: "archivematica.dashboard.settings.local"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "elasticsearch:9200"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED: "1"
