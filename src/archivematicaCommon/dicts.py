@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-import ast
 import os
 import re
 import uuid
@@ -45,16 +44,6 @@ def replace_string_values(string, **kwargs):
 
 
 class ReplacementDict(dict):
-    @staticmethod
-    def fromstring(s):
-        """
-        Create a new ReplacementDict given a string representing a
-        serialized Python dict. This is commonly used within the
-        MCPServer, where unit variables are frequently dicts stored
-        in the database.
-        """
-        return ReplacementDict(ast.literal_eval(s))
-
     @staticmethod
     def frommodel(type_="file", sip=None, file_=None, expand_path=True):
         """
@@ -230,12 +219,3 @@ class ReplacementDict(dict):
             args.append(f"--{optname}={value}")
 
         return args
-
-
-class ChoicesDict(ReplacementDict):
-    @staticmethod
-    def fromstring(s):
-        """
-        See ReplacementDict.fromstring.
-        """
-        return ChoicesDict(ast.literal_eval(s))
