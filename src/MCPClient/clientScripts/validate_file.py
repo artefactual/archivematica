@@ -15,7 +15,7 @@ Arguments:
 
 """
 
-import ast
+import json
 import os
 import sys
 from dataclasses import dataclass
@@ -81,11 +81,11 @@ class ValidationResult:
 
     @staticmethod
     def _parse_stdout(stdout: str) -> dict[str, Any]:
-        """Parse a stdout string into a dictionary.
+        """Parse a stdout string into a dictionary using JSON.
 
-        TODO: avoid using `ast.literal_eval` for security reasons.
+        Expects the stdout to be a valid JSON string.
         """
-        result = ast.literal_eval(stdout)
+        result = json.loads(stdout)
         if not isinstance(result, dict):
             raise ValueError("Parsed output is not a dictionary.")
         return result
