@@ -928,7 +928,7 @@ class PackageContext:
         for unit_var_value in unit_vars_queryset:
             try:
                 unit_var = json.loads(unit_var_value[0])
-            except (ValueError, SyntaxError):
+            except (ValueError, TypeError):
                 logger.exception(
                     "Failed to eval unit variable value %s", unit_var_value[0]
                 )
