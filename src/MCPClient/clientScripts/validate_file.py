@@ -18,7 +18,7 @@ Arguments:
 import ast
 import os
 import sys
-from collections.abc import Mapping
+from dataclasses import dataclass
 from pprint import pformat
 from typing import Any
 from typing import Optional
@@ -64,6 +64,48 @@ def main(
 
 
 logger = get_script_logger("archivematica.mcp.client.validateFile")
+
+
+@dataclass
+class ValidationResult:
+    """Capture the validation result determined by the FPR command.
+
+    This class records the stdout output from the FPR command and extracts the
+    event outcome information and detail note. The outcome information indicates
+    if the file validation was successful, partially successful, or failed.
+    """
+
+    event_outcome_information: Optional[str]
+    event_outcome_detail_note: Optional[str]
+    stdout: Optional[str]
+
+    @staticmethod
+    def _parse_stdout(stdout: str) -> dict[str, Any]:
+        """Parse a stdout string into a dictionary.
+
+        TODO: avoid using `ast.literal_eval` for security reasons.
+        """
+        result = ast.literal_eval(stdout)
+        if not isinstance(result, dict):
+            raise ValueError("Parsed output is not a dictionary.")
+        return result
+
+    @staticmethod
+    def from_stdout(stdout: str) -> "ValidationResult":
+        output = ValidationResult._parse_stdout(stdout)
+        return ValidationResult(
+            output.get("eventOutcomeInformation"),
+            output.get("eventOutcomeDetailNote"),
+            output.get("stdout"),
+        )
+
+    def passed(self) -> bool:
+        """Return True if the event outcome information is "pass"."""
+        return self.event_outcome_information == "pass"
+
+    def partially_passed(self) -> bool:
+        """Return True if the event outcome information is "partial pass"."""
+        return self.event_outcome_information == "partial pass"
 
 
 class Validator:
@@ -167,9 +209,7 @@ class Validator:
             )
             return "failed"
         # Parse output and generate an Event
-        # TODO: Evaluating a python string from a user-definable script seems
-        # insecure practice; should be JSON.
-        output: Mapping[str, Any] = ast.literal_eval(stdout)
+        validation_result = ValidationResult.from_stdout(stdout)
         event_detail = (
             f'program="{rule.command.tool.description}";'
             f' version="{rule.command.tool.version}"'
@@ -178,14 +218,11 @@ class Validator:
         # determined that the file is not valid, then we want to both create a
         # validation event in the db and set ``failed`` to ``True`` because we
         # want the micro-service in the dashboard GUI to indicate "Failed".
-        # NOTE: this requires that the stdout of all validation FPR commands be
-        # a dict (preferably a JSON object) with an ``eventOutcomeInformation``
-        # boolean attribute.
-        if output.get("eventOutcomeInformation") == "pass":
+        if validation_result.passed():
             self.job.print_output(
                 f'Command "{rule.command.description}" was successful'
             )
-        elif output.get("eventOutcomeInformation") == "partial pass":
+        elif validation_result.partially_passed():
             self.job.print_output(
                 f'Command "{rule.command.description}" was partially successful'
             )
@@ -197,7 +234,7 @@ class Validator:
             )
             result = "failed"
         if self.file_type == "preservation":
-            self._save_stdout_to_logs_dir(output)
+            self._save_stdout_to_logs_dir(validation_result.stdout)
         self.job.print_output(
             f"Creating {self.purpose} event for {self.file_path} ({self.file_uuid})"
         )
@@ -205,17 +242,15 @@ class Validator:
             fileUUID=self.file_uuid,
             eventType="validation",  # From PREMIS controlled vocab.
             eventDetail=event_detail,
-            eventOutcome=output.get("eventOutcomeInformation"),
-            eventOutcomeDetailNote=output.get("eventOutcomeDetailNote"),
+            eventOutcome=validation_result.event_outcome_information,
+            eventOutcomeDetailNote=validation_result.event_outcome_detail_note,
         )
         return result
 
-    def _save_stdout_to_logs_dir(self, output: Mapping[str, Any]) -> None:
+    def _save_stdout_to_logs_dir(self, stdout: Optional[str]) -> None:
         """Save the validation command's output from validating the file to a
         file at logs/implementationChecks/<input_filename>.xml in the SIP.
-        ``output`` is expected to be a dict with a ``stdout`` key.
         """
-        stdout = output.get("stdout")
         if stdout and self.sip_pres_val_dir:
             filename = os.path.basename(self.file_path)
             stdout_path = os.path.join(self.sip_pres_val_dir, f"{filename}.xml")
