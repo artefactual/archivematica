@@ -216,7 +216,7 @@ def test_job_saves_unit_variable_indicating_file_format_identification_use(
         models.UnitVariable.objects.filter(
             unituuid=sip.pk,
             variable="replacementDict",
-            variablevalue="{'%IDCommand%': 'True'}",
+            variablevalue='{"%IDCommand%": "True"}',
         ).count()
         == 1
     )

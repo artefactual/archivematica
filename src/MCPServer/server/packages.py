@@ -1,8 +1,8 @@
 """Package management."""
 
 import abc
-import ast
 import collections
+import json
 import logging
 import os
 from pathlib import Path
@@ -926,9 +926,8 @@ class PackageContext:
         # Distinct helps here, at least
         unit_vars_queryset = unit_vars_queryset.values_list("variablevalue").distinct()
         for unit_var_value in unit_vars_queryset:
-            # TODO: nope nope nope, fix eval usage
             try:
-                unit_var = ast.literal_eval(unit_var_value[0])
+                unit_var = json.loads(unit_var_value[0])
             except (ValueError, SyntaxError):
                 logger.exception(
                     "Failed to eval unit variable value %s", unit_var_value[0]

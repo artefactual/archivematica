@@ -3,7 +3,6 @@ Jobs remotely executed by on MCP client.
 """
 
 import abc
-import ast
 import json
 import logging
 
@@ -202,7 +201,7 @@ class FilesClientScriptJob(ClientScriptJob):
 
         if var:
             try:
-                script_override = ast.literal_eval(var.variablevalue)
+                script_override = json.loads(var.variablevalue)
             except (SyntaxError, ValueError):
                 pass
             else:
