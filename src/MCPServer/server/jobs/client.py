@@ -202,7 +202,7 @@ class FilesClientScriptJob(ClientScriptJob):
         if var:
             try:
                 script_override = json.loads(var.variablevalue)
-            except (SyntaxError, ValueError):
+            except (TypeError, ValueError):
                 pass
             else:
                 filter_subdir = script_override.get("filterSubDir")
