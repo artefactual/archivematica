@@ -102,13 +102,13 @@ bootstrap-storage-service:  ## Bootstrap Storage Service (new database).
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/storage_service/manage.py \
+		--entrypoint /src/src/archivematica/storage_service/manage.py \
 			archivematica-storage-service \
 				migrate --noinput
 	docker compose run \
 		--rm \
 		--no-deps \
-		--entrypoint /src/storage_service/manage.py \
+		--entrypoint /src/src/archivematica/storage_service/manage.py \
 			archivematica-storage-service \
 				create_user \
 					--username="test" \
@@ -125,7 +125,7 @@ makemigrations-ss:
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--no-deps \
-		--entrypoint /src/storage_service/manage.py \
+		--entrypoint /src/src/archivematica/storage_service/manage.py \
 			archivematica-storage-service \
 				makemigrations
 
@@ -143,7 +143,7 @@ manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [opt
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--rm \
 		--no-deps \
-		--entrypoint /src/storage_service/manage.py \
+		--entrypoint /src/src/archivematica/storage_service/manage.py \
 			archivematica-storage-service \
 				$(ARG)
 
@@ -307,7 +307,7 @@ test-dashboard: start-mysql  ## Run Dashboard tests.
 __TOXENVS_STORAGE_SERVICE = storage-service
 test-storage-service: start-mysql  ## Run Storage Service tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_STORAGE_SERVICE))
-	$(call run_toxenv,$(__TOXENVS_STORAGE_SERVICE),settings.testmysql)
+	$(call run_toxenv,$(__TOXENVS_STORAGE_SERVICE),archivematica.storage_service.storage_service.settings.testmysql)
 
 test-storage-service-integration:  ## Run Storage Service unit and integration tests using MySQL and MinIO.
 	$(CURDIR)/submodules/archivematica-storage-service/tests/integration/run.sh
@@ -320,7 +320,7 @@ test-archivematica-common: start-mysql  ## Run Archivematica Common tests.
 test-migrations: start-mysql  ## Check there are no pending migrations.
 	$(call create_dbs,$(__TEST_DBS_MIGRATIONS))
 	$(call run_toxenv,migrations-dashboard,archivematica.dashboard.settings.testmysql)
-	$(call run_toxenv,migrations-storage-service,settings.testmysql)
+	$(call run_toxenv,migrations-storage-service,archivematica.storage_service.storage_service.settings.testmysql)
 
 __TOXENVS_LINTING = linting
 test-linting:  ## Check linting.
