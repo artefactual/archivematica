@@ -95,6 +95,35 @@ class PronomFormat:
         else:
             self.extension = None
 
+        pronom_classifications = xml.find(".details/content_type")
+        if pronom_classifications is not None and pronom_classifications.text:
+            self.pronom_classifications = pronom_classifications.text
+        else:
+            self.pronom_classifications = None
+
+
+def get_format_group_from_pronom_classifications(pronom_format):
+    if pronom_format.pronom_classifications is not None:
+        classifications = [
+            c.strip() for c in pronom_format.pronom_classifications.split(",")
+        ]
+        if len(classifications) == 1:
+            try:
+                return FormatGroup.objects.get(description=classifications[0])
+            except (FormatGroup.DoesNotExist, FormatGroup.MultipleObjectsReturned):
+                print(
+                    f"Could not match an existing format group for format '{pronom_format.format_name}' from its PRONOM classification '{classifications[0]}'. Setting the 'Unknown' group instead."
+                )
+        else:
+            print(
+                f"Format '{pronom_format.format_name}' contains multiple PRONOM classifications '{pronom_format.pronom_classifications}'. Setting the 'Unknown' group."
+            )
+    else:
+        print(
+            f"Format '{pronom_format.format_name}' does not contain any PRONOM classifications. Setting the 'Unknown' group."
+        )
+    return unknown_format_group
+
 
 def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
     formats = etree.parse(pronom_xml)
@@ -131,12 +160,13 @@ def main(pronom_xml, output_format=SQL_OUTPUT, output_file=sys.stdout):
             try:
                 parent_format = Format.objects.get(description=new_format.format_name)
             except Format.DoesNotExist:
+                group = get_format_group_from_pronom_classifications(new_format)
                 parent_format = Format(
                     description=new_format.format_name,
-                    group=unknown_format_group,
+                    group=group,
                     uuid=str(uuid.uuid4()),
                 )
-                migration = f'''    Format.objects.create(description="""{new_format.format_name}""", group_id="{unknown_format_group.uuid}", uuid="{parent_format.uuid}")'''
+                migration = f'''    Format.objects.create(description="""{new_format.format_name}""", group_id="{group.uuid}", uuid="{parent_format.uuid}")'''
                 sql = save_object(parent_format)
                 choose_output(output_format, output_file, sql, migration)
                 archivematica_formats[new_format.format_name] = parent_format
