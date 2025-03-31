@@ -139,11 +139,8 @@ $(document).ready(
                 $(this).closest('.preview-help-text').children('.preview').show();
               });
 
-      // Enable tooltip for the button which allows users to copy the API key to the clipboard.
-      $('#copy-api-key-button').tooltip();
-
-      // Copy the API key to the clipboard on button click, then update the tooltip and icon accordingly.
-      $('#copy-api-key-button').click(function () {
+      // Set up the button which allows users to copy the API key to the clipboard.
+      $('#copy-api-key-button').tooltip().click(function () {
         var button = $(this);
         navigator.clipboard.writeText($('#api-key').val()).then(function () {
           var button_icon = $('#copy-button-icon');
