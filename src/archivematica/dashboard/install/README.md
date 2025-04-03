@@ -176,8 +176,8 @@ variables or in the gunicorn configuration file.
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED`**:
   - **Description:** controls what Elasticsearch indexes are enabled:
-    - When set to `aips`, the Backlog tab, Appraisal tab, and the SIP Arrange
-      pane in the Ingest tab will not be displayed.
+    - When set to `aips`, the Backlog tab and Appraisal tab will not be
+      displayed.
     - When set to `transfers`, the Archival storage tab will not be displayed.
     - When set to `false`, all the mentioned parts in the previous cases will
       not be displayed.
