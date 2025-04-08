@@ -1,4 +1,3 @@
-import os
 import uuid
 from unittest import mock
 
@@ -7,8 +6,6 @@ from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.MCPClient.clientScripts import create_aic_mets
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def extract_file_mock(aip_uuid, mets_in_aip, mets_path):

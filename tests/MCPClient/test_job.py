@@ -1,9 +1,6 @@
-import os
 from uuid import uuid4
 
 from archivematica.MCPClient.client.job import Job
-
-THIS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 TEXT = "‘你好‘"
 

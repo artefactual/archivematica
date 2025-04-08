@@ -1,12 +1,9 @@
-import os
 from unittest import mock
 
 import pytest
 
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.clientScripts import upload_qubit
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @pytest.fixture
