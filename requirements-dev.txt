@@ -108,7 +108,6 @@ idna==3.10
     #   requests
 importlib-metadata==8.6.1
     # via
-    #   -r /src/requirements.txt
     #   build
     #   pytest-randomly
 importlib-resources==6.5.2
