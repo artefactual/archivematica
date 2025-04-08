@@ -19,13 +19,13 @@
 """Management of XML metadata files."""
 
 import csv
+from importlib.metadata import version
 from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
 import requests
 from django.core.exceptions import ValidationError
-from importlib_metadata import version
 from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
