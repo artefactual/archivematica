@@ -1,4 +1,4 @@
-import os
+import importlib.resources
 import pathlib
 from io import StringIO
 from unittest import mock
@@ -9,13 +9,7 @@ from django.utils.translation import gettext_lazy
 from archivematica.MCPServer.server import translation
 from archivematica.MCPServer.server import workflow
 
-ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent
-    / "src"
-    / "archivematica"
-    / "MCPServer"
-    / "assets"
-)
+ASSETS_DIR = importlib.resources.files("archivematica.MCPServer") / "assets"
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
 
@@ -47,8 +41,8 @@ def test_load_invalid_json():
 @pytest.mark.parametrize(
     "path",
     (
-        os.path.join(ASSETS_DIR, "workflow.json"),
-        os.path.join(FIXTURES_DIR, "workflow-sample.json"),
+        ASSETS_DIR / "workflow.json",
+        FIXTURES_DIR / "workflow-sample.json",
     ),
 )
 def test_load_valid_document(path):
@@ -105,7 +99,7 @@ def test_load_valid_document(path):
 
 
 def test_link_browse_methods():
-    with open(os.path.join(ASSETS_DIR, "workflow.json")) as fp:
+    with open(ASSETS_DIR / "workflow.json") as fp:
         wf = workflow.load(fp)
     ln = wf.get_link("1ba589db-88d1-48cf-bb1a-a5f9d2b17378")
     assert ln.get_next_link(code="0").id == "087d27be-c719-47d8-9bbb-9a7d8b609c44"

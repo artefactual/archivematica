@@ -1,5 +1,6 @@
 import collections
 import csv
+import importlib.resources
 import os
 import pathlib
 import random
@@ -753,8 +754,11 @@ class TestCustomStructMap(TestCase):
         os.path.join("custom_structmaps", "model", "files.json"),
     ]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
-    mets_xsd_path = os.path.abspath(
-        os.path.join(THIS_DIR, "../../src/archivematica/MCPClient/assets/mets/mets.xsd")
+    mets_xsd_path = (
+        importlib.resources.files("archivematica.MCPClient")
+        / "assets"
+        / "mets"
+        / "mets.xsd"
     )
 
     @pytest.fixture(autouse=True)

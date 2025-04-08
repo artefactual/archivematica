@@ -1,5 +1,4 @@
-import os
-import pathlib
+import importlib.resources
 from unittest import mock
 
 import pytest
@@ -15,19 +14,14 @@ from archivematica.MCPServer.server.processing_config import (
 from archivematica.MCPServer.server.processing_config import processing_fields
 from archivematica.MCPServer.server.workflow import load
 
-ASSETS_DIR = (
-    pathlib.Path(__file__).parent.parent.parent
-    / "src"
-    / "archivematica"
-    / "MCPServer"
-    / "assets"
-)
-
 
 @pytest.fixture
 def _workflow():
-    path = os.path.join(ASSETS_DIR, "workflow.json")
-    with open(path) as fp:
+    with open(
+        importlib.resources.files("archivematica.MCPServer")
+        / "assets"
+        / "workflow.json"
+    ) as fp:
         return load(fp)
 
 

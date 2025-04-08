@@ -14,8 +14,8 @@ classes ``Chain``, ``Link`` and ``WatchedDir``. They have different method
 sets.
 """
 
+import importlib.resources
 import json
-import os
 
 from django.conf import settings as django_settings
 from jsonschema import FormatChecker
@@ -27,11 +27,9 @@ from archivematica.MCPServer.server.translation import FALLBACK_LANG
 from archivematica.MCPServer.server.translation import TranslationLabel
 
 _LATEST_SCHEMA = "workflow-schema-v1.json"
-ASSETS_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(os.path.join(__file__)))), "assets"
-)
+ASSETS_DIR = importlib.resources.files("archivematica.MCPServer") / "assets"
 
-DEFAULT_WORKFLOW = os.path.join(ASSETS_DIR, "workflow.json")
+DEFAULT_WORKFLOW = ASSETS_DIR / "workflow.json"
 
 
 def _invert_job_statuses():
@@ -262,6 +260,5 @@ def _validate(blob):
 
 def _get_schema():
     """Decode the default schema and return it."""
-    schema = os.path.join(ASSETS_DIR, _LATEST_SCHEMA)
-    with open(schema) as fp:
+    with open(ASSETS_DIR / _LATEST_SCHEMA) as fp:
         return json.load(fp)

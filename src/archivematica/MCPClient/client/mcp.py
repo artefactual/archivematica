@@ -2,9 +2,9 @@
 Main MCPClient entrypoint.
 """
 
+import importlib.resources
 import logging
 import os
-import pathlib
 import signal
 from types import FrameType
 from typing import Optional
@@ -20,7 +20,10 @@ def main() -> None:
 
     # Use local XML schemas for validation.
     os.environ["XML_CATALOG_FILES"] = str(
-        pathlib.Path(__file__).parent.parent / "assets" / "catalog" / "catalog.xml"
+        importlib.resources.files("archivematica.MCPClient")
+        / "assets"
+        / "catalog"
+        / "catalog.xml"
     )
 
     pool = WorkerPool()

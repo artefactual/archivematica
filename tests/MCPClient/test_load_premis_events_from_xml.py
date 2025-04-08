@@ -1,4 +1,4 @@
-import os
+import importlib.resources
 import pathlib
 import sys
 import uuid
@@ -17,10 +17,11 @@ THIS_DIR = pathlib.Path(__file__).parent
 
 @pytest.fixture()
 def xsd_path():
-    return os.path.abspath(
-        os.path.join(
-            THIS_DIR, "../../src/archivematica/MCPClient/assets/premis/premis.xsd"
-        )
+    return (
+        importlib.resources.files("archivematica.MCPClient")
+        / "assets"
+        / "premis"
+        / "premis.xsd"
     )
 
 

@@ -1,3 +1,4 @@
+import importlib.resources
 import pathlib
 
 import pytest
@@ -15,9 +16,7 @@ def set_xml_catalog_files(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(
         "XML_CATALOG_FILES",
         str(
-            pathlib.Path(__file__).parent.parent.parent
-            / "src"
-            / "MCPClient"
+            importlib.resources.files("archivematica.MCPClient")
             / "assets"
             / "catalog"
             / "catalog.xml"
