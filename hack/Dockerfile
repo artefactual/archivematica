@@ -242,8 +242,8 @@ ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY=/src/src/archivematica/MCPCli
 
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
-COPY --link src/archivematica/archivematicaCommon/externals/fido/ /usr/lib/archivematicaCommon/externals/fido/
-COPY --link src/archivematica/archivematicaCommon/externals/fiwalk_plugins/ /usr/lib/archivematicaCommon/externals/fiwalk_plugins/
+COPY --link src/archivematica/archivematicaCommon/externals/fido/ /usr/lib/archivematica/archivematicaCommon/externals/fido/
+COPY --link src/archivematica/archivematicaCommon/externals/fiwalk_plugins/ /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/
 
 ENTRYPOINT ["pyenv", "exec", "python3", "-m", "archivematica.MCPClient.archivematicaClient"]
 
