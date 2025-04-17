@@ -56,6 +56,8 @@ services:
       ARCHIVEMATICA_DASHBOARD_OIDC_AUTHENTICATION: "true"
       OIDC_USE_PKCE: "true"
       OIDC_PKCE_CODE_CHALLENGE_METHOD: "S256"
+      OIDC_ACCESS_ATTRIBUTE_MAP: >
+        {"given_name": "first_name", "family_name": "last_name", "realm_access": "realm_access"}
       OIDC_RP_CLIENT_ID: "am-dashboard"
       OIDC_RP_CLIENT_SECRET: "example-secret"
       OIDC_OP_AUTHORIZATION_ENDPOINT: "http://keycloak:8080/realms/demo/protocol/openid-connect/auth"

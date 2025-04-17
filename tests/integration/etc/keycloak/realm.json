@@ -11,6 +11,18 @@
     "attributes": {
       "adminEventsExpiration": "900"
     },
+    "roles": {
+      "realm": [
+        {
+          "name": "admin",
+          "description": "Administrator role"
+        },
+        {
+          "name": "default",
+          "description": "Default role"
+        }
+      ]
+    },
     "clients": [
       {
         "id": "am-dashboard",
@@ -49,6 +61,28 @@
             "type": "password",
             "value": "demo"
           }
+        ],
+        "realmRoles": [
+          "default"
+        ]
+      },
+      {
+        "id": "admin",
+        "email": "admin@example.com",
+        "username": "admin",
+        "firstName": "Admin",
+        "lastName": "User",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "temporary": false,
+            "type": "password",
+            "value": "admin"
+          }
+        ],
+        "realmRoles": [
+          "admin"
         ]
       }
     ]
@@ -64,6 +98,18 @@
     "adminEventsDetailsEnabled": true,
     "attributes": {
       "adminEventsExpiration": "900"
+    },
+    "roles": {
+      "realm": [
+        {
+          "name": "admin",
+          "description": "Administrator role"
+        },
+        {
+          "name": "default",
+          "description": "Default role"
+        }
+      ]
     },
     "clients": [
       {
@@ -103,6 +149,9 @@
             "type": "password",
             "value": "support"
           }
+        ],
+        "realmRoles": [
+          "admin"
         ]
       }
     ]

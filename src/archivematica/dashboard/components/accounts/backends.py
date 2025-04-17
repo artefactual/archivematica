@@ -1,5 +1,6 @@
 import json
 from typing import Any
+from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -53,11 +54,18 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         self.OIDC_OP_SET_ROLES_FROM_CLAIMS = getattr(
             settings, "OIDC_OP_SET_ROLES_FROM_CLAIMS", False
         )
+
         self.OIDC_OP_ROLE_CLAIM_PATH = getattr(
             settings, "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
         )
 
+        # Valid user roles which may be extracted from OIDC token.
         self.USER_ROLE_ADMIN = getattr(settings, "USER_ROLE_ADMIN", "admin")
+        self.USER_ROLE_DEFAULT = getattr(settings, "USER_ROLE_DEFAULT", "default")
+        self.USER_ROLES = [
+            (self.USER_ROLE_ADMIN, "Administrator"),
+            (self.USER_ROLE_DEFAULT, "Default"),
+        ]
 
     def get_settings(self, attr: str, *args: Any) -> Any:
         if attr in [
@@ -105,7 +113,9 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
 
         return super().authenticate(request, **kwargs)
 
-    def get_userinfo(self, access_token, id_token, verified_id):
+    def get_userinfo(
+        self, access_token: str, id_token: str, verified_id: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Extract user details from JSON web tokens
         These map to fields on the user field.
@@ -119,7 +129,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         access_info = decode_token(access_token)
         id_info = decode_token(id_token)
 
-        info = {}
+        info: dict[str, Any] = {}
 
         for oidc_attr, user_attr in settings.OIDC_ACCESS_ATTRIBUTE_MAP.items():
             if oidc_attr in access_info:
@@ -132,45 +142,64 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         return info
 
     def create_user(self, user_info: dict[str, Any]) -> User:
+        role = self.get_user_role(user_info)
+        if role is None:
+            return None
+
         user = super().create_user(user_info)
         for attr, value in user_info.items():
             setattr(user, attr, value)
-        user.save()
-        self.set_user_role(user, user_info)
+        self.set_user_role(user, role)
         generate_api_key(user)
         return user
 
-    def update_user(self, user: User, user_info: dict[str, Any]) -> User:
-        """Updates the user's role only if the setting allows roles to be set from OIDC claims."""
+    def update_user(self, user: User, user_info: dict[str, Any]) -> Optional[User]:
+        """
+        Updates the user's role only if the setting allows roles to be set from OIDC claims.
+        If the setting is False roles are being managed by an admin so do not update the role.
+        """
         if self.OIDC_OP_SET_ROLES_FROM_CLAIMS:
-            self.set_user_role(user, user_info)
+            role = self.get_user_role(user_info)
+            if role is None:
+                return None
+            self.set_user_role(user, role)
         return user
 
-    def set_user_role(self, user: User, user_info: dict[str, Any]) -> None:
+    def set_user_role(self, user, role: str):
+        """Assign a new role to a User given the role codename."""
+        # Only users with the admin role are Django superusers.
+        user.is_superuser = role == self.USER_ROLE_ADMIN
+        user.save()
+
+    def get_user_role(self, user_info: dict[str, Any]) -> Optional[str]:
         """
-        Assigns the user's role based on OIDC token claims if enabled in settings.
-        Otherwise, assigns the default role.
+        Returns the highest-permission valid role found in the OIDC token claims.
+        Returns the default user role if the setting is False.
+        Returns None if no valid roles are found.
         """
-        if self.OIDC_OP_SET_ROLES_FROM_CLAIMS:
-            # Get the role claim path from settings (e.g. "realm_access.roles").
-            claim_path = self.OIDC_OP_ROLE_CLAIM_PATH.split(".")  # Convert to a list
+        if not self.OIDC_OP_SET_ROLES_FROM_CLAIMS:
+            return self.USER_ROLE_DEFAULT
 
-            role = user_info
-            for key in claim_path:
-                if isinstance(role, dict):
-                    role = role.get(key, {})
-                else:
-                    role = {}
-                    break
+        claim_path = self.OIDC_OP_ROLE_CLAIM_PATH.split(".")
+        role_claims = user_info
 
-            # If role is a list, pick the first one.
-            if isinstance(role, list) and role:
-                role = role[0]
+        # Traverse the claim path to find the role claims.
+        for key in claim_path:
+            if isinstance(role_claims, dict):
+                role_claims = role_claims.get(key, {})
+            else:
+                return None
 
-            is_superuser = False
-            if role and role in self.USER_ROLE_ADMIN:
-                is_superuser = True
+        # If the claim contains a single role, convert to list.
+        if isinstance(role_claims, str):
+            role_claims = [role_claims]
 
-            if user.is_superuser != is_superuser:
-                user.is_superuser = is_superuser
-                user.save()
+        if not isinstance(role_claims, list):
+            return None  # Neither a string nor a list of roles.
+
+        # Iterate over ordered USER_ROLES and return the first match.
+        for role_key, _ in self.USER_ROLES:
+            if role_key in role_claims:
+                return role_key
+
+        return None  # No match found.

@@ -1,3 +1,4 @@
+import json
 import os
 
 from archivematica.archivematicaCommon.archivematicaFunctions import (
@@ -83,7 +84,13 @@ def _get_email(email):
 OIDC_USERNAME_ALGO = _get_email
 
 # map attributes from access token
-OIDC_ACCESS_ATTRIBUTE_MAP = {"given_name": "first_name", "family_name": "last_name"}
+default_claims = {"given_name": "first_name", "family_name": "last_name"}
+try:
+    OIDC_ACCESS_ATTRIBUTE_MAP = json.loads(
+        os.environ.get("OIDC_ACCESS_ATTRIBUTE_MAP", json.dumps(default_claims))
+    )
+except json.JSONDecodeError:
+    OIDC_ACCESS_ATTRIBUTE_MAP = default_claims
 
 # map attributes from id token
 OIDC_ID_ATTRIBUTE_MAP = {"email": "email"}

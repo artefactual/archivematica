@@ -751,6 +751,12 @@ set.
   - **Type:** `string`
   - **Default:** `'realm_access.roles'`
 
+- **`OIDC_ACCESS_ATTRIBUTE_MAP`**
+  - **Description:** Set OIDC token details to extract. This string should be
+    JSON encodable.
+  - **Type:** `string`
+  - **Default:** `{"given_name": "first_name", "family_name": "last_name"}`
+
 - **`OIDC_RP_SIGN_ALGO`**:
   - **Description:** Algorithm used by the ID provider to sign ID tokens
   - **Type:** `string`

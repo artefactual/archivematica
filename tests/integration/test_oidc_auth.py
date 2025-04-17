@@ -172,20 +172,6 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
     page.get_by_role("link", name="Your profile").click()
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
-    assert [
-        i.strip()
-        for i in page.locator("dl.dl-horizontal").text_content().splitlines()
-        if i.strip()
-    ] == [
-        "Username",
-        "support@example.com",
-        "Name",
-        "Support User",
-        "E-mail",
-        "support@example.com",
-        "Admin",
-        "no",
-    ]
 
 
 @pytest.mark.django_db

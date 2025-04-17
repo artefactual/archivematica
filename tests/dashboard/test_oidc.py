@@ -15,6 +15,7 @@ def settings(
     settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
         "given_name": "first_name",
         "family_name": "last_name",
+        "realm_access": "realm_access",
     }
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = False
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
@@ -102,30 +103,18 @@ def test_create_user_set_admin_from_alternate_token_value(
 
 
 @pytest.mark.django_db
-def test_create_user_role_value_mismatch(
+def test_create_user_failure_no_claims_in_token(
     settings: pytest_django.fixtures.SettingsWrapper,
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
-    settings.USER_ROLE_ADMIN = "test"
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
-        {
-            "email": "test@example.com",
-            "first_name": "Test",
-            "last_name": "User",
-            "realm_access": {"roles": ["admin"]},
-        }
+        {"email": "test@example.com", "first_name": "Test", "last_name": "User"}
     )
 
-    user.refresh_from_db()
-    assert user.first_name == "Test"
-    assert user.last_name == "User"
-    assert user.email == "test@example.com"
-    assert user.username == "test@example.com"
-    assert not user.is_superuser
-    assert user.api_key
+    assert user is None
 
 
 @pytest.mark.django_db
