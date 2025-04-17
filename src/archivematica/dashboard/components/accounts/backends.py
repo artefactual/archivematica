@@ -4,6 +4,7 @@ from typing import Any
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpRequest
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
 from josepy.jws import JWS
@@ -46,7 +47,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
     Provide OpenID Connect authentication
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Store additional settings as instance attributes.
         self.OIDC_OP_SET_ROLES_FROM_CLAIMS = getattr(
@@ -58,7 +59,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
 
         self.USER_ROLE_ADMIN = getattr(settings, "USER_ROLE_ADMIN", "admin")
 
-    def get_settings(self, attr, *args):
+    def get_settings(self, attr: str, *args: Any) -> Any:
         if attr in [
             "OIDC_RP_CLIENT_ID",
             "OIDC_RP_CLIENT_SECRET",
@@ -90,7 +91,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         # not in the list, call the superclass's get_settings method.
         return OIDCAuthenticationBackend.get_settings(attr, *args)
 
-    def authenticate(self, request, **kwargs) -> Any:
+    def authenticate(self, request: HttpRequest, **kwargs: Any) -> Any:
         self.request = request
         self.OIDC_RP_CLIENT_ID = self.get_settings("OIDC_RP_CLIENT_ID")
         self.OIDC_RP_CLIENT_SECRET = self.get_settings("OIDC_RP_CLIENT_SECRET")

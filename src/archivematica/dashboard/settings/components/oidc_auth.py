@@ -36,7 +36,14 @@ else:
     OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT", "")
     OIDC_OP_LOGOUT_ENDPOINT = os.environ.get("OIDC_OP_LOGOUT_ENDPOINT", "")
 
-OIDC_OP_SET_ROLES_FROM_CLAIMS = os.environ.get("OIDC_OP_SET_ROLES_FROM_CLAIMS", False)
+OIDC_OP_SET_ROLES_FROM_CLAIMS = os.environ.get(
+    "OIDC_OP_SET_ROLES_FROM_CLAIMS", ""
+).lower() in (
+    "true",
+    "yes",
+    "on",
+    "1",
+)
 OIDC_OP_ROLE_CLAIM_PATH = os.environ.get(
     "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
 )
