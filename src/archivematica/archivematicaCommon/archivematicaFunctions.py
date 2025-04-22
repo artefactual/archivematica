@@ -30,6 +30,7 @@ import re
 from collections.abc import Iterable
 from itertools import zip_longest
 from pathlib import Path
+from typing import Union
 from uuid import uuid4
 
 from amclient import AMClient
@@ -528,9 +529,12 @@ def chunk_iterable(iterable, chunk_size=10, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 
+ProviderConfig = dict[str, Union[str, bool]]
+
+
 def get_oidc_secondary_providers(
     oidc_secondary_provider_names: Iterable[str],
-) -> dict[str, dict[str, object]]:
+) -> dict[str, ProviderConfig]:
     """Build secondary OIDC provider details dict. Takes a list of secondary
     OIDC providers and gathers details about these providers from env vars.
     Output dict contains details for each OIDC connection which can then be
@@ -563,7 +567,7 @@ def get_oidc_secondary_providers(
         )
 
         if client_id and client_secret:
-            providers[provider_name] = {
+            provider_config: ProviderConfig = {
                 "OIDC_RP_CLIENT_ID": client_id,
                 "OIDC_RP_CLIENT_SECRET": client_secret,
                 "OIDC_OP_AUTHORIZATION_ENDPOINT": authorization_endpoint,
@@ -574,6 +578,7 @@ def get_oidc_secondary_providers(
                 "OIDC_OP_SET_ROLES_FROM_CLAIMS": set_roles_from_claims,
                 "OIDC_OP_ROLE_CLAIM_PATH": role_claim_path,
             }
+            providers[provider_name] = provider_config
 
     return providers
 
