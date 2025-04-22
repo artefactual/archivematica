@@ -62,6 +62,11 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         # Valid user roles which may be extracted from OIDC token.
         self.USER_ROLE_ADMIN = getattr(settings, "USER_ROLE_ADMIN", "admin")
         self.USER_ROLE_DEFAULT = getattr(settings, "USER_ROLE_DEFAULT", "default")
+
+        # The roles are ordered from highest to lowest permission in this list.
+        # This feature is used in OIDC authentication to determine the highest
+        # permission role of a user based on the claims received when multiple
+        # roles are received.
         self.USER_ROLES = [
             (self.USER_ROLE_ADMIN, "Administrator"),
             (self.USER_ROLE_DEFAULT, "Default"),
