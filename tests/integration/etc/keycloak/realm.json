@@ -136,10 +136,10 @@
     ],
     "users": [
       {
-        "id": "support",
-        "email": "support@example.com",
-        "username": "support",
-        "firstName": "Support",
+        "id": "support-admin",
+        "email": "supportadmin@example.com",
+        "username": "supportadmin",
+        "firstName": "SupportAdmin",
         "lastName": "User",
         "enabled": true,
         "emailVerified": true,
@@ -152,6 +152,25 @@
         ],
         "realmRoles": [
           "admin"
+        ]
+      },
+      {
+        "id": "support-default",
+        "email": "supportdefault@example.com",
+        "username": "supportdefault",
+        "firstName": "SupportDefault",
+        "lastName": "User",
+        "enabled": true,
+        "emailVerified": true,
+        "credentials": [
+          {
+            "temporary": false,
+            "type": "password",
+            "value": "support"
+          }
+        ],
+        "realmRoles": [
+          "default"
         ]
       }
     ]

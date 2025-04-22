@@ -29,6 +29,10 @@ def settings(
 def test_create_user(
     settings: pytest_django.fixtures.SettingsWrapper,
 ) -> None:
+    """
+    Test that the user is created with the correct attributes and that the API key is generated.
+    User will not be superuser because the setting OIDC_OP_SET_ROLES_FROM_CLAIMS is False.
+    """
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
@@ -53,6 +57,11 @@ def test_create_user(
 def test_create_user_set_admin_from_claim(
     settings: pytest_django.fixtures.SettingsWrapper,
 ) -> None:
+    """
+    Test that the user is created with the correct attributes and that the API key is generated.
+    User will be superuser because the setting OIDC_OP_SET_ROLES_FROM_CLAIMS is True
+    and the role claim is set to "admin".
+    """
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
     backend = CustomOIDCBackend()
@@ -63,6 +72,68 @@ def test_create_user_set_admin_from_claim(
             "first_name": "Test",
             "last_name": "User",
             "realm_access": {"roles": ["admin"]},
+        }
+    )
+
+    user.refresh_from_db()
+    assert user.first_name == "Test"
+    assert user.last_name == "User"
+    assert user.email == "test@example.com"
+    assert user.username == "test@example.com"
+    assert user.is_superuser
+    assert user.api_key
+
+
+@pytest.mark.django_db
+def test_create_user_role_from_claims(
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    """
+    The role given to a new user is based on token contents.
+    In this test, we're ensuring that the highest-permission valid role
+    found in the OIDC token claims is assigned.
+    """
+    settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
+    settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    backend = CustomOIDCBackend()
+
+    user = backend.create_user(
+        {
+            "email": "test@example.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "realm_access": {"roles": ["admin", "default"]},
+        }
+    )
+
+    user.refresh_from_db()
+    assert user.first_name == "Test"
+    assert user.last_name == "User"
+    assert user.email == "test@example.com"
+    assert user.username == "test@example.com"
+    assert user.is_superuser
+    assert user.api_key
+
+
+@pytest.mark.django_db
+def test_create_user_role_from_claims_reverese_token_role_order(
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    """
+    The role given to a new user is based on token contents.
+    In this test, we're ensuring that the highest-permission valid role
+    found in the OIDC token claims is assigned.
+    """
+    settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
+    settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    backend = CustomOIDCBackend()
+
+    user = backend.create_user(
+        {
+            "email": "test@example.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "realm_access": {"roles": ["reader", "admin"]},
         }
     )
 
