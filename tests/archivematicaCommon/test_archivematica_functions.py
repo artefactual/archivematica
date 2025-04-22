@@ -127,6 +127,10 @@ def test_get_oidc_secondary_providers_ignores_provider_if_client_id_and_secret_a
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
             "OIDC_OP_ROLE_CLAIM_PATH": "realm_access.roles",
+            "OIDC_ACCESS_ATTRIBUTE_MAP": {
+                "given_name": "first_name",
+                "family_name": "last_name",
+            },
             "OIDC_RP_CLIENT_ID": "foo-client-id",
             "OIDC_RP_CLIENT_SECRET": "foo-client-secret",
         }
@@ -150,6 +154,10 @@ def test_get_oidc_secondary_providers_strips_provider_names(
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
             "OIDC_OP_ROLE_CLAIM_PATH": "realm_access.roles",
+            "OIDC_ACCESS_ATTRIBUTE_MAP": {
+                "given_name": "first_name",
+                "family_name": "last_name",
+            },
             "OIDC_RP_CLIENT_ID": "foo-client-id",
             "OIDC_RP_CLIENT_SECRET": "foo-client-secret",
         },
@@ -161,6 +169,10 @@ def test_get_oidc_secondary_providers_strips_provider_names(
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
             "OIDC_OP_ROLE_CLAIM_PATH": "realm_access.roles",
+            "OIDC_ACCESS_ATTRIBUTE_MAP": {
+                "given_name": "first_name",
+                "family_name": "last_name",
+            },
             "OIDC_RP_CLIENT_ID": "bar-client-id",
             "OIDC_RP_CLIENT_SECRET": "bar-client-secret",
         },
@@ -184,6 +196,10 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
             "OIDC_OP_ROLE_CLAIM_PATH": "realm_access.roles",
+            "OIDC_ACCESS_ATTRIBUTE_MAP": {
+                "given_name": "first_name",
+                "family_name": "last_name",
+            },
             "OIDC_RP_CLIENT_ID": "foo-client-id",
             "OIDC_RP_CLIENT_SECRET": "foo-client-secret",
         },
@@ -195,6 +211,10 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
             "OIDC_OP_ROLE_CLAIM_PATH": "realm_access.roles",
+            "OIDC_ACCESS_ATTRIBUTE_MAP": {
+                "given_name": "first_name",
+                "family_name": "last_name",
+            },
             "OIDC_RP_CLIENT_ID": "bar-client-id",
             "OIDC_RP_CLIENT_SECRET": "bar-client-secret",
         },

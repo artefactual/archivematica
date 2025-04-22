@@ -64,6 +64,11 @@ def test_create_user_set_admin_from_claim(
     """
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
@@ -95,6 +100,11 @@ def test_create_user_role_from_claims(
     """
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
@@ -126,6 +136,11 @@ def test_create_user_role_from_claims_reverese_token_role_order(
     """
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
@@ -152,6 +167,11 @@ def test_create_user_set_admin_from_alternate_token_value(
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     settings.USER_ROLE_ADMIN = "test"
     backend = CustomOIDCBackend()
 
@@ -179,6 +199,11 @@ def test_create_user_failure_no_claims_in_token(
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
@@ -194,6 +219,11 @@ def test_create_user_set_admin_from_alt_claim_path(
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "custom_claims.user_roles"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     backend = CustomOIDCBackend()
 
     user = backend.create_user(
@@ -220,6 +250,11 @@ def test_create_user_admin_from_claims_simple_role(
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "role"
+    settings.OIDC_ACCESS_ATTRIBUTE_MAP = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "realm_access": "realm_access",
+    }
     backend = CustomOIDCBackend()
 
     user = backend.create_user(

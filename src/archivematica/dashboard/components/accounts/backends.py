@@ -59,6 +59,11 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             settings, "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
         )
 
+        default_claims = {"given_name": "first_name", "family_name": "last_name"}
+        self.OIDC_ACCESS_ATTRIBUTE_MAP = getattr(
+            settings, "OIDC_ACCESS_ATTRIBUTE_MAP", default_claims
+        )
+
         # Valid user roles which may be extracted from OIDC token.
         self.USER_ROLE_ADMIN = getattr(settings, "USER_ROLE_ADMIN", "admin")
         self.USER_ROLE_DEFAULT = getattr(settings, "USER_ROLE_DEFAULT", "default")
@@ -83,6 +88,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             "OIDC_OP_LOGOUT_ENDPOINT",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS",
             "OIDC_OP_ROLE_CLAIM_PATH",
+            "OIDC_ACCESS_ATTRIBUTE_MAP",
         ]:
             # Retrieve the request object stored in the instance.
             request = getattr(self, "request", None)
@@ -115,6 +121,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             "OIDC_OP_SET_ROLES_FROM_CLAIMS"
         )
         self.OIDC_OP_ROLE_CLAIM_PATH = self.get_settings("OIDC_OP_ROLE_CLAIM_PATH")
+        self.OIDC_ACCESS_ATTRIBUTE_MAP = self.get_settings("OIDC_ACCESS_ATTRIBUTE_MAP")
 
         return super().authenticate(request, **kwargs)
 
@@ -136,7 +143,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
 
         info: dict[str, Any] = {}
 
-        for oidc_attr, user_attr in settings.OIDC_ACCESS_ATTRIBUTE_MAP.items():
+        for oidc_attr, user_attr in self.OIDC_ACCESS_ATTRIBUTE_MAP.items():
             if oidc_attr in access_info:
                 info.setdefault(user_attr, access_info[oidc_attr])
 

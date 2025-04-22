@@ -23,6 +23,7 @@ import collections
 import errno
 import glob
 import hashlib
+import json
 import locale
 import os
 import pprint
@@ -565,6 +566,16 @@ def get_oidc_secondary_providers(
         role_claim_path = os.environ.get(
             f"OIDC_OP_ROLE_CLAIM_PATH_{provider_name}", "realm_access.roles"
         )
+        default_claims = {"given_name": "first_name", "family_name": "last_name"}
+        try:
+            access_attribute_map = json.loads(
+                os.environ.get(
+                    f"OIDC_ACCESS_ATTRIBUTE_MAP_{provider_name}",
+                    json.dumps(default_claims),
+                )
+            )
+        except json.JSONDecodeError:
+            access_attribute_map = default_claims
 
         if client_id and client_secret:
             provider_config: ProviderConfig = {
@@ -577,6 +588,7 @@ def get_oidc_secondary_providers(
                 "OIDC_OP_LOGOUT_ENDPOINT": logout_endpoint,
                 "OIDC_OP_SET_ROLES_FROM_CLAIMS": set_roles_from_claims,
                 "OIDC_OP_ROLE_CLAIM_PATH": role_claim_path,
+                "OIDC_ACCESS_ATTRIBUTE_MAP": access_attribute_map,
             }
             providers[provider_name] = provider_config
 
