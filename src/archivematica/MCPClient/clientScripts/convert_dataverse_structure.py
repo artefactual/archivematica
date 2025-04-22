@@ -21,7 +21,6 @@ Archivematica documentation:
 
 https://wiki.archivematica.org/Dataverse
 """
-
 import json
 import os
 import sys
@@ -30,20 +29,20 @@ import uuid
 import django
 from lxml import etree
 
+# Database functions requires Django to be set up.
+
 django.setup()
 
+from custom_handlers import get_script_logger
 import metsrw
 
-from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 
 logger = get_script_logger("archivematica.mcp.client.convert_dataverse_struct")
-
 
 class ConvertDataverseError(Exception):
     """Exception class for failures that might occur during the execution of
     this script.
     """
-
 
 # Mapping from originalFormatLabel in dataset.json to file extension. The
 # values here are associated with Dataverse Bundles, created when Tabular data
@@ -53,11 +52,14 @@ class ConvertDataverseError(Exception):
 EXTENSION_MAPPING = {
     "Comma Separated Values": ".csv",
     "MS Excel (XLSX)": ".xlsx",
+    "MS Excel Spreadsheet": ".xlsx",
     "R Data": ".RData",
     "SPSS Portable": ".por",
     "SPSS SAV": ".sav",
+    "SPSS Binary": ".sav",
     "Stata Binary": ".dta",
     "Stata 13 Binary": ".dta",
+    "Stata 14 Binary": ".dta",
     "UNKNOWN": "UNKNOWN",
 }
 
@@ -199,7 +201,9 @@ def display_checksum_for_user(job, fname, checksum_value, checksum_type="MD5"):
     this script is doing in the Dataverse workflow.
     """
     job.pyprint(
-        f"Checksum for '{fname}' retrieved from dataset.json: {checksum_value} ({checksum_type})"
+        "Checksum for '{}' retrieved from dataset.json: {} ({})".format(
+            fname, checksum_value, checksum_type
+        )
     )
 
 
@@ -220,30 +224,23 @@ def create_bundle(job, tabfile_json):
     tabfile_name = tabfile_json.get("label")
     if tabfile_name is None:
         return None
+    
+    tabfile_datafile = tabfile_json.get("dataFile")
+    original_file_name = tabfile_datafile.get("originalFileName")
 
     # Else, continue processing.
     job.pyprint(f"Creating entries for tabfile bundle {tabfile_name}")
     base_name = tabfile_name[:-4]
     bundle = metsrw.FSEntry(path=base_name, type="Directory")
+
     # Find the original file and add it to the METS FS Entries.
-    tabfile_datafile = tabfile_json.get("dataFile")
-    fname = None
-    ext = EXTENSION_MAPPING.get(
-        tabfile_datafile.get("originalFormatLabel", ""), "UNKNOWN"
-    )
-    logger.info("Retrieved extension mapping value: %s", ext)
-    logger.info(
-        "Original file format listed as %s",
-        tabfile_datafile.get("originalFileFormat", "None"),
-    )
-    if ext == "UNKNOWN":
-        fname = tabfile_datafile.get("filename")
-        logger.info("Original Format Label is UNKNOWN, using filename: %s", fname)
-    if fname is None:
-        fname = f"{base_name}{ext}"
+    fname = original_file_name
+    job.pyprint(f"Creating original file with fname: {fname}")
+
     checksum_value = tabfile_datafile.get("md5")
     if checksum_value is None:
         return None
+    
     display_checksum_for_user(job, fname, checksum_value)
     original_file = metsrw.FSEntry(
         path=f"{base_name}/{fname}",
@@ -253,6 +250,7 @@ def create_bundle(job, tabfile_json):
         checksum=checksum_value,
     )
     bundle.add_child(original_file)
+
     if tabfile_datafile.get("originalFormatLabel") != "R Data":
         # RData derivative
         fsentry = metsrw.FSEntry(
@@ -394,7 +392,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
         is_restricted = file_json.get("restricted")
         if is_restricted is True and contact_information:
             logger.error(
-                "Restricted dataset files may not have transferred correctly: %s",
+                "Restricted dataset files may not have transferred " "correctly: %s",
                 contact_information,
             )
 
@@ -408,7 +406,7 @@ def add_dataset_files_to_md(job, sip, dataset_md_latest, contact_information):
                 sip.add_child(bundle)
             else:
                 logger.error(
-                    "Create Dataverse transfer METS failed. Bundle returned: %s",
+                    "Create Dataverse transfer METS failed. " "Bundle returned: %s",
                     bundle,
                 )
                 return None
@@ -577,7 +575,9 @@ def init_convert_dataverse(job):
         return convert_dataverse_to_mets(job, unit_path=transfer_dir)
     except IndexError:
         convert_dv_msg = (
-            f"Problem with the supplied arguments to the function len: {len(job.args)}"
+            "Problem with the supplied arguments to the function len: {}".format(
+                len(job.args)
+            )
         )
         logger.error(convert_dv_msg)
         raise ConvertDataverseError(convert_dv_msg)
