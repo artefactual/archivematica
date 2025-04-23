@@ -59,9 +59,8 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             settings, "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
         )
 
-        default_claims = {"given_name": "first_name", "family_name": "last_name"}
         self.OIDC_ACCESS_ATTRIBUTE_MAP = getattr(
-            settings, "OIDC_ACCESS_ATTRIBUTE_MAP", default_claims
+            settings, "OIDC_ACCESS_ATTRIBUTE_MAP", settings.DEFAULT_OIDC_CLAIMS
         )
 
         # Valid user roles which may be extracted from OIDC token.

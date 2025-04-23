@@ -535,6 +535,7 @@ ProviderConfig = dict[str, Union[str, bool]]
 
 def get_oidc_secondary_providers(
     oidc_secondary_provider_names: Iterable[str],
+    default_oidc_claims: dict[str, str],
 ) -> dict[str, ProviderConfig]:
     """Build secondary OIDC provider details dict. Takes a list of secondary
     OIDC providers and gathers details about these providers from env vars.
@@ -566,16 +567,15 @@ def get_oidc_secondary_providers(
         role_claim_path = os.environ.get(
             f"OIDC_OP_ROLE_CLAIM_PATH_{provider_name}", "realm_access.roles"
         )
-        default_claims = {"given_name": "first_name", "family_name": "last_name"}
         try:
             access_attribute_map = json.loads(
                 os.environ.get(
                     f"OIDC_ACCESS_ATTRIBUTE_MAP_{provider_name}",
-                    json.dumps(default_claims),
+                    json.dumps(default_oidc_claims),
                 )
             )
         except json.JSONDecodeError:
-            access_attribute_map = default_claims
+            access_attribute_map = default_oidc_claims
 
         if client_id and client_secret:
             provider_config: ProviderConfig = {

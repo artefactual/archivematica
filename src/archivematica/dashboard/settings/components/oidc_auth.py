@@ -49,13 +49,17 @@ OIDC_OP_ROLE_CLAIM_PATH = os.environ.get(
     "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
 )
 
+DEFAULT_OIDC_CLAIMS = {"given_name": "first_name", "family_name": "last_name"}
+
 OIDC_SECONDARY_PROVIDER_NAMES = os.environ.get(
     "OIDC_SECONDARY_PROVIDER_NAMES", ""
 ).split(",")
 OIDC_PROVIDER_QUERY_PARAM_NAME = os.environ.get(
     "OIDC_PROVIDER_QUERY_PARAM_NAME", "secondary"
 )
-OIDC_PROVIDERS = get_oidc_secondary_providers(OIDC_SECONDARY_PROVIDER_NAMES)
+OIDC_PROVIDERS = get_oidc_secondary_providers(
+    OIDC_SECONDARY_PROVIDER_NAMES, DEFAULT_OIDC_CLAIMS
+)
 
 if OIDC_OP_LOGOUT_ENDPOINT:
     OIDC_OP_LOGOUT_URL_METHOD = (
@@ -84,13 +88,12 @@ def _get_email(email):
 OIDC_USERNAME_ALGO = _get_email
 
 # map attributes from access token
-default_claims = {"given_name": "first_name", "family_name": "last_name"}
 try:
     OIDC_ACCESS_ATTRIBUTE_MAP = json.loads(
-        os.environ.get("OIDC_ACCESS_ATTRIBUTE_MAP", json.dumps(default_claims))
+        os.environ.get("OIDC_ACCESS_ATTRIBUTE_MAP", json.dumps(DEFAULT_OIDC_CLAIMS))
     )
 except json.JSONDecodeError:
-    OIDC_ACCESS_ATTRIBUTE_MAP = default_claims
+    OIDC_ACCESS_ATTRIBUTE_MAP = DEFAULT_OIDC_CLAIMS
 
 # map attributes from id token
 OIDC_ID_ATTRIBUTE_MAP = {"email": "email"}

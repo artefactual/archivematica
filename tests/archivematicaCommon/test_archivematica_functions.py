@@ -118,7 +118,9 @@ def test_get_oidc_secondary_providers_ignores_provider_if_client_id_and_secret_a
     monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
     monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAZ", "foo-secret")
 
-    assert am.get_oidc_secondary_providers(["FOO", "BAR", "BAZ"]) == {
+    assert am.get_oidc_secondary_providers(
+        ["FOO", "BAR", "BAZ"], {"given_name": "first_name", "family_name": "last_name"}
+    ) == {
         "FOO": {
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
@@ -145,7 +147,9 @@ def test_get_oidc_secondary_providers_strips_provider_names(
     monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
     monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAR", "bar-client-secret")
 
-    assert am.get_oidc_secondary_providers(["  FOO", " BAR  "]) == {
+    assert am.get_oidc_secondary_providers(
+        ["  FOO", " BAR  "], {"given_name": "first_name", "family_name": "last_name"}
+    ) == {
         "FOO": {
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
@@ -187,7 +191,9 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
     monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
     monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAR", "bar-client-secret")
 
-    assert am.get_oidc_secondary_providers(["fOo", "bar"]) == {
+    assert am.get_oidc_secondary_providers(
+        ["fOo", "bar"], {"given_name": "first_name", "family_name": "last_name"}
+    ) == {
         "FOO": {
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",

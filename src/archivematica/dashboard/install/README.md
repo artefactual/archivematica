@@ -753,7 +753,7 @@ set.
 
 - **`OIDC_ACCESS_ATTRIBUTE_MAP`**
   - **Description:** Set OIDC token details to extract. This string should be
-    JSON encodable.
+    JSON-decodable.
   - **Type:** `string`
   - **Default:** `{"given_name": "first_name", "family_name": "last_name"}`
 

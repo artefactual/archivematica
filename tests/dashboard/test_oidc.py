@@ -17,6 +17,10 @@ def settings(
         "family_name": "last_name",
         "realm_access": "realm_access",
     }
+    settings.DEFAULT_OIDC_CLAIMS = {
+        "given_name": "first_name",
+        "family_name": "last_name",
+    }
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = False
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
     settings.OIDC_ID_ATTRIBUTE_MAP = {"email": "email"}
