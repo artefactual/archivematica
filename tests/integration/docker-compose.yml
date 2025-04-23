@@ -76,7 +76,7 @@ services:
       OIDC_OP_JWKS_ENDPOINT_SECONDARY: "http://keycloak:8080/realms/secondary/protocol/openid-connect/certs"
       OIDC_OP_LOGOUT_ENDPOINT_SECONDARY: "http://keycloak:8080/realms/secondary/protocol/openid-connect/logout"
       OIDC_OP_SET_ROLES_FROM_CLAIMS_SECONDARY: "true"
-      OIDC_OP_ROLE_CLAIMS_PATH_SECONDARY: "realm_access.roles"
+      OIDC_OP_ROLE_CLAIM_PATH_SECONDARY: "realm_access.roles"
       OIDC_ACCESS_ATTRIBUTE_MAP_SECONDARY: >
         {"given_name": "first_name", "family_name": "last_name", "realm_access": "realm_access"}
       OIDC_RP_SIGN_ALGO: "RS256"
