@@ -3,23 +3,25 @@
 validate against the objects expected to be part of the SIP generated during
 transfer.
 """
-
 import json
 import os
 import uuid
 
 import django
 
+# databaseFunctions requires Django to be set up
+
 django.setup()
-import metsrw
-from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from archivematica.archivematicaCommon import databaseFunctions
-from archivematica.archivematicaCommon.archivematicaFunctions import get_file_checksum
-from archivematica.archivematicaCommon.custom_handlers import get_script_logger
-from archivematica.dashboard.main.models import Agent
-from archivematica.dashboard.main.models import File
+# archivematicaCommon
+from archivematicaFunctions import get_file_checksum
+from custom_handlers import get_script_logger
+import databaseFunctions
+from main.models import Agent, File
+import metsrw
+import re
+from django.core.exceptions import ValidationError
 
 logger = get_script_logger("archivematica.mcp.client.parse_dataverse_mets")
 transfer_objects_directory = "%transferDirectory%objects"
@@ -29,7 +31,6 @@ class ParseDataverseError(Exception):
     """Exception class for failures that might occur during the execution of
     this script.
     """
-
 
 def get_db_objects(job, mets, transfer_uuid):
     """
@@ -52,7 +53,10 @@ def get_db_objects(job, mets, transfer_uuid):
         # the directory structure of the bundle is reflected in the original
         # path. We try the base name for the item below.
         file_entry = None
+        logger.info("METS entry path: %s", entry.path)
+
         item_path = os.path.join(transfer_objects_directory, entry.path)
+        logger.info("Looking for file in DB with path: %s", item_path)
         logger.info(
             "Looking for file type: '%s' using path: %s", entry.type, entry.path
         )
@@ -76,7 +80,7 @@ def get_db_objects(job, mets, transfer_uuid):
                 continue
         except (File.DoesNotExist, ValidationError):
             logger.debug(
-                "Could not find file type: '%s' in the database: %s with path: %s",
+                "Could not find file type: '%s' in the database: %s with " "path: %s",
                 entry.type,
                 entry.path,
                 item_path,
@@ -85,6 +89,58 @@ def get_db_objects(job, mets, transfer_uuid):
             logger.info(
                 "Multiple entries for `%s` found. Exception: %s", entry.path, err
             )
+
+        # Try to find the file in the database using the timestamp pattern
+        if file_entry is None:
+            try:
+                path_parts = entry.path.split('/')
+                if len(path_parts) >= 2:
+                    base_dir = path_parts[0]
+                    filename = path_parts[-1]
+                    
+                    # Create a pattern to match files with timestamps
+                    timestamp_pattern = re.compile(r'.*' + re.escape(base_dir) + r'\.zip-\d{4}-\d{2}-\d{2}T\d{2}_\d{2}_\d{2}\.\d+(_\d{2}_\d{2})?/.*' + re.escape(filename) + r'$')
+                    matching_files = [(f, (f.currentlocation or f.originallocation).decode()) 
+                                    for f in File.objects.filter(transfer_id=transfer_uuid)
+                                    if timestamp_pattern.match((f.currentlocation or f.originallocation).decode())]
+                    
+                    for _, path in matching_files:
+                        logger.info(f"Found potential match using timestamp pattern: {path}")
+                        
+                    if matching_files:
+                        if len(matching_files) > 1:
+                            # Find the path with fewest slashes
+                            logger.info("Multiple matches found, selecting the top-level path")
+                            
+                            # Sort paths by number of slashes
+                            sorted_matches = sorted(matching_files, key=lambda x: x[1].count('/'))
+                            
+                            # Pick the first one (with fewest slashes)
+                            file_entry, path = sorted_matches[0]
+                            logger.info(f"Selected top-level path: {path}")
+                        else:
+                            file_entry, path = matching_files[0]
+                            logger.info(f"Using single match: {path}")
+                    else:
+                        file_entry = None
+                        logger.info("No matching files found with timestamp pattern")
+                    
+                    if file_entry is not None and (
+                        file_entry.currentlocation is None
+                        and file_entry.removedtime is not None
+                    ):
+                        logger.info(
+                            "File: %s has been removed from the transfer, see "
+                            "previous microservice job outputs for details, e.g. "
+                            "Extract packages",
+                            file_entry.originallocation,
+                        )
+                        continue
+
+            except Exception as err:
+                logger.info(
+                    "Error searching with timestamp pattern: %s", err
+                )
         try:
             # Attempt to find the original location through just its filename
             # as it may be sitting in the root item/objects directory of the
@@ -126,6 +182,7 @@ def get_db_objects(job, mets, transfer_uuid):
             return None
         job.pyprint(f"Adding mapping dict [{entry}] entry: {file_entry}")
         mapping[entry] = file_entry
+    
     return mapping
 
 
@@ -202,7 +259,9 @@ def create_db_entries(job, mapping, dataverse_agent_id):
                     "Added derivation from", original_uuid, "to", file_entry.uuid
                 )
             except django.db.IntegrityError:
-                err_log = f"Database integrity error, entry: {file_entry.currentlocation} for file {file_entry.originallocation}"
+                err_log = "Database integrity error, entry: {} for file {}".format(
+                    file_entry.currentlocation, file_entry.originallocation
+                )
                 raise ParseDataverseError(err_log)
 
 
@@ -232,7 +291,6 @@ def validate_checksums(job, mapping, unit_path):
                 date=date,
             )
 
-
 def verify_checksum(
     job, file_uuid, path, checksum, checksumtype, event_id=None, date=None
 ):
@@ -253,7 +311,7 @@ def verify_checksum(
 
     checksumtype = checksumtype.lower()
     generated_checksum = get_file_checksum(path, checksumtype)
-    event_detail = f'program="python"; module="hashlib.{checksumtype}()"'
+    event_detail = 'program="python"; ' 'module="hashlib.{}()"'.format(checksumtype)
     if checksum != generated_checksum:
         job.pyprint("Checksum failed")
         event_outcome = "Fail"
@@ -277,6 +335,7 @@ def verify_checksum(
 def parse_dataverse_mets(job, unit_path, unit_uuid):
     """Access the existing METS file and extract and validate its components."""
     dataverse_mets_path = os.path.join(unit_path, "metadata", "METS.xml")
+    logger.info("Dataverse METS file path: %s", dataverse_mets_path)
     mets = metsrw.METSDocument.fromfile(dataverse_mets_path)
     mapping = get_db_objects(job, mets, unit_uuid)
     if mapping is None:
@@ -300,7 +359,7 @@ def init_parse_dataverse_mets(job):
         transfer_dir = job.args[1]
         transfer_uuid = job.args[2]
         logger.info(
-            "Parse Dataverse METS with dir: '%s' and transfer uuid: %s",
+            "Parse Dataverse METS with dir: '%s' and transfer " "uuid: %s",
             transfer_dir,
             transfer_uuid,
         )
