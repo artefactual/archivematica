@@ -32,10 +32,6 @@ jobs:
           - "uuids-dirs"
         browser:
           - "Firefox"
-          - "Chrome"
-        exclude:
-          - tag: "black-box"
-            browser: "Chrome"
     steps:
       - name: "Check out repository"
         if: "${{ github.event_name != 'workflow_dispatch' }}"
