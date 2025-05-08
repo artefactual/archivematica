@@ -126,7 +126,7 @@ jobs:
             **/package-lock.json
       - name: "Install frontend dependencies"
         run: |
-          npm install
+          npm ci
       - name: "Run tests"
         run: |
           npm run "test-single-run"

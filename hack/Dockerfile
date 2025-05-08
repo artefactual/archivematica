@@ -112,7 +112,7 @@ COPY --link src/dashboard/frontend /src/src/dashboard/frontend
 WORKDIR /src/src/dashboard/frontend
 
 RUN set ex \
-	&& npm install --no-package-lock
+	&& npm ci
 
 # -----------------------------------------------------------------------------
 

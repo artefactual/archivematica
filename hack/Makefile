@@ -185,7 +185,7 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		--volume "$(SRCDIR)/dashboard:/src/src/dashboard" \
 		--entrypoint npm \
 			archivematica-dashboard-frontend-builder \
-				install --no-package-lock
+				ci
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
 	docker compose restart --no-deps archivematica-mcp-server
