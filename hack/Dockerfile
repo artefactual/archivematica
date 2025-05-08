@@ -121,7 +121,7 @@ COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboar
 WORKDIR /src/src/archivematica/dashboard/frontend
 
 RUN set ex \
-	&& npm install --no-package-lock
+	&& npm ci
 
 # -----------------------------------------------------------------------------
 
