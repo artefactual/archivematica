@@ -20,32 +20,32 @@ bagit @ git+https://github.com/artefactual-labs/bagit-python.git@902051d8410219f
     # via -r requirements.in
 brotli==1.1.0
     # via -r requirements.in
-certifi==2025.1.31
+certifi==2025.4.26
     # via requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
     # via requests
 clamd==1.0.2
     # via -r requirements.in
-cryptography==44.0.2
+cryptography==44.0.3
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.20
+django==4.2.21
     # via
     #   -r requirements.in
     #   django-auth-ldap
     #   django-cas-ng
     #   django-csp
     #   mozilla-django-oidc
-django-auth-ldap==5.1.0
+django-auth-ldap==5.2.0
     # via -r requirements.in
 django-autoslug==1.9.9
     # via -r requirements.in
 django-cas-ng==5.0.1
     # via -r requirements.in
-django-csp==3.8
+django-csp==4.0
     # via -r requirements.in
 django-forms-bootstrap==3.1.0
     # via -r requirements.in
@@ -59,9 +59,9 @@ elasticsearch==6.8.2
     # via -r requirements.in
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via -r requirements.in
-gevent==24.11.1
+gevent==25.4.2
     # via -r requirements.in
-greenlet==3.1.1
+greenlet==3.2.2
     # via gevent
 gunicorn==23.0.0
     # via -r requirements.in
@@ -75,11 +75,11 @@ josepy==2.0.0
     # via mozilla-django-oidc
 jsonschema==4.23.0
     # via -r requirements.in
-jsonschema-specifications==2024.10.1
+jsonschema-specifications==2025.4.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.in
-lxml==5.3.1
+lxml==5.4.0
     # via
     #   -r requirements.in
     #   ammcpc
@@ -95,10 +95,12 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via -r requirements.in
-orjson==3.10.15
+orjson==3.10.18
     # via -r requirements.in
-packaging==24.2
-    # via gunicorn
+packaging==25.0
+    # via
+    #   django-csp
+    #   gunicorn
 prometheus-client==0.21.1
     # via
     #   -r requirements.in
@@ -107,7 +109,7 @@ pyasn1==0.6.1
     # via
     #   pyasn1-modules
     #   python-ldap
-pyasn1-modules==0.4.1
+pyasn1-modules==0.4.2
     # via python-ldap
 pycparser==2.22
     # via cffi
@@ -135,7 +137,7 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.23.1
+rpds-py==0.24.0
     # via
     #   jsonschema
     #   referencing
@@ -146,13 +148,13 @@ six==1.17.0
     #   python-dateutil
 sqlparse==0.5.3
     # via django
-typing-extensions==4.12.2
+typing-extensions==4.13.2
     # via
     #   asgiref
     #   referencing
-unidecode==1.3.8
+unidecode==1.4.0
     # via -r requirements.in
-urllib3==2.3.0
+urllib3==2.4.0
     # via
     #   amclient
     #   elasticsearch
@@ -167,7 +169,7 @@ zope-interface==7.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==76.0.0
+setuptools==80.3.1
     # via
     #   zope-event
     #   zope-interface
