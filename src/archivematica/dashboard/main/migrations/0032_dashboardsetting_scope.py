@@ -151,7 +151,7 @@ def data_migration_as_to_dict(apps, schema_editor):
     )
 
     # Default to empty string for every argument
-    config_dict = {arg_name: "" for arg_name in cmd_args}
+    config_dict = dict.fromkeys(cmd_args, "")
 
     # Attempt to read defaults from MicroServiceChoiceReplacementDic
     try:
@@ -220,7 +220,7 @@ def data_migration_atk_to_dict(apps, schema_editor):
     )
 
     # Default to empty string for every argument
-    config_dict = {arg_name: "" for arg_name in cmd_args}
+    config_dict = dict.fromkeys(cmd_args, "")
 
     # Attempt to read defaults from MicroServiceChoiceReplacementDic
     try:
