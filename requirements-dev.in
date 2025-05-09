@@ -3,14 +3,10 @@
 coverage[toml]
 git+https://github.com/artefactual-labs/mockldap@v0.3.1#egg=mockldap
 pip-tools
+playwright
 pytest
 pytest-cov
 pytest-django
 pytest-playwright
 pytest-randomly
 tox
-
-# playwright requires specific versions of greenlet which may clash with our
-# gevent dependency in requirements.txt.
-# See https://github.com/microsoft/playwright-python/issues/2190
-git+https://github.com/microsoft/playwright-python.git@d9cdfbb1e178b6770625e9f857139aff77516af0#egg=playwright
