@@ -12,10 +12,12 @@ from archivematica.MCPClient.clientScripts import characterize_file
 def rule_with_xml_output_format(
     format_version: fprmodels.FormatVersion,
 ) -> fprmodels.FPRule:
+    output_format_version, _ = fprmodels.FormatVersion.objects.get_or_create(
+        pronom_id="fmt/101", format=format_version.format
+    )
+
     return fprmodels.FPRule.objects.create(
-        command=fprmodels.FPCommand.objects.create(
-            output_format=fprmodels.FormatVersion.objects.get(pronom_id="fmt/101")
-        ),
+        command=fprmodels.FPCommand.objects.create(output_format=output_format_version),
         format=format_version,
         purpose="characterization",
     )

@@ -27,6 +27,7 @@ from unittest import mock
 
 import pytest
 
+from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.MCPClient.client.job import Job
@@ -280,6 +281,14 @@ class TestHashsum:
         """Test that the microservice job connects to the database as
         anticipated, writes its data, and that data can then be retrieved.
         """
+        Agent.objects.get_or_create(
+            pk=2,
+            agenttype="organization",
+            identifiervalue="ORG",
+            name="Your Organization Name Here",
+            identifiertype="repository code",
+        )
+
         # Values the job will write.
         algorithms = ["md5", "sha512", "sha1"]
         event_type = "fixity check"

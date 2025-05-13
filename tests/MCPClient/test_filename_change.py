@@ -180,6 +180,16 @@ class TestFilenameChange(TestCase):
         )
 
     @pytest.fixture(autouse=True)
+    def organization_agent(self):
+        return Agent.objects.get_or_create(
+            pk=2,
+            agenttype="organization",
+            identifiervalue="ORG",
+            name="Your Organization Name Here",
+            identifiertype="repository code",
+        )
+
+    @pytest.fixture(autouse=True)
     def microservice_unitvars(self, admin_agent):
         UnitVariable.objects.create(
             unituuid=self.transfer_uuid,
@@ -312,9 +322,25 @@ def test_change_name_raises_valueerror_on_empty_string():
         change_names.change_name("")
 
 
+@pytest.fixture
+def organization_agent():
+    return Agent.objects.get_or_create(
+        pk=2,
+        agenttype="organization",
+        identifiervalue="ORG",
+        name="Your Organization Name Here",
+        identifiertype="repository code",
+    )
+
+
 @pytest.mark.django_db
 def test_change_transfer_with_multiple_files(
-    monkeypatch, tmp_path, transfer, subdir_path, multiple_transfer_file_objs
+    monkeypatch,
+    tmp_path,
+    transfer,
+    subdir_path,
+    multiple_transfer_file_objs,
+    organization_agent,
 ):
     monkeypatch.setattr(change_object_names.NameChanger, "BATCH_SIZE", 10)
 

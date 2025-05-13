@@ -213,6 +213,7 @@ def test_job_saves_unit_variable_indicating_file_format_identification_use(
     execute_or_run: mock.Mock,
     job: mock.Mock,
     sip: models.SIP,
+    idcommand: fprmodels.IDCommand,
 ) -> None:
     identify_file_format.call([job])
 
@@ -271,6 +272,7 @@ def test_job_updates_file_format_version(
     sip_file: models.File,
     format: fprmodels.Format,
     sip_file_format_version: models.FileFormatVersion,
+    idcommand: fprmodels.IDCommand,
 ) -> None:
     command_output = "fmt/111"
     execute_or_run.return_value = (0, command_output, "")

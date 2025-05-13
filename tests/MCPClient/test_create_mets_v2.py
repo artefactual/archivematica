@@ -95,6 +95,10 @@ def metadata_csv(
 
 @pytest.fixture()
 def sip_dublincore(sip: SIP) -> DublinCore:
+    MetadataAppliesToType.objects.get_or_create(
+        pk="3e48343d-e2d2-4956-aaa3-b54d26eb9761", description="SIP"
+    )
+
     return DublinCore.objects.create(
         metadataappliestotype_id=MetadataAppliesToType.SIP_TYPE,
         metadataappliestoidentifier=sip.pk,

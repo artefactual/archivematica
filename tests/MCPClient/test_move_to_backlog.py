@@ -8,8 +8,19 @@ from archivematica.dashboard.main.models import Agent
 from archivematica.MCPClient.clientScripts import move_to_backlog
 
 
+@pytest.fixture
+def organization_agent():
+    return Agent.objects.get_or_create(
+        pk=2,
+        agenttype="organization",
+        identifiervalue="ORG",
+        name="Your Organization Name Here",
+        identifiertype="repository code",
+    )
+
+
 @pytest.mark.django_db
-def test_premis_event_data(transfer):
+def test_premis_event_data(transfer, organization_agent):
     event_id, event_type, created_at = (
         str(uuid.uuid4()),
         "placement in backlog",
@@ -56,7 +67,7 @@ def test_premis_event_data(transfer):
 
 
 @pytest.mark.django_db
-def test_transfer_agents(transfer):
+def test_transfer_agents(transfer, organization_agent):
     ret = move_to_backlog._transfer_agents(transfer.uuid)
 
     assert len(ret) == 2

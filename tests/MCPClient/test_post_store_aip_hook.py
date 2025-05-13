@@ -20,6 +20,22 @@ def archivesspace_components(sip):
     )
 
 
+@pytest.fixture()
+def archivesspace_setting():
+    models.DashboardSetting.objects.set_dict(
+        "upload-archivesspace_v0.0",
+        {
+            "base_url": "http://foobar.tld",
+            "user": "user",
+            "passwd": "12345",
+            "repository": "5",
+            "use_statement": "",
+            "xlink_show": "",
+            "xlink_actuate": "",
+        },
+    )
+
+
 @pytest.mark.django_db
 def test_no_archivesspace(sip, archivesspace_components, mcp_job):
     """It should abort if no ArchivesSpaceDigitalObject found."""
@@ -69,7 +85,13 @@ def test_no_dspace(get_file_info, sip, mcp_job):
     ),
 )
 def test_dspace_handle_to_archivesspace(
-    requests_get, requests_post, get_file_info, sip, archivesspace_components, mcp_job
+    requests_get,
+    requests_post,
+    get_file_info,
+    sip,
+    archivesspace_components,
+    mcp_job,
+    archivesspace_setting,
 ):
     """It should send the DSpace handle to ArchivesSpace."""
     rc = post_store_aip_hook.dspace_handle_to_archivesspace(mcp_job, sip.uuid)

@@ -162,6 +162,9 @@ def fpcommand_output(db, fprule_characterization, file_obj):
 
 @pytest.fixture()
 def basic_rights_statement(db, file_obj):
+    MetadataAppliesToType.objects.get_or_create(
+        pk="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17", description="File"
+    )
     rights = RightsStatement.objects.create(
         metadataappliestotype_id="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17",
         metadataappliestoidentifier=file_obj.uuid,

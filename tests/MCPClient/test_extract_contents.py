@@ -170,7 +170,7 @@ def test_job_fails_if_file_has_been_extracted_already(
     ]
     assert len(job.pyprint.mock_calls) == len(expected_pyprint_calls)
     # This uses any_order because we do not control the order in which the
-    # jo iterates the files in the transfer.
+    # job iterates the files in the transfer.
     job.pyprint.assert_has_calls(expected_pyprint_calls, any_order=True)
 
 
@@ -400,7 +400,7 @@ def test_job_assign_uuids_to_extracted_files_and_directories(
         f"Command to execute is: {fpcommand.command}",
         f"Assigning UUID {extracted_directory.uuid} to directory path {extracted_directory.currentlocation.decode()}",
     ]
-    assert job.pyprint.mock_calls == [
+    expected_pyprint_calls = [
         mock.call(f"Deleting?: {delete}", file=mock.ANY),
         mock.call(
             "Extracted contents from",
@@ -422,6 +422,10 @@ def test_job_assign_uuids_to_extracted_files_and_directories(
             file=mock.ANY,
         ),
     ]
+    assert len(job.pyprint.mock_calls) == len(expected_pyprint_calls)
+    # This uses any_order because we do not control the order in which the
+    # job iterates the files in the transfer.
+    job.pyprint.assert_has_calls(expected_pyprint_calls, any_order=True)
 
 
 @pytest.mark.django_db

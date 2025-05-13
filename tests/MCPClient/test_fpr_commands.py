@@ -19,7 +19,7 @@ class EventDetailResult(TypedDict):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "expected_programs,expected_version_pattern,filters",
+    "expected_programs,expected_version_pattern,cmd,filters",
     [
         (
             ["7z"],
@@ -27,6 +27,7 @@ class EventDetailResult(TypedDict):
             # Older versions report the version on a line starting with "p7zip Version"
             # while more recent versions use a line starting with "7-Zip".
             r"(^p7zip Version|^7-Zip)",
+            'echo program=\\"7z\\"\\; version=\\"`7z | awk \'NR==3 && /^p7zip Version/ {print; exit} NR==2 {line2=$0} NR==3 {print line2 $0}\'`\\"',
             {
                 "command_usage": "event_detail",
                 "description": "Get event detail text for 7z extraction",
@@ -35,6 +36,7 @@ class EventDetailResult(TypedDict):
         (
             ["convert"],
             "^Version: ImageMagick",
+            'echo program=\\"convert\\"\\; version=\\"`convert -version | grep Version:`\\"',
             {
                 "command_usage": "event_detail",
                 "description": "convert event detail",
@@ -43,6 +45,7 @@ class EventDetailResult(TypedDict):
         (
             ["ffmpeg"],
             r"^ffmpeg version",
+            'echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep --ignore-case "FFmpeg version"`\\"',
             {
                 "command_usage": "event_detail",
                 "description": "Get event detail text for ffmpeg extraction",
@@ -51,6 +54,7 @@ class EventDetailResult(TypedDict):
         (
             ["ps2pdf", "Ghostscript"],
             r"^\d+\.\d+\.\d+",
+            'echo program=\\"ps2pdf\\"\\; program=\\"Ghostscript\\"\\; version=\\"`gs --version`\\" ',
             {
                 "command_usage": "event_detail",
                 "description": "ps2pdf event detail",
@@ -59,6 +63,7 @@ class EventDetailResult(TypedDict):
         (
             ["Ghostscript"],
             r"^\d+\.\d+\.\d+",
+            'echo program=\\"Ghostscript\\"\\; version=\\"`gs --version`\\" ',
             {
                 "command_usage": "event_detail",
                 "description": "Ghostscript event detail",
@@ -67,6 +72,7 @@ class EventDetailResult(TypedDict):
         (
             ["inkscape"],
             r"^Inkscape",
+            'echo program=\\"inkscape\\"\\; version=\\"`inkscape -V`\\" ',
             {
                 "command_usage": "event_detail",
                 "description": "inkscape event detail",
@@ -75,6 +81,7 @@ class EventDetailResult(TypedDict):
         pytest.param(
             ["unrar-nonfree"],
             "^UNRAR",
+            'echo program=\\"unrar-nonfree\\"\\; version=\\"`unrar-nonfree | grep \'UNRAR\'`\\"',
             {
                 "command_usage": "event_detail",
                 "description": "Get event detail text for unrar extraction",
@@ -86,6 +93,7 @@ class EventDetailResult(TypedDict):
         (
             ["readpst"],
             r"^ReadPST / LibPST",
+            'echo program=\\"readpst\\"\\; version=\\"`readpst -V`\\"',
             {
                 "command_usage": "event_detail",
                 "description": "readpst event detail",
@@ -104,9 +112,14 @@ class EventDetailResult(TypedDict):
     ],
 )
 def test_event_detail_command_returns_tool_version(
-    expected_programs: list[str], expected_version_pattern: str, filters: QueryFilters
+    expected_programs: list[str],
+    expected_version_pattern: str,
+    cmd: str,
+    filters: QueryFilters,
 ) -> None:
-    command = FPCommand.active.get(**filters)
+    command, _ = FPCommand.active.get_or_create(
+        script_type="bashScript", command=cmd, **filters
+    )
 
     _, output, _ = executeOrRun(command.script_type, command.command)
 
@@ -133,7 +146,11 @@ def test_mbox_event_detail_command_returns_tool_path() -> None:
         "command_usage": "event_detail",
         "description": "Transcoding maildir to mbox event detail",
     }
-    command = FPCommand.active.get(**filters)
+    command, _ = FPCommand.active.get_or_create(
+        script_type="command",
+        command='echo "/usr/lib/archivematica/transcoder/transcoderScripts/" "%fileFullName%" "%outputDirectory%%prefix%%fileName%%postfix%.mbox"',
+        **filters,
+    )
 
     _, output, _ = executeOrRun(command.script_type, command.command)
 
