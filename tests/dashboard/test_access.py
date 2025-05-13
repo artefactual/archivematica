@@ -67,6 +67,13 @@ def dashboard_uuid():
     helpers.set_setting("dashboard_uuid", "test-uuid")
 
 
+@pytest.fixture()
+def metadata_applies_to_type():
+    models.MetadataAppliesToType.objects.get_or_create(
+        pk="3e48343d-e2d2-4956-aaa3-b54d26eb9761", description="SIP"
+    )
+
+
 def _encode_record_id(record_id):
     return record_id.replace("/", "")
 
@@ -172,6 +179,7 @@ def test_access_arrange_start_sip(
     dashboard_uuid,
     admin_client,
     caplog,
+    metadata_applies_to_type,
 ):
     # Mock expected responses from ArchivesSpace.
     archival_object = {

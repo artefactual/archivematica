@@ -7,6 +7,10 @@ from django.urls import reverse
 
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import Taxonomy
+from archivematica.dashboard.main.models import TaxonomyTerm
+from archivematica.dashboard.main.models import TransferMetadataField
 from archivematica.dashboard.main.models import TransferMetadataFieldValue
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
@@ -24,6 +28,7 @@ class TestTransferViews(TestCase):
     def test_metadata_edit(self):
         """Test the metadata form of a transfer"""
         transfer_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+        MetadataAppliesToType.objects.get_or_create(description="Transfer")
         url = reverse("transfer:transfer_metadata_add", args=[transfer_uuid])
         # Post metadata in Spanish
         response = self.client.post(
@@ -61,6 +66,9 @@ def test_component_get(admin_client):
     helpers.set_setting("dashboard_uuid", "test-uuid")
     # This TransferMetadataSet is going to be created in the view.
     transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
+    TransferMetadataField.objects.create(fieldlabel="Image fixity")
+    TransferMetadataField.objects.create(fieldlabel="Media number")
+    TransferMetadataField.objects.create(fieldlabel="Serial number")
 
     response = admin_client.get(
         reverse("transfer:component", args=[transfer_uuid]),
@@ -78,6 +86,16 @@ def test_component_post(admin_client):
     helpers.set_setting("dashboard_uuid", "test-uuid")
     # This TransferMetadataSet is going to be created in the view.
     transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
+    taxonomy = Taxonomy.objects.create(name="Disk media formats")
+    TaxonomyTerm.objects.create(term='3.5" floppy', taxonomy=taxonomy)
+    TransferMetadataField.objects.create(
+        fieldlabel="Media format",
+        fieldname="media_format",
+        optiontaxonomy=taxonomy,
+    )
+    TransferMetadataField.objects.create(
+        fieldlabel="Media number", fieldname="media_number"
+    )
 
     # Verify there are no field values for the metadata set.
     assert TransferMetadataFieldValue.objects.filter(set=transfer_uuid).count() == 0

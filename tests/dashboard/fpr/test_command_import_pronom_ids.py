@@ -7,10 +7,31 @@ import pytest_django
 from django.core.management import call_command
 
 from archivematica.dashboard.fpr.models import FormatGroup
+from archivematica.dashboard.fpr.models import IDCommand
+
+
+@pytest.fixture()
+def unknown_format_group() -> FormatGroup:
+    result, _ = FormatGroup.objects.get_or_create(
+        uuid="00abbdd0-51b3-4162-b93a-45deb4ed8654", description="Unknown"
+    )
+    return result
+
+
+@pytest.fixture()
+def file_by_extension_command() -> IDCommand:
+    result, _ = IDCommand.objects.get_or_create(
+        uuid="8546b624-7894-4201-8df6-f239d5e0d5ba"
+    )
+    return result
 
 
 @pytest.mark.django_db
-def test_command_fails_if_xml_file_does_not_exist(tmp_path: pathlib.Path) -> None:
+def test_command_fails_if_xml_file_does_not_exist(
+    tmp_path: pathlib.Path,
+    unknown_format_group: FormatGroup,
+    file_by_extension_command: IDCommand,
+) -> None:
     with pytest.raises(SystemExit, match="Pronom XML file does not exist!"):
         call_command("import_pronom_ids", str(tmp_path / "bogus.xml"))
 
@@ -20,13 +41,11 @@ def test_command_saves_data_migration_to_file(
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
     settings: pytest_django.fixtures.SettingsWrapper,
+    unknown_format_group: FormatGroup,
+    file_by_extension_command: IDCommand,
 ) -> None:
     # Enable connection.queries used in the command.
     settings.DEBUG = True
-
-    # These identifiers are hardcoded in the command.
-    file_by_extension_command_uuid = uuid.UUID("8546b624-7894-4201-8df6-f239d5e0d5ba")
-    unknown_group_uuid = uuid.UUID("00abbdd0-51b3-4162-b93a-45deb4ed8654")
 
     format_uuid = uuid.uuid4()
     format_version_uuid = uuid.uuid4()
@@ -85,9 +104,9 @@ def test_command_saves_data_migration_to_file(
             "    FormatVersion = apps.get_model('fpr', 'FormatVersion')",
             "    IDRule = apps.get_model('fpr', 'IDRule')",
             "",
-            f'    Format.objects.create(description="""{xml_format_name}""", group_id="{unknown_group_uuid}", uuid="{format_uuid}")',
+            f'    Format.objects.create(description="""{xml_format_name}""", group_id="{unknown_format_group.uuid}", uuid="{format_uuid}")',
             f'    FormatVersion.objects.create(format_id="{format_uuid}", pronom_id="{xml_format_puid}", description="""{xml_format_signature_name}""", version="{xml_format_version}", uuid="{format_version_uuid}")',
-            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command_uuid}", command_output=".{xml_format_extension}")',
+            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command.uuid}", command_output=".{xml_format_extension}")',
         ]
     )
 
@@ -97,12 +116,11 @@ def test_command_sets_format_group_from_pronom_classifications(
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
     settings: pytest_django.fixtures.SettingsWrapper,
+    unknown_format_group: FormatGroup,
+    file_by_extension_command: IDCommand,
 ) -> None:
     # Enable connection.queries used in the command.
     settings.DEBUG = True
-
-    # This identifier is hardcoded in the command.
-    file_by_extension_command_uuid = uuid.UUID("8546b624-7894-4201-8df6-f239d5e0d5ba")
 
     format_uuid = uuid.uuid4()
     format_version_uuid = uuid.uuid4()
@@ -169,7 +187,7 @@ def test_command_sets_format_group_from_pronom_classifications(
             "",
             f'    Format.objects.create(description="""{xml_format_name}""", group_id="{format_group.uuid}", uuid="{format_uuid}")',
             f'    FormatVersion.objects.create(format_id="{format_uuid}", pronom_id="{xml_format_puid}", description="""{xml_format_signature_name}""", version="{xml_format_version}", uuid="{format_version_uuid}")',
-            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command_uuid}", command_output=".{xml_format_extension}")',
+            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command.uuid}", command_output=".{xml_format_extension}")',
         ]
     )
 
@@ -179,13 +197,11 @@ def test_command_sets_unknown_format_group_if_multiple_pronom_classifications_ex
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
     settings: pytest_django.fixtures.SettingsWrapper,
+    unknown_format_group: FormatGroup,
+    file_by_extension_command: IDCommand,
 ) -> None:
     # Enable connection.queries used in the command.
     settings.DEBUG = True
-
-    # These identifiers are hardcoded in the command.
-    file_by_extension_command_uuid = uuid.UUID("8546b624-7894-4201-8df6-f239d5e0d5ba")
-    unknown_group_uuid = uuid.UUID("00abbdd0-51b3-4162-b93a-45deb4ed8654")
 
     format_uuid = uuid.uuid4()
     format_version_uuid = uuid.uuid4()
@@ -258,9 +274,9 @@ def test_command_sets_unknown_format_group_if_multiple_pronom_classifications_ex
             "    FormatVersion = apps.get_model('fpr', 'FormatVersion')",
             "    IDRule = apps.get_model('fpr', 'IDRule')",
             "",
-            f'    Format.objects.create(description="""{xml_format_name}""", group_id="{unknown_group_uuid}", uuid="{format_uuid}")',
+            f'    Format.objects.create(description="""{xml_format_name}""", group_id="{unknown_format_group.uuid}", uuid="{format_uuid}")',
             f'    FormatVersion.objects.create(format_id="{format_uuid}", pronom_id="{xml_format_puid}", description="""{xml_format_signature_name}""", version="{xml_format_version}", uuid="{format_version_uuid}")',
-            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command_uuid}", command_output=".{xml_format_extension}")',
+            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command.uuid}", command_output=".{xml_format_extension}")',
         ]
     )
 
@@ -270,13 +286,11 @@ def test_command_sets_unknown_format_group_if_pronom_classifications_do_not_exis
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
     settings: pytest_django.fixtures.SettingsWrapper,
+    unknown_format_group: FormatGroup,
+    file_by_extension_command: IDCommand,
 ) -> None:
     # Enable connection.queries used in the command.
     settings.DEBUG = True
-
-    # These identifiers are hardcoded in the command.
-    file_by_extension_command_uuid = uuid.UUID("8546b624-7894-4201-8df6-f239d5e0d5ba")
-    unknown_group_uuid = uuid.UUID("00abbdd0-51b3-4162-b93a-45deb4ed8654")
 
     format_uuid = uuid.uuid4()
     format_version_uuid = uuid.uuid4()
@@ -339,8 +353,8 @@ def test_command_sets_unknown_format_group_if_pronom_classifications_do_not_exis
             "    FormatVersion = apps.get_model('fpr', 'FormatVersion')",
             "    IDRule = apps.get_model('fpr', 'IDRule')",
             "",
-            f'    Format.objects.create(description="""{xml_format_name}""", group_id="{unknown_group_uuid}", uuid="{format_uuid}")',
+            f'    Format.objects.create(description="""{xml_format_name}""", group_id="{unknown_format_group.uuid}", uuid="{format_uuid}")',
             f'    FormatVersion.objects.create(format_id="{format_uuid}", pronom_id="{xml_format_puid}", description="""{xml_format_signature_name}""", version="{xml_format_version}", uuid="{format_version_uuid}")',
-            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command_uuid}", command_output=".{xml_format_extension}")',
+            f'    IDRule.objects.create(format_id="{format_version_uuid}", command_id="{file_by_extension_command.uuid}", command_output=".{xml_format_extension}")',
         ]
     )

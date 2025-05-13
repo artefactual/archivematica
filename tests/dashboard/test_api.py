@@ -1353,15 +1353,13 @@ def test_fetch_levels_of_description_from_atom(get, admin_client):
     helpers.set_setting("dashboard_uuid", "test-uuid")
 
     # Set up the AtoM settings used on the Administration tab.
-    DashboardSetting.objects.create(
-        name="upload-qubit_v0.0",
-        value=str(
-            {
-                "url": "http://example.com",
-                "email": "demo@example.com",
-                "password": "password",
-            }
-        ),
+    DashboardSetting.objects.set_dict(
+        "upload-qubit_v0.0",
+        {
+            "url": "http://example.com",
+            "email": "demo@example.com",
+            "password": "password",
+        },
     )
 
     # Simulate interaction with AtoM.
@@ -1403,15 +1401,13 @@ def test_fetch_levels_of_description_from_atom_communication_failure(get, admin_
     helpers.set_setting("dashboard_uuid", "test-uuid")
 
     # Set up the AtoM settings used on the Administration tab.
-    DashboardSetting.objects.create(
-        name="upload-qubit_v0.0",
-        value=str(
-            {
-                "url": "http://example.com",
-                "email": "demo@example.com",
-                "password": "password",
-            }
-        ),
+    DashboardSetting.objects.set_dict(
+        "upload-qubit_v0.0",
+        {
+            "url": "http://example.com",
+            "email": "demo@example.com",
+            "password": "password",
+        },
     )
 
     response = admin_client.get(reverse("api:fetch_atom_lods"))
