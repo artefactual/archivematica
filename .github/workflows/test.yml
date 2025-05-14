@@ -21,10 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         rule: [
-          "mcp-server",
-          "mcp-client",
-          "dashboard",
-          "archivematica-common",
+          "archivematica",
         ]
         ubuntu-version: [
           "24.04",
