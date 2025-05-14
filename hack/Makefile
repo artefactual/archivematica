@@ -338,7 +338,10 @@ test-all: start-mysql  ## Run all tests.
 __TOXENVS_ARCHIVEMATICA = archivematica
 test-archivematica: start-mysql  ## Run Archivematica tests in a single run.
 	$(call grant_all_on_dbs,$(__TEST_DBS_ARCHIVEMATICA))
-	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA),archivematica.testing.settings.testmysql)
+	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA),archivematica.settings.testmysql)
+
+test-integration:  ## Run integration tests.
+	$(CURDIR)/tests/integration/run.sh
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \
