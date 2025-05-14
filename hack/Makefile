@@ -329,10 +329,10 @@ test-linting:  ## Check linting.
 test-all: start-mysql  ## Run all tests.
 	$(call grant_all_on_dbs,$(__TEST_DBS_MCPSERVER) $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_STORAGE_SERVICE) $(__TEST_DBS_ARCHIVEMATICA_COMMON))
 	$(call run_toxenv,$(__TOXENVS_MCPSERVER),archivematica.MCPServer.settings.testmysql)
-	$(call run_toxenv,$(__TEST_DBS_MCPCLIENT),archivematica.MCPClient.settings.testmysql)
-	$(call run_toxenv,$(__TEST_DBS_DASHBOARD),archivematica.dashboard.settings.testmysql)
-	$(call run_toxenv,$(__TEST_DBS_ARCHIVEMATICA_COMMON),archivematica.dashboard.settings.testmysql)
-	$(call run_toxenv,$(__TEST_DBS_STORAGE_SERVICE),settings.testmysql)
+	$(call run_toxenv,$(__TOXENVS_MCPCLIENT),archivematica.MCPClient.settings.testmysql)
+	$(call run_toxenv,$(__TOXENVS_DASHBOARD),archivematica.dashboard.settings.testmysql)
+	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA_COMMON),archivematica.dashboard.settings.testmysql)
+	$(call run_toxenv,$(__TOXENVS_STORAGE_SERVICE),archivematica.storage_service.storage_service.settings.testmysql)
 
 
 test-at-build:  ## AMAUAT: build image.
