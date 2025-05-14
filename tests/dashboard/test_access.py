@@ -1,4 +1,5 @@
 import json
+import logging
 import pathlib
 from unittest import mock
 
@@ -181,6 +182,7 @@ def test_access_arrange_start_sip(
     caplog,
     metadata_applies_to_type,
 ):
+    caplog.set_level(logging.DEBUG, logger="archivematica.dashboard")
     # Mock expected responses from ArchivesSpace.
     archival_object = {
         "resource": {"ref": "/repositories/2/resources/10"},

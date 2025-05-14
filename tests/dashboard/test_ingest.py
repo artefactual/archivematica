@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import pathlib
 import uuid
@@ -380,6 +381,7 @@ def dashboard_uuid(db):
 def test_ingest_upload_as_match_shows_deleted_rows(
     admin_client, dashboard_uuid, caplog
 ):
+    caplog.set_level(logging.DEBUG, "archivematica.dashboard")
     dip_uuid = uuid.uuid4()
     file_uuid = uuid.uuid4()
     resource_id = "/repositories/2/archival_objects/1"
