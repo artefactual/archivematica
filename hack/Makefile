@@ -275,8 +275,9 @@ __TEST_DBS_MCPCLIENT = MCPCLIENTTEST test_MCPCLIENTTEST test_MCPCLIENTTEST_mcp-c
 __TEST_DBS_MIGRATIONS = DASHBOARDTEST SSTEST
 __TEST_DBS_DASHBOARD = DASHBOARDTEST test_DASHBOARDTEST test_DASHBOARDTEST_dashboard test_DASHBOARDTEST_archivematica-common
 __TEST_DBS_MCPSERVER = MCPSERVERTEST test_MCPSERVERTEST test_MCPSERVERTEST_mcp-server
+__TEST_DBS_ARCHIVEMATICA = ARCHIVEMATICATEST test_ARCHIVEMATICATEST%
 __TEST_DBS_STORAGE_SERVICE = test_SSTEST test_SSTEST_storage-service
-__TEST_DBS := $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_MIGRATIONS) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_MCPSERVER) $(__TEST_DBS_STORAGE_SERVICE) test_MCP test_SS
+__TEST_DBS := $(__TEST_DBS_MCPCLIENT) $(__TEST_DBS_MIGRATIONS) $(__TEST_DBS_DASHBOARD) $(__TEST_DBS_MCPSERVER) $(__TEST_DBS_ARCHIVEMATICA) $(__TEST_DBS_STORAGE_SERVICE) test_MCP test_SS
 flush-test-dbs: start-mysql
 	$(foreach test_db,$(__TEST_DBS),$(call drop_db,$(test_db));)
 
@@ -334,6 +335,10 @@ test-all: start-mysql  ## Run all tests.
 	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA_COMMON),archivematica.dashboard.settings.testmysql)
 	$(call run_toxenv,$(__TOXENVS_STORAGE_SERVICE),archivematica.storage_service.storage_service.settings.testmysql)
 
+__TOXENVS_ARCHIVEMATICA = archivematica
+test-archivematica: start-mysql  ## Run Archivematica tests in a single run.
+	$(call grant_all_on_dbs,$(__TEST_DBS_ARCHIVEMATICA))
+	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA),archivematica.testing.settings.testmysql)
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \
