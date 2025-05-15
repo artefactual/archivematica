@@ -23,7 +23,7 @@
 assignfileuuids_v0.0 = assign_file_uuids
 bindpid_v0.0 = bind_pid
 removeunneededfiles_v0.0 = remove_unneeded_files
-archivematicaclamscan_v0.0 = archivematica_clamscan
+antivirus_v0.0 = antivirus
 createevent_v0.0 = create_event
 examinecontents_v0.0 = examine_contents
 identifydspacefiles_v0.0 = identify_dspace_files

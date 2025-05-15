@@ -1,4 +1,4 @@
-"""Tests for the archivematica_clamscan.py client script."""
+"""Tests for the antivirus.py client script."""
 
 from collections import OrderedDict
 from collections import namedtuple
@@ -10,8 +10,8 @@ from clamav_client.scanner import ClamscanScanner
 from clamav_client.scanner import Scanner
 from clamav_client.scanner import ScanResult
 
-from archivematica.MCPClient.clientScripts.archivematica_clamscan import create_scanner
-from archivematica.MCPClient.clientScripts.archivematica_clamscan import scan_file
+from archivematica.MCPClient.clientScripts.antivirus import create_scanner
+from archivematica.MCPClient.clientScripts.antivirus import scan_file
 
 
 @pytest.mark.parametrize(
@@ -100,9 +100,9 @@ def setup_test_scan_file_mocks(
     return deps
 
 
-@mock.patch("archivematica.MCPClient.clientScripts.archivematica_clamscan.file_already_scanned")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.file_already_scanned")
 @mock.patch("archivematica.dashboard.main.models.File.objects.get")
-@mock.patch("archivematica.MCPClient.clientScripts.archivematica_clamscan.create_scanner")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
 def test_scan_file_already_scanned(
     create_scanner, file_objects_get, file_already_scanned_mock
 ):
@@ -169,9 +169,9 @@ QueueEventParams = namedtuple("QueueEventParams", ["scanner_is_None", "passed"])
         ),
     ],
 )
-@mock.patch("archivematica.MCPClient.clientScripts.archivematica_clamscan.file_already_scanned")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.file_already_scanned")
 @mock.patch("archivematica.dashboard.main.models.File.objects.get")
-@mock.patch("archivematica.MCPClient.clientScripts.archivematica_clamscan.create_scanner")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
 def test_scan_file(
     create_scanner,
     file_objects_get,
