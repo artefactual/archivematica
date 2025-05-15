@@ -18,7 +18,40 @@ contributors - thank you!
 Questions about a release or the release notes? Ask on the
 [Archivematica User Group](https://groups.google.com/g/archivematica)!
 
-## (Current Release) Archivematica 1.17.0 and Storage Service 0.23.0
+## (Current Release) Archivematica 1.17.1
+
+*Release date*: TBD
+
+[Original release
+notes](https://wiki.archivematica.org/Archivematica_1.17.1_release_notes).
+
+### Environments for 1.17.1
+
+Please see the [installation
+instructions](https://www.archivematica.org/en/docs/archivematica-1.17/admin-manual/installation-setup/installation/installation/#installation).
+
+Archivematica 1.17.1 has been tested in the following environments:
+
+- Ubuntu 22.04 64-bit Server Edition
+
+For development purposes, most of our developers prefer to use Docker
+containers. These and all above environments are linked from the installation
+instructions above.
+
+### Fixed in 1.17.1
+
+#### Docker images build
+
+- Issue: <https://github.com/archivematica/Issues/issues/1747>
+
+Updated the MediaArea software repository version to `1.0-25` and ensured the
+Dashboard frontend is built using the dependency versions specified in
+`package-lock.json`.
+
+Please see the 1.17.1 milestone in GitHub for all issues addressed in this
+release: <https://github.com/archivematica/Issues/milestone/28?closed=1>.
+
+## Archivematica 1.17.0 and Storage Service 0.23.0
 
 *Release date*: December 6, 2024
 
