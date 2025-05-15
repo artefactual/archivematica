@@ -26,7 +26,7 @@ cffi==1.17.1
     # via cryptography
 charset-normalizer==3.4.2
     # via requests
-clamd==1.0.2
+clamav-client==0.7.0
     # via -r requirements.in
 cryptography==44.0.3
     # via

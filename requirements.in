@@ -5,7 +5,7 @@ amclient
 ammcpc
 git+https://github.com/artefactual-labs/bagit-python.git@902051d8410219f6c5f4ce6d43e5b272cf29e89b#egg=bagit
 brotli
-clamd
+clamav-client
 django-autoslug
 django-csp
 django-forms-bootstrap

@@ -41,7 +41,7 @@ charset-normalizer==3.4.2
     # via
     #   -r /src/requirements.txt
     #   requests
-clamd==1.0.2
+clamav-client==0.7.0
     # via -r /src/requirements.txt
 click==8.1.8
     # via pip-tools
