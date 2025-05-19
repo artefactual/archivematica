@@ -2204,6 +2204,7 @@ uses RPMs.
 There are no changes to supported environments in this release.
 
 Please continue to follow the installation instructions
+<!-- markdownlint-disable-next-line MD059 -->
 [here](https://www.archivematica.org/en/docs/archivematica-1.8/admin-manual/installation-setup/installation/installation/#installation).
 
 ### Fixed for 1.8.1
@@ -2779,6 +2780,7 @@ documentation](https://www.archivematica.org/docs/archivematica-1.7/).
 ### Supported environments for 1.7
 
 Installation instructions are available
+<!-- markdownlint-disable-next-line MD059 -->
 [here](https://www.archivematica.org/en/docs/archivematica-1.7/admin-manual/installation-setup/installation/installation/#installation).
 
 Archivematica can be installed using packages or Ansible scripts in
@@ -2990,6 +2992,7 @@ Libraries](http://library.columbia.edu/). Thank you!
 A README file in html format has been added to the AIP containing a
 brief explanation of what the AIP is, how it was created and how it is
 structured. See the contents of the README
+<!-- markdownlint-disable-next-line MD059 -->
 [here](https://github.com/artefactual/archivematica/blob/f1e04ffe528156f83a137c6c4dbd228e6b53f5b2/src/MCPClient/lib/assets/README/README.html).
 This feature was sponsored by the [Denver Art
 Museum](https://denverartmuseum.org/). Thank you!
@@ -3399,6 +3402,7 @@ archives."
 #### Bug fixes for 1.6
 
 Please see bug fixes
+<!-- markdownlint-disable-next-line MD059 -->
 [here](https://projects.artefactual.com/projects/archivematica/issues?query_id=79)
 
 ## Archivematica 1.5.1 Release Notes
