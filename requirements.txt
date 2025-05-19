@@ -26,9 +26,9 @@ cffi==1.17.1
     # via cryptography
 charset-normalizer==3.4.2
     # via requests
-clamav-client==0.7.0
+clamav-client==0.7.1
     # via -r requirements.in
-cryptography==44.0.3
+cryptography==45.0.2
     # via
     #   josepy
     #   mozilla-django-oidc
@@ -59,7 +59,7 @@ elasticsearch==6.8.2
     # via -r requirements.in
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via -r requirements.in
-gevent==25.4.2
+gevent==25.5.1
     # via -r requirements.in
 greenlet==3.2.2
     # via gevent
@@ -101,7 +101,7 @@ packaging==25.0
     # via
     #   django-csp
     #   gunicorn
-prometheus-client==0.21.1
+prometheus-client==0.22.0
     # via
     #   -r requirements.in
     #   django-prometheus
@@ -137,7 +137,7 @@ requests==2.32.3
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.24.0
+rpds-py==0.25.0
     # via
     #   jsonschema
     #   referencing
@@ -169,7 +169,7 @@ zope-interface==7.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==80.3.1
+setuptools==80.7.1
     # via
     #   zope-event
     #   zope-interface
