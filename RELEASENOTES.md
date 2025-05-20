@@ -20,15 +20,17 @@ Questions about a release or the release notes? Ask on the
 
 ## (Current Release) Archivematica 1.17.1
 
-*Release date*: TBD
+*Release date*: May 20, 2025
 
-[Original release
-notes](https://wiki.archivematica.org/Archivematica_1.17.1_release_notes).
+[Original release notes][1.17.1 release notes].
+
+[1.17.1 release notes]: https://wiki.archivematica.org/Archivematica_1.17.1_release_notes
 
 ### Environments for 1.17.1
 
-Please see the [installation
-instructions](https://www.archivematica.org/en/docs/archivematica-1.17/admin-manual/installation-setup/installation/installation/#installation).
+Please see the [installation instructions][1.17.1 installation instructions].
+
+[1.17.1 installation instructions]: https://www.archivematica.org/en/docs/archivematica-1.17/admin-manual/installation-setup/installation/installation/#installation
 
 Archivematica 1.17.1 has been tested in the following environments:
 
