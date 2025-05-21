@@ -2,13 +2,13 @@ import json
 import pathlib
 from unittest import mock
 
+import pytest
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
 from archivematica.archivematicaCommon.version import get_full_version
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.api import validators
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
@@ -47,15 +47,20 @@ class TestAPIv2(TestCase):
         )
     )
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        self.dashboard_uuid = dashboard_uuid
+
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_headers(self):
         resp = self.client.get("/api/v2beta/package/")
         assert resp.get("X-Archivematica-Version") == get_full_version()
-        assert resp.get("X-Archivematica-ID") == "test-uuid"
+        assert resp.get("X-Archivematica-ID") == str(self.dashboard_uuid)
 
     def test_package_list(self):
         resp = self.client.get("/api/v2beta/package/")
@@ -138,10 +143,13 @@ objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,copyright,copyrighted,2
 objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,,2014-01-01,open,,,,
 """
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def _post(self, validator_name, payload, content_type="text/csv; charset=utf-8"):
         return self.client.post(

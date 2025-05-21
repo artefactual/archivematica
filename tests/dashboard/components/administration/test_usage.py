@@ -2,10 +2,9 @@ import pathlib
 import subprocess
 from unittest import mock
 
+import pytest
 from django.conf import settings
 from django.test import TestCase
-
-from archivematica.dashboard.components import helpers
 
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
@@ -15,9 +14,12 @@ TEST_USER_FIXTURE = (
 class TestUsage(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_no_calculation(self):
         for calculate in [None, "False", "false", "no", "0", "random"]:

@@ -1,9 +1,8 @@
 import pathlib
 from unittest import mock
 
+import pytest
 from django.test import TestCase
-
-from archivematica.dashboard.components import helpers
 
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
@@ -13,10 +12,13 @@ TEST_USER_FIXTURE = (
 class TestStorage(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client.login(username="test", password="test")
         self.url = "/administration/storage/"
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     @mock.patch(
         "archivematica.dashboard.components.administration.views.storage_service.get_location",

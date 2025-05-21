@@ -101,6 +101,7 @@ module = [
     "src.archivematica.MCPClient.clientScripts.transcribe_file",
     "src.archivematica.MCPClient.clientScripts.validate_file",
     "tests.archivematicaCommon.test_execute_functions",
+    "tests.conftest",
     "tests.dashboard.components.accounts.test_views",
     "tests.dashboard.components.administration.test_administration",
     "tests.dashboard.fpr.test_command_get_fpr_changes",

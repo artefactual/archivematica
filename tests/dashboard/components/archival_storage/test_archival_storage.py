@@ -35,7 +35,6 @@ from elasticsearch import Elasticsearch
 
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.archival_storage import atom
-from archivematica.dashboard.main.models import DashboardSetting
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
@@ -45,16 +44,6 @@ JSON_MIME = "application/json"
 TEST_USER_FIXTURE = (
     pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
 )
-
-
-@pytest.fixture
-def amsetup(db):
-    setting, _ = DashboardSetting.objects.get_or_create(
-        name="dashboard_uuid", defaults={"value": str(uuid.uuid4())}
-    )
-    return {
-        "uuid": setting.value,
-    }
 
 
 @pytest.fixture
@@ -117,7 +106,7 @@ def get_streaming_response(streaming_content):
     "archivematica.archivematicaCommon.elasticSearchFunctions.get_aip_data",
     side_effect=IndexError(),
 )
-def test_get_mets_unknown_mets(get_aip_data, get_client, amsetup, admin_client):
+def test_get_mets_unknown_mets(get_aip_data, get_client, dashboard_uuid, admin_client):
     response = admin_client.get(
         "/archival-storage/download/aip/11111111-1111-1111-1111-111111111111/mets_download/"
     )
@@ -133,7 +122,7 @@ def test_get_mets_known_mets(
     stream_mets_from_storage_service,
     get_aip_data,
     get_client,
-    amsetup,
+    dashboard_uuid,
     admin_client,
     mets_hdr,
 ):
@@ -163,7 +152,7 @@ def test_get_pointer_unknown_pointer(
     stream_file_from_storage_service,
     pointer_file_url,
     get_client,
-    amsetup,
+    dashboard_uuid,
     admin_client,
 ):
     sip_uuid = "33333333-3333-3333-3333-333333333331"
@@ -188,7 +177,11 @@ def test_get_pointer_unknown_pointer(
     "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
 )
 def test_get_pointer_known_pointer(
-    stream_file_from_storage_service, pointer_file_url, amsetup, admin_client, mets_hdr
+    stream_file_from_storage_service,
+    pointer_file_url,
+    dashboard_uuid,
+    admin_client,
+    mets_hdr,
 ):
     sip_uuid = "44444444-4444-4444-4444-444444444444"
     pointer_url = (
@@ -211,7 +204,7 @@ def test_get_pointer_known_pointer(
     assert response.get(CONTENT_DISPOSITION) == content_disposition
 
 
-def test_search_rejects_unsupported_file_mime(amsetup, admin_client):
+def test_search_rejects_unsupported_file_mime(dashboard_uuid, admin_client):
     params = {"requestFile": "true", "file_mime": "application/json"}
     response = admin_client.get(
         "{}?{}".format(
@@ -264,7 +257,12 @@ def test_search_rejects_unsupported_file_mime(amsetup, admin_client):
     ],
 )
 def test_search_as_csv(
-    search_augment_aip_results, search, get_client, amsetup, admin_client, tmp_path
+    search_augment_aip_results,
+    search,
+    get_client,
+    dashboard_uuid,
+    admin_client,
+    tmp_path,
 ):
     """Test search as CSV
 
@@ -316,7 +314,7 @@ def test_search_as_csv_invalid_route(
     search_augment_aip_results,
     search,
     get_client,
-    amsetup,
+    dashboard_uuid,
     admin_client,
     tmp_path,
 ):
@@ -357,10 +355,13 @@ def test_search_as_csv_invalid_route(
 class TestArchivalStorageDataTableState(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
         self.data = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
 
     def test_save_datatable_state(self):
@@ -405,7 +406,7 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     get_aip_data,
     get_client,
     processing_config_path,
-    amsetup,
+    dashboard_uuid,
     admin_client,
     tmpdir,
     processing_configurations_dir,
@@ -437,7 +438,7 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     )
 
 
-def test_create_aic_fails_if_query_is_not_passed(amsetup, admin_client):
+def test_create_aic_fails_if_query_is_not_passed(dashboard_uuid, admin_client):
     params = {}
     response = admin_client.get(
         "{}?{}".format(
@@ -456,7 +457,7 @@ def test_create_aic_fails_if_query_is_not_passed(amsetup, admin_client):
     "uuid.uuid4", return_value=uuid.UUID("1e23e6e2-02d7-4b2d-a648-caffa3b489f3")
 )
 def test_create_aic_creates_temporary_files(
-    uuid4, creat_sip, get_client, admin_client, settings, tmp_path, amsetup
+    uuid4, creat_sip, get_client, admin_client, settings, tmp_path, dashboard_uuid
 ):
     aipfiles_search_results = {
         "aggregations": {
@@ -568,7 +569,7 @@ def test_view_aip_reingest_form_displays_processing_configurations_choices(
     get_client,
     get_aip_data,
     processing_config_path,
-    amsetup,
+    dashboard_uuid,
     admin_client,
     processing_configurations_dir,
 ):
@@ -606,7 +607,7 @@ def test_view_aip_reingest_form_submits_reingest(
     processing_config_path,
     error,
     message,
-    amsetup,
+    dashboard_uuid,
     admin_client,
     processing_configurations_dir,
 ):

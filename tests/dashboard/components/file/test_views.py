@@ -1,19 +1,12 @@
 import json
 import logging
-import uuid
 from unittest import mock
 
 import pytest
 from django.urls import reverse
 
 from archivematica.archivematicaCommon import elasticSearchFunctions
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
-
-
-@pytest.fixture
-def dashboard_uuid(db):
-    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
 
 
 @pytest.fixture

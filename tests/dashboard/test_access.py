@@ -9,7 +9,6 @@ from django.test.client import Client
 from django.urls import reverse
 
 from archivematica.archivematicaCommon import archivematicaFunctions
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
@@ -19,10 +18,13 @@ ACCESS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "access.json"
 class TestAccessAPI(TestCase):
     fixtures = [TEST_USER_FIXTURE, ACCESS_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_creating_arrange_directory(self):
         record_id = "/repositories/2/archival_objects/2"
@@ -60,12 +62,6 @@ class TestAccessAPI(TestCase):
             in response_dict["entries"]
         )
         assert len(response_dict["entries"]) == 1
-
-
-@pytest.mark.django_db
-@pytest.fixture
-def dashboard_uuid():
-    helpers.set_setting("dashboard_uuid", "test-uuid")
 
 
 @pytest.fixture()

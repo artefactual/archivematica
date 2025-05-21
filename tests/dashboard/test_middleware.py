@@ -1,5 +1,6 @@
 import pathlib
 
+import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -7,13 +8,12 @@ from django.test import override_settings
 from django.test.client import Client
 from django.urls import reverse
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.installer.middleware import _load_exempt_urls
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 
 
-class ConfigurationCheckMiddlewareTestCase(TestCase):
+class InstallerConfigurationCheckMiddlewareTestCase(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
     def setUp(self):
@@ -29,9 +29,18 @@ class ConfigurationCheckMiddlewareTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_unauthenticated_user_can_access_exempt_url(self):
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
+class ConfigurationCheckMiddlewareTestCase(TestCase):
+    fixtures = [TEST_USER_FIXTURE]
+
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_unauthenticated_user_can_access_exempt_url(self):
         with self.settings(LOGIN_EXEMPT_URLS=[r"^foobar"]):
             _load_exempt_urls()
             response = self.client.get("foobar")
@@ -43,15 +52,12 @@ class ConfigurationCheckMiddlewareTestCase(TestCase):
         _load_exempt_urls()
 
     def test_unauthenticated_user_is_sent_to_login_page(self):
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-
         response = self.client.get(reverse("main:main_index"))
 
         if not settings.CAS_AUTHENTICATION:
             self.assertRedirects(response, settings.LOGIN_URL)
 
     def test_authenticated_user_passes(self):
-        helpers.set_setting("dashboard_uuid", "test-uuid")
         self.client.login(username="test", password="test")
 
         response = self.client.get(reverse("transfer:transfer_index"))
@@ -96,9 +102,12 @@ class AuditLogMiddlewareTestCase(TestCase):
 
 
 class OidcCaptureQueryParamMiddlewareTestCase(TestCase):
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     @override_settings(
         OIDC_PROVIDERS={"MYPROVIDER": {}},

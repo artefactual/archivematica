@@ -5,7 +5,6 @@ from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import Taxonomy
@@ -20,10 +19,13 @@ TRANSFER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "transfer.json"
 class TestTransferViews(TestCase):
     fixtures = [TEST_USER_FIXTURE, TRANSFER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_metadata_edit(self):
         """Test the metadata form of a transfer"""
@@ -62,8 +64,7 @@ class TestTransferViews(TestCase):
 
 
 @pytest.mark.django_db
-def test_component_get(admin_client):
-    helpers.set_setting("dashboard_uuid", "test-uuid")
+def test_component_get(admin_client, dashboard_uuid):
     # This TransferMetadataSet is going to be created in the view.
     transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
     TransferMetadataField.objects.create(fieldlabel="Image fixity")
@@ -82,8 +83,7 @@ def test_component_get(admin_client):
 
 
 # @pytest.mark.django_db
-def test_component_post(admin_client):
-    helpers.set_setting("dashboard_uuid", "test-uuid")
+def test_component_post(admin_client, dashboard_uuid):
     # This TransferMetadataSet is going to be created in the view.
     transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
     taxonomy = Taxonomy.objects.create(name="Disk media formats")

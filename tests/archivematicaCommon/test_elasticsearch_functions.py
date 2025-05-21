@@ -9,7 +9,6 @@ from django.utils.timezone import make_aware
 from lxml import etree
 
 from archivematica.archivematicaCommon import elasticSearchFunctions
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import File
@@ -332,13 +331,9 @@ def test_set_tags_fails_when_file_cant_be_found(perform_request, es_client):
 
 
 @pytest.mark.django_db
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_dashboard_uuid"
-)
 @mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
-def test_index_mets_file_metadata(bulk, get_dashboard_uuid, es_client):
+def test_index_mets_file_metadata(bulk, dashboard_uuid, es_client):
     # Set up mocked functions
-    get_dashboard_uuid.return_value = "test-uuid"
     indexed_data = {}
 
     def _bulk(client, actions, stats_only=False, *args, **kwargs):
@@ -580,12 +575,9 @@ fileuuid_premisv2_no_ns = (
         ),
     ],
 )
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_dashboard_uuid"
-)
 @mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
 def test_index_aipfile_fileuuid(
-    bulk, get_dashboard_uuid, metsfile, fileuuid_dict, aipuuid, aipname
+    bulk, dashboard_uuid, metsfile, fileuuid_dict, aipuuid, aipname
 ):
     """Check AIP file uuids are being correctly parsed from METS files.
 
@@ -593,8 +585,6 @@ def test_index_aipfile_fileuuid(
     indexed_data, with the fileuuids that _index_aip_files() obtained
     from the METS
     """
-
-    get_dashboard_uuid.return_value = "test-uuid"
 
     indexed_data = {}
 
@@ -638,19 +628,14 @@ dmdsec_dconly = {
         ),
     ],
 )
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_dashboard_uuid"
-)
 @mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
-def test_index_aipfile_dmdsec(bulk, get_dashboard_uuid, metsfile, dmdsec_dict):
+def test_index_aipfile_dmdsec(bulk, dashboard_uuid, metsfile, dmdsec_dict):
     """Check AIP file dmdSec is correctly parsed from METS files.
 
     Mock _try_to_index() with a function that populates a dict
     indexed_data, with the dmdSec data that _index_aip_files() obtained
     from the METS
     """
-
-    get_dashboard_uuid.return_value = "test-uuid"
 
     indexed_data = {}
 
@@ -943,9 +928,9 @@ def test_index_aip_and_files_logs_error_if_mets_does_not_exist(
     return_value={"status": "green"},
 )
 @mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions._index_aip_files")
-def test_index_aip_and_files(_index_aip_files, health, index, es_client, tmp_path):
-    dashboard_uuid = uuid.uuid4()
-    helpers.set_setting("dashboard_uuid", str(dashboard_uuid))
+def test_index_aip_and_files(
+    _index_aip_files, health, index, es_client, tmp_path, dashboard_uuid
+):
     printfn = mock.Mock()
     aip_name = "aip"
     aip_uuid = str(uuid.uuid4())
@@ -1067,9 +1052,9 @@ def transfer_file(transfer):
     "elasticsearch.client.cluster.ClusterClient.health",
     return_value={"status": "green"},
 )
-def test_index_transfer_and_files(health, index, es_client, transfer, transfer_file):
-    dashboard_uuid = uuid.uuid4()
-    helpers.set_setting("dashboard_uuid", str(dashboard_uuid))
+def test_index_transfer_and_files(
+    health, index, es_client, transfer, transfer_file, dashboard_uuid
+):
     printfn = mock.Mock()
     expected_transfer_name = "transfer"
     expected_file_count = 1

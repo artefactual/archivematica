@@ -1,9 +1,9 @@
 import pathlib
 
+import pytest
 from django.test import TestCase
 from django.urls import reverse
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.administration.views_dip_upload import (
     _AS_DICTNAME,
 )
@@ -20,10 +20,13 @@ TEST_USER_FIXTURE = (
 class TestDipUploadAsConfig(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client.login(username="test", password="test")
         self.url = reverse("administration:dips_as")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_get(self):
         response = self.client.get(self.url)
@@ -96,10 +99,13 @@ class TestDipUploadAsConfig(TestCase):
 class TestDipUploadAtomConfig(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client.login(username="test", password="test")
         self.url = reverse("administration:dips_atom_index")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_get(self):
         response = self.client.get(self.url)

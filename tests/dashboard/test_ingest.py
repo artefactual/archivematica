@@ -12,7 +12,6 @@ from django.test.client import Client
 from django.urls import reverse
 
 from archivematica.archivematicaCommon.archivematicaFunctions import b64decode_string
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.ingest.views import (
     _adjust_directories_draggability,
 )
@@ -34,10 +33,13 @@ JOBS_SIP_COMPLETE_FIXTURE = (
 class TestIngest(TestCase):
     fixtures = [TEST_USER_FIXTURE, SIP_FIXTURE, JOBS_SIP_COMPLETE_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     @mock.patch("agentarchives.archivesspace.ArchivesSpaceClient._login")
     def test_get_as_system_client(self, __):
@@ -371,11 +373,6 @@ def test_adjust_directories_draggability():
 
     # small turtles has some draggable children so it's draggable
     assert not small_turtles["not_draggable"]
-
-
-@pytest.fixture
-def dashboard_uuid(db):
-    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
 
 
 def test_ingest_upload_as_match_shows_deleted_rows(

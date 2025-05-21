@@ -12,7 +12,6 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.filesystem_ajax import views
 from archivematica.dashboard.main import models
 
@@ -23,10 +22,13 @@ SIP_ARRANGE_FIXTURE = Path(__file__).parent / "fixtures" / "sip_arrange.json"
 class TestSIPArrange(TestCase):
     fixtures = [TEST_USER_FIXTURE, SIP_ARRANGE_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     def test_arrange_contents_data_no_path(self):
         # Call endpoint
@@ -613,12 +615,11 @@ def test_download_by_uuid(
         )
 
 
-def test_contents_sorting(db, tmp_path, admin_client):
+def test_contents_sorting(db, tmp_path, admin_client, dashboard_uuid):
     (tmp_path / "1").mkdir()
     (tmp_path / "e").mkdir()
     (tmp_path / "a").mkdir()
     (tmp_path / "0").mkdir()
-    helpers.set_setting("dashboard_uuid", "test-uuid")
 
     response = admin_client.get(
         reverse("filesystem_ajax:contents"), {"path": str(tmp_path)}
@@ -667,10 +668,8 @@ def test_contents_sorting(db, tmp_path, admin_client):
     },
 )
 def test_copy_within_arrange(
-    browse_location, get_file_metadata, get_first_location, admin_client
+    browse_location, get_file_metadata, get_first_location, admin_client, dashboard_uuid
 ):
-    helpers.set_setting("dashboard_uuid", "test-uuid")
-
     # Expected attributes for the new SIPArrange instances.
     attrs = ("original_path", "arrange_path", "file_uuid", "transfer_uuid")
     expected = {

@@ -4,17 +4,11 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.fpr import models
 
 
-@pytest.fixture
-def dashboard_uuid() -> None:
-    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
-
-
 @pytest.mark.django_db
-def test_idcommand_create(dashboard_uuid: None, admin_client: Client) -> None:
+def test_idcommand_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     url = reverse("fpr:idcommand_create")
     tool = models.IDTool.objects.create(
         uuid="37f3bd7c-bb24-4899-b7c4-785ff1c764ac",
@@ -33,7 +27,7 @@ def test_idcommand_create(dashboard_uuid: None, admin_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_fpcommand_create(dashboard_uuid: None, admin_client: Client) -> None:
+def test_fpcommand_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     url = reverse("fpr:fpcommand_create")
     tool = models.FPTool.objects.create(
         uuid="37f3bd7c-bb24-4899-b7c4-785ff1c764ac",
@@ -52,7 +46,7 @@ def test_fpcommand_create(dashboard_uuid: None, admin_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_fpcommand_edit(dashboard_uuid: None, admin_client: Client) -> None:
+def test_fpcommand_edit(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     tool = models.FPTool.objects.create()
     verification_command = models.FPCommand.objects.create(
         command_usage="verification", tool=tool
@@ -105,7 +99,7 @@ def test_fpcommand_edit(dashboard_uuid: None, admin_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_fpcommand_delete(dashboard_uuid: None, admin_client: Client) -> None:
+def test_fpcommand_delete(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     command = models.FPCommand.objects.create(
         enabled=True,
         command_usage="normalization",
@@ -129,7 +123,7 @@ def test_fpcommand_delete(dashboard_uuid: None, admin_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_fpcommand_revisions(dashboard_uuid: None, admin_client: Client) -> None:
+def test_fpcommand_revisions(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     initial_command = models.FPCommand.objects.create(
         description="initial command", tool=models.FPTool.objects.create()
     )
@@ -151,7 +145,7 @@ def test_fpcommand_revisions(dashboard_uuid: None, admin_client: Client) -> None
 
 @pytest.mark.django_db
 def test_format_create_creates_format(
-    dashboard_uuid: None, admin_client: Client
+    dashboard_uuid: uuid.UUID, admin_client: Client
 ) -> None:
     # Add a new format to the Unknown group.
     unknown_group, _ = models.FormatGroup.objects.get_or_create(description="Unknown")
@@ -178,7 +172,9 @@ def test_format_create_creates_format(
 
 
 @pytest.mark.django_db
-def test_format_edit_updates_format(dashboard_uuid: None, admin_client: Client) -> None:
+def test_format_edit_updates_format(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
     # Get details of the Matroska format from the Video group.
     video_group, _ = models.FormatGroup.objects.get_or_create(description="Video")
     format, _ = models.Format.objects.get_or_create(
@@ -220,7 +216,7 @@ def test_format_edit_updates_format(dashboard_uuid: None, admin_client: Client) 
 
 
 @pytest.mark.django_db
-def test_idrule_create(dashboard_uuid: None, admin_client: Client) -> None:
+def test_idrule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     url = reverse("fpr:idrule_create")
 
     resp = admin_client.get(url)
@@ -262,7 +258,7 @@ def test_idrule_create(dashboard_uuid: None, admin_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_fprule_create(dashboard_uuid: None, admin_client: Client) -> None:
+def test_fprule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     url = reverse("fpr:fprule_create")
 
     resp = admin_client.get(url)

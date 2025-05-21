@@ -14,17 +14,8 @@ from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main.models import Report
 
 
-@pytest.fixture
 @pytest.mark.django_db
-def dashboard_uuid() -> str:
-    value = str(uuid.uuid4())
-    helpers.set_setting("dashboard_uuid", value)
-
-    return value
-
-
-@pytest.mark.django_db
-def test_admin_set_language(dashboard_uuid: str, admin_client: Client) -> None:
+def test_admin_set_language(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     response = admin_client.get(reverse("administration:admin_set_language"))
     assert response.status_code == 200
 
@@ -34,7 +25,7 @@ def test_admin_set_language(dashboard_uuid: str, admin_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_failure_report_delete(dashboard_uuid: str, admin_client: Client) -> None:
+def test_failure_report_delete(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     report = Report.objects.create(content="my report")
 
     response = admin_client.post(
@@ -49,7 +40,7 @@ def test_failure_report_delete(dashboard_uuid: str, admin_client: Client) -> Non
 
 
 @pytest.mark.django_db
-def test_failure_report(dashboard_uuid: str, admin_client: Client) -> None:
+def test_failure_report(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     report = Report.objects.create(content="my report")
 
     response = admin_client.get(reverse("administration:reports_failures_index"))
@@ -107,7 +98,7 @@ def checksum_type() -> str:
 )
 def test_general_view_renders_initial_dashboard_settings(
     get: mock.Mock,
-    dashboard_uuid: str,
+    dashboard_uuid: uuid.UUID,
     site_url: str,
     storage_service_url: str,
     storage_service_user: str,
@@ -134,7 +125,7 @@ def test_general_view_renders_initial_dashboard_settings(
 @mock.patch("requests.Session.get")
 def test_general_view_renders_warning_if_it_cannot_connect_to_pipeline(
     get: mock.Mock,
-    dashboard_uuid: str,
+    dashboard_uuid: uuid.UUID,
     admin_client: Client,
 ) -> None:
     error = "connection refused"
@@ -155,7 +146,7 @@ def test_general_view_renders_warning_if_it_cannot_connect_to_pipeline(
 )
 def test_general_view_updates_dashboard_settings(
     get: mock.Mock,
-    dashboard_uuid: str,
+    dashboard_uuid: uuid.UUID,
     site_url: str,
     storage_service_url: str,
     storage_service_user: str,
@@ -208,7 +199,7 @@ def test_general_view_registers_pipeline_in_storage_service(
     node: mock.Mock,
     post: mock.Mock,
     get_pipeline: mock.Mock,
-    dashboard_uuid: str,
+    dashboard_uuid: uuid.UUID,
     site_url: str,
     storage_service_url: str,
     storage_service_user: str,
@@ -239,7 +230,7 @@ def test_general_view_registers_pipeline_in_storage_service(
     post.assert_called_once_with(
         f"{storage_service_url}api/v2/pipeline/",
         json={
-            "uuid": dashboard_uuid,
+            "uuid": str(dashboard_uuid),
             "description": f"Archivematica on {hostname}",
             "create_default_locations": True,
             "shared_path": shared_directory,
@@ -257,7 +248,7 @@ def test_general_view_registers_pipeline_in_storage_service(
 )
 def test_general_view_updates_dashboard_settings_when_storage_service_apikey_is_not_set(
     get: mock.Mock,
-    dashboard_uuid: str,
+    dashboard_uuid: uuid.UUID,
     site_url: str,
     storage_service_url: str,
     storage_service_user: str,

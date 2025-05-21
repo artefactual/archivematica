@@ -1,6 +1,7 @@
 import json
 import pathlib
 
+import pytest
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
@@ -13,10 +14,13 @@ TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json
 class TestBacklogAPI(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
         self.data = '{"time":1586880124134,"columns":[{"visible":true},{"visible":true},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":false},{"visible":true}]}'
 
     def test_save_datatable_state(self):

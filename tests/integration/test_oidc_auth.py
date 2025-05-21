@@ -8,15 +8,8 @@ from playwright.sync_api import Page
 from pytest_django.fixtures import SettingsWrapper
 from pytest_django.live_server_helper import LiveServer
 
-from archivematica.dashboard.components import helpers
-
 if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
-
-
-@pytest.fixture
-def dashboard_uuid() -> None:
-    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
 
 
 @pytest.fixture
@@ -37,7 +30,7 @@ def user(django_user_model: type[User]) -> User:
 def test_oidc_backend_creates_local_user(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
 ) -> None:
     page.goto(live_server.url)
@@ -77,7 +70,7 @@ def test_oidc_backend_creates_local_user(
 
 @pytest.mark.django_db
 def test_local_authentication_backend_authenticates_existing_user(
-    page: Page, live_server: LiveServer, dashboard_uuid: None, user: User
+    page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID, user: User
 ) -> None:
     page.goto(live_server.url)
 
@@ -111,7 +104,7 @@ def test_local_authentication_backend_authenticates_existing_user(
 def test_removing_model_authentication_backend_disables_local_authentication(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     user: User,
     settings: SettingsWrapper,
 ) -> None:
@@ -137,7 +130,7 @@ def test_removing_model_authentication_backend_disables_local_authentication(
 def test_setting_login_url_redirects_to_oidc_login_page(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     user: User,
     settings: SettingsWrapper,
 ) -> None:
@@ -155,7 +148,7 @@ def test_setting_login_url_redirects_to_oidc_login_page(
 def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_provider_admin_role(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     settings: SettingsWrapper,
 ) -> None:
     page.goto(
@@ -178,7 +171,7 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
 def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_provider_default_role(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     user: User,
     settings: SettingsWrapper,
 ) -> None:
@@ -217,7 +210,7 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
 def test_logging_out_logs_out_user_from_secondary_provider_admin_role(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     settings: SettingsWrapper,
 ) -> None:
     page.goto(
@@ -250,7 +243,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_admin_role(
 def test_logging_out_logs_out_user_from_secondary_provider_default_role(
     page: Page,
     live_server: LiveServer,
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     settings: SettingsWrapper,
 ) -> None:
     page.goto(

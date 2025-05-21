@@ -3,16 +3,15 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from archivematica.dashboard.components import helpers
-
 
 @pytest.mark.skipif(
     not settings.SHIBBOLETH_AUTHENTICATION,
     reason="tests will only pass if Shibboleth is enabled",
 )
 class TestShibbolethLogin(TestCase):
-    def setUp(self):
-        helpers.set_setting("dashboard_uuid", "test-uuid")
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
 
     def test_with_no_shibboleth_headers(self):
         response = self.client.get("/transfer/")

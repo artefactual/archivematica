@@ -8,7 +8,6 @@ from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.accounts.backends import CustomCASBackend
 from archivematica.dashboard.components.accounts.signals import (
     _cas_user_is_administrator,
@@ -67,6 +66,10 @@ def mock_verify_superuser(ticket, service):
     not settings.CAS_AUTHENTICATION, reason="tests will only pass if CAS is enabled"
 )
 class TestCAS(TestCase):
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client = Client()
 
@@ -88,8 +91,6 @@ class TestCAS(TestCase):
         After the initial redirect to LOGIN_URL, the user should be
         redirected again to the CAS server for authentication.
         """
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-
         response = self.client.get(reverse("main:main_index"))
         self.assertRedirects(
             response, settings.LOGIN_URL, status_code=302, target_status_code=302
@@ -98,7 +99,6 @@ class TestCAS(TestCase):
     @mock.patch("cas.CASClientV2.verify_ticket", mock_verify)
     def test_autoconfigure_email(self):
         """Test that email is autoconfigured from username and domain."""
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
         with self.settings(
             CAS_AUTOCONFIGURE_EMAIL=True, CAS_EMAIL_DOMAIN="artefactual.com"
@@ -122,8 +122,6 @@ class TestCAS(TestCase):
         If settings are properly configured and expected key-value is
         found in the CAS attributes, user.is_superuser should be True.
         """
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-
         # Check that user doesn't already exist.
         assert not User.objects.filter(username=TEST_CAS_USER).exists()
 
@@ -146,8 +144,6 @@ class TestCAS(TestCase):
         found in the CAS attributes, user.is_superuser for an existing
         non-administrative user should be updated to True.
         """
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-
         user = User.objects.create(username=TEST_CAS_USER)
         assert user is not None
         assert user.is_superuser is False
@@ -173,8 +169,6 @@ class TestCAS(TestCase):
         not found in the CAS attributes, user.is_superuser should be
         False.
         """
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-
         # Check that user doesn't already exist.
         assert not User.objects.filter(username=TEST_CAS_USER).exists()
 
@@ -197,8 +191,6 @@ class TestCAS(TestCase):
         not found in the CAS attributes, user.is_superuser for an
         existing administrative user should be updated to False.
         """
-        helpers.set_setting("dashboard_uuid", "test-uuid")
-
         # Create a new superuser.
         user = User.objects.create(username=TEST_CAS_USER, is_superuser=True)
         assert user is not None

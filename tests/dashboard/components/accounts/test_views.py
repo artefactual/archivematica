@@ -13,7 +13,6 @@ from django.test import RequestFactory
 from django.urls import reverse
 from tastypie.models import ApiKey
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.accounts.views import get_oidc_logout_url
 
 
@@ -55,11 +54,6 @@ def test_get_oidc_logout_url_returns_logout_url(
 
 
 @pytest.fixture
-def dashboard_uuid() -> None:
-    helpers.set_setting("dashboard_uuid", str(uuid.uuid4()))
-
-
-@pytest.fixture
 def non_administrative_user(django_user_model: type[User]) -> User:
     return django_user_model.objects.create_user(
         username="test",
@@ -72,7 +66,7 @@ def non_administrative_user(django_user_model: type[User]) -> User:
 
 @pytest.mark.django_db
 def test_edit_user_view_denies_access_to_non_admin_users_editing_others(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     admin_user: User,
     client: Client,
@@ -96,7 +90,7 @@ def non_administrative_user_apikey(non_administrative_user: User) -> ApiKey:
 
 @pytest.mark.django_db
 def test_edit_user_view_renders_user_profile_fields(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     admin_client: Client,
@@ -121,7 +115,7 @@ def test_edit_user_view_renders_user_profile_fields(
 
 @pytest.mark.django_db
 def test_edit_user_view_updates_user_profile_fields(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     admin_client: Client,
 ) -> None:
@@ -161,7 +155,7 @@ def test_edit_user_view_updates_user_profile_fields(
 
 @pytest.mark.django_db
 def test_edit_user_view_regenerates_api_key(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     admin_client: Client,
@@ -195,7 +189,7 @@ def test_edit_user_view_regenerates_api_key(
 
 @pytest.mark.django_db
 def test_user_profile_view_allows_users_to_edit_their_profile_fields(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
@@ -224,7 +218,7 @@ def test_user_profile_view_allows_users_to_edit_their_profile_fields(
 
 @pytest.mark.django_db
 def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
@@ -258,7 +252,7 @@ def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
 
 @pytest.mark.django_db
 def test_user_profile_view_regenerates_api_key_if_setting_disables_editing(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
@@ -296,7 +290,7 @@ def test_user_profile_view_regenerates_api_key_if_setting_disables_editing(
 
 @pytest.mark.django_db
 def test_user_profile_view_does_not_regenerate_api_key_if_not_requested(
-    dashboard_uuid: None,
+    dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,

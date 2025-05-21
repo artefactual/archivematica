@@ -32,9 +32,12 @@ def shared_directory(settings):
 class TestProcessingConfig(TestCase):
     fixtures = [TEST_USER_FIXTURE]
 
+    @pytest.fixture(autouse=True)
+    def dashboard_uuid(self, dashboard_uuid):
+        return dashboard_uuid
+
     def setUp(self):
         self.client.login(username="test", password="test")
-        helpers.set_setting("dashboard_uuid", "test-uuid")
 
     @mock.patch(
         "archivematica.dashboard.components.administration.views_processing.os.path.isfile"
