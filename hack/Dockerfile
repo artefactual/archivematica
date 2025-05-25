@@ -238,7 +238,6 @@ FROM base AS archivematica-mcp-client
 ENV DJANGO_SETTINGS_MODULE=archivematica.MCPClient.settings.common
 ENV ARCHIVEMATICA_MCPCLIENT_ARCHIVEMATICACLIENTMODULES=/src/src/archivematica/MCPClient/archivematicaClientModules
 ENV ARCHIVEMATICA_MCPCLIENT_CLIENTASSETSDIRECTORY=/src/src/archivematica/MCPClient/assets/
-ENV ARCHIVEMATICA_MCPCLIENT_CLIENTSCRIPTSDIRECTORY=/src/src/archivematica/MCPClient/clientScripts/
 
 # Some scripts in archivematica-fpr-admin executed by MCPClient rely on certain
 # files being available in this image (e.g. see https://git.io/vA1wF).
