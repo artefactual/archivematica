@@ -138,6 +138,26 @@ if __name__ == '__main__':
     exit(main(sys.argv))
 '''
 
+OLD_FIWALK_CMD_UUID = "928ce834-8830-44cc-a282-4ba1271f7842"
+
+OLD_FIWALK_CMD_SCRIPT = r"fiwalk -x %relativeLocation% -c /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/ficonfig.txt"
+
+NEW_FIWALK_CMD_UUID = "fcd033ec-8e29-48e8-99b9-6dbccd8f9c6e"
+
+NEW_FIWALK_CMD_SCRIPT = r"fiwalk -x %relativeLocation% -c %archivematicaCommonPath%/externals/fiwalk_plugins/ficonfig.txt"
+
+FIWALK_CHARACTERIZATION_RULES = (
+    "825b31d8-6ee0-46fc-bdd7-9bf32edb5755",
+    "38ab3a16-e7fc-464d-8be9-1398908f78a9",
+    "20cad741-3cf1-4b6a-9e71-d1e8af13ba3f",
+    "ad4927da-94fa-4ac3-942e-9bafebf96a91",
+    "223c794f-cfcb-458d-bc31-d90d8fe0d774",
+    "5e661576-af61-44b5-834a-14ef21fb2051",
+    "6f7e51b4-60b2-417f-b690-0f286a97304c",
+    "c618f3d7-1fcb-476c-a076-e7413f19337b",
+    "369140d2-ffdd-4050-8ff8-1947b325b4a5",
+)
+
 
 def update_fido_command(apps):
     IDCommand = apps.get_model("fpr", "IDCommand")
@@ -172,12 +192,61 @@ def restore_fido_command(apps):
     )
 
 
+def update_fiwalk_command(apps):
+    FPCommand = apps.get_model("fpr", "FPCommand")
+    FPRule = apps.get_model("fpr", "FPRule")
+
+    command = FPCommand.objects.get(uuid=OLD_FIWALK_CMD_UUID)
+
+    FPCommand.objects.create(
+        replaces=command,
+        uuid=NEW_FIWALK_CMD_UUID,
+        tool=command.tool,
+        description=command.description,
+        command=NEW_FIWALK_CMD_SCRIPT,
+        script_type=command.script_type,
+        output_location=command.output_location,
+        output_format=command.output_format,
+        command_usage=command.command_usage,
+        verification_command=command.verification_command,
+        event_detail_command=command.event_detail_command,
+        enabled=command.enabled,
+    )
+
+    FPRule.objects.filter(uuid__in=FIWALK_CHARACTERIZATION_RULES).update(
+        command_id=NEW_FIWALK_CMD_UUID
+    )
+
+
+def restore_fiwalk_command(apps):
+    FPCommand = apps.get_model("fpr", "FPCommand")
+    FPRule = apps.get_model("fpr", "FPRule")
+
+    try:
+        command = FPCommand.objects.get(uuid=NEW_FIWALK_CMD_UUID)
+    except FPCommand.DoesNotExist:
+        enabled = False
+    else:
+        enabled = command.enabled
+        command.delete()
+
+    FPCommand.objects.filter(uuid=OLD_FIWALK_CMD_UUID).update(
+        command=OLD_FIWALK_CMD_SCRIPT, enabled=enabled
+    )
+
+    FPRule.objects.filter(uuid__in=FIWALK_CHARACTERIZATION_RULES).update(
+        command_id=OLD_FIWALK_CMD_UUID
+    )
+
+
 def data_migration_up(apps, schema_editor):
     update_fido_command(apps)
+    update_fiwalk_command(apps)
 
 
 def data_migration_down(apps, schema_editor):
     restore_fido_command(apps)
+    restore_fiwalk_command(apps)
 
 
 class Migration(migrations.Migration):

@@ -2,4 +2,4 @@
 # Configuration file for fiwalk
 #
 
-*	dgi	python /usr/lib/archivematica/archivematicaCommon/externals/fiwalk_plugins/pronom_ident.py
+*	dgi	python3 -m archivematica.archivematicaCommon.externals.fiwalk_plugins.pronom_ident
