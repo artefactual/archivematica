@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import configparser
+import importlib.resources
 import importlib.util
 import json
 import logging.config
@@ -218,8 +219,8 @@ sharedDirectoryMounted = /var/archivematica/sharedDirectory/
 watchDirectoryPath = /var/archivematica/sharedDirectory/watchedDirectories/
 processingDirectory = /var/archivematica/sharedDirectory/currentlyProcessing/
 rejectedDirectory = /var/archivematica/sharedDirectory/rejected/
-archivematicaClientModules = /usr/lib/archivematica/MCPClient/archivematicaClientModules
-clientAssetsDirectory = /usr/lib/archivematica/MCPClient/assets/
+archivematicaClientModules =
+clientAssetsDirectory =
 elasticsearchServer = localhost:9200
 elasticsearchTimeout = 10
 search_enabled = true
@@ -386,6 +387,18 @@ except ValueError:
     PROMETHEUS_ENABLED = False
 else:
     PROMETHEUS_ENABLED = True
+
+if not CLIENT_ASSETS_DIRECTORY:
+    assets_directory_path = str(
+        importlib.resources.files("archivematica.MCPClient") / "assets"
+    )
+    CLIENT_ASSETS_DIRECTORY = f"{assets_directory_path}/"
+
+if not CLIENT_MODULES_FILE:
+    CLIENT_MODULES_FILE = str(
+        importlib.resources.files("archivematica.MCPClient")
+        / "archivematicaClientModules"
+    )
 
 TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates"}]
 

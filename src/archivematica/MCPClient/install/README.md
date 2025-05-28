@@ -126,10 +126,12 @@ This is the full list of variables supported by MCPClient:
   - **Default:** `/var/archivematica/sharedDirectory/watchedDirectories/`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLIENTASSETSDIRECTORY`**:
-  - **Description:** location of the client assets directory.
+  - **Description:** location of the client assets directory. If this is empty,
+    Archivematica will load assets from the `assets` directory of the
+    `archivematica.MCPClient` package.
   - **Config file example:** `MCPClient.clientAssetsDirectory`
   - **Type:** `string`
-  - **Default:** `/usr/lib/archivematica/MCPClient/assets/`
+  - **Default:** `""`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER`**:
   - **Description:** address of the Gearman server.
@@ -141,10 +143,12 @@ This is the full list of variables supported by MCPClient:
   - **Description:** location of the client modules configuration file. This can
     be useful when the user wants to set up workers that can only work in a
     limited number of tasks, e.g. a worker exclusively dedicated to antivirus
-    scanning or file identification.
+    scanning or file identification. If this is empty, Archivematica will load
+    the `archivematicaClientModules` file contained in the
+    `archivematica.MCPClient` package.
   - **Config file example:** `MCPClient.archivematicaClientModules`
   - **Type:** `string`
-  - **Default:** `/usr/lib/archivematica/MCPClient/archivematicaClientModules`
+  - **Default:** `""`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ELASTICSEARCHSERVER`**:
   - **Description:** address of the Elasticsearch server.
