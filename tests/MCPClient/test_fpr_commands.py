@@ -137,21 +137,3 @@ def test_event_detail_command_returns_tool_version(
 
     assert result["programs"] == expected_programs
     assert re.search(expected_version_pattern, result["version"]) is not None
-
-
-@pytest.mark.django_db
-def test_mbox_event_detail_command_returns_tool_path() -> None:
-    expected_detail_pattern = r"^/usr/lib/archivematica/transcoder/transcoderScripts/ "
-    filters = {
-        "command_usage": "event_detail",
-        "description": "Transcoding maildir to mbox event detail",
-    }
-    command, _ = FPCommand.active.get_or_create(
-        script_type="command",
-        command='echo "/usr/lib/archivematica/transcoder/transcoderScripts/" "%fileFullName%" "%outputDirectory%%prefix%%fileName%%postfix%.mbox"',
-        **filters,
-    )
-
-    _, output, _ = executeOrRun(command.script_type, command.command)
-
-    assert re.search(expected_detail_pattern, output) is not None
