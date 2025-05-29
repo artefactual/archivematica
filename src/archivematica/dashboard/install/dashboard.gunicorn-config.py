@@ -1,8 +1,11 @@
 # Documentation: http://docs.gunicorn.org/en/stable/configure.html
 # Example: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
+import importlib.resources
 import os
 import shutil
 import tempfile
+
+dashboard_path = str(importlib.resources.files("archivematica.dashboard"))
 
 # http://docs.gunicorn.org/en/stable/settings.html#user
 user = os.environ.get("AM_GUNICORN_USER", "archivematica")
@@ -29,7 +32,7 @@ reload = os.environ.get("AM_GUNICORN_RELOAD", "false")
 reload_engine = os.environ.get("AM_GUNICORN_RELOAD_ENGINE", "auto")
 
 # http://docs.gunicorn.org/en/stable/settings.html#chdir
-chdir = os.environ.get("AM_GUNICORN_CHDIR", "/usr/share/archivematica/dashboard")
+chdir = os.environ.get("AM_GUNICORN_CHDIR", dashboard_path)
 
 # http://docs.gunicorn.org/en/stable/settings.html#accesslog
 accesslog = os.environ.get("AM_GUNICORN_ACCESSLOG", "/dev/null")

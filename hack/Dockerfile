@@ -279,7 +279,6 @@ COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-buil
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.local
 ENV AM_GUNICORN_BIND=0.0.0.0:8000
-ENV AM_GUNICORN_CHDIR=/src/src/archivematica/dashboard
 ENV FORWARDED_ALLOW_IPS=*
 
 RUN set -ex \
@@ -290,7 +289,7 @@ ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.production
 
 EXPOSE 8000
 
-ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/archivematica/dashboard/install/dashboard.gunicorn-config.py", "wsgi:application"]
+ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/archivematica/dashboard/install/dashboard.gunicorn-config.py", "archivematica.dashboard.wsgi:application"]
 
 # -----------------------------------------------------------------------------
 

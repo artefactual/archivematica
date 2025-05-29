@@ -474,9 +474,11 @@ variables or in the gunicorn configuration file.
   - **Default:** `auto`
 
 - **`AM_GUNICORN_CHDIR`**:
-  - **Description:** Directory to load apps from.  See [CHDIR]
+  - **Description:** Directory to load apps from.  See [CHDIR]. If this is
+    empty, Archivematica will load apps from the top level directory of the
+    `archivematica.dashboard` package.
   - **Type:** `string`
-  - **Default:** `/usr/share/archivematica/dashboard`
+  - **Default:** `""`
 
 - **`AM_GUNICORN_ACCESSLOG`**:
   - **Description:** Location to write access log to.  See [ACCESSLOG]
