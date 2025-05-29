@@ -144,7 +144,7 @@ OLD_FIWALK_CMD_SCRIPT = r"fiwalk -x %relativeLocation% -c /usr/lib/archivematica
 
 NEW_FIWALK_CMD_UUID = "fcd033ec-8e29-48e8-99b9-6dbccd8f9c6e"
 
-NEW_FIWALK_CMD_SCRIPT = r"fiwalk -x %relativeLocation% -c %archivematicaCommonPath%/externals/fiwalk_plugins/ficonfig.txt"
+NEW_FIWALK_CMD_SCRIPT = r"fiwalk -x %relativeLocation%"
 
 FIWALK_CHARACTERIZATION_RULES = (
     "825b31d8-6ee0-46fc-bdd7-9bf32edb5755",

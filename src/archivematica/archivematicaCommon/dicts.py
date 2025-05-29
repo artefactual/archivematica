@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-import importlib.resources
 import os
 import re
 import uuid
@@ -159,9 +158,6 @@ class ReplacementDict(dict):
         rd["%processingDirectory%"] = config["processing_directory"]
         rd["%watchDirectoryPath%"] = config["watch_directory"]
         rd["%rejectedDirectory%"] = config["rejected_directory"]
-        rd["%archivematicaCommonPath%"] = str(
-            importlib.resources.files("archivematica.archivematicaCommon")
-        )
 
         return rd
 
