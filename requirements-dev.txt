@@ -25,7 +25,7 @@ brotli==1.1.0
     # via -r /src/requirements.txt
 build==1.2.2.post1
     # via pip-tools
-cachetools==5.5.2
+cachetools==6.0.0
     # via tox
 certifi==2025.4.26
     # via
@@ -47,11 +47,11 @@ click==8.1.8
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.8.0
+coverage[toml]==7.8.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==45.0.2
+cryptography==45.0.3
     # via
     #   -r /src/requirements.txt
     #   josepy
@@ -122,7 +122,7 @@ josepy==2.0.0
     # via
     #   -r /src/requirements.txt
     #   mozilla-django-oidc
-jsonschema==4.23.0
+jsonschema==4.24.0
     # via -r /src/requirements.txt
 jsonschema-specifications==2025.4.1
     # via
@@ -177,7 +177,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   tox
-prometheus-client==0.22.0
+prometheus-client==0.22.1
     # via
     #   -r /src/requirements.txt
     #   django-prometheus
@@ -196,13 +196,15 @@ pycparser==2.22
     #   cffi
 pyee==13.0.0
     # via playwright
+pygments==2.19.1
+    # via pytest
 pyproject-api==1.9.1
     # via tox
 pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.5
+pytest==8.4.0
     # via
     #   -r requirements-dev.in
     #   pytest-base-url
@@ -253,7 +255,7 @@ requests==2.32.3
     #   opf-fido
     #   pytest-base-url
     #   python-cas
-rpds-py==0.25.0
+rpds-py==0.25.1
     # via
     #   -r /src/requirements.txt
     #   jsonschema
@@ -280,7 +282,7 @@ tomli==2.2.1
     #   tox
 tox==4.26.0
     # via -r requirements-dev.in
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via
     #   -r /src/requirements.txt
     #   asgiref
@@ -302,7 +304,7 @@ wheel==0.45.1
     # via pip-tools
 whitenoise==6.9.0
     # via -r /src/requirements.txt
-zipp==3.21.0
+zipp==3.22.0
     # via
     #   -r /src/requirements.txt
     #   importlib-metadata
@@ -319,7 +321,7 @@ zope-interface==7.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==25.1.1
     # via pip-tools
-setuptools==80.7.1
+setuptools==80.9.0
     # via
     #   -r /src/requirements.txt
     #   pip-tools
