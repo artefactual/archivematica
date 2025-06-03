@@ -190,7 +190,9 @@ def main(job: Job, task_uuid: uuid.UUID, file_uuid: uuid.UUID) -> int:
 
 
 def get_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Transcribe file.")
+    parser = argparse.ArgumentParser(
+        description="Transcribe file.", exit_on_error=False
+    )
     parser.add_argument("task_uuid", type=uuid.UUID)
     parser.add_argument("file_uuid", type=uuid.UUID)
 
@@ -209,6 +211,12 @@ def call(jobs: List[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
-                args = parse_args(parser, job)
+                try:
+                    args = parse_args(parser, job)
+                except argparse.ArgumentError as err:
+                    job.print_error(str(err))
+                    status = 1
+                else:
+                    status = main(job, args.task_uuid, args.file_uuid)
 
-                job.set_status(main(job, args.task_uuid, args.file_uuid))
+                job.set_status(status)
