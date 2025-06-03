@@ -1,4 +1,5 @@
 import pathlib
+import uuid
 from unittest import mock
 
 import pytest
@@ -287,3 +288,26 @@ def test_main_if_command_is_not_bash_script(
     # Ensure the arguments passed is a list.
     execute_or_run_args = call_kwargs["arguments"]
     assert isinstance(execute_or_run_args, list)
+
+
+@pytest.mark.django_db
+def test_call_handles_invalid_job_arguments() -> None:
+    task_uuid = uuid.uuid4()
+    # None in the file_uuid represents a task on a file that has been
+    # read by the MCPServer from the file system and not from the database.
+    file_uuid = "None"
+    job = mock.Mock(
+        args=[
+            "transcribe_file",
+            str(task_uuid),
+            str(file_uuid),
+        ],
+        spec=Job,
+    )
+    job.JobContext = mock.MagicMock()
+
+    transcribe_file.call([job])
+
+    job.print_error.assert_called_once_with(
+        f"argument file_uuid: invalid UUID value: '{file_uuid}'"
+    )
