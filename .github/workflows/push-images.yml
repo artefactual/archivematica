@@ -4,6 +4,13 @@ jobs:
   build:
     name: "Build and push images"
     runs-on: "ubuntu-24.04"
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - archivematica-dashboard
+          - archivematica-mcp-client
+          - archivematica-mcp-server
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v4"
@@ -14,30 +21,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-      - name: "Build and Push Dashboard"
+      - name: "Build and push ${{ matrix.component }}"
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           load: true
           file: ./hack/Dockerfile
-          target: "archivematica-dashboard"
-          tags: artefactual/archivematica-dashboard:latest
-      - name: "Build and Push MCPClient"
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          load: true
-          file: ./hack/Dockerfile
-          target: "archivematica-mcp-client"
-          tags: artefactual/archivematica-mcp-client:latest
-      - name: "Build and Push MCPServer"
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          load: true
-          file: ./hack/Dockerfile
-          target: "archivematica-mcp-server"
-          tags: artefactual/archivematica-mcp-server:latest
+          target: ${{ matrix.component }}
+          tags: artefactual/${{ matrix.component }}:latest
