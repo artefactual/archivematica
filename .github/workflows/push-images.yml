@@ -15,7 +15,7 @@ jobs:
           username: artefactual
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: "Build and Push Dashboard"
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -24,7 +24,7 @@ jobs:
           target: "archivematica-dashboard"
           tags: artefactual/archivematica-dashboard:latest
       - name: "Build and Push MCPClient"
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -33,7 +33,7 @@ jobs:
           target: "archivematica-mcp-client"
           tags: artefactual/archivematica-mcp-client:latest
       - name: "Build and Push MCPServer"
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
