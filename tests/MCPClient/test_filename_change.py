@@ -6,6 +6,7 @@ import pytest
 from django.test import TestCase
 from pytest_django.asserts import assertQuerysetEqual
 
+from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
@@ -140,8 +141,9 @@ def is_uuid(uuid_):
 
 def verify_event_details(event):
     assert (
-        'prohibited characters removed: program="change_names"; version="1.10.'
-    ) in event.event_detail
+        event.event_detail
+        == f'prohibited characters removed: program="change_names"; version="{get_full_version()}"'
+    )
     assertQuerysetEqual(
         event.agents.all(),
         [

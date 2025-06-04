@@ -25,6 +25,7 @@ django.setup()
 from django.db import transaction
 
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
@@ -44,7 +45,7 @@ class NameChanger:
     BATCH_SIZE = 2000
     EVENT_DETAIL = (
         'prohibited characters removed: program="change_names"; version="'
-        + change_names.VERSION
+        + get_full_version()
         + '"'
     )
     EVENT_OUTCOME_DETAIL = 'Original name="{}"; new name="{}"'

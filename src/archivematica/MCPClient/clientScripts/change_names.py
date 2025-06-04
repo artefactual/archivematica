@@ -21,8 +21,6 @@ import shutil
 
 from unidecode import unidecode
 
-VERSION = "1.10." + "$Id$".split(" ")[1]
-
 # Letters, digits and a few punctuation characters
 ALLOWED_CHARS = re.compile(r"[^a-zA-Z0-9\-_.\(\)]")
 REPLACEMENT_CHAR = "_"
