@@ -1,9 +1,50 @@
-name: "Push images to Docker Hub"
-on: workflow_dispatch
+name: "Publish images"
+on:
+  workflow_dispatch:
+    inputs:
+      build_ref:
+        description: 'Commit hash, branch or tag to build. Only a final release tag (e.g. v1.19.0) is pushed to Docker Hub; everything else goes to GHCR, tagged with its RC tag (if any) and its short commit hash.'
+        required: true
+        type: string
+      overwrite:
+        description: 'Replace an RC or release image tag that already exists'
+        required: false
+        type: boolean
+        default: false
+permissions:
+  contents: read
 jobs:
+  set-ref:
+    runs-on: "ubuntu-24.04"
+    timeout-minutes: 10
+    outputs:
+      ref: ${{ steps.set-ref.outputs.ref }}
+      kind: ${{ steps.set-ref.outputs.kind }}
+      version: ${{ steps.set-ref.outputs.version }}
+      short_sha: ${{ steps.set-ref.outputs.short_sha }}
+      docker_registry: ${{ steps.set-ref.outputs.docker_registry }}
+    steps:
+      - name: "Check out full history"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Determine build reference"
+        id: set-ref
+        env:
+          BUILD_REF: ${{ inputs.build_ref }}
+        run: .github/scripts/set-ref.sh "$BUILD_REF" >> "$GITHUB_OUTPUT"
   build:
+    needs: "set-ref"
     name: "Build and push images"
     runs-on: "ubuntu-24.04"
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: publish-images-${{ needs.set-ref.outputs.version }}-${{ matrix.component }}
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
@@ -14,19 +55,55 @@ jobs:
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          ref: ${{ needs.set-ref.outputs.ref }}
+          persist-credentials: false
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069" # v4.4.1
+      - name: "Extract metadata"
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            name=artefactual/${{ matrix.component }},enable=${{ needs.set-ref.outputs.kind == 'release' }}
+            name=ghcr.io/artefactual/${{ matrix.component }},enable=${{ needs.set-ref.outputs.kind == 'rc' || needs.set-ref.outputs.kind == 'dev' }}
+          tags: |
+            type=raw,value=${{ needs.set-ref.outputs.version }}
+            type=raw,value=${{ needs.set-ref.outputs.short_sha }},enable=${{ needs.set-ref.outputs.kind == 'rc' }}
+          flavor: |
+            latest=false
       - name: "Log in to Docker Hub"
+        if: needs.set-ref.outputs.kind == 'release'
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: "Log in to GHCR"
+        if: needs.set-ref.outputs.kind == 'rc' || needs.set-ref.outputs.kind == 'dev'
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: "Refuse to overwrite an existing tag"
+        if: needs.set-ref.outputs.kind != 'dev' && !inputs.overwrite
+        env:
+          IMAGE: ${{ needs.set-ref.outputs.docker_registry }}/artefactual/${{ matrix.component }}:${{ needs.set-ref.outputs.version }}
+        run: |
+          if out=$(docker buildx imagetools inspect "$IMAGE" 2>&1); then
+            echo "::error::$IMAGE already exists. Run the workflow with overwrite to replace it."
+            exit 1
+          fi
+          if ! grep -qxF "ERROR: $IMAGE: not found" <<<"$out"; then
+            echo "$out"
+            echo "::error::Could not check whether $IMAGE exists."
+            exit 1
+          fi
       - name: "Build and push ${{ matrix.component }}"
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           push: true
-          load: true
           file: ./hack/Dockerfile
           target: ${{ matrix.component }}
-          tags: artefactual/${{ matrix.component }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
