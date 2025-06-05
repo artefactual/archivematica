@@ -1,7 +1,47 @@
 name: "Push images to Docker Hub"
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git tag (e.g. v1.17.0), branch or commit SHA to build from'
+        required: false
+        type: string
 jobs:
+  set-ref:
+    runs-on: "ubuntu-24.04"
+    outputs:
+      ref: ${{ steps.set-ref.outputs.ref }}
+      version: ${{ steps.set-ref.outputs.version }}
+      is_tagged: ${{ steps.set-ref.outputs.is_tagged }}
+      docker_registry: ${{ steps.set-ref.outputs.docker_registry }}
+    steps:
+      - name: "Check out full history"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: "Determine build reference"
+        id: set-ref
+        run: |
+          # Use input ref or fallback to current commit
+          INPUT_REF="${{ github.event.inputs.ref }}"
+          if [ -z "$INPUT_REF" ]; then
+            INPUT_REF="${{ github.sha }}"
+            echo "No input provided, using workflow SHA: $INPUT_REF"
+          fi
+          # Resolve reference and determine type using repository script
+          if ! RESOLVED_REF=$(.github/scripts/set-ref.sh "$INPUT_REF"); then
+            echo "ERROR: Failed to resolve reference '$INPUT_REF'"
+            exit 1
+          fi
+          # Source the resolved values
+          eval "$RESOLVED_REF"
+          # Set outputs
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_tagged=$IS_TAGGED" >> $GITHUB_OUTPUT
+          echo "docker_registry=$DOCKER_REGISTRY" >> $GITHUB_OUTPUT
   build:
+    needs: "set-ref"
     name: "Build and push images"
     runs-on: "ubuntu-24.04"
     strategy:
@@ -14,19 +54,31 @@ jobs:
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v4"
+        with:
+          ref: ${{ needs.set-ref.outputs.ref }}
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@v3"
-      - name: "Log in to Docker Hub"
+      - name: "Extract metadata"
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            name=artefactual/${{ matrix.component }},enable=${{ needs.set-ref.outputs.is_tagged == 'true' }}
+            name=ghcr.io/artefactual/${{ matrix.component }},enable=${{ needs.set-ref.outputs.is_tagged == 'false' }}
+          tags: |
+            type=raw,value=${{ needs.set-ref.outputs.version }}
+            type=raw,value=latest,enable=${{ needs.set-ref.outputs.is_tagged == 'false' }}
+      - name: "Log in to container registry"
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          registry: ${{ needs.set-ref.outputs.docker_registry }}
+          username: ${{ needs.set-ref.outputs.is_tagged == 'true' && secrets.DOCKER_HUB_USERNAME || github.actor }}
+          password: ${{ needs.set-ref.outputs.is_tagged == 'true' && secrets.DOCKER_HUB_TOKEN || secrets.GITHUB_TOKEN }}
       - name: "Build and push ${{ matrix.component }}"
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          load: true
           file: ./hack/Dockerfile
           target: ${{ matrix.component }}
-          tags: artefactual/${{ matrix.component }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
