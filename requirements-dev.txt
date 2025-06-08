@@ -58,7 +58,7 @@ cryptography==45.0.3
     #   mozilla-django-oidc
 distlib==0.3.9
     # via virtualenv
-django==4.2.21
+django==4.2.22
     # via
     #   -r /src/requirements.txt
     #   django-auth-ldap
@@ -95,7 +95,7 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via -r /src/requirements.txt
 gevent==25.5.1
     # via -r /src/requirements.txt
-greenlet==3.2.2
+greenlet==3.2.3
     # via
     #   -r /src/requirements.txt
     #   gevent

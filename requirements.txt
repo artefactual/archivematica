@@ -32,7 +32,7 @@ cryptography==45.0.3
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.21
+django==4.2.22
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -61,7 +61,7 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via -r requirements.in
 gevent==25.5.1
     # via -r requirements.in
-greenlet==3.2.2
+greenlet==3.2.3
     # via gevent
 gunicorn==23.0.0
     # via -r requirements.in
