@@ -1453,3 +1453,17 @@ def test_try_to_index_raises_exception_after_retries(client):
         mock.call("ERROR: error trying to index."),
         mock.call(error),
     ]
+
+
+def test_mets_parser_with_no_dublincore_data(tmp_path: pathlib.Path) -> None:
+    mets_path = tmp_path / "mets.xml"
+    mets_path.write_text(METS)
+    default_created_date = 1749572903
+
+    with mock.patch("time.time", return_value=default_created_date):
+        parser = elasticSearchFunctions.AIPMETSParser(str(mets_path))
+
+    assert not parser.aic_identifier
+    assert not parser.is_part_of
+    assert parser.created == default_created_date
+    assert not parser.aip_metadata

@@ -14,11 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-import calendar
-import copy
 import logging
 import os
-import re
 import sys
 import time
 
@@ -26,13 +23,10 @@ from django.db.models import Q
 from elasticsearch import Elasticsearch
 from elasticsearch import ImproperlyConfigured
 from elasticsearch.helpers import bulk
-from lxml import etree
 
-from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon import version
-from archivematica.archivematicaCommon.externals import xmltodict
+from archivematica.archivematicaCommon.aip_mets_parser import AIPMETSParser
 from archivematica.dashboard.main.models import File
-from archivematica.dashboard.main.models import Identifier
 
 logger = logging.getLogger("archivematica.common")
 
