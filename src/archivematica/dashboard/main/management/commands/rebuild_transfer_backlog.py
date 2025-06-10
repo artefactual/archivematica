@@ -56,6 +56,7 @@ from django.core.management.base import CommandError
 from archivematica.archivematicaCommon import archivematicaFunctions as am
 from archivematica.archivematicaCommon import elasticSearchFunctions as es
 from archivematica.archivematicaCommon import storageService
+from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
 from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
 from archivematica.archivematicaCommon.fileOperations import extract_package
 from archivematica.dashboard.components.rights.load import load_rights
@@ -553,6 +554,7 @@ def _import_self_describing_transfer(
                 if django_settings.DEBUG:
                     traceback.print_exc()
 
+    transfer_name, accession_id, ingest_date = get_transfer_details(transfer_uuid)
     es.index_transfer_and_files(
         es_client,
         transfer_uuid,
@@ -560,6 +562,9 @@ def _import_self_describing_transfer(
         size,
         printfn=_elasticsearch_noop_printfn,
         dashboard_uuid=cmd.dashboard_uuid,
+        transfer_name=transfer_name,
+        accession_id=accession_id,
+        ingest_date=ingest_date,
     )
 
 
@@ -577,6 +582,7 @@ def _import_pipeline_dependant_transfer(
     except (Transfer.DoesNotExist, ValidationError):
         cmd.warning(f"Skipping transfer {transfer_uuid} - not found in the database!")
         return
+    transfer_name, accession_id, ingest_date = get_transfer_details(transfer_uuid)
     es.index_transfer_and_files(
         es_client,
         transfer_uuid,
@@ -584,6 +590,9 @@ def _import_pipeline_dependant_transfer(
         size,
         printfn=_elasticsearch_noop_printfn,
         dashboard_uuid=cmd.dashboard_uuid,
+        transfer_name=transfer_name,
+        accession_id=accession_id,
+        ingest_date=ingest_date,
     )
     try:
         storageService.reindex_file(transfer_uuid)

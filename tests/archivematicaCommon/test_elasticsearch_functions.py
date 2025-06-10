@@ -9,6 +9,7 @@ from django.utils.timezone import make_aware
 from lxml import etree
 
 from archivematica.archivematicaCommon import elasticSearchFunctions
+from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import File
@@ -1068,6 +1069,7 @@ def test_index_transfer_and_files(
     expected_date = "2024-01-01"
     expected_status = "backlog"
 
+    transfer_name, accession_id, ingest_date = get_transfer_details(transfer.uuid)
     result = elasticSearchFunctions.index_transfer_and_files(
         es_client,
         str(transfer.uuid),
@@ -1075,6 +1077,9 @@ def test_index_transfer_and_files(
         1024,
         printfn=printfn,
         dashboard_uuid=str(dashboard_uuid),
+        transfer_name=transfer_name,
+        accession_id=accession_id,
+        ingest_date=ingest_date,
     )
     assert result == 0
 

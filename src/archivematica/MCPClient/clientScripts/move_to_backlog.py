@@ -30,6 +30,7 @@ from archivematica.archivematicaCommon.archivematicaFunctions import get_bag_siz
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
 from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import File
@@ -77,6 +78,7 @@ def _index_transfer(job, transfer_id, transfer_path, size):
     if "transfers" not in mcpclient_settings.SEARCH_ENABLED:
         logger.info("Skipping indexing: Transfers indexing is currently disabled.")
         return
+    transfer_name, accession_id, ingest_date = get_transfer_details(transfer_id)
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
     elasticSearchFunctions.index_transfer_and_files(
@@ -86,6 +88,9 @@ def _index_transfer(job, transfer_id, transfer_path, size):
         size,
         printfn=job.pyprint,
         dashboard_uuid=get_dashboard_uuid() or "",
+        transfer_name=transfer_name,
+        accession_id=accession_id,
+        ingest_date=ingest_date,
     )
 
 

@@ -14,10 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+import datetime
 import logging
 import sys
 import uuid
 
+from django.db.models import Min
 from django.utils import timezone
 
 from archivematica.dashboard.main.models import SIP
@@ -26,6 +28,7 @@ from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import Transfer
 
 LOGGER = logging.getLogger("archivematica.common")
 
@@ -269,3 +272,26 @@ def deUnicode(unicode_string):
     if unicode_string is None:
         return None
     return str(unicode_string).encode("utf-8")
+
+
+def get_transfer_details(transfer_uuid):
+    transfer_name, accession_id, ingest_date = "", "", str(datetime.date.today())
+    try:
+        transfer = Transfer.objects.get(uuid=transfer_uuid)
+    except Transfer.DoesNotExist:
+        pass
+    else:
+        transfer_name = transfer.currentlocation.split("/")[-2]
+        if transfer.accessionid:
+            accession_id = transfer.accessionid
+        # It doesn't seem that Archivematica records the ingestion date
+        # associated with the Transfer but we can look at the earliest file
+        # entry instead - as long as there is a match which may not always be
+        # the case.
+        dt = File.objects.filter(transfer=transfer).aggregate(Min("enteredsystem"))[
+            "enteredsystem__min"
+        ]
+        if dt:
+            ingest_date = str(dt.date())
+
+    return transfer_name, accession_id, ingest_date

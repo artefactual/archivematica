@@ -16,14 +16,12 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import calendar
 import copy
-import datetime
 import logging
 import os
 import re
 import sys
 import time
 
-from django.db.models import Min
 from django.db.models import Q
 from elasticsearch import Elasticsearch
 from elasticsearch import ImproperlyConfigured
@@ -35,7 +33,6 @@ from archivematica.archivematicaCommon import version
 from archivematica.archivematicaCommon.externals import xmltodict
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Identifier
-from archivematica.dashboard.main.models import Transfer
 
 logger = logging.getLogger("archivematica.common")
 
@@ -682,7 +679,16 @@ def _index_aip_files(
 
 
 def index_transfer_and_files(
-    client, uuid, path, size, pending_deletion=False, printfn=print, dashboard_uuid=""
+    client,
+    uuid,
+    path,
+    size,
+    pending_deletion=False,
+    printfn=print,
+    dashboard_uuid="",
+    transfer_name="",
+    accession_id="",
+    ingest_date="",
 ):
     """Indexes Transfer and Transfer files with UUID `uuid` at path `path`.
 
@@ -693,6 +699,9 @@ def index_transfer_and_files(
     :param size: size of transfer in bytes.
     :param printfn: optional print funtion.
     :param dashboard_uuid: Pipeline UUID.
+    :param transfer_name: name of Transfer
+    :param accession_id: optional accession ID
+    :param ingest_date: date Transfer was indexed
     :return: 0 is succeded, 1 otherwise.
     """
     # Stop if Transfer does not exist
@@ -704,25 +713,6 @@ def index_transfer_and_files(
 
     # Default status of a transfer file document in the index.
     status = "backlog"
-
-    transfer_name, accession_id, ingest_date = "", "", str(datetime.date.today())
-    try:
-        transfer = Transfer.objects.get(uuid=uuid)
-    except Transfer.DoesNotExist:
-        pass
-    else:
-        transfer_name = transfer.currentlocation.split("/")[-2]
-        if transfer.accessionid:
-            accession_id = transfer.accessionid
-        # It doesn't seem that Archivematica records the ingestion date
-        # associated with the Transfer but we can look at the earliest file
-        # entry instead - as long as there is a match which may not always be
-        # the case.
-        dt = File.objects.filter(transfer=transfer).aggregate(Min("enteredsystem"))[
-            "enteredsystem__min"
-        ]
-        if dt:
-            ingest_date = str(dt.date())
 
     printfn("Transfer UUID: " + uuid)
     printfn("Indexing Transfer files ...")
