@@ -361,6 +361,7 @@ def test_index_mets_file_metadata(bulk, dashboard_uuid, es_client):
         mets=etree.parse(mets_file_path).getroot(),
         name=sipName,
         identifiers=identifiers,
+        dashboard_uuid=str(dashboard_uuid),
     )
 
     assert bulk.call_count == 1
@@ -434,7 +435,7 @@ def test_index_mets_file_metadata(bulk, dashboard_uuid, es_client):
 
 @pytest.mark.django_db
 @mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.bulk")
-def test_index_mets_file_metadata_with_utf8(bulk, es_client):
+def test_index_mets_file_metadata_with_utf8(bulk, es_client, dashboard_uuid):
     def _bulk(client, actions, stats_only=False, *args, **kwargs):
         pass
 
@@ -448,6 +449,7 @@ def test_index_mets_file_metadata_with_utf8(bulk, es_client):
         mets=etree.parse(mets_file_path).getroot(),
         name="",
         identifiers=[],
+        dashboard_uuid=str(dashboard_uuid),
     )
 
 
@@ -600,6 +602,7 @@ def test_index_aipfile_fileuuid(
         mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
         name=f"{aipname}-{aipuuid}",
         identifiers=[],
+        dashboard_uuid=str(dashboard_uuid),
     )
 
     for file_uuid in fileuuid_dict:
@@ -657,6 +660,7 @@ def test_index_aipfile_dmdsec(bulk, dashboard_uuid, metsfile, dmdsec_dict):
         mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
         name="{}-{}".format("DUMMYNAME", "DUMMYUUID"),
         identifiers=[],
+        dashboard_uuid=str(dashboard_uuid),
     )
 
     for key, value in dmdsec_dict["dublincore_dict"].items():
@@ -950,6 +954,7 @@ def test_index_aip_and_files(
         aip_name,
         1024 * 1024 * 10,
         printfn=printfn,
+        dashboard_uuid=str(dashboard_uuid),
     )
     assert result == 0
 
@@ -992,7 +997,7 @@ def test_index_aip_and_files(
 
 
 def test_index_transfer_and_files_logs_error_if_transfer_path_does_not_exist(
-    es_client, tmp_path, caplog
+    es_client, tmp_path, caplog, dashboard_uuid
 ):
     printfn = mock.Mock()
     transfer_uuid = uuid.uuid4()
@@ -1005,6 +1010,7 @@ def test_index_transfer_and_files_logs_error_if_transfer_path_does_not_exist(
         str(transfer_path),
         1024,
         printfn=printfn,
+        dashboard_uuid=str(dashboard_uuid),
     )
     assert result == 1
 
@@ -1068,6 +1074,7 @@ def test_index_transfer_and_files(
         str(transfer.currentlocation),
         1024,
         printfn=printfn,
+        dashboard_uuid=str(dashboard_uuid),
     )
     assert result == 0
 

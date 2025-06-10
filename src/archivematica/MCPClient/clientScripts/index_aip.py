@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon import identifier_functions
 from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main.models import UnitVariable
 
@@ -96,6 +97,7 @@ def index_aip(job):
         encrypted=aip_info["encrypted"],
         location=location_description,
         printfn=job.pyprint,
+        dashboard_uuid=get_dashboard_uuid() or "",
     )
     if ret == 1:
         job.pyprint("Error indexing AIP and AIP files", file=sys.stderr)

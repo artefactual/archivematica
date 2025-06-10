@@ -27,6 +27,7 @@ from django.db.models import Q
 import archivematica.archivematicaCommon.storageService as storage_service
 from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon.archivematicaFunctions import get_bag_size
+from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
@@ -79,7 +80,12 @@ def _index_transfer(job, transfer_id, transfer_path, size):
     elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
     client = elasticSearchFunctions.get_client()
     elasticSearchFunctions.index_transfer_and_files(
-        client, transfer_id, transfer_path, size, printfn=job.pyprint
+        client,
+        transfer_id,
+        transfer_path,
+        size,
+        printfn=job.pyprint,
+        dashboard_uuid=get_dashboard_uuid() or "",
     )
 
 

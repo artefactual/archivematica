@@ -32,7 +32,6 @@ from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon import version
-from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.externals import xmltodict
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Identifier
@@ -403,6 +402,7 @@ def index_aip_and_files(
     encrypted=False,
     location="",
     printfn=print,
+    dashboard_uuid="",
 ):
     """Index AIP and AIP files with UUID `uuid` at path `path`.
 
@@ -416,6 +416,7 @@ def index_aip_and_files(
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
     :param encrypted: optional AIP encrypted boolean (defaults to `False`).
     :param printfn: optional print funtion.
+    :param dashboard_uuid: Pipeline UUID.
     :return: 0 is succeded, 1 otherwise.
     """
     # Stop if METS file is not at staging path.
@@ -476,6 +477,7 @@ def index_aip_and_files(
         name=name,
         identifiers=identifiers,
         aip_metadata=aip_metadata,
+        dashboard_uuid=dashboard_uuid,
     )
 
     printfn("Files indexed: " + str(files_indexed))
@@ -487,7 +489,7 @@ def index_aip_and_files(
         "filePath": aip_stored_path,
         ES_FIELD_SIZE: int(aip_size) / (1024 * 1024),
         ES_FIELD_FILECOUNT: files_indexed,
-        "origin": get_dashboard_uuid(),
+        "origin": dashboard_uuid,
         ES_FIELD_CREATED: created,
         ES_FIELD_AICID: aic_identifier,
         "isPartOf": is_part_of,
@@ -507,7 +509,9 @@ def index_aip_and_files(
     return 0
 
 
-def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=None):
+def _index_aip_files(
+    client, uuid, mets, name, identifiers=None, aip_metadata=None, dashboard_uuid=""
+):
     """Index AIP files from AIP with UUID `uuid` and METS at path `mets_path`.
 
     :param client: The ElasticSearch client.
@@ -517,6 +521,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
     :param aip_metadata: list with the descriptive and administrative metadata
                          of each directory in the AIP
+    :param dashboard_uuid: Pipeline UUID.
     :return: number of files indexed, list of accession numbers
     """
 
@@ -559,7 +564,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
         "isPartOf": is_part_of,
         ES_FIELD_AICID: aic_identifier,
         "METS": {"dmdSec": {}, "amdSec": {}},
-        "origin": get_dashboard_uuid(),
+        "origin": dashboard_uuid,
         "accessionid": "",
         ES_FIELD_STATUS: STATUS_UPLOADED,
     }
@@ -677,7 +682,7 @@ def _index_aip_files(client, uuid, mets, name, identifiers=None, aip_metadata=No
 
 
 def index_transfer_and_files(
-    client, uuid, path, size, pending_deletion=False, printfn=print
+    client, uuid, path, size, pending_deletion=False, printfn=print, dashboard_uuid=""
 ):
     """Indexes Transfer and Transfer files with UUID `uuid` at path `path`.
 
@@ -687,6 +692,7 @@ def index_transfer_and_files(
                  trailing / but not including objects/.
     :param size: size of transfer in bytes.
     :param printfn: optional print funtion.
+    :param dashboard_uuid: Pipeline UUID.
     :return: 0 is succeded, 1 otherwise.
     """
     # Stop if Transfer does not exist
@@ -730,6 +736,7 @@ def index_transfer_and_files(
         pending_deletion=pending_deletion,
         status=status,
         printfn=printfn,
+        dashboard_uuid=dashboard_uuid,
     )
 
     printfn("Files indexed: " + str(files_indexed))
@@ -763,6 +770,7 @@ def _index_transfer_files(
     status="",
     pending_deletion=False,
     printfn=print,
+    dashboard_uuid="",
 ):
     """Indexes files in the Transfer with UUID `uuid` at path `path`.
 
@@ -775,6 +783,7 @@ def _index_transfer_files(
     :param ingest_date: date Transfer was indexed
     :param status: optional Transfer status.
     :param printfn: optional print funtion.
+    :param dashboard_uuid: Pipeline UUID.
     :return: number of files indexed.
     """
     files_indexed = 0
@@ -782,9 +791,6 @@ def _index_transfer_files(
     # Some files should not be indexed.
     # This should match the basename of the file.
     ignore_files = ["processingMCP.xml"]
-
-    # Get dashboard UUID
-    dashboard_uuid = get_dashboard_uuid()
 
     for filepath in _list_files_in_dir(path):
         if os.path.isfile(filepath):

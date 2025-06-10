@@ -86,6 +86,10 @@ class Command(DashboardCommand):
     CHECKSUM_TYPE = "sha256"
     CHECKSUM_UTIL = "sha256sum"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dashboard_uuid = am.get_dashboard_uuid() or ""
+
     def add_arguments(self, parser):
         """Entry point to add custom arguments."""
         parser.add_argument(
@@ -100,7 +104,7 @@ class Command(DashboardCommand):
         parser.add_argument(
             "--pipeline",
             help="Pipeline UUID to use when filtering packages from Storage Service",
-            default=am.get_dashboard_uuid(),
+            default=self.dashboard_uuid,
         )
         parser.add_argument(
             "--delete-all",
@@ -555,6 +559,7 @@ def _import_self_describing_transfer(
         str(transfer_dir) + "/",
         size,
         printfn=_elasticsearch_noop_printfn,
+        dashboard_uuid=cmd.dashboard_uuid,
     )
 
 
@@ -578,6 +583,7 @@ def _import_pipeline_dependant_transfer(
         str(transfer_dir) + "/",
         size,
         printfn=_elasticsearch_noop_printfn,
+        dashboard_uuid=cmd.dashboard_uuid,
     )
     try:
         storageService.reindex_file(transfer_uuid)
