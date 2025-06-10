@@ -466,6 +466,8 @@ def index_aip_and_files(
         identifiers=identifiers,
         aip_metadata=aip_metadata,
         dashboard_uuid=dashboard_uuid,
+        aic_identifier=aic_identifier,
+        is_part_of=is_part_of,
     )
 
     printfn("Files indexed: " + str(files_indexed))
@@ -498,7 +500,15 @@ def index_aip_and_files(
 
 
 def _index_aip_files(
-    client, uuid, mets, name, identifiers=None, aip_metadata=None, dashboard_uuid=""
+    client,
+    uuid,
+    mets,
+    name,
+    identifiers=None,
+    aip_metadata=None,
+    dashboard_uuid="",
+    aic_identifier=None,
+    is_part_of=None,
 ):
     """Index AIP files from AIP with UUID `uuid` and METS at path `mets_path`.
 
@@ -510,25 +520,10 @@ def _index_aip_files(
     :param aip_metadata: list with the descriptive and administrative metadata
                          of each directory in the AIP
     :param dashboard_uuid: Pipeline UUID.
+    :param aic_identifier: AIC identifier from DublinCore.
+    :param is_part_of: identifier for the AIC to which the AIP belongs.
     :return: number of files indexed, list of accession numbers
     """
-
-    # Extract isPartOf (for AIPs) or identifier (for AICs) from DublinCore.
-    dublincore = ns.xml_find_premis(
-        mets, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore"
-    )
-    aic_identifier = None
-    is_part_of = None
-    if dublincore is not None:
-        aip_type = ns.xml_findtext_premis(
-            dublincore, "dc:type"
-        ) or ns.xml_findtext_premis(dublincore, "dcterms:type")
-        if aip_type == "Archival Information Collection":
-            aic_identifier = ns.xml_findtext_premis(
-                dublincore, "dc:identifier"
-            ) or ns.xml_findtext_premis(dublincore, "dcterms:identifier")
-        elif aip_type == "Archival Information Package":
-            is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
 
     if identifiers is None:
         identifiers = []
