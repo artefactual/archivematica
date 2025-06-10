@@ -535,22 +535,8 @@ def _index_aip_files(
     # iterate through the list each time to check.
     accession_ids = set()
 
-    # Establish the structure to be indexed for each file item.
-    fileData = {
-        "archivematicaVersion": version.get_version(),
-        "AIPUUID": uuid,
-        "sipName": name,
-        "FILEUUID": "",
-        "indexedAt": time.time(),
-        "filePath": "",
-        "fileExtension": "",
-        "isPartOf": is_part_of,
-        ES_FIELD_AICID: aic_identifier,
-        "METS": {"dmdSec": {}, "amdSec": {}},
-        "origin": dashboard_uuid,
-        "accessionid": "",
-        ES_FIELD_STATUS: STATUS_UPLOADED,
-    }
+    am_version = version.get_version()
+    indexed_at = time.time()
 
     # Index all files in a fileGrup with USE='original' or USE='metadata'.
     original_files = ns.xml_findall_premis(
@@ -564,94 +550,26 @@ def _index_aip_files(
     def _generator():
         # Index AIC METS file if it exists.
         for file_ in files:
-            # Make a deep copy of dict, not a copy of dict contents.
-            indexData = fileData.copy()
-
-            # Get file UUID. If an ADMID exists, look in the amdSec for the UUID,
-            # otherwise parse it out of the file ID.
-            # 'Original' files have ADMIDs, 'Metadata' files do not.
-            admID = file_.attrib.get("ADMID", None)
-            if admID is None:
-                # Parse UUID from the file ID.
-                fileUUID = None
-                uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
-                uuids = re.findall(uuix_regex, file_.attrib["ID"])
-                # Multiple UUIDs may be returned - if they are all identical,
-                # use that UUID, otherwise use None.
-                # To determine all UUIDs are identical, use the size of the set.
-                if len(set(uuids)) == 1:
-                    fileUUID = uuids[0]
-            else:
-                amdSec = _get_amdSec(admID, mets)
-                fileUUID = _get_file_uuid(amdSec)
-                accession_id = _get_accession_number(amdSec)
-                if accession_id is not None:
-                    indexData["accessionid"] = accession_id
-                    accession_ids.add(accession_id)
-
-                # Index amdSec information.
-                xml = etree.tostring(amdSec, encoding="utf8")
-                indexData["METS"]["amdSec"] = _normalize_dict(xmltodict.parse(xml))
-
-            indexData["FILEUUID"] = fileUUID
-
-            file_metadata = []
-
-            # Get the parent division for the file pointer by searching the
-            # physical structural map section (structMap).
-            file_id = file_.attrib.get("ID", None)
-            file_pointer_division = ns.xml_find_premis(
+            file_data, file_accession_ids = get_aip_file_index_data(
                 mets,
-                f"mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{file_id}']/..",
+                file_,
+                uuid,
+                name,
+                aip_metadata,
+                identifiers,
+                aic_identifier,
+                is_part_of,
+                dashboard_uuid,
+                am_version,
+                indexed_at,
             )
-            if file_pointer_division is not None:
-                descriptive_metadata = _get_file_metadata(file_pointer_division, mets)
-                if descriptive_metadata:
-                    file_metadata.append(descriptive_metadata)
-                # If the parent division has a DMDID attribute then index
-                # its data from the descriptive metadata section (dmdSec).
-                dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
-                if dmd_section_id is not None:
-                    # dmd_section_id can contain one id (e.g., "dmdSec_2") or
-                    # more than one (e.g., "dmdSec_2 dmdSec_3", when a file
-                    # has both DC and non-DC metadata).
-                    # Attempt to index only the DC dmdSec if available.
-                    for dmd_section_id_item in dmd_section_id.split():
-                        dmd_section_info = ns.xml_find_premis(
-                            mets,
-                            f"mets:dmdSec[@ID='{dmd_section_id_item}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData",
-                        )
-                        if dmd_section_info is not None:
-                            xml = etree.tostring(dmd_section_info, encoding="utf8")
-                            data = _normalize_dict(xmltodict.parse(xml))
-                            indexData["METS"]["dmdSec"] = data
-                            break
-
-            indexData["transferMetadata"] = aip_metadata + file_metadata
-
-            # Get file path from FLocat and extension.
-            filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
-                "{http://www.w3.org/1999/xlink}href"
-            ]
-            indexData["filePath"] = filePath
-            _, fileExtension = os.path.splitext(filePath)
-            if fileExtension:
-                indexData["fileExtension"] = fileExtension[1:].lower()
-
-            indexData["identifiers"] = identifiers + _get_file_identifiers(fileUUID)
-
+            accession_ids.update(file_accession_ids)
             yield {
                 "_op_type": "index",
                 "_index": AIP_FILES_INDEX,
                 "_type": DOC_TYPE,
-                "_source": indexData,
+                "_source": file_data,
             }
-
-            # Reset fileData['METS']['amdSec'] and fileData['METS']['dmdSec'],
-            # since they are updated in the loop above.
-            # See http://stackoverflow.com/a/3975388 for explanation.
-            fileData["METS"]["amdSec"] = {}
-            fileData["METS"]["dmdSec"] = {}
 
     # Number of docs (chunk_size) defaults to 500 which is probably too big as
     # we're potentially dealing with large documents (full amdSec embedded).
@@ -662,6 +580,114 @@ def _index_aip_files(
     accession_ids_list = list(accession_ids)
 
     return (file_count, accession_ids_list)
+
+
+def get_aip_file_index_data(
+    mets,
+    file_,
+    uuid,
+    name,
+    aip_metadata,
+    identifiers,
+    aic_identifier,
+    is_part_of,
+    dashboard_uuid,
+    am_version,
+    indexed_at,
+):
+    # Establish the structure to be indexed for each file item.
+    indexData = {
+        "archivematicaVersion": am_version,
+        "AIPUUID": uuid,
+        "sipName": name,
+        "FILEUUID": "",
+        "indexedAt": indexed_at,
+        "filePath": "",
+        "fileExtension": "",
+        "isPartOf": is_part_of,
+        ES_FIELD_AICID: aic_identifier,
+        "METS": {"dmdSec": {}, "amdSec": {}},
+        "origin": dashboard_uuid,
+        "accessionid": "",
+        ES_FIELD_STATUS: STATUS_UPLOADED,
+    }
+
+    accession_ids = set()
+
+    # Get file UUID. If an ADMID exists, look in the amdSec for the UUID,
+    # otherwise parse it out of the file ID.
+    # 'Original' files have ADMIDs, 'Metadata' files do not.
+    admID = file_.attrib.get("ADMID", None)
+    if admID is None:
+        # Parse UUID from the file ID.
+        fileUUID = None
+        uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
+        uuids = re.findall(uuix_regex, file_.attrib["ID"])
+        # Multiple UUIDs may be returned - if they are all identical,
+        # use that UUID, otherwise use None.
+        # To determine all UUIDs are identical, use the size of the set.
+        if len(set(uuids)) == 1:
+            fileUUID = uuids[0]
+    else:
+        amdSec = _get_amdSec(admID, mets)
+        fileUUID = _get_file_uuid(amdSec)
+        accession_id = _get_accession_number(amdSec)
+        if accession_id is not None:
+            indexData["accessionid"] = accession_id
+            accession_ids.add(accession_id)
+
+        # Index amdSec information.
+        xml = etree.tostring(amdSec, encoding="utf8")
+        indexData["METS"]["amdSec"] = _normalize_dict(xmltodict.parse(xml))
+
+    indexData["FILEUUID"] = fileUUID
+
+    file_metadata = []
+
+    # Get the parent division for the file pointer by searching the
+    # physical structural map section (structMap).
+    file_id = file_.attrib.get("ID", None)
+    file_pointer_division = ns.xml_find_premis(
+        mets,
+        f"mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{file_id}']/..",
+    )
+    if file_pointer_division is not None:
+        descriptive_metadata = _get_file_metadata(file_pointer_division, mets)
+        if descriptive_metadata:
+            file_metadata.append(descriptive_metadata)
+        # If the parent division has a DMDID attribute then index
+        # its data from the descriptive metadata section (dmdSec).
+        dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
+        if dmd_section_id is not None:
+            # dmd_section_id can contain one id (e.g., "dmdSec_2") or
+            # more than one (e.g., "dmdSec_2 dmdSec_3", when a file
+            # has both DC and non-DC metadata).
+            # Attempt to index only the DC dmdSec if available.
+            for dmd_section_id_item in dmd_section_id.split():
+                dmd_section_info = ns.xml_find_premis(
+                    mets,
+                    f"mets:dmdSec[@ID='{dmd_section_id_item}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData",
+                )
+                if dmd_section_info is not None:
+                    xml = etree.tostring(dmd_section_info, encoding="utf8")
+                    data = _normalize_dict(xmltodict.parse(xml))
+                    indexData["METS"]["dmdSec"] = data
+                    break
+
+    indexData["transferMetadata"] = aip_metadata + file_metadata
+
+    # Get file path from FLocat and extension.
+    filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
+        "{http://www.w3.org/1999/xlink}href"
+    ]
+    indexData["filePath"] = filePath
+    _, fileExtension = os.path.splitext(filePath)
+    if fileExtension:
+        indexData["fileExtension"] = fileExtension[1:].lower()
+
+    indexData["identifiers"] = identifiers + _get_file_identifiers(fileUUID)
+
+    return indexData, accession_ids
 
 
 def index_transfer_and_files(
