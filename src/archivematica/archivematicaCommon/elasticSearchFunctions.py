@@ -433,7 +433,8 @@ def index_aip_and_files(
             aic_identifier = ns.xml_findtext_premis(
                 dublincore, "dc:identifier"
             ) or ns.xml_findtext_premis(dublincore, "dcterms:identifier")
-        is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
+        elif aip_type == "Archival Information Package":
+            is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
 
     # Pull the create time from the METS header.
     # Old METS did not use `metsHdr`.
