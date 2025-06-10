@@ -796,68 +796,98 @@ def _index_transfer_files(
 
     for filepath in _list_files_in_dir(path):
         if os.path.isfile(filepath):
-            # We need to account for the possibility of dealing with a BagIt
-            # transfer package - the new default in Archivematica.
-            # The BagIt is created when the package is sent to backlog hence
-            # the locations in the database do not reflect the BagIt paths.
-            # Strip the "data/" part when looking up the file entry.
-            stripped_path = re.sub(r"^data/", "", os.path.relpath(filepath, path))
-            currentlocation = "%transferDirectory%" + stripped_path
-            try:
-                f = File.objects.get(
-                    currentlocation=currentlocation.encode(), transfer_id=uuid
-                )
-                file_uuid = str(f.uuid)
-                formats = _get_file_formats(f)
-                bulk_extractor_reports = _list_bulk_extractor_reports(path, file_uuid)
-                if f.modificationtime is not None:
-                    modification_date = f.modificationtime.strftime("%Y-%m-%d")
-                else:
-                    modification_date = ""
-            except File.DoesNotExist:
-                file_uuid, modification_date = "", ""
-                formats = []
-                bulk_extractor_reports = []
-
             # Get file path info
             stripped_path = filepath.replace(path, transfer_name + "/")
-            file_extension = os.path.splitext(filepath)[1][1:].lower()
             filename = os.path.basename(filepath)
-            # Size in megabytes
-            size = os.path.getsize(filepath) / (1024 * 1024)
-            create_time = os.stat(filepath).st_ctime
 
-            if filename not in ignore_files:
-                printfn(f"Indexing {stripped_path} (UUID: {file_uuid})")
-
-                # TODO: Index Backlog Location UUID?
-                indexData = {
-                    "filename": filename,
-                    "relative_path": stripped_path,
-                    "fileuuid": file_uuid,
-                    "sipuuid": uuid,
-                    "accessionid": accession_id,
-                    ES_FIELD_STATUS: status,
-                    "origin": dashboard_uuid,
-                    "ingestdate": ingest_date,
-                    ES_FIELD_CREATED: create_time,
-                    "modification_date": modification_date,
-                    ES_FIELD_SIZE: size,
-                    "tags": [],
-                    "file_extension": file_extension,
-                    "bulk_extractor_reports": bulk_extractor_reports,
-                    "format": formats,
-                    "pending_deletion": pending_deletion,
-                }
-
-                _wait_for_cluster_yellow_status(client)
-                _try_to_index(client, indexData, TRANSFER_FILES_INDEX, printfn=printfn)
-
-                files_indexed = files_indexed + 1
-            else:
+            if filename in ignore_files:
                 printfn(f"Skipping indexing {stripped_path}")
+                continue
+
+            indexData = get_transfer_file_index_data(
+                filepath,
+                filename,
+                stripped_path,
+                path,
+                uuid,
+                accession_id,
+                status,
+                ingest_date,
+                pending_deletion,
+                dashboard_uuid,
+                printfn,
+            )
+
+            _wait_for_cluster_yellow_status(client)
+            _try_to_index(client, indexData, TRANSFER_FILES_INDEX, printfn=printfn)
+
+            files_indexed = files_indexed + 1
 
     return files_indexed
+
+
+def get_transfer_file_index_data(
+    filepath,
+    filename,
+    stripped_path,
+    transfer_path,
+    uuid,
+    accession_id,
+    status,
+    ingest_date,
+    pending_deletion,
+    dashboard_uuid,
+    printfn,
+):
+    # We need to account for the possibility of dealing with a BagIt
+    # transfer package - the new default in Archivematica.
+    # The BagIt is created when the package is sent to backlog hence
+    # the locations in the database do not reflect the BagIt paths.
+    # Strip the "data/" part when looking up the file entry.
+    currentlocation = "%transferDirectory%" + os.path.relpath(
+        filepath, transfer_path
+    ).removeprefix("data/")
+    try:
+        f = File.objects.get(currentlocation=currentlocation.encode(), transfer_id=uuid)
+        file_uuid = str(f.uuid)
+        formats = _get_file_formats(f)
+        bulk_extractor_reports = _list_bulk_extractor_reports(transfer_path, file_uuid)
+        if f.modificationtime is not None:
+            modification_date = f.modificationtime.strftime("%Y-%m-%d")
+        else:
+            modification_date = ""
+    except File.DoesNotExist:
+        file_uuid, modification_date = "", ""
+        formats = []
+        bulk_extractor_reports = []
+
+    file_extension = os.path.splitext(filepath)[1][1:].lower()
+
+    # Size in megabytes
+    size = os.path.getsize(filepath) / (1024 * 1024)
+    create_time = os.stat(filepath).st_ctime
+
+    printfn(f"Indexing {stripped_path} (UUID: {file_uuid})")
+
+    # TODO: Index Backlog Location UUID?
+    return {
+        "filename": filename,
+        "relative_path": stripped_path,
+        "fileuuid": file_uuid,
+        "sipuuid": uuid,
+        "accessionid": accession_id,
+        ES_FIELD_STATUS: status,
+        "origin": dashboard_uuid,
+        "ingestdate": ingest_date,
+        ES_FIELD_CREATED: create_time,
+        "modification_date": modification_date,
+        ES_FIELD_SIZE: size,
+        "tags": [],
+        "file_extension": file_extension,
+        "bulk_extractor_reports": bulk_extractor_reports,
+        "format": formats,
+        "pending_deletion": pending_deletion,
+    }
 
 
 def _try_to_index(
