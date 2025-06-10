@@ -174,15 +174,6 @@ def _wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10)
             time.sleep(wait_between_tries)
 
 
-def _get_sip_identifiers(uuid):
-    # Also index Directory identifiers so the AIP can be found through them
-    return list(
-        Identifier.objects.filter(Q(sip=uuid) | Q(directory__sip=uuid)).values_list(
-            "value", flat=True
-        )
-    )
-
-
 def _get_file_identifiers(uuid):
     return list(Identifier.objects.filter(file=uuid).values_list("value", flat=True))
 
@@ -460,7 +451,6 @@ def index_aip_and_files(
 
     if identifiers is None:
         identifiers = []
-    identifiers += _get_sip_identifiers(uuid)
 
     aip_metadata = _get_aip_metadata(root)
 

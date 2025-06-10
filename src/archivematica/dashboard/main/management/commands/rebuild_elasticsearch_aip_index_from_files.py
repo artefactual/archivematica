@@ -47,6 +47,7 @@ from archivematica.archivematicaCommon import archivematicaFunctions as am
 from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.management.commands import DashboardCommand
 from archivematica.dashboard.main.management.commands import setup_es_for_aip_reindexing
 
@@ -168,7 +169,7 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
         name=aip_name,
         aip_size=aip_info[0]["size"],
         aips_in_aic=aips_in_aic,
-        identifiers=[],  # TODO get these
+        identifiers=get_sip_identifiers(aip_uuid),
         location=location_description,
     )
 

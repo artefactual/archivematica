@@ -45,6 +45,7 @@ from lxml import etree
 from archivematica.archivematicaCommon import archivematicaFunctions as am
 from archivematica.archivematicaCommon import elasticSearchFunctions as es
 from archivematica.archivematicaCommon import storageService
+from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.management.commands import DashboardCommand
 from archivematica.dashboard.main.management.commands import setup_es_for_aip_reindexing
 
@@ -249,6 +250,7 @@ class Command(DashboardCommand):
                 name=package_name,
                 aip_size=package_info["size"],
                 aips_in_aic=aips_in_aic,
+                identifiers=get_sip_identifiers(uuid),
                 encrypted=package_info.get("encrypted", False),
                 location=location_description,
                 dashboard_uuid=self.dashboard_uuid,

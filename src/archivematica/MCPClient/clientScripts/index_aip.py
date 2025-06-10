@@ -12,6 +12,7 @@ from archivematica.archivematicaCommon import identifier_functions
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.models import UnitVariable
 
 django.setup()
@@ -61,7 +62,7 @@ def index_aip(job):
     job.pyprint("AIP info:", aip_info)
     aip_info = aip_info[0]
     mets_staging_path = os.path.join(sip_staging_path, f"METS.{sip_uuid}.xml")
-    identifiers = get_identifiers(job, sip_staging_path)
+    identifiers = get_identifiers(job, sip_staging_path) + get_sip_identifiers(sip_uuid)
     # If this is an AIC, find the number of AIP stored in it and index that
     aips_in_aic = None
     if sip_type == "AIC":

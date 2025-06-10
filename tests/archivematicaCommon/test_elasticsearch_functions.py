@@ -10,10 +10,7 @@ from lxml import etree
 
 from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
-from archivematica.dashboard.main.models import SIP
-from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import File
-from archivematica.dashboard.main.models import Identifier
 from archivematica.dashboard.main.models import Transfer
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -666,29 +663,6 @@ def test_index_aipfile_dmdsec(bulk, dashboard_uuid, metsfile, dmdsec_dict):
 
     for key, value in dmdsec_dict["dublincore_dict"].items():
         assert indexed_data[dmdsec_dict["filePath"]][key] == value
-
-
-@pytest.fixture
-def sip(db):
-    sip = SIP.objects.create(uuid="f663fd87-5ce4-4114-886e-4856371cf0d6")
-    sip.identifiers.add(Identifier.objects.create(value="sip_identifier"))
-    return sip
-
-
-@pytest.fixture
-def directories(db, sip):
-    # Two directories are created but only one is associated with the SIP
-    dir1 = Directory.objects.create(
-        uuid="49fe38a0-c50a-4fdf-9353-04d61057220d", sip=sip
-    )
-    dir1.identifiers.add(Identifier.objects.create(value="dir1"))
-    dir2 = Directory.objects.create(uuid="58eaa39c-2a0b-47fd-9d81-52fbaa108abc")
-    dir2.identifiers.add(Identifier.objects.create(value="dir2"))
-
-
-def test_get_sip_identifiers_returns_sip_and_directory_identifiers(sip, directories):
-    result = elasticSearchFunctions._get_sip_identifiers(sip.uuid)
-    assert sorted(result) == ["dir1", "sip_identifier"]
 
 
 PHYSICAL_STRUCT_MAP = """<mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical" xmlns:mets="http://www.loc.gov/METS/">

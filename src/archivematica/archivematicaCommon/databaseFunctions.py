@@ -20,6 +20,7 @@ import sys
 import uuid
 
 from django.db.models import Min
+from django.db.models import Q
 from django.utils import timezone
 
 from archivematica.dashboard.main.models import SIP
@@ -28,6 +29,7 @@ from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import Identifier
 from archivematica.dashboard.main.models import Transfer
 
 LOGGER = logging.getLogger("archivematica.common")
@@ -295,3 +297,12 @@ def get_transfer_details(transfer_uuid):
             ingest_date = str(dt.date())
 
     return transfer_name, accession_id, ingest_date
+
+
+def get_sip_identifiers(uuid):
+    # Also index Directory identifiers so the AIP can be found through them
+    return list(
+        Identifier.objects.filter(Q(sip=uuid) | Q(directory__sip=uuid)).values_list(
+            "value", flat=True
+        )
+    )

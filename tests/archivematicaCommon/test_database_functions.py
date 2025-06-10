@@ -5,8 +5,11 @@ import pytest
 from django.test import TestCase
 
 from archivematica.archivematicaCommon import databaseFunctions
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Identifier
 
 AGENTS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "agents.json"
 TEST_DATABASE_FUNCTIONS_FIXTURE = (
@@ -153,3 +156,26 @@ class TestDatabaseFunctions(TestCase):
         ).agents
         assert agents.get(id=2)
         assert agents.get(id=5)
+
+
+@pytest.fixture
+def sip(db):
+    sip = SIP.objects.create(uuid="f663fd87-5ce4-4114-886e-4856371cf0d6")
+    sip.identifiers.add(Identifier.objects.create(value="sip_identifier"))
+    return sip
+
+
+@pytest.fixture
+def directories(db, sip):
+    # Two directories are created but only one is associated with the SIP
+    dir1 = Directory.objects.create(
+        uuid="49fe38a0-c50a-4fdf-9353-04d61057220d", sip=sip
+    )
+    dir1.identifiers.add(Identifier.objects.create(value="dir1"))
+    dir2 = Directory.objects.create(uuid="58eaa39c-2a0b-47fd-9d81-52fbaa108abc")
+    dir2.identifiers.add(Identifier.objects.create(value="dir2"))
+
+
+def test_get_sip_identifiers_returns_sip_and_directory_identifiers(sip, directories):
+    result = databaseFunctions.get_sip_identifiers(sip.uuid)
+    assert sorted(result) == ["dir1", "sip_identifier"]
