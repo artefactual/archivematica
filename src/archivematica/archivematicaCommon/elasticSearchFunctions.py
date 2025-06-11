@@ -550,20 +550,23 @@ def _index_aip_files(
     def _generator():
         # Index AIC METS file if it exists.
         for file_ in files:
-            file_data, file_accession_ids = get_aip_file_index_data(
-                mets,
-                file_,
-                uuid,
-                name,
-                aip_metadata,
-                identifiers,
-                aic_identifier,
-                is_part_of,
-                dashboard_uuid,
-                am_version,
-                indexed_at,
+            file_data, file_accession_ids = get_aip_file_index_data(mets, file_)
+            file_data.update(
+                {
+                    "archivematicaVersion": am_version,
+                    "AIPUUID": uuid,
+                    "sipName": name,
+                    "indexedAt": indexed_at,
+                    "isPartOf": is_part_of,
+                    ES_FIELD_AICID: aic_identifier,
+                    "origin": dashboard_uuid,
+                    ES_FIELD_STATUS: STATUS_UPLOADED,
+                }
             )
+            file_data["transferMetadata"] = aip_metadata + file_data["transferMetadata"]
+            file_data["identifiers"] = identifiers + file_data["identifiers"]
             accession_ids.update(file_accession_ids)
+
             yield {
                 "_op_type": "index",
                 "_index": AIP_FILES_INDEX,
@@ -582,34 +585,14 @@ def _index_aip_files(
     return (file_count, accession_ids_list)
 
 
-def get_aip_file_index_data(
-    mets,
-    file_,
-    uuid,
-    name,
-    aip_metadata,
-    identifiers,
-    aic_identifier,
-    is_part_of,
-    dashboard_uuid,
-    am_version,
-    indexed_at,
-):
+def get_aip_file_index_data(mets, file_):
     # Establish the structure to be indexed for each file item.
     indexData = {
-        "archivematicaVersion": am_version,
-        "AIPUUID": uuid,
-        "sipName": name,
         "FILEUUID": "",
-        "indexedAt": indexed_at,
         "filePath": "",
         "fileExtension": "",
-        "isPartOf": is_part_of,
-        ES_FIELD_AICID: aic_identifier,
         "METS": {"dmdSec": {}, "amdSec": {}},
-        "origin": dashboard_uuid,
         "accessionid": "",
-        ES_FIELD_STATUS: STATUS_UPLOADED,
     }
 
     accession_ids = set()
@@ -674,7 +657,7 @@ def get_aip_file_index_data(
                     indexData["METS"]["dmdSec"] = data
                     break
 
-    indexData["transferMetadata"] = aip_metadata + file_metadata
+    indexData["transferMetadata"] = file_metadata
 
     # Get file path from FLocat and extension.
     filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
@@ -685,7 +668,7 @@ def get_aip_file_index_data(
     if fileExtension:
         indexData["fileExtension"] = fileExtension[1:].lower()
 
-    indexData["identifiers"] = identifiers + _get_file_identifiers(fileUUID)
+    indexData["identifiers"] = _get_file_identifiers(fileUUID)
 
     return indexData, accession_ids
 
@@ -804,18 +787,23 @@ def _index_transfer_files(
                 printfn(f"Skipping indexing {stripped_path}")
                 continue
 
-            indexData = get_transfer_file_index_data(
-                filepath,
-                filename,
-                stripped_path,
-                path,
-                uuid,
-                accession_id,
-                status,
-                ingest_date,
-                pending_deletion,
-                dashboard_uuid,
-                printfn,
+            indexData = get_transfer_file_index_data(filepath, path, uuid)
+            indexData.update(
+                {
+                    "filename": filename,
+                    "relative_path": stripped_path,
+                    "sipuuid": uuid,
+                    "accessionid": accession_id,
+                    ES_FIELD_STATUS: status,
+                    "origin": dashboard_uuid,
+                    "ingestdate": ingest_date,
+                    "tags": [],
+                    "pending_deletion": pending_deletion,
+                }
+            )
+
+            printfn(
+                f"Indexing {indexData['relative_path']} (UUID: {indexData['fileuuid']})"
             )
 
             _wait_for_cluster_yellow_status(client)
@@ -826,19 +814,7 @@ def _index_transfer_files(
     return files_indexed
 
 
-def get_transfer_file_index_data(
-    filepath,
-    filename,
-    stripped_path,
-    transfer_path,
-    uuid,
-    accession_id,
-    status,
-    ingest_date,
-    pending_deletion,
-    dashboard_uuid,
-    printfn,
-):
+def get_transfer_file_index_data(filepath, transfer_path, uuid):
     # We need to account for the possibility of dealing with a BagIt
     # transfer package - the new default in Archivematica.
     # The BagIt is created when the package is sent to backlog hence
@@ -867,26 +843,15 @@ def get_transfer_file_index_data(
     size = os.path.getsize(filepath) / (1024 * 1024)
     create_time = os.stat(filepath).st_ctime
 
-    printfn(f"Indexing {stripped_path} (UUID: {file_uuid})")
-
     # TODO: Index Backlog Location UUID?
     return {
-        "filename": filename,
-        "relative_path": stripped_path,
         "fileuuid": file_uuid,
-        "sipuuid": uuid,
-        "accessionid": accession_id,
-        ES_FIELD_STATUS: status,
-        "origin": dashboard_uuid,
-        "ingestdate": ingest_date,
         ES_FIELD_CREATED: create_time,
         "modification_date": modification_date,
         ES_FIELD_SIZE: size,
-        "tags": [],
         "file_extension": file_extension,
         "bulk_extractor_reports": bulk_extractor_reports,
         "format": formats,
-        "pending_deletion": pending_deletion,
     }
 
 
