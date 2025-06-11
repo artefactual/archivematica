@@ -219,7 +219,7 @@ RUN set -ex \
 		gnupg \
 		 curl \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-	
+
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
 	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.18.x.gpg] http://packages.archivematica.org/1.18.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
@@ -325,6 +325,32 @@ ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/arc
 
 # TODO(daniel) will this work?
 FROM base-builder AS archivematica-tests
+
+ARG USER_ID
+ARG GROUP_ID
+ARG PYENV_DIR
+
+RUN set -ex \
+	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.16.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.16.x.gpg \
+	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.16.x.gpg] http://packages.archivematica.org/1.16.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
+	&& curl --retry 3 -so /tmp/repo-mediaarea_1.0-21_all.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_1.0-21_all.deb \
+	&& dpkg -i /tmp/repo-mediaarea_1.0-21_all.deb \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		gcc \
+		media-types \
+		p7zip-full \
+		pbzip2 \
+		pst-utils \
+		python3-lxml \
+		rsync \
+		unar \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
 # -----------------------------------------------------------------------------
 
