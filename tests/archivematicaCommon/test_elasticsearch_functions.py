@@ -6,7 +6,6 @@ from unittest import mock
 
 import pytest
 from django.utils.timezone import make_aware
-from lxml import etree
 
 from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
@@ -356,10 +355,10 @@ def test_index_mets_file_metadata(bulk, dashboard_uuid, es_client):
     elasticSearchFunctions._index_aip_files(
         client=es_client,
         uuid=aip_uuid,
-        mets=etree.parse(mets_file_path).getroot(),
         name=sipName,
         identifiers=identifiers,
         dashboard_uuid=str(dashboard_uuid),
+        parser=elasticSearchFunctions.AIPMETSParser(mets_file_path),
     )
 
     assert bulk.call_count == 1
@@ -444,10 +443,10 @@ def test_index_mets_file_metadata_with_utf8(bulk, es_client, dashboard_uuid):
     elasticSearchFunctions._index_aip_files(
         client=es_client,
         uuid="",
-        mets=etree.parse(mets_file_path).getroot(),
         name="",
         identifiers=[],
         dashboard_uuid=str(dashboard_uuid),
+        parser=elasticSearchFunctions.AIPMETSParser(mets_file_path),
     )
 
 
@@ -597,10 +596,12 @@ def test_index_aipfile_fileuuid(
     elasticSearchFunctions._index_aip_files(
         client=None,
         uuid=aipuuid,
-        mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
         name=f"{aipname}-{aipuuid}",
         identifiers=[],
         dashboard_uuid=str(dashboard_uuid),
+        parser=elasticSearchFunctions.AIPMETSParser(
+            os.path.join(THIS_DIR, "fixtures", metsfile)
+        ),
     )
 
     for file_uuid in fileuuid_dict:
@@ -655,47 +656,16 @@ def test_index_aipfile_dmdsec(bulk, dashboard_uuid, metsfile, dmdsec_dict):
     elasticSearchFunctions._index_aip_files(
         client=None,
         uuid="DUMMYUUID",
-        mets=etree.parse(os.path.join(THIS_DIR, "fixtures", metsfile)).getroot(),
         name="{}-{}".format("DUMMYNAME", "DUMMYUUID"),
         identifiers=[],
         dashboard_uuid=str(dashboard_uuid),
+        parser=elasticSearchFunctions.AIPMETSParser(
+            os.path.join(THIS_DIR, "fixtures", metsfile)
+        ),
     )
 
     for key, value in dmdsec_dict["dublincore_dict"].items():
         assert indexed_data[dmdsec_dict["filePath"]][key] == value
-
-
-PHYSICAL_STRUCT_MAP = """<mets:structMap ID="structMap_1" LABEL="Archivematica default" TYPE="physical" xmlns:mets="http://www.loc.gov/METS/">
-  <mets:div LABEL="Demo-166e916c-0676-4324-8045-bfc628bebcea" TYPE="Directory" DMDID="dmdSec_1">
-    <mets:div LABEL="objects" TYPE="Directory" DMDID="dmdSec_2 dmdSec_3">
-      <mets:div LABEL="View_from_lookout_over_Queenstown_towards_the_Remarkables_in_spring-49ad492e-7f1f-4f76-a394-17fa9c9a392d.tif" TYPE="Item">
-        <mets:fptr FILEID="file-49ad492e-7f1f-4f76-a394-17fa9c9a392d"/>
-      </mets:div>
-      <mets:div LABEL="View_from_lookout_over_Queenstown_towards_the_Remarkables_in_spring.jpg" TYPE="Item" ADMID="amdSec_1">
-        <mets:fptr FILEID="file-e36a4785-f271-405d-ac75-e54cfdbf74e4"/>
-      </mets:div>
-      <mets:div LABEL="artwork" TYPE="Directory" ADMID="amdSec_2">
-        <mets:div LABEL="MARBLES-9077d660-cc89-4ea3-a61c-f932328985ef.tif" TYPE="Item">
-          <mets:fptr FILEID="file-9077d660-cc89-4ea3-a61c-f932328985ef"/>
-        </mets:div>
-      </mets:div>
-      <mets:div LABEL="empty" TYPE="Directory">
-      </mets:div>
-    </mets:div>
-  </mets:div>
-</mets:structMap>
-"""
-
-
-@pytest.fixture
-def physical_struct_map():
-    return etree.fromstring(PHYSICAL_STRUCT_MAP)
-
-
-def test_get_directories_with_metadata(physical_struct_map):
-    result = elasticSearchFunctions._get_directories_with_metadata(physical_struct_map)
-    labels = sorted(directory.attrib["LABEL"] for directory in result)
-    assert labels == ["Demo-166e916c-0676-4324-8045-bfc628bebcea", "artwork", "objects"]
 
 
 METS = """<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -786,94 +756,6 @@ METS = """<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www
   </mets:amdSec>
 </mets:mets>
 """
-
-
-@pytest.fixture
-def mets():
-    return etree.fromstring(METS)
-
-
-@pytest.fixture
-def directory():
-    result = etree.Element("directory")
-    result.set("LABEL", "some/path/to/directory")
-    result.set("DMDID", "dmdSec_1 dmdSec_2 dmdSec_3 dmdSec_4 dmdSec_5 dmdSec_6")
-    result.set("ADMID", "amdSec_1")
-    return result
-
-
-@pytest.fixture
-def directory_with_no_metadata():
-    result = etree.Element("directory")
-    return result
-
-
-@pytest.fixture
-def file_pointer():
-    result = etree.Element("file")
-    result.set("DMDID", "dmdSec_1 dmdSec_2 dmdSec_3 dmdSec_4 dmdSec_5 dmdSec_6")
-    return result
-
-
-@pytest.fixture
-def file_pointer_with_no_metadata():
-    result = etree.Element("file")
-    return result
-
-
-expected_file_metadata = {
-    "custom_field": ["updated custom field part 1", "updated custom field part 2"],
-    "custom_field2": "updated custom field 2",
-    "dc:creator": "AM",
-    "dc:subject": [None, None, None],
-    "dc:title": "Some title",
-    "record_dict": {
-        "idfield": "idfield",
-        "controlfield": [
-            "controlfield 1",
-            "controlfield 2",
-        ],
-        "datafield_dict": [
-            {
-                "subfield": [
-                    "subfield 1",
-                    "subfield 2",
-                ]
-            },
-            {
-                "subfield": "subfield 3",
-            },
-        ],
-    },
-}
-
-
-expected_directory_metadata = {
-    "__DIRECTORY_LABEL__": "some/path/to/directory",
-    "FIELD_CONTACT_NAME": ["A.", "R.", "Chivist"],
-    "Payload-Oxum": "63140.2",
-    **expected_file_metadata,
-}
-
-
-@pytest.mark.parametrize(
-    "element_fixture_name, method_name, expected_metadata",
-    [
-        ("directory", "_get_directory_metadata", expected_directory_metadata),
-        ("directory_with_no_metadata", "_get_directory_metadata", {}),
-        ("file_pointer", "_get_file_metadata", expected_file_metadata),
-        ("file_pointer_with_no_metadata", "_get_file_metadata", {}),
-    ],
-)
-def test_get_metadata(
-    request, mets, element_fixture_name, method_name, expected_metadata
-):
-    assert (
-        getattr(elasticSearchFunctions, method_name)(
-            request.getfixturevalue(element_fixture_name), mets
-        )
-        == expected_metadata
-    )
 
 
 def test_index_aip_and_files_logs_error_if_mets_does_not_exist(

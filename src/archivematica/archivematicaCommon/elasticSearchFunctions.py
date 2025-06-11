@@ -168,10 +168,6 @@ def _wait_for_cluster_yellow_status(client, wait_between_tries=10, max_tries=10)
             time.sleep(wait_between_tries)
 
 
-def _get_file_identifiers(uuid):
-    return list(Identifier.objects.filter(file=uuid).values_list("value", flat=True))
-
-
 # --------------
 # CREATE INDEXES
 # --------------
@@ -410,44 +406,10 @@ def index_aip_and_files(
         printfn(error_message, file=sys.stderr)
         return 1
 
-    tree = etree.parse(mets_staging_path)
-    _remove_tool_output_from_mets(tree)
-    root = tree.getroot()
-    # Extract AIC identifier, other specially-indexed information
-    aic_identifier = None
-    is_part_of = None
-    dublincore = ns.xml_find_premis(
-        root, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore"
-    )
-    if dublincore is not None:
-        aip_type = ns.xml_findtext_premis(
-            dublincore, "dc:type"
-        ) or ns.xml_findtext_premis(dublincore, "dcterms:type")
-        if aip_type == "Archival Information Collection":
-            aic_identifier = ns.xml_findtext_premis(
-                dublincore, "dc:identifier"
-            ) or ns.xml_findtext_premis(dublincore, "dcterms:identifier")
-        elif aip_type == "Archival Information Package":
-            is_part_of = ns.xml_findtext_premis(dublincore, "dcterms:isPartOf")
-
-    # Pull the create time from the METS header.
-    # Old METS did not use `metsHdr`.
-    created = time.time()
-    mets_hdr = ns.xml_find_premis(root, "mets:metsHdr")
-    if mets_hdr is not None:
-        mets_created_attr = mets_hdr.get("CREATEDATE")
-        if mets_created_attr:
-            try:
-                created = calendar.timegm(
-                    time.strptime(mets_created_attr, "%Y-%m-%dT%H:%M:%S")
-                )
-            except ValueError:
-                printfn("Failed to parse METS CREATEDATE: %s" % (mets_created_attr))
+    parser = AIPMETSParser(mets_staging_path)
 
     if identifiers is None:
         identifiers = []
-
-    aip_metadata = _get_aip_metadata(root)
 
     printfn("AIP UUID: " + uuid)
     printfn("Indexing AIP files ...")
@@ -455,13 +417,10 @@ def index_aip_and_files(
     (files_indexed, accession_ids) = _index_aip_files(
         client=client,
         uuid=uuid,
-        mets=root,
         name=name,
         identifiers=identifiers,
-        aip_metadata=aip_metadata,
         dashboard_uuid=dashboard_uuid,
-        aic_identifier=aic_identifier,
-        is_part_of=is_part_of,
+        parser=parser,
     )
 
     printfn("Files indexed: " + str(files_indexed))
@@ -474,12 +433,12 @@ def index_aip_and_files(
         ES_FIELD_SIZE: int(aip_size) / (1024 * 1024),
         ES_FIELD_FILECOUNT: files_indexed,
         "origin": dashboard_uuid,
-        ES_FIELD_CREATED: created,
-        ES_FIELD_AICID: aic_identifier,
-        "isPartOf": is_part_of,
+        ES_FIELD_CREATED: parser.created,
+        ES_FIELD_AICID: parser.aic_identifier,
+        "isPartOf": parser.is_part_of,
         ES_FIELD_AICCOUNT: aips_in_aic,
         "identifiers": identifiers,
-        "transferMetadata": aip_metadata,
+        "transferMetadata": parser.aip_metadata,
         ES_FIELD_ENCRYPTED: encrypted,
         ES_FIELD_ACCESSION_IDS: accession_ids,
         ES_FIELD_STATUS: STATUS_UPLOADED,
@@ -494,36 +453,21 @@ def index_aip_and_files(
 
 
 def _index_aip_files(
-    client,
-    uuid,
-    mets,
-    name,
-    identifiers=None,
-    aip_metadata=None,
-    dashboard_uuid="",
-    aic_identifier=None,
-    is_part_of=None,
+    client, uuid, name, identifiers=None, dashboard_uuid="", parser=None
 ):
     """Index AIP files from AIP with UUID `uuid` and METS at path `mets_path`.
 
     :param client: The ElasticSearch client.
     :param uuid: The UUID of the AIP we're indexing.
-    :param mets: root Element of the METS document.
     :param name: AIP name.
     :param identifiers: optional additional identifiers (MODS, Islandora, etc.).
-    :param aip_metadata: list with the descriptive and administrative metadata
-                         of each directory in the AIP
     :param dashboard_uuid: Pipeline UUID.
-    :param aic_identifier: AIC identifier from DublinCore.
-    :param is_part_of: identifier for the AIC to which the AIP belongs.
+    :param parser: AIPMETSParser instance.
     :return: number of files indexed, list of accession numbers
     """
 
     if identifiers is None:
         identifiers = []
-
-    if aip_metadata is None:
-        aip_metadata = []
 
     # Use a set to ensure accession numbers are unique without needing to
     # iterate through the list each time to check.
@@ -532,32 +476,24 @@ def _index_aip_files(
     am_version = version.get_version()
     indexed_at = time.time()
 
-    # Index all files in a fileGrup with USE='original' or USE='metadata'.
-    original_files = ns.xml_findall_premis(
-        mets, "mets:fileSec/mets:fileGrp[@USE='original']/mets:file"
-    )
-    metadata_files = ns.xml_findall_premis(
-        mets, "mets:fileSec/mets:fileGrp[@USE='metadata']/mets:file"
-    )
-    files = original_files + metadata_files
-
     def _generator():
         # Index AIC METS file if it exists.
-        for file_ in files:
-            file_data, file_accession_ids = get_aip_file_index_data(mets, file_)
+        for file_data, file_accession_ids in parser.files():
             file_data.update(
                 {
                     "archivematicaVersion": am_version,
                     "AIPUUID": uuid,
                     "sipName": name,
                     "indexedAt": indexed_at,
-                    "isPartOf": is_part_of,
-                    ES_FIELD_AICID: aic_identifier,
+                    "isPartOf": parser.is_part_of,
+                    ES_FIELD_AICID: parser.aic_identifier,
                     "origin": dashboard_uuid,
                     ES_FIELD_STATUS: STATUS_UPLOADED,
                 }
             )
-            file_data["transferMetadata"] = aip_metadata + file_data["transferMetadata"]
+            file_data["transferMetadata"] = (
+                parser.aip_metadata + file_data["transferMetadata"]
+            )
             file_data["identifiers"] = identifiers + file_data["identifiers"]
             accession_ids.update(file_accession_ids)
 
@@ -573,98 +509,10 @@ def _index_aip_files(
     # It should be revisited once we make documents smaller.
     bulk(client, _generator(), chunk_size=50)
 
-    file_count = len(files)
+    file_count = parser.file_count
     accession_ids_list = list(accession_ids)
 
     return (file_count, accession_ids_list)
-
-
-def get_aip_file_index_data(mets, file_):
-    # Establish the structure to be indexed for each file item.
-    indexData = {
-        "FILEUUID": "",
-        "filePath": "",
-        "fileExtension": "",
-        "METS": {"dmdSec": {}, "amdSec": {}},
-        "accessionid": "",
-    }
-
-    accession_ids = set()
-
-    # Get file UUID. If an ADMID exists, look in the amdSec for the UUID,
-    # otherwise parse it out of the file ID.
-    # 'Original' files have ADMIDs, 'Metadata' files do not.
-    admID = file_.attrib.get("ADMID", None)
-    if admID is None:
-        # Parse UUID from the file ID.
-        fileUUID = None
-        uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
-        uuids = re.findall(uuix_regex, file_.attrib["ID"])
-        # Multiple UUIDs may be returned - if they are all identical,
-        # use that UUID, otherwise use None.
-        # To determine all UUIDs are identical, use the size of the set.
-        if len(set(uuids)) == 1:
-            fileUUID = uuids[0]
-    else:
-        amdSec = _get_amdSec(admID, mets)
-        fileUUID = _get_file_uuid(amdSec)
-        accession_id = _get_accession_number(amdSec)
-        if accession_id is not None:
-            indexData["accessionid"] = accession_id
-            accession_ids.add(accession_id)
-
-        # Index amdSec information.
-        xml = etree.tostring(amdSec, encoding="utf8")
-        indexData["METS"]["amdSec"] = _normalize_dict(xmltodict.parse(xml))
-
-    indexData["FILEUUID"] = fileUUID
-
-    file_metadata = []
-
-    # Get the parent division for the file pointer by searching the
-    # physical structural map section (structMap).
-    file_id = file_.attrib.get("ID", None)
-    file_pointer_division = ns.xml_find_premis(
-        mets,
-        f"mets:structMap[@TYPE='physical']//mets:fptr[@FILEID='{file_id}']/..",
-    )
-    if file_pointer_division is not None:
-        descriptive_metadata = _get_file_metadata(file_pointer_division, mets)
-        if descriptive_metadata:
-            file_metadata.append(descriptive_metadata)
-        # If the parent division has a DMDID attribute then index
-        # its data from the descriptive metadata section (dmdSec).
-        dmd_section_id = file_pointer_division.attrib.get("DMDID", None)
-        if dmd_section_id is not None:
-            # dmd_section_id can contain one id (e.g., "dmdSec_2") or
-            # more than one (e.g., "dmdSec_2 dmdSec_3", when a file
-            # has both DC and non-DC metadata).
-            # Attempt to index only the DC dmdSec if available.
-            for dmd_section_id_item in dmd_section_id.split():
-                dmd_section_info = ns.xml_find_premis(
-                    mets,
-                    f"mets:dmdSec[@ID='{dmd_section_id_item}']/mets:mdWrap[@MDTYPE='DC']/mets:xmlData",
-                )
-                if dmd_section_info is not None:
-                    xml = etree.tostring(dmd_section_info, encoding="utf8")
-                    data = _normalize_dict(xmltodict.parse(xml))
-                    indexData["METS"]["dmdSec"] = data
-                    break
-
-    indexData["transferMetadata"] = file_metadata
-
-    # Get file path from FLocat and extension.
-    filePath = ns.xml_find_premis(file_, "mets:FLocat").attrib[
-        "{http://www.w3.org/1999/xlink}href"
-    ]
-    indexData["filePath"] = filePath
-    _, fileExtension = os.path.splitext(filePath)
-    if fileExtension:
-        indexData["fileExtension"] = fileExtension[1:].lower()
-
-    indexData["identifiers"] = _get_file_identifiers(fileUUID)
-
-    return indexData, accession_ids
 
 
 def index_transfer_and_files(
@@ -876,224 +724,6 @@ def _try_to_index(
 # ----------------
 
 
-def _remove_tool_output_from_mets(doc):
-    """Remove tool output from a METS ElementTree.
-
-    Given an ElementTree object, removes all objectsCharacteristicsExtensions
-    elements. This modifies the existing document in-place; it does not return
-    a new document. This helps index METS files, which might otherwise get too
-    large to be usable.
-    """
-    root = doc.getroot()
-
-    # Remove tool output nodes
-    toolNodes = ns.xml_findall_premis(
-        root,
-        "mets:amdSec/mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectCharacteristics/premis:objectCharacteristicsExtension",
-    )
-
-    for parent in toolNodes:
-        parent.clear()
-
-    print("Removed FITS output from METS.")
-
-
-def _get_directories_with_metadata(container):
-    """Return Directory entries with metadata sections.
-
-    Check if the entry references dmdSec (descriptive) or amdSec
-    (administrative) metadata sections.
-    """
-    return ns.xml_xpath_premis(
-        container, './/mets:div[@TYPE="Directory"][@DMDID or @ADMID]'
-    )
-
-
-def _get_descriptive_section_metadata(dmdSec):
-    """Get dublin core and custom descriptive metadata."""
-    result = []
-    # look for dublincore terms in the dmdSec
-    result += ns.xml_findall_premis(
-        dmdSec, 'mets:mdWrap[@MDTYPE="DC"]/mets:xmlData/dcterms:dublincore'
-    )
-    # look for non dublincore (custom) metadata
-    result += ns.xml_findall_premis(dmdSec, 'mets:mdWrap[@MDTYPE="OTHER"]/mets:xmlData')
-    return result
-
-
-def _combine_elements(elements):
-    """Serialize all the elements as a JSON compatible string.
-
-    Combine the elements contents into a single container and parse it
-    with xmltodict.
-    """
-    # wrap the data from all metadata elements in a container
-    container = etree.Element("container")
-    for element in elements:
-        for child in element:
-            # add a copy to not modify the METS file in place
-            container.append(copy.deepcopy(child))
-    # parse the container with xmltodict ignoring element attributes
-    return (
-        xmltodict.parse(
-            etree.tostring(container, encoding="utf8"), xml_attribs=False
-        ).get("container")
-        or {}
-    )
-
-
-def _get_relative_path_element(directory):
-    """Build an element with the relative path of the directory."""
-    TAG = "__DIRECTORY_LABEL__"
-    result = etree.Element("container")
-    path = etree.SubElement(result, TAG)
-    path.text = directory.attrib.get("LABEL", "")
-    return result
-
-
-def _get_latest_dmd_secs(dmd_id, doc):
-    # Build a mapping of dmdSec by metadata type.
-    dmd_secs = {}
-    for id in dmd_id.split():
-        dmd_sec = ns.xml_find_premis(doc, f'mets:dmdSec[@ID="{id}"]')
-        if not dmd_sec:
-            continue
-        # Use mdWrap MDTYPE and OTHERMDTYPE to generate a unique key.
-        md_wrap = ns.xml_find_premis(dmd_sec, "mets:mdWrap")
-        if not md_wrap:
-            continue
-        mdtype_key = md_wrap.attrib.get("MDTYPE")
-        # Ignore PREMIS:OBJECT.
-        if mdtype_key == "PREMIS:OBJECT":
-            continue
-        other_mdtype = md_wrap.attrib.get("OTHERMDTYPE")
-        if other_mdtype:
-            mdtype_key += "_" + other_mdtype
-        if mdtype_key not in dmd_secs:
-            dmd_secs[mdtype_key] = []
-        dmd_secs[mdtype_key].append(dmd_sec)
-    # Get only the latest dmdSec by type.
-    final_dmd_secs = []
-    for _, secs in dmd_secs.items():
-        latest_date = ""
-        latest_sec = None
-        for sec in secs:
-            date = sec.attrib.get("CREATED", "")
-            if not latest_date or date > latest_date:
-                latest_date = date
-                latest_sec = sec
-        # Do not add latest dmdSec if it's deleted.
-        if latest_sec and latest_sec.attrib.get("STATUS", "") != "deleted":
-            final_dmd_secs.append(latest_sec)
-    return final_dmd_secs
-
-
-def _get_file_metadata(file_pointer_division, doc):
-    """Get descriptive metadata for a file pointer.
-
-    There are various types of metadata elements extracted: dublin core
-    and custom (non dublin core), both set through the metadata/metadata.csv
-    file; and metadata added through the source-metadata.csv files and
-    related XML files.
-
-    These types are parsed and combined into a single dictionary of
-    metadata attributes.
-    """
-    result = {}
-    elements_with_metadata = []
-    dmd_id = file_pointer_division.attrib.get("DMDID")
-    if not dmd_id:
-        return result
-    for dmd_sec in _get_latest_dmd_secs(dmd_id, doc):
-        elements_with_metadata += _get_descriptive_section_metadata(dmd_sec)
-    if elements_with_metadata:
-        result = _combine_elements(elements_with_metadata)
-    return _normalize_dict(result)
-
-
-def _get_directory_metadata(directory, doc):
-    """Get descriptive or administrive metadata for a directory.
-
-    There are three types of metadata elements extracted:
-
-    1. Dublin core, set through the metadata/metadata.csv file or the
-       transfer/ingest metadata form in the dashboard
-    2. Custom (non dublin core), set through the metadata/metadata.csv
-       file
-    3. Bag/disk image metadata, set through the bag-info.txt file or
-       the disk image metadata form in the dashboard
-    4. Custom XML metadata, set through the source-metadata.csv files
-       and related XML files
-
-    These types are parsed and combined into a single dictionary of
-    metadata attributes. A marker element with the label of the
-    Directory entry is added to the result.
-    """
-    result = {}
-    elements_with_metadata = []
-    dmd_id = directory.attrib.get("DMDID")
-    if dmd_id:
-        for dmd_sec in _get_latest_dmd_secs(dmd_id, doc):
-            elements_with_metadata += _get_descriptive_section_metadata(dmd_sec)
-    for ADMID in directory.attrib.get("ADMID", "").split():
-        amd_sec = ns.xml_find_premis(doc, f'mets:amdSec[@ID="{ADMID}"]')
-        if amd_sec is not None:
-            # look for bag/disk image metadata
-            elements_with_metadata += ns.xml_findall_premis(
-                amd_sec, "mets:sourceMD/mets:mdWrap/mets:xmlData/transfer_metadata"
-            )
-    if elements_with_metadata:
-        # add an attribute with the relative path of the Directory entry
-        elements_with_metadata.append(_get_relative_path_element(directory))
-        result = _combine_elements(elements_with_metadata)
-    return _normalize_dict(result)
-
-
-def _get_aip_metadata(doc):
-    """Get metadata about the directories in the AIP.
-
-    Given a doc representing a METS file, look for Directory entries
-    that have descriptive or administrative metadata in the physical
-    structMap and return dictionaries with metadata attributes for
-    each directory.
-    """
-    result = []
-    physical_struct_map = ns.xml_find_premis(doc, 'mets:structMap[@TYPE="physical"]')
-    if physical_struct_map is not None:
-        for directory in _get_directories_with_metadata(physical_struct_map):
-            directory_metadata = _get_directory_metadata(directory, doc)
-            if directory_metadata:
-                result.append(directory_metadata)
-    return result
-
-
-def _normalize_dict(data):
-    """Normalize dictionary from xmltodict for ES indexing.
-
-    Because an XML element may contain text value or other elements, conversion
-    to a dict can result in different value types for the same key. This causes
-    problems in the Elasticsearch index as it expects consistent types. This
-    function recurses a dict and appends "_dict" to the keys with a dict value.
-    """
-    new = {}
-    for key, value in data.items():
-        dict_key = key + "_dict"
-        if isinstance(value, dict):
-            new[dict_key] = _normalize_dict(value)
-        elif isinstance(value, list):
-            for item in value:
-                new_key = key
-                if isinstance(item, dict):
-                    new_key = dict_key
-                    item = _normalize_dict(item)
-                if new_key not in new:
-                    new[new_key] = []
-                new[new_key].append(item)
-        else:
-            new[key] = value
-    return new
-
-
 def _get_file_formats(f):
     formats = []
     fields = [
@@ -1136,51 +766,6 @@ def _list_files_in_dir(path, filepaths=None):
 
     # Return fully traversed data
     return filepaths
-
-
-def _get_amdSec(admID, doc):
-    """Get amdSec with given admID.
-
-    :param admID: admID.
-    :param doc: ElementTree object.
-    :return: amdSec.
-    """
-    return ns.xml_find_premis(doc, f"mets:amdSec[@ID='{admID}']")
-
-
-def _get_file_uuid(amdSec):
-    """Get UUID of a file from amdSec.
-
-    :param amdSec: amdSec.
-    :return: File UUID.
-    """
-    return ns.xml_findtext_premis(
-        amdSec,
-        "mets:techMD/mets:mdWrap/mets:xmlData/premis:object/premis:objectIdentifier/premis:objectIdentifierValue",
-    )
-
-
-def _get_accession_number(amdSec):
-    """Get accession number associated with a file from amdSec.
-
-    Look for a <premis:event> entry within file's amdSec that has a
-    <premis:eventType> of "registration". Return the text value (with leading
-    "accession#" stripped out) from the <premis:eventOutcomeDetailNote>.
-
-    If no matching <premis:event> entry is found, return None.
-
-    :param amdSec: amdSec.
-    :return: Accession number or None.
-    """
-    registration_detail_notes = ns.xml_xpath_premis(
-        amdSec,
-        ".//premis:event[premis:eventType='registration']/premis:eventOutcomeInformation/premis:eventOutcomeDetail/premis:eventOutcomeDetailNote",
-    )
-    if not registration_detail_notes:
-        return None
-    detail_text = registration_detail_notes[0].text
-    ACCESSION_PREFIX = "accession#"
-    return detail_text[len(ACCESSION_PREFIX) :]
 
 
 # -------
