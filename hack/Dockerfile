@@ -324,11 +324,13 @@ ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/arc
 # -----------------------------------------------------------------------------
 
 # TODO(daniel) will this work?
-FROM base-builder AS archivematica-tests
+FROM base AS archivematica-tests
 
 ARG USER_ID
 ARG GROUP_ID
 ARG PYENV_DIR
+
+user root
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
