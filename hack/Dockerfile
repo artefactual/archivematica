@@ -323,8 +323,7 @@ ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/arc
 
 # -----------------------------------------------------------------------------
 
-# TODO(daniel) will this work?
-FROM base AS archivematica-tests
+FROM base-builder AS archivematica-tests
 
 ARG USER_ID
 ARG GROUP_ID
