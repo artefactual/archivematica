@@ -328,6 +328,7 @@ FROM base-builder AS archivematica-tests
 ARG USER_ID
 ARG GROUP_ID
 ARG PYENV_DIR
+ARG MEDIAAREA_VERSION
 
 user root
 
