@@ -328,16 +328,8 @@ FROM base-builder AS archivematica-tests
 ARG USER_ID
 ARG GROUP_ID
 ARG PYENV_DIR
-ARG MEDIAAREA_VERSION
 
 user root
-
-RUN set -ex \
-	&& apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		gnupg \
-		 curl \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
@@ -347,6 +339,7 @@ RUN set -ex \
 	&& rm /tmp/repo-mediaarea.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
+		ffmpeg \
 		gcc \
 		media-types \
 		p7zip-full \
