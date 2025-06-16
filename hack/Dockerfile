@@ -347,14 +347,36 @@ RUN set -ex \
 	&& rm /tmp/repo-mediaarea.deb \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
+		atool \
+		bulk-extractor \
 		ffmpeg \
-		gcc \
-		media-types \
+		gearman \
+		ghostscript \
+		hashdeep \
+		imagemagick \
+		inkscape \
+		jhove=${JHOVE_VERSION} \
+		libimage-exiftool-perl \
+		logapp \
+		md5deep \
+		mediaconch \
+		mediainfo \
+		nfs-common \
+		openjdk-8-jre-headless \
 		p7zip-full \
 		pbzip2 \
 		pst-utils \
 		python3-lxml \
 		rsync \
+		siegfried \
+		sleuthkit \
+		tesseract-ocr \
+		tree \
+		unrar-free \
+		uuid \
+		ssh \
+		gcc \
+		media-types \
 		unar \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
