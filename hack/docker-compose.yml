@@ -70,7 +70,7 @@ services:
       - "127.0.0.1:62002:9200"
 
   gearmand:
-    image: "artefactual/gearmand:1.1.18-alpine"
+    image: "artefactual/gearmand:1.1.21.5-alpine"
     command: "--queue-type=builtin"
     user: "gearman"
     ports:
