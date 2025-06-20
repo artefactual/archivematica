@@ -26,7 +26,7 @@ volumes:
 services:
 
   mysql:
-    image: "percona:8.0"
+    image: "percona/percona-server:8.0"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "12345"
@@ -62,7 +62,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:stable-alpine"
+    image: "nginx:stable"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
@@ -72,6 +72,7 @@ services:
       - "62081:8000"
 
   archivematica-mcp-server:
+    platform: linux/amd64
     build:
       context: "../"
       dockerfile: "hack/Dockerfile"
@@ -100,6 +101,7 @@ services:
       - "gearmand"
 
   archivematica-mcp-client:
+    platform: linux/amd64
     build:
       context: "../"
       dockerfile: "hack/Dockerfile"
@@ -124,6 +126,7 @@ services:
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_SCAN_SIZE: "42"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_STREAM_LENGTH: "100"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_BACKEND: "clamdscanner" # Option: clamdscanner or clamscan;
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_PASS_BY_STREAM: "false"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT: "7999"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED: "true"
@@ -138,6 +141,7 @@ services:
       - "archivematica-storage-service"
 
   archivematica-dashboard:
+    platform: linux/amd64
     build:
       context: "../"
       dockerfile: "hack/Dockerfile"
