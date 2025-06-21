@@ -77,11 +77,11 @@ services:
       - "127.0.0.1:62004:4730"
 
   clamavd:
-    image: "artefactual/clamav:latest"
+    image: "clamav/clamav-debian:1.4.3-45"
     environment:
-      CLAMAV_MAX_FILE_SIZE: "42"
-      CLAMAV_MAX_SCAN_SIZE: "42"
-      CLAMAV_MAX_STREAM_LENGTH: "100"
+      CLAMD_CONF_MaxFileSize: "42"
+      CLAMD_CONF_MaxScanSize: "42"
+      CLAMD_CONF_StreamMaxLength: "100"
     ports:
       - "127.0.0.1:62006:3310"
     volumes:
