@@ -79,9 +79,9 @@ services:
   clamavd:
     image: "clamav/clamav-debian:1.4.3-45"
     environment:
-      CLAMD_CONF_MaxFileSize: "42"
-      CLAMD_CONF_MaxScanSize: "42"
-      CLAMD_CONF_StreamMaxLength: "100"
+      CLAMD_CONF_MaxFileSize: "42M"
+      CLAMD_CONF_MaxScanSize: "42M"
+      CLAMD_CONF_StreamMaxLength: "100M"
     ports:
       - "127.0.0.1:62006:3310"
     volumes:
