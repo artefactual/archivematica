@@ -20,7 +20,7 @@ bagit==1.9.0
     # via -r requirements.in
 brotli==1.1.0
     # via -r requirements.in
-certifi==2025.4.26
+certifi==2025.6.15
     # via requests
 cffi==1.17.1
     # via cryptography
@@ -28,11 +28,11 @@ charset-normalizer==3.4.2
     # via requests
 clamav-client==0.7.1
     # via -r requirements.in
-cryptography==45.0.3
+cryptography==45.0.4
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.22
+django==4.2.23
     # via
     #   -r requirements.in
     #   django-auth-ldap
@@ -49,7 +49,7 @@ django-csp==4.0
     # via -r requirements.in
 django-forms-bootstrap==3.1.0
     # via -r requirements.in
-django-prometheus==2.3.1
+django-prometheus==2.4.0
     # via -r requirements.in
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via -r requirements.in
@@ -129,7 +129,7 @@ referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r requirements.in
     #   agentarchives
@@ -154,14 +154,14 @@ typing-extensions==4.14.0
     #   referencing
 unidecode==1.4.0
     # via -r requirements.in
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   amclient
     #   elasticsearch
     #   requests
 whitenoise==6.9.0
     # via -r requirements.in
-zipp==3.22.0
+zipp==3.23.0
     # via importlib-resources
 zope-event==5.0
     # via gevent

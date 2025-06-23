@@ -25,9 +25,9 @@ brotli==1.1.0
     # via -r /src/requirements.txt
 build==1.2.2.post1
     # via pip-tools
-cachetools==6.0.0
+cachetools==6.1.0
     # via tox
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   -r /src/requirements.txt
     #   requests
@@ -47,18 +47,18 @@ click==8.1.8
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.8.2
+coverage[toml]==7.9.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-cryptography==45.0.3
+cryptography==45.0.4
     # via
     #   -r /src/requirements.txt
     #   josepy
     #   mozilla-django-oidc
 distlib==0.3.9
     # via virtualenv
-django==4.2.22
+django==4.2.23
     # via
     #   -r /src/requirements.txt
     #   django-auth-ldap
@@ -75,7 +75,7 @@ django-csp==4.0
     # via -r /src/requirements.txt
 django-forms-bootstrap==3.1.0
     # via -r /src/requirements.txt
-django-prometheus==2.3.1
+django-prometheus==2.4.0
     # via -r /src/requirements.txt
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via -r /src/requirements.txt
@@ -176,6 +176,7 @@ playwright==1.52.0
 pluggy==1.6.0
     # via
     #   pytest
+    #   pytest-cov
     #   tox
 prometheus-client==0.22.1
     # via
@@ -196,7 +197,7 @@ pycparser==2.22
     #   cffi
 pyee==13.0.0
     # via playwright
-pygments==2.19.1
+pygments==2.19.2
     # via pytest
 pyproject-api==1.9.1
     # via tox
@@ -204,7 +205,7 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.4.0
+pytest==8.4.1
     # via
     #   -r requirements-dev.in
     #   pytest-base-url
@@ -214,7 +215,7 @@ pytest==8.4.0
     #   pytest-randomly
 pytest-base-url==2.1.0
     # via pytest-playwright
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements-dev.in
 pytest-django==4.11.1
     # via -r requirements-dev.in
@@ -246,7 +247,7 @@ referencing==0.36.2
     #   -r /src/requirements.txt
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r /src/requirements.txt
     #   agentarchives
@@ -280,7 +281,7 @@ tomli==2.2.1
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.26.0
+tox==4.27.0
     # via -r requirements-dev.in
 typing-extensions==4.14.0
     # via
@@ -292,7 +293,7 @@ typing-extensions==4.14.0
     #   tox
 unidecode==1.4.0
     # via -r /src/requirements.txt
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   -r /src/requirements.txt
     #   amclient
@@ -304,7 +305,7 @@ wheel==0.45.1
     # via pip-tools
 whitenoise==6.9.0
     # via -r /src/requirements.txt
-zipp==3.22.0
+zipp==3.23.0
     # via
     #   -r /src/requirements.txt
     #   importlib-metadata
