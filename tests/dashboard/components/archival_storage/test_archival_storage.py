@@ -101,9 +101,9 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_aip_data",
+    "archivematica.search.querying.get_aip_data",
     side_effect=IndexError(),
 )
 def test_get_mets_unknown_mets(get_aip_data, get_client, dashboard_uuid, admin_client):
@@ -113,8 +113,8 @@ def test_get_mets_unknown_mets(get_aip_data, get_client, dashboard_uuid, admin_c
     assert isinstance(response, HttpResponseNotFound)
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_aip_data")
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_aip_data")
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_mets_from_storage_service"
 )
@@ -143,7 +143,7 @@ def test_get_mets_known_mets(
     assert response.get(CONTENT_DISPOSITION) == mock_content_disposition
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch("archivematica.archivematicaCommon.storageService.pointer_file_url")
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
@@ -217,7 +217,7 @@ def test_search_rejects_unsupported_file_mime(dashboard_uuid, admin_client):
     assert response.content == b"Please use ?mimeType=text/csv"
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch("elasticsearch.Elasticsearch.search")
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.search_augment_aip_results",
@@ -301,12 +301,10 @@ def test_search_as_csv(
 
 
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_client",
+    "archivematica.search.client.get_client",
     return_value=Elasticsearch(),
 )
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.Elasticsearch.search"
-)
+@mock.patch("elasticsearch.Elasticsearch.search")
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.search_augment_aip_results"
 )
@@ -398,8 +396,8 @@ class TestArchivalStorageDataTableState(TestCase):
 
 
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_aip_data")
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_aip_data")
 @mock.patch("archivematica.dashboard.components.archival_storage.forms.get_atom_client")
 def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     get_atom_client,
@@ -451,7 +449,7 @@ def test_create_aic_fails_if_query_is_not_passed(dashboard_uuid, admin_client):
     assert "Unable to create AIC: No AIPs selected" in response.content.decode()
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch("archivematica.archivematicaCommon.databaseFunctions.createSIP")
 @mock.patch(
     "uuid.uuid4", return_value=uuid.UUID("1e23e6e2-02d7-4b2d-a648-caffa3b489f3")
@@ -561,10 +559,10 @@ def processing_configurations_dir(tmp_path):
 
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_aip_data",
+    "archivematica.search.querying.get_aip_data",
     return_value={"_source": {"name": "My AIP", "filePath": "path"}},
 )
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 def test_view_aip_reingest_form_displays_processing_configurations_choices(
     get_client,
     get_aip_data,
@@ -598,8 +596,8 @@ def test_view_aip_reingest_form_displays_processing_configurations_choices(
 )
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
 @mock.patch("archivematica.archivematicaCommon.storageService.request_reingest")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_aip_data")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.querying.get_aip_data")
+@mock.patch("archivematica.search.client.get_client")
 def test_view_aip_reingest_form_submits_reingest(
     get_client,
     get_aip_data,

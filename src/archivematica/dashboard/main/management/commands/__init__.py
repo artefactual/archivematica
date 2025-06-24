@@ -5,7 +5,9 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 from elasticsearch import ElasticsearchException
 
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
+import archivematica.search.client
+import archivematica.search.constants
+import archivematica.search.indices
 
 
 class DashboardCommand(BaseCommand):
@@ -40,7 +42,7 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
 
     :returns: ES client.
     """
-    if es.AIPS_INDEX not in django_settings.SEARCH_ENABLED:
+    if archivematica.search.constants.AIPS_INDEX not in django_settings.SEARCH_ENABLED:
         raise CommandError(
             "The AIPs indexes are not enabled. Please, make sure to "
             "set the *_SEARCH_ENABLED environment variables to `true` "
@@ -49,16 +51,19 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
         )
 
     try:
-        es.setup_reading_from_conf(django_settings)
-        es_client = es.get_client()
+        archivematica.search.client.setup_reading_from_conf(django_settings)
+        es_client = archivematica.search.client.get_client()
     except ElasticsearchException as err:
         raise CommandError(f"Unable to connect to Elasticsearch: {err}")
 
     if delete_all:
         cmd.info("Deleting all AIPs in the 'aips' and 'aipfiles' indices")
         time.sleep(3)  # Time for the user to panic and kill the process.
-        indices = [es.AIPS_INDEX, es.AIP_FILES_INDEX]
+        indices = [
+            archivematica.search.constants.AIPS_INDEX,
+            archivematica.search.constants.AIP_FILES_INDEX,
+        ]
         es_client.indices.delete(",".join(indices), ignore=404)
-        es.create_indexes_if_needed(es_client, indices)
+        archivematica.search.indices.create_indexes_if_needed(es_client, indices)
 
     return es_client

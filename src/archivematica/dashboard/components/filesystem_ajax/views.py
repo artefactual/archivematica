@@ -29,14 +29,16 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 import archivematica.dashboard.components.filesystem_ajax.helpers as filesystem_ajax_helpers
+import archivematica.search.client
+import archivematica.search.exceptions
 from archivematica.archivematicaCommon import archivematicaFunctions
 from archivematica.archivematicaCommon import databaseFunctions
-from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import b64decode_string
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
+from archivematica.search import querying
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -1120,10 +1122,10 @@ def download_by_uuid(request, uuid, preview_file=False):
     )
 
     try:
-        record = elasticSearchFunctions.get_transfer_file_info(
-            elasticSearchFunctions.get_client(), "fileuuid", uuid
+        record = querying.get_transfer_file_info(
+            archivematica.search.client.get_client(), "fileuuid", uuid
         )
-    except elasticSearchFunctions.ElasticsearchError:
+    except archivematica.search.exceptions.SearchEngineError:
         return not_found_err
 
     try:

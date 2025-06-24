@@ -7,18 +7,20 @@ import sys
 import django
 import requests
 
+import archivematica.search.client
+
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     find_transfer_path_from_ingest,
 )
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main import models
+from archivematica.search import deleting
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
@@ -139,8 +141,8 @@ def post_store_hook(job, sip_uuid):
     """
     update_es = "transfers" in mcpclient_settings.SEARCH_ENABLED
     if update_es:
-        elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
-        client = elasticSearchFunctions.get_client()
+        archivematica.search.client.setup_reading_from_conf(mcpclient_settings)
+        client = archivematica.search.client.get_client()
     else:
         logger.info("Skipping indexing: Transfers indexing is currently disabled.")
 
@@ -184,7 +186,7 @@ def post_store_hook(job, sip_uuid):
                 reason_for_deletion="All files in Transfer are now in AIPs.",
             )
             if update_es:
-                elasticSearchFunctions.remove_sip_transfer_files(client, transfer_uuid)
+                deleting.remove_sip_transfer_files(client, transfer_uuid)
 
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(job, sip_uuid)

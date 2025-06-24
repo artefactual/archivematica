@@ -42,8 +42,9 @@ import tempfile
 from elasticsearch import ElasticsearchException
 from lxml import etree
 
+import archivematica.search.deleting
+import archivematica.search.indexing
 from archivematica.archivematicaCommon import archivematicaFunctions as am
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
 from archivematica.archivematicaCommon import storageService
 from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.management.commands import DashboardCommand
@@ -237,12 +238,12 @@ class Command(DashboardCommand):
 
         if delete_before_reindexing:
             self.info(f"Deleting package {uuid} from 'aips' and 'aipfiles' indices.")
-            es.delete_aip(es_client, uuid)
-            es.delete_aip_files(es_client, uuid)
+            archivematica.search.deleting.delete_aip(es_client, uuid)
+            archivematica.search.deleting.delete_aip_files(es_client, uuid)
 
         # Index the AIP and then immediately delete the METS file.
         try:
-            es.index_aip_and_files(
+            archivematica.search.indexing.index_aip_and_files(
                 client=es_client,
                 uuid=uuid,
                 aip_stored_path=package_info["current_full_path"],

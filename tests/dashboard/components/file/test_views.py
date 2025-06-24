@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 from django.urls import reverse
 
-from archivematica.archivematicaCommon import elasticSearchFunctions
+import archivematica.search.exceptions
 from archivematica.dashboard.main import models
 
 
@@ -24,10 +24,8 @@ def file(db):
     return models.File.objects.create()
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
-)
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_transfer_file_info")
 def test_file_details(
     get_transfer_file_info, get_client, admin_client, dashboard_uuid, file, sip
 ):
@@ -69,10 +67,8 @@ def test_file_details(
     ],
     ids=["no exact results", "unknown error"],
 )
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
-)
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_transfer_file_info")
 def test_file_details_handles_exceptions(
     get_transfer_file_info,
     get_client,
@@ -82,8 +78,8 @@ def test_file_details_handles_exceptions(
     dashboard_uuid,
     file,
 ):
-    get_transfer_file_info.side_effect = elasticSearchFunctions.ElasticsearchError(
-        error_message
+    get_transfer_file_info.side_effect = (
+        archivematica.search.exceptions.SearchEngineError(error_message)
     )
 
     response = admin_client.get(reverse("file:file_details", args=[file.uuid]))
@@ -95,9 +91,9 @@ def test_file_details_handles_exceptions(
     }
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info",
+    "archivematica.search.querying.get_transfer_file_info",
     return_value={
         "filename": "piiTestDataCreditCardNumbers.txt",
         "relative_path": "test-bulk-extract-a239e3e1-0391-46da-94d7-25a3e8509b45/data/objects/piiTestDataCreditCardNumbers.txt",
@@ -144,10 +140,8 @@ def test_bulk_extractor_fails_if_no_reports_requested(
     ],
     ids=["no exact results", "unknown error"],
 )
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
-)
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_transfer_file_info")
 def test_bulk_extractor_handles_exceptions(
     get_transfer_file_info,
     get_client,
@@ -157,8 +151,8 @@ def test_bulk_extractor_handles_exceptions(
     dashboard_uuid,
     file,
 ):
-    get_transfer_file_info.side_effect = elasticSearchFunctions.ElasticsearchError(
-        error_message
+    get_transfer_file_info.side_effect = (
+        archivematica.search.exceptions.SearchEngineError(error_message)
     )
 
     response = admin_client.get(
@@ -173,10 +167,8 @@ def test_bulk_extractor_handles_exceptions(
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
-)
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_transfer_file_info")
 @mock.patch(
     "requests.get",
     return_value=mock.Mock(
@@ -245,10 +237,8 @@ def test_bulk_extractor(
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
-)
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_transfer_file_info")
 @mock.patch(
     "requests.get",
     return_value=mock.Mock(status_code=500, text="""Internal Server Error"""),
@@ -297,9 +287,9 @@ def test_bulk_extractor_handles_exception_if_reports_are_not_missing(
     assert "response: ('Internal Server Error',)" in caplog.text
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_file_tags",
+    "archivematica.search.querying.get_file_tags",
     return_value=["test"],
 )
 def test_transfer_file_tags(
@@ -314,13 +304,13 @@ def test_transfer_file_tags(
 @pytest.mark.parametrize(
     "exception, status_code",
     [
-        (elasticSearchFunctions.ElasticsearchError("No tags"), 400),
-        (elasticSearchFunctions.EmptySearchResultError("No tags"), 404),
+        (archivematica.search.exceptions.SearchEngineError("No tags"), 400),
+        (archivematica.search.exceptions.EmptySearchResultError("No tags"), 404),
     ],
     ids=["Elasticsearch error", "Empty search result error"],
 )
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_file_tags")
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_file_tags")
 def test_transfer_file_tags_handles_exceptions(
     get_file_tags,
     get_client,
@@ -341,9 +331,9 @@ def test_transfer_file_tags_handles_exceptions(
     }
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.set_file_tags",
+    "archivematica.search.indexing.set_file_tags",
     return_value=["test"],
 )
 def test_transfer_file_tags_updates_tags(
@@ -392,13 +382,13 @@ def test_transfer_file_tags_fails_if_provided_tags_are_not_in_a_list(
 @pytest.mark.parametrize(
     "exception, status_code",
     [
-        (elasticSearchFunctions.ElasticsearchError("No tags"), 400),
-        (elasticSearchFunctions.EmptySearchResultError("No tags"), 404),
+        (archivematica.search.exceptions.SearchEngineError("No tags"), 400),
+        (archivematica.search.exceptions.EmptySearchResultError("No tags"), 404),
     ],
     ids=["Elasticsearch error", "Empty search result error"],
 )
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.set_file_tags")
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.indexing.set_file_tags")
 def test_transfer_file_tags_handles_exceptions_when_updating_tags(
     set_file_tags,
     get_client,
@@ -423,9 +413,9 @@ def test_transfer_file_tags_handles_exceptions_when_updating_tags(
     }
 
 
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
+@mock.patch("archivematica.search.client.get_client")
 @mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.set_file_tags",
+    "archivematica.search.indexing.set_file_tags",
     return_value=["test"],
 )
 def test_transfer_file_tags_deletes_tags(
@@ -445,13 +435,13 @@ def test_transfer_file_tags_deletes_tags(
 @pytest.mark.parametrize(
     "exception, status_code",
     [
-        (elasticSearchFunctions.ElasticsearchError("No tags"), 400),
-        (elasticSearchFunctions.EmptySearchResultError("No tags"), 404),
+        (archivematica.search.exceptions.SearchEngineError("No tags"), 400),
+        (archivematica.search.exceptions.EmptySearchResultError("No tags"), 404),
     ],
     ids=["Elasticsearch error", "Empty search result error"],
 )
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.set_file_tags")
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.indexing.set_file_tags")
 def test_transfer_file_tags_handles_exceptions_when_removing_tags(
     set_file_tags,
     get_client,

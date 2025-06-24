@@ -35,8 +35,12 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
 from elasticsearch import ElasticsearchException
 
+import archivematica.search.client
+import archivematica.search.constants
+import archivematica.search.deleting
+import archivematica.search.querying
+import archivematica.search.updating
 from archivematica.archivematicaCommon import databaseFunctions
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     AMCLIENT_ERROR_CODES,
@@ -57,8 +61,8 @@ logger = logging.getLogger("archivematica.dashboard")
 AIPSTOREPATH = "/var/archivematica/sharedDirectory/www/AIPsStore"
 
 AIP_STATUS_DESCRIPTIONS = {
-    es.STATUS_UPLOADED: _("Stored"),
-    es.STATUS_DELETE_REQUESTED: _("Deletion requested"),
+    archivematica.search.constants.STATUS_UPLOADED: _("Stored"),
+    archivematica.search.constants.STATUS_DELETE_REQUESTED: _("Deletion requested"),
 }
 
 DIRECTORY_PERMISSIONS = 0o770
@@ -104,19 +108,22 @@ def sync_es_aip_status_with_storage_service(uuid, es_status):
         return keep_in_results
 
     if (
-        aip_status == es.STATUS_DELETE_REQUESTED
-        and es_status != es.STATUS_DELETE_REQUESTED
+        aip_status == archivematica.search.constants.STATUS_DELETE_REQUESTED
+        and es_status != archivematica.search.constants.STATUS_DELETE_REQUESTED
     ):
-        es_client = es.get_client()
-        es.mark_aip_deletion_requested(es_client, uuid)
-    elif aip_status == es.STATUS_UPLOADED and es_status != es.STATUS_UPLOADED:
-        es_client = es.get_client()
-        es.revert_aip_deletion_request(es_client, uuid)
-    elif aip_status == es.STATUS_DELETED:
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.updating.mark_aip_deletion_requested(es_client, uuid)
+    elif (
+        aip_status == archivematica.search.constants.STATUS_UPLOADED
+        and es_status != archivematica.search.constants.STATUS_UPLOADED
+    ):
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.updating.revert_aip_deletion_request(es_client, uuid)
+    elif aip_status == archivematica.search.constants.STATUS_DELETED:
         keep_in_results = False
-        es_client = es.get_client()
-        es.delete_aip(es_client, uuid)
-        es.delete_aip_files(es_client, uuid)
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.deleting.delete_aip(es_client, uuid)
+        archivematica.search.deleting.delete_aip_files(es_client, uuid)
 
     return keep_in_results
 
@@ -127,8 +134,8 @@ def execute(request):
     :param request: Django request object.
     :return: The main archival storage page rendered.
     """
-    if es.AIPS_INDEX in settings.SEARCH_ENABLED:
-        es_client = es.get_client()
+    if archivematica.search.constants.AIPS_INDEX in settings.SEARCH_ENABLED:
+        es_client = archivematica.search.client.get_client()
 
         total_size = total_size_of_aips(es_client)
         aip_indexed_file_count = aip_file_count(es_client)
@@ -202,19 +209,19 @@ def get_es_property_from_column_index(index, file_mode):
 # translatable.
 _ORDERED_DICT_ES_FIELDS = OrderedDict(
     [
-        (es.ES_FIELD_NAME, _("Name")),
-        (es.ES_FIELD_UUID, _("UUID")),
-        (es.ES_FIELD_AICID, _("AICID")),
-        (es.ES_FIELD_AICCOUNT, _("Count AIPs in AIC")),
+        (archivematica.search.constants.ES_FIELD_NAME, _("Name")),
+        (archivematica.search.constants.ES_FIELD_UUID, _("UUID")),
+        (archivematica.search.constants.ES_FIELD_AICID, _("AICID")),
+        (archivematica.search.constants.ES_FIELD_AICCOUNT, _("Count AIPs in AIC")),
         ("bytes", _("Bytes")),
-        (es.ES_FIELD_SIZE, _("Size")),
-        (es.ES_FIELD_FILECOUNT, _("File count")),
-        (es.ES_FIELD_ACCESSION_IDS, _("Accession IDs")),
-        (es.ES_FIELD_CREATED, _("Created date (UTC)")),
-        (es.ES_FIELD_STATUS, _("Status")),
+        (archivematica.search.constants.ES_FIELD_SIZE, _("Size")),
+        (archivematica.search.constants.ES_FIELD_FILECOUNT, _("File count")),
+        (archivematica.search.constants.ES_FIELD_ACCESSION_IDS, _("Accession IDs")),
+        (archivematica.search.constants.ES_FIELD_CREATED, _("Created date (UTC)")),
+        (archivematica.search.constants.ES_FIELD_STATUS, _("Status")),
         ("type", _("Type")),
-        (es.ES_FIELD_ENCRYPTED, _("Encrypted")),
-        (es.ES_FIELD_LOCATION, _("Location")),
+        (archivematica.search.constants.ES_FIELD_ENCRYPTED, _("Encrypted")),
+        (archivematica.search.constants.ES_FIELD_LOCATION, _("Location")),
     ]
 )
 
@@ -236,20 +243,24 @@ def generate_search_as_csv_rows(csvwriter, es_results):
 
         # Normalize accession identifiers.
         try:
-            accession_ids = "; ".join(row[es.ES_FIELD_ACCESSION_IDS])
+            accession_ids = "; ".join(
+                row[archivematica.search.constants.ES_FIELD_ACCESSION_IDS]
+            )
         except TypeError:
-            accession_ids = row[es.ES_FIELD_ACCESSION_IDS]
-        row[es.ES_FIELD_ACCESSION_IDS] = accession_ids
+            accession_ids = row[archivematica.search.constants.ES_FIELD_ACCESSION_IDS]
+        row[archivematica.search.constants.ES_FIELD_ACCESSION_IDS] = accession_ids
 
         # Localize date output.
         try:
             created = make_aware(
-                datetime.fromtimestamp(row[es.ES_FIELD_CREATED]),
+                datetime.fromtimestamp(
+                    row[archivematica.search.constants.ES_FIELD_CREATED]
+                ),
                 timezone=current_timezone,
             )
         except TypeError:
-            created = row[es.ES_FIELD_CREATED]
-        row[es.ES_FIELD_CREATED] = created
+            created = row[archivematica.search.constants.ES_FIELD_CREATED]
+        row[archivematica.search.constants.ES_FIELD_CREATED] = created
 
         yield csvwriter.writerow(list(row.values()))
 
@@ -295,7 +306,7 @@ def search(request):
     DEFAULT_PAGE_SIZE = 10
     page_size = None
     if request.GET.get(RETURN_ALL, "").lower() == "true":
-        page_size = es.MAX_QUERY_SIZE
+        page_size = archivematica.search.constants.MAX_QUERY_SIZE
     if page_size is None:
         page_size = int(request.GET.get("iDisplayLength", DEFAULT_PAGE_SIZE))
 
@@ -320,10 +331,10 @@ def search(request):
     )
     sort_direction = request.GET.get("sSortDir_0", "asc")
 
-    es_client = es.get_client()
+    es_client = archivematica.search.client.get_client()
     try:
         if file_mode:
-            index = es.AIP_FILES_INDEX
+            index = archivematica.search.constants.AIP_FILES_INDEX
             source = "filePath,FILEUUID,AIPUUID,accessionid,status"
         else:
             # Fetch all unique AIP UUIDs in the returned set of files.
@@ -344,7 +355,9 @@ def search(request):
             # returns the UUID of the AIP the files are a part of. To search
             # for an attribute of an AIP, the aipfile must index that
             # information about their AIP.
-            results = es_client.search(body=query, index=es.AIP_FILES_INDEX)
+            results = es_client.search(
+                body=query, index=archivematica.search.constants.AIP_FILES_INDEX
+            )
             # Given these AIP UUIDs, now fetch the actual information we want
             # from AIPs/AIP.
             buckets = results["aggregations"]["aip_uuids"]["buckets"]
@@ -353,7 +366,7 @@ def search(request):
                 bucket["key"]: bucket["doc_count"] for bucket in buckets
             }
             query = {"query": {"terms": {"uuid": uuids}}}
-            index = es.AIPS_INDEX
+            index = archivematica.search.constants.AIPS_INDEX
             source = "name,uuid,size,accessionids,created,status,encrypted,AICID,isPartOf,countAIPsinAIC,location"
 
         results = es_client.search(
@@ -415,7 +428,9 @@ def search_augment_aip_results(raw_results, counts):
             "isPartOf": fields.get("isPartOf"),
             "AICID": fields.get("AICID"),
             "countAIPsinAIC": fields.get("countAIPsinAIC", "(unknown)"),
-            "status": AIP_STATUS_DESCRIPTIONS[fields.get("status", es.STATUS_UPLOADED)],
+            "status": AIP_STATUS_DESCRIPTIONS[
+                fields.get("status", archivematica.search.constants.STATUS_UPLOADED)
+            ],
             "encrypted": fields.get("encrypted", False),
             "accessionids": fields.get("accessionids", []),
             "location": fields.get("location", ""),
@@ -464,7 +479,7 @@ def search_augment_file_results(es_client, raw_results):
         clone = item["_source"].copy()
 
         try:
-            aip = es.get_aip_data(
+            aip = archivematica.search.querying.get_aip_data(
                 es_client,
                 clone["AIPUUID"],
                 fields="uuid,name,filePath,size,origin,created,encrypted",
@@ -481,7 +496,7 @@ def search_augment_file_results(es_client, raw_results):
             clone["sipname"] = False
 
         clone["status"] = AIP_STATUS_DESCRIPTIONS[
-            clone.get("status", es.STATUS_UPLOADED)
+            clone.get("status", archivematica.search.constants.STATUS_UPLOADED)
         ]
         clone["filename"] = os.path.basename(clone["filePath"])
         clone["document_id"] = item["_id"]
@@ -508,7 +523,7 @@ def create_aic(request):
     if types[0] == "range":
         fields = ["indexedAt"]
     query = advanced_search.assemble_query(queries, ops, fields, types)
-    es_client = es.get_client()
+    es_client = archivematica.search.client.get_client()
 
     try:
         query["aggs"] = {
@@ -520,7 +535,9 @@ def create_aic(request):
             }
         }
         query["size"] = 0
-        results = es_client.search(body=query, index=es.AIP_FILES_INDEX)
+        results = es_client.search(
+            body=query, index=archivematica.search.constants.AIP_FILES_INDEX
+        )
         buckets = results["aggregations"]["aip_uuids"]["buckets"]
         aip_uuids = [bucket["key"] for bucket in buckets]
 
@@ -534,7 +551,10 @@ def create_aic(request):
     # Use the AIP UUIDs to fetch names, which are used to produce files below.
     query = {"query": {"terms": {"uuid": aip_uuids}}}
     results = es_client.search(
-        body=query, index=es.AIPS_INDEX, _source="uuid,name", size=es.MAX_QUERY_SIZE
+        body=query,
+        index=archivematica.search.constants.AIPS_INDEX,
+        _source="uuid,name",
+        size=archivematica.search.constants.MAX_QUERY_SIZE,
     )
 
     # Create SIP (AIC) directory in a staging directory.
@@ -572,14 +592,16 @@ def aip_download(request, uuid):
 
 
 def aip_file_download(request, uuid):
-    es_client = es.get_client()
+    es_client = archivematica.search.client.get_client()
 
     # get AIP file properties
-    aipfile = es.get_aipfile_data(es_client, uuid, fields="filePath,FILEUUID,AIPUUID")
+    aipfile = archivematica.search.querying.get_aipfile_data(
+        es_client, uuid, fields="filePath,FILEUUID,AIPUUID"
+    )
 
     # get file's AIP's properties
     sipuuid = aipfile["_source"]["AIPUUID"]
-    aip = es.get_aip_data(
+    aip = archivematica.search.querying.get_aip_data(
         es_client, sipuuid, fields="uuid,name,filePath,size,origin,created"
     )
     aip_filepath = aip["_source"]["filePath"]
@@ -605,9 +627,9 @@ def aip_file_download(request, uuid):
 
 def aip_mets_file_download(request, uuid):
     """Download an individual AIP METS file."""
-    es_client = es.get_client()
+    es_client = archivematica.search.client.get_client()
     try:
-        aip = es.get_aip_data(es_client, uuid, fields="name")
+        aip = archivematica.search.querying.get_aip_data(es_client, uuid, fields="name")
     except IndexError:
         # TODO: 404 settings for the project do not display this to the user (only DEBUG).
         raise Http404(
@@ -628,8 +650,10 @@ def aip_pointer_file_download(request, uuid):
 
 def send_thumbnail(request, fileuuid):
     # get AIP location to use to find root of AIP storage
-    es_client = es.get_client()
-    aipfile = es.get_aipfile_data(es_client, fileuuid, fields="AIPUUID")
+    es_client = archivematica.search.client.get_client()
+    aipfile = archivematica.search.querying.get_aipfile_data(
+        es_client, fileuuid, fields="AIPUUID"
+    )
     sipuuid = aipfile["_source"]["AIPUUID"]
 
     thumbnail_path = os.path.join(
@@ -650,7 +674,9 @@ def send_thumbnail(request, fileuuid):
 def aips_pending_deletion():
     aip_uuids = []
     try:
-        aips = storage_service.get_file_info(status=es.STATUS_DELETE_REQUESTED)
+        aips = storage_service.get_file_info(
+            status=archivematica.search.constants.STATUS_DELETE_REQUESTED
+        )
     except Exception as e:
         # TODO this should be messages.warning, but we need 'request' here
         logger.warning(
@@ -679,14 +705,18 @@ def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
 
 def aip_file_count(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion("AIPUUID")
-    return advanced_search.indexed_count(es_client, es.AIP_FILES_INDEX, query)
+    return advanced_search.indexed_count(
+        es_client, archivematica.search.constants.AIP_FILES_INDEX, query
+    )
 
 
 def total_size_of_aips(es_client):
     query = elasticsearch_query_excluding_aips_pending_deletion("uuid")
     query["_source"] = "size"
     query["aggs"] = {"total": {"sum": {"field": "size"}}}
-    results = es_client.search(body=query, index=es.AIPS_INDEX)
+    results = es_client.search(
+        body=query, index=archivematica.search.constants.AIPS_INDEX
+    )
     # TODO handle the return object
     total_size = results["aggregations"]["total"]["value"]
     # Size is stored in ES as MBs
@@ -698,20 +728,24 @@ def total_size_of_aips(es_client):
 
 def _document_json_response(document_id_modified, index):
     document_id = document_id_modified.replace("____", "-")
-    es_client = es.get_client()
-    data = es_client.get(index=index, doc_type=es.DOC_TYPE, id=document_id)
+    es_client = archivematica.search.client.get_client()
+    data = es_client.get(
+        index=index, doc_type=archivematica.search.constants.DOC_TYPE, id=document_id
+    )
     pretty_json = json.dumps(data, sort_keys=True, indent=2)
     return HttpResponse(pretty_json, content_type="application/json")
 
 
 def file_json(request, document_id_modified):
-    return _document_json_response(document_id_modified, es.AIP_FILES_INDEX)
+    return _document_json_response(
+        document_id_modified, archivematica.search.constants.AIP_FILES_INDEX
+    )
 
 
 def view_aip(request, uuid):
-    es_client = es.get_client()
+    es_client = archivematica.search.client.get_client()
     try:
-        es_aip_doc = es.get_aip_data(
+        es_aip_doc = archivematica.search.querying.get_aip_data(
             es_client, uuid, fields="name,size,created,status,filePath,encrypted"
         )
     except IndexError:
@@ -791,15 +825,17 @@ def view_aip(request, uuid):
                 form_delete.cleaned_data["reason"],
             )
             messages.info(request, response["message"])
-            es_client = es.get_client()
-            es.mark_aip_deletion_requested(es_client, uuid)
+            es_client = archivematica.search.client.get_client()
+            archivematica.search.updating.mark_aip_deletion_requested(es_client, uuid)
             return redirect("archival_storage:archival_storage_index")
 
     context = {
         "uuid": uuid,
         "name": name,
         "created": source.get("created"),
-        "status": AIP_STATUS_DESCRIPTIONS[source.get("status", es.STATUS_UPLOADED)],
+        "status": AIP_STATUS_DESCRIPTIONS[
+            source.get("status", archivematica.search.constants.STATUS_UPLOADED)
+        ],
         "encrypted": source.get("encrypted", False),
         "size": "{:.2f} MB".format(source.get("size", 0)),
         "location_basename": os.path.basename(source.get("filePath")),

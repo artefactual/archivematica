@@ -25,7 +25,7 @@ from django.db import transaction
 from django.db.models import Q
 
 import archivematica.archivematicaCommon.storageService as storage_service
-from archivematica.archivematicaCommon import elasticSearchFunctions
+import archivematica.search.client
 from archivematica.archivematicaCommon.archivematicaFunctions import get_bag_size
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
@@ -35,6 +35,7 @@ from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import UnitVariable
+from archivematica.search import indexing
 
 logger = get_script_logger("archivematica.mcp.client.move_to_backlog")
 
@@ -79,9 +80,9 @@ def _index_transfer(job, transfer_id, transfer_path, size):
         logger.info("Skipping indexing: Transfers indexing is currently disabled.")
         return
     transfer_name, accession_id, ingest_date = get_transfer_details(transfer_id)
-    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
-    client = elasticSearchFunctions.get_client()
-    elasticSearchFunctions.index_transfer_and_files(
+    archivematica.search.client.setup_reading_from_conf(mcpclient_settings)
+    client = archivematica.search.client.get_client()
+    indexing.index_transfer_and_files(
         client,
         transfer_id,
         transfer_path,

@@ -566,10 +566,8 @@ def test_copy_metadata_files(
 @mock.patch("archivematica.archivematicaCommon.storageService.extract_file_url")
 @mock.patch("os.path.exists")
 @mock.patch("archivematica.archivematicaCommon.storageService.get_first_location")
-@mock.patch("archivematica.archivematicaCommon.elasticSearchFunctions.get_client")
-@mock.patch(
-    "archivematica.archivematicaCommon.elasticSearchFunctions.get_transfer_file_info"
-)
+@mock.patch("archivematica.search.client.get_client")
+@mock.patch("archivematica.search.querying.get_transfer_file_info")
 def test_download_by_uuid(
     mock_get_file_info,
     get_client,

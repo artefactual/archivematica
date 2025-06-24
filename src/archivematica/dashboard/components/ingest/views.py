@@ -37,7 +37,8 @@ from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
-from archivematica.archivematicaCommon import elasticSearchFunctions
+import archivematica.search.client
+import archivematica.search.querying
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
 from archivematica.dashboard.components import advanced_search
@@ -50,6 +51,7 @@ from archivematica.dashboard.components.ingest.views_NormalizationReport import 
 from archivematica.dashboard.contrib.mcp.client import MCPClient
 from archivematica.dashboard.main import forms
 from archivematica.dashboard.main import models
+from archivematica.search import utils
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -605,7 +607,7 @@ def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
     """
-    es_client = elasticSearchFunctions.get_client()
+    es_client = archivematica.search.client.get_client()
     results = None
 
     # Return files which are in the backlog
@@ -632,7 +634,7 @@ def transfer_backlog(request, ui):
 
     # perform search
     try:
-        results = elasticSearchFunctions.search_all_results(
+        results = archivematica.search.querying.search_all_results(
             es_client, body=query, index="transferfiles"
         )
     except Exception:
@@ -640,7 +642,7 @@ def transfer_backlog(request, ui):
         return HttpResponse("Error accessing index.")
 
     # Convert results into a more workable form
-    results = elasticSearchFunctions.augment_raw_search_results(results)
+    results = utils.augment_raw_search_results(results)
 
     # Convert to a form JS can use:
     # [{'name': <filename>,

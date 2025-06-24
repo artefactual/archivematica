@@ -40,7 +40,9 @@ from django.utils import timezone
 from django.utils.dateparse import parse_duration
 from elasticsearch import ElasticsearchException
 
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
+import archivematica.search.client
+import archivematica.search.constants
+import archivematica.search.deleting
 from archivematica.dashboard.main import models
 from archivematica.dashboard.main.management.commands import DashboardCommand
 
@@ -93,8 +95,8 @@ class Command(DashboardCommand):
             logging.getLogger("elasticsearch").setLevel(logging.ERROR)
             logging.getLogger("archivematica.common").setLevel(logging.ERROR)
             try:
-                es.setup_reading_from_conf(django_settings)
-                es_client = es.get_client()
+                archivematica.search.client.setup_reading_from_conf(django_settings)
+                es_client = archivematica.search.client.get_client()
             except ElasticsearchException as err:
                 raise CommandError(f"Unable to connect to Elasticsearch: {err}")
 
@@ -138,12 +140,15 @@ class Command(DashboardCommand):
                 )
                 if (
                     not options["keep_searches"]
-                    and es.AIPS_INDEX in django_settings.SEARCH_ENABLED
+                    and archivematica.search.constants.AIPS_INDEX
+                    in django_settings.SEARCH_ENABLED
                 ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
-                    es.delete_aip(es_client, package_id)
-                    es.delete_aip_files(es_client, package_id)
+                    archivematica.search.deleting.delete_aip(es_client, package_id)
+                    archivematica.search.deleting.delete_aip_files(
+                        es_client, package_id
+                    )
             except Exception as err:
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.print_exc())
@@ -177,12 +182,17 @@ class Command(DashboardCommand):
                 )
                 if (
                     not options["keep_searches"]
-                    and es.TRANSFERS_INDEX in django_settings.SEARCH_ENABLED
+                    and archivematica.search.constants.TRANSFERS_INDEX
+                    in django_settings.SEARCH_ENABLED
                 ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
-                    es.remove_backlog_transfer(es_client, package_id)
-                    es.remove_backlog_transfer_files(es_client, package_id)
+                    archivematica.search.deleting.remove_backlog_transfer(
+                        es_client, package_id
+                    )
+                    archivematica.search.deleting.remove_backlog_transfer_files(
+                        es_client, package_id
+                    )
             except Exception as err:
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.format_exc())

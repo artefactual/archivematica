@@ -53,8 +53,12 @@ from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 
+import archivematica.search.client
+import archivematica.search.constants
+import archivematica.search.deleting
+import archivematica.search.indexing
+import archivematica.search.indices
 from archivematica.archivematicaCommon import archivematicaFunctions as am
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
 from archivematica.archivematicaCommon import storageService
 from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
 from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
@@ -135,7 +139,10 @@ class Command(DashboardCommand):
     def handle(self, *args, **options):
         """Entry point of the rebuild_transfer_backlog command."""
         # Check that the `transfers` part of the search is enabled
-        if es.TRANSFERS_INDEX not in django_settings.SEARCH_ENABLED:
+        if (
+            archivematica.search.constants.TRANSFERS_INDEX
+            not in django_settings.SEARCH_ENABLED
+        ):
             print(
                 "The Transfers indexes are not enabled. Please, make sure to "
                 "set the *_SEARCH_ENABLED environment variables to `true` "
@@ -165,8 +172,8 @@ class Command(DashboardCommand):
             self.info(f'Rebuilding "transfers" index from {transfer_backlog_dir}.')
 
         # Connect to Elasticsearch.
-        es.setup_reading_from_conf(django_settings)
-        es_client = es.get_client()
+        archivematica.search.client.setup_reading_from_conf(django_settings)
+        es_client = archivematica.search.client.get_client()
         try:
             es_info = es_client.info()
         except Exception as err:
@@ -179,7 +186,10 @@ class Command(DashboardCommand):
             )
 
         if options["delete_all"]:
-            indexes = [es.TRANSFERS_INDEX, es.TRANSFER_FILES_INDEX]
+            indexes = [
+                archivematica.search.constants.TRANSFERS_INDEX,
+                archivematica.search.constants.TRANSFER_FILES_INDEX,
+            ]
             self.delete_indexes(es_client, indexes)
             self.create_indexes(es_client, indexes)
 
@@ -231,7 +241,7 @@ class Command(DashboardCommand):
     def create_indexes(self, es_client, indexes):
         """Create search indexes."""
         self.stdout.write("Creating indexes...")
-        es.create_indexes_if_needed(es_client, indexes)
+        archivematica.search.indices.create_indexes_if_needed(es_client, indexes)
 
     def populate_data_from_files(
         self, es_client, transfer_backlog_dir, uuid=None, skip_to=None, delete=False
@@ -263,8 +273,12 @@ class Command(DashboardCommand):
             # if delete option specified delete before reindexing
             if delete:
                 self.info(f"Deleting index data of {transfer_uuid}")
-                es.remove_backlog_transfer(es_client, transfer_uuid)
-                es.remove_backlog_transfer_files(es_client, transfer_uuid)
+                archivematica.search.deleting.remove_backlog_transfer(
+                    es_client, transfer_uuid
+                )
+                archivematica.search.deleting.remove_backlog_transfer_files(
+                    es_client, transfer_uuid
+                )
 
             if bag and "External-Identifier" in bag.info:
                 self.info(f"Importing self-describing transfer {transfer_uuid}.")
@@ -317,8 +331,12 @@ class Command(DashboardCommand):
             # if delete option specified delete before reindexing
             if delete:
                 self.info(f"Deleting index data of {transfer_uuid}")
-                es.remove_backlog_transfer(es_client, transfer_uuid)
-                es.remove_backlog_transfer_files(es_client, transfer_uuid)
+                archivematica.search.deleting.remove_backlog_transfer(
+                    es_client, transfer_uuid
+                )
+                archivematica.search.deleting.remove_backlog_transfer_files(
+                    es_client, transfer_uuid
+                )
 
             temp_backlog_dir = tempfile.mkdtemp()
             try:
@@ -555,7 +573,7 @@ def _import_self_describing_transfer(
                     traceback.print_exc()
 
     transfer_name, accession_id, ingest_date = get_transfer_details(transfer_uuid)
-    es.index_transfer_and_files(
+    archivematica.search.indexing.index_transfer_and_files(
         es_client,
         transfer_uuid,
         str(transfer_dir) + "/",
@@ -583,7 +601,7 @@ def _import_pipeline_dependant_transfer(
         cmd.warning(f"Skipping transfer {transfer_uuid} - not found in the database!")
         return
     transfer_name, accession_id, ingest_date = get_transfer_details(transfer_uuid)
-    es.index_transfer_and_files(
+    archivematica.search.indexing.index_transfer_and_files(
         es_client,
         transfer_uuid,
         str(transfer_dir) + "/",

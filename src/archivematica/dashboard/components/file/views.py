@@ -6,10 +6,13 @@ import requests
 from django.conf import settings as django_settings
 from django.views.generic import View
 
-from archivematica.archivematicaCommon import elasticSearchFunctions
+import archivematica.search.client
+import archivematica.search.exceptions
+import archivematica.search.querying
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
+from archivematica.search import indexing
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -27,11 +30,11 @@ class TransferFileTags(View):
         Returns a JSON-encoded list of the file's tags on success.
         """
         try:
-            es_client = elasticSearchFunctions.get_client()
-            tags = elasticSearchFunctions.get_file_tags(es_client, fileuuid)
-        except elasticSearchFunctions.ElasticsearchError as e:
+            es_client = archivematica.search.client.get_client()
+            tags = archivematica.search.querying.get_file_tags(es_client, fileuuid)
+        except archivematica.search.exceptions.SearchEngineError as e:
             response = {"success": False, "message": str(e)}
-            if isinstance(e, elasticSearchFunctions.EmptySearchResultError):
+            if isinstance(e, archivematica.search.exceptions.EmptySearchResultError):
                 status_code = 404
             else:
                 status_code = 400
@@ -62,11 +65,11 @@ class TransferFileTags(View):
             return helpers.json_response(response, status_code=400)
 
         try:
-            es_client = elasticSearchFunctions.get_client()
-            elasticSearchFunctions.set_file_tags(es_client, fileuuid, tags)
-        except elasticSearchFunctions.ElasticsearchError as e:
+            es_client = archivematica.search.client.get_client()
+            indexing.set_file_tags(es_client, fileuuid, tags)
+        except archivematica.search.exceptions.SearchEngineError as e:
             response = {"success": False, "message": str(e)}
-            if isinstance(e, elasticSearchFunctions.EmptySearchResultError):
+            if isinstance(e, archivematica.search.exceptions.EmptySearchResultError):
                 status_code = 404
             else:
                 status_code = 400
@@ -79,11 +82,11 @@ class TransferFileTags(View):
         Deletes all tags for the given file.
         """
         try:
-            es_client = elasticSearchFunctions.get_client()
-            elasticSearchFunctions.set_file_tags(es_client, fileuuid, [])
-        except elasticSearchFunctions.ElasticsearchError as e:
+            es_client = archivematica.search.client.get_client()
+            indexing.set_file_tags(es_client, fileuuid, [])
+        except archivematica.search.exceptions.SearchEngineError as e:
             response = {"success": False, "message": str(e)}
-            if isinstance(e, elasticSearchFunctions.EmptySearchResultError):
+            if isinstance(e, archivematica.search.exceptions.EmptySearchResultError):
                 status_code = 404
             else:
                 status_code = 400
@@ -120,11 +123,11 @@ def bulk_extractor(request, fileuuid):
         return helpers.json_response(response, status_code=400)
 
     try:
-        es_client = elasticSearchFunctions.get_client()
-        record = elasticSearchFunctions.get_transfer_file_info(
+        es_client = archivematica.search.client.get_client()
+        record = archivematica.search.querying.get_transfer_file_info(
             es_client, "fileuuid", fileuuid
         )
-    except elasticSearchFunctions.ElasticsearchError as e:
+    except archivematica.search.exceptions.SearchEngineError as e:
         message = str(e)
         response = {"success": False, "message": message}
         if "no exact results" in message:
@@ -185,11 +188,11 @@ def _parse_bulk_extractor_report(data):
 
 def file_details(request, fileuuid):
     try:
-        es_client = elasticSearchFunctions.get_client()
-        source = elasticSearchFunctions.get_transfer_file_info(
+        es_client = archivematica.search.client.get_client()
+        source = archivematica.search.querying.get_transfer_file_info(
             es_client, "fileuuid", fileuuid
         )
-    except elasticSearchFunctions.ElasticsearchError as e:
+    except archivematica.search.exceptions.SearchEngineError as e:
         message = str(e)
         response = {"success": False, "message": message}
         if "no exact results" in message:

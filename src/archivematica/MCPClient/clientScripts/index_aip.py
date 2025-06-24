@@ -7,7 +7,9 @@ from glob import glob
 import django
 from django.core.exceptions import ValidationError
 
-from archivematica.archivematicaCommon import elasticSearchFunctions
+import archivematica.search.client
+import archivematica.search.deleting
+import archivematica.search.indexing
 from archivematica.archivematicaCommon import identifier_functions
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
@@ -56,8 +58,8 @@ def index_aip(job):
     location_description = storage_service.retrieve_storage_location_description(
         aip_location, logger
     )
-    elasticSearchFunctions.setup_reading_from_conf(mcpclient_settings)
-    client = elasticSearchFunctions.get_client()
+    archivematica.search.client.setup_reading_from_conf(mcpclient_settings)
+    client = archivematica.search.client.get_client()
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
     job.pyprint("AIP info:", aip_info)
     aip_info = aip_info[0]
@@ -80,13 +82,13 @@ def index_aip(job):
             sip_uuid,
             "from archival storage",
         )
-        elasticSearchFunctions.delete_aip(client, sip_uuid)
-        elasticSearchFunctions.delete_aip_files(client, sip_uuid)
+        archivematica.search.deleting.delete_aip(client, sip_uuid)
+        archivematica.search.deleting.delete_aip_files(client, sip_uuid)
     job.pyprint("Indexing AIP and AIP files")
     # Even though we treat MODS identifiers as SIP-level, we need to index them
     # here because the archival storage tab actually searches on the
     # aips/aipfile index.
-    ret = elasticSearchFunctions.index_aip_and_files(
+    ret = archivematica.search.indexing.index_aip_and_files(
         client=client,
         uuid=sip_uuid,
         aip_stored_path=aip_info["current_full_path"],

@@ -18,7 +18,9 @@ import sys
 import elasticsearch
 from django.conf import settings
 
-from archivematica.archivematicaCommon import elasticSearchFunctions
+import archivematica.search.client
+import archivematica.search.constants
+import archivematica.search.indices
 from archivematica.dashboard.main.management.commands import DashboardCommand
 
 
@@ -69,10 +71,10 @@ class Command(DashboardCommand):
         # Setup new cluster connection. Do not pass SEARCH_ENABLED
         # setting to avoid the creation of the indexes on setup,
         # and use the timeout passed to the command.
-        elasticSearchFunctions.setup(
+        archivematica.search.client.setup(
             settings.ELASTICSEARCH_SERVER, options["timeout"], []
         )
-        es_client = elasticSearchFunctions.get_client()
+        es_client = archivematica.search.client.get_client()
 
         # Get enabled indexes based on setting
         indexes = []
@@ -85,9 +87,9 @@ class Command(DashboardCommand):
         self.info("Creating new indexes.")
         try:
             es_client.indices.delete(
-                ",".join(elasticSearchFunctions.INDEXES), ignore=404
+                ",".join(archivematica.search.constants.INDEXES), ignore=404
             )
-            elasticSearchFunctions.create_indexes_if_needed(es_client, indexes)
+            archivematica.search.indices.create_indexes_if_needed(es_client, indexes)
         except Exception as e:
             self.error(
                 f"The Elasticsearch indexes could not be recreated in {settings.ELASTICSEARCH_SERVER}. "
@@ -107,7 +109,7 @@ class Command(DashboardCommand):
                 "type": "",
                 "size": options["size"],
             },
-            "dest": {"index": "", "type": elasticSearchFunctions.DOC_TYPE},
+            "dest": {"index": "", "type": archivematica.search.constants.DOC_TYPE},
         }
 
         # Add basic auth

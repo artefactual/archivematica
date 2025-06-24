@@ -28,7 +28,10 @@ from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
+import archivematica.search.client
+import archivematica.search.constants
+import archivematica.search.deleting
+import archivematica.search.updating
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     AMCLIENT_ERROR_CODES,
@@ -77,17 +80,23 @@ def sync_es_transfer_status_with_storage_service(uuid, pending_deletion):
         )
         return keep_in_results
 
-    if transfer_status == es.STATUS_DELETE_REQUESTED and pending_deletion is False:
-        es_client = es.get_client()
-        es.mark_backlog_deletion_requested(es_client, uuid)
-    elif transfer_status == es.STATUS_UPLOADED and pending_deletion is True:
-        es_client = es.get_client()
-        es.revert_backlog_deletion_request(es_client, uuid)
-    elif transfer_status == es.STATUS_DELETED:
+    if (
+        transfer_status == archivematica.search.constants.STATUS_DELETE_REQUESTED
+        and pending_deletion is False
+    ):
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.updating.mark_backlog_deletion_requested(es_client, uuid)
+    elif (
+        transfer_status == archivematica.search.constants.STATUS_UPLOADED
+        and pending_deletion is True
+    ):
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.updating.revert_backlog_deletion_request(es_client, uuid)
+    elif transfer_status == archivematica.search.constants.STATUS_DELETED:
         keep_in_results = False
-        es_client = es.get_client()
-        es.remove_backlog_transfer_files(es_client, uuid)
-        es.remove_backlog_transfer(es_client, uuid)
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.deleting.remove_backlog_transfer_files(es_client, uuid)
+        archivematica.search.deleting.remove_backlog_transfer(es_client, uuid)
 
     return keep_in_results
 
@@ -160,7 +169,7 @@ def search(request):
     )
     sort_direction = request.GET.get("sSortDir_0", "asc")
 
-    es_client = es.get_client()
+    es_client = archivematica.search.client.get_client()
 
     if "query" not in request.GET:
         queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
@@ -171,7 +180,7 @@ def search(request):
 
     try:
         if file_mode:
-            index = es.TRANSFER_FILES_INDEX
+            index = archivematica.search.constants.TRANSFER_FILES_INDEX
             source = "filename,sipuuid,relative_path,accessionid,pending_deletion"
         else:
             # Transfer mode:
@@ -189,7 +198,7 @@ def search(request):
                 }
             }
             hits = es_client.search(
-                index=es.TRANSFER_FILES_INDEX,
+                index=archivematica.search.constants.TRANSFER_FILES_INDEX,
                 body=query,
                 size=0,  # Don't return results, only aggregation
             )
@@ -197,7 +206,7 @@ def search(request):
 
             # Recreate query to search over transfers
             query = {"query": {"terms": {"uuid": uuids}}}
-            index = es.TRANSFERS_INDEX
+            index = archivematica.search.constants.TRANSFERS_INDEX
             source = (
                 "name,uuid,file_count,ingest_date,accessionid,size,pending_deletion"
             )
@@ -282,8 +291,8 @@ def delete(request, uuid):
         )
 
         messages.info(request, response["message"])
-        es_client = es.get_client()
-        es.mark_backlog_deletion_requested(es_client, uuid)
+        es_client = archivematica.search.client.get_client()
+        archivematica.search.updating.mark_backlog_deletion_requested(es_client, uuid)
 
     except requests.exceptions.ConnectionError:
         messages.warning(

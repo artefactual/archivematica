@@ -43,8 +43,9 @@ import tempfile
 from django.core.management.base import CommandError
 from lxml import etree
 
+import archivematica.search.deleting
+import archivematica.search.indexing
 from archivematica.archivematicaCommon import archivematicaFunctions as am
-from archivematica.archivematicaCommon import elasticSearchFunctions
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
@@ -121,8 +122,8 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
 
     if delete_existing_data is True:
         print("Deleting AIP", aip_uuid, "from aips/aip and aips/aipfile.")
-        elasticSearchFunctions.delete_aip(es_client, aip_uuid)
-        elasticSearchFunctions.delete_aip_files(es_client, aip_uuid)
+        archivematica.search.deleting.delete_aip(es_client, aip_uuid)
+        archivematica.search.deleting.delete_aip_files(es_client, aip_uuid)
 
     # AIP filenames are <name>-<uuid><extension>
     # Index of match end is right before the extension
@@ -161,7 +162,7 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
         aip_location
     )
 
-    return elasticSearchFunctions.index_aip_and_files(
+    return archivematica.search.indexing.index_aip_and_files(
         client=es_client,
         uuid=aip_uuid,
         aip_stored_path=path,
@@ -249,8 +250,8 @@ class Command(DashboardCommand):
                     options["uuid"]
                 )
             )
-            elasticSearchFunctions.delete_aip(es_client, options["uuid"])
-            elasticSearchFunctions.delete_aip_files(es_client, options["uuid"])
+            archivematica.search.deleting.delete_aip(es_client, options["uuid"])
+            archivematica.search.deleting.delete_aip_files(es_client, options["uuid"])
             return
 
         if not options["uuid"]:

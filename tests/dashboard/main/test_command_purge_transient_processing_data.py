@@ -6,7 +6,7 @@ from django.core.management import call_command
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 
-from archivematica.archivematicaCommon import elasticSearchFunctions as es
+import archivematica.search.constants
 from archivematica.dashboard.main import models
 
 
@@ -17,7 +17,10 @@ def search_disabled(settings):
 
 @pytest.fixture
 def search_enabled(settings):
-    settings.SEARCH_ENABLED = [es.TRANSFERS_INDEX, es.AIPS_INDEX]
+    settings.SEARCH_ENABLED = [
+        archivematica.search.constants.TRANSFERS_INDEX,
+        archivematica.search.constants.AIPS_INDEX,
+    ]
 
 
 @pytest.fixture()
@@ -87,15 +90,9 @@ def test_purge_command_removes_all_packages(
 
 
 @pytest.mark.django_db
-@mock.patch(
-    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.create_indexes_if_needed"
-)
-@mock.patch(
-    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer"
-)
-@mock.patch(
-    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer_files"
-)
+@mock.patch("archivematica.search.client.create_indexes_if_needed")
+@mock.patch("archivematica.search.deleting.remove_backlog_transfer")
+@mock.patch("archivematica.search.deleting.remove_backlog_transfer_files")
 def test_purge_command_removes_search_documents(
     mock_remove_backlog_transfer_files,
     mock_remove_backlog_transfer,
@@ -110,15 +107,9 @@ def test_purge_command_removes_search_documents(
     )
 
 
-@mock.patch(
-    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.create_indexes_if_needed"
-)
-@mock.patch(
-    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer"
-)
-@mock.patch(
-    "archivematica.dashboard.main.management.commands.purge_transient_processing_data.es.remove_backlog_transfer_files"
-)
+@mock.patch("archivematica.search.client.create_indexes_if_needed")
+@mock.patch("archivematica.search.deleting.remove_backlog_transfer")
+@mock.patch("archivematica.search.deleting.remove_backlog_transfer_files")
 @pytest.mark.django_db
 def test_purge_command_keeps_search_documents(
     mock_remove_backlog_transfer_files,
