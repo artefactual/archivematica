@@ -157,13 +157,68 @@ ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 
-FROM base-builder AS base
+FROM ubuntu:${UBUNTU_VERSION} AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG PYENV_DIR=/pyenv
 ARG MEDIAAREA_VERSION
 ARG JHOVE_VERSION
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+ENV PYENV_ROOT=${PYENV_DIR}/data
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+
+USER root
+
+# Ubuntu 24.04 and later Docker images include a default user with UID (1000)
+# and GID (1000). Remove this user to prevent conflicts with the USER_ID and
+# GROUP_ID build arguments.
+RUN set -ex \
+	&& id -u ubuntu >/dev/null 2>&1 \
+	&& userdel --remove ubuntu || true
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		ca-certificates \
+		libmysqlclient-dev \
+		locales \
+		tzdata \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+RUN set -ex \
+	&& groupadd --gid ${GROUP_ID} --system archivematica \
+	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
+	&& mkdir -p /var/archivematica/sharedDirectory \
+	&& chown -R archivematica:archivematica /var/archivematica
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
+
+ENV PYTHONPATH=/src/src
+
+# -----------------------------------------------------------------------------
+
+FROM base AS archivematica-mcp-client
+
+USER root
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		gnupg \
+		 curl \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN set -ex \
 	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
@@ -175,26 +230,14 @@ RUN set -ex \
 	&& apt-get install -y --no-install-recommends \
 		atool \
 		bulk-extractor \
-		clamav \
-		coreutils \
 		ffmpeg \
-		g++ \
-		gcc \
 		gearman \
-		gettext \
 		ghostscript \
 		hashdeep \
 		imagemagick \
 		inkscape \
 		jhove=${JHOVE_VERSION} \
-		libffi-dev \
 		libimage-exiftool-perl \
-		libldap2-dev \
-		libmysqlclient-dev \
-		libsasl2-dev \
-		libssl-dev \
-		libxml2-dev \
-		libxslt1-dev \
 		logapp \
 		md5deep \
 		mediaconch \
@@ -210,30 +253,13 @@ RUN set -ex \
 		sleuthkit \
 		tesseract-ocr \
 		tree \
-		unar \
 		unrar-free \
 		uuid \
+		ssh \
 	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-RUN set -ex \
-	&& groupadd --gid ${GROUP_ID} --system archivematica \
-	&& useradd --uid ${USER_ID} --gid ${GROUP_ID} --home-dir /var/archivematica --system archivematica \
-	&& mkdir -p /var/archivematica/sharedDirectory \
-	&& chown -R archivematica:archivematica /var/archivematica
-
-# Download ClamAV virus signatures
-RUN freshclam --quiet
-
+	
+	
 USER archivematica
-
-COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
-COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
-
-ENV PYTHONPATH=/src/src
-
-# -----------------------------------------------------------------------------
-
-FROM base AS archivematica-mcp-client
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.MCPClient.settings.common
 
@@ -256,6 +282,17 @@ ARG GROUP_ID=1000
 ARG PYTHON_VERSION=3.9
 
 USER root
+
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		gettext \
+		libffi-dev \
+		libxml2-dev \
+		libxslt1-dev \
+		unar \
+		libssl-dev \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN set -ex \
 	&& internalDirs=' \
@@ -286,7 +323,67 @@ ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/arc
 
 # -----------------------------------------------------------------------------
 
-FROM base AS archivematica-tests
+FROM base-builder AS archivematica-tests
+
+ARG USER_ID
+ARG GROUP_ID
+ARG PYENV_DIR
+ARG MEDIAAREA_VERSION
+ARG JHOVE_VERSION
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+ENV PYENV_ROOT=${PYENV_DIR}/data
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+
+user root
+
+RUN set -ex \
+	&& curl --retry 3 -fsSL https://packages.archivematica.org/1.18.x/key.asc | gpg --dearmor -o /etc/apt/keyrings/archivematica-1.18.x.gpg \
+	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.18.x.gpg] http://packages.archivematica.org/1.18.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
+	&& curl --retry 3 -so /tmp/repo-mediaarea.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_${MEDIAAREA_VERSION}_all.deb \
+	&& dpkg -i /tmp/repo-mediaarea.deb \
+	&& rm /tmp/repo-mediaarea.deb \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		atool \
+		bulk-extractor \
+		ffmpeg \
+		gearman \
+		ghostscript \
+		hashdeep \
+		imagemagick \
+		inkscape \
+		jhove=${JHOVE_VERSION} \
+		libimage-exiftool-perl \
+		logapp \
+		md5deep \
+		mediaconch \
+		mediainfo \
+		nfs-common \
+		openjdk-8-jre-headless \
+		p7zip-full \
+		pbzip2 \
+		pst-utils \
+		python3-lxml \
+		rsync \
+		siegfried \
+		sleuthkit \
+		tesseract-ocr \
+		tree \
+		unrar-free \
+		uuid \
+		ssh \
+		gcc \
+		media-types \
+		unar \
+	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+USER archivematica
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
 # -----------------------------------------------------------------------------
 
