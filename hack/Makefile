@@ -282,13 +282,15 @@ flush-test-dbs: start-mysql
 	$(foreach test_db,$(__TEST_DBS),$(call drop_db,$(test_db));)
 
 test-build:  ## Build archivematica-tests image.
-	docker build \
-		-t archivematica-tests \
-		-f $(CURDIR)/Dockerfile \
-		--build-arg TARGET=archivematica-tests \
-		--build-arg UBUNTU_VERSION \
-		--build-arg PYTHON_VERSION \
-			../
+	@if [ "$$GITHUB_ACTIONS" != "true" ]; then \
+		docker build \
+			-t archivematica-tests \
+			-f $(CURDIR)/Dockerfile \
+			--build-arg TARGET=archivematica-tests \
+			--build-arg UBUNTU_VERSION \
+			--build-arg PYTHON_VERSION \
+			../; \
+	fi
 
 __TOXENVS_MCPSERVER := mcp-server
 test-mcp-server: start-mysql  ## Run MCPServer tests.
