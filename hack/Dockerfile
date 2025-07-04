@@ -25,7 +25,9 @@ RUN set -ex \
 	&& id -u ubuntu >/dev/null 2>&1 \
 	&& userdel --remove ubuntu || true
 
-RUN set -ex \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+	set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		ca-certificates \
@@ -39,8 +41,7 @@ RUN set -ex \
 		locales \
 		make \
 		pkg-config \
-		tzdata \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+		tzdata
 
 RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
@@ -56,7 +57,9 @@ FROM base-builder AS pyenv-builder
 
 ARG PYTHON_VERSION=3.9
 
-RUN set -ex \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+	set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		build-essential \
@@ -71,8 +74,7 @@ RUN set -ex \
 		libxmlsec1-dev \
 		tk-dev \
 		xz-utils \
-		zlib1g-dev \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+		zlib1g-dev
 
 RUN set -ex \
 	&& curl --retry 3 -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
@@ -81,7 +83,8 @@ RUN set -ex \
 
 COPY --link requirements-dev.txt /src/requirements-dev.txt
 
-RUN set -ex \
+RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
+	set -ex \
 	&& pyenv exec python3 -m pip install --upgrade pip setuptools \
 	&& pyenv exec python3 -m pip install --requirement /src/requirements-dev.txt \
 	&& pyenv rehash
@@ -92,11 +95,12 @@ FROM base-builder AS browsers-builder
 
 ARG SELENIUM_DIR=/selenium
 
-RUN set -ex \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+	set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		jq \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+		jq
 
 RUN set -ex \
 	&& SELENIUM_CACHE=${SELENIUM_DIR}/cache \
@@ -132,7 +136,9 @@ ARG GROUP_ID=1000
 ARG SELENIUM_DIR=/selenium
 ENV PATH=${SELENIUM_DIR}/bin:$PATH
 
-RUN set -ex \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+	set -ex \
 	&& apt-get update \
 	&& apt-get -y --no-install-recommends install \
 		libasound2 \
@@ -144,8 +150,7 @@ RUN set -ex \
 		libnss3 \
 		libx11-xcb1 \
 		libxcb1 \
-		libxtst6 \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+		libxtst6
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=browsers-builder --link ${SELENIUM_DIR} ${SELENIUM_DIR}
 COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/frontend/node_modules /src/src/archivematica/dashboard/frontend/node_modules
@@ -170,7 +175,11 @@ RUN set -ex \
 	&& echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/archivematica-1.18.x.gpg] http://packages.archivematica.org/1.18.x/ubuntu-externals jammy main" > /etc/apt/sources.list.d/archivematica-external.list \
 	&& curl --retry 3 -so /tmp/repo-mediaarea.deb -L https://mediaarea.net/repo/deb/repo-mediaarea_${MEDIAAREA_VERSION}_all.deb \
 	&& dpkg -i /tmp/repo-mediaarea.deb \
-	&& rm /tmp/repo-mediaarea.deb \
+	&& rm /tmp/repo-mediaarea.deb
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+	set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		atool \
@@ -212,8 +221,7 @@ RUN set -ex \
 		tree \
 		unar \
 		unrar-free \
-		uuid \
-	&& rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+		uuid
 
 RUN set -ex \
 	&& groupadd --gid ${GROUP_ID} --system archivematica \
@@ -294,7 +302,9 @@ FROM base AS archivematica-dashboard-integration-tests
 
 USER root
 
-RUN set -ex \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+	set -ex \
 	&& python3 -m playwright install-deps firefox
 
 USER archivematica
