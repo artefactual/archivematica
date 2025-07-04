@@ -8,7 +8,44 @@ on:
       - "qa/**"
       - "stable/**"
 jobs:
+  cache-pyenv-builder:
+    name: "Cache layers of the pyenv-builder stage"
+    runs-on: "ubuntu-24.04"
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        ubuntu-version: ["24.04"]
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4"
+      - name: "Set up Docker Buildx"
+        uses: "docker/setup-buildx-action@v3"
+        with:
+          driver-opts: |
+            network=host
+      - name: "Generate cache key from requirements"
+        id: cache_key
+        run: |
+          echo "requirements_hash=${{ hashFiles('requirements*.txt', 'requirements*.in', 'pyproject.toml') }}" >> $GITHUB_OUTPUT
+      - name: "Build base layers"
+        uses: "docker/build-push-action@v6"
+        with:
+          context: .
+          file: ./hack/Dockerfile
+          target: pyenv-builder
+          build-args: |
+            UBUNTU_VERSION=${{ matrix.ubuntu-version }}
+            PYTHON_VERSION=${{ matrix.python-version }}
+            BUILDKIT_INLINE_CACHE=1
+          push: false
+          cache-from: |
+            type=gha,scope=archivematica-tests-base-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}
+            type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ steps.cache_key.outputs.requirements_hash }}
+          cache-to: |
+            type=gha,scope=archivematica-tests-base-${{ matrix.ubuntu-version }}-${{ matrix.python-version }},mode=max
+            type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ steps.cache_key.outputs.requirements_hash }},mode=max
   test:
+    needs: [cache-pyenv-builder]
     name: "Test ${{ matrix.rule }} on ${{ matrix.python-version }}"
     runs-on: "ubuntu-24.04"
     strategy:
@@ -47,8 +84,15 @@ jobs:
         id: group_id
         run: |
           echo "group_id=$(id -g)" >> $GITHUB_OUTPUT
+      - name: "Generate cache key from requirements"
+        id: cache_key
+        run: |
+          echo "requirements_hash=${{ hashFiles('requirements*.txt', 'requirements*.in', 'pyproject.toml') }}" >> $GITHUB_OUTPUT
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@v3"
+        with:
+          driver-opts: |
+            network=host
       - name: "Build archivematica-tests image"
         uses: "docker/build-push-action@v6"
         with:
@@ -60,11 +104,18 @@ jobs:
             GROUP_ID=${{ steps.group_id.outputs.group_id }}
             UBUNTU_VERSION=${{ matrix.ubuntu-version }}
             PYTHON_VERSION=${{ matrix.python-version }}
+            BUILDKIT_INLINE_CACHE=1
           tags: archivematica-tests:latest
           push: false
           load: true
-          cache-from: "type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ matrix.rule }}"
-          cache-to: "type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ matrix.rule }},mode=max"
+          cache-from: |
+            type=gha,scope=archivematica-tests-base-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}
+            type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ matrix.rule }}
+            type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ steps.cache_key.outputs.requirements_hash }}
+          cache-to: |
+            type=gha,scope=archivematica-tests-base-${{ matrix.ubuntu-version }}-${{ matrix.python-version }},mode=max
+            type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ matrix.rule }},mode=max
+            type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ steps.cache_key.outputs.requirements_hash }},mode=max
       - name: "Create external volumes"
         run: |
           make -C hack/ create-volumes
