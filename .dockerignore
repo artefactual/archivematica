@@ -17,3 +17,7 @@ src/archivematica/dashboard/media/js/build
 **/node_modules
 **/Thumbs.db
 **/*.egg-info
+**/__pycache__/
+**/*.py[cod]
+**/.mypy_cache
+**/.ruff_cache
