@@ -36,3 +36,9 @@ AUTH_PASSWORD_VALIDATORS: list[dict[str, Any]] = []
 FIXTURE_DIRS = (
     os.path.abspath(os.path.join(BASE_PATH, os.pardir, "tests", "fixtures")),
 )
+
+# Allow requests from the Vite dev server for Vue component development.
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]

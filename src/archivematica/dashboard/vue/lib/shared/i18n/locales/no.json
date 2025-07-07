@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "Vennligst legg til minst én mappe eller fil til overføringen",
+    "dismissAlert": "Avvis {type} varsel: {message}",
+    "editComponentFailed": "Kunne ikke redigere komponent",
+    "loadDataFailed": "Kunne ikke laste inn startdata",
+    "loadFilesFailed": "Kunne ikke laste inn filer",
+    "loadingIndicator": "Laster",
+    "notifications": "Varsler",
+    "transferFailed": "Kunne ikke starte SIP; sjekk dashbord-loggene dine.",
+    "transferStarted": "Overføring \"{name}\" startet"
+  },
+  "fileBrowser": {
+    "addToTransfer": "Legg {path} til overføring",
+    "browser": "Filutforsker",
+    "collapseFolder": "Skjul mappe",
+    "collapsed": "skjult",
+    "editComponent": "Rediger komponent: {path}",
+    "emptyFolder": "Ingen filer eller mapper å vise",
+    "expandFolder": "Utvid mappe",
+    "expanded": "utvidet",
+    "fileBrowserFor": "Filutforsker for {type} overføring",
+    "keyboardInstructions": "Bruk piltaster for å navigere, Enter eller Mellomrom for å velge, Venstre/Høyre for å utvide/skjule mapper, A for å legge til valgt element",
+    "locationHelp": "Velg en kildeplassering for å bla gjennom filer og mapper",
+    "notSelectableFor": "ikke valgbar for {type} overføring",
+    "removeComponent": "Fjern komponent: {path}",
+    "selectFileOrFolder": "Velg en fil eller mappe å legge til",
+    "sourceLocation": "Kildeplassering:"
+  },
+  "transfer": {
+    "accessSystemId": "Tilgangssystem-ID",
+    "accession": "Tilvekstnr.",
+    "add": "Legg til",
+    "autoApprove": "Godkjenn automatisk",
+    "browse": "Bla gjennom",
+    "configurationForm": "Overføringskonfigurasjonsskjema",
+    "fileBrowserSection": "Filutforskerseksjon",
+    "hideBrowser": "Skjul filutforsker",
+    "loading": "Laster...",
+    "name": "Overføringsnavn",
+    "showBrowser": "Vis filutforsker",
+    "showConfigOptions": "Vis behandlingskonfigurasjonsalternativer",
+    "skipToFileBrowser": "Hopp til filutforsker",
+    "startTransfer": "Start overføring",
+    "startWithConfig": "Start overføring med {config}",
+    "startWithDefault": "Start overføring med standardkonfigurasjon",
+    "submissionOptions": "Overføringsinnsendingsalternativer",
+    "type": "Overføringstype"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "Diskbilde",
+    "dspace": "DSpace",
+    "standard": "Standard",
+    "unzippedBag": "Upakket bag",
+    "zipfile": "Komprimert katalog",
+    "zippedBag": "Komprimert bag"
+  }
+}

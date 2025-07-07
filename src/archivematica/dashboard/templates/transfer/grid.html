@@ -8,8 +8,6 @@
 
 {% block extra_css %}
 <link href="{% static 'vendor/select2/select2.css' %}" rel="stylesheet" type="text/css" />
-<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/backbone-file-explorer.css' %}" />
-<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/directory_picker.css' %}" />
 <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/transfer_grid.css' %}" />
 {% endblock %}
 
@@ -19,8 +17,6 @@
   <script type="text/javascript" src="{% static 'js/online.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/transfer.js' %}"></script>
   <script type="text/javascript" src="{% static 'vendor/select2/select2.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/build/dashboard.js' %}"></script>
 
   <script type="text/javascript">
 
@@ -69,9 +65,9 @@
 
 {% block content %}
 
-  <div ng-app="dashboard">
-    <ng-include src="'front_page/transfer_browser.html'"></ng-include>
-  </div>
+  <div id="transfer-browser"></div>
+  <script type="module" src="{% static 'vue/browser.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'vue/browser.css' %}">
 
   <div id="sip-container">
     <div style='float:right'>

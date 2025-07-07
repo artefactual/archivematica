@@ -1,0 +1,45 @@
+{
+  "name": "vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prepare": "npm run build",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "build-only": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:interactive": "vitest",
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --fix",
+    "check": "run-s lint type-check test build-only",
+    "deps": "npx npm-check-updates --interactive"
+  },
+  "dependencies": {
+    "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
+    "vue": "^3.5.25",
+    "vue-i18n": "^11.2.2"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.6.1",
+    "@tsconfig/node24": "^24.0.3",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vitest/eslint-plugin": "^1.5.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.8.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-vue": "~10.6.1",
+    "glob": "^13.0.0",
+    "jiti": "^2.6.1",
+    "jsdom": "^27.2.0",
+    "npm-run-all2": "^8.0.4",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vitest": "^4.0.14",
+    "vue-tsc": "^3.1.5"
+  }
+}

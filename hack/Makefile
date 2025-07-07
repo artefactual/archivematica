@@ -95,6 +95,11 @@ build:  # Build Compose services.
 		--build-arg USER_ID=$(CALLER_UID) \
 		--build-arg GROUP_ID=$(CALLER_GID)
 
+build-dashboard:  # Build Compose services.
+	docker compose build \
+		--build-arg USER_ID=$(CALLER_UID) \
+		--build-arg GROUP_ID=$(CALLER_GID)
+
 bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
 
 bootstrap-storage-service:  ## Bootstrap Storage Service (new database).
@@ -138,6 +143,9 @@ manage-dashboard:  ## Run Django /manage.py on Dashboard, suppling <command> [op
 			archivematica-dashboard \
 				$(ARG)
 
+manage-dashboard-quick-collectstatic:  ## Collect the static files of the Archivematica Dashboard.
+	$(MAKE) manage-dashboard ARG="collectstatic --verbosity=3 --noinput --clear --skip-checks --link --no-post-process"
+
 manage-ss:  ## Run Django /manage.py on Storage Service, suppling <command> [options] as value to ARG, e.g., `make manage-ss ARG='shell --help'`
 	docker compose run \
 		--user $(CALLER_UID):$(CALLER_GID) \
@@ -172,7 +180,7 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 					--ss-api-key="test" \
 					--site-url="http://archivematica-dashboard:8000"
 
-bootstrap-dashboard-frontend:  ## Build front-end assets.
+bootstrap-dashboard-frontend-angular:
 	docker build \
 		-t archivematica-dashboard-frontend-builder \
 		-f $(CURDIR)/Dockerfile \
@@ -185,7 +193,24 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
 		--entrypoint npm \
 			archivematica-dashboard-frontend-builder \
-				ci
+				clean-install
+
+bootstrap-dashboard-frontend-vue:
+	docker build \
+		-t archivematica-dashboard-vue-builder \
+		-f $(CURDIR)/Dockerfile \
+		--build-arg TARGET=archivematica-dashboard-vue-builder \
+			../
+	docker run \
+		-e HOME=/tmp/npm-config \
+		--rm \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
+		--entrypoint npm \
+			archivematica-dashboard-vue-builder \
+				clean-install
+
+bootstrap-dashboard-frontend: bootstrap-dashboard-frontend-angular bootstrap-dashboard-frontend-vue  ## Build front-end assets.
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
 	docker compose restart --no-deps archivematica-mcp-server

@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "Por favor, adicione pelo menos uma pasta ou arquivo à transferência",
+    "dismissAlert": "Dispensar alerta {type}: {message}",
+    "editComponentFailed": "Falha ao editar o componente",
+    "loadDataFailed": "Falha ao carregar dados iniciais",
+    "loadFilesFailed": "Falha ao carregar arquivos",
+    "loadingIndicator": "Carregando",
+    "notifications": "Notificações",
+    "transferFailed": "Não é possível iniciar o SIP; Verifique os logs do painel.",
+    "transferStarted": "Transferência \"{name}\" iniciada com sucesso"
+  },
+  "fileBrowser": {
+    "addToTransfer": "Adicionar {path} à transferência",
+    "browser": "Navegador de arquivos",
+    "collapsed": "recolhido",
+    "collapseFolder": "Recolher pasta",
+    "editComponent": "Editar componente: {path}",
+    "emptyFolder": "Nenhum arquivo ou pasta para exibir",
+    "expanded": "expandido",
+    "expandFolder": "Expandir pasta",
+    "fileBrowserFor": "Navegador de arquivos para transferência {type}",
+    "keyboardInstructions": "Use as teclas de seta para navegar, Enter ou Espaço para selecionar, Esquerda/Direita para expandir/recolher pastas, A para adicionar o item selecionado",
+    "locationHelp": "Selecione um local de origem para navegar pelos arquivos e pastas",
+    "notSelectableFor": "não selecionável para transferência {type}",
+    "removeComponent": "Remover componente: {path}",
+    "selectFileOrFolder": "Selecione um arquivo ou pasta para adicionar",
+    "sourceLocation": "Local de origem:"
+  },
+  "transfer": {
+    "accession": "Registro de entrada n.",
+    "accessSystemId": "ID do registro de entrada no sistema",
+    "add": "Adicionar",
+    "autoApprove": "Aprovar automaticamente",
+    "browse": "Navegador",
+    "configurationForm": "Formulário de configuração de transferência",
+    "fileBrowserSection": "Seção do navegador de arquivos",
+    "hideBrowser": "Ocultar navegador de arquivos",
+    "loading": "Carregando...",
+    "name": "Nome da transferência",
+    "showBrowser": "Mostrar navegador de arquivos",
+    "showConfigOptions": "Mostrar opções de configuração de processamento",
+    "skipToFileBrowser": "Pular para o navegador de arquivos",
+    "startTransfer": "Iniciar transferência",
+    "startWithConfig": "Iniciar transferência com {config}",
+    "startWithDefault": "Iniciar transferência com configuração padrão",
+    "submissionOptions": "Opções de envio de transferência",
+    "type": "Tipo de transferência"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "Imagem do disco",
+    "dspace": "DSpace",
+    "standard": "Padrão",
+    "unzippedBag": "Descompactado",
+    "zipfile": "Diretório compactado",
+    "zippedBag": "Compactado"
+  }
+}

@@ -394,6 +394,7 @@ STATICFILES_DIRS = (
     ("css", os.path.join(BASE_PATH, "media", "css")),
     ("images", os.path.join(BASE_PATH, "media", "images")),
     ("vendor", os.path.join(BASE_PATH, "media", "vendor")),
+    ("vue", os.path.join(BASE_PATH, "vue", "dist")),
 )
 
 # List of finder classes that know how to find static files in

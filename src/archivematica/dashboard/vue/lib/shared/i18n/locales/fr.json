@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "Veuillez ajouter au moins un dossier ou un fichier au transfert",
+    "dismissAlert": "Ignorer l'alerte {type}: {message}",
+    "editComponentFailed": "Échec de la modification du composant",
+    "loadDataFailed": "Échec du chargement des données initiales",
+    "loadFilesFailed": "Échec du chargement des fichiers",
+    "loadingIndicator": "Chargement",
+    "notifications": "Notifications",
+    "transferFailed": "Incapable de commencer le SIP; vérifiez les journaux du tableau de bord.",
+    "transferStarted": "Transfert \"{name}\" démarré avec succès"
+  },
+  "fileBrowser": {
+    "addToTransfer": "Ajouter {path} au transfert",
+    "browser": "Navigateur de fichiers",
+    "collapsed": "réduit",
+    "collapseFolder": "Réduire le dossier",
+    "editComponent": "Modifier le composant: {path}",
+    "emptyFolder": "Aucun fichier ou dossier à afficher",
+    "expanded": "développé",
+    "expandFolder": "Développer le dossier",
+    "fileBrowserFor": "Navigateur de fichiers pour le transfert {type}",
+    "keyboardInstructions": "Utilisez les touches fléchées pour naviguer, Entrée ou Espace pour sélectionner, Gauche/Droite pour développer/réduire les dossiers, A pour ajouter l'élément sélectionné",
+    "locationHelp": "Sélectionnez un emplacement source pour parcourir les fichiers et dossiers",
+    "notSelectableFor": "non sélectionnable pour le transfert {type}",
+    "removeComponent": "Supprimer le composant: {path}",
+    "selectFileOrFolder": "Sélectionnez un fichier ou un dossier à ajouter",
+    "sourceLocation": "Emplacement source:"
+  },
+  "transfer": {
+    "accession": "Numéro d'acquisition",
+    "accessSystemId": "ID du système d'accès",
+    "add": "Ajouter",
+    "autoApprove": "Approuver automatiquement",
+    "browse": "Naviguer",
+    "configurationForm": "Formulaire de configuration du transfert",
+    "fileBrowserSection": "Section du navigateur de fichiers",
+    "hideBrowser": "Masquer le navigateur de fichiers",
+    "loading": "Chargement...",
+    "name": "Nom du transfert",
+    "showBrowser": "Afficher le navigateur de fichiers",
+    "showConfigOptions": "Afficher les options de configuration du traitement",
+    "skipToFileBrowser": "Passer au navigateur de fichiers",
+    "startTransfer": "Commencer le transfert",
+    "startWithConfig": "Commencer le transfert avec {config}",
+    "startWithDefault": "Commencer le transfert avec la configuration par défaut",
+    "submissionOptions": "Options de soumission du transfert",
+    "type": "Type de transfert"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "Image disque",
+    "dspace": "DSpace",
+    "standard": "Standard",
+    "unzippedBag": "Bag non compressé",
+    "zipfile": "Répertoire compressé",
+    "zippedBag": "Bag compressé"
+  }
+}

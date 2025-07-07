@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "Por favor añada al menos una carpeta o archivo a la transferencia",
+    "dismissAlert": "Descartar alerta {type}: {message}",
+    "editComponentFailed": "Error al editar el componente",
+    "loadDataFailed": "Error al cargar los datos iniciales",
+    "loadFilesFailed": "Error al cargar archivos",
+    "loadingIndicator": "Cargando",
+    "notifications": "Notificaciones",
+    "transferFailed": "Error al iniciar la transferencia",
+    "transferStarted": "Transferencia \"{name}\" iniciada con éxito"
+  },
+  "fileBrowser": {
+    "addToTransfer": "Añadir {path} a la transferencia",
+    "browser": "Explorador de archivos",
+    "collapseFolder": "Contraer carpeta",
+    "collapsed": "contraído",
+    "editComponent": "Editar componente: {path}",
+    "emptyFolder": "No hay archivos o carpetas para mostrar",
+    "expandFolder": "Expandir carpeta",
+    "expanded": "expandido",
+    "fileBrowserFor": "Explorador de archivos para transferencia {type}",
+    "keyboardInstructions": "Use las teclas de flecha para navegar, Enter o Espacio para seleccionar, Izquierda/Derecha para expandir/contraer carpetas, A para añadir el elemento seleccionado",
+    "locationHelp": "Seleccione una ubicación de origen para explorar archivos y carpetas",
+    "notSelectableFor": "no seleccionable para transferencia {type}",
+    "removeComponent": "Eliminar componente: {path}",
+    "selectFileOrFolder": "Seleccione un archivo o carpeta para añadir",
+    "sourceLocation": "Ubicación de origen:"
+  },
+  "transfer": {
+    "accessSystemId": "ID del sistema de acceso",
+    "accession": "Número de accesión",
+    "add": "Añadir",
+    "autoApprove": "Aprobar automáticamente",
+    "browse": "Navegar",
+    "configurationForm": "Formulario de configuración de transferencia",
+    "fileBrowserSection": "Sección del explorador de archivos",
+    "hideBrowser": "Ocultar explorador de archivos",
+    "loading": "Cargando...",
+    "name": "Nombre de la transferencia",
+    "showBrowser": "Mostrar explorador de archivos",
+    "showConfigOptions": "Mostrar opciones de configuración de procesamiento",
+    "skipToFileBrowser": "Ir al explorador de archivos",
+    "startTransfer": "Comenzar transferencia",
+    "startWithConfig": "Comenzar transferencia con {config}",
+    "startWithDefault": "Comenzar transferencia con configuración predeterminada",
+    "submissionOptions": "Opciones de envío de transferencia",
+    "type": "Tipo de transferencia"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "Imagen de disco",
+    "dspace": "DSpace",
+    "standard": "Estándar",
+    "unzippedBag": "Bag no comprimido",
+    "zipfile": "Directorio comprimido",
+    "zippedBag": "Bag comprimido (zip)"
+  }
+}

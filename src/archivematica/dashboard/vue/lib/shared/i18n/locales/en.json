@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "Please add at least one folder or file to the transfer",
+    "dismissAlert": "Dismiss {type} alert: {message}",
+    "editComponentFailed": "Failed to edit component",
+    "loadDataFailed": "Failed to load initial data",
+    "loadFilesFailed": "Failed to load files",
+    "loadingIndicator": "Loading",
+    "notifications": "Notifications",
+    "transferFailed": "Failed to start transfer",
+    "transferStarted": "Transfer \"{name}\" started successfully"
+  },
+  "fileBrowser": {
+    "addToTransfer": "Add {path} to transfer",
+    "browser": "File browser",
+    "collapseFolder": "Collapse folder",
+    "collapsed": "collapsed",
+    "editComponent": "Edit component: {path}",
+    "emptyFolder": "No files or folders to display",
+    "expandFolder": "Expand folder",
+    "expanded": "expanded",
+    "fileBrowserFor": "File browser for {type} transfer",
+    "keyboardInstructions": "Use arrow keys to navigate, Enter or Space to select, Left/Right to expand/collapse folders, A to add selected item",
+    "locationHelp": "Select a source location to browse files and folders",
+    "notSelectableFor": "not selectable for {type} transfer",
+    "removeComponent": "Remove component: {path}",
+    "selectFileOrFolder": "Select a file or folder to add",
+    "sourceLocation": "Source location:"
+  },
+  "transfer": {
+    "accessSystemId": "Access system ID",
+    "accession": "Accession no.",
+    "add": "Add",
+    "autoApprove": "Approve automatically",
+    "browse": "Browse",
+    "configurationForm": "Transfer configuration form",
+    "fileBrowserSection": "File browser section",
+    "hideBrowser": "Hide file browser",
+    "loading": "Loading...",
+    "name": "Transfer name",
+    "showBrowser": "Show file browser",
+    "showConfigOptions": "Show processing configuration options",
+    "skipToFileBrowser": "Skip to file browser",
+    "startTransfer": "Start transfer",
+    "startWithConfig": "Start with \"{config}\" configuration",
+    "startWithDefault": "Start with default configuration",
+    "submissionOptions": "Transfer submission options",
+    "type": "Transfer type"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "Disk image",
+    "dspace": "DSpace",
+    "standard": "Standard",
+    "unzippedBag": "Unzipped bag",
+    "zipfile": "Zipped directory",
+    "zippedBag": "Zipped bag"
+  }
+}

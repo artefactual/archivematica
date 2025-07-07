@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "Lägg till minst en mapp eller fil till överföringen",
+    "dismissAlert": "Avfärda {type} varning: {message}",
+    "editComponentFailed": "Misslyckades att redigera komponent",
+    "loadDataFailed": "Misslyckades att ladda initial data",
+    "loadFilesFailed": "Misslyckades att ladda filer",
+    "loadingIndicator": "Laddar",
+    "notifications": "Notifikationer",
+    "transferFailed": "Kunde inte starta SIP; se din översiktvylogg.",
+    "transferStarted": "Överföring \"{name}\" startad framgångsrikt"
+  },
+  "fileBrowser": {
+    "addToTransfer": "Lägg till {path} till överföring",
+    "browser": "Filläsare",
+    "collapsed": "minimerad",
+    "collapseFolder": "Minimera mapp",
+    "editComponent": "Redigera komponent: {path}",
+    "emptyFolder": "Inga filer eller mappar att visa",
+    "expanded": "expanderad",
+    "expandFolder": "Expandera mapp",
+    "fileBrowserFor": "Filläsare för {type} överföring",
+    "keyboardInstructions": "Använd piltangenter för att navigera, Enter eller mellanslag för att välja, vänster/höger för att expandera/minimera mappar, A för att lägga till markerat objekt",
+    "locationHelp": "Välj en källplats för att bläddra bland filer och mappar",
+    "notSelectableFor": "inte valbar för {type} överföring",
+    "removeComponent": "Ta bort komponent: {path}",
+    "selectFileOrFolder": "Välj en fil eller mapp att lägga till",
+    "sourceLocation": "Källplats:"
+  },
+  "transfer": {
+    "accession": "Accessions nummer",
+    "accessSystemId": "Åtkomstsystem-ID",
+    "add": "Lägg till",
+    "autoApprove": "Godkänn automatiskt",
+    "browse": "Bläddra",
+    "configurationForm": "Överföringskonfigurationsformulär",
+    "fileBrowserSection": "Filläsarsektion",
+    "hideBrowser": "Dölj filläsare",
+    "loading": "Laddar...",
+    "name": "Överföringens namn",
+    "showBrowser": "Visa filläsare",
+    "showConfigOptions": "Visa bearbetningskonfigurationsalternativ",
+    "skipToFileBrowser": "Hoppa till filläsare",
+    "startTransfer": "Starta överföring",
+    "startWithConfig": "Starta överföring med {config}",
+    "startWithDefault": "Starta överföring med standardkonfiguration",
+    "submissionOptions": "Överföringsinlämningsalternativ",
+    "type": "Överföringstyp"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "Skiv- eller disk-avbild",
+    "dspace": "DSpace",
+    "standard": "Standard",
+    "unzippedBag": "Unzipped bad",
+    "zipfile": "Zippad katalog",
+    "zippedBag": "Zipped bag"
+  }
+}

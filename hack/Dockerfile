@@ -117,8 +117,18 @@ COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboar
 
 WORKDIR /src/src/archivematica/dashboard/frontend
 
-RUN set ex \
-	&& npm ci
+RUN npm clean-install
+
+# -----------------------------------------------------------------------------
+
+# Built against Node v24 LTS!
+FROM node:24 AS archivematica-dashboard-vue-builder
+
+COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
+
+WORKDIR /src/src/archivematica/dashboard/vue
+
+RUN npm clean-install
 
 # -----------------------------------------------------------------------------
 
@@ -281,6 +291,8 @@ RUN set -ex \
 USER archivematica
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/media/js/ /src/src/archivematica/dashboard/media/js
+
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-vue-builder --link /src/src/archivematica/dashboard/vue/dist /src/src/archivematica/dashboard/vue/dist
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.local
 ENV AM_GUNICORN_BIND=0.0.0.0:8000

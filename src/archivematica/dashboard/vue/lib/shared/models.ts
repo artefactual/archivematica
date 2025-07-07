@@ -1,0 +1,58 @@
+export interface TransferFormData {
+  name: string
+  type:
+    | 'standard'
+    | 'zipfile'
+    | 'unzipped bag'
+    | 'zipped bag'
+    | 'dspace'
+    | 'disk image'
+    | 'dataverse'
+  accession: string
+  accessSystemId: string
+  processingConfig: string
+  autoApprove: boolean
+}
+
+export interface ProcessingConfig {
+  pk: string
+  name: string
+}
+
+export interface SourceLocation {
+  uuid: string
+  description: string
+  enabled: boolean
+  path: string
+  purpose: string
+  relative_path: string
+  space: string
+  used: number
+  quota: number | null
+}
+
+export interface TransferComponent {
+  id: string
+  path: string
+  location: string
+  uuid?: string
+}
+
+export interface FileNode {
+  name: string
+  path: string
+  type: 'file' | 'directory'
+  children?: FileNode[]
+  children_fetched?: boolean
+  loading?: boolean
+  size?: number
+  modified?: string
+  display_string?: string
+}
+
+export type { Alert } from '@/browser/components/MultiAlert.vue'
+
+export interface TreeSelection {
+  path: string
+  canAdd: boolean
+}

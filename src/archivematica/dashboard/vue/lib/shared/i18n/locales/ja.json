@@ -1,0 +1,59 @@
+{
+  "alerts": {
+    "addComponentRequired": "転送に少なくとも1つのフォルダまたはファイルを追加してください",
+    "dismissAlert": "{type}アラートを閉じる: {message}",
+    "editComponentFailed": "コンポーネントの編集に失敗しました",
+    "loadDataFailed": "初期データの読み込みに失敗しました",
+    "loadFilesFailed": "ファイルの読み込みに失敗しました",
+    "loadingIndicator": "読み込み中",
+    "notifications": "通知",
+    "transferFailed": "SIPを開始できません。 ダッシュボードログを確認してください。",
+    "transferStarted": "転送「{name}」が正常に開始されました"
+  },
+  "fileBrowser": {
+    "addToTransfer": "{path}を転送に追加",
+    "browser": "ファイルブラウザ",
+    "collapsed": "折りたたまれた",
+    "collapseFolder": "フォルダを折りたたむ",
+    "editComponent": "コンポーネントを編集: {path}",
+    "emptyFolder": "表示するファイルまたはフォルダがありません",
+    "expanded": "展開された",
+    "expandFolder": "フォルダを展開",
+    "fileBrowserFor": "{type}転送用のファイルブラウザ",
+    "keyboardInstructions": "矢印キーで移動、EnterまたはSpaceで選択、左/右でフォルダの展開/折りたたみ、Aで選択したアイテムを追加",
+    "locationHelp": "ファイルとフォルダを参照するソースの場所を選択してください",
+    "notSelectableFor": "{type}転送では選択できません",
+    "removeComponent": "コンポーネントを削除: {path}",
+    "selectFileOrFolder": "追加するファイルまたはフォルダを選択してください",
+    "sourceLocation": "ソースの場所:"
+  },
+  "transfer": {
+    "accession": " 受入番号.",
+    "accessSystemId": "アクセスシステムID",
+    "add": "追加",
+    "autoApprove": "自動承認",
+    "browse": "ブラウズ",
+    "configurationForm": "転送設定フォーム",
+    "fileBrowserSection": "ファイルブラウザセクション",
+    "hideBrowser": "ファイルブラウザを隠す",
+    "loading": "読み込み中...",
+    "name": "転送名",
+    "showBrowser": "ファイルブラウザを表示",
+    "showConfigOptions": "処理設定オプションを表示",
+    "skipToFileBrowser": "ファイルブラウザへスキップ",
+    "startTransfer": "転送スタート",
+    "startWithConfig": "{config}で転送を開始",
+    "startWithDefault": "デフォルト設定で転送を開始",
+    "submissionOptions": "転送送信オプション",
+    "type": "転送タイプ"
+  },
+  "transferTypes": {
+    "dataverse": "Dataverse",
+    "diskImage": "ディスクイメージ",
+    "dspace": "DSpace",
+    "standard": "標準",
+    "unzippedBag": "bagをZIP解凍しました",
+    "zipfile": "圧縮されたディレクトリ",
+    "zippedBag": "bagをZIP圧縮しました"
+  }
+}
