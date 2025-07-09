@@ -284,7 +284,7 @@ ENV FORWARDED_ALLOW_IPS=*
 
 RUN set -ex \
 	&& python3 -m archivematica.dashboard.manage collectstatic --noinput --clear \
-	&& python3 -m archivematica.dashboard.manage compilemessages
+	&& python3 -m archivematica.dashboard.manage compilemessages -l en
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.production
 
