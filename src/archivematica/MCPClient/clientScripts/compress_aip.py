@@ -4,6 +4,7 @@ import os.path
 import sys
 
 import django
+from django.db import close_old_connections
 from django.db import transaction
 
 django.setup()
@@ -149,6 +150,11 @@ def call(jobs):
             job.set_status(status)
             if result:
                 state.append(result)
+
+    # Close stale connections before beginning the transaction to ensure a new
+    # connection. This avoids MySQL timeouts that can occur after lengthy
+    # compression processes.
+    close_old_connections()
 
     with transaction.atomic():
         for result in state:
