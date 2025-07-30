@@ -72,16 +72,29 @@ class UserCreationForm(DjangoUserCreationForm):
 class UserChangeForm(DjangoUserChangeForm):
     error_messages = {
         "password_mismatch": _(
-            "The two password fields didn’t match. Enter the same password as before, for verification."
-        )
+            "The two password fields didn't match. Enter the same password as before, for verification."
+        ),
+        "current_password_required": _(
+            "Your current password is required when setting a new password."
+        ),
+        "current_password_incorrect": _("Your current password is incorrect."),
     }
     email = forms.EmailField(required=True)
+    current_password = forms.CharField(
+        widget=forms.PasswordInput,
+        required=False,
+        label=_("Your current password"),
+        help_text=_("Required when setting a new password."),
+    )
     password = forms.CharField(
         widget=forms.PasswordInput,
         required=False,
+        label=_("New password"),
         help_text=password_validators_help_text_html(),
     )
-    password_confirmation = forms.CharField(widget=forms.PasswordInput, required=False)
+    password_confirmation = forms.CharField(
+        widget=forms.PasswordInput, required=False, label="New password confirmation"
+    )
     is_superuser = forms.BooleanField(label="Administrator", required=False)
     regenerate_api_key = forms.CharField(
         widget=forms.CheckboxInput,
@@ -89,13 +102,27 @@ class UserChangeForm(DjangoUserChangeForm):
         required=False,
     )
 
+    field_order = [
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "is_active",
+        "is_superuser",
+        "current_password",
+        "password",
+        "password_confirmation",
+        "regenerate_api_key",
+    ]
+
     def __init__(self, *args, **kwargs):
-        suppress_administrator_toggle = kwargs.get(
+        suppress_administrator_toggle = kwargs.pop(
             "suppress_administrator_toggle", False
         )
-
-        if "suppress_administrator_toggle" in kwargs:
-            del kwargs["suppress_administrator_toggle"]
+        try:
+            self.requesting_user = kwargs.pop("requesting_user")
+        except KeyError:
+            raise ValueError("requesting_user is required for UserChangeForm")
 
         super().__init__(*args, **kwargs)
 
@@ -117,18 +144,41 @@ class UserChangeForm(DjangoUserChangeForm):
         data = self.cleaned_data.get("password")
         return data
 
+    def _validate_current_password(self, current_password):
+        if not current_password:
+            self.add_error(
+                "current_password", self.error_messages["current_password_required"]
+            )
+            return False
+
+        if not self.requesting_user.check_password(current_password):
+            self.add_error(
+                "current_password", self.error_messages["current_password_incorrect"]
+            )
+            return False
+
+        return True
+
+    def _validate_password_change(self, cleaned_data):
+        """Validate password change requirements including current password verification."""
+        password = cleaned_data.get("password", "")
+        password_confirmation = cleaned_data.get("password_confirmation", "")
+        current_password = cleaned_data.get("current_password", "")
+
+        # Only validate if password change is being attempted.
+        if not (password or password_confirmation):
+            return
+
+        if password != password_confirmation:
+            self.add_error(
+                "password_confirmation", self.error_messages["password_mismatch"]
+            )
+
+        self._validate_current_password(current_password)
+
     def clean(self):
         cleaned_data = super().clean()
-        if (
-            cleaned_data.get("password") != ""
-            or cleaned_data.get("password_confirmation") != ""
-        ):
-            if cleaned_data.get("password") != cleaned_data.get(
-                "password_confirmation"
-            ):
-                self.add_error(
-                    "password_confirmation", self.error_messages["password_mismatch"]
-                )
+        self._validate_password_change(cleaned_data)
         return cleaned_data
 
     def _post_clean(self):

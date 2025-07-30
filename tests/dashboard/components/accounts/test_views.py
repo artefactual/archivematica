@@ -118,7 +118,9 @@ def test_edit_user_view_updates_user_profile_fields(
     dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     admin_client: Client,
+    admin_user: User,
 ) -> None:
+    current_password = "currentpassword"
     new_username = "newusername"
     new_password = "newpassword"
     new_first_name = "bar"
@@ -128,10 +130,14 @@ def test_edit_user_view_updates_user_profile_fields(
         "username": new_username,
         "password": new_password,
         "password_confirmation": new_password,
+        "current_password": current_password,
         "first_name": new_first_name,
         "last_name": new_last_name,
         "email": new_email,
     }
+    admin_user.set_password(current_password)
+    admin_user.save()
+    admin_client.force_login(admin_user)
 
     response = admin_client.post(
         reverse("accounts:edit", kwargs={"id": non_administrative_user.id}),
@@ -317,3 +323,206 @@ def test_user_profile_view_does_not_regenerate_api_key_if_not_requested(
 
     non_administrative_user_apikey.refresh_from_db()
     assert non_administrative_user_apikey.key == expected_apikey
+
+
+@pytest.mark.django_db
+def test_user_successfully_changes_own_password(
+    dashboard_uuid: uuid.UUID,
+    non_administrative_user: User,
+    client: Client,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    """Test that a user can successfully change their own password with correct current_password."""
+    settings.ALLOW_USER_EDITS = True
+
+    # Set a known password for the user
+    old_password = "oldpass123"
+    non_administrative_user.set_password(old_password)
+    non_administrative_user.save()
+
+    # Log in with the known password
+    client.force_login(non_administrative_user)
+
+    # Data to change the user's password
+    new_password = "newpass456"
+    data = {
+        "username": non_administrative_user.username,
+        "first_name": non_administrative_user.first_name,
+        "last_name": non_administrative_user.last_name,
+        "email": non_administrative_user.email,
+        "current_password": old_password,  # Correct current password
+        "password": new_password,
+        "password_confirmation": new_password,
+    }
+
+    response = client.post(
+        reverse("accounts:profile"),
+        data,
+        follow=False,  # Don't follow redirects to see the direct response
+    )
+
+    # Check if the form was processed correctly
+    # It might redirect to login or show success message
+    assert response.status_code in [200, 302]  # Success or redirect
+
+    # Verify password was changed regardless of UI behavior
+    non_administrative_user.refresh_from_db()
+    assert non_administrative_user.check_password(new_password)
+    assert not non_administrative_user.check_password(old_password)
+
+
+@pytest.mark.django_db
+def test_user_fails_to_change_password_with_incorrect_current_password(
+    dashboard_uuid: uuid.UUID,
+    non_administrative_user: User,
+    client: Client,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    """Test that a user fails to change their password with incorrect current_password."""
+    settings.ALLOW_USER_EDITS = True
+
+    # Set a known password for the user
+    old_password = "oldpass123"
+    non_administrative_user.set_password(old_password)
+    non_administrative_user.save()
+
+    # Log in with the known password
+    client.force_login(non_administrative_user)
+
+    # Data to change the user's password with WRONG current password
+    new_password = "newpass456"
+    data = {
+        "username": non_administrative_user.username,
+        "first_name": non_administrative_user.first_name,
+        "last_name": non_administrative_user.last_name,
+        "email": non_administrative_user.email,
+        "current_password": "wrongpass",  # Incorrect current password
+        "password": new_password,
+        "password_confirmation": new_password,
+    }
+
+    response = client.post(
+        reverse("accounts:profile"),
+        data,
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    # Should show error message about incorrect current password
+    assert "Your current password is incorrect." in content
+
+    # Verify password was NOT changed
+    non_administrative_user.refresh_from_db()
+    assert non_administrative_user.check_password(old_password)  # Still old password
+    assert not non_administrative_user.check_password(
+        new_password
+    )  # New password not set
+
+
+@pytest.mark.django_db
+def test_admin_successfully_changes_another_users_password(
+    dashboard_uuid: uuid.UUID,
+    non_administrative_user: User,
+    admin_user: User,
+    admin_client: Client,
+) -> None:
+    """Test that an admin can successfully change another user's password with admin's current_password."""
+    # Set passwords for both users
+    admin_password = "adminpass123"
+    user_old_password = "useroldpass"
+
+    admin_user.set_password(admin_password)
+    admin_user.save()
+    non_administrative_user.set_password(user_old_password)
+    non_administrative_user.save()
+
+    # Log in as admin
+    admin_client.force_login(admin_user)
+
+    # Data to change the other user's password using admin's current password
+    user_new_password = "usernewpass456"
+    data = {
+        "username": non_administrative_user.username,
+        "first_name": non_administrative_user.first_name,
+        "last_name": non_administrative_user.last_name,
+        "email": non_administrative_user.email,
+        "current_password": admin_password,  # Admin's password (not the user's)
+        "password": user_new_password,
+        "password_confirmation": user_new_password,
+    }
+
+    response = admin_client.post(
+        reverse("accounts:edit", kwargs={"id": non_administrative_user.id}),
+        data,
+        follow=False,
+    )
+
+    # Check if the form was processed correctly
+    assert response.status_code in [200, 302]  # Success or redirect
+
+    # Verify the user's password was changed
+    non_administrative_user.refresh_from_db()
+    assert non_administrative_user.check_password(user_new_password)
+    assert not non_administrative_user.check_password(user_old_password)
+
+    # Verify admin password is unchanged
+    admin_user.refresh_from_db()
+    assert admin_user.check_password(admin_password)
+
+
+@pytest.mark.django_db
+def test_admin_fails_to_change_another_users_password_with_incorrect_admin_password(
+    dashboard_uuid: uuid.UUID,
+    non_administrative_user: User,
+    admin_user: User,
+    admin_client: Client,
+) -> None:
+    """Test that an admin fails to change another user's password with incorrect admin password."""
+    # Set passwords for both users
+    admin_password = "adminpass123"
+    user_old_password = "useroldpass"
+
+    admin_user.set_password(admin_password)
+    admin_user.save()
+    non_administrative_user.set_password(user_old_password)
+    non_administrative_user.save()
+
+    # Log in as admin
+    admin_client.force_login(admin_user)
+
+    # Data to change the other user's password using WRONG admin password
+    user_new_password = "usernewpass456"
+    data = {
+        "username": non_administrative_user.username,
+        "first_name": non_administrative_user.first_name,
+        "last_name": non_administrative_user.last_name,
+        "email": non_administrative_user.email,
+        "current_password": "wrongadminpass",  # Wrong admin password
+        "password": user_new_password,
+        "password_confirmation": user_new_password,
+    }
+
+    response = admin_client.post(
+        reverse("accounts:edit", kwargs={"id": non_administrative_user.id}),
+        data,
+        follow=True,
+    )
+    assert response.status_code == 200
+
+    content = response.content.decode()
+    # Should show error message about incorrect current password
+    assert "Your current password is incorrect." in content
+
+    # Verify the user's password was NOT changed
+    non_administrative_user.refresh_from_db()
+    assert non_administrative_user.check_password(
+        user_old_password
+    )  # Still old password
+    assert not non_administrative_user.check_password(
+        user_new_password
+    )  # New password not set
+
+    # Verify admin password is unchanged
+    admin_user.refresh_from_db()
+    assert admin_user.check_password(admin_password)

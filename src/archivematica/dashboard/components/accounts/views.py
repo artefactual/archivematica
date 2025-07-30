@@ -133,7 +133,7 @@ def edit(request, id=None, return_view=None):
 
     # Form
     if request.method == "POST":
-        form = UserChangeForm(request.POST, instance=user)
+        form = UserChangeForm(request.POST, instance=user, requesting_user=request.user)
         userprofileform = UserProfileForm(request.POST, instance=user_profile)
         if form.is_valid() and userprofileform.is_valid():
             user = form.save(commit=False)
@@ -173,7 +173,9 @@ def edit(request, id=None, return_view=None):
         if request.user.is_superuser:
             suppress_administrator_toggle = False
         form = UserChangeForm(
-            instance=user, suppress_administrator_toggle=suppress_administrator_toggle
+            instance=user,
+            suppress_administrator_toggle=suppress_administrator_toggle,
+            requesting_user=request.user,
         )
         userprofileform = UserProfileForm(instance=user_profile)
 
