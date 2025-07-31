@@ -24,7 +24,8 @@ See the [LICENSE] file for details.
 
 * [Website] for the user and administrator documentation
 * [Presentations repo] and [YouTube channel] for previous trainings and talks
-* [Case studies repo] for a collection of resources about working on and with Archivematica
+* [Case studies repo] for a collection of resources about working on and with
+Archivematica
 * [User Group] is a forum/mailing list for user questions (both
 technical and end-user)
 * [Paid support] is for paid support, hosting, training, consulting
@@ -38,7 +39,7 @@ analysis and community resources
 * [Issues] is the Git repository used for tracking Archivematica issues
 and feature/enhancement ideas
 * The [Archivematica roadmap] contains current release information and potential
- future works
+future works
 
 ## Contributing
 
@@ -46,17 +47,17 @@ Thank you for your interest in Archivematica!
 
 For more details, see the [contributing guidelines].
 
-Read about our guidelines for making [pull requests], including [contribution 
-standards], and make any [documentation updates] reflecting the changes 
+Read about our guidelines for making [pull requests], including [contribution
+standards], and make any [documentation updates] reflecting the changes
 introduced by your contribution.
 
-Our [Contributors Portal] contains useful background information and 
+Our [Contributors Portal] contains useful background information and
 instructions on translations in Archivematica.
 
 You might have questions about the history of development decisions: find
 answers in the [Architectural Decisions Record].
 
-Our current release notes are available on GitHub. Release notes from version 
+Our current release notes are available on GitHub. Release notes from version
 0.6 to 1.17.1 are available in [RELEASENOTES file].
 
 ## Reporting an issue
