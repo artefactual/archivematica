@@ -661,11 +661,18 @@ def get_format(doc):
 
     return (format, version)
 
-def format_event_outcome_detail_note(format, version, result):
+def get_errors(doc):
+    errors = doc.findall(f'.{jhoveBNS}repInfo/{jhoveBNS}messages/{jhoveBNS}message[@severity="error"]')
+    messages = [f"JHOVE error: {error.get('id')}, message: {error.text}" for error in errors]
+    return '; '.join(messages)
+
+def format_event_outcome_detail_note(format, version, result, errors):
     note = 'format="{}";'.format(format)
     if version is not None:
         note = note + ' version="{}";'.format(version)
     note = note + ' result="{}"'.format(result)
+    if errors:
+        note = note + '; error="{}"'.format(errors)
 
     return note
 
@@ -675,7 +682,8 @@ def main(target):
         status = get_status(doc)
         format, version = get_format(doc)
         outcome = get_outcome(status, format)
-        note = format_event_outcome_detail_note(format, version, status)
+        errors = get_errors(doc)
+        note = format_event_outcome_detail_note(format, version, status, errors)
 
         out = {
             "eventOutcomeInformation": outcome,
