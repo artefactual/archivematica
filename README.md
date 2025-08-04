@@ -86,8 +86,8 @@ Archivematica consists of several projects working together, including:
   the Format Policy Registry (FPR) server that displays and updates FPR
   rules and commands
 
-For more projects in the Archivematica ecosystem,
-see the [getting started] page.
+For more projects in the Archivematica ecosystem, see the list on the
+[dependencies] page of the [Contributors Portal].
 
 [Architectural Decisions Record]: https://adr.archivematica.org/
 [Archivematica API documentation]: https://archivematica.org/docs/latest/dev-manual/api/api-reference-archivematica/#api-reference-archivematica
@@ -101,11 +101,11 @@ see the [getting started] page.
 [contributing guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/CONTRIBUTING.md
 [contribution standards]: https://github.com/artefactual/archivematica/blob/qa/1.x/CONTRIBUTING.md#contribution-standards
 [Contributors Portal]: https://contributors.artefactual.com/
+[dependencies]: https://contributors.artefactual.com/dependencies.html#archivematica
 [Developer guide]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md
 [Development installation]: https://github.com/artefactual/archivematica/tree/qa/1.x/hack
 [documentation updates]: https://github.com/artefactual/archivematica-docs/wiki
 [Format Policy Registry]: https://github.com/artefactual/archivematica/tree/qa/1.x/src/archivematica/dashboard/fpr
-[getting started]: https://www.archivematica.org/en/docs/latest/getting-started/
 [GitHub CI]: https://github.com/artefactual/archivematica/actions/workflows/test.yml/badge.svg
 [issue reporting]: https://github.com/archivematica/Issues/blob/main/CONTRIBUTING.md
 [Issues]: https://github.com/archivematica/Issues
