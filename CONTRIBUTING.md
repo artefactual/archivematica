@@ -122,6 +122,17 @@ submitted for code review should contain commits covering a related section of
 code. Try not to bundle unrelated changes together in one branch; it makes
 review harder.
 
+When naming branches, Artefactual uses the following naming format:
+`dev/issue-####-short-decscription`
+
+- `dev/` marks it as being a development branch, not for QA integration or
+  a stable release
+
+- `issue-####` is the issue that the work is mostly related to
+
+- `short-description` is a description of the branch in a few words, to make it
+  easier to remember what the topic is. Example: `dev/issue-8161-dashbord-il8n`
+
 If you're not familiar with forking repositories and creating branches in
 GitHub, consult their [guide].
 
@@ -215,8 +226,8 @@ Alternatively, you may send a printed, signed agreement to:
 
 ```text
 Artefactual Systems Inc.
-201 - 301 Sixth Street
-New Westminster BC  V3L 3A7
+#1 - 10138 Whalley Blvd.
+Surrey BC  V3T 4H4
 Canada
 ```
 
@@ -429,7 +440,7 @@ Further content comes after a blank line.
 [Line comment]: https://i.imgur.com/FsWppGN.png
 [code review guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/code_review.md
 [interactive rebase feature]: https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History
-[Contributor's Agreement]: https://wiki.archivematica.org/images/e/e6/Archivematica-CLA-firstname-lastname-YYYY.pdf
+[Contributor's Agreement]: https://drive.google.com/file/d/1WwnVyMV0kLdFRlpwXAi5wvMQS97vc2eI/view?usp=sharing
 [Apache Foundation]: http://apache.org
 [contributor license]: http://www.apache.org/licenses/icla.txt
 [Artefactual Systems]: http://artefactual.com
