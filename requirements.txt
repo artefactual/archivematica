@@ -6,11 +6,11 @@
 #
 agentarchives==0.10.0
     # via -r requirements.in
-amclient==1.4.0
+amclient==1.5.0
     # via -r requirements.in
 ammcpc==0.3.0
     # via -r requirements.in
-asgiref==3.8.1
+asgiref==3.9.1
     # via django
 attrs==25.3.0
     # via
@@ -20,15 +20,15 @@ bagit==1.9.0
     # via -r requirements.in
 brotli==1.1.0
     # via -r requirements.in
-certifi==2025.6.15
+certifi==2025.8.3
     # via requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 clamav-client==0.7.1
     # via -r requirements.in
-cryptography==45.0.4
+cryptography==45.0.6
     # via
     #   josepy
     #   mozilla-django-oidc
@@ -38,6 +38,7 @@ django==4.2.23
     #   django-auth-ldap
     #   django-cas-ng
     #   django-csp
+    #   django-prometheus
     #   mozilla-django-oidc
 django-auth-ldap==5.2.0
     # via -r requirements.in
@@ -49,7 +50,7 @@ django-csp==4.0
     # via -r requirements.in
 django-forms-bootstrap==3.1.0
     # via -r requirements.in
-django-prometheus==2.4.0
+django-prometheus==2.4.1
     # via -r requirements.in
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via -r requirements.in
@@ -61,7 +62,7 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via -r requirements.in
 gevent==25.5.1
     # via -r requirements.in
-greenlet==3.2.3
+greenlet==3.2.4
     # via gevent
 gunicorn==23.0.0
     # via -r requirements.in
@@ -71,15 +72,15 @@ importlib-resources==6.5.2
     # via opf-fido
 inotify-simple==1.3.5
     # via -r requirements.in
-josepy==2.0.0
+josepy==2.1.0
     # via mozilla-django-oidc
-jsonschema==4.24.0
+jsonschema==4.25.0
     # via -r requirements.in
 jsonschema-specifications==2025.4.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via -r requirements.in
-lxml==5.4.0
+lxml==6.0.0
     # via
     #   -r requirements.in
     #   ammcpc
@@ -95,7 +96,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via -r requirements.in
-orjson==3.10.18
+orjson==3.11.2
     # via -r requirements.in
 packaging==25.0
     # via
@@ -137,7 +138,7 @@ requests==2.32.4
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.25.1
+rpds-py==0.27.0
     # via
     #   jsonschema
     #   referencing
@@ -148,7 +149,7 @@ six==1.17.0
     #   python-dateutil
 sqlparse==0.5.3
     # via django
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   asgiref
     #   referencing
@@ -163,7 +164,7 @@ whitenoise==6.9.0
     # via -r requirements.in
 zipp==3.23.0
     # via importlib-resources
-zope-event==5.0
+zope-event==5.1.1
     # via gevent
 zope-interface==7.2
     # via gevent
