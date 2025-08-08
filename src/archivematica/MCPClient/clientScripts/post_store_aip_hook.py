@@ -162,9 +162,9 @@ def post_store_hook(job, sip_uuid):
     for transfer_uuid in transfer_uuids:
         job.pyprint("Checking if transfer", transfer_uuid, "is fully stored...")
         arranged_uuids = set(
-            models.SIPArrange.objects.filter(transfer_uuid=transfer_uuid)
-            .filter(aip_created=True)
-            .values_list("file_uuid", flat=True)
+            models.SIPArrange.objects.filter(
+                transfer_uuid=transfer_uuid, aip_created=True
+            ).values_list("file_uuid", flat=True)
         )
         backlog_uuids = set(
             models.File.objects.filter(transfer=transfer_uuid).values_list(
@@ -180,7 +180,7 @@ def post_store_hook(job, sip_uuid):
             )
             # Submit delete req to SS (not actually delete), remove from ES
             storage_service.request_file_deletion(
-                uuid=transfer_uuid,
+                uuid=str(transfer_uuid),
                 user_id=0,
                 user_email="archivematica system",
                 reason_for_deletion="All files in Transfer are now in AIPs.",
@@ -192,7 +192,7 @@ def post_store_hook(job, sip_uuid):
     dspace_handle_to_archivesspace(job, sip_uuid)
 
     # POST-STORE CALLBACK
-    storage_service.post_store_aip_callback(sip_uuid)
+    storage_service.post_store_aip_callback(str(sip_uuid))
 
     # When not using SIP arrangement, we perform best-effort deletion of the
     # original transfer directory under currentlyProcessing.
