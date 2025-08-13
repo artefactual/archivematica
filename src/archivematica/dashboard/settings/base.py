@@ -193,7 +193,7 @@ CONFIG_MAPPING.update(email_settings.CONFIG_MAPPING)
 CONFIG_DEFAULTS = """[Dashboard]
 shared_directory = /var/archivematica/sharedDirectory/
 watch_directory = /var/archivematica/sharedDirectory/watchedDirectories/
-elasticsearch_server = 127.0.0.1:9200
+elasticsearch_server = http://127.0.0.1:9200
 elasticsearch_timeout = 10
 elasticsearch_max_query_size = 10000
 search_enabled = true

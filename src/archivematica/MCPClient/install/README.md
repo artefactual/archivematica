@@ -154,7 +154,7 @@ This is the full list of variables supported by MCPClient:
   - **Description:** address of the Elasticsearch server.
   - **Config file example:** `MCPClient.elasticsearchServer`
   - **Type:** `string`
-  - **Default:** `localhost:9200`
+  - **Default:** `http://localhost:9200`
 
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ELASTICSEARCHTIMEOUT`**:
   - **Description:** configures the Elasticsearch client to stop waiting for a

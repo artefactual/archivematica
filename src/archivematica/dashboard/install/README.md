@@ -153,7 +153,7 @@ variables or in the gunicorn configuration file.
   - **Description:** address of the Elasticsearch server.
   - **Config file example:** `Dashboard.elasticsearch_server`
   - **Type:** `string`
-  - **Default:** `"127.0.0.1:9200"`
+  - **Default:** `"http://127.0.0.1:9200"`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_TIMEOUT`**:
   - **Description:** configures the Elasticsearch client to stop waiting for a
