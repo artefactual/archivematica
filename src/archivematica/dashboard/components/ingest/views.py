@@ -37,8 +37,6 @@ from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
-import archivematica.search.client
-import archivematica.search.querying
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
 from archivematica.dashboard.components import advanced_search
@@ -52,6 +50,8 @@ from archivematica.dashboard.contrib.mcp.client import MCPClient
 from archivematica.dashboard.main import forms
 from archivematica.dashboard.main import models
 from archivematica.search import utils
+from archivematica.search.constants import STATUS_BACKLOG
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -607,11 +607,11 @@ def transfer_backlog(request, ui):
     """
     AJAX endpoint to query for and return transfer backlog items.
     """
-    es_client = archivematica.search.client.get_client()
+    search_service = setup_search_service_from_conf(django_settings)
     results = None
 
     # Return files which are in the backlog
-    backlog_filter = {"bool": {"must": {"term": {"status": "backlog"}}}}
+    backlog_filter = {"bool": {"must": {"term": {"status": STATUS_BACKLOG}}}}
     # Omit files without UUIDs (metadata and logs directories):
     # - When the `hidemetadatalogs` param is sent from SIP arrange.
     if request.GET.get("hidemetadatalogs"):
@@ -634,9 +634,7 @@ def transfer_backlog(request, ui):
 
     # perform search
     try:
-        results = archivematica.search.querying.search_all_results(
-            es_client, body=query, index="transferfiles"
-        )
+        results = search_service.search_transfer_files(query)
     except Exception:
         logger.exception("Error accessing index.")
         return HttpResponse("Error accessing index.")

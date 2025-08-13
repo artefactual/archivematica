@@ -3,11 +3,10 @@ import time
 from django.conf import settings as django_settings
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
-from elasticsearch import ElasticsearchException
 
-import archivematica.search.client
 import archivematica.search.constants
-import archivematica.search.indices
+from archivematica.search.service import SearchServiceError
+from archivematica.search.service import setup_search_service_from_conf
 
 
 class DashboardCommand(BaseCommand):
@@ -51,10 +50,9 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
         )
 
     try:
-        archivematica.search.client.setup_reading_from_conf(django_settings)
-        es_client = archivematica.search.client.get_client()
-    except ElasticsearchException as err:
-        raise CommandError(f"Unable to connect to Elasticsearch: {err}")
+        search_service = setup_search_service_from_conf(django_settings)
+    except SearchServiceError as err:
+        raise CommandError(f"Unable to connect to the search service: {err}")
 
     if delete_all:
         cmd.info("Deleting all AIPs in the 'aips' and 'aipfiles' indices")
@@ -63,7 +61,7 @@ def setup_es_for_aip_reindexing(cmd, delete_all=False):
             archivematica.search.constants.AIPS_INDEX,
             archivematica.search.constants.AIP_FILES_INDEX,
         ]
-        es_client.indices.delete(",".join(indices), ignore=404)
-        archivematica.search.indices.create_indexes_if_needed(es_client, indices)
+        search_service.delete_indexes(indices)
+        search_service.ensure_indexes_exist(indices)
 
-    return es_client
+    return search_service

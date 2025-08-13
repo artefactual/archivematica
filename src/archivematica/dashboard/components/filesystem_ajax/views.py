@@ -29,8 +29,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 import archivematica.dashboard.components.filesystem_ajax.helpers as filesystem_ajax_helpers
-import archivematica.search.client
-import archivematica.search.exceptions
 from archivematica.archivematicaCommon import archivematicaFunctions
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon import storageService as storage_service
@@ -38,7 +36,8 @@ from archivematica.archivematicaCommon.archivematicaFunctions import b64decode_s
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
-from archivematica.search import querying
+from archivematica.search.service import SearchServiceError
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -1122,10 +1121,9 @@ def download_by_uuid(request, uuid, preview_file=False):
     )
 
     try:
-        record = querying.get_transfer_file_info(
-            archivematica.search.client.get_client(), "fileuuid", uuid
-        )
-    except archivematica.search.exceptions.SearchEngineError:
+        search_service = setup_search_service_from_conf(django_settings)
+        record = search_service.get_transfer_file_data(uuid)
+    except SearchServiceError:
         return not_found_err
 
     try:

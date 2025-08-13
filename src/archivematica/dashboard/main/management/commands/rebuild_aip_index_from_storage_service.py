@@ -38,17 +38,18 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 
-from elasticsearch import ElasticsearchException
 from lxml import etree
 
-import archivematica.search.deleting
-import archivematica.search.indexing
 from archivematica.archivematicaCommon import archivematicaFunctions as am
 from archivematica.archivematicaCommon import storageService
+from archivematica.archivematicaCommon import version
+from archivematica.archivematicaCommon.aip_mets_parser import AIPMETSParser
 from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.management.commands import DashboardCommand
 from archivematica.dashboard.main.management.commands import setup_es_for_aip_reindexing
+from archivematica.search.service import SearchServiceError
 
 PACKAGE_TYPES_TO_INDEX = ("AIP", "AIC")
 
@@ -152,8 +153,9 @@ class Command(DashboardCommand):
             self.error("No AIPs found to index. Quitting.")
             sys.exit(1)
 
-        # Setup es_client and delete indices if required.
-        es_client = setup_es_for_aip_reindexing(self, delete_all)
+        # Setup search service and delete indices if required.
+        search_service = setup_es_for_aip_reindexing(self, delete_all)
+
         self.info("Rebuilding 'aips' and 'aipfiles' indices")
 
         # Index packages.
@@ -164,7 +166,11 @@ class Command(DashboardCommand):
             if aip["package_type"] == "AIC":
                 is_aic = True
             index_success = self.process_package(
-                es_client, aip, temp_dir, delete_before_reindexing, is_aic=is_aic
+                aip,
+                temp_dir,
+                search_service,
+                delete_before_reindexing,
+                is_aic=is_aic,
             )
             if index_success:
                 aip_indexed_count += 1
@@ -192,14 +198,19 @@ class Command(DashboardCommand):
             )
 
     def process_package(
-        self, es_client, package_info, temp_dir, delete_before_reindexing, is_aic=False
+        self,
+        package_info,
+        temp_dir,
+        search_service,
+        delete_before_reindexing,
+        is_aic=False,
     ):
         """Index package in 'aips' and 'aipfiles' indices.
 
-        :param es_client: Elasticsearch client.
         :param package_info: Package info dict returned by Storage
         Service.
         :param temp_dir: Path to tempdir for downloaded METS files.
+        :param search_service: Search service instance.
         :param delete_before_reindexing: Boolean of whether to delete
         package from indices prior to reindexing.
         :is_aic: Optional boolean to indicate if package being indexed
@@ -238,28 +249,43 @@ class Command(DashboardCommand):
 
         if delete_before_reindexing:
             self.info(f"Deleting package {uuid} from 'aips' and 'aipfiles' indices.")
-            archivematica.search.deleting.delete_aip(es_client, uuid)
-            archivematica.search.deleting.delete_aip_files(es_client, uuid)
+            search_service.delete_aip(uuid)
+            search_service.delete_aip_files(uuid)
 
         # Index the AIP and then immediately delete the METS file.
         try:
-            archivematica.search.indexing.index_aip_and_files(
-                client=es_client,
+            # Stop if METS file is not at staging path.
+            if not os.path.exists(mets_download_path):
+                error_message = "METS file does not exist at: " + mets_download_path
+                self.error(f"Error indexing package {uuid}. Details: {error_message}")
+                os.remove(mets_download_path)
+                return False
+
+            parser = AIPMETSParser(mets_download_path)
+
+            am_version = version.get_version()
+            indexed_at = time.time()
+            self.info(f"AIP UUID: {uuid}")
+            self.info("Indexing AIP files ...")
+            search_service.index_aip(
                 uuid=uuid,
                 aip_stored_path=package_info["current_full_path"],
-                mets_staging_path=mets_download_path,
+                parser=parser,
                 name=package_name,
                 aip_size=package_info["size"],
-                aips_in_aic=aips_in_aic,
+                am_version=am_version,
+                indexed_at=indexed_at,
                 identifiers=get_sip_identifiers(uuid),
+                aips_in_aic=aips_in_aic,
                 encrypted=package_info.get("encrypted", False),
                 location=location_description,
                 dashboard_uuid=self.dashboard_uuid,
             )
+            self.info("Done.")
             self.info(f"Successfully indexed package {uuid}")
             os.remove(mets_download_path)
             return True
-        except (ElasticsearchException, etree.XMLSyntaxError) as err:
+        except (SearchServiceError, etree.XMLSyntaxError) as err:
             self.error(f"Error indexing package {uuid}. Details: {err}")
             os.remove(mets_download_path)
             return False

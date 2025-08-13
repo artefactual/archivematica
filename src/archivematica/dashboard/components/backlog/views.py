@@ -28,10 +28,7 @@ from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-import archivematica.search.client
 import archivematica.search.constants
-import archivematica.search.deleting
-import archivematica.search.updating
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     AMCLIENT_ERROR_CODES,
@@ -40,6 +37,9 @@ from archivematica.archivematicaCommon.archivematicaFunctions import setup_amcli
 from archivematica.dashboard.components import advanced_search
 from archivematica.dashboard.components import decorators
 from archivematica.dashboard.components import helpers
+from archivematica.search.constants import STATUS_BACKLOG
+from archivematica.search.service import SortSpec
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -80,23 +80,23 @@ def sync_es_transfer_status_with_storage_service(uuid, pending_deletion):
         )
         return keep_in_results
 
+    search_service = setup_search_service_from_conf(settings)
+
     if (
         transfer_status == archivematica.search.constants.STATUS_DELETE_REQUESTED
         and pending_deletion is False
     ):
-        es_client = archivematica.search.client.get_client()
-        archivematica.search.updating.mark_backlog_deletion_requested(es_client, uuid)
+        search_service.mark_transfer_for_deletion(uuid)
     elif (
         transfer_status == archivematica.search.constants.STATUS_UPLOADED
         and pending_deletion is True
     ):
-        es_client = archivematica.search.client.get_client()
-        archivematica.search.updating.revert_backlog_deletion_request(es_client, uuid)
+        search_service.unmark_transfer_for_deletion(uuid)
     elif transfer_status == archivematica.search.constants.STATUS_DELETED:
         keep_in_results = False
-        es_client = archivematica.search.client.get_client()
-        archivematica.search.deleting.remove_backlog_transfer_files(es_client, uuid)
-        archivematica.search.deleting.remove_backlog_transfer(es_client, uuid)
+        transfer_ids = {uuid}
+        search_service.delete_transfer_files(transfer_ids)
+        search_service.delete_transfer(uuid)
 
     return keep_in_results
 
@@ -150,6 +150,95 @@ def get_es_property_from_column_index(index, file_mode):
     return table_columns[file_mode][index]
 
 
+def _search_transfer_files(
+    query: dict,
+    search_service,
+    start: int,
+    page_size: int,
+    order_by: str,
+    sort_direction: str,
+) -> tuple:
+    """
+    Execute Elasticsearch search for transfer files using search service.
+
+    :param query: The Elasticsearch query to execute
+    :param search_service: The search service instance
+    :param start: Start index for pagination
+    :param page_size: Number of results per page
+    :param order_by: Field to sort by
+    :param sort_direction: Sort direction (asc/desc)
+    :return: Tuple of (hits, hit_count)
+    """
+    sort_param = SortSpec(field=order_by, order=sort_direction) if order_by else None
+    fields = ["filename", "sipuuid", "relative_path", "accessionid", "pending_deletion"]
+
+    hits = search_service.search_transfer_files(
+        query=query, size=page_size, from_=start, sort=sort_param, fields=fields
+    )
+    hit_count = hits["hits"]["total"]
+    return hits, hit_count
+
+
+def _search_transfers(
+    query: dict,
+    search_service,
+    start: int,
+    page_size: int,
+    order_by: str,
+    sort_direction: str,
+) -> tuple:
+    """
+    Execute Elasticsearch search for transfers.
+
+    :param query: The Elasticsearch query to execute
+    :param search_service: The search service instance
+    :param start: Start index for pagination
+    :param page_size: Number of results per page
+    :param order_by: Field to sort by
+    :param sort_direction: Sort direction (asc/desc)
+    :return: Tuple of (hits, hit_count)
+    """
+    # Transfer mode:
+    # Query to transferfile, but only fetch & aggregrate transfer UUIDs.
+    # Based on transfer UUIDs, query to transfers.
+    # ES query will limit to 10 aggregation results by default,
+    # add size parameter in terms to override.
+    # TODO: Use composite aggregation when it gets out of beta.
+    query["aggs"] = {
+        "transfer_uuid": {
+            "terms": {
+                "field": "sipuuid",
+                "size": str(settings.ELASTICSEARCH_MAX_QUERY_SIZE),
+            }
+        }
+    }
+    hits = search_service.search_transfer_files(query, size=0)
+    uuids = [x["key"] for x in hits["aggregations"]["transfer_uuid"]["buckets"]]
+
+    # Recreate query to search over transfers
+    transfer_query = {"query": {"terms": {"uuid": uuids}}}
+    sort_param = SortSpec(field=order_by, order=sort_direction) if order_by else None
+    fields = [
+        "name",
+        "uuid",
+        "file_count",
+        "ingest_date",
+        "accessionid",
+        "size",
+        "pending_deletion",
+    ]
+
+    hits = search_service.search_transfers(
+        query=transfer_query,
+        size=page_size,
+        from_=start,
+        sort=sort_param,
+        fields=fields,
+    )
+    hit_count = hits["hits"]["total"]
+    return hits, hit_count
+
+
 def search(request):
     """
     A JSON end point that returns results for various backlog transfers and their files.
@@ -169,57 +258,29 @@ def search(request):
     )
     sort_direction = request.GET.get("sSortDir_0", "asc")
 
-    es_client = archivematica.search.client.get_client()
+    search_service = setup_search_service_from_conf(settings)
 
     if "query" not in request.GET:
         queries, ops, fields, types = (["*"], ["or"], [""], ["term"])
 
     query = advanced_search.assemble_query(
-        queries, ops, fields, types, filters=[{"term": {"status": "backlog"}}]
+        queries, ops, fields, types, filters=[{"term": {"status": STATUS_BACKLOG}}]
     )
 
     try:
         if file_mode:
-            index = archivematica.search.constants.TRANSFER_FILES_INDEX
-            source = "filename,sipuuid,relative_path,accessionid,pending_deletion"
+            hits, hit_count = _search_transfer_files(
+                query, search_service, start, page_size, order_by, sort_direction
+            )
         else:
-            # Transfer mode:
-            # Query to transferfile, but only fetch & aggregrate transfer UUIDs.
-            # Based on transfer UUIDs, query to transfers.
-            # ES query will limit to 10 aggregation results by default,
-            # add size parameter in terms to override.
-            # TODO: Use composite aggregation when it gets out of beta.
-            query["aggs"] = {
-                "transfer_uuid": {
-                    "terms": {
-                        "field": "sipuuid",
-                        "size": str(settings.ELASTICSEARCH_MAX_QUERY_SIZE),
-                    }
-                }
-            }
-            hits = es_client.search(
-                index=archivematica.search.constants.TRANSFER_FILES_INDEX,
-                body=query,
-                size=0,  # Don't return results, only aggregation
+            hits, hit_count = _search_transfers(
+                query,
+                search_service,
+                start,
+                page_size,
+                order_by,
+                sort_direction,
             )
-            uuids = [x["key"] for x in hits["aggregations"]["transfer_uuid"]["buckets"]]
-
-            # Recreate query to search over transfers
-            query = {"query": {"terms": {"uuid": uuids}}}
-            index = archivematica.search.constants.TRANSFERS_INDEX
-            source = (
-                "name,uuid,file_count,ingest_date,accessionid,size,pending_deletion"
-            )
-
-        hits = es_client.search(
-            index=index,
-            body=query,
-            from_=start,
-            size=page_size,
-            sort=order_by + ":" + sort_direction if order_by else "",
-            _source=source,
-        )
-        hit_count = hits["hits"]["total"]
 
     except Exception:
         err_desc = "Error accessing transfers index"
@@ -291,8 +352,8 @@ def delete(request, uuid):
         )
 
         messages.info(request, response["message"])
-        es_client = archivematica.search.client.get_client()
-        archivematica.search.updating.mark_backlog_deletion_requested(es_client, uuid)
+        search_service = setup_search_service_from_conf(settings)
+        search_service.mark_transfer_for_deletion(uuid)
 
     except requests.exceptions.ConnectionError:
         messages.warning(

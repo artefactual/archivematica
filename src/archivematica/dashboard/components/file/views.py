@@ -6,13 +6,12 @@ import requests
 from django.conf import settings as django_settings
 from django.views.generic import View
 
-import archivematica.search.client
-import archivematica.search.exceptions
-import archivematica.search.querying
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
-from archivematica.search import indexing
+from archivematica.search.service import SearchServiceError
+from archivematica.search.service import TransferFileNotFoundError
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -30,14 +29,15 @@ class TransferFileTags(View):
         Returns a JSON-encoded list of the file's tags on success.
         """
         try:
-            es_client = archivematica.search.client.get_client()
-            tags = archivematica.search.querying.get_file_tags(es_client, fileuuid)
-        except archivematica.search.exceptions.SearchEngineError as e:
+            search_service = setup_search_service_from_conf(django_settings)
+            tags = search_service.get_transfer_file_tags(fileuuid)
+        except TransferFileNotFoundError as e:
             response = {"success": False, "message": str(e)}
-            if isinstance(e, archivematica.search.exceptions.EmptySearchResultError):
-                status_code = 404
-            else:
-                status_code = 400
+            status_code = 404
+            return helpers.json_response(response, status_code=status_code)
+        except Exception as e:
+            response = {"success": False, "message": str(e)}
+            status_code = 400
             return helpers.json_response(response, status_code=status_code)
 
         return helpers.json_response(tags)
@@ -65,14 +65,15 @@ class TransferFileTags(View):
             return helpers.json_response(response, status_code=400)
 
         try:
-            es_client = archivematica.search.client.get_client()
-            indexing.set_file_tags(es_client, fileuuid, tags)
-        except archivematica.search.exceptions.SearchEngineError as e:
+            search_service = setup_search_service_from_conf(django_settings)
+            search_service.set_transfer_file_tags(fileuuid, tags)
+        except TransferFileNotFoundError as e:
             response = {"success": False, "message": str(e)}
-            if isinstance(e, archivematica.search.exceptions.EmptySearchResultError):
-                status_code = 404
-            else:
-                status_code = 400
+            status_code = 404
+            return helpers.json_response(response, status_code=status_code)
+        except SearchServiceError as e:
+            response = {"success": False, "message": str(e)}
+            status_code = 400
             return helpers.json_response(response, status_code=status_code)
         return helpers.json_response({"success": True})
 
@@ -82,14 +83,15 @@ class TransferFileTags(View):
         Deletes all tags for the given file.
         """
         try:
-            es_client = archivematica.search.client.get_client()
-            indexing.set_file_tags(es_client, fileuuid, [])
-        except archivematica.search.exceptions.SearchEngineError as e:
+            search_service = setup_search_service_from_conf(django_settings)
+            search_service.set_transfer_file_tags(fileuuid, [])
+        except TransferFileNotFoundError as e:
             response = {"success": False, "message": str(e)}
-            if isinstance(e, archivematica.search.exceptions.EmptySearchResultError):
-                status_code = 404
-            else:
-                status_code = 400
+            status_code = 404
+            return helpers.json_response(response, status_code=status_code)
+        except SearchServiceError as e:
+            response = {"success": False, "message": str(e)}
+            status_code = 400
             return helpers.json_response(response, status_code=status_code)
         return helpers.json_response({"success": True})
 
@@ -123,18 +125,22 @@ def bulk_extractor(request, fileuuid):
         return helpers.json_response(response, status_code=400)
 
     try:
-        es_client = archivematica.search.client.get_client()
-        record = archivematica.search.querying.get_transfer_file_info(
-            es_client, "fileuuid", fileuuid
-        )
-    except archivematica.search.exceptions.SearchEngineError as e:
+        search_service = setup_search_service_from_conf(django_settings)
+        record = search_service.get_transfer_file_data(fileuuid)
+    except TransferFileNotFoundError:
+        response = {
+            "success": False,
+            "message": "get_transfer_file_info returned no exact results",
+        }
+        return helpers.json_response(response, status_code=404)
+    except SearchServiceError as e:
         message = str(e)
         response = {"success": False, "message": message}
-        if "no exact results" in message:
-            status_code = 404
-        else:
-            status_code = 500
-        return helpers.json_response(response, status_code=status_code)
+        return helpers.json_response(response, status_code=500)
+    except Exception as e:
+        message = str(e)
+        response = {"success": False, "message": message}
+        return helpers.json_response(response, status_code=500)
 
     bulk_extractor_reports = record.get("bulk_extractor_reports", [])
     missing_reports = []
@@ -188,18 +194,22 @@ def _parse_bulk_extractor_report(data):
 
 def file_details(request, fileuuid):
     try:
-        es_client = archivematica.search.client.get_client()
-        source = archivematica.search.querying.get_transfer_file_info(
-            es_client, "fileuuid", fileuuid
-        )
-    except archivematica.search.exceptions.SearchEngineError as e:
+        search_service = setup_search_service_from_conf(django_settings)
+        source = search_service.get_transfer_file_data(fileuuid)
+    except TransferFileNotFoundError:
+        response = {
+            "success": False,
+            "message": "get_transfer_file_info returned no exact results",
+        }
+        return helpers.json_response(response, status_code=404)
+    except SearchServiceError as e:
         message = str(e)
         response = {"success": False, "message": message}
-        if "no exact results" in message:
-            status_code = 404
-        else:
-            status_code = 500
-        return helpers.json_response(response, status_code=status_code)
+        return helpers.json_response(response, status_code=500)
+    except Exception as e:
+        message = str(e)
+        response = {"success": False, "message": message}
+        return helpers.json_response(response, status_code=500)
 
     format_info = source.get("format", [{}])[0]
     record = {

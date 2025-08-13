@@ -38,13 +38,12 @@ from django.conf import settings as django_settings
 from django.core.management.base import CommandError
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
-from elasticsearch import ElasticsearchException
 
-import archivematica.search.client
 import archivematica.search.constants
-import archivematica.search.deleting
 from archivematica.dashboard.main import models
 from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.search.service import SearchServiceError
+from archivematica.search.service import setup_search_service_from_conf
 
 
 class Command(DashboardCommand):
@@ -90,15 +89,15 @@ class Command(DashboardCommand):
         )
 
     def handle(self, *args, **options):
+        search_service = None
         if not options["keep_searches"] and django_settings.SEARCH_ENABLED:
             # Ignore elasticsearch-py logging events unless they're errors.
             logging.getLogger("elasticsearch").setLevel(logging.ERROR)
             logging.getLogger("archivematica.common").setLevel(logging.ERROR)
             try:
-                archivematica.search.client.setup_reading_from_conf(django_settings)
-                es_client = archivematica.search.client.get_client()
-            except ElasticsearchException as err:
-                raise CommandError(f"Unable to connect to Elasticsearch: {err}")
+                search_service = setup_search_service_from_conf(django_settings)
+            except SearchServiceError as err:
+                raise CommandError(f"Unable to connect to the search service: {err}")
 
         # Build look-up options.
         kwargs = {
@@ -145,10 +144,8 @@ class Command(DashboardCommand):
                 ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
-                    archivematica.search.deleting.delete_aip(es_client, package_id)
-                    archivematica.search.deleting.delete_aip_files(
-                        es_client, package_id
-                    )
+                    search_service.delete_aip(package_id)
+                    search_service.delete_aip_files(package_id)
             except Exception as err:
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.print_exc())
@@ -187,12 +184,9 @@ class Command(DashboardCommand):
                 ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
-                    archivematica.search.deleting.remove_backlog_transfer(
-                        es_client, package_id
-                    )
-                    archivematica.search.deleting.remove_backlog_transfer_files(
-                        es_client, package_id
-                    )
+                    search_service.delete_transfer(str(package_id))
+                    transfer_ids = {str(package_id)}
+                    search_service.delete_transfer_files(transfer_ids)
             except Exception as err:
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.format_exc())

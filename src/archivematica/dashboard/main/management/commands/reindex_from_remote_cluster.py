@@ -15,13 +15,11 @@ Execution example:
 import json
 import sys
 
-import elasticsearch
 from django.conf import settings
 
-import archivematica.search.client
 import archivematica.search.constants
-import archivematica.search.indices
 from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.search.service import setup_search_service
 
 
 class Command(DashboardCommand):
@@ -71,10 +69,9 @@ class Command(DashboardCommand):
         # Setup new cluster connection. Do not pass SEARCH_ENABLED
         # setting to avoid the creation of the indexes on setup,
         # and use the timeout passed to the command.
-        archivematica.search.client.setup(
-            settings.ELASTICSEARCH_SERVER, options["timeout"], []
+        search_service = setup_search_service(
+            settings.ELASTICSEARCH_SERVER, options["timeout"], ()
         )
-        es_client = archivematica.search.client.get_client()
 
         # Get enabled indexes based on setting
         indexes = []
@@ -86,10 +83,8 @@ class Command(DashboardCommand):
         # Delete all indexes and create enabled ones in new cluster
         self.info("Creating new indexes.")
         try:
-            es_client.indices.delete(
-                ",".join(archivematica.search.constants.INDEXES), ignore=404
-            )
-            archivematica.search.indices.create_indexes_if_needed(es_client, indexes)
+            search_service.delete_indexes(archivematica.search.constants.INDEXES)
+            search_service.ensure_indexes_exist(indexes)
         except Exception as e:
             self.error(
                 f"The Elasticsearch indexes could not be recreated in {settings.ELASTICSEARCH_SERVER}. "
@@ -97,33 +92,26 @@ class Command(DashboardCommand):
             )
             sys.exit(1)
 
-        # Default body for reindex requests
-        body = {
-            "source": {
-                "remote": {
-                    "host": options["host"],
-                    "socket_timeout": "{}s".format(options["timeout"]),
-                    "connect_timeout": "{}s".format(options["timeout"]),
-                },
-                "index": "",
-                "type": "",
-                "size": options["size"],
-            },
-            "dest": {"index": "", "type": archivematica.search.constants.DOC_TYPE},
+        # Remote configuration for reindex requests
+        remote_config = {
+            "host": options["host"],
+            "socket_timeout": "{}s".format(options["timeout"]),
+            "connect_timeout": "{}s".format(options["timeout"]),
+            "size": options["size"],
         }
 
         # Add basic auth
         if options["username"] != "":
-            body["source"]["remote"]["username"] = options["username"]
+            remote_config["username"] = options["username"]
             if options["password"] != "":
-                body["source"]["remote"]["password"] = options["password"]
+                remote_config["password"] = options["password"]
 
         # Indexes and types to reindex
-        indexes_relations = [
+        index_mappings = [
             {"dest_index": "aips", "source_index": "aips", "source_type": "aip"},
             {
                 "dest_index": "aipfiles",
-                "source_index": "aips",
+                "source_index": "aipfiles",
                 "source_type": "aipfile",
             },
             {
@@ -133,35 +121,28 @@ class Command(DashboardCommand):
             },
             {
                 "dest_index": "transferfiles",
-                "source_index": "transfers",
+                "source_index": "transferfiles",
                 "source_type": "transferfile",
             },
         ]
 
-        # Reindex documents from remote cluster
-        fails = 0
-        for indexes_relation in indexes_relations:
-            # Skip not enabled indexes
-            if indexes_relation["dest_index"] not in indexes:
-                continue
-            # Update request body
-            body["dest"]["index"] = indexes_relation["dest_index"]
-            body["source"]["index"] = indexes_relation["source_index"]
-            body["source"]["type"] = indexes_relation["source_type"]
-            # Reindex request
-            self.info("Reindexing %s:" % indexes_relation["dest_index"])
-            try:
-                response = es_client.reindex(body=body)
-            except elasticsearch.TransportError as exc:
-                fails += 1
-                self.error(f"Error: {exc}. Details:\n{exc.info}")
-            except Exception as exc:
-                fails += 1
-                self.error(f"Error: {exc}")
-            else:
-                self.info("Response:\n%s" % json.dumps(response, indent=4))
+        # Filter index mappings to only include enabled indexes
+        enabled_mappings = [
+            mapping for mapping in index_mappings if mapping["dest_index"] in indexes
+        ]
 
-        if fails > 0:
-            self.error("%s reindex request(s) failed!" % fails)
+        # Reindex documents from remote cluster
+        results = search_service.reindex_from_remote(remote_config, enabled_mappings)
+
+        # Report results
+        for success in results["successful"]:
+            self.info(f"Reindexing {success['index']}:")
+            self.info("Response:\n%s" % json.dumps(success["response"], indent=4))
+
+        for failure in results["failed"]:
+            self.error(f"Error reindexing {failure['index']}: {failure['error']}")
+
+        if results["failed"]:
+            self.error(f"{len(results['failed'])} reindex request(s) failed!")
         else:
             self.success("All reindex requests ended successfully!")

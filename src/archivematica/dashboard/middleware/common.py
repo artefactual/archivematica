@@ -18,13 +18,14 @@ import logging
 import sys
 import traceback
 
-import elasticsearch
 from django.conf import settings
 from django.http import HttpResponseServerError
 from django.shortcuts import render
 from django.template import TemplateDoesNotExist
 from django.utils.deprecation import MiddlewareMixin
 from shibboleth.middleware import ShibbolethRemoteUserMiddleware
+
+from archivematica.search.service import SearchServiceError
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -58,21 +59,18 @@ class SpecificExceptionErrorPageResponseMiddleware(MiddlewareMixin):
             return HttpResponseServerError("Missing template: " + str(exception))
 
 
-class ElasticsearchMiddleware(MiddlewareMixin):
+class SearchServiceMiddleware(MiddlewareMixin):
     """
     Redirect the user to a friendly error page when an exception related to
-    Elasticsearch is detected.
+    the search service is detected.
 
-    The goal is to inform the user that the error is related to Elasticsearch
-    when they are running in production, as this seems to be a common problem,
-    mainly because users frequently experience Elasticsearch node crashes when
-    running them with not enough memory.
+    The goal is to inform the user that the error is related to the search
+    service when they are running in production, as this seems to be a common
+    problem, mainly because users frequently experience search service node
+    crashes when running them with not enough memory.
     """
 
-    EXCEPTIONS = (
-        elasticsearch.ElasticsearchException,
-        elasticsearch.ImproperlyConfigured,
-    )
+    EXCEPTIONS = (SearchServiceError,)
 
     def process_exception(self, request, exception):
         if settings.DEBUG:
@@ -80,7 +78,7 @@ class ElasticsearchMiddleware(MiddlewareMixin):
         if isinstance(exception, self.EXCEPTIONS):
             return render(
                 request,
-                "elasticsearch_error.html",
+                "search_service_error.html",
                 {"exception_type": str(type(exception))},
             )
 

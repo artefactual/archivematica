@@ -13,11 +13,11 @@ Execution example:
 import sys
 
 from django.conf import settings
-from elasticsearch import ElasticsearchException
 
-import archivematica.search.client
 import archivematica.search.constants
 from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.search.service import SearchServiceError
+from archivematica.search.service import setup_search_service_from_conf
 
 
 class Command(DashboardCommand):
@@ -35,50 +35,45 @@ class Command(DashboardCommand):
             sys.exit(1)
 
         try:
-            archivematica.search.client.setup_reading_from_conf(settings)
-            es_client = archivematica.search.client.get_client()
-        except ElasticsearchException:
-            self.error("Error: Elasticsearch may not be running.")
+            search_service = setup_search_service_from_conf(settings)
+        except SearchServiceError:
+            self.error("Error: the search service may not be running.")
             sys.exit(1)
 
         # Update the AIPs index mappings.
-        es_client.indices.put_mapping(
-            index=archivematica.search.constants.AIPS_INDEX,
-            doc_type=archivematica.search.constants.DOC_TYPE,
-            body={
-                "properties": {
-                    archivematica.search.constants.ES_FIELD_ACCESSION_IDS: {
-                        "type": "keyword"
-                    },
-                    archivematica.search.constants.ES_FIELD_STATUS: {"type": "keyword"},
-                    archivematica.search.constants.ES_FIELD_FILECOUNT: {
-                        "type": "integer"
-                    },
-                    archivematica.search.constants.ES_FIELD_LOCATION: {
-                        "type": "keyword"
-                    },
-                }
-            },
+        aips_mappings = {
+            "properties": {
+                archivematica.search.constants.ES_FIELD_ACCESSION_IDS: {
+                    "type": "keyword"
+                },
+                archivematica.search.constants.ES_FIELD_STATUS: {"type": "keyword"},
+                archivematica.search.constants.ES_FIELD_FILECOUNT: {"type": "integer"},
+                archivematica.search.constants.ES_FIELD_LOCATION: {"type": "keyword"},
+            }
+        }
+        search_service.update_index_mappings(
+            archivematica.search.constants.AIPS_INDEX, aips_mappings
         )
 
         # Update the AIP files index mapping.
-        es_client.indices.put_mapping(
-            index=archivematica.search.constants.AIP_FILES_INDEX,
-            doc_type=archivematica.search.constants.DOC_TYPE,
-            body={
-                "properties": {
-                    "accessionid": {"type": "keyword"},
-                    archivematica.search.constants.ES_FIELD_STATUS: {"type": "keyword"},
-                    "filePath": {
-                        "type": "text",
-                        "analyzer": "file_path_and_name",
-                        "fields": {"raw": {"type": "keyword"}},
-                    },
-                }
-            },
+        aip_files_mappings = {
+            "properties": {
+                "accessionid": {"type": "keyword"},
+                archivematica.search.constants.ES_FIELD_STATUS: {"type": "keyword"},
+                "filePath": {
+                    "type": "text",
+                    "analyzer": "file_path_and_name",
+                    "fields": {"raw": {"type": "keyword"}},
+                },
+            }
+        }
+        search_service.update_index_mappings(
+            archivematica.search.constants.AIP_FILES_INDEX, aip_files_mappings
         )
 
         # Perform an update by query on the aipfiles index to populate
         # the filePath.raw subfield from existing text values. We do
         # not specify a query to ensure that all documents are updated.
-        es_client.update_by_query(archivematica.search.constants.AIP_FILES_INDEX)
+        search_service.update_all_documents(
+            archivematica.search.constants.AIP_FILES_INDEX
+        )

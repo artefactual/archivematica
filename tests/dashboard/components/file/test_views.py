@@ -5,8 +5,10 @@ from unittest import mock
 import pytest
 from django.urls import reverse
 
-import archivematica.search.exceptions
 from archivematica.dashboard.main import models
+from archivematica.search.service import SearchService
+from archivematica.search.service import SearchServiceError
+from archivematica.search.service import TransferFileNotFoundError
 
 
 @pytest.fixture
@@ -24,12 +26,18 @@ def file(db):
     return models.File.objects.create()
 
 
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_transfer_file_info")
-def test_file_details(
-    get_transfer_file_info, get_client, admin_client, dashboard_uuid, file, sip
-):
-    get_transfer_file_info.return_value = {
+@pytest.fixture
+def mock_search_service():
+    with mock.patch(
+        "archivematica.dashboard.components.file.views.setup_search_service_from_conf"
+    ) as mock_setup_search_service:
+        mock_search_service = mock.Mock(spec=SearchService)
+        mock_setup_search_service.return_value = mock_search_service
+        yield mock_search_service
+
+
+def test_file_details(mock_search_service, admin_client, dashboard_uuid, file, sip):
+    mock_search_service.get_transfer_file_data.return_value = {
         "filename": "LICENSE",
         "fileuuid": str(file.uuid),
         "sipuuid": str(sip.uuid),
@@ -67,20 +75,22 @@ def test_file_details(
     ],
     ids=["no exact results", "unknown error"],
 )
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_transfer_file_info")
 def test_file_details_handles_exceptions(
-    get_transfer_file_info,
-    get_client,
+    mock_search_service,
     error_message,
     status_code,
     admin_client,
     dashboard_uuid,
     file,
 ):
-    get_transfer_file_info.side_effect = (
-        archivematica.search.exceptions.SearchEngineError(error_message)
-    )
+    if "no exact results" in error_message:
+        mock_search_service.get_transfer_file_data.side_effect = (
+            TransferFileNotFoundError(error_message)
+        )
+    else:
+        mock_search_service.get_transfer_file_data.side_effect = SearchServiceError(
+            error_message
+        )
 
     response = admin_client.get(reverse("file:file_details", args=[file.uuid]))
     assert response.status_code == status_code
@@ -91,10 +101,10 @@ def test_file_details_handles_exceptions(
     }
 
 
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch(
-    "archivematica.search.querying.get_transfer_file_info",
-    return_value={
+def test_bulk_extractor_fails_if_requested_file_is_missing(
+    mock_search_service, admin_client, dashboard_uuid, file, sip
+):
+    mock_search_service.get_transfer_file_data.return_value = {
         "filename": "piiTestDataCreditCardNumbers.txt",
         "relative_path": "test-bulk-extract-a239e3e1-0391-46da-94d7-25a3e8509b45/data/objects/piiTestDataCreditCardNumbers.txt",
         "status": "backlog",
@@ -103,11 +113,7 @@ def test_file_details_handles_exceptions(
         "format": [
             {"puid": "x-fmt/111", "format": "Generic TXT", "group": "Text (Plain)"}
         ],
-    },
-)
-def test_bulk_extractor_fails_if_requested_file_is_missing(
-    get_transfer_file_info, get_client, admin_client, dashboard_uuid, file, sip
-):
+    }
     response = admin_client.get(reverse("file:bulk_extractor", args=[file.uuid]))
     assert response.status_code == 400
 
@@ -140,20 +146,22 @@ def test_bulk_extractor_fails_if_no_reports_requested(
     ],
     ids=["no exact results", "unknown error"],
 )
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_transfer_file_info")
 def test_bulk_extractor_handles_exceptions(
-    get_transfer_file_info,
-    get_client,
+    mock_search_service,
     error_message,
     status_code,
     admin_client,
     dashboard_uuid,
     file,
 ):
-    get_transfer_file_info.side_effect = (
-        archivematica.search.exceptions.SearchEngineError(error_message)
-    )
+    if "no exact results" in error_message:
+        mock_search_service.get_transfer_file_data.side_effect = (
+            TransferFileNotFoundError(error_message)
+        )
+    else:
+        mock_search_service.get_transfer_file_data.side_effect = SearchServiceError(
+            error_message
+        )
 
     response = admin_client.get(
         reverse("file:bulk_extractor", kwargs={"fileuuid": file.uuid})
@@ -167,8 +175,6 @@ def test_bulk_extractor_handles_exceptions(
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_transfer_file_info")
 @mock.patch(
     "requests.get",
     return_value=mock.Mock(
@@ -179,8 +185,7 @@ def test_bulk_extractor_handles_exceptions(
 )
 def test_bulk_extractor(
     _get,
-    get_transfer_file_info,
-    get_client,
+    mock_search_service,
     admin_client,
     dashboard_uuid,
     transfer,
@@ -190,7 +195,7 @@ def test_bulk_extractor(
     file.transfer = transfer
     file.sip = sip
     file.save()
-    get_transfer_file_info.return_value = {
+    mock_search_service.get_transfer_file_data.return_value = {
         "filename": "piiTestDataCreditCardNumbers.txt",
         "fileuuid": str(file.uuid),
         "sipuuid": str(sip.uuid),
@@ -237,16 +242,13 @@ def test_bulk_extractor(
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_transfer_file_info")
 @mock.patch(
     "requests.get",
     return_value=mock.Mock(status_code=500, text="""Internal Server Error"""),
 )
 def test_bulk_extractor_handles_exception_if_reports_are_not_missing(
     _get,
-    get_transfer_file_info,
-    get_client,
+    mock_search_service,
     admin_client,
     dashboard_uuid,
     caplog,
@@ -257,7 +259,7 @@ def test_bulk_extractor_handles_exception_if_reports_are_not_missing(
     file.transfer = transfer
     file.sip = sip
     file.save()
-    get_transfer_file_info.return_value = {
+    mock_search_service.get_transfer_file_data.return_value = {
         "filename": "piiTestDataCreditCardNumbers.txt",
         "fileuuid": file.uuid,
         "sipuuid": sip.uuid,
@@ -287,14 +289,9 @@ def test_bulk_extractor_handles_exception_if_reports_are_not_missing(
     assert "response: ('Internal Server Error',)" in caplog.text
 
 
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch(
-    "archivematica.search.querying.get_file_tags",
-    return_value=["test"],
-)
-def test_transfer_file_tags(
-    get_file_tags, get_client, admin_client, dashboard_uuid, file
-):
+def test_transfer_file_tags(mock_search_service, admin_client, dashboard_uuid, file):
+    mock_search_service.get_transfer_file_tags.return_value = ["test"]
+
     response = admin_client.get(reverse("file:transfer_file_tags", args=[file.uuid]))
     assert response.status_code == 200
 
@@ -304,23 +301,20 @@ def test_transfer_file_tags(
 @pytest.mark.parametrize(
     "exception, status_code",
     [
-        (archivematica.search.exceptions.SearchEngineError("No tags"), 400),
-        (archivematica.search.exceptions.EmptySearchResultError("No tags"), 404),
+        (Exception("No tags"), 400),
+        (TransferFileNotFoundError("No tags"), 404),
     ],
-    ids=["Elasticsearch error", "Empty search result error"],
+    ids=["General error", "Transfer file not found error"],
 )
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_file_tags")
 def test_transfer_file_tags_handles_exceptions(
-    get_file_tags,
-    get_client,
+    mock_search_service,
     exception,
     status_code,
     admin_client,
     dashboard_uuid,
     file,
 ):
-    get_file_tags.side_effect = exception
+    mock_search_service.get_transfer_file_tags.side_effect = exception
 
     response = admin_client.get(reverse("file:transfer_file_tags", args=[file.uuid]))
     assert response.status_code == status_code
@@ -331,13 +325,8 @@ def test_transfer_file_tags_handles_exceptions(
     }
 
 
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch(
-    "archivematica.search.indexing.set_file_tags",
-    return_value=["test"],
-)
 def test_transfer_file_tags_updates_tags(
-    set_file_tags, get_client, admin_client, dashboard_uuid, file
+    mock_search_service, admin_client, dashboard_uuid, file
 ):
     tag_to_update = ["new_tag"]
 
@@ -382,16 +371,13 @@ def test_transfer_file_tags_fails_if_provided_tags_are_not_in_a_list(
 @pytest.mark.parametrize(
     "exception, status_code",
     [
-        (archivematica.search.exceptions.SearchEngineError("No tags"), 400),
-        (archivematica.search.exceptions.EmptySearchResultError("No tags"), 404),
+        (SearchServiceError("No tags"), 400),
+        (TransferFileNotFoundError("No tags"), 404),
     ],
-    ids=["Elasticsearch error", "Empty search result error"],
+    ids=["Search service error", "Transfer file not found error"],
 )
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.indexing.set_file_tags")
 def test_transfer_file_tags_handles_exceptions_when_updating_tags(
-    set_file_tags,
-    get_client,
+    mock_search_service,
     exception,
     status_code,
     admin_client,
@@ -399,7 +385,7 @@ def test_transfer_file_tags_handles_exceptions_when_updating_tags(
     file,
 ):
     tag_to_update = ["new_tag"]
-    set_file_tags.side_effect = exception
+    mock_search_service.set_transfer_file_tags.side_effect = exception
 
     response = admin_client.put(
         reverse("file:transfer_file_tags", args=[file.uuid]),
@@ -413,13 +399,8 @@ def test_transfer_file_tags_handles_exceptions_when_updating_tags(
     }
 
 
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch(
-    "archivematica.search.indexing.set_file_tags",
-    return_value=["test"],
-)
 def test_transfer_file_tags_deletes_tags(
-    set_file_tags, get_client, admin_client, dashboard_uuid, file
+    mock_search_service, admin_client, dashboard_uuid, file
 ):
     tag_to_delete = ["new_tag"]
 
@@ -435,23 +416,20 @@ def test_transfer_file_tags_deletes_tags(
 @pytest.mark.parametrize(
     "exception, status_code",
     [
-        (archivematica.search.exceptions.SearchEngineError("No tags"), 400),
-        (archivematica.search.exceptions.EmptySearchResultError("No tags"), 404),
+        (SearchServiceError("No tags"), 400),
+        (TransferFileNotFoundError("No tags"), 404),
     ],
-    ids=["Elasticsearch error", "Empty search result error"],
+    ids=["Search service error", "Transfer file not found error"],
 )
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.indexing.set_file_tags")
 def test_transfer_file_tags_handles_exceptions_when_removing_tags(
-    set_file_tags,
-    get_client,
+    mock_search_service,
     exception,
     status_code,
     admin_client,
     dashboard_uuid,
     file,
 ):
-    set_file_tags.side_effect = exception
+    mock_search_service.set_transfer_file_tags.side_effect = exception
     tag_to_delete = ["new_tag"]
 
     response = admin_client.delete(

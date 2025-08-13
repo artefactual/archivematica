@@ -566,11 +566,11 @@ def test_copy_metadata_files(
 @mock.patch("archivematica.archivematicaCommon.storageService.extract_file_url")
 @mock.patch("os.path.exists")
 @mock.patch("archivematica.archivematicaCommon.storageService.get_first_location")
-@mock.patch("archivematica.search.client.get_client")
-@mock.patch("archivematica.search.querying.get_transfer_file_info")
+@mock.patch(
+    "archivematica.dashboard.components.filesystem_ajax.views.setup_search_service_from_conf"
+)
 def test_download_by_uuid(
-    mock_get_file_info,
-    get_client,
+    mock_setup_search_service,
     mock_get_location,
     mock_exists,
     mock_extract_file_url,
@@ -586,7 +586,9 @@ def test_download_by_uuid(
     TEST_RELPATH = f"transfer-{TEST_UUID}/data/objects/bird.mp3"
     TEST_ABSPATH = os.path.join(TEST_BACKLOG_LOCATION_PATH, "originals", TEST_RELPATH)
 
-    mock_get_file_info.return_value = {
+    mock_search_service = mock.Mock()
+    mock_setup_search_service.return_value = mock_search_service
+    mock_search_service.get_transfer_file_data.return_value = {
         "sipuuid": str(uuid.uuid4()),
         "relative_path": TEST_RELPATH,
     }

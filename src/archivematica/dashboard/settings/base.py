@@ -415,7 +415,7 @@ MIDDLEWARE = [
     "archivematica.dashboard.middleware.common.AJAXSimpleExceptionResponseMiddleware",
     "archivematica.dashboard.installer.middleware.ConfigurationCheckMiddleware",
     "archivematica.dashboard.middleware.common.SpecificExceptionErrorPageResponseMiddleware",
-    "archivematica.dashboard.middleware.common.ElasticsearchMiddleware",
+    "archivematica.dashboard.middleware.common.SearchServiceMiddleware",
 ]
 
 AUDIT_LOG_MIDDLEWARE = config.get("audit_log_middleware")

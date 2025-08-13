@@ -227,10 +227,3 @@ def _query_clause(index, queries, ops, fields, types):
         query = {"range": {fields[index]: {"gte": start, "lt": end}}}
 
     return query
-
-
-def indexed_count(es_client, index, query=None):
-    try:
-        return es_client.count(index=index, body=query)["count"]
-    except Exception:
-        return 0

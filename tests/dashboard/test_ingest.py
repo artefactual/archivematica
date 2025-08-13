@@ -148,7 +148,7 @@ def _assert_file_node_properties_match_record(file_node, record):
 
 def test_appraisal_tab_node_formatter():
     """Test the _es_results_to_appraisal_tab_format helper that formats
-    the ElasticSearch results to be used in the appraisal tab JS code.
+    the search service results to be used in the appraisal tab JS code.
     """
     record = {
         "relative_path": "transfer-directory/data/objects/MARBLES.TGA",

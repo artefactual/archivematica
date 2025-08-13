@@ -39,15 +39,16 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 from django.core.management.base import CommandError
 from lxml import etree
 
-import archivematica.search.deleting
-import archivematica.search.indexing
 from archivematica.archivematicaCommon import archivematicaFunctions as am
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon import version
+from archivematica.archivematicaCommon.aip_mets_parser import AIPMETSParser
 from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.management.commands import DashboardCommand
 from archivematica.dashboard.main.management.commands import setup_es_for_aip_reindexing
@@ -105,7 +106,9 @@ def get_aips_in_aic(mets_root, temp_dir, archive_path):
     return aips_in_aic
 
 
-def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data=False):
+def processAIPThenDeleteMETSFile(
+    path, temp_dir, search_service, delete_existing_data=False
+):
     archive_file = os.path.basename(path)
 
     # Regex match the UUID - AIP might end with .7z, .tar.bz2, or
@@ -122,8 +125,8 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
 
     if delete_existing_data is True:
         print("Deleting AIP", aip_uuid, "from aips/aip and aips/aipfile.")
-        archivematica.search.deleting.delete_aip(es_client, aip_uuid)
-        archivematica.search.deleting.delete_aip_files(es_client, aip_uuid)
+        search_service.delete_aip(aip_uuid)
+        search_service.delete_aip_files(aip_uuid)
 
     # AIP filenames are <name>-<uuid><extension>
     # Index of match end is right before the extension
@@ -162,17 +165,33 @@ def processAIPThenDeleteMETSFile(path, temp_dir, es_client, delete_existing_data
         aip_location
     )
 
-    return archivematica.search.indexing.index_aip_and_files(
-        client=es_client,
+    # Stop if METS file is not at staging path.
+    if not os.path.exists(path_to_mets):
+        error_message = "METS file does not exist at: " + path_to_mets
+        print(error_message, file=sys.stderr)
+        return 1
+
+    parser = AIPMETSParser(path_to_mets)
+
+    am_version = version.get_version()
+    indexed_at = time.time()
+    print("AIP UUID: " + aip_uuid)
+    print("Indexing AIP files ...")
+    ret = search_service.index_aip(
         uuid=aip_uuid,
         aip_stored_path=path,
-        mets_staging_path=path_to_mets,
+        parser=parser,
         name=aip_name,
         aip_size=aip_info[0]["size"],
-        aips_in_aic=aips_in_aic,
+        am_version=am_version,
+        indexed_at=indexed_at,
         identifiers=get_sip_identifiers(aip_uuid),
+        aips_in_aic=aips_in_aic,
         location=location_description,
     )
+    if ret == 0:
+        print("Done.")
+    return ret
 
 
 def is_hex(string):
@@ -237,8 +256,8 @@ class Command(DashboardCommand):
                 "Arguments --delete-only and --delete-all are mutually exclusive."
             )
 
-        # Setup es_client and delete indices if required.
-        es_client = setup_es_for_aip_reindexing(self, options["delete_all"])
+        # Setup search service and delete indices if required.
+        search_service = setup_es_for_aip_reindexing(self, options["delete_all"])
 
         # If delete-only option is used, just delete the AIP data,
         # do not need to index thereafter.
@@ -250,8 +269,8 @@ class Command(DashboardCommand):
                     options["uuid"]
                 )
             )
-            archivematica.search.deleting.delete_aip(es_client, options["uuid"])
-            archivematica.search.deleting.delete_aip_files(es_client, options["uuid"])
+            search_service.delete_aip(options["uuid"])
+            search_service.delete_aip_files(options["uuid"])
             return
 
         if not options["uuid"]:
@@ -282,7 +301,7 @@ class Command(DashboardCommand):
                 ret = processAIPThenDeleteMETSFile(
                     path=os.path.join(root, directory),
                     temp_dir=temp_dir,
-                    es_client=es_client,
+                    search_service=search_service,
                     delete_existing_data=options["delete"],
                 )
                 # Don't recurse into this directory
@@ -303,7 +322,7 @@ class Command(DashboardCommand):
                 ret = processAIPThenDeleteMETSFile(
                     path=os.path.join(root, filename),
                     temp_dir=temp_dir,
-                    es_client=es_client,
+                    search_service=search_service,
                     delete_existing_data=options["delete"],
                 )
                 # Update count on successful index

@@ -53,13 +53,12 @@ from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import CommandError
 
-import archivematica.search.client
 import archivematica.search.constants
-import archivematica.search.deleting
-import archivematica.search.indexing
-import archivematica.search.indices
 from archivematica.archivematicaCommon import archivematicaFunctions as am
 from archivematica.archivematicaCommon import storageService
+from archivematica.archivematicaCommon.databaseFunctions import (
+    build_transfer_file_index_data,
+)
 from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
 from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
 from archivematica.archivematicaCommon.fileOperations import extract_package
@@ -71,6 +70,7 @@ from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import FileFormatVersion
 from archivematica.dashboard.main.models import FileID
 from archivematica.dashboard.main.models import Transfer
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = logging.getLogger("archivematica.dashboard")
 
@@ -171,18 +171,15 @@ class Command(DashboardCommand):
                 )
             self.info(f'Rebuilding "transfers" index from {transfer_backlog_dir}.')
 
-        # Connect to Elasticsearch.
-        archivematica.search.client.setup_reading_from_conf(django_settings)
-        es_client = archivematica.search.client.get_client()
+        # Connect to search backend.
         try:
-            es_info = es_client.info()
+            search_service = setup_search_service_from_conf(django_settings)
+            search_info = search_service.get_cluster_info()
         except Exception as err:
-            raise CommandError("Unable to connect to Elasticsearch: %s" % err)
+            raise CommandError("Unable to connect to search backend: %s" % err)
         else:
             self.info(
-                "Connected to Elasticsearch node {} (v{}).".format(
-                    es_info["name"], es_info["version"]["number"]
-                )
+                f"Connected to search backend node {search_info.name} (v{search_info.version})."
             )
 
         if options["delete_all"]:
@@ -190,13 +187,13 @@ class Command(DashboardCommand):
                 archivematica.search.constants.TRANSFERS_INDEX,
                 archivematica.search.constants.TRANSFER_FILES_INDEX,
             ]
-            self.delete_indexes(es_client, indexes)
-            self.create_indexes(es_client, indexes)
+            self.delete_indexes(search_service, indexes)
+            self.create_indexes(search_service, indexes)
 
         if options["from_storage_service"]:
             pipeline_uuid = options["pipeline"]
             self.populate_data_from_storage_service(
-                es_client,
+                search_service,
                 pipeline_uuid,
                 uuid=options["uuid"],
                 skip_to=options["skip_to"],
@@ -204,7 +201,7 @@ class Command(DashboardCommand):
             )
         else:
             self.populate_data_from_files(
-                es_client,
+                search_service,
                 transfer_backlog_dir,
                 uuid=options["uuid"],
                 skip_to=options["skip_to"],
@@ -229,24 +226,32 @@ class Command(DashboardCommand):
         if tail != suffix:
             return os.path.join(path, suffix)
 
-    def delete_indexes(self, es_client, indexes):
+    def delete_indexes(self, search_service, indexes):
         """Delete search indexes."""
         self.stdout.write(
             "Deleting all transfers and transfer files "
             'in the "transfers" and "transferfiles" indexes...'
         )
         time.sleep(3)  # Time for the user to panic and kill the process.
-        es_client.indices.delete(",".join(indexes), ignore=404)
+        search_service.delete_indexes(indexes)
 
-    def create_indexes(self, es_client, indexes):
+    def create_indexes(self, search_service, indexes):
         """Create search indexes."""
         self.stdout.write("Creating indexes...")
-        archivematica.search.indices.create_indexes_if_needed(es_client, indexes)
+        search_service.ensure_indexes_exist(indexes)
 
     def populate_data_from_files(
-        self, es_client, transfer_backlog_dir, uuid=None, skip_to=None, delete=False
+        self,
+        search_service,
+        transfer_backlog_dir,
+        uuid=None,
+        skip_to=None,
+        delete=False,
     ):
-        """Populate indices and/or database from files."""
+        """Populate indices and/or database from files.
+
+        :param search_service: Search service instance.
+        """
         transfer_backlog_dir = Path(transfer_backlog_dir)
         processed = 0
         skip_found = False
@@ -273,19 +278,16 @@ class Command(DashboardCommand):
             # if delete option specified delete before reindexing
             if delete:
                 self.info(f"Deleting index data of {transfer_uuid}")
-                archivematica.search.deleting.remove_backlog_transfer(
-                    es_client, transfer_uuid
-                )
-                archivematica.search.deleting.remove_backlog_transfer_files(
-                    es_client, transfer_uuid
-                )
+                search_service.delete_transfer(transfer_uuid)
+                transfer_ids = {transfer_uuid}
+                search_service.delete_transfer_files(transfer_ids)
 
             if bag and "External-Identifier" in bag.info:
                 self.info(f"Importing self-describing transfer {transfer_uuid}.")
                 size = am.get_bag_size(bag, str(transfer_dir))
 
                 _import_self_describing_transfer(
-                    self, es_client, self.stdout, transfer_dir, transfer_uuid, size
+                    self, search_service, self.stdout, transfer_dir, transfer_uuid, size
                 )
             else:
                 self.info(f"Rebuilding known transfer {transfer_uuid}.")
@@ -295,17 +297,22 @@ class Command(DashboardCommand):
                     size = am.walk_dir(str(transfer_dir))
 
                 _import_pipeline_dependant_transfer(
-                    self, es_client, self.stdout, transfer_dir, transfer_uuid, size
+                    self, search_service, self.stdout, transfer_dir, transfer_uuid, size
                 )
             processed += 1
         self.success(f"{processed} transfers indexed!")
 
     def populate_data_from_storage_service(
-        self, es_client, pipeline_uuid, uuid=None, skip_to=None, delete=False
+        self,
+        search_service,
+        pipeline_uuid,
+        uuid=None,
+        skip_to=None,
+        delete=False,
     ):
         """Populate indices and/or database from Storage Service.
 
-        :param es_client: Elasticsearch client.
+        :param search_service: Search service instance.
         :param pipeline_uuid: UUID of origin pipeline for transfers to
         reindex.
 
@@ -331,12 +338,9 @@ class Command(DashboardCommand):
             # if delete option specified delete before reindexing
             if delete:
                 self.info(f"Deleting index data of {transfer_uuid}")
-                archivematica.search.deleting.remove_backlog_transfer(
-                    es_client, transfer_uuid
-                )
-                archivematica.search.deleting.remove_backlog_transfer_files(
-                    es_client, transfer_uuid
-                )
+                search_service.delete_transfer(transfer_uuid)
+                transfer_ids = {transfer_uuid}
+                search_service.delete_transfer_files(transfer_ids)
 
             temp_backlog_dir = tempfile.mkdtemp()
             try:
@@ -367,7 +371,7 @@ class Command(DashboardCommand):
                     )
                     _import_self_describing_transfer(
                         self,
-                        es_client,
+                        search_service,
                         self.stdout,
                         Path(transfer_path),
                         transfer_uuid,
@@ -520,7 +524,7 @@ def _get_transfer_mets_path(transfer_dir):
 
 
 def _import_self_describing_transfer(
-    cmd, es_client, stdout, transfer_dir, transfer_uuid, size
+    cmd, search_service, stdout, transfer_dir, transfer_uuid, size
 ):
     """Import a self-describing transfer.
 
@@ -529,7 +533,7 @@ def _import_self_describing_transfer(
     arrangement and ingest work as expected.
 
     :param cmd: Command object
-    :param es_client: Elasticsearch client.
+    :param search_service: Search service instance.
     :param stdout: stdout handler.
     :param transfer_dir: Path to transfer.
     :param transfer_uuid: Transfer UUID.
@@ -572,22 +576,38 @@ def _import_self_describing_transfer(
                 if django_settings.DEBUG:
                     traceback.print_exc()
 
+    transfer_path = str(transfer_dir) + "/"
+
+    # Stop if Transfer does not exist
+    if not os.path.exists(transfer_path):
+        error_message = "Transfer does not exist at: " + transfer_path
+        logger.error(error_message)
+        print(error_message, file=sys.stderr)
+        return 1
+
+    print("Transfer UUID: " + transfer_uuid)
+    print("Indexing Transfer files ...")
+
     transfer_name, accession_id, ingest_date = get_transfer_details(transfer_uuid)
-    archivematica.search.indexing.index_transfer_and_files(
-        es_client,
-        transfer_uuid,
-        str(transfer_dir) + "/",
-        size,
+    transfer_index_data = build_transfer_file_index_data(
+        transfer_path, transfer_name, transfer_uuid, _elasticsearch_noop_printfn
+    )
+    search_service.index_transfer(
+        uuid=transfer_uuid,
+        path=transfer_path,
+        size=size,
+        transfer_index_data=transfer_index_data,
         printfn=_elasticsearch_noop_printfn,
         dashboard_uuid=cmd.dashboard_uuid,
         transfer_name=transfer_name,
         accession_id=accession_id,
         ingest_date=ingest_date,
     )
+    print("Done.")
 
 
 def _import_pipeline_dependant_transfer(
-    cmd, es_client, stdout, transfer_dir, transfer_uuid, size
+    cmd, search_service, stdout, transfer_dir, transfer_uuid, size
 ):
     """Import a pipeline-dependant transfer.
 
@@ -600,18 +620,35 @@ def _import_pipeline_dependant_transfer(
     except (Transfer.DoesNotExist, ValidationError):
         cmd.warning(f"Skipping transfer {transfer_uuid} - not found in the database!")
         return
+
+    transfer_path = str(transfer_dir) + "/"
+
+    # Stop if Transfer does not exist
+    if not os.path.exists(transfer_path):
+        error_message = "Transfer does not exist at: " + transfer_path
+        logger.error(error_message)
+        print(error_message, file=sys.stderr)
+        return 1
+
+    print("Transfer UUID: " + transfer_uuid)
+    print("Indexing Transfer files ...")
+
     transfer_name, accession_id, ingest_date = get_transfer_details(transfer_uuid)
-    archivematica.search.indexing.index_transfer_and_files(
-        es_client,
-        transfer_uuid,
-        str(transfer_dir) + "/",
-        size,
+    transfer_index_data = build_transfer_file_index_data(
+        transfer_path, transfer_name, transfer_uuid, _elasticsearch_noop_printfn
+    )
+    search_service.index_transfer(
+        uuid=transfer_uuid,
+        path=transfer_path,
+        size=size,
+        transfer_index_data=transfer_index_data,
         printfn=_elasticsearch_noop_printfn,
         dashboard_uuid=cmd.dashboard_uuid,
         transfer_name=transfer_name,
         accession_id=accession_id,
         ingest_date=ingest_date,
     )
+    print("Done.")
     try:
         storageService.reindex_file(transfer_uuid)
     except Exception as err:
