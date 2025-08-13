@@ -43,7 +43,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:6.8.23"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.2"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -51,6 +51,9 @@ services:
       - "bootstrap.memory_lock=true"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "cluster.routing.allocation.disk.threshold_enabled=${ELASTICSEARCH_DISK_THRESHOLD_ENABLED:-true}"
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.security.transport.ssl.enabled=false"
     ulimits:
       memlock:
         soft: -1
@@ -58,12 +61,12 @@ services:
     healthcheck:
       test: [
         "CMD-SHELL",
-        "curl -fsSL http://localhost:9200/_cat/health?h=status | sed -r 's/^[[:space:]]+|[[:space:]]+$//g' | grep -q -E 'green|yellow'",
+        "curl -fsSL http://localhost:9200/_cat/health?h=status | grep -q -E 'green|yellow'",
       ]
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 15s
+      start_period: 25s
     volumes:
       - "elasticsearch_data:/usr/share/elasticsearch/data"
     ports:
