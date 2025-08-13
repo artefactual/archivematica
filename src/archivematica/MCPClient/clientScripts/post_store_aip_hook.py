@@ -7,12 +7,11 @@ import sys
 import django
 import requests
 
-import archivematica.search.client
-
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.archivematicaCommon.archivematicaFunctions import (
@@ -20,13 +19,29 @@ from archivematica.archivematicaCommon.archivematicaFunctions import (
 )
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main import models
-from archivematica.search import deleting
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
 COMPLETED = 0
 NO_ACTION = 1
 ERROR = 2
+
+
+def find_transfer_ids_by_unit_uuid(unit_uuid: str) -> set[str]:
+    """Find transfer IDs by looking up files associated with a unit UUID.
+
+    Searches for files that belong to either the given transfer UUID or SIP UUID,
+    then returns the transfer UUIDs of those files. This is useful for finding
+    all transfers associated with a SIP during storage operations.
+
+    :param str unit_uuid: UUID of a transfer or SIP to search for
+    :return: Set of transfer UUIDs associated with files in the unit
+    """
+    condition = Q(transfer_id=unit_uuid) | Q(sip_id=unit_uuid)
+    return {
+        f[0] for f in models.File.objects.filter(condition).values_list("transfer_id")
+    }
 
 
 def delete_transfer_directory(job, sip_uuid):
@@ -141,10 +156,10 @@ def post_store_hook(job, sip_uuid):
     """
     update_es = "transfers" in mcpclient_settings.SEARCH_ENABLED
     if update_es:
-        archivematica.search.client.setup_reading_from_conf(mcpclient_settings)
-        client = archivematica.search.client.get_client()
+        search_service = setup_search_service_from_conf(mcpclient_settings)
     else:
         logger.info("Skipping indexing: Transfers indexing is currently disabled.")
+        search_service = None
 
     # SIP ARRANGEMENT
 
@@ -186,7 +201,8 @@ def post_store_hook(job, sip_uuid):
                 reason_for_deletion="All files in Transfer are now in AIPs.",
             )
             if update_es:
-                deleting.remove_sip_transfer_files(client, transfer_uuid)
+                transfer_ids = find_transfer_ids_by_unit_uuid(transfer_uuid)
+                search_service.delete_transfer_files(transfer_ids)
 
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(job, sip_uuid)

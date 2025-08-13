@@ -12,6 +12,7 @@ import multiprocessing
 import os
 import pprint
 import shutil
+import sys
 import uuid
 
 import django
@@ -25,17 +26,19 @@ from django.db import transaction
 from django.db.models import Q
 
 import archivematica.archivematicaCommon.storageService as storage_service
-import archivematica.search.client
 from archivematica.archivematicaCommon.archivematicaFunctions import get_bag_size
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
+from archivematica.archivematicaCommon.databaseFunctions import (
+    build_transfer_file_index_data,
+)
 from archivematica.archivematicaCommon.databaseFunctions import get_transfer_details
 from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import UnitVariable
-from archivematica.search import indexing
+from archivematica.search.service import setup_search_service_from_conf
 
 logger = get_script_logger("archivematica.mcp.client.move_to_backlog")
 
@@ -79,20 +82,34 @@ def _index_transfer(job, transfer_id, transfer_path, size):
     if "transfers" not in mcpclient_settings.SEARCH_ENABLED:
         logger.info("Skipping indexing: Transfers indexing is currently disabled.")
         return
+
+    # Stop if Transfer does not exist
+    if not os.path.exists(transfer_path):
+        error_message = "Transfer does not exist at: " + transfer_path
+        logger.error(error_message)
+        job.pyprint(error_message, file=sys.stderr)
+        return 1
+
+    job.pyprint("Transfer UUID: " + transfer_id)
+    job.pyprint("Indexing Transfer files ...")
+
     transfer_name, accession_id, ingest_date = get_transfer_details(transfer_id)
-    archivematica.search.client.setup_reading_from_conf(mcpclient_settings)
-    client = archivematica.search.client.get_client()
-    indexing.index_transfer_and_files(
-        client,
-        transfer_id,
-        transfer_path,
-        size,
+    transfer_index_data = build_transfer_file_index_data(
+        transfer_path, transfer_name, transfer_id, job.pyprint
+    )
+    search_service = setup_search_service_from_conf(mcpclient_settings)
+    search_service.index_transfer(
+        uuid=transfer_id,
+        path=transfer_path,
+        size=size,
+        transfer_index_data=transfer_index_data,
         printfn=job.pyprint,
         dashboard_uuid=get_dashboard_uuid() or "",
         transfer_name=transfer_name,
         accession_id=accession_id,
         ingest_date=ingest_date,
     )
+    job.pyprint("Done.")
 
 
 def _create_bag(transfer_id, transfer_path):

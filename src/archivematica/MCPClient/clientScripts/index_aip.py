@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 import os
 import sys
+import time
 import traceback
 from glob import glob
 
 import django
 from django.core.exceptions import ValidationError
 
-import archivematica.search.client
-import archivematica.search.deleting
-import archivematica.search.indexing
 from archivematica.archivematicaCommon import identifier_functions
 from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.archivematicaCommon import version
+from archivematica.archivematicaCommon.aip_mets_parser import AIPMETSParser
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dashboard_uuid
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.databaseFunctions import get_sip_identifiers
 from archivematica.dashboard.main.models import UnitVariable
+from archivematica.search.service import setup_search_service_from_conf
 
 django.setup()
 
@@ -58,8 +59,7 @@ def index_aip(job):
     location_description = storage_service.retrieve_storage_location_description(
         aip_location, logger
     )
-    archivematica.search.client.setup_reading_from_conf(mcpclient_settings)
-    client = archivematica.search.client.get_client()
+    search_service = setup_search_service_from_conf(mcpclient_settings)
     aip_info = storage_service.get_file_info(uuid=sip_uuid)
     job.pyprint("AIP info:", aip_info)
     aip_info = aip_info[0]
@@ -82,28 +82,43 @@ def index_aip(job):
             sip_uuid,
             "from archival storage",
         )
-        archivematica.search.deleting.delete_aip(client, sip_uuid)
-        archivematica.search.deleting.delete_aip_files(client, sip_uuid)
+        search_service.delete_aip(sip_uuid)
+        search_service.delete_aip_files(sip_uuid)
+    # Stop if METS file is not at staging path.
+    if not os.path.exists(mets_staging_path):
+        error_message = "METS file does not exist at: " + mets_staging_path
+        logger.error(error_message)
+        job.pyprint(error_message, file=sys.stderr)
+        return 1
+
+    parser = AIPMETSParser(mets_staging_path)
+
     job.pyprint("Indexing AIP and AIP files")
+    job.pyprint("AIP UUID: " + sip_uuid)
+    job.pyprint("Indexing AIP files ...")
     # Even though we treat MODS identifiers as SIP-level, we need to index them
     # here because the archival storage tab actually searches on the
     # aips/aipfile index.
-    ret = archivematica.search.indexing.index_aip_and_files(
-        client=client,
+    am_version = version.get_version()
+    indexed_at = time.time()
+    ret = search_service.index_aip(
         uuid=sip_uuid,
         aip_stored_path=aip_info["current_full_path"],
-        mets_staging_path=mets_staging_path,
+        parser=parser,
         name=sip_name,
         aip_size=aip_info["size"],
-        aips_in_aic=aips_in_aic,
+        am_version=am_version,
+        indexed_at=indexed_at,
         identifiers=identifiers,
+        aips_in_aic=aips_in_aic,
         encrypted=aip_info["encrypted"],
         location=location_description,
-        printfn=job.pyprint,
         dashboard_uuid=get_dashboard_uuid() or "",
     )
     if ret == 1:
         job.pyprint("Error indexing AIP and AIP files", file=sys.stderr)
+    else:
+        job.pyprint("Done.")
     return ret
 
 
