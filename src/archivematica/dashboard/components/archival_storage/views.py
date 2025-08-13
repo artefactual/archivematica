@@ -304,7 +304,7 @@ def _search_aip_files(
     hits = search_service.search_aip_files(
         query=query, size=page_size, from_=start, sort=sort_param, fields=fields
     )
-    hit_count = hits["hits"]["total"]
+    hit_count = hits["hits"]["total"]["value"]
     return hits, hit_count
 
 
@@ -375,7 +375,7 @@ def _search_aips(
         sort=sort_param,
         fields=fields,
     )
-    hit_count = hits["hits"]["total"]
+    hit_count = hits["hits"]["total"]["value"]
     return hits, hit_count, uuid_file_counts
 
 

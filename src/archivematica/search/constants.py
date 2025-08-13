@@ -34,9 +34,6 @@ DEFAULT_TIMEOUT = 10
 # called `tests` the function must be called `_get_tests_index_body`. See the
 # functions related to the current known indexes for examples.
 INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, TRANSFERS_INDEX, TRANSFER_FILES_INDEX]
-# A doc type is still required in ES 6.x but it's limited to one per index.
-# It will be removed in ES 7.x, so we'll use the same for all indexes.
-DOC_TYPE = "_doc"
 # Maximun ES result window. Use the scroll API for a better way to get all
 # results or change `index.max_result_window` on each index settings.
 MAX_QUERY_SIZE = 10000

@@ -108,21 +108,18 @@ class Command(DashboardCommand):
 
         # Indexes and types to reindex
         index_mappings = [
-            {"dest_index": "aips", "source_index": "aips", "source_type": "aip"},
+            {"dest_index": "aips", "source_index": "aips"},
             {
                 "dest_index": "aipfiles",
                 "source_index": "aipfiles",
-                "source_type": "aipfile",
             },
             {
                 "dest_index": "transfers",
                 "source_index": "transfers",
-                "source_type": "transfer",
             },
             {
                 "dest_index": "transferfiles",
                 "source_index": "transferfiles",
-                "source_type": "transferfile",
             },
         ]
 

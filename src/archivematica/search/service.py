@@ -12,6 +12,8 @@ from typing import TypedDict
 from typing import Union
 
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import NotFoundError
+from elasticsearch.exceptions import RequestError
 from elasticsearch.helpers import bulk
 
 from archivematica.search.constants import AIP_FILES_INDEX
@@ -467,7 +469,6 @@ class ElasticsearchSearchService(SearchService):
         aip_files_index: str = "aipfiles",
         aips_index: str = "aips",
         transfers_index: str = "transfers",
-        doc_type: str = "_doc",
         max_query_size: int = 10000,
     ) -> None:
         """Initialize with Elasticsearch client and configuration.
@@ -476,7 +477,6 @@ class ElasticsearchSearchService(SearchService):
         :param str transfer_files_index: Name of the transfer files index
         :param str aip_files_index: Name of the AIP files index
         :param str aips_index: Name of the AIPs index
-        :param str doc_type: Document type for Elasticsearch operations
         :param int max_query_size: Maximum size for Elasticsearch queries
         """
         self.client = client
@@ -484,7 +484,6 @@ class ElasticsearchSearchService(SearchService):
         self.aip_files_index = aip_files_index
         self.aips_index = aips_index
         self.transfers_index = transfers_index
-        self.doc_type = doc_type
         self.max_query_size = max_query_size
 
     def _escape_slashes(self, value: str) -> str:
@@ -706,11 +705,14 @@ class ElasticsearchSearchService(SearchService):
         settings = self._get_index_settings_for_index(index)
         mappings = self._get_index_mappings_for_index(index)
 
-        self.client.indices.create(
-            index,
-            body={"settings": settings, "mappings": {self.doc_type: mappings}},
-            ignore=400,
-        )
+        try:
+            self.client.indices.create(
+                index=index,
+                body={"settings": settings, "mappings": mappings},
+            )
+        except RequestError as e:
+            if not e.error == "resource_already_exists_exception":
+                raise
 
     def _get_index_settings_for_index(self, index: str) -> dict[str, Any]:
         """Get the settings for a specific index.
@@ -819,7 +821,7 @@ class ElasticsearchSearchService(SearchService):
                     "analyzer": "file_path_and_name",
                 },
                 ES_FIELD_STATUS: {"type": "text"},
-                "ingest_date": {"type": "date", "format": "dateOptionalTime"},
+                "ingest_date": {"type": "date", "format": "date_optional_time"},
                 ES_FIELD_SIZE: {"type": "long"},
                 ES_FIELD_FILECOUNT: {"type": "integer"},
                 ES_FIELD_UUID: {"type": "keyword"},
@@ -846,10 +848,10 @@ class ElasticsearchSearchService(SearchService):
                 "accessionid": {"type": "keyword"},
                 ES_FIELD_STATUS: {"type": "keyword"},
                 "origin": {"type": "keyword"},
-                "ingestdate": {"type": "date", "format": "dateOptionalTime"},
+                "ingestdate": {"type": "date", "format": "date_optional_time"},
                 "modification_date": {
                     "type": "date",
-                    "format": "dateOptionalTime",
+                    "format": "date_optional_time",
                     "ignore_malformed": True,
                 },
                 ES_FIELD_CREATED: {"type": "double"},
@@ -877,7 +879,10 @@ class ElasticsearchSearchService(SearchService):
         if not indexes:
             return
 
-        self.client.indices.delete(index=indexes, ignore=404)
+        try:
+            self.client.indices.delete(index=indexes)
+        except NotFoundError:
+            pass
 
     def update_index_mappings(self, index: str, mappings: dict[str, Any]) -> None:
         """Update mappings for a specific index.
@@ -885,11 +890,7 @@ class ElasticsearchSearchService(SearchService):
         :param str index: Index name to update
         :param dict[str, Any] mappings: Mapping properties to apply
         """
-        self.client.indices.put_mapping(
-            index=index,
-            doc_type=self.doc_type,
-            body=mappings,
-        )
+        self.client.indices.put_mapping(index=index, body=mappings)
 
     def reindex_from_remote(
         self, remote_config: dict[str, Any], index_mappings: list[dict[str, str]]
@@ -907,10 +908,9 @@ class ElasticsearchSearchService(SearchService):
                 "source": {
                     "remote": remote_config,
                     "index": mapping["source_index"],
-                    "type": mapping["source_type"],
                     "size": remote_config.get("size", 10),
                 },
-                "dest": {"index": mapping["dest_index"], "type": self.doc_type},
+                "dest": {"index": mapping["dest_index"]},
             }
 
             try:
@@ -983,7 +983,7 @@ class ElasticsearchSearchService(SearchService):
         """
         results = self._search_by_term(index, field, value, fields=fields)
 
-        count = results["hits"]["total"]
+        count = results["hits"]["total"]["value"]
         if count == 0:
             raise not_found_exception_class(
                 f"No {error_context} found with {field} {value}"
@@ -1043,11 +1043,7 @@ class ElasticsearchSearchService(SearchService):
         :raises AIPFileNotFoundError: When document is not found
         """
         try:
-            return dict(
-                self.client.get(
-                    index=self.aip_files_index, doc_type=self.doc_type, id=document_id
-                )
-            )
+            return dict(self.client.get(index=self.aip_files_index, id=document_id))
         except Exception as e:
             raise AIPFileNotFoundError(
                 f"AIP file document {document_id} not found: {e}"
@@ -1159,7 +1155,7 @@ class ElasticsearchSearchService(SearchService):
         if from_ is not None:
             search_params["from_"] = from_
         if sort is not None:
-            search_params["sort"] = f"{sort.field}:{sort.order}"
+            search_params["sort"] = [{sort.field: {"order": sort.order}}]
         if fields is not None:
             search_params["_source"] = fields
 
@@ -1332,7 +1328,7 @@ class ElasticsearchSearchService(SearchService):
             raise ValueError("max_tries must be 1 or greater")
         for _ in range(0, max_tries):
             try:
-                self.client.index(index=index, body=data, doc_type=self.doc_type)
+                self.client.index(index=index, body=data)
                 return
             except Exception as e:
                 exception = e
@@ -1403,7 +1399,6 @@ class ElasticsearchSearchService(SearchService):
                 yield {
                     "_op_type": "index",
                     "_index": self.aip_files_index,
-                    "_type": self.doc_type,
                     "_source": file_data,
                 }
 
@@ -1497,7 +1492,6 @@ class ElasticsearchSearchService(SearchService):
                 yield {
                     "_op_type": "index",
                     "_index": self.transfer_files_index,
-                    "_type": self.doc_type,
                     "_source": index_data,
                 }
 
@@ -1650,7 +1644,7 @@ def _create_elasticsearch_client(
     :param timeout: Connection timeout in seconds
     :return: Configured Elasticsearch client
     """
-    return Elasticsearch(**{"hosts": hosts, "timeout": timeout, "dead_timeout": 2})
+    return Elasticsearch(**{"hosts": hosts, "request_timeout": timeout})
 
 
 def setup_search_service(

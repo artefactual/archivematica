@@ -175,7 +175,7 @@ def _search_transfer_files(
     hits = search_service.search_transfer_files(
         query=query, size=page_size, from_=start, sort=sort_param, fields=fields
     )
-    hit_count = hits["hits"]["total"]
+    hit_count = hits["hits"]["total"]["value"]
     return hits, hit_count
 
 
@@ -235,7 +235,7 @@ def _search_transfers(
         sort=sort_param,
         fields=fields,
     )
-    hit_count = hits["hits"]["total"]
+    hit_count = hits["hits"]["total"]["value"]
     return hits, hit_count
 
 
