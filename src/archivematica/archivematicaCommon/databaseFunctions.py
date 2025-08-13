@@ -16,8 +16,10 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import datetime
 import logging
+import os
 import sys
 import uuid
+from dataclasses import dataclass
 
 from django.db.models import Min
 from django.db.models import Q
@@ -305,4 +307,123 @@ def get_sip_identifiers(uuid):
         Identifier.objects.filter(Q(sip=uuid) | Q(directory__sip=uuid)).values_list(
             "value", flat=True
         )
+    )
+
+
+def _list_files_in_dir(path, filepaths=None):
+    if filepaths is None:
+        filepaths = []
+
+    # Define entries
+    for file in os.listdir(path):
+        child_path = os.path.join(path, file)
+        filepaths.append(child_path)
+
+        # If entry is a directory, recurse
+        if os.path.isdir(child_path) and os.access(child_path, os.R_OK):
+            _list_files_in_dir(child_path, filepaths)
+
+    # Return fully traversed data
+    return filepaths
+
+
+@dataclass
+class TransferFileIndexData:
+    file_paths: list[str]
+    files_by_location: dict[str, File]
+    bulk_extractor_reports: dict[str, list[str]]
+    format_cache: dict[str, list[dict]]
+
+
+def build_transfer_file_index_data(
+    path: str, transfer_name: str, uuid: str, printfn
+) -> TransferFileIndexData:
+    """Prepare file paths, database lookups, and bulk extractor cache for transfer files.
+
+    :param path: Transfer path on disk
+    :param transfer_name: Name of the transfer
+    :param uuid: Transfer UUID
+    :param printfn: Print function for logging
+    :return: TransferFileIndexData containing file_paths, files_by_location, bulk_extractor_reports, format_cache
+    """
+    ignore_files = ["processingMCP.xml"]
+    file_paths = []
+    currentlocations_to_encode = []
+    currentlocation_to_filepath = {}
+
+    # Step 1: Single directory traversal - gather file paths and currentlocations
+    for filepath in _list_files_in_dir(path):
+        if not os.path.isfile(filepath):
+            continue
+
+        filename = os.path.basename(filepath)
+        if filename in ignore_files:
+            stripped_path = filepath.replace(path, transfer_name + "/")
+            printfn(f"Skipping indexing {stripped_path}")
+            continue
+
+        # Compute currentlocation for database lookup
+        currentlocation = "%transferDirectory%" + os.path.relpath(
+            filepath, path
+        ).removeprefix("data/")
+
+        file_paths.append(filepath)
+        currentlocations_to_encode.append(currentlocation.encode())
+        currentlocation_to_filepath[currentlocation] = filepath
+
+    # Step 2: Batch database query for all files with optimized joins
+    if currentlocations_to_encode:
+        file_records = File.objects.filter(
+            currentlocation__in=currentlocations_to_encode, transfer_id=uuid
+        ).prefetch_related(
+            "fileformatversion_set__format_version",
+            "fileformatversion_set__format_version__format__group",
+        )
+
+        # Create lookup map from currentlocation to File record
+        files_by_location = {f.currentlocation.decode(): f for f in file_records}
+
+    else:
+        files_by_location = {}
+
+    # Step 3 & 4: Single traversal for format cache and bulk extractor reports
+    format_cache = {}
+    bulk_extractor_reports: dict[str, list[str]] = {}
+    logs_dir = os.path.join(path, "data", "logs")
+    logs_dir_exists = os.path.isdir(logs_dir)
+
+    for f in files_by_location.values():
+        file_uuid = str(f.uuid)
+
+        # Build format cache
+        formats = []
+        for format_version in f.fileformatversion_set.all():
+            formats.append(
+                {
+                    "puid": format_version.format_version.pronom_id,
+                    "format": format_version.format_version.description,
+                    "group": format_version.format_version.format.group.description,
+                }
+            )
+        format_cache[file_uuid] = formats
+
+        # Build bulk extractor reports
+        log_path = os.path.join(logs_dir, "bulk-" + file_uuid)
+        if not file_uuid or not logs_dir_exists or not os.path.isdir(log_path):
+            bulk_extractor_reports[file_uuid] = []
+            continue
+
+        reports = []
+        for report in ["telephone", "ccn", "ccn_track2", "pii"]:
+            report_path = os.path.join(log_path, report + ".txt")
+            if os.path.isfile(report_path) and os.path.getsize(report_path) > 0:
+                reports.append(report)
+
+        bulk_extractor_reports[file_uuid] = reports
+
+    return TransferFileIndexData(
+        file_paths=file_paths,
+        files_by_location=files_by_location,
+        bulk_extractor_reports=bulk_extractor_reports,
+        format_cache=format_cache,
     )

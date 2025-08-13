@@ -1,6 +1,7 @@
 STATUS_DELETE_REQUESTED = "DEL_REQ"
 STATUS_DELETED = "DELETED"
 STATUS_UPLOADED = "UPLOADED"
+STATUS_BACKLOG = "backlog"
 
 AIPS_INDEX = "aips"
 AIP_FILES_INDEX = "aipfiles"
@@ -18,6 +19,12 @@ ES_FIELD_NAME = "name"
 ES_FIELD_SIZE = "size"
 ES_FIELD_STATUS = "status"
 ES_FIELD_UUID = "uuid"
+
+# Additional Elasticsearch field names
+ES_FIELD_AIPUUID = "AIPUUID"
+ES_FIELD_FILEUUID = "FILEUUID"
+ES_FIELD_SIPUUID = "sipuuid"
+ES_FIELD_FILEUUID_LOWER = "fileuuid"
 
 DEFAULT_TIMEOUT = 10
 # Known indexes. This indexes may be enabled or not based on the SEARCH_ENABLED

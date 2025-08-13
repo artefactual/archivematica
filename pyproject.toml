@@ -100,6 +100,7 @@ module = [
     "src.archivematica.MCPClient.clientScripts.policy_check",
     "src.archivematica.MCPClient.clientScripts.transcribe_file",
     "src.archivematica.MCPClient.clientScripts.validate_file",
+    "src.archivematica.search.service",
     "tests.archivematicaCommon.test_execute_functions",
     "tests.conftest",
     "tests.dashboard.components.accounts.test_views",
@@ -119,6 +120,7 @@ module = [
     "tests.MCPClient.test_policy_check",
     "tests.MCPClient.test_transcribe_file",
     "tests.MCPClient.test_validate_file",
+    "tests.search.test_service",
 ]
 check_untyped_defs = true
 disallow_any_generics = true
