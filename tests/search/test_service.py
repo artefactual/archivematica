@@ -25,17 +25,46 @@ from archivematica.search.service import setup_search_service
 from archivematica.search.service import setup_search_service_from_conf
 
 
+def _mock_es_response(response_body: Any, status: int = 200) -> tuple[mock.Mock, Any]:
+    """Helper to create proper Elasticsearch response format."""
+    meta = mock.Mock()
+    meta.status = status
+    meta.headers = {"x-elastic-product": "Elasticsearch"}
+    return (meta, response_body)
+
+
+def _mock_es_not_exists() -> tuple[mock.Mock, bool]:
+    """Helper to create Elasticsearch response for non-existent indexes."""
+    return _mock_es_response(False, status=404)
+
+
+def _make_es_call(
+    method: str, path: str, params: Any = None, body: Any = None, headers: Any = None
+) -> tuple[Any, ...]:
+    """Helper to create mock.call for Elasticsearch requests with common parameters."""
+    return mock.call(
+        method,
+        path,
+        headers=mock.ANY,
+        body=body,
+        request_timeout=mock.ANY,
+        max_retries=mock.ANY,
+        retry_on_status=mock.ANY,
+        retry_on_timeout=mock.ANY,
+        client_meta=mock.ANY,
+        otel_span=mock.ANY,
+    )
+
+
 @pytest.fixture
 def mock_transport() -> Generator[mock.Mock, None, None]:
-    with mock.patch(
-        "elasticsearch.transport.Transport.perform_request"
-    ) as mock_perform:
+    with mock.patch("elastic_transport.Transport.perform_request") as mock_perform:
         yield mock_perform
 
 
 @pytest.fixture
 def es_client(mock_transport: mock.Mock) -> Elasticsearch:
-    client = Elasticsearch(["localhost:9200"])
+    client = Elasticsearch(["http://localhost:9200"])
     return client
 
 
@@ -47,7 +76,6 @@ def es_search_service(es_client: Elasticsearch) -> ElasticsearchSearchService:
         aip_files_index="aipfiles",
         aips_index="aips",
         transfers_index="transfers",
-        doc_type="_doc",
         max_query_size=10000,
     )
 
@@ -145,12 +173,12 @@ def test_delete_transfer_removes_transfer_for_single_uuid(
     transfer_uuid = str(uuid.uuid4())
 
     delete_by_query_response = {"deleted": 1}
-    mock_transport.return_value = delete_by_query_response
+    mock_transport.return_value = _mock_es_response(delete_by_query_response)
 
     es_search_service.delete_transfer(transfer_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transfers/_delete_by_query",
             params={},
@@ -176,12 +204,12 @@ def test_delete_transfer_files_removes_files_for_single_transfer(
     transfer_id = str(uuid.uuid4())
 
     delete_by_query_response = {"deleted": 5}
-    mock_transport.return_value = delete_by_query_response
+    mock_transport.return_value = _mock_es_response(delete_by_query_response)
 
     es_search_service.delete_transfer_files({transfer_id})
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_delete_by_query",
             params={},
@@ -198,12 +226,12 @@ def test_delete_transfer_files_removes_files_for_multiple_transfers(
     transfer_ids = {str(uuid.uuid4()), str(uuid.uuid4())}
 
     delete_by_query_response = {"deleted": 8}
-    mock_transport.return_value = delete_by_query_response
+    mock_transport.return_value = _mock_es_response(delete_by_query_response)
 
     es_search_service.delete_transfer_files(transfer_ids)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_delete_by_query",
             params={},
@@ -233,12 +261,12 @@ def test_delete_transfer_files_escapes_forward_slashes_in_transfer_id(
     transfer_id = "path/with/slashes"
 
     delete_by_query_response = {"deleted": 0}
-    mock_transport.return_value = delete_by_query_response
+    mock_transport.return_value = _mock_es_response(delete_by_query_response)
 
     es_search_service.delete_transfer_files({transfer_id})
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_delete_by_query",
             params={},
@@ -255,12 +283,12 @@ def test_delete_aip_deletes_aip_for_single_uuid(
     aip_uuid = str(uuid.uuid4())
 
     delete_by_query_response = {"deleted": 1}
-    mock_transport.return_value = delete_by_query_response
+    mock_transport.return_value = _mock_es_response(delete_by_query_response)
 
     es_search_service.delete_aip(aip_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/aips/_delete_by_query",
             params={},
@@ -286,12 +314,12 @@ def test_delete_aip_files_deletes_files_for_single_aip(
     aip_uuid = str(uuid.uuid4())
 
     delete_by_query_response = {"deleted": 5}
-    mock_transport.return_value = delete_by_query_response
+    mock_transport.return_value = _mock_es_response(delete_by_query_response)
 
     es_search_service.delete_aip_files(aip_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/aipfiles/_delete_by_query",
             params={},
@@ -316,13 +344,16 @@ def test_mark_transfer_for_deletion_updates_transfer_and_files(
 ) -> None:
     transfer_uuid = str(uuid.uuid4())
 
-    update_by_query_responses = [{"updated": 1}, {"updated": 5}]
+    update_by_query_responses = [
+        _mock_es_response({"updated": 1}),
+        _mock_es_response({"updated": 5}),
+    ]
     mock_transport.side_effect = update_by_query_responses
 
     es_search_service.mark_transfer_for_deletion(transfer_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transfers/_update_by_query",
             params={},
@@ -334,7 +365,7 @@ def test_mark_transfer_for_deletion_updates_transfer_and_files(
                 "query": {"term": {"uuid": transfer_uuid}},
             },
         ),
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_update_by_query",
             params={},
@@ -356,13 +387,16 @@ def test_unmark_transfer_for_deletion_updates_transfer_and_files(
 ) -> None:
     transfer_uuid = str(uuid.uuid4())
 
-    update_by_query_responses = [{"updated": 1}, {"updated": 5}]
+    update_by_query_responses = [
+        _mock_es_response({"updated": 1}),
+        _mock_es_response({"updated": 5}),
+    ]
     mock_transport.side_effect = update_by_query_responses
 
     es_search_service.unmark_transfer_for_deletion(transfer_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transfers/_update_by_query",
             params={},
@@ -374,7 +408,7 @@ def test_unmark_transfer_for_deletion_updates_transfer_and_files(
                 "query": {"term": {"uuid": transfer_uuid}},
             },
         ),
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_update_by_query",
             params={},
@@ -396,13 +430,16 @@ def test_mark_aip_for_deletion_updates_aip_and_files(
 ) -> None:
     aip_uuid = str(uuid.uuid4())
 
-    update_by_query_responses = [{"updated": 1}, {"updated": 5}]
+    update_by_query_responses = [
+        _mock_es_response({"updated": 1}),
+        _mock_es_response({"updated": 5}),
+    ]
     mock_transport.side_effect = update_by_query_responses
 
     es_search_service.mark_aip_for_deletion(aip_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/aips/_update_by_query",
             params={},
@@ -414,7 +451,7 @@ def test_mark_aip_for_deletion_updates_aip_and_files(
                 "query": {"term": {"uuid": aip_uuid}},
             },
         ),
-        mock.call(
+        _make_es_call(
             "POST",
             "/aipfiles/_update_by_query",
             params={},
@@ -436,13 +473,16 @@ def test_unmark_aip_for_deletion_updates_aip_and_files(
 ) -> None:
     aip_uuid = str(uuid.uuid4())
 
-    update_by_query_responses = [{"updated": 1}, {"updated": 5}]
+    update_by_query_responses = [
+        _mock_es_response({"updated": 1}),
+        _mock_es_response({"updated": 5}),
+    ]
     mock_transport.side_effect = update_by_query_responses
 
     es_search_service.unmark_aip_for_deletion(aip_uuid)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/aips/_update_by_query",
             params={},
@@ -454,7 +494,7 @@ def test_unmark_aip_for_deletion_updates_aip_and_files(
                 "query": {"term": {"uuid": aip_uuid}},
             },
         ),
-        mock.call(
+        _make_es_call(
             "POST",
             "/aipfiles/_update_by_query",
             params={},
@@ -476,12 +516,12 @@ def test_ensure_indexes_exist_does_nothing_when_all_indexes_exist(
 ) -> None:
     indexes = ["aips", "transfers"]
 
-    mock_transport.return_value = True
+    mock_transport.return_value = _mock_es_response(True)
 
     es_search_service.ensure_indexes_exist(indexes)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             "/aips,transfers",
             params={},
@@ -498,36 +538,30 @@ def test_ensure_indexes_exist_creates_missing_indexes(
 
     # Set up responses for the sequence: exists check returns False, then two create responses.
     mock_transport.side_effect = [
-        False,
-        {"acknowledged": True},
-        {"acknowledged": True},
+        _mock_es_response(False, status=404),
+        _mock_es_response({"acknowledged": True}),
+        _mock_es_response({"acknowledged": True}),
     ]
 
     es_search_service.ensure_indexes_exist(indexes)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             "/aips,transfers",
             params={},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/aips",
             params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
-            },
+            body={"settings": mock.ANY, "mappings": mock.ANY},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/transfers",
             params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
-            },
+            body={"settings": mock.ANY, "mappings": mock.ANY},
         ),
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -541,35 +575,35 @@ def test_ensure_indexes_exist_skips_invalid_index_names(
 
     # Only valid indexes get created, so we expect two create responses after the exists check.
     mock_transport.side_effect = [
-        False,
-        {"acknowledged": True},
-        {"acknowledged": True},
+        _mock_es_response(False, status=404),
+        _mock_es_response({"acknowledged": True}),
+        _mock_es_response({"acknowledged": True}),
     ]
 
     es_search_service.ensure_indexes_exist(indexes)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             "/aips,invalid_index,transfers",
             params={},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/aips",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/transfers",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
     ]
@@ -592,55 +626,55 @@ def test_ensure_indexes_exist_creates_all_supported_indexes(
     indexes = ["aips", "aipfiles", "transfers", "transferfiles"]
 
     mock_transport.side_effect = [
-        False,
-        {"acknowledged": True},
-        {"acknowledged": True},
-        {"acknowledged": True},
-        {"acknowledged": True},
+        _mock_es_response(False, status=404),
+        _mock_es_response({"acknowledged": True}),
+        _mock_es_response({"acknowledged": True}),
+        _mock_es_response({"acknowledged": True}),
+        _mock_es_response({"acknowledged": True}),
     ]
 
     es_search_service.ensure_indexes_exist(indexes)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             "/aips,aipfiles,transfers,transferfiles",
             params={},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/aips",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/aipfiles",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/transfers",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             "/transferfiles",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
     ]
@@ -654,12 +688,12 @@ def test_delete_indexes_deletes_single_index(
     indexes = ["aips"]
 
     delete_response = {"acknowledged": True}
-    mock_transport.return_value = delete_response
+    mock_transport.return_value = _mock_es_response(delete_response)
 
     es_search_service.delete_indexes(indexes)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "DELETE",
             "/aips",
             params={"ignore": 404},
@@ -675,12 +709,12 @@ def test_delete_indexes_deletes_multiple_indexes(
     indexes = ["aips", "transfers"]
 
     delete_response = {"acknowledged": True}
-    mock_transport.return_value = delete_response
+    mock_transport.return_value = _mock_es_response(delete_response)
 
     es_search_service.delete_indexes(indexes)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "DELETE",
             "/aips,transfers",
             params={"ignore": 404},
@@ -704,21 +738,18 @@ def test_update_index_mappings_updates_mappings(
 ) -> None:
     index = "aips"
     mappings = {
-        "properties": {
-            "status": {"type": "keyword"},
-            "filecount": {"type": "integer"},
-        }
+        "properties": {"status": {"type": "keyword"}, "filecount": {"type": "integer"}}
     }
 
     update_response = {"acknowledged": True}
-    mock_transport.return_value = update_response
+    mock_transport.return_value = _mock_es_response(update_response)
 
     es_search_service.update_index_mappings(index, mappings)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "PUT",
-            "/aips/_mapping/_doc",
+            "/aips/_mapping",
             params={},
             body=mappings,
         ),
@@ -738,17 +769,15 @@ def test_reindex_from_remote_handles_successful_reindex(
         "connect_timeout": "30s",
         "size": 100,
     }
-    index_mappings = [
-        {"dest_index": "aips", "source_index": "aips", "source_type": "aip"},
-    ]
+    index_mappings = [{"dest_index": "aips", "source_index": "aips"}]
 
     reindex_response = {"took": 123, "total": 5, "created": 5}
-    mock_transport.return_value = reindex_response
+    mock_transport.return_value = _mock_es_response(reindex_response)
 
     result = es_search_service.reindex_from_remote(remote_config, index_mappings)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/_reindex",
             params={},
@@ -756,10 +785,9 @@ def test_reindex_from_remote_handles_successful_reindex(
                 "source": {
                     "remote": remote_config,
                     "index": "aips",
-                    "type": "aip",
                     "size": 100,
                 },
-                "dest": {"index": "aips", "type": "_doc"},
+                "dest": {"index": "aips"},
             },
         ),
     ]
@@ -810,7 +838,10 @@ def test_reindex_from_remote_handles_mixed_results(
     ]
 
     reindex_response = {"took": 123, "total": 3, "created": 3}
-    mock_transport.side_effect = [reindex_response, Exception("Failed")]
+    mock_transport.side_effect = [
+        _mock_es_response(reindex_response),
+        Exception("Failed"),
+    ]
 
     result = es_search_service.reindex_from_remote(remote_config, index_mappings)
 
@@ -827,12 +858,12 @@ def test_update_all_documents_updates_all_documents(
     index = "aipfiles"
 
     update_response = {"took": 456, "updated": 100}
-    mock_transport.return_value = update_response
+    mock_transport.return_value = _mock_es_response(update_response)
 
     result = es_search_service.update_all_documents(index)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/aipfiles/_update_by_query",
             params={},
@@ -860,17 +891,17 @@ def test_get_aip_data_returns_single_document(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [aip_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_aip_data(aip_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={},
             body={"query": {"term": {"uuid": aip_uuid}}},
@@ -895,17 +926,17 @@ def test_get_aip_data_with_fields_parameter(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [aip_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_aip_data(aip_uuid, fields=["uuid", "name"])
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"_source": b"uuid,name"},
             body={"query": {"term": {"uuid": aip_uuid}}},
@@ -923,11 +954,11 @@ def test_get_aip_data_raises_exception_when_not_found(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(AIPNotFoundError, match=f"No AIP found with uuid {aip_uuid}"):
         es_search_service.get_aip_data(aip_uuid)
@@ -941,14 +972,14 @@ def test_get_aip_data_raises_exception_when_multiple_found(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {"_id": "doc1", "_source": {"uuid": aip_uuid}},
                 {"_id": "doc2", "_source": {"uuid": aip_uuid}},
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         MultipleResultsError,
@@ -974,17 +1005,17 @@ def test_get_aipfile_data_returns_single_document(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [aipfile_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_aipfile_data(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={},
             body={"query": {"term": {"FILEUUID": file_uuid}}},
@@ -1009,19 +1040,19 @@ def test_get_aipfile_data_with_fields_parameter(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [aipfile_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_aipfile_data(
         file_uuid, fields=["FILEUUID", "filePath"]
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"_source": b"FILEUUID,filePath"},
             body={"query": {"term": {"FILEUUID": file_uuid}}},
@@ -1039,11 +1070,11 @@ def test_get_aipfile_data_raises_exception_when_not_found(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         AIPFileNotFoundError, match=f"No AIP file found with FILEUUID {file_uuid}"
@@ -1059,14 +1090,14 @@ def test_get_aipfile_data_raises_exception_when_multiple_found(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {"_id": "file1", "_source": {"FILEUUID": file_uuid}},
                 {"_id": "file2", "_source": {"FILEUUID": file_uuid}},
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         MultipleResultsError,
@@ -1093,17 +1124,17 @@ def test_get_transfer_file_tags_returns_tags_when_present(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [transfer_file_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_transfer_file_tags(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"_source": b"tags"},
             body={"query": {"term": {"fileuuid": file_uuid}}},
@@ -1129,17 +1160,17 @@ def test_get_transfer_file_tags_returns_empty_list_when_no_tags(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [transfer_file_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_transfer_file_tags(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"_source": b"tags"},
             body={"query": {"term": {"fileuuid": file_uuid}}},
@@ -1160,17 +1191,17 @@ def test_get_transfer_file_tags_returns_empty_list_when_no_source(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [transfer_file_document],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_transfer_file_tags(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"_source": b"tags"},
             body={"query": {"term": {"fileuuid": file_uuid}}},
@@ -1188,11 +1219,11 @@ def test_get_transfer_file_tags_raises_exception_when_not_found(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         TransferFileNotFoundError,
@@ -1209,14 +1240,14 @@ def test_get_transfer_file_tags_raises_exception_when_multiple_found(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {"_id": "file1", "_source": {"fileuuid": file_uuid, "tags": ["tag1"]}},
                 {"_id": "file2", "_source": {"fileuuid": file_uuid, "tags": ["tag2"]}},
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         MultipleResultsError,
@@ -1240,7 +1271,7 @@ def test_get_transfer_file_data_returns_single_result(
 
     search_response = {
         "hits": {
-            "total": 1,
+            "total": {"value": 1},
             "hits": [
                 {
                     "_id": "doc123",
@@ -1249,16 +1280,16 @@ def test_get_transfer_file_data_returns_single_result(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_transfer_file_data(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
-            params={"size": "10000"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
+            params={},
+            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
         ),
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -1281,7 +1312,7 @@ def test_get_transfer_file_data_handles_multiple_results_with_exact_match(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "doc1",
@@ -1294,16 +1325,16 @@ def test_get_transfer_file_data_handles_multiple_results_with_exact_match(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_transfer_file_data(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
-            params={"size": "10000"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
+            params={},
+            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
         ),
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -1326,7 +1357,7 @@ def test_get_transfer_file_data_uses_first_when_multiple_exact_matches(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "doc1",
@@ -1339,16 +1370,16 @@ def test_get_transfer_file_data_uses_first_when_multiple_exact_matches(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.get_transfer_file_data(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
-            params={"size": "10000"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
+            params={},
+            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
         ),
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -1371,7 +1402,7 @@ def test_get_transfer_file_data_raises_exception_when_no_exact_matches(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "doc1",
@@ -1384,7 +1415,7 @@ def test_get_transfer_file_data_raises_exception_when_no_exact_matches(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         SearchServiceError,
@@ -1393,11 +1424,11 @@ def test_get_transfer_file_data_raises_exception_when_no_exact_matches(
         es_search_service.get_transfer_file_data(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
-            params={"size": "10000"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
+            params={},
+            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
         ),
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -1411,11 +1442,11 @@ def test_get_transfer_file_data_raises_exception_when_no_results(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     with pytest.raises(
         TransferFileNotFoundError,
@@ -1424,11 +1455,11 @@ def test_get_transfer_file_data_raises_exception_when_no_results(
         es_search_service.get_transfer_file_data(file_uuid)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
-            params={"size": "10000"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
+            params={},
+            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
         ),
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -1442,12 +1473,12 @@ def test_set_transfer_file_tags_updates_tags_with_list(
     tags = ["tag1", "tag2", "tag3"]
 
     update_by_query_response = {"updated": 1}
-    mock_transport.return_value = update_by_query_response
+    mock_transport.return_value = _mock_es_response(update_by_query_response)
 
     es_search_service.set_transfer_file_tags(file_uuid, tags)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_update_by_query",
             params={},
@@ -1471,12 +1502,12 @@ def test_set_transfer_file_tags_clears_tags_with_empty_list(
     tags: list[str] = []
 
     update_by_query_response = {"updated": 1}
-    mock_transport.return_value = update_by_query_response
+    mock_transport.return_value = _mock_es_response(update_by_query_response)
 
     es_search_service.set_transfer_file_tags(file_uuid, tags)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_update_by_query",
             params={},
@@ -1500,12 +1531,12 @@ def test_set_transfer_file_tags_escapes_forward_slashes_in_uuid(
     tags = ["tag1"]
 
     update_by_query_response = {"updated": 1}
-    mock_transport.return_value = update_by_query_response
+    mock_transport.return_value = _mock_es_response(update_by_query_response)
 
     es_search_service.set_transfer_file_tags(file_uuid, tags)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_update_by_query",
             params={},
@@ -1529,12 +1560,12 @@ def test_set_transfer_file_tags_handles_single_tag(
     tags = ["single_tag"]
 
     update_by_query_response = {"updated": 1}
-    mock_transport.return_value = update_by_query_response
+    mock_transport.return_value = _mock_es_response(update_by_query_response)
 
     es_search_service.set_transfer_file_tags(file_uuid, tags)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "POST",
             "/transferfiles/_update_by_query",
             params={},
@@ -1567,7 +1598,7 @@ def test_search_transfer_files_returns_search_results(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "file1",
@@ -1588,13 +1619,13 @@ def test_search_transfer_files_returns_search_results(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -1612,17 +1643,17 @@ def test_search_transfer_files_uses_max_query_size(
 
     search_response = {
         "hits": {
-            "total": 5000,
+            "total": {"value": 5000},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     es_search_service.search_transfer_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -1654,7 +1685,7 @@ def test_search_transfer_files_with_complex_query(
 
     search_response = {
         "hits": {
-            "total": 150,
+            "total": {"value": 150},
             "hits": [
                 {
                     "_id": "file1",
@@ -1670,13 +1701,13 @@ def test_search_transfer_files_with_complex_query(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -1694,17 +1725,17 @@ def test_search_transfer_files_returns_empty_results(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -1722,17 +1753,17 @@ def test_search_transfer_files_with_custom_size(
 
     search_response = {
         "hits": {
-            "total": 50,
+            "total": {"value": 50},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query, size=50)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "50"},
             body=query,
@@ -1750,17 +1781,17 @@ def test_search_transfer_files_with_pagination(
 
     search_response = {
         "hits": {
-            "total": 100,
+            "total": {"value": 100},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query, size=20, from_=40)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "20", "from": "40"},
             body=query,
@@ -1778,19 +1809,19 @@ def test_search_transfer_files_with_sort(
 
     search_response = {
         "hits": {
-            "total": 10,
+            "total": {"value": 10},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(
         query, sort=SortSpec(field="filename", order="asc")
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "10000", "sort": b"filename:asc"},
             body=query,
@@ -1809,7 +1840,7 @@ def test_search_transfer_files_with_fields(
 
     search_response = {
         "hits": {
-            "total": 5,
+            "total": {"value": 5},
             "hits": [
                 {
                     "_id": "file1",
@@ -1822,13 +1853,13 @@ def test_search_transfer_files_with_fields(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query, fields=fields)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"_source": b"filename,fileuuid,sipuuid", "size": "10000"},
             body=query,
@@ -1856,7 +1887,7 @@ def test_search_transfer_files_with_all_parameters(
 
     search_response = {
         "hits": {
-            "total": 25,
+            "total": {"value": 25},
             "hits": [
                 {
                     "_id": "file1",
@@ -1871,7 +1902,7 @@ def test_search_transfer_files_with_all_parameters(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(
         query=query,
@@ -1882,8 +1913,8 @@ def test_search_transfer_files_with_all_parameters(
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={
                 "size": "10",
@@ -1906,17 +1937,17 @@ def test_search_transfer_files_with_zero_from_parameter(
 
     search_response = {
         "hits": {
-            "total": 30,
+            "total": {"value": 30},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfer_files(query, from_=0)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transferfiles/_search",
             params={"size": "10000", "from": "0"},
             body=query,
@@ -1943,7 +1974,7 @@ def test_search_transfers_returns_search_results(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "transfer1",
@@ -1964,13 +1995,13 @@ def test_search_transfers_returns_search_results(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000"},
             body=query,
@@ -1988,17 +2019,17 @@ def test_search_transfers_uses_max_query_size(
 
     search_response = {
         "hits": {
-            "total": 5000,
+            "total": {"value": 5000},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     es_search_service.search_transfers(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000"},
             body=query,
@@ -2030,7 +2061,7 @@ def test_search_transfers_with_complex_query(
 
     search_response = {
         "hits": {
-            "total": 150,
+            "total": {"value": 150},
             "hits": [
                 {
                     "_id": "transfer1",
@@ -2046,13 +2077,13 @@ def test_search_transfers_with_complex_query(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000"},
             body=query,
@@ -2070,17 +2101,17 @@ def test_search_transfers_returns_empty_results(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000"},
             body=query,
@@ -2098,17 +2129,17 @@ def test_search_transfers_with_custom_size(
 
     search_response = {
         "hits": {
-            "total": 50,
+            "total": {"value": 50},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query, size=50)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "50"},
             body=query,
@@ -2126,17 +2157,17 @@ def test_search_transfers_with_pagination(
 
     search_response = {
         "hits": {
-            "total": 100,
+            "total": {"value": 100},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query, size=20, from_=40)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "20", "from": "40"},
             body=query,
@@ -2154,19 +2185,19 @@ def test_search_transfers_with_sort(
 
     search_response = {
         "hits": {
-            "total": 10,
+            "total": {"value": 10},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(
         query, sort=SortSpec(field="name", order="asc")
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000", "sort": b"name:asc"},
             body=query,
@@ -2185,7 +2216,7 @@ def test_search_transfers_with_fields(
 
     search_response = {
         "hits": {
-            "total": 5,
+            "total": {"value": 5},
             "hits": [
                 {
                     "_id": "transfer1",
@@ -2198,13 +2229,13 @@ def test_search_transfers_with_fields(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query, fields=fields)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000", "_source": b"name,uuid,status"},
             body=query,
@@ -2232,7 +2263,7 @@ def test_search_transfers_with_all_parameters(
 
     search_response = {
         "hits": {
-            "total": 25,
+            "total": {"value": 25},
             "hits": [
                 {
                     "_id": "transfer1",
@@ -2247,7 +2278,7 @@ def test_search_transfers_with_all_parameters(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(
         query=query,
@@ -2258,8 +2289,8 @@ def test_search_transfers_with_all_parameters(
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={
                 "size": "10",
@@ -2282,17 +2313,17 @@ def test_search_transfers_with_zero_from_parameter(
 
     search_response = {
         "hits": {
-            "total": 30,
+            "total": {"value": 30},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_transfers(query, from_=0)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/transfers/_search",
             params={"size": "10000", "from": "0"},
             body=query,
@@ -2319,7 +2350,7 @@ def test_search_aips_returns_search_results(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "aip1",
@@ -2340,13 +2371,13 @@ def test_search_aips_returns_search_results(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000"},
             body=query,
@@ -2364,17 +2395,17 @@ def test_search_aips_uses_max_query_size(
 
     search_response = {
         "hits": {
-            "total": 5000,
+            "total": {"value": 5000},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     es_search_service.search_aips(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000"},
             body=query,
@@ -2406,7 +2437,7 @@ def test_search_aips_with_complex_query(
 
     search_response = {
         "hits": {
-            "total": 150,
+            "total": {"value": 150},
             "hits": [
                 {
                     "_id": "aip1",
@@ -2421,13 +2452,13 @@ def test_search_aips_with_complex_query(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000"},
             body=query,
@@ -2445,17 +2476,17 @@ def test_search_aips_returns_empty_results(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000"},
             body=query,
@@ -2473,17 +2504,17 @@ def test_search_aips_with_custom_size(
 
     search_response = {
         "hits": {
-            "total": 50,
+            "total": {"value": 50},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query, size=50)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "50"},
             body=query,
@@ -2501,17 +2532,17 @@ def test_search_aips_with_pagination(
 
     search_response = {
         "hits": {
-            "total": 100,
+            "total": {"value": 100},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query, size=20, from_=40)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "20", "from": "40"},
             body=query,
@@ -2529,19 +2560,19 @@ def test_search_aips_with_sort(
 
     search_response = {
         "hits": {
-            "total": 10,
+            "total": {"value": 10},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(
         query, sort=SortSpec(field="name", order="asc")
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000", "sort": b"name:asc"},
             body=query,
@@ -2560,7 +2591,7 @@ def test_search_aips_with_fields(
 
     search_response = {
         "hits": {
-            "total": 5,
+            "total": {"value": 5},
             "hits": [
                 {
                     "_id": "aip1",
@@ -2573,13 +2604,13 @@ def test_search_aips_with_fields(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query, fields=fields)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000", "_source": b"name,uuid,status"},
             body=query,
@@ -2607,7 +2638,7 @@ def test_search_aips_with_all_parameters(
 
     search_response = {
         "hits": {
-            "total": 25,
+            "total": {"value": 25},
             "hits": [
                 {
                     "_id": "aip1",
@@ -2622,7 +2653,7 @@ def test_search_aips_with_all_parameters(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(
         query=query,
@@ -2633,8 +2664,8 @@ def test_search_aips_with_all_parameters(
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={
                 "size": "10",
@@ -2657,17 +2688,17 @@ def test_search_aips_with_zero_from_parameter(
 
     search_response = {
         "hits": {
-            "total": 30,
+            "total": {"value": 30},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aips(query, from_=0)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aips/_search",
             params={"size": "10000", "from": "0"},
             body=query,
@@ -2694,7 +2725,7 @@ def test_search_aip_files_returns_search_results(
 
     search_response = {
         "hits": {
-            "total": 2,
+            "total": {"value": 2},
             "hits": [
                 {
                     "_id": "aipfile1",
@@ -2717,13 +2748,13 @@ def test_search_aip_files_returns_search_results(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -2741,17 +2772,17 @@ def test_search_aip_files_uses_max_query_size(
 
     search_response = {
         "hits": {
-            "total": 5000,
+            "total": {"value": 5000},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     es_search_service.search_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -2783,7 +2814,7 @@ def test_search_aip_files_with_complex_query(
 
     search_response = {
         "hits": {
-            "total": 150,
+            "total": {"value": 150},
             "hits": [
                 {
                     "_id": "aipfile1",
@@ -2799,13 +2830,13 @@ def test_search_aip_files_with_complex_query(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -2823,17 +2854,17 @@ def test_search_aip_files_returns_empty_results(
 
     search_response = {
         "hits": {
-            "total": 0,
+            "total": {"value": 0},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000"},
             body=query,
@@ -2851,17 +2882,17 @@ def test_search_aip_files_with_custom_size(
 
     search_response = {
         "hits": {
-            "total": 50,
+            "total": {"value": 50},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query, size=50)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "50"},
             body=query,
@@ -2879,17 +2910,17 @@ def test_search_aip_files_with_pagination(
 
     search_response = {
         "hits": {
-            "total": 100,
+            "total": {"value": 100},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query, size=20, from_=40)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "20", "from": "40"},
             body=query,
@@ -2907,19 +2938,19 @@ def test_search_aip_files_with_sort(
 
     search_response = {
         "hits": {
-            "total": 10,
+            "total": {"value": 10},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(
         query, sort=SortSpec(field="filePath", order="asc")
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000", "sort": b"filePath:asc"},
             body=query,
@@ -2938,7 +2969,7 @@ def test_search_aip_files_with_fields(
 
     search_response = {
         "hits": {
-            "total": 5,
+            "total": {"value": 5},
             "hits": [
                 {
                     "_id": "aipfile1",
@@ -2951,13 +2982,13 @@ def test_search_aip_files_with_fields(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query, fields=fields)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000", "_source": b"filePath,FILEUUID,AIPUUID"},
             body=query,
@@ -2985,7 +3016,7 @@ def test_search_aip_files_with_all_parameters(
 
     search_response = {
         "hits": {
-            "total": 25,
+            "total": {"value": 25},
             "hits": [
                 {
                     "_id": "aipfile1",
@@ -3000,7 +3031,7 @@ def test_search_aip_files_with_all_parameters(
             ],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(
         query=query,
@@ -3011,8 +3042,8 @@ def test_search_aip_files_with_all_parameters(
     )
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={
                 "size": "10",
@@ -3035,17 +3066,17 @@ def test_search_aip_files_with_zero_from_parameter(
 
     search_response = {
         "hits": {
-            "total": 30,
+            "total": {"value": 30},
             "hits": [],
         }
     }
-    mock_transport.return_value = search_response
+    mock_transport.return_value = _mock_es_response(search_response)
 
     result = es_search_service.search_aip_files(query, from_=0)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_search",
             params={"size": "10000", "from": "0"},
             body=query,
@@ -3070,17 +3101,16 @@ def test_get_aipfile_by_document_id_returns_document(
             "status": "UPLOADED",
         },
         "_index": "aipfiles",
-        "_type": "_doc",
         "_version": 1,
         "found": True,
     }
 
-    mock_transport.return_value = aipfile_document
+    mock_transport.return_value = _mock_es_response(aipfile_document)
 
     result = es_search_service.get_aipfile_by_document_id(document_id)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "GET",
             "/aipfiles/_doc/aipfile123",
             params={},
@@ -3105,7 +3135,7 @@ def test_get_aipfile_by_document_id_raises_exception_when_not_found(
         es_search_service.get_aipfile_by_document_id(document_id)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "GET",
             "/aipfiles/_doc/nonexistent_doc",
             params={},
@@ -3129,13 +3159,13 @@ def test_count_aip_files_returns_count(
     }
 
     count_response = {"count": 42}
-    mock_transport.return_value = count_response
+    mock_transport.return_value = _mock_es_response(count_response)
 
     result = es_search_service.count_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_count",
             params={},
             body=query,
@@ -3156,8 +3186,8 @@ def test_count_aip_files_returns_zero_on_exception(
     result = es_search_service.count_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_count",
             params={},
             body=query,
@@ -3174,13 +3204,13 @@ def test_count_aip_files_returns_zero_for_empty_result(
     query: dict[str, Any] = {"query": {"term": {"nonexistent_field": "value"}}}
 
     count_response = {"count": 0}
-    mock_transport.return_value = count_response
+    mock_transport.return_value = _mock_es_response(count_response)
 
     result = es_search_service.count_aip_files(query)
 
     expected_calls = [
-        mock.call(
-            "GET",
+        _make_es_call(
+            "POST",
             "/aipfiles/_count",
             params={},
             body=query,
@@ -3240,12 +3270,12 @@ def test_get_cluster_info_returns_elasticsearch_info(
     elasticsearch_info: dict[str, Any],
     expected_result: str,
 ) -> None:
-    mock_transport.return_value = elasticsearch_info
+    mock_transport.return_value = _mock_es_response(elasticsearch_info)
 
     result = es_search_service.get_cluster_info()
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "GET",
             "/",
             params={},
@@ -3282,7 +3312,7 @@ def test_get_cluster_info_raises_exception_when_connection_fails(
         es_search_service.get_cluster_info()
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "GET",
             "/",
             params={},
@@ -3311,9 +3341,9 @@ def test_index_aip_successfully_indexes_aip_and_files(
     aip_index_response = {"_id": "aip1", "result": "created"}
 
     mock_transport.side_effect = [
-        bulk_response,
-        cluster_health_response,
-        aip_index_response,
+        _mock_es_response(bulk_response),
+        _mock_es_response(cluster_health_response),
+        _mock_es_response(aip_index_response),
     ]
 
     result = es_search_service.index_aip(
@@ -3334,15 +3364,14 @@ def test_index_aip_successfully_indexes_aip_and_files(
     mock_aip_parser.files.assert_called_once()
 
     expected_calls = [
-        mock.call(
-            "POST",
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
-            body=mock.ANY,  # NDJSON string containing file data.
-            headers={"content-type": "application/x-ndjson"},
+            body=mock.ANY,
         ),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
             "POST",
             "/aips/_doc",
             params={},
@@ -3441,12 +3470,11 @@ def test_index_aip_handles_elasticsearch_exception_and_returns_error(
 
     mock_aip_parser.files.assert_called_once()
     expected_calls = [
-        mock.call(
-            "POST",
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         )
     ]
     assert mock_transport.mock_calls == expected_calls
@@ -3473,9 +3501,9 @@ def test_index_aip_with_optional_parameters(
     aip_index_response = {"_id": "aip2", "result": "created"}
 
     mock_transport.side_effect = [
-        bulk_response,
-        cluster_health_response,
-        aip_index_response,
+        _mock_es_response(bulk_response),
+        _mock_es_response(cluster_health_response),
+        _mock_es_response(aip_index_response),
     ]
 
     result = es_search_service.index_aip(
@@ -3496,15 +3524,14 @@ def test_index_aip_with_optional_parameters(
     mock_aip_parser.files.assert_called_once()
 
     expected_calls = [
-        mock.call(
-            "POST",
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         ),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
             "POST",
             "/aips/_doc",
             params={},
@@ -3553,10 +3580,10 @@ def test_index_aip_waits_for_cluster_health_before_indexing(
     aip_index_response = {"_id": "aip1", "result": "created"}
 
     mock_transport.side_effect = [
-        bulk_response,
-        red_health_response,
-        yellow_health_response,
-        aip_index_response,
+        _mock_es_response(bulk_response),
+        _mock_es_response(red_health_response),
+        _mock_es_response(yellow_health_response),
+        _mock_es_response(aip_index_response),
     ]
 
     with mock.patch("archivematica.search.service.time.sleep") as mock_sleep:
@@ -3579,16 +3606,15 @@ def test_index_aip_waits_for_cluster_health_before_indexing(
     mock_sleep.assert_called_once_with(10)
 
     expected_calls = [
-        mock.call(
-            "POST",
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         ),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
             "POST",
             "/aips/_doc",
             params={},
@@ -3634,10 +3660,10 @@ def test_index_transfer_successfully_indexes_transfer_and_files(
     transfer_index_response = {"_id": "transfer1", "result": "created"}
 
     mock_transport.side_effect = [
-        cluster_health_response,
-        bulk_response,
-        cluster_health_response,
-        transfer_index_response,
+        _mock_es_response(cluster_health_response),
+        _mock_es_response(bulk_response),
+        _mock_es_response(cluster_health_response),
+        _mock_es_response(transfer_index_response),
     ]
 
     result = es_search_service.index_transfer(
@@ -3653,16 +3679,15 @@ def test_index_transfer_successfully_indexes_transfer_and_files(
     )
 
     expected_calls = [
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
-            "POST",
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         ),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
             "POST",
             "/transfers/_doc",
             params={},
@@ -3711,13 +3736,12 @@ def test_index_transfer_handles_exception_and_returns_error(
         )
 
     # First cluster health check (10 retries), then bulk index, then subsequent health checks fail
-    expected_calls = [mock.call("GET", "/_cluster/health", params={})] * 10 + [
-        mock.call(
-            "POST",
+    expected_calls = [_make_es_call("GET", "/_cluster/health", params={})] * 10 + [
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         )
     ]
     mock_sleep.assert_called_with(10)
@@ -3744,10 +3768,10 @@ def test_index_transfer_with_optional_parameters(
     transfer_index_response = {"_id": "transfer2", "result": "created"}
 
     mock_transport.side_effect = [
-        cluster_health_response,
-        bulk_response,
-        cluster_health_response,
-        transfer_index_response,
+        _mock_es_response(cluster_health_response),
+        _mock_es_response(bulk_response),
+        _mock_es_response(cluster_health_response),
+        _mock_es_response(transfer_index_response),
     ]
 
     result = es_search_service.index_transfer(
@@ -3763,16 +3787,15 @@ def test_index_transfer_with_optional_parameters(
     )
 
     expected_calls = [
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
-            "POST",
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         ),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
             "POST",
             "/transfers/_doc",
             params={},
@@ -3811,12 +3834,12 @@ def test_index_transfer_waits_for_cluster_health_before_indexing(
     transfer_index_response = {"_id": "transfer1", "result": "created"}
 
     mock_transport.side_effect = [
-        red_health_response,
-        yellow_health_response,
-        bulk_response,
-        red_health_response,
-        yellow_health_response,
-        transfer_index_response,
+        _mock_es_response(red_health_response),
+        _mock_es_response(yellow_health_response),
+        _mock_es_response(bulk_response),
+        _mock_es_response(red_health_response),
+        _mock_es_response(yellow_health_response),
+        _mock_es_response(transfer_index_response),
     ]
 
     with mock.patch("archivematica.search.service.time.sleep") as mock_sleep:
@@ -3836,18 +3859,17 @@ def test_index_transfer_waits_for_cluster_health_before_indexing(
     assert mock_sleep.call_count == 2
 
     expected_calls = [
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
-            "POST",
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
+            "PUT",
             "/_bulk",
             params={},
             body=mock.ANY,
-            headers={"content-type": "application/x-ndjson"},
         ),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call("GET", "/_cluster/health", params={}),
-        mock.call(
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call("GET", "/_cluster/health", params={}),
+        _make_es_call(
             "POST",
             "/transfers/_doc",
             params={},
@@ -3871,29 +3893,33 @@ def test_setup_search_service_creates_elasticsearch_service_with_default_params(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    result = setup_search_service("localhost:9200")
+    mock_transport.return_value = _mock_es_response(True)
+    result = setup_search_service("http://localhost:9200")
 
     assert isinstance(result, ElasticsearchSearchService)
-    assert result.client.transport.hosts[0]["host"] == "localhost"
-    assert result.client.transport.hosts[0]["port"] == 9200
+    nodes = list(result.client.transport.node_pool.all())
+    assert nodes[0].host == "localhost"
+    assert nodes[0].port == 9200
 
 
 def test_setup_search_service_creates_elasticsearch_service_with_custom_params(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    hosts = ["localhost:9200", "localhost:9201"]
+    mock_transport.return_value = _mock_es_response(True)
+    hosts = ["http://localhost:9200", "http://localhost:9201"]
     timeout = 60
     enabled = (AIPS_INDEX,)
 
     result = setup_search_service(hosts, timeout, enabled)
 
     assert isinstance(result, ElasticsearchSearchService)
-    assert len(result.client.transport.hosts) == 2
-    assert result.client.transport.hosts[0]["host"] == "localhost"
-    assert result.client.transport.hosts[0]["port"] == 9200
-    assert result.client.transport.hosts[1]["host"] == "localhost"
-    assert result.client.transport.hosts[1]["port"] == 9201
+    nodes = sorted(result.client.transport.node_pool.all(), key=lambda h: h.port)
+    assert len(nodes) == 2
+    assert nodes[0].host == "localhost"
+    assert nodes[0].port == 9200
+    assert nodes[1].host == "localhost"
+    assert nodes[1].port == 9201
 
 
 def test_setup_search_service_creates_aips_and_transfers_indexes_by_default(
@@ -3901,55 +3927,55 @@ def test_setup_search_service_creates_aips_and_transfers_indexes_by_default(
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
     mock_transport.side_effect = [
-        False,  # Exists check returns False.
-        {"acknowledged": True},  # AIPs create.
-        {"acknowledged": True},  # AIP files create.
-        {"acknowledged": True},  # Transfers create.
-        {"acknowledged": True},  # Transfer files create.
+        _mock_es_response(False, status=404),  # Exists check returns False.
+        _mock_es_response({"acknowledged": True}),  # AIPs create.
+        _mock_es_response({"acknowledged": True}),  # AIP files create.
+        _mock_es_response({"acknowledged": True}),  # Transfers create.
+        _mock_es_response({"acknowledged": True}),  # Transfer files create.
     ]
 
-    es_search_service = setup_search_service("localhost:9200")
+    setup_search_service("http://localhost:9200")
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             f"/{AIPS_INDEX},{AIP_FILES_INDEX},{TRANSFERS_INDEX},{TRANSFER_FILES_INDEX}",
             params={},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{AIPS_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{AIP_FILES_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{TRANSFERS_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{TRANSFER_FILES_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
     ]
@@ -3961,36 +3987,36 @@ def test_setup_search_service_creates_only_aips_indexes_when_enabled(
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
     mock_transport.side_effect = [
-        False,  # Exists check returns False.
-        {"acknowledged": True},  # AIPs create.
-        {"acknowledged": True},  # AIP files create.
+        _mock_es_response(False, status=404),  # Exists check returns False.
+        _mock_es_response({"acknowledged": True}),  # AIPs create.
+        _mock_es_response({"acknowledged": True}),  # AIP files create.
     ]
     enabled = (AIPS_INDEX,)
 
-    es_search_service = setup_search_service("localhost:9200", enabled=enabled)
+    setup_search_service("http://localhost:9200", enabled=enabled)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             f"/{AIPS_INDEX},{AIP_FILES_INDEX}",
             params={},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{AIPS_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{AIP_FILES_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
     ]
@@ -4002,36 +4028,36 @@ def test_setup_search_service_creates_only_transfers_indexes_when_enabled(
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
     mock_transport.side_effect = [
-        False,  # Exists check returns False.
-        {"acknowledged": True},  # Transfers create.
-        {"acknowledged": True},  # Transfer files create.
+        _mock_es_response(False, status=404),  # Exists check returns False.
+        _mock_es_response({"acknowledged": True}),  # Transfers create.
+        _mock_es_response({"acknowledged": True}),  # Transfer files create.
     ]
     enabled = (TRANSFERS_INDEX,)
 
-    es_search_service = setup_search_service("localhost:9200", enabled=enabled)
+    setup_search_service("http://localhost:9200", enabled=enabled)
 
     expected_calls = [
-        mock.call(
+        _make_es_call(
             "HEAD",
             f"/{TRANSFERS_INDEX},{TRANSFER_FILES_INDEX}",
             params={},
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{TRANSFERS_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
-        mock.call(
+        _make_es_call(
             "PUT",
             f"/{TRANSFER_FILES_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
-                "mappings": {es_search_service.doc_type: mock.ANY},
+                "mappings": mock.ANY,
             },
         ),
     ]
@@ -4046,7 +4072,7 @@ def test_setup_search_service_logs_warning_when_no_indexes_enabled(
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
     enabled = ()
 
-    setup_search_service("localhost:9200", enabled=enabled)
+    setup_search_service("http://localhost:9200", enabled=enabled)
 
     # Should not make any transport calls for index operations.
     assert mock_transport.call_count == 0
@@ -4057,7 +4083,8 @@ def test_setup_search_service_sets_global_instance(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    result = setup_search_service("localhost:9200")
+    mock_transport.return_value = _mock_es_response(True)
+    result = setup_search_service("http://localhost:9200")
 
     assert get_search_service_instance() is result
 
@@ -4066,34 +4093,40 @@ def test_setup_search_service_accepts_string_hosts(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    result = setup_search_service("localhost:9200")
+    mock_transport.return_value = _mock_es_response(True)
+    result = setup_search_service("http://localhost:9200")
 
     assert isinstance(result, ElasticsearchSearchService)
-    assert result.client.transport.hosts[0]["host"] == "localhost"
+    nodes = list(result.client.transport.node_pool.all())
+    assert nodes[0].host == "localhost"
 
 
 def test_setup_search_service_accepts_list_hosts(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    hosts = ["localhost:9200", "localhost:9201"]
+    mock_transport.return_value = _mock_es_response(True)
+    hosts = ["http://localhost:9200", "http://localhost:9201"]
 
     result = setup_search_service(hosts)
 
     assert isinstance(result, ElasticsearchSearchService)
-    assert len(result.client.transport.hosts) == 2
+    nodes = list(result.client.transport.node_pool.all())
+    assert len(nodes) == 2
 
 
 def test_setup_search_service_accepts_tuple_hosts(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    hosts = ("localhost:9200", "localhost:9201")
+    mock_transport.return_value = _mock_es_response(True)
+    hosts = ("http://localhost:9200", "http://localhost:9201")
 
     result = setup_search_service(hosts)
 
     assert isinstance(result, ElasticsearchSearchService)
-    assert len(result.client.transport.hosts) == 2
+    nodes = list(result.client.transport.node_pool.all())
+    assert len(nodes) == 2
 
 
 def test_setup_search_service_from_conf_calls_setup_with_settings_values() -> None:
@@ -4102,14 +4135,14 @@ def test_setup_search_service_from_conf_calls_setup_with_settings_values() -> No
         mock_setup.return_value = mock_service
 
         mock_settings = mock.Mock()
-        mock_settings.ELASTICSEARCH_SERVER = "localhost:9200"
+        mock_settings.ELASTICSEARCH_SERVER = "http://localhost:9200"
         mock_settings.ELASTICSEARCH_TIMEOUT = 30
         mock_settings.SEARCH_ENABLED = (AIPS_INDEX, TRANSFERS_INDEX)
 
         result = setup_search_service_from_conf(mock_settings)
 
         mock_setup.assert_called_once_with(
-            "localhost:9200", 30, (AIPS_INDEX, TRANSFERS_INDEX)
+            "http://localhost:9200", 30, (AIPS_INDEX, TRANSFERS_INDEX)
         )
         assert result is mock_service
 
@@ -4131,9 +4164,10 @@ def test_setup_search_service_from_conf_with_different_settings() -> None:
 
 
 def test_get_search_service_instance_returns_none_when_not_initialized(
-    monkeypatch: pytest.MonkeyPatch,
+    mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
+    mock_transport.return_value = _mock_es_response(True)
     result = get_search_service_instance()
 
     assert result is None
@@ -4143,8 +4177,9 @@ def test_get_search_service_instance_returns_service_after_setup(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
+    mock_transport.return_value = _mock_es_response(True)
     assert get_search_service_instance() is None
 
-    es_search_service = setup_search_service("localhost:9200")
+    es_search_service = setup_search_service("http://localhost:9200")
     assert get_search_service_instance() is es_search_service
     assert isinstance(get_search_service_instance(), ElasticsearchSearchService)

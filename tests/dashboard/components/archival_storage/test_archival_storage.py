@@ -302,7 +302,7 @@ def test_search_as_csv(
                     }
                 },
             ],
-            "total": 2,
+            "total": {"value": 2},
         }
     }
 
@@ -361,7 +361,9 @@ def test_search_as_csv_invalid_route(
             "aip_uuids": {"buckets": [{"key": "mocked", "doc_count": "mocked"}]}
         },
     }
-    mock_search_service.search_aips.return_value = {"hits": {"total": MOCK_TOTAL}}
+    mock_search_service.search_aips.return_value = {
+        "hits": {"total": {"value": MOCK_TOTAL}}
+    }
     search_augment_aip_results.return_value = [AUG_RESULTS]
     REQUEST_PARAMS = {"requestFile": False}
     response = admin_client.get(
