@@ -1,12 +1,12 @@
 .PHONY: pip-compile
 pip-compile:  # Compile pip requirements
-	pip-compile --allow-unsafe --output-file requirements.txt requirements.in
-	pip-compile --allow-unsafe --output-file requirements-dev.txt requirements-dev.in
+	pip-compile --allow-unsafe --output-file requirements.txt pyproject.toml
+	pip-compile --allow-unsafe --extra dev --output-file requirements-dev.txt pyproject.toml
 
 .PHONY: pip-upgrade
 pip-upgrade:  # Upgrade pip requirements
-	pip-compile --allow-unsafe --upgrade --output-file requirements.txt requirements.in
-	pip-compile --allow-unsafe --upgrade --output-file requirements-dev.txt requirements-dev.in
+	pip-compile --allow-unsafe --upgrade --output-file requirements.txt pyproject.toml
+	pip-compile --allow-unsafe --upgrade --extra dev --output-file requirements-dev.txt pyproject.toml
 
 .PHONY: pip-sync
 pip-sync:  # Sync virtualenv
