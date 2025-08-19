@@ -18,7 +18,141 @@ contributors - thank you!
 Questions about a release or the release notes? Ask on the
 [Archivematica User Group](https://groups.google.com/g/archivematica)!
 
-## (Current Release) Archivematica 1.17.1
+## (Current Release) Archivematica 1.18.0 and Storage Service 0.24.0
+
+*Release date*: September 26, 2025
+
+[Original release notes][1.18.0 release notes].
+
+[1.18.0 release notes]: https://wiki.archivematica.org/Archivematica_1.18.0_and_Storage_Service_0.24.0_release_notes
+
+### Environments for 1.18.0
+
+Please see the [installation instructions][1.18.0 installation instructions].
+
+[1.18.0 installation instructions]: https://www.archivematica.org/en/docs/archivematica-1.18/admin-manual/installation-setup/installation/installation/#installation
+
+Archivematica 1.18.0 and Storage Service 0.24.0 have been tested in the
+following environments:
+
+- Ubuntu 24.04 64-bit Server Edition
+- Rocky Linux 9 x86_64
+
+For development purposes, most of our developers prefer to use Docker
+containers. These and all above environments are linked from the installation
+instructions above.
+
+### Changed in 1.18.0
+
+#### Elasticsearch 8.x
+
+- Issue: <https://github.com/archivematica/Issues/issues/1752>
+
+Archivematica 1.18.0 no longer supports Elasticsearch 6.x and is now compatible
+with version 8.x. For instructions on migrating your Elasticsearch data, refer
+to the Upgrade Elasticsearch from 6.x to 8.x section of the Upgrade page in the documentation.
+
+#### Ubuntu 24.04
+
+- Issue: <https://github.com/archivematica/Issues/issues/1729>
+
+Archivematica 1.18.0 supports Ubuntu 24.04 and drops support for Ubuntu 20.04.
+
+#### JHOVE validation commands
+
+- Issue: <https://github.com/archivematica/Issues/issues/1723>
+
+New JHOVE validation commands have been implemented to prevent false positives
+that occur when JHOVE encounters the built-in BYTESTREAM module following
+validation errors. The existing validation rules have been updated to use these
+new commands.
+
+The new commands also capture errors from the command output and include them in
+the outcome detail note of the validation PREMIS event within the METS file.
+
+Special thanks to Felicitas Günther for sharing their error-handling implementation.
+
+#### JHOVE 1.34.0
+
+- Issue: <https://github.com/archivematica/Issues/issues/1730>
+
+#### PRONOM v120
+
+- Issue: <https://github.com/archivematica/Issues/issues/1725>
+
+#### Cookie configuration improvements
+
+New application variables have been added to control cookie flags (Secure,
+HttpOnly, SameSite) in the Archivematica Dashboard and Storage Service. This
+change enhances session protection and reduces risks such as session hijacking
+and cross-site request forgery, particularly in HTTPS deployments.
+
+Because default values for several cookie-related settings have changed, this
+update is backward incompatible with previous deployments. In particular, if
+your deployment is not using HTTPS, you must explicitly set the
+`*_SESSION_COOKIE_SECURE` and `*_CSRF_COOKIE_SECURE` application variables to
+`false` to restore the previous behavior. Deployments already configured with
+HTTPS should not be affected by these changes. Administrators should review
+their settings to take advantage of these options ensuring deployment
+configurations are updated to align with these stricter defaults.
+
+**Note on OIDC authentication**: If your deployment uses OIDC authentication
+across different domains, you may need to adjust the `*_SESSION_COOKIE_SAMESITE`
+settings. By default, they are set to `Strict`, which may prevent cross-domain
+login flows. In such cases, relax the settings to `Lax` to allow OIDC
+authentication to function correctly across domains.
+
+##### Dashboard application variables
+
+| Variable Name                                             | Previous Value | New Value |
+|-----------------------------------------------------------|----------------|-----------|
+| ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE   | false          | true      |
+| ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_HTTPONLY | false          | true      |
+| ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE | Lax            | Strict    |
+| ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE      | false          | true      |
+| ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_HTTPONLY    | false          | false     |
+| ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SAMESITE    | Lax            | Strict    |
+
+##### Storage Service application-specific environment variables
+
+| Variable Name           | Previous Value | New Value |
+|-------------------------|----------------|-----------|
+| SESSION_COOKIE_SECURE   | false          | true      |
+| SESSION_COOKIE_HTTPONLY | false          | true      |
+| SESSION_COOKIE_SAMESITE | Lax            | Strict    |
+| CSRF_COOKIE_SECURE      | false          | true      |
+| CSRF_COOKIE_HTTPONLY    | false          | true      |
+| CSRF_COOKIE_SAMESITE    | Lax            | Strict    |
+
+### Fixed in 1.18.0
+
+#### Users must re-authenticate when changing their passwords
+
+- Issue: <https://github.com/archivematica/Issues/issues/1757>
+
+#### User API keys are not displayed anymore
+
+- Issue: <https://github.com/archivematica/Issues/issues/1736>
+- Issue: <https://github.com/archivematica/Issues/issues/1738>
+
+#### METS file generation works with bags with no metadata
+
+- Issue: <https://github.com/archivematica/Issues/issues/1697>
+
+#### Transfer status check has been optimized
+
+- Issue: <https://github.com/archivematica/Issues/issues/1741>
+
+Special thanks to [Liam Lloyd-Tucker](https://github.com/liam-lloyd) for this contribution.
+
+#### Transcribe job handles invalid arguments
+
+- Issue: <https://github.com/archivematica/Issues/issues/1751>
+
+Please see the 1.18.0 milestone in GitHub for all issues addressed in this
+release: <https://github.com/archivematica/Issues/milestone/27?closed=1>.
+
+## Archivematica 1.17.1
 
 *Release date*: May 20, 2025
 
