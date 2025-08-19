@@ -167,6 +167,36 @@ CONFIG_MAPPING = {
     },
     "site_url": {"section": "Dashboard", "option": "site_url", "type": "string"},
     "time_zone": {"section": "Dashboard", "option": "time_zone", "type": "string"},
+    "session_cookie_secure": {
+        "section": "Dashboard",
+        "option": "session_cookie_secure",
+        "type": "boolean",
+    },
+    "session_cookie_httponly": {
+        "section": "Dashboard",
+        "option": "session_cookie_httponly",
+        "type": "boolean",
+    },
+    "session_cookie_samesite": {
+        "section": "Dashboard",
+        "option": "session_cookie_samesite",
+        "type": "string",
+    },
+    "csrf_cookie_secure": {
+        "section": "Dashboard",
+        "option": "csrf_cookie_secure",
+        "type": "boolean",
+    },
+    "csrf_cookie_httponly": {
+        "section": "Dashboard",
+        "option": "csrf_cookie_httponly",
+        "type": "boolean",
+    },
+    "csrf_cookie_samesite": {
+        "section": "Dashboard",
+        "option": "csrf_cookie_samesite",
+        "type": "string",
+    },
     # [Dashboard] (MANDATORY in production)
     "allowed_hosts": {
         "section": "Dashboard",
@@ -218,6 +248,12 @@ audit_log_middleware = False
 polling_interval = 10
 site_url =
 time_zone = UTC
+session_cookie_secure = True
+session_cookie_httponly = True
+session_cookie_samesite = Strict
+csrf_cookie_secure = True
+csrf_cookie_httponly = False
+csrf_cookie_samesite = Strict
 
 [client]
 user = archivematica
@@ -578,6 +614,13 @@ ALLOWED_HOSTS = ["*"]
 SECRET_KEY = "12345"
 
 ALLOW_USER_EDITS = True
+
+SESSION_COOKIE_SECURE = config.get("session_cookie_secure")
+SESSION_COOKIE_HTTPONLY = config.get("session_cookie_httponly")
+SESSION_COOKIE_SAMESITE = config.get("session_cookie_samesite")
+CSRF_COOKIE_SECURE = config.get("csrf_cookie_secure")
+CSRF_COOKIE_HTTPONLY = config.get("csrf_cookie_httponly")
+CSRF_COOKIE_SAMESITE = config.get("csrf_cookie_samesite")
 
 SHIBBOLETH_AUTHENTICATION = config.get("shibboleth_authentication")
 if SHIBBOLETH_AUTHENTICATION:

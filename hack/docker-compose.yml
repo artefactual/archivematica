@@ -192,6 +192,8 @@ services:
       ARCHIVEMATICA_DASHBOARD_CLIENT_HOST: "mysql"
       ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE: "MCP"
       ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
@@ -223,6 +225,8 @@ services:
       SS_DB_URL: "mysql://archivematica:demo@mysql/SS"
       SS_GNUPG_HOME_PATH: "/var/archivematica/storage_service/.gnupg"
       SS_PROMETHEUS_ENABLED: "true"
+      SESSION_COOKIE_SECURE: "false"
+      CSRF_COOKIE_SECURE: "false"
     volumes:
       - "./submodules/archivematica-storage-service/:/src/"
       - "./submodules/archivematica-sampledata/:/home/archivematica/archivematica-sampledata/:ro"

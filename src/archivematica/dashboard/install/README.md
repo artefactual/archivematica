@@ -137,6 +137,51 @@ variables or in the gunicorn configuration file.
   - **Type:** `string`
   - :red_circle: **Mandatory!**
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE`**:
+  - **Description:** determines if session cookies should only be sent over
+    HTTPS connections.
+  - **Config file example:** `Dashboard.session_cookie_secure`
+  - **Type:** `boolean`
+  - **Default:** `true`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_HTTPONLY`**:
+  - **Description:** determines if session cookies should be accessible only
+    via HTTP and not via JavaScript.
+  - **Config file example:** `Dashboard.session_cookie_httponly`
+  - **Type:** `boolean`
+  - **Default:** `true`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE`**:
+  - **Description:** controls when session cookies are sent with cross-site
+    requests. Options are "Strict", "Lax", or "None".
+  - **Config file example:** `Dashboard.session_cookie_samesite`
+  - **Type:** `string`
+  - **Default:** `"Strict"`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE`**:
+  - **Description:** determines if CSRF cookies should only be sent over HTTPS
+    connections.
+  - **Config file example:** `Dashboard.csrf_cookie_secure`
+  - **Type:** `boolean`
+  - **Default:** `true`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_HTTPONLY`**:
+  - **Description:** determines if CSRF cookies should be accessible only via
+    HTTP and not via JavaScript. **Note**: The default is `false` because the
+    Dashboard's user interface JavaScript code currently requires access to the
+    CSRF token. If set to `true`, the token must be retrieved differently, as
+    described in the [Django documentation][csrf-cookie-httponly].
+  - **Config file example:** `Dashboard.csrf_cookie_httponly`
+  - **Type:** `boolean`
+  - **Default:** `false`
+
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SAMESITE`**:
+  - **Description:** controls when CSRF cookies are sent with cross-site
+    requests. Options are "Strict", "Lax", or "None".
+  - **Config file example:** `Dashboard.csrf_cookie_samesite`
+  - **Type:** `string`
+  - **Default:** `"Strict"`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SHARED_DIRECTORY`**:
   - **Description:** location of the Archivematica Shared Directory.
   - **Config file example:** `Dashboard.shared_directory`
@@ -858,3 +903,4 @@ provides an example that implements the logging behaviour used in Archivematica
 [LOGLEVEL]: https://docs.gunicorn.org/en/stable/settings.html#loglevel
 [PROC-NAME]: https://docs.gunicorn.org/en/stable/settings.html#proc-name
 [django-csp policy settings]: https://django-csp.readthedocs.io/en/latest/configuration.html#policy-settings
+[csrf-cookie-httponly]: https://docs.djangoproject.com/en/4.2/howto/csrf/#acquiring-the-token-if-csrf-use-sessions-or-csrf-cookie-httponly-is-true
