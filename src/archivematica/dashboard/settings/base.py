@@ -753,3 +753,6 @@ if PROMETHEUS_ENABLED:
 
 # Apply email settings
 globals().update(email_settings.get_settings(config))
+
+# Remove models.W042 warning
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
