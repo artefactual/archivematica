@@ -31,7 +31,7 @@ dependencies = [
   "django-forms-bootstrap",
   "django-prometheus",
   "django-tastypie",
-  "elasticsearch>=6.0.0,<7.0.0",
+  "elasticsearch>=8.0.0,<9.0.0",
   "gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797",
   "gevent",
   "gunicorn",
