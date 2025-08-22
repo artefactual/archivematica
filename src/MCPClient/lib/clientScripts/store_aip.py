@@ -29,6 +29,7 @@ import django
 # storageService requires Django to be set up
 
 django.setup()
+from django.db import close_old_connections
 from django.db import transaction
 from metsrw.plugins import premisrw
 
@@ -254,6 +255,10 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # system.
     rmtree_upload_dip_transitory_loc(package_type, aip_path)
 
+    # Close stale connections to prevent database connection errors
+    # ocurring when attempting to ingest large AIPs
+    close_old_connections()
+
     if "AIP" in package_type:
         metrics.aip_stored(sip_uuid, size)
     elif "DIP" in package_type:
@@ -352,17 +357,16 @@ def call(jobs):
     parser.add_argument("sip_name", type=str, help="%SIPName%")
     parser.add_argument("sip_type", type=str, help="%SIPType%")
 
-    with transaction.atomic():
-        for job in jobs:
-            with job.JobContext(logger=logger):
-                args = parser.parse_args(job.args[1:])
-                job.set_status(
-                    store_aip(
-                        job,
-                        args.aip_destination_uri,
-                        args.aip_filename,
-                        args.sip_uuid,
-                        args.sip_name,
-                        args.sip_type,
-                    )
+    for job in jobs:
+        with job.JobContext(logger=logger):
+            args = parser.parse_args(job.args[1:])
+            job.set_status(
+                store_aip(
+                    job,
+                    args.aip_destination_uri,
+                    args.aip_filename,
+                    args.sip_uuid,
+                    args.sip_name,
+                    args.sip_type,
                 )
+            )

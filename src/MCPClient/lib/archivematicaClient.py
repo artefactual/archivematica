@@ -30,6 +30,7 @@ back to the database.  The exit code of each job is returned to Gearman and
 communicated back to the MCP Server (where it is ultimately used to decide which
 task to run next).
 """
+
 # This file is part of Archivematica.
 #
 # Copyright 2010-2017 Artefactual Systems Inc. <http://artefactual.com>
@@ -67,6 +68,7 @@ import gearman
 from main.models import Task
 from databaseFunctions import getUTCDate, retryOnFailure
 
+from django.db import close_old_connections
 from django.db import transaction
 import shlex
 import importlib
@@ -201,6 +203,10 @@ def execute_command(supported_modules, gearman_worker, gearman_job):
     task_name = gearman_job.task.decode()
     logger.info("\n\n*** RUNNING TASK: %s", task_name)
 
+    # Close stale connections to prevent database connection errors occurring
+    # frequently when attempting to start large transfers
+    close_old_connections()
+
     with metrics.task_execution_time_histogram.labels(script_name=task_name).time():
         try:
             jobs = handle_batch_task(gearman_job, supported_modules)
@@ -281,7 +287,7 @@ def start_gearman_worker(supported_modules):
             gm_worker.work()
         except gearman.errors.ServerUnavailable as inst:
             logger.error(
-                "Gearman server is unavailable: %s. Retrying in %d" " seconds.",
+                "Gearman server is unavailable: %s. Retrying in %d seconds.",
                 inst.args,
                 fail_sleep,
             )
