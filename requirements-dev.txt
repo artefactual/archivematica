@@ -22,7 +22,7 @@ brotli==1.1.0
     # via archivematica (pyproject.toml)
 build==1.3.0
     # via pip-tools
-cachetools==6.1.0
+cachetools==6.2.0
     # via tox
 certifi==2025.8.3
     # via
@@ -40,7 +40,7 @@ click==8.1.8
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.10.4
+coverage[toml]==7.10.5
     # via
     #   archivematica (pyproject.toml)
     #   pytest-cov
@@ -106,17 +106,17 @@ importlib-resources==6.5.2
     # via opf-fido
 iniconfig==2.1.0
     # via pytest
-inotify-simple==1.3.5
+inotify-simple==2.0.1
     # via archivematica (pyproject.toml)
 josepy==2.1.0
     # via mozilla-django-oidc
-jsonschema==4.25.0
+jsonschema==4.25.1
     # via archivematica (pyproject.toml)
 jsonschema-specifications==2025.4.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
-lxml==6.0.0
+lxml==6.0.1
     # via
     #   ammcpc
     #   archivematica (pyproject.toml)
@@ -134,7 +134,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via archivematica (pyproject.toml)
-orjson==3.11.2
+orjson==3.11.3
     # via archivematica (pyproject.toml)
 packaging==25.0
     # via
@@ -146,7 +146,7 @@ packaging==25.0
     #   tox
 pip-tools==7.5.0
     # via archivematica (pyproject.toml)
-platformdirs==4.3.8
+platformdirs==4.4.0
     # via
     #   tox
     #   virtualenv
@@ -219,7 +219,7 @@ referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.4
+requests==2.32.5
     # via
     #   agentarchives
     #   amclient
@@ -228,7 +228,7 @@ requests==2.32.4
     #   opf-fido
     #   pytest-base-url
     #   python-cas
-rpds-py==0.27.0
+rpds-py==0.27.1
     # via
     #   jsonschema
     #   referencing
@@ -251,7 +251,7 @@ tomli==2.2.1
     #   tox
 tox==4.28.4
     # via archivematica (pyproject.toml)
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   asgiref
     #   elasticsearch
