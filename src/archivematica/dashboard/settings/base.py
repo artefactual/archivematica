@@ -732,6 +732,7 @@ if OIDC_AUTHENTICATION:
 
 CSP_ENABLED = config.get("csp_enabled")
 if CSP_ENABLED:
+    INSTALLED_APPS.append("csp")
     MIDDLEWARE.insert(0, "csp.middleware.CSPMiddleware")
 
     from archivematica.dashboard.settings.components.csp import *
