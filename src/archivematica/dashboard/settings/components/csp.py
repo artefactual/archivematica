@@ -1,11 +1,18 @@
-CSP_DEFAULT_SRC = ["'none'"]
-CSP_SCRIPT_SRC = ["'self'", "'unsafe-inline'", "'unsafe-eval'"]
-CSP_STYLE_SRC = ["'self'", "'unsafe-inline'"]
-CSP_IMG_SRC = ["'self'", "data:"]
-CSP_FONT_SRC = ["'self'", "data:"]
+from csp.constants import NONE
+from csp.constants import SELF
+from csp.constants import UNSAFE_EVAL
+from csp.constants import UNSAFE_INLINE
 
-# for preview file pane in the appraisal tab
-CSP_FRAME_SRC = ["'self'"]
-
-# for /status
-CSP_CONNECT_SRC = ["'self'"]
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": [NONE],
+        "script-src": [SELF, UNSAFE_INLINE, UNSAFE_EVAL],
+        "style-src": [SELF, UNSAFE_INLINE],
+        "img-src": [SELF, "data:"],
+        "font-src": [SELF, "data:"],
+        # for preview file pane in the appraisal tab
+        "frame-src": [SELF],
+        # for /status
+        "connect-src": [SELF],
+    }
+}
