@@ -27,7 +27,7 @@ volumes:
 services:
 
   mysql:
-    image: "percona:8.0"
+    image: "percona/percona-server:8.0.43-34"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "12345"
@@ -73,14 +73,14 @@ services:
       - "127.0.0.1:62002:9200"
 
   gearmand:
-    image: "artefactual/gearmand:1.1.21.5-alpine"
+    image: "artefactual/gearmand:1.1.22-alpine"
     command: "--queue-type=builtin"
     user: "gearman"
     ports:
       - "127.0.0.1:62004:4730"
 
   clamavd:
-    image: "clamav/clamav-debian:1.4.3-45"
+    image: "clamav/clamav-debian:1.4.3-56"
     user: "clamav"
     entrypoint: "/init-unprivileged"
     environment:
@@ -93,7 +93,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:stable-alpine"
+    image: "nginx:1.28.0"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"

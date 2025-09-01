@@ -4,7 +4,7 @@ name: am-integration
 services:
 
   mysql:
-    image: "percona:8.0"
+    image: "percona/percona-server:8.0.43-34"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "root"
@@ -97,7 +97,7 @@ services:
       - "keycloak"
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:latest"
+    image: "quay.io/keycloak/keycloak:26.3.3-0"
     command: ["start-dev", "--import-realm"]
     restart: "unless-stopped"
     environment:
