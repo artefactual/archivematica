@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: "docker-compose"
+    directory: "/hack"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 1
+    groups:
+      docker-compose-dev:
+        patterns:
+          - "*"
+  - package-ecosystem: "docker-compose"
+    directory: "/tests/integration"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 1
+    groups:
+      docker-compose-tests:
+        patterns:
+          - "*"
