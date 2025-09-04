@@ -40,17 +40,17 @@ click==8.1.8
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.10.5
+coverage[toml]==7.10.6
     # via
     #   archivematica (pyproject.toml)
     #   pytest-cov
-cryptography==45.0.6
+cryptography==45.0.7
     # via
     #   josepy
     #   mozilla-django-oidc
 distlib==0.4.0
     # via virtualenv
-django==4.2.23
+django==4.2.24
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -88,7 +88,7 @@ funcparserlib==2.0.0a0
     # via mockldap
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
-gevent==25.5.1
+gevent==25.8.2
     # via archivematica (pyproject.toml)
 greenlet==3.2.4
     # via
@@ -150,7 +150,7 @@ platformdirs==4.4.0
     # via
     #   tox
     #   virtualenv
-playwright==1.54.0
+playwright==1.55.0
     # via
     #   archivematica (pyproject.toml)
     #   pytest-playwright
@@ -181,7 +181,7 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.4.1
+pytest==8.4.2
     # via
     #   archivematica (pyproject.toml)
     #   pytest-base-url
@@ -249,7 +249,7 @@ tomli==2.2.1
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.28.4
+tox==4.30.2
     # via archivematica (pyproject.toml)
 typing-extensions==4.15.0
     # via

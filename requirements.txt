@@ -30,11 +30,11 @@ charset-normalizer==3.4.3
     # via requests
 clamav-client==0.7.1
     # via archivematica (pyproject.toml)
-cryptography==45.0.6
+cryptography==45.0.7
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.23
+django==4.2.24
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -64,7 +64,7 @@ elasticsearch==8.19.0
     # via archivematica (pyproject.toml)
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
-gevent==25.5.1
+gevent==25.8.2
     # via archivematica (pyproject.toml)
 greenlet==3.2.4
     # via gevent
