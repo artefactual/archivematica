@@ -18,7 +18,17 @@
       </div>
 
       <div class="actions">
-        <a id="forgot-password" style="display: none;" href="{% url 'accounts:login' %}">{% trans "Forgot your password?" %}</a>
+
+        <style nonce="{{request.csp_nonce}}">
+          #forgot-password {
+            display: none;
+          }
+        </style>
+
+        <a id="forgot-password" href="{% url 'accounts:login' %}">
+          {% trans "Forgot your password?" %}
+        </a>
+
         <button class="btn btn-primary" type="submit">{% trans "Log in" %}</button>
       </div>
 
