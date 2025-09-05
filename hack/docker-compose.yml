@@ -197,6 +197,7 @@ services:
       ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED: "true"
     volumes:
       - "../:/src"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
