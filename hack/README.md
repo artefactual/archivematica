@@ -235,21 +235,35 @@ are username: `test`, password: `test`.
 
 ## Source code auto-reloading
 
-Dashboard and Storage Service are both served by Gunicorn. We set up Gunicorn
-with the [reload](http://docs.gunicorn.org/en/stable/settings.html#reload)
-setting enabled meaning that the Gunicorn workers will be restarted as soon as
-code changes.
+Dashboard and Storage Service are served by Gunicorn. Auto‑reload is disabled by
+default because Gunicorn's reload in our setup is poll‑based: it cannot use the
+inotify API with our gevent configuration, so it continuously scans the
+filesystem which causes unnecessary CPU load even when idle. Enable it only when
+you strictly need it in your workflow.
 
-Other components in the stack like the `MCPServer` don't offer this option and
-they need to be restarted manually, e.g.:
+To enable reload for either service, set flags in Compose's `.env` file in the
+`hack` directory and recreate the affected services:
+
+```env
+AM_GUNICORN_RELOAD=true
+SS_GUNICORN_RELOAD=true
+```
+
+Then recreate the services so the new configuration takes effect, e.g.:
+
+```shell
+docker compose up -d --force-recreate --no-deps archivematica-dashboard archivematica-storage-service
+```
+
+Other components in the stack, such as the `MCPServer`, do not support
+auto-reloading and must be restarted manually, for example:
 
 ```shell
 docker compose up -d --force-recreate --no-deps archivematica-mcp-server
 ```
 
-If you've added new dependencies or changes the `Dockerfile` you should also
-add the `--build` argument to the previous command in order to ensure that the
-container is using the newest image, e.g.:
+If you've added new dependencies or modified the `Dockerfile`, also include the
+`--build` flag to ensure the container uses the latest image:
 
 ```shell
 docker compose up -d --force-recreate --build --no-deps archivematica-mcp-server

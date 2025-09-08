@@ -184,8 +184,7 @@ services:
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
-      AM_GUNICORN_RELOAD: "true"
-      AM_GUNICORN_RELOAD_ENGINE: "auto"
+      AM_GUNICORN_RELOAD: "${AM_GUNICORN_RELOAD:-false}"
       DJANGO_SETTINGS_MODULE: "archivematica.dashboard.settings.local"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "http://elasticsearch:9200"
@@ -222,8 +221,7 @@ services:
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"
-      SS_GUNICORN_RELOAD: "true"
-      SS_GUNICORN_RELOAD_ENGINE: "auto"
+      SS_GUNICORN_RELOAD: "${SS_GUNICORN_RELOAD:-false}"
       DJANGO_SETTINGS_MODULE: "archivematica.storage_service.storage_service.settings.local"
       SS_DB_URL: "mysql://archivematica:demo@mysql/SS"
       SS_GNUPG_HOME_PATH: "/var/archivematica/storage_service/.gnupg"

@@ -42,8 +42,6 @@ services:
       DJANGO_ALLOW_ASYNC_UNSAFE: true
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
-      AM_GUNICORN_RELOAD: "true"
-      AM_GUNICORN_RELOAD_ENGINE: "auto"
       DJANGO_SETTINGS_MODULE: "archivematica.dashboard.settings.testmysql"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "elasticsearch:9200"
