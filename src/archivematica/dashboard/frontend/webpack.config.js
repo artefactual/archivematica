@@ -7,6 +7,7 @@ module.exports = {
     path:  __dirname + '/../media/js/build',
     filename: 'dashboard.js',
   },
+  devtool: "source-map",
   module: {
     rules: [
       {
