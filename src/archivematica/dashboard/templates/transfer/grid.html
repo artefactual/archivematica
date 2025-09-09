@@ -22,7 +22,7 @@
   <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/build/dashboard.js' %}"></script>
 
-  <script type="text/javascript">
+  <script type="text/javascript" nonce="{{CSP_NONCE}}">
 
     $(document).ready(function()
       {
@@ -74,11 +74,15 @@
   </div>
 
   <div id="sip-container">
-    <div style='float:right'>
-      <span class='grid-pager-previous-area'></span>
-      <span class='grid-pager-next-area'></span>
-      <span class='grid-pager-summary-area'></span>
+    {% load csp %}
+    <div class="grid-pager">
+      <span class="grid-pager-previous-area"></span>
+      <span class="grid-pager-next-area"></span>
+      <span class="grid-pager-summary-area"></span>
     </div>
+    <style nonce="{{CSP_NONCE}}">
+      .grid-pager { float: right; }
+    </style>
     <div id="sip-header">
       <div id="sip-header-directory">{% trans "Transfer" %}</div>
       <div id="sip-header-uuid">{% trans "UUID" %}</div>
@@ -89,11 +93,16 @@
     </div>
     <div id="sip-body">
     </div>
-    <div style='float:right'>
-      <span class='grid-pager-previous-area'></span>
-      <span class='grid-pager-next-area'></span>
-      <span class='grid-pager-summary-area'></span>
+    <div class="grid-pager">
+      <span class="grid-pager-previous-area"></span>
+      <span class="grid-pager-next-area"></span>
+      <span class="grid-pager-summary-area"></span>
     </div>
+    <style nonce="{{CSP_NONCE}}">
+      .grid-pager {
+        float: right;
+      }
+    </style>
   </div>
 
   <!-- Templates -->
