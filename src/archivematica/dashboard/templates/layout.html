@@ -24,7 +24,7 @@
     {% endif %}
     <script src="{% static 'js/misc.js' %}" type="text/javascript"></script>
     {% block js %}{% endblock %}
-    <script type="text/javascript" nonce="{{request.csp_nonce}}">
+    <script type="text/javascript" nonce="{{CSP_NONCE}}">
       window.DashboardConfig = {
         'currentLanguage': '{{ LANGUAGE_CODE|standardize_lang_code }}'
       };
