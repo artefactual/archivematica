@@ -737,6 +737,10 @@ if CSP_ENABLED:
 
     from archivematica.dashboard.settings.components.csp import *
 
+    TEMPLATES[0]["OPTIONS"]["context_processors"] += [
+        "csp.context_processors.nonce"
+    ]
+
     CSP_SETTINGS_FILE = os.environ.get("CSP_SETTINGS_FILE", "")
     if CSP_SETTINGS_FILE:
         globals().update(_get_settings_from_file(CSP_SETTINGS_FILE))
