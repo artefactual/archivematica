@@ -35,12 +35,12 @@ jobs:
     steps:
       - name: "Check out repository"
         if: "${{ github.event_name != 'workflow_dispatch' }}"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955" # v4.3.0
         with:
           submodules: true
       - name: "Check out repository (manually triggered)"
         if: "${{ github.event_name == 'workflow_dispatch' }}"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955" # v4.3.0
         with:
           ref: "${{ inputs.am_version || 'qa/1.x' }}"
           submodules: true
@@ -83,7 +83,7 @@ jobs:
         working-directory: ./hack
       - name: "Upload docker logs on failure"
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
-        uses: "actions/upload-artifact@v4"
+        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" # v4.6.2
         with:
           name: "docker-logs-${{ matrix.tag }}-${{ matrix.browser }}"
           path: "./hack/docker-logs"
