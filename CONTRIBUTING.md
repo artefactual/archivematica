@@ -226,7 +226,7 @@ Alternatively, you may send a printed, signed agreement to:
 
 ```text
 Artefactual Systems Inc.
-#1 - 10138 Whalley Blvd.
+#2 - 10138 Whalley Blvd.
 Surrey BC  V3T 4H4
 Canada
 ```
@@ -440,7 +440,7 @@ Further content comes after a blank line.
 [Line comment]: https://i.imgur.com/FsWppGN.png
 [code review guidelines]: https://github.com/artefactual/archivematica/blob/qa/1.x/code_review.md
 [interactive rebase feature]: https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History
-[Contributor's Agreement]: https://drive.google.com/file/d/1WwnVyMV0kLdFRlpwXAi5wvMQS97vc2eI/view?usp=sharing
+[Contributor's Agreement]: https://drive.google.com/file/d/1z7D2pK7ts82qLNcqUDENA8_ETNuaSADR/view?usp=sharing
 [Apache Foundation]: http://apache.org
 [contributor license]: http://www.apache.org/licenses/icla.txt
 [Artefactual Systems]: http://artefactual.com
