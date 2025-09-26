@@ -57,8 +57,8 @@ instructions on translations in Archivematica.
 You might have questions about the history of development decisions: find
 answers in the [Architectural Decisions Record].
 
-Our current release notes are available on GitHub. Release notes from version
-0.6 to 1.17.1 are available in [RELEASENOTES file].
+Our current release notes are available on GitHub. Release notes since version
+0.6 are available in the [RELEASENOTES file].
 
 ## Reporting an issue
 
