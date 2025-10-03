@@ -42,7 +42,11 @@ the [documentation][audience-compose-reference].
 
 Artefactual developers use Docker Compose on Linux heavily so it's important
 that you're familiar with it, and some choices in the configuration of this
-environment break in other operative systems.
+environment break in other operative systems. This setup is actively tested on
+Linux hosts running both `linux/amd64` and `linux/arm64` architectures. We rely
+exclusively on container images and packages that provide support for both
+architectures. However, our production-ready deployments are currently validated
+only on `linux/amd64`.
 
 [audience-compose-reference]: https://docs.docker.com/reference/cli/docker/compose/
 
