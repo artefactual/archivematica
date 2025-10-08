@@ -10,9 +10,9 @@ amclient==1.5.0
     # via archivematica (pyproject.toml)
 ammcpc==0.3.0
     # via archivematica (pyproject.toml)
-asgiref==3.9.1
+asgiref==3.10.0
     # via django
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   jsonschema
     #   referencing
@@ -20,21 +20,21 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.1.0
     # via archivematica (pyproject.toml)
-certifi==2025.8.3
+certifi==2025.10.5
     # via
     #   elastic-transport
     #   requests
-cffi==1.17.1
+cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.3
     # via requests
 clamav-client==0.7.1
     # via archivematica (pyproject.toml)
-cryptography==45.0.7
+cryptography==46.0.2
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.24
+django==4.2.25
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -60,11 +60,11 @@ django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
 elastic-transport==8.17.1
     # via elasticsearch
-elasticsearch==8.19.0
+elasticsearch==8.19.1
     # via archivematica (pyproject.toml)
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
-gevent==25.8.2
+gevent==25.9.1
     # via archivematica (pyproject.toml)
 greenlet==3.2.4
     # via gevent
@@ -80,11 +80,11 @@ josepy==2.1.0
     # via mozilla-django-oidc
 jsonschema==4.25.1
     # via archivematica (pyproject.toml)
-jsonschema-specifications==2025.4.1
+jsonschema-specifications==2025.9.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
-lxml==6.0.1
+lxml==6.0.2
     # via
     #   ammcpc
     #   archivematica (pyproject.toml)
@@ -106,7 +106,7 @@ packaging==25.0
     # via
     #   django-csp
     #   gunicorn
-prometheus-client==0.22.1
+prometheus-client==0.23.1
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
@@ -116,7 +116,7 @@ pyasn1==0.6.1
     #   python-ldap
 pyasn1-modules==0.4.2
     # via python-ldap
-pycparser==2.22
+pycparser==2.23
     # via cffi
 python-cas==1.6.0
     # via django-cas-ng
@@ -157,6 +157,7 @@ sqlparse==0.5.3
 typing-extensions==4.15.0
     # via
     #   asgiref
+    #   cryptography
     #   elasticsearch
     #   referencing
 unidecode==1.4.0
@@ -166,17 +167,15 @@ urllib3==2.5.0
     #   amclient
     #   elastic-transport
     #   requests
-whitenoise==6.9.0
+whitenoise==6.11.0
     # via archivematica (pyproject.toml)
 zipp==3.23.0
     # via importlib-resources
-zope-event==5.1.1
+zope-event==6.0
     # via gevent
-zope-interface==7.2
+zope-interface==8.0.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==80.9.0
-    # via
-    #   zope-event
-    #   zope-interface
+    # via zope-event
