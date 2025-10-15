@@ -6,7 +6,7 @@
 #
 agentarchives==0.10.0
     # via archivematica (pyproject.toml)
-amclient==1.5.0
+amclient==1.6.0
     # via archivematica (pyproject.toml)
 ammcpc==0.3.0
     # via archivematica (pyproject.toml)
@@ -26,7 +26,7 @@ certifi==2025.10.5
     #   requests
 cffi==2.0.0
     # via cryptography
-charset-normalizer==3.4.3
+charset-normalizer==3.4.4
     # via requests
 clamav-client==0.7.1
     # via archivematica (pyproject.toml)
@@ -70,13 +70,13 @@ greenlet==3.2.4
     # via gevent
 gunicorn==23.0.0
     # via archivematica (pyproject.toml)
-idna==3.10
+idna==3.11
     # via requests
 importlib-resources==6.5.2
     # via opf-fido
 inotify-simple==2.0.1
     # via archivematica (pyproject.toml)
-josepy==2.1.0
+josepy==2.2.0
     # via mozilla-django-oidc
 jsonschema==4.25.1
     # via archivematica (pyproject.toml)
@@ -125,7 +125,7 @@ python-dateutil==2.9.0.post0
     #   archivematica (pyproject.toml)
     #   django-tastypie
     #   elasticsearch
-python-ldap==3.4.4
+python-ldap==3.4.5
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap

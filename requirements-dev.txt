@@ -6,7 +6,7 @@
 #
 agentarchives==0.10.0
     # via archivematica (pyproject.toml)
-amclient==1.5.0
+amclient==1.6.0
     # via archivematica (pyproject.toml)
 ammcpc==0.3.0
     # via archivematica (pyproject.toml)
@@ -22,7 +22,7 @@ brotli==1.1.0
     # via archivematica (pyproject.toml)
 build==1.3.0
     # via pip-tools
-cachetools==6.2.0
+cachetools==6.2.1
     # via tox
 certifi==2025.10.5
     # via
@@ -32,7 +32,7 @@ cffi==2.0.0
     # via cryptography
 chardet==5.2.0
     # via tox
-charset-normalizer==3.4.3
+charset-normalizer==3.4.4
     # via requests
 clamav-client==0.7.1
     # via archivematica (pyproject.toml)
@@ -96,7 +96,7 @@ greenlet==3.2.4
     #   playwright
 gunicorn==23.0.0
     # via archivematica (pyproject.toml)
-idna==3.10
+idna==3.11
     # via requests
 importlib-metadata==8.7.0
     # via
@@ -108,7 +108,7 @@ iniconfig==2.1.0
     # via pytest
 inotify-simple==2.0.1
     # via archivematica (pyproject.toml)
-josepy==2.1.0
+josepy==2.2.0
     # via mozilla-django-oidc
 jsonschema==4.25.1
     # via archivematica (pyproject.toml)
@@ -206,7 +206,7 @@ python-dateutil==2.9.0.post0
     #   archivematica (pyproject.toml)
     #   django-tastypie
     #   elasticsearch
-python-ldap==3.4.4
+python-ldap==3.4.5
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -241,7 +241,7 @@ sqlparse==0.5.3
     # via django
 text-unidecode==1.3
     # via python-slugify
-tomli==2.2.1
+tomli==2.3.0
     # via
     #   build
     #   coverage
@@ -268,7 +268,7 @@ urllib3==2.5.0
     #   amclient
     #   elastic-transport
     #   requests
-virtualenv==20.34.0
+virtualenv==20.35.3
     # via tox
 wheel==0.45.1
     # via pip-tools
