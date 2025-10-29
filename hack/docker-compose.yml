@@ -93,7 +93,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:1.29.2"
+    image: "nginx:1.29.3"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
