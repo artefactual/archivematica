@@ -18,7 +18,7 @@ attrs==25.4.0
     #   referencing
 bagit==1.9.0
     # via archivematica (pyproject.toml)
-brotli==1.1.0
+brotli==1.2.0
     # via archivematica (pyproject.toml)
 build==1.3.0
     # via pip-tools
@@ -44,13 +44,13 @@ coverage[toml]==7.10.7
     # via
     #   archivematica (pyproject.toml)
     #   pytest-cov
-cryptography==46.0.2
+cryptography==46.0.3
     # via
     #   josepy
     #   mozilla-django-oidc
 distlib==0.4.0
     # via virtualenv
-django==4.2.25
+django==4.2.26
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -76,7 +76,7 @@ django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
 elastic-transport==8.17.1
     # via elasticsearch
-elasticsearch==8.19.1
+elasticsearch==8.19.2
     # via archivematica (pyproject.toml)
 exceptiongroup==1.3.0
     # via pytest
@@ -134,7 +134,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via archivematica (pyproject.toml)
-orjson==3.11.3
+orjson==3.11.4
     # via archivematica (pyproject.toml)
 packaging==25.0
     # via
@@ -268,7 +268,7 @@ urllib3==2.5.0
     #   amclient
     #   elastic-transport
     #   requests
-virtualenv==20.35.3
+virtualenv==20.35.4
     # via tox
 wheel==0.45.1
     # via pip-tools
@@ -284,7 +284,7 @@ zope-interface==8.0.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==25.2
+pip==25.3
     # via pip-tools
 setuptools==80.9.0
     # via

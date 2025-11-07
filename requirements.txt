@@ -18,7 +18,7 @@ attrs==25.4.0
     #   referencing
 bagit==1.9.0
     # via archivematica (pyproject.toml)
-brotli==1.1.0
+brotli==1.2.0
     # via archivematica (pyproject.toml)
 certifi==2025.10.5
     # via
@@ -30,11 +30,11 @@ charset-normalizer==3.4.4
     # via requests
 clamav-client==0.7.1
     # via archivematica (pyproject.toml)
-cryptography==46.0.2
+cryptography==46.0.3
     # via
     #   josepy
     #   mozilla-django-oidc
-django==4.2.25
+django==4.2.26
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -60,7 +60,7 @@ django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
 elastic-transport==8.17.1
     # via elasticsearch
-elasticsearch==8.19.1
+elasticsearch==8.19.2
     # via archivematica (pyproject.toml)
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
@@ -100,7 +100,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via archivematica (pyproject.toml)
-orjson==3.11.3
+orjson==3.11.4
     # via archivematica (pyproject.toml)
 packaging==25.0
     # via
