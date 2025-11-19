@@ -9,7 +9,7 @@ services:
         TARGET: "archivematica-acceptance-tests"
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     security_opt:
       - "seccomp:unconfined"
     volumes:

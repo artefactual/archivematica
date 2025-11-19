@@ -2,7 +2,7 @@ ARG TARGET=archivematica-mcp-server
 ARG UBUNTU_VERSION=24.04
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 ARG NODE_VERSION=20
 ARG PYENV_DIR=/pyenv
 ARG SELENIUM_DIR=/selenium
@@ -48,7 +48,7 @@ ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
 FROM base-builder AS pyenv-builder
 
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -265,7 +265,7 @@ FROM base AS archivematica-dashboard
 
 ARG USER_ID
 ARG GROUP_ID
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION
 
 USER root
 

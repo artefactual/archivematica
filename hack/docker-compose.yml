@@ -111,7 +111,7 @@ services:
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
         UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "archivematica.MCPServer.settings.common"
@@ -139,7 +139,7 @@ services:
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
         UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     environment:
       DJANGO_SECRET_KEY: "12345"
       DJANGO_SETTINGS_MODULE: "archivematica.MCPClient.settings.common"
@@ -180,7 +180,7 @@ services:
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
         UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       AM_GUNICORN_ACCESSLOG: "/dev/null"
@@ -217,7 +217,7 @@ services:
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
         UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.9}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SS_GUNICORN_ACCESSLOG: "/dev/null"

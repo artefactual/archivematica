@@ -2,12 +2,6 @@
 name: "Acceptance Test"
 on:
   workflow_dispatch:
-    inputs:
-      am_version:
-        description: "Archivematica ref (branch, tag or SHA to checkout)"
-        default: "qa/1.x"
-        required: true
-        type: "string"
   pull_request:
     types: [labeled]
 jobs:
@@ -34,15 +28,8 @@ jobs:
           - "Firefox"
     steps:
       - name: "Check out repository"
-        if: "${{ github.event_name != 'workflow_dispatch' }}"
         uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8" # v5.0.0
         with:
-          submodules: true
-      - name: "Check out repository (manually triggered)"
-        if: "${{ github.event_name == 'workflow_dispatch' }}"
-        uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8" # v5.0.0
-        with:
-          ref: "${{ inputs.am_version || 'qa/1.x' }}"
           submodules: true
       - name: "Create external volumes"
         run: |
@@ -55,7 +42,7 @@ jobs:
         run: |
           make -C hack/ build
         env:
-          PYTHON_VERSION: "3.9"
+          PYTHON_VERSION: "3.10"
       - name: "Start services"
         run: |
           docker compose up -d
