@@ -747,7 +747,7 @@ class File(models.Model):
         # ("sip", "currentlocation"),
         # ("transfer", "originallocation"),
         # ("sip", "originallocation"),
-        index_together = (("sip", "filegrpuse"),)
+        indexes = [models.Index(fields=("sip", "filegrpuse"))]
 
     def __str__(self):
         return str(
@@ -930,13 +930,24 @@ class Job(models.Model):
 
     class Meta:
         db_table = "Jobs"
-        index_together = (
-            ("sipuuid", "createdtime", "createdtimedec"),
-            ("sipuuid", "jobtype", "createdtime", "createdtimedec"),
-            ("sipuuid", "currentstep", "microservicegroup", "microservicechainlink"),
-            ("jobtype", "currentstep"),
-            ("unittype", "sipuuid", "createdtime", "createdtimedec"),
-        )
+        indexes = [
+            models.Index(fields=("sipuuid", "createdtime", "createdtimedec")),
+            models.Index(
+                fields=("sipuuid", "jobtype", "createdtime", "createdtimedec")
+            ),
+            models.Index(
+                fields=(
+                    "sipuuid",
+                    "currentstep",
+                    "microservicegroup",
+                    "microservicechainlink",
+                )
+            ),
+            models.Index(fields=("jobtype", "currentstep")),
+            models.Index(
+                fields=("unittype", "sipuuid", "createdtime", "createdtimedec")
+            ),
+        ]
 
     @staticmethod
     def _match_directory_patterns(directory):
