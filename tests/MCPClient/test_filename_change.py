@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 from django.test import TestCase
-from pytest_django.asserts import assertQuerysetEqual
+from pytest_django.asserts import assertQuerySetEqual
 
 from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.dashboard.main.models import Agent
@@ -144,7 +144,7 @@ def verify_event_details(event):
         event.event_detail
         == f'prohibited characters removed: program="change_names"; version="{get_full_version()}"'
     )
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         event.agents.all(),
         [
             "<Agent: organization; repository code: ORG; Your Organization Name Here>",

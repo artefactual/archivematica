@@ -33,15 +33,42 @@ def _mock_es_response(response_body: Any, status: int = 200) -> tuple[mock.Mock,
     return (meta, response_body)
 
 
-def _mock_es_not_exists() -> tuple[mock.Mock, bool]:
-    """Helper to create Elasticsearch response for non-existent indexes."""
-    return _mock_es_response(False, status=404)
+def _merge_params_into_body(params: Any, body: Any) -> Any:
+    """Merge select request parameters into the body to mirror client behavior."""
+    if not (isinstance(params, dict) and params and isinstance(body, dict)):
+        return body
+
+    merged_body = dict(body)
+    for key, value in params.items():
+        if key == "size":
+            merged_body[key] = int(value)
+        elif key == "from":
+            merged_body[key] = int(value)
+        elif key == "sort":
+            sort_value = value
+            if isinstance(sort_value, (bytes, bytearray)):
+                sort_value = sort_value.decode()
+            if isinstance(sort_value, str) and ":" in sort_value:
+                field, order = sort_value.split(":", 1)
+                sort_value = [{field: {"order": order}}]
+            merged_body[key] = sort_value
+        elif key == "_source":
+            source_value = value
+            if isinstance(source_value, (bytes, bytearray)):
+                source_value = source_value.decode().split(",")
+            elif isinstance(source_value, str):
+                source_value = source_value.split(",")
+            merged_body[key] = source_value
+
+    return merged_body
 
 
 def _make_es_call(
     method: str, path: str, params: Any = None, body: Any = None, headers: Any = None
 ) -> tuple[Any, ...]:
     """Helper to create mock.call for Elasticsearch requests with common parameters."""
+    body = _merge_params_into_body(params, body)
+
     return mock.call(
         method,
         path,

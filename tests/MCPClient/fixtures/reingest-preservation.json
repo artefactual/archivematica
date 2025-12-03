@@ -31,7 +31,7 @@
         "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
         "event_outcome_detail": "%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif",
         "event_outcome": "",
-        "event_datetime": "2016-02-03T18:36:32"
+        "event_datetime": "2016-02-03T18:36:32Z"
     }
 },
 {
@@ -64,7 +64,7 @@
         "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
         "event_outcome_detail": "",
         "event_outcome": "",
-        "event_datetime": "2016-02-03T18:36:32"
+        "event_datetime": "2016-02-03T18:36:32Z"
     }
 },
 {
@@ -78,7 +78,7 @@
         "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
         "event_outcome_detail": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
         "event_outcome": "",
-        "event_datetime": "2016-02-03T18:36:32"
+        "event_datetime": "2016-02-03T18:36:32Z"
     }
 },
 {
@@ -92,7 +92,7 @@
         "file_uuid": "d8cc7af7-284a-42f5-b7f4-e181a0efc35f",
         "event_outcome_detail": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9 verified",
         "event_outcome": "Pass",
-        "event_datetime": "2016-02-03T18:36:32"
+        "event_datetime": "2016-02-03T18:36:32Z"
     }
 }
 ]

@@ -8,7 +8,7 @@
         "event_outcome_detail": "",
         "agents": [2, 3],
         "event_outcome": "",
-        "event_datetime": "2015-11-30T21:55:35"
+        "event_datetime": "2015-11-30 21:55:35Z"
     },
     "model": "main.event",
     "pk": 1
@@ -22,7 +22,7 @@
         "event_outcome_detail": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
         "agents": [2, 3],
         "event_outcome": "",
-        "event_datetime": "2015-11-30T21:55:36"
+        "event_datetime": "2015-11-30T21:55:36Z"
     },
     "model": "main.event",
     "pk": 2
@@ -36,7 +36,7 @@
         "event_outcome_detail": "",
         "agents": [2, 3],
         "event_outcome": "Pass",
-        "event_datetime": "2015-11-30T21:55:38"
+        "event_datetime": "2015-11-30T21:55:38Z"
     },
     "model": "main.event",
     "pk": 3
@@ -50,7 +50,7 @@
         "event_outcome_detail": "Original name=\"%transferDirectory%objects/evelyn's photo.jpg\"; new name=\"%transferDirectory%objects/evelyn_s_photo.jpg\"",
         "agents": [2, 3],
         "event_outcome": "",
-        "event_datetime": "2015-11-30T21:55:39"
+        "event_datetime": "2015-11-30T21:55:39Z"
     },
     "model": "main.event",
     "pk": 4
@@ -64,7 +64,7 @@
         "event_outcome_detail": "fmt/44",
         "agents": [2, 3],
         "event_outcome": "Positive",
-        "event_datetime": "2015-11-30T21:55:40"
+        "event_datetime": "2015-11-30T21:55:40Z"
     },
     "model": "main.event",
     "pk": 5
@@ -78,7 +78,7 @@
         "event_outcome_detail": "format=\"JPEG\"; version=\"1.02\"; result=\"Well-Formed and valid\"",
         "agents": [2, 3],
         "event_outcome": "pass",
-        "event_datetime": "2015-11-30T21:55:44"
+        "event_datetime": "2015-11-30T21:55:44Z"
     },
     "model": "main.event",
     "pk": 6

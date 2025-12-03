@@ -1440,7 +1440,7 @@ def create_object_metadata(job, struct_map, baseDirectoryPath, state):
     bag_info = [find_bag_metadata(job, path) for path in paths]
 
     if not transfer and not source and not any(bag_info):
-        return
+        return None
 
     state.globalAmdSecCounter += 1
     label = f"amdSec_{state.globalAmdSecCounter}"
@@ -1800,7 +1800,7 @@ def main(
         )
 
         el = create_object_metadata(job, structMapDivObjects, baseDirectoryPath, state)
-        if el:
+        if el is not None:
             state.amdSecs.append(el)
 
         # In an AIC, the metadata dir is not inside the objects dir

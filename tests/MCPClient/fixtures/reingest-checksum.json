@@ -1,7 +1,7 @@
 [
 {
     "fields": {
-        "lastmodified": "2016-02-03T18:32:43",
+        "lastmodified": "2016-02-03T18:32:43Z",
         "name": "checksum_type",
         "value": "sha256"
     },
@@ -17,7 +17,7 @@
         "file_uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
         "event_outcome_detail": "ac63a92ba5a94c337e740d6f189200d0",
         "event_outcome": "",
-        "event_datetime": "2016-02-03T18:36:36"
+        "event_datetime": "2016-02-03T18:36:36Z"
     },
     "model": "main.event",
     "pk": 35

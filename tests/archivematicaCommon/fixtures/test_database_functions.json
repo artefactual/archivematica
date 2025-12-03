@@ -5,8 +5,8 @@
         "fields": {
             "checksum": "",
             "currentlocation": "ZmlsZV93aXRoX3NpcF9hZ2VudA==",
-            "enteredsystem": "2014-10-30T00:00:00",
-            "modificationtime": "2014-10-30T00:00:00",
+            "enteredsystem": "2014-10-30T00:00:00Z",
+            "modificationtime": "2014-10-30T00:00:00Z",
             "filegrpuse": "original",
             "filegrpuuid": "",
             "label": "",
@@ -21,11 +21,11 @@
     {
         "model": "main.unitvariable",
         "fields": {
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "microservicechainlink": null,
             "unittype": "SIP",
             "unituuid": "742b0443-cf18-442a-94f9-6d5b4948227d",
-            "updatedtime": "2014-10-30T00:00:00",
+            "updatedtime": "2014-10-30T00:00:00Z",
             "variable": "activeAgent",
             "variablevalue": "5"
         }
@@ -35,7 +35,7 @@
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "currentpath": "%path%",
             "hidden": false,
             "sip_type": "SIP",
@@ -48,8 +48,8 @@
         "fields": {
             "checksum": "",
             "currentlocation": "ZmlsZV93aXRoX3RyYW5zZmVyX2FnZW50",
-            "enteredsystem": "2014-10-30T00:00:00",
-            "modificationtime": "2014-10-30T00:00:00",
+            "enteredsystem": "2014-10-30T00:00:00Z",
+            "modificationtime": "2014-10-30T00:00:00Z",
             "filegrpuse": "original",
             "filegrpuuid": "",
             "label": "",
@@ -64,11 +64,11 @@
     {
         "model": "main.unitvariable",
         "fields": {
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "microservicechainlink": null,
             "unittype": "Transfer",
             "unituuid": "11449c3c-a31d-4663-8a01-10d1c705410f",
-            "updatedtime": "2014-10-30T00:00:00",
+            "updatedtime": "2014-10-30T00:00:00Z",
             "variable": "activeAgent",
             "variablevalue": "10"
         }
@@ -96,8 +96,8 @@
         "fields": {
             "checksum": "",
             "currentlocation": "ZmlsZV93aXRoX3NpcF9hZ2VudA==",
-            "enteredsystem": "2014-10-30T00:00:00",
-            "modificationtime": "2014-10-30T00:00:00",
+            "enteredsystem": "2014-10-30T00:00:00Z",
+            "modificationtime": "2014-10-30T00:00:00Z",
             "filegrpuse": "original",
             "filegrpuuid": "",
             "label": "",
@@ -112,11 +112,11 @@
     {
         "model": "main.unitvariable",
         "fields": {
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "microservicechainlink": null,
             "unittype": "Transfer",
             "unituuid": "b3c75166-86e9-443b-97ce-ddb4f7025219",
-            "updatedtime": "2014-10-30T00:00:00",
+            "updatedtime": "2014-10-30T00:00:00Z",
             "variable": "activeAgent",
             "variablevalue": "10"
         }
@@ -126,7 +126,7 @@
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "currentpath": "%path%",
             "hidden": false,
             "sip_type": "SIP",
@@ -153,11 +153,11 @@
     {
         "model": "main.unitvariable",
         "fields": {
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "microservicechainlink": null,
             "unittype": "SIP",
             "unituuid": "b266cd28-108c-41b3-9a49-a3d775ee6e76",
-            "updatedtime": "2014-10-30T00:00:00",
+            "updatedtime": "2014-10-30T00:00:00Z",
             "variable": "activeAgent",
             "variablevalue": "5"
         }
@@ -168,8 +168,8 @@
         "fields": {
             "checksum": "",
             "currentlocation": "ZmlsZV93aXRoX25vX3VuaXRfdmFy",
-            "enteredsystem": "2014-10-30T00:00:00",
-            "modificationtime": "2014-10-30T00:00:00",
+            "enteredsystem": "2014-10-30T00:00:00Z",
+            "modificationtime": "2014-10-30T00:00:00Z",
             "filegrpuse": "original",
             "filegrpuuid": "",
             "label": "",
@@ -186,7 +186,7 @@
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "currentpath": "%path%",
             "hidden": false,
             "sip_type": "SIP",
@@ -198,7 +198,7 @@
         "model": "main.sip",
         "fields": {
             "aip_filename": "",
-            "createdtime": "2014-10-30T00:00:00",
+            "createdtime": "2014-10-30T00:00:00Z",
             "currentpath": "%path%",
             "hidden": false,
             "sip_type": "SIP",

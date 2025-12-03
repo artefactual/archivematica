@@ -1143,13 +1143,17 @@ class ElasticsearchSearchService(SearchService):
         :param Optional[list[str]] fields: Optional list of fields to return
         :return: Raw search results from Elasticsearch
         """
-        search_params: dict[str, Any] = {
-            "index": index,
-            "body": query,
-        }
+        search_params: dict[str, Any] = {"index": index}
 
-        # Add optional parameters directly to search_params for the Elasticsearch client.
-        # The client expects these as keyword arguments, not nested in a params dict.
+        # Treat the provided query dict as the full search body and map supported keys
+        # onto the typed client parameters so we avoid combining `body` with other args.
+        for key, value in query.items():
+            if key == "from":
+                search_params["from_"] = value
+            else:
+                search_params[key] = value
+
+        # Explicit parameters take precedence over values supplied in the query dict.
         if size is not None:
             search_params["size"] = size
         if from_ is not None:

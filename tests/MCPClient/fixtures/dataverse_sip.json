@@ -24,7 +24,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "ab61f03d25ddd0e638f1ff2a823336dc38dd0c7235ee4b6ab2ec671880f822ea",
-        "enteredsystem": "2015-11-05T22:06:41",
+        "enteredsystem": "2015-11-05T22:06:41Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvY2hlbGFuXzA1Mi5qcGc=",
         "size": 76934
     },
@@ -41,7 +41,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL1dlYXRoZXJfZGF0YS50YWI=",
         "size": 563285
     },
@@ -55,10 +55,10 @@
         "originallocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhLnppcA==",
         "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
         "filegrpuse": "original",
-        "removedtime": "2015-11-05T22:06:49",
+        "removedtime": "2015-11-05T22:06:49Z",
         "label": "",
         "checksum": "1d2323c179066fc7c5d1cfbfa7271f77f7633a63838615708a9b704e38e8b85e",
-        "enteredsystem": "2015-11-05T22:06:41",
+        "enteredsystem": "2015-11-05T22:06:41Z",
         "currentlocation": null,
         "size": 180399
     },
@@ -75,7 +75,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "21b90f678beb353417f0f0d0e93bc7259c3575b336f8dd590ea6d4f8f2acfce8",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL1dlYXRoZXJfZGF0YWNpdGF0aW9uLXJpcy5yaXM=",
         "size": 325
     },
@@ -92,7 +92,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "9ed70885977815b701eb325062fe1360cc8985398e9d4d536e16a0cf53293377",
-        "enteredsystem": "2015-11-05T22:06:41",
+        "enteredsystem": "2015-11-05T22:06:41Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvZGF0YXNldC5qc29u",
         "size": 2832
     },
@@ -109,7 +109,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "c3fceee71ab02901f01034cfc3b50e611378e04d8e823aa564405360f3913e3a",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL1dlYXRoZXJfZGF0YS1kZGkueG1s",
         "size": 15337
     },
@@ -126,7 +126,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "ba57d36d8721b925117ff475a81f03180cfea0e7f9f20d22efbd0ba76ed639ef",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL1dlYXRoZXJfZGF0YWNpdGF0aW9uLWVuZG5vdGUueG1s",
         "size": 619
     },
@@ -143,7 +143,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL1dlYXRoZXJfZGF0YS5SRGF0YQ==",
         "size": 563285
     },
@@ -160,7 +160,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL1dlYXRoZXJfZGF0YS5zYXY=",
         "size": 563285
     },
@@ -177,7 +177,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL2lfYW1fYV9kdXBsaWNhdGUub3JpZ2luYWw=",
         "size": 563285
     },
@@ -194,7 +194,7 @@
         "removedtime": null,
         "label": "",
         "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL2lfYW1fYV9kdXBsaWNhdGUub3JpZ2luYWw=",
         "size": 563285
     },
@@ -208,10 +208,10 @@
         "originallocation": "JXRyYW5zZmVyRGlyZWN0b3J5JW9iamVjdHMvV2VhdGhlcl9kYXRhL2lfaGF2ZV9iZWVuX3JlbW92ZWQ=",
         "transfer": "6741c782-f22b-47b3-8bcf-72fd0c94e195",
         "filegrpuse": "original",
-        "removedtime": "2019-01-15T23:13:00",
+        "removedtime": "2019-01-15T23:13:00Z",
         "label": "",
         "checksum": "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e",
-        "enteredsystem": "2015-11-05T22:06:49",
+        "enteredsystem": "2015-11-05T22:06:49Z",
         "currentlocation": null,
         "size": 563285
     },
