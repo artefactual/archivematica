@@ -19,7 +19,7 @@ repos:
   rev: "1.29.1"
   hooks:
   - id: django-upgrade
-    args: [--target-version, "4.2"]
+    args: [--target-version, "5.2"]
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.46.0
   hooks:
