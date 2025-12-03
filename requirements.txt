@@ -10,7 +10,7 @@ amclient==1.6.0
     # via archivematica (pyproject.toml)
 ammcpc==0.3.0
     # via archivematica (pyproject.toml)
-asgiref==3.10.0
+asgiref==3.11.0
     # via django
 attrs==25.4.0
     # via
@@ -20,7 +20,7 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-certifi==2025.10.5
+certifi==2025.11.12
     # via
     #   elastic-transport
     #   requests
@@ -46,7 +46,7 @@ django-auth-ldap==5.2.0
     # via archivematica (pyproject.toml)
 django-autoslug==1.9.9
     # via archivematica (pyproject.toml)
-django-cas-ng==5.0.1
+django-cas-ng==5.1.0
     # via archivematica (pyproject.toml)
 django-csp==4.0
     # via archivematica (pyproject.toml)
@@ -118,7 +118,7 @@ pyasn1-modules==0.4.2
     # via python-ldap
 pycparser==2.23
     # via cffi
-python-cas==1.6.0
+python-cas==1.7.1
     # via django-cas-ng
 python-dateutil==2.9.0.post0
     # via
@@ -131,7 +131,7 @@ python-ldap==3.4.5
     #   django-auth-ldap
 python-mimeparse==2.0.0
     # via django-tastypie
-referencing==0.36.2
+referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -143,16 +143,15 @@ requests==2.32.5
     #   mozilla-django-oidc
     #   opf-fido
     #   python-cas
-rpds-py==0.27.1
+rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
 six==1.17.0
     # via
     #   opf-fido
-    #   python-cas
     #   python-dateutil
-sqlparse==0.5.3
+sqlparse==0.5.4
     # via django
 typing-extensions==4.15.0
     # via
@@ -169,11 +168,7 @@ urllib3==2.5.0
     #   requests
 whitenoise==6.11.0
     # via archivematica (pyproject.toml)
-zope-event==6.0
+zope-event==6.1
     # via gevent
-zope-interface==8.0.1
+zope-interface==8.1.1
     # via gevent
-
-# The following packages are considered to be unsafe in a requirements file:
-setuptools==80.9.0
-    # via zope-event
