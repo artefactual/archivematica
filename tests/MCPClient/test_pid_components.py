@@ -529,10 +529,7 @@ def test_pid_declaration_exceptions(
             THIS_DIR, "fixtures", "pid_declaration", "bad_identifiers.json"
         ),
     ):
-        try:
+        with pytest.raises(
+            DeclarePIDsException, match=r"^Error loading identifiers.json file: "
+        ):
             DeclarePIDs(mcp_job).pid_declaration(unit_uuid="", sip_directory="")
-        except DeclarePIDsException as err:
-            json_error = "Expecting value: line 15 column 1 (char 336)"
-            assert json_error in str(err), (
-                "Error message something other than anticipated for invalid JSON"
-            )
