@@ -57,8 +57,8 @@ def call(jobs):
         description="Cleanup from failed/rejected Transfers."
     )
     parser.add_argument("fail_type", help=f'"{REJECTED}" or "{FAILED}"')
-    parser.add_argument("transfer_uuid", help="%SIPUUID%")
-    parser.add_argument("transfer_path", help="%SIPDirectory%")
+    parser.add_argument("transfer_uuid", help="%%SIPUUID%%")
+    parser.add_argument("transfer_path", help="%%SIPDirectory%%")
 
     with transaction.atomic():
         for job in jobs:

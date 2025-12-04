@@ -133,8 +133,8 @@ def parse_archivesspace_ids(sip_path, sip_uuid):
 
 def call(jobs):
     parser = argparse.ArgumentParser(description="Parse metadata for DIP helpers")
-    parser.add_argument("--sipUUID", required=True, help="%SIPUUID%")
-    parser.add_argument("--sipPath", required=True, help="%SIPDirectory%")
+    parser.add_argument("--sipUUID", required=True, help="%%SIPUUID%%")
+    parser.add_argument("--sipPath", required=True, help="%%SIPDirectory%%")
 
     with transaction.atomic():
         for job in jobs:

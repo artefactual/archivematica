@@ -223,7 +223,7 @@ def post_store_hook(job, sip_uuid):
 
 def call(jobs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("sip_uuid", help="%SIPUUID%")
+    parser.add_argument("sip_uuid", help="%%SIPUUID%%")
 
     with transaction.atomic():
         for job in jobs:

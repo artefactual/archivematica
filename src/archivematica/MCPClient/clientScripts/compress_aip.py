@@ -128,11 +128,11 @@ def compress_aip(
 
 def call(jobs):
     parser = argparse.ArgumentParser(description="Compress an AIP.")
-    parser.add_argument("compression", type=str, help="%AIPCompressionAlgorithm%")
-    parser.add_argument("compression_level", type=str, help="%AIPCompressionLevel%")
-    parser.add_argument("sip_directory", type=str, help="%SIPDirectory%")
-    parser.add_argument("sip_name", type=str, help="%SIPName%")
-    parser.add_argument("sip_uuid", type=str, help="%SIPUUID%")
+    parser.add_argument("compression", type=str, help="%%AIPCompressionAlgorithm%%")
+    parser.add_argument("compression_level", type=str, help="%%AIPCompressionLevel%%")
+    parser.add_argument("sip_directory", type=str, help="%%SIPDirectory%%")
+    parser.add_argument("sip_name", type=str, help="%%SIPName%%")
+    parser.add_argument("sip_uuid", type=str, help="%%SIPUUID%%")
 
     state = []
 

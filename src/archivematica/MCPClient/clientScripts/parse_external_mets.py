@@ -43,8 +43,8 @@ def main(job, transfer_uuid, transfer_path):
 
 def call(jobs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("transfer_uuid", help="%SIPUUID%")
-    parser.add_argument("transfer_path", help="%SIPDirectory%")
+    parser.add_argument("transfer_uuid", help="%%SIPUUID%%")
+    parser.add_argument("transfer_path", help="%%SIPDirectory%%")
 
     for job in jobs:
         with job.JobContext(logger=logger):

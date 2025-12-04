@@ -583,11 +583,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "purpose", type=str, help='"preservation", "access", "thumbnail"'
     )
-    parser.add_argument("file_uuid", type=str, help="%fileUUID%")
-    parser.add_argument("file_path", type=str, help="%relativeLocation%")
-    parser.add_argument("sip_path", type=str, help="%SIPDirectory%")
-    parser.add_argument("sip_uuid", type=str, help="%SIPUUID%")
-    parser.add_argument("task_uuid", type=str, help="%taskUUID%")
+    parser.add_argument("file_uuid", type=str, help="%%fileUUID%%")
+    parser.add_argument("file_path", type=str, help="%%relativeLocation%%")
+    parser.add_argument("sip_path", type=str, help="%%SIPDirectory%%")
+    parser.add_argument("sip_uuid", type=str, help="%%SIPUUID%%")
+    parser.add_argument("task_uuid", type=str, help="%%taskUUID%%")
     parser.add_argument(
         "normalize_file_grp_use",
         type=str,

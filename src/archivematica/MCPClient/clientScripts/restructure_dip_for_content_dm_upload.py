@@ -253,14 +253,14 @@ def generate_project_client_package(
 def call(jobs):
     parser = argparse.ArgumentParser(description="restructure")
     parser.add_argument(
-        "--uuid", action="store", dest="uuid", metavar="UUID", help="%SIPUUID%"
+        "--uuid", action="store", dest="uuid", metavar="UUID", help="%%SIPUUID%%"
     )
     parser.add_argument(
         "--dipDir",
         action="store",
         dest="dipDir",
         metavar="dipDir",
-        help="%SIPDirectory%",
+        help="%%SIPDirectory%%",
     )
 
     for job in jobs:

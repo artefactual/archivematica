@@ -83,8 +83,8 @@ def restructureForComplianceFileUUIDsAssigned(
 
 def call(jobs):
     parser = argparse.ArgumentParser(description="Restructure SIP or Transfer.")
-    parser.add_argument("target", help="%SIPDirectory%")
-    parser.add_argument("sip_uuid", help="%SIPUUID%")
+    parser.add_argument("target", help="%%SIPDirectory%%")
+    parser.add_argument("sip_uuid", help="%%SIPUUID%%")
 
     with transaction.atomic():
         for job in jobs:

@@ -224,10 +224,10 @@ def get_parser() -> argparse.ArgumentParser:
     # choose the command from the workflow has been removed. Instead, this
     # script will look up in FPR what's the preferred command.
     # This argument may be renamed later.
-    parser.add_argument("idcommand", type=str, help="%IDCommand%")
+    parser.add_argument("idcommand", type=str, help="%%IDCommand%%")
 
-    parser.add_argument("file_path", type=str, help="%relativeLocation%")
-    parser.add_argument("file_uuid", type=str, help="%fileUUID%")
+    parser.add_argument("file_path", type=str, help="%%relativeLocation%%")
+    parser.add_argument("file_uuid", type=str, help="%%fileUUID%%")
     parser.add_argument(
         "--disable-reidentify",
         action="store_true",

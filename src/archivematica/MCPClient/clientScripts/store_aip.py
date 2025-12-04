@@ -304,11 +304,11 @@ def get_agents_from_db(uuid):
 
 def call(jobs):
     parser = argparse.ArgumentParser(description="Create AIP pointer file.")
-    parser.add_argument("aip_destination_uri", type=str, help="%AIPsStore%")
-    parser.add_argument("aip_filename", type=str, help="%AIPFilename%")
-    parser.add_argument("sip_uuid", type=str, help="%SIPUUID%")
-    parser.add_argument("sip_name", type=str, help="%SIPName%")
-    parser.add_argument("sip_type", type=str, help="%SIPType%")
+    parser.add_argument("aip_destination_uri", type=str, help="%%AIPsStore%%")
+    parser.add_argument("aip_filename", type=str, help="%%AIPFilename%%")
+    parser.add_argument("sip_uuid", type=str, help="%%SIPUUID%%")
+    parser.add_argument("sip_name", type=str, help="%%SIPName%%")
+    parser.add_argument("sip_type", type=str, help="%%SIPType%%")
 
     with transaction.atomic():
         for job in jobs:

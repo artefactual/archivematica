@@ -556,8 +556,8 @@ def main(job, sip_uuid, sip_path):
 
 def call(jobs):
     parser = argparse.ArgumentParser()
-    parser.add_argument("sip_uuid", help="%SIPUUID%")
-    parser.add_argument("sip_path", help="%SIPDirectory%")
+    parser.add_argument("sip_uuid", help="%%SIPUUID%%")
+    parser.add_argument("sip_path", help="%%SIPDirectory%%")
 
     with transaction.atomic():
         for job in jobs:

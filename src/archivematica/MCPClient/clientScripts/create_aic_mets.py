@@ -162,8 +162,8 @@ def create_aic_mets(aic_uuid, aic_dir, job):
 
 def call(jobs):
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("aic_uuid", action="store", type=str, help="%SIPUUID%")
-    parser.add_argument("aic_dir", action="store", type=str, help="%SIPDirectory%")
+    parser.add_argument("aic_uuid", action="store", type=str, help="%%SIPUUID%%")
+    parser.add_argument("aic_dir", action="store", type=str, help="%%SIPDirectory%%")
 
     with transaction.atomic():
         for job in jobs:
