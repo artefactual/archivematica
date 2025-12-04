@@ -20,7 +20,8 @@ import os
 import re
 import shutil
 import uuid
-from cgi import parse_header
+from collections.abc import Mapping
+from email.message import EmailMessage
 
 import django.http
 from django.conf import settings as django_settings
@@ -848,6 +849,13 @@ def _package_create(request):
         LOGGER.error("%s: %s", msg, err)
         return helpers.json_response({"error": True, "message": msg}, 500)
     return helpers.json_response({"id": id_}, 202)
+
+
+def parse_header(header: str) -> tuple[str, Mapping[str, str]]:
+    msg = EmailMessage()
+    msg["Content-Type"] = header
+
+    return msg.get_content_type(), msg["Content-Type"].params
 
 
 @_api_endpoint(expected_methods=["POST"])
