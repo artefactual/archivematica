@@ -187,7 +187,7 @@ translations.
 ### Available Scripts Reference
 
 | Script | Purpose | Input | Output |
-|--------|---------|-------|---------|
+| ------ | ------- | ----- | ------ |
 | `i18n:extract-pot` | Extract translatable strings | Vue components | `messages.pot` |
 | `i18n:json-to-po` | Convert JSON to .po | JSON files | .po files with translations |
 | `i18n:po-to-json` | Convert .po to JSON | .po files | JSON files for vue-i18n |
