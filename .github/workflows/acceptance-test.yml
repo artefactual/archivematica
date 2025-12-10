@@ -55,6 +55,11 @@ jobs:
       - name: "Restart services"
         run: |
           make -C hack/ restart-am-services
+      - name: "Prune Docker"
+        run: |
+          docker builder prune --all --force
+          docker image prune --all --force
+        working-directory: ./hack
       - name: "Run AMAUAT tag"
         id: "amauat-run"
         run: |
