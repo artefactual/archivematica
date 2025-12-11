@@ -22,6 +22,7 @@
 - [Resetting the environment](#resetting-the-environment)
 - [Cleaning up](#cleaning-up)
 - [Percona tuning](#percona-tuning)
+- [OIDC authentication](#oidc-authentication)
 - [Instrumentation](#instrumentation)
   - [Running Prometheus and Grafana](#running-prometheus-and-grafana)
   - [Percona Monitoring and Management](#percona-monitoring-and-management)
@@ -461,6 +462,39 @@ To use different settings on the MySQL container, please edit the
 ```shell
 docker compose up -d --force-recreate mysql
 ```
+
+## OIDC authentication
+
+Use the `docker-compose.oidc.yml` overlay to start Keycloak and enable
+the Dashboard's and Storage Service's OIDC authentication settings:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.oidc.yml up -d
+```
+
+This overlay is intended for local testing and demonstrations only. It starts
+Keycloak with sample realms, default credentials, and static secrets and
+should not be treated as a production-ready deployment. The configuration for
+the Keycloak realm can be found in the `hack/etc/keycloak/realm.json` file.
+
+To access the Keycloak interface visit <http://127.0.0.1:8080> using these
+administrative credentials:
+
+- Username: `admin`
+- Password: `admin`
+
+To access the Dashboard or Storage Service through Keycloak use the "Log in
+with OpenID Connect" links in their login pages and use these credentials:
+
+Regular user:
+
+- Username: `demo@example.com`
+- Password: `test`
+
+Administrative user:
+
+- Username: `admin@example.com`
+- Password: `test`
 
 ## Instrumentation
 
