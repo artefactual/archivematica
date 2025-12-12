@@ -212,7 +212,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_admin_role(
 
     # Logging out redirects the user to the login url.
     page.get_by_text("supportadmin@example.com").click()
-    page.get_by_role("link", name="Log out").click()
+    page.get_by_role("button", name="Log out").click()
     assert page.url == f"{live_server.url}{reverse('accounts:login')}"
 
     # Logging in through the OIDC provider requires to authenticate again.
@@ -245,7 +245,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_default_role(
 
     # Logging out redirects the user to the login url.
     page.get_by_text("supportdefault@example.com").click()
-    page.get_by_role("link", name="Log out").click()
+    page.get_by_role("button", name="Log out").click()
     assert page.url == f"{live_server.url}{reverse('accounts:login')}"
 
     # Logging in through the OIDC provider requires to authenticate again.

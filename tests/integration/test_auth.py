@@ -11,7 +11,6 @@ if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
 
 
-@pytest.mark.xfail(reason="Django 5.2 requires logout requests to be POST not GET.")
 @pytest.mark.django_db
 def test_logout_link_logs_out_user(
     page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID, user: AbstractUser
@@ -26,6 +25,6 @@ def test_logout_link_logs_out_user(
     assert page.url == f"{live_server.url}/transfer/"
 
     page.get_by_text("foobar").click()
-    page.get_by_role("link", name="Log out").click()
+    page.get_by_role("button", name="Log out").click()
 
     assert page.url == f"{live_server.url}{reverse('accounts:login')}"

@@ -528,7 +528,6 @@ def test_admin_fails_to_change_another_users_password_with_incorrect_admin_passw
     assert admin_user.check_password(admin_password)
 
 
-@pytest.mark.xfail(reason="Django 5.2 requires logout requests to be POST not GET.")
 @pytest.mark.django_db
 def test_logout_view_logs_out_user(
     dashboard_uuid: uuid.UUID,
@@ -537,7 +536,7 @@ def test_logout_view_logs_out_user(
 ) -> None:
     client.force_login(non_administrative_user)
 
-    response = client.get(reverse("accounts:logout"), follow=True)
+    response = client.post(reverse("accounts:logout"), follow=True)
     assert response.status_code == 200
 
     assert response.request["PATH_INFO"] == reverse("accounts:login")
