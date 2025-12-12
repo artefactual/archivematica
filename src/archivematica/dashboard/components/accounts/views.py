@@ -269,7 +269,7 @@ class CustomOIDCLogoutView(OIDCLogoutView):
     Provide OpenID Logout capability
     """
 
-    def get(self, request):
+    def post(self, request):
         self.request = request
 
         if "oidc_id_token" in request.session:

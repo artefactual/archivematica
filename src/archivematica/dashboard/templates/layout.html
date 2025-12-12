@@ -1,6 +1,7 @@
 {% load active i18n static lang user %}
 {% get_current_language as LANGUAGE_CODE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
+{% logout_link as logout_url %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
   <head>
@@ -76,7 +77,12 @@
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
                     <li><a href="{% url 'accounts:profile' %}">{% trans "Your profile" %}</a></li>
                     <li class="divider"></li>
-                    <li><a href="{% logout_link %}">{% trans "Log out" %}</a></li>
+                    <li>
+                      <form method="post" action="{{ logout_url }}">
+                        {% csrf_token %}
+                        <button type="submit">{% trans "Log out" %}</button>
+                      </form>
+                    </li>
                   </ul>
                 </li>
               {% endif %}

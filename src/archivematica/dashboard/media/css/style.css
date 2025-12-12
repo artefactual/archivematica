@@ -71,13 +71,27 @@ body {
   font-size: 13px;
 }
 
-.topbar div > ul .dropdown-menu > li > a {
+.topbar div > ul .dropdown-menu > li > a,
+.topbar div > ul .dropdown-menu > li > form > button {
   color: #999;
 }
 
-.topbar div > ul .dropdown-menu > li > a:hover {
+.topbar div > ul .dropdown-menu > li > a:hover,
+.topbar div > ul .dropdown-menu > li > form > button:hover {
   color: #fff;
   background-color: #191919;
+}
+
+.topbar div > ul .dropdown-menu > li > form > button {
+  background: none;
+  border: 0;
+  padding: 3px 20px;
+  width: 100%;
+  text-align: left;
+}
+
+.topbar div > ul .dropdown-menu > li > form {
+  margin: 0;
 }
 
 .topbar div > ul .dropdown-menu > .divider {
