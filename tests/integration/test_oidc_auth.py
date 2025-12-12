@@ -12,20 +12,6 @@ if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
 
 
-@pytest.fixture
-def user(django_user_model: type[User]) -> User:
-    user = django_user_model.objects.create(
-        username="foobar",
-        email="foobar@example.com",
-        first_name="Foo",
-        last_name="Bar",
-    )
-    user.set_password("foobar1A,")
-    user.save()
-
-    return user
-
-
 @pytest.mark.django_db
 def test_oidc_backend_creates_local_user(
     page: Page,
