@@ -4,7 +4,7 @@ name: am-integration
 services:
 
   mysql:
-    image: "percona/percona-server:8.4.6-6"
+    image: "percona/percona-server:8.4.7-7"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "root"
