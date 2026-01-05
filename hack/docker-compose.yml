@@ -27,7 +27,7 @@ volumes:
 services:
 
   mysql:
-    image: "percona/percona-server:8.4.6-6"
+    image: "percona/percona-server:8.4.7-7"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "12345"
@@ -43,7 +43,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.8"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.9"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -73,14 +73,14 @@ services:
       - "127.0.0.1:62002:9200"
 
   gearmand:
-    image: "artefactual/gearmand:1.1.22-alpine"
+    image: "artefactual/gearmand:1.1.22.1-alpine"
     command: "--queue-type=builtin"
     user: "gearman"
     ports:
       - "127.0.0.1:62004:4730"
 
   clamavd:
-    image: "clamav/clamav-debian:1.5.1-17"
+    image: "clamav/clamav-debian:1.5.1-22"
     user: "clamav"
     entrypoint: "/init-unprivileged"
     environment:
