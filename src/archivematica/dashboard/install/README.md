@@ -27,7 +27,8 @@ components follow the same pattern:
 1. **Environment variables** - setting a configuration parameter with an
    environment variable will override all other methods.
 1. **Configuration file** - if the parameter is not set by an environment
-   variable, the component will look for a setting in its default configuration file.
+   variable, the component will look for a setting in its default configuration
+   file.
 1. **Application defaults** - if the parameter is not set in an environment
    variable or the config file, the application default is used.
 
@@ -686,7 +687,8 @@ These variables specify the behaviour of LDAP authentication. Only applicable if
   - **Default:** ``
 
 - **`AUTH_LDAP_TLS_KEYFILE`**:
-  - **Description:** Path to a custom LDAP key file (matching the cert given in `AUTH_LDAP_TLS_CERTFILE`).
+  - **Description:** Path to a custom LDAP key file (matching the cert given in
+    `AUTH_LDAP_TLS_CERTFILE`).
   - **Type:** `string`
   - **Default:** ``
 
@@ -839,7 +841,8 @@ This only has an effect if ``OIDC_USE_PKCE`` is ``True``.
 
 - **`OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS`**:
   - **Description:** Time in seconds before reauthentication is required to
-    refresh the ID token. Should align with the token lifetime set by your OIDC Provider.
+    refresh the ID token. Should align with the token lifetime set by your OIDC
+    Provider.
   - **Type:** `integer`
   - **Default:** `900`
 

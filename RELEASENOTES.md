@@ -50,7 +50,8 @@ instructions above.
 
 Archivematica 1.18.0 no longer supports Elasticsearch 6.x and is now compatible
 with version 8.x. For instructions on migrating your Elasticsearch data, refer
-to the Upgrade Elasticsearch from 6.x to 8.x section of the Upgrade page in the documentation.
+to the Upgrade Elasticsearch from 6.x to 8.x section of the Upgrade page in the
+documentation.
 
 #### Ubuntu 24.04
 

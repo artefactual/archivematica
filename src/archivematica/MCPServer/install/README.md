@@ -21,7 +21,8 @@ components follow the same pattern:
 1. **Environment variables** - setting a configuration parameter with an
    environment variable will override all other methods.
 1. **Configuration file** - if the parameter is not set by an environment
-   variable, the component will look for a setting in its default configuration file.
+   variable, the component will look for a setting in its default configuration
+   file.
 1. **Application defaults** - if the parameter is not set in an environment
    variable or the config file, the application default is used.
 
