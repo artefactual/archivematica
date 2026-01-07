@@ -20,7 +20,7 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   elastic-transport
     #   requests
@@ -31,10 +31,8 @@ charset-normalizer==3.4.4
 clamav-client==0.7.1
     # via archivematica (pyproject.toml)
 cryptography==46.0.3
-    # via
-    #   josepy
-    #   mozilla-django-oidc
-django==5.2.9
+    # via mozilla-django-oidc
+django==5.2.10
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -42,7 +40,7 @@ django==5.2.9
     #   django-csp
     #   django-prometheus
     #   mozilla-django-oidc
-django-auth-ldap==5.2.0
+django-auth-ldap==5.3.0
     # via archivematica (pyproject.toml)
 django-autoslug==1.9.9
     # via archivematica (pyproject.toml)
@@ -60,7 +58,7 @@ django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
 elastic-transport==8.17.1
     # via elasticsearch
-elasticsearch==8.19.2
+elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
@@ -76,9 +74,7 @@ importlib-resources==6.5.2
     # via opf-fido
 inotify-simple==2.0.1
     # via archivematica (pyproject.toml)
-josepy==2.2.0
-    # via mozilla-django-oidc
-jsonschema==4.25.1
+jsonschema==4.26.0
     # via archivematica (pyproject.toml)
 jsonschema-specifications==2025.9.1
     # via jsonschema
@@ -92,7 +88,7 @@ lxml==6.0.2
     #   python-cas
 metsrw==0.6.1
     # via archivematica (pyproject.toml)
-mozilla-django-oidc==4.0.1
+mozilla-django-oidc==5.0.2
     # via archivematica (pyproject.toml)
 mysqlclient==2.2.7
     # via agentarchives
@@ -118,6 +114,8 @@ pyasn1-modules==0.4.2
     # via python-ldap
 pycparser==2.23
     # via cffi
+pyjwt==2.10.1
+    # via mozilla-django-oidc
 python-cas==1.7.1
     # via django-cas-ng
 python-dateutil==2.9.0.post0
@@ -151,7 +149,7 @@ six==1.17.0
     # via
     #   opf-fido
     #   python-dateutil
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via django
 typing-extensions==4.15.0
     # via
@@ -161,7 +159,7 @@ typing-extensions==4.15.0
     #   referencing
 unidecode==1.4.0
     # via archivematica (pyproject.toml)
-urllib3==2.6.0
+urllib3==2.6.3
     # via
     #   amclient
     #   elastic-transport
