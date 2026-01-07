@@ -54,6 +54,7 @@ dependencies = [
   "django-cas-ng",
   # Required for OpenID Connect authentication
   "mozilla-django-oidc",
+  "pyjwt",
 ]
 
 [project.optional-dependencies]

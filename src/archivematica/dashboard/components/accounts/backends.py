@@ -1,14 +1,13 @@
-import json
 from typing import Any
 from typing import Optional
 
+import jwt
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
-from josepy.jws import JWS
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from shibboleth.backends import ShibbolethRemoteUserBackend
 
@@ -133,9 +132,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         """
 
         def decode_token(token):
-            sig = JWS.from_compact(token.encode("utf-8"))
-            payload = sig.payload.decode("utf-8")
-            return json.loads(payload)
+            return jwt.decode(token, options={"verify_signature": False})
 
         access_info = decode_token(access_token)
         id_info = decode_token(id_token)

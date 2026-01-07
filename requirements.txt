@@ -115,7 +115,9 @@ pyasn1-modules==0.4.2
 pycparser==2.23
     # via cffi
 pyjwt==2.10.1
-    # via mozilla-django-oidc
+    # via
+    #   archivematica (pyproject.toml)
+    #   mozilla-django-oidc
 python-cas==1.7.1
     # via django-cas-ng
 python-dateutil==2.9.0.post0
