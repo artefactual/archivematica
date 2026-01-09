@@ -65,7 +65,7 @@ describe('useTransferAPI', () => {
       const { getProcessingConfigs } = useTransferAPI()
       const result = await getProcessingConfigs()
 
-      expect(mockFetch).toHaveBeenCalledWith('/api/processing-configurations/', {
+      expect(mockFetch).toHaveBeenCalledWith('/api/processing-configuration/', {
         headers: expect.any(Headers),
         credentials: 'same-origin',
       })

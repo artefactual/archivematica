@@ -75,7 +75,7 @@ async function verifySession(): Promise<boolean> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 3000) // Abort verification after 3 seconds.
 
-    const response = await fetch('/api/processing-configurations/', {
+    const response = await fetch('/api/processing-configuration/', {
       credentials: 'include',
       headers: {
         'Accept': 'application/json',

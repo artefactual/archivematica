@@ -28,7 +28,7 @@ class TransferBrowserTransfer {
   // Fetches array of processing configs from API endpoint
   fetch_processing_configs() {
     this.processing_configs = [];
-    jQuery.get('/api/processing-configurations/').then(result => {
+    jQuery.get('/api/processing-configuration/').then(result => {
       this.processing_configs = result.processing_configurations;
     });
   }

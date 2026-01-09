@@ -92,8 +92,8 @@ urlpatterns = [
         views.processing_configuration,
         name="processing_configuration",
     ),
-    re_path(
-        r"processing-configuration",
+    path(
+        "processing-configuration/",
         views.processing_configurations,
         name="processing_configuration_list",
     ),

@@ -76,7 +76,7 @@ export function useTransferAPI() {
 
   const getProcessingConfigs = async (): Promise<ProcessingConfig[]> => {
     return runWithPending(async () => {
-      const response = await fetchWithCsrf('/api/processing-configurations/')
+      const response = await fetchWithCsrf('/api/processing-configuration/')
       if (!response.ok) {
         throw new Error('Failed to fetch processing configurations')
       }
