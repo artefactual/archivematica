@@ -3,7 +3,7 @@ ARG UBUNTU_VERSION=24.04
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG PYTHON_VERSION=3.10
-ARG NODE_VERSION=20
+ARG NODE_VERSION=24
 ARG PYENV_DIR=/pyenv
 ARG SELENIUM_DIR=/selenium
 ARG MEDIAAREA_VERSION=1.0-25
@@ -122,7 +122,7 @@ RUN npm clean-install
 # -----------------------------------------------------------------------------
 
 # Built against Node v24 LTS!
-FROM node:24 AS archivematica-dashboard-vue-builder
+FROM node:${NODE_VERSION} AS archivematica-dashboard-vue-builder
 
 COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
 

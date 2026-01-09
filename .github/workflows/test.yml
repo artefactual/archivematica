@@ -165,16 +165,38 @@ jobs:
       - name: "Set up Node JS"
         uses: "actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f" # v6.1.0
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
           cache-dependency-path: |
             **/package-lock.json
       - name: "Install frontend dependencies"
         run: |
-          npm ci
+          npm clean-install
       - name: "Run tests"
         run: |
           npm run "test-single-run"
+  vue:
+    name: "Test Vue dashboard"
+    runs-on: "ubuntu-24.04"
+    defaults:
+      run:
+        working-directory: "./src/archivematica/dashboard/vue/"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8" # v6.0.1
+      - name: "Set up Node JS"
+        uses: "actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f" # v6.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: |
+            src/archivematica/dashboard/vue/package-lock.json
+      - name: "Install Vue dependencies"
+        run: |
+          npm clean-install
+      - name: "Run Vue tests"
+        run: |
+          npm run test
   linting:
     name: "Lint"
     runs-on: "ubuntu-24.04"
