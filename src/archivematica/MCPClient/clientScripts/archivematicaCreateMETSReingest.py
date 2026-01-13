@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import copy
+import hashlib
 import os
 
 import metsrw
@@ -402,6 +403,40 @@ def add_events(job, mets, sip_uuid):
             fsentry.add_premis_agent(createmets2.createAgent(agent))
 
     return mets
+
+
+def _compute_checksum(path, algorithm="SHA-256"):
+    """Return the hex digest of a file on disk using the given algorithm."""
+    algo = (algorithm or "SHA-256").lower().replace("-", "")
+    hasher = hashlib.new(algo)
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _get_fsentry_fixity(fsentry):
+    """Extract the stored fixity (algorithm, digest) from a METS fsentry."""
+    for amdsec in getattr(fsentry, "amdsecs", []):
+        doc = amdsec.serialize()
+        algo_el = doc.find(".//premis:messageDigestAlgorithm", namespaces=ns.NSMAP)
+        digest_el = doc.find(".//premis:messageDigest", namespaces=ns.NSMAP)
+        if digest_el is not None:
+            algo = algo_el.text if algo_el is not None else None
+            return algo, digest_el.text
+    return None, None
+
+
+def _metadata_csv_changed(fsentry, file_obj, sip_dir):
+    """Return True if on-disk metadata.csv differs from what METS records."""
+    algo, stored_digest = _get_fsentry_fixity(fsentry)
+    current_path = file_obj.currentlocation.decode().replace(
+        "%SIPDirectory%", sip_dir, 1
+    )
+    current_digest = _compute_checksum(current_path, algorithm=algo)
+    if stored_digest is None:
+        return True
+    return current_digest != stored_digest
 
 
 def add_new_files(job, mets, sip_uuid, sip_dir):
