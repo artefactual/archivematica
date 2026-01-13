@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:premis="info:lc/xmlns/premis-v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OBJID="test-mets">
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object xsi:type="premis:file" version="3.0">
+            <premis:objectIdentifier>
+              <premis:objectIdentifierType>UUID</premis:objectIdentifierType>
+              <premis:objectIdentifierValue>3140ebe1-995c-490g-a34a-83955p7c844e</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:compositionLevel>0</premis:compositionLevel>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>SHA-256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>old-digest-value</premis:messageDigest>
+              </premis:fixity>
+            </premis:objectCharacteristics>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file ID="file-1111" ADMID="amdSec_1">
+        <mets:FLocat LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM" xlink:href="objects/metadata/metadata.csv"/>
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+  <mets:structMap TYPE="physical">
+    <mets:div TYPE="Directory" LABEL="objects">
+      <mets:div TYPE="Directory" LABEL="metadata">
+        <mets:div TYPE="Item" LABEL="metadata.csv" ADMID="amdSec_1">
+          <mets:fptr FILEID="file-1111"/>
+        </mets:div>
+      </mets:div>
+    </mets:div>
+  </mets:structMap>
+</mets:mets>
