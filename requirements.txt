@@ -102,7 +102,7 @@ packaging==25.0
     # via
     #   django-csp
     #   gunicorn
-prometheus-client==0.23.1
+prometheus-client==0.24.0
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
@@ -170,5 +170,5 @@ whitenoise==6.11.0
     # via archivematica (pyproject.toml)
 zope-event==6.1
     # via gevent
-zope-interface==8.1.1
+zope-interface==8.2
     # via gevent

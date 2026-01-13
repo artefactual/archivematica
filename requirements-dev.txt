@@ -20,7 +20,7 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-build==1.3.0
+build==1.4.0
     # via pip-tools
 cachetools==6.2.4
     # via tox
@@ -78,7 +78,7 @@ elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
 exceptiongroup==1.3.1
     # via pytest
-filelock==3.20.2
+filelock==3.20.3
     # via
     #   tox
     #   virtualenv
@@ -151,7 +151,7 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
     #   tox
-prometheus-client==0.23.1
+prometheus-client==0.24.0
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
@@ -236,7 +236,7 @@ sqlparse==0.5.5
     # via django
 text-unidecode==1.3
     # via python-slugify
-tomli==2.3.0
+tomli==2.4.0
     # via
     #   build
     #   coverage
@@ -244,7 +244,7 @@ tomli==2.3.0
     #   pyproject-api
     #   pytest
     #   tox
-tox==4.33.0
+tox==4.34.1
     # via archivematica (pyproject.toml)
 typing-extensions==4.15.0
     # via
@@ -263,7 +263,7 @@ urllib3==2.6.3
     #   amclient
     #   elastic-transport
     #   requests
-virtualenv==20.36.0
+virtualenv==20.36.1
     # via tox
 wheel==0.45.1
     # via pip-tools
@@ -271,7 +271,7 @@ whitenoise==6.11.0
     # via archivematica (pyproject.toml)
 zope-event==6.1
     # via gevent
-zope-interface==8.1.1
+zope-interface==8.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
