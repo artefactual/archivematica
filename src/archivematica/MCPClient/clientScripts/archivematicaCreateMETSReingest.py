@@ -447,10 +447,8 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
     If a new file is a metadata.csv, parse it to create dmdSecs.
     """
-    # Find new files
-    # How tell new file from old with same name? Check hash?
-    # QUESTION should the metadata.csv be parsed and only updated if different
-    # even if one already existed?
+    # Find new files and detect metadata.csv changes even when METS already
+    # contains the path.
     new_files = []
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
