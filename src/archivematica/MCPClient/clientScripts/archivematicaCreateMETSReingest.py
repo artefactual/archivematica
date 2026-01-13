@@ -454,6 +454,7 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
     new_files = []
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
+    metadata_csv_path = "objects/metadata/metadata.csv"
     objects_dir = os.path.join(sip_dir, "objects")
     for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
@@ -473,12 +474,23 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
                         currentlocation=current_loc.encode(), sip_id=str(sip_uuid)
                     )
                     new_files.append(f)
-                    if rel_path == "objects/metadata/metadata.csv":
+                    if rel_path == metadata_csv_path:
                         metadata_csv = f
             else:
+                if rel_path == metadata_csv_path:
+                    file_obj = models.File.objects.filter(
+                        currentlocation=current_loc.encode(), sip_id=str(sip_uuid)
+                    ).first()
+                    if file_obj and _metadata_csv_changed(fsentry, file_obj, sip_dir):
+                        metadata_csv = file_obj
+                        job.pyprint(
+                            rel_path,
+                            "found in METS with changed content, will reprocess",
+                        )
+                        continue
                 job.pyprint(rel_path, "found in METS, no further work needed")
 
-    if not new_files:
+    if not new_files and metadata_csv is None:
         return mets
 
     # Set global counters so getAMDSec will work
