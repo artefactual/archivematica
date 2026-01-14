@@ -1,4 +1,0 @@
-src/archivematica/dashboard/frontend/app/locale/*.po linguist-generated=true
-src/archivematica/dashboard/frontend/app/locale/*.pot linguist-generated=true
-src/archivematica/dashboard/frontend/app/locale/translations.json linguist-generated=true
-src/archivematica/dashboard/frontend/package-lock.json linguist-generated=true
