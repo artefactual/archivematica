@@ -43,7 +43,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.9"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.10"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
