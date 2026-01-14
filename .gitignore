@@ -24,7 +24,6 @@
 
 # frontend builds
 src/archivematica/dashboard/static/
-src/archivematica/dashboard/media/js/build
 
 # setuptools build
 **/*.egg-info
