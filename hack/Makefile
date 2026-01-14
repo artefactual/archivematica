@@ -180,22 +180,7 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 					--ss-api-key="test" \
 					--site-url="http://archivematica-dashboard:8000"
 
-bootstrap-dashboard-frontend-angular:
-	docker build \
-		-t archivematica-dashboard-frontend-builder \
-		-f $(CURDIR)/Dockerfile \
-		--build-arg TARGET=archivematica-dashboard-frontend-builder \
-			../
-	docker run \
-		-e HOME=/tmp/npm-config \
-		--rm \
-		--user $(CALLER_UID):$(CALLER_GID) \
-		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
-		--entrypoint npm \
-			archivematica-dashboard-frontend-builder \
-				clean-install
-
-bootstrap-dashboard-frontend-vue:
+bootstrap-dashboard-frontend:  ## Build front-end assets.
 	docker build \
 		-t archivematica-dashboard-vue-builder \
 		-f $(CURDIR)/Dockerfile \
@@ -209,8 +194,6 @@ bootstrap-dashboard-frontend-vue:
 		--entrypoint npm \
 			archivematica-dashboard-vue-builder \
 				clean-install
-
-bootstrap-dashboard-frontend: bootstrap-dashboard-frontend-angular bootstrap-dashboard-frontend-vue  ## Build front-end assets.
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
 	docker compose restart --no-deps archivematica-mcp-server
@@ -428,25 +411,6 @@ test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-b
 
 test-at-black-box: TAGS=black-box  ## AMAUAT: run the black-box automation tests.
 test-at-black-box: test-at-behave
-
-test-frontend:  ## Run Dashboard JS tests.
-	docker build \
-		-t archivematica-dashboard-testing \
-		-f $(CURDIR)/Dockerfile \
-		--build-arg TARGET=archivematica-dashboard-testing \
-			../
-	docker run \
-		-e HOME=/tmp/npm-config \
-		--rm \
-		--user $(CALLER_UID):$(CALLER_GID) \
-		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
-		--entrypoint npm \
-			archivematica-dashboard-testing \
-				install
-	docker run \
-		--rm \
-		--volume "$(SRCDIR)/archivematica/dashboard/frontend:/src/src/archivematica/dashboard/frontend" \
-			archivematica-dashboard-testing
 
 stop:  # Stop all containers.
 	$(call compose_all, stop)

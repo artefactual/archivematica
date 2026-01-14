@@ -111,17 +111,6 @@ RUN set -ex \
 
 # -----------------------------------------------------------------------------
 
-FROM node:${NODE_VERSION} AS archivematica-dashboard-frontend-builder
-
-COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboard/frontend
-
-WORKDIR /src/src/archivematica/dashboard/frontend
-
-RUN npm clean-install
-
-# -----------------------------------------------------------------------------
-
-# Built against Node v24 LTS!
 FROM node:${NODE_VERSION} AS archivematica-dashboard-vue-builder
 
 COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
@@ -129,39 +118,6 @@ COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
 WORKDIR /src/src/archivematica/dashboard/vue
 
 RUN npm clean-install
-
-# -----------------------------------------------------------------------------
-
-FROM node:${NODE_VERSION} AS archivematica-dashboard-testing
-
-ARG USER_ID
-ARG GROUP_ID
-ARG SELENIUM_DIR=/selenium
-ENV PATH=${SELENIUM_DIR}/bin:$PATH
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-	--mount=type=cache,target=/var/lib/apt,sharing=locked \
-	set -ex \
-	&& apt-get update \
-	&& apt-get -y --no-install-recommends install \
-		libasound2 \
-		libdbus-glib-1-2 \
-		libdrm2 \
-		libgbm1 \
-		libglib2.0-0 \
-		libgtk-3-0 \
-		libnss3 \
-		libx11-xcb1 \
-		libxcb1 \
-		libxtst6
-
-COPY --chown=${USER_ID}:${GROUP_ID} --from=browsers-builder --link ${SELENIUM_DIR} ${SELENIUM_DIR}
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/frontend/node_modules /src/src/archivematica/dashboard/frontend/node_modules
-COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboard/frontend
-
-WORKDIR /src/src/archivematica/dashboard/frontend
-
-ENTRYPOINT ["npm", "run", "test-single-run"]
 
 # -----------------------------------------------------------------------------
 
@@ -281,7 +237,6 @@ USER root
 
 RUN set -ex \
 	&& internalDirs=' \
-		/src/src/archivematica/dashboard/frontend \
 		/src/src/archivematica/dashboard/static \
 		/src/src/archivematica/dashboard/media \
 	' \
@@ -289,8 +244,6 @@ RUN set -ex \
 	&& chown -R archivematica $internalDirs
 
 USER archivematica
-
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/media/js/ /src/src/archivematica/dashboard/media/js
 
 COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-vue-builder --link /src/src/archivematica/dashboard/vue/dist /src/src/archivematica/dashboard/vue/dist
 

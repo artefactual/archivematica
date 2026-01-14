@@ -43,13 +43,6 @@ echo "Dashboard: extracting messages..."
 dashboard::manage makemessages --all --domain django
 dashboard::manage makemessages --all --domain djangojs --ignore build/*
 
-docker compose run \
-	--user=$(id -u):$(id -g) \
-	--rm --no-deps \
-	--workdir=/src/src/archivematica/dashboard/frontend \
-	--entrypoint=yarn \
-		archivematica-dashboard run extract-messages
-
 (cd ${__root_dir} && git status -s)
 
 
