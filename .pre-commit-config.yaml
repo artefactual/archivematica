@@ -27,7 +27,7 @@ repos:
     exclude: |
       (?x)^(
         ISSUE_TEMPLATE\.md|
-        src/archivematica/dashboard/(frontend/app|media)/vendor/.*
+        src/archivematica/dashboard/media/vendor/.*
       )
 - repo: https://github.com/thlorenz/doctoc
   rev: v2.2.0
