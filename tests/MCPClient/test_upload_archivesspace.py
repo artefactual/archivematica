@@ -5,6 +5,7 @@ from unittest import mock
 
 import pytest
 
+from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
 from archivematica.MCPClient.clientScripts import upload_archivesspace
 
 
@@ -35,18 +36,35 @@ def test_get_files_from_dip_with_empty_dip_location(logger, tmpdir):
     logger.error.assert_called_once_with(f"no files in {str(dip)}/objects")
 
 
-@mock.patch(
-    "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceDIPObjectResourcePairing.objects.filter",
-    return_value=[
-        mock.Mock(fileuuid="1", resourceid="myresource"),
-        mock.Mock(fileuuid="2", resourceid="myresource"),
-    ],
-)
-def test_get_pairs(filter_mock):
-    dip_uuid = "somedipuuid"
+@pytest.mark.django_db
+def test_get_pairs():
+    dip_uuid = uuid.uuid4()
+    file_uuid_1 = uuid.uuid4()
+    file_uuid_2 = uuid.uuid4()
+    ArchivesSpaceDIPObjectResourcePairing.objects.bulk_create(
+        [
+            ArchivesSpaceDIPObjectResourcePairing(
+                dipuuid=dip_uuid,
+                fileuuid=file_uuid_1,
+                resourceid="myresource",
+            ),
+            ArchivesSpaceDIPObjectResourcePairing(
+                dipuuid=dip_uuid,
+                fileuuid=file_uuid_2,
+                resourceid="myresource",
+            ),
+            ArchivesSpaceDIPObjectResourcePairing(
+                dipuuid=uuid.uuid4(),
+                fileuuid=uuid.uuid4(),
+                resourceid="otherresource",
+            ),
+        ]
+    )
     result = upload_archivesspace.get_pairs(dip_uuid)
-    assert result == {"1": "myresource", "2": "myresource"}
-    filter_mock.assert_called_once_with(dipuuid=dip_uuid)
+    assert result == {
+        str(file_uuid_1): "myresource",
+        str(file_uuid_2): "myresource",
+    }
 
 
 @mock.patch(
