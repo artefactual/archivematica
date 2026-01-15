@@ -51,7 +51,7 @@ def get_files_from_dip(dip_location):
 
 def get_pairs(dip_uuid):
     return {
-        pair.fileuuid: pair.resourceid
+        str(pair.fileuuid): pair.resourceid
         for pair in ArchivesSpaceDIPObjectResourcePairing.objects.filter(
             dipuuid=dip_uuid
         )
