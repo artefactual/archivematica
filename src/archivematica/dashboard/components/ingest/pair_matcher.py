@@ -290,7 +290,7 @@ def ingest_upload_atk_get_dip_object_paths(uuid):
             )
             object_path = remove_objects_prefix(object_path)
             paths.append(object_path)
-            path_uuids[object_path] = file.uuid
+            path_uuids[object_path] = str(file.uuid)
     paths.sort()
     for path in paths:
         files.append({"uuid": path_uuids[path], "path": path})
