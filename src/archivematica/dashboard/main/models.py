@@ -26,7 +26,6 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.db import models
 from django.db import transaction
 from django.db.models.signals import post_save
@@ -50,7 +49,6 @@ METADATA_STATUS = (
 )
 
 # How many objects are created through bulk_create in a single database query
-BULK_CREATE_BATCH_SIZE = 2000
 
 # CUSTOM FIELDS
 
@@ -602,70 +600,6 @@ class Transfer(models.Model):
     @property
     def active(self):
         return self.status == PACKAGE_STATUS_PROCESSING
-
-
-class SIPArrange(models.Model):
-    """Information about arranged files: original and arranged location, current status."""
-
-    original_path = models.BinaryField(null=True, blank=True, default=None)
-    arrange_path = models.BinaryField()
-    file_uuid = UUIDField(null=True, blank=True, default=uuid.uuid4, unique=True)
-    transfer_uuid = UUIDField(null=True, blank=True, default=uuid.uuid4)
-    sip = models.ForeignKey(
-        SIP,
-        to_field="uuid",
-        null=True,
-        blank=True,
-        default=None,
-        on_delete=models.CASCADE,
-    )
-    level_of_description = models.CharField(max_length=2014)
-    sip_created = models.BooleanField(default=False)
-    aip_created = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = _("Arranged SIPs")
-
-    def __str__(self):
-        return str(
-            _("%(original)s -> %(arrange)s")
-            % {
-                "original": self.original_path.decode(),
-                "arrange": self.arrange_path.decode(),
-            }
-        )
-
-    @classmethod
-    def create_many(cls, arranges):
-        """Bulk create a list of SIPArrange model instances.
-
-        If some of the SIPArrange instances already exist, bulk creation
-        will fail and this will revert back to saving each instance
-        individually ignoring the existing ones.
-        """
-        try:
-            cls.objects.bulk_create(arranges, BULK_CREATE_BATCH_SIZE)
-        except IntegrityError:
-            for arrange in arranges:
-                try:
-                    arrange.save()
-                except IntegrityError:
-                    continue
-
-
-class SIPArrangeAccessMapping(models.Model):
-    """Maps directories within SIPArrange to descriptive objects in a remote archival management system."""
-
-    ARCHIVESSPACE = "archivesspace"
-    ATOM = "atom"
-    SYSTEMS = ((ARCHIVESSPACE, "ArchivesSpace"), (ATOM, "AtoM"))
-
-    arrange_path = models.CharField(max_length=255)
-    system = models.CharField(choices=SYSTEMS, default=ATOM, max_length=255)
-    identifier = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"arrange_path={self.arrange_path}, system={self.system}, identifier={self.identifier}"
 
 
 class Identifier(models.Model):
@@ -1831,16 +1765,3 @@ class FileID(models.Model):
 
     class Meta:
         db_table = "FilesIDs"
-
-
-class LevelOfDescription(models.Model):
-    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
-    name = models.CharField(max_length=1024)  # seems long, but AtoM allows this much
-    # sortorder should be unique, but is not defined so here to enable swapping
-    sortorder = models.IntegerField(default=0, db_column="sortOrder")
-
-    def __str__(self):
-        return str(
-            _("%(sortorder)s: %(name)s")
-            % {"sortorder": self.sortorder, "name": self.name}
-        )

@@ -7,7 +7,6 @@ from django.db import transaction
 django.setup()
 
 import archivematica.archivematicaCommon.storageService as storage_service
-from archivematica.dashboard.main import models
 from archivematica.MCPClient.client import metrics
 
 REJECTED = "reject"
@@ -15,11 +14,6 @@ FAILED = "fail"
 
 
 def main(job, fail_type, sip_uuid):
-    # Update SIP Arrange table for failed SIP
-    file_uuids = models.File.objects.filter(sip=sip_uuid).values_list("uuid", flat=True)
-    job.pyprint("Allow files in this SIP to be arranged. UUIDs:", file_uuids)
-    models.SIPArrange.objects.filter(sip_id=sip_uuid).delete()
-
     # Update storage service that reingest failed
     session = storage_service._storage_api_session()
     url = storage_service._storage_service_url() + "file/" + sip_uuid + "/"

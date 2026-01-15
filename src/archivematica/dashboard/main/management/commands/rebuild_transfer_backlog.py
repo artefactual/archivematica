@@ -530,7 +530,7 @@ def _import_self_describing_transfer(
 
     Knowledge of this transfer is not required in the database. If
     missing, this function will populate the necessary state so
-    arrangement and ingest work as expected.
+    ingest works as expected.
 
     :param cmd: Command object
     :param search_service: Search service instance.

@@ -47,7 +47,6 @@
             {% url 'main:main_index' as url_home %}
             {% url 'transfer:transfer_index' as url_transfer %}
             {% url 'backlog:backlog_index' as url_backlog %}
-            {% url 'appraisal:appraisal_index' as url_appraisal %}
             {% url 'ingest:ingest_index' as url_ingest %}
             {% url 'archival_storage:archival_storage_index' as url_archival_storage %}
             {% url 'fpr:fpr_index' as url_fpr %}
@@ -59,7 +58,6 @@
               <li class="{% active request url_transfer %}"><a href="{{ url_transfer }}">{% trans "Transfer" %}</a></li>
               {% if search_transfers_enabled %}
                 <li class="{% active request url_backlog %}"><a href="{{ url_backlog }}">{% trans "Backlog" %}</a></li>
-                <li class="{% active request url_appraisal %}"><a href="{{ url_appraisal }}">{% trans "Appraisal" %}</a></li>
               {% endif %}
               <li class="{% active request url_ingest %}"><a href="{{ url_ingest }}">{% trans "Ingest" %}</a></li>
               {% if search_aips_enabled %}

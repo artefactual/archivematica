@@ -3,7 +3,6 @@ import uuid
 from unittest import mock
 
 import pytest
-from django.db import IntegrityError
 from django.test import TestCase
 
 from archivematica.dashboard.main import models
@@ -83,29 +82,6 @@ def test_create_user_agent(agent_mock):
             "agenttype": "Archivematica user",
         },
     )
-
-
-def test_sip_arrange_create_many(db):
-    arranges = [
-        models.SIPArrange(original_path=None, arrange_path=b"a.txt", file_uuid=None),
-        models.SIPArrange(original_path=None, arrange_path=b"b.txt", file_uuid=None),
-    ]
-    assert not models.SIPArrange.objects.count()
-    models.SIPArrange.create_many(arranges)
-    assert models.SIPArrange.objects.count() == 2
-
-
-@mock.patch(
-    "archivematica.dashboard.main.models.SIPArrange.objects.bulk_create",
-    side_effect=IntegrityError(),
-)
-def test_sip_arrange_create_many_with_integrity_error(bulk_create):
-    arrange1_mock = mock.Mock()
-    arrange2_mock = mock.Mock()
-    models.SIPArrange.create_many([arrange1_mock, arrange2_mock])
-    # If bulk creation fails each SIPArrange is saved individually
-    arrange1_mock.save.assert_called_once()
-    arrange2_mock.save.assert_called_once()
 
 
 class TestJobModel:

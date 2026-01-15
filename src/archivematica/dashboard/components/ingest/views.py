@@ -38,8 +38,6 @@ from django.utils.translation import gettext as _
 from django.views.generic import View
 
 from archivematica.archivematicaCommon import storageService as storage_service
-from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
-from archivematica.dashboard.components import advanced_search
 from archivematica.dashboard.components import decorators
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.ingest import forms as ingest_forms
@@ -49,35 +47,12 @@ from archivematica.dashboard.components.ingest.views_NormalizationReport import 
 from archivematica.dashboard.contrib.mcp.client import MCPClient
 from archivematica.dashboard.main import forms
 from archivematica.dashboard.main import models
-from archivematica.search import utils
-from archivematica.search.constants import STATUS_BACKLOG
-from archivematica.search.service import setup_search_service_from_conf
 
 logger = logging.getLogger("archivematica.dashboard")
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Ingest
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ """
-
-
-def _any_draggable(nodes):
-    for node in nodes:
-        children = node.get("children", [])
-        if not node["not_draggable"] or _any_draggable(children):
-            return True
-    return False
-
-
-def _adjust_directories_draggability(nodes):
-    """Make directories not draggable only if all their children are not draggable."""
-    for node in nodes:
-        # Make directory nodes draggable by default
-        if "relative_path" not in node:
-            node["not_draggable"] = False
-        children = node.get("children", [])
-        if children:
-            node["not_draggable"] = not _any_draggable(children)
-            _adjust_directories_draggability(children)
 
 
 def ingest_grid(request):
@@ -87,7 +62,7 @@ def ingest_grid(request):
         messages.warning(
             request,
             _(
-                "Error retrieving originals/arrange directory locations: is the storage server running? Please contact an administrator."
+                "Error retrieving originals directory locations: is the storage server running? Please contact an administrator."
             ),
         )
     return render(
@@ -440,250 +415,6 @@ _REGEX_BAGIT_MANIFESTS = re.compile(
     """,
     re.VERBOSE,
 )
-
-
-def _is_hidden(part):
-    """Return whether a string must be hidden in the treeview."""
-    if part in ("logs", "metadata"):
-        return True
-    if _REGEX_BAGIT_MANIFESTS.match(part):
-        return True
-    if part == "README.html":
-        return True
-    return False
-
-
-def _es_results_to_directory_tree(path, return_list, not_draggable=False):
-    # Helper function for transfer_backlog
-    # Paths MUST be input in sorted order
-    # Otherwise the same directory might end up with multiple entries
-    parts = path.split("/", 1)
-    if _is_hidden(parts[0]):
-        not_draggable = True
-    if len(parts) == 1:  # path is a file
-        return_list.append(
-            {
-                "name": b64encode_string(parts[0]),
-                "properties": {"not_draggable": not_draggable},
-            }
-        )
-    else:
-        node, others = parts
-        node = b64encode_string(node)
-        if not return_list or return_list[-1]["name"] != node:
-            return_list.append(
-                {
-                    "name": node,
-                    "properties": {"not_draggable": not_draggable, "object count": 0},
-                    "children": [],
-                }
-            )
-        this_node = return_list[-1]
-        # Populate children list
-        _es_results_to_directory_tree(
-            others, this_node["children"], not_draggable=not_draggable
-        )
-
-        # Generate count of all non-directory objects in this tree
-        object_count = sum(
-            e["properties"].get("object count", 0) for e in this_node["children"]
-        )
-        object_count += len([e for e in this_node["children"] if not e.get("children")])
-
-        this_node["properties"]["object count"] = object_count
-        this_node["properties"]["display_string"] = f"{object_count} objects"
-        # If any children of a dir are draggable, the whole dir should be
-        # Otherwise, directories have the draggability of their first child
-        this_node["properties"]["not_draggable"] = (
-            this_node["properties"]["not_draggable"] and not_draggable
-        )
-
-
-def _is_draggable(parts):
-    if parts[1] == "data":
-        # the transfer is a bag (contains a "data" directory)
-        if len(parts) > 2:
-            # check if the child of "data" is hidden
-            result = not _is_hidden(parts[2])
-        else:
-            # data is the final part and it's draggable
-            result = True
-    else:
-        # the transfer is not a bag
-        # check if the child of the transfer is hidden
-        result = not _is_hidden(parts[1])
-    return result
-
-
-def _es_results_to_appraisal_tab_format(
-    record, record_map, directory_list, not_draggable=False
-):
-    """
-    Given a set of records from Elasticsearch, produces a list of records suitable for use with the appraisal tab.
-    This function mutates a provided `directory_list`; it does not return a value.
-
-    Elasticsearch results index only files; directories are inferred by splitting the filename and generating directory entries for each presumed directory.
-
-    :param dict record: A record from Elasticsearch.
-        This must be in the new format defined for Archivematica 1.6.
-    :param dict record_map: A dictionary to be used to track created directory objects.
-        This ensures that duplicate directories aren't created when processing multiple files.
-    :param dict directory_list: A list of top-level directories to return in the results.
-        This only contains directories which are not themselves contained within any other directories, e.g. transfers.
-        This will be appended to by this function in lieu of returning a value.
-    :param bool not_draggable: This property determines whether or not a given file should be able to be dragged in the user interface; passing this will override the default logic for determining if a file is draggable.
-    """
-    dir, fn = record["relative_path"].rsplit("/", 1)
-
-    # Recursively create elements for this item's parent directory,
-    # if not already present in the record map
-    components = dir.split("/")
-    directories = []
-    while len(components) > 0:
-        directories.insert(0, "/".join(components))
-        components.pop(-1)
-
-    parent = None
-    for node in directories:
-        node_parts = node.split("/")
-        is_transfer = len(node_parts) == 1
-        draggable = not not_draggable and (
-            _is_draggable(node_parts) if not is_transfer else not not_draggable
-        )
-        if node not in record_map:
-            dir_record = {
-                "type": "transfer" if is_transfer else "directory",
-                # have to artificially create directory IDs, since we don't assign those
-                "id": str(uuid.uuid4()),
-                "title": b64encode_string(os.path.basename(node)),
-                "relative_path": b64encode_string(node),
-                "not_draggable": not draggable,
-                "object_count": 0,
-                "children": [],
-            }
-            record_map[node] = dir_record
-            # directory_list should consist only of top-level records
-            if is_transfer:
-                directory_list.append(dir_record)
-        else:
-            dir_record = record_map[node]
-
-        if parent is not None and dir_record not in parent["children"]:
-            parent["children"].append(dir_record)
-            parent["object_count"] += 1
-
-        parent = dir_record
-
-    dir_parts = dir.split("/")
-    draggable = not not_draggable and (
-        _is_draggable(dir_parts) if (len(dir_parts) > 1) else not not_draggable
-    )
-
-    child = {
-        "type": "file",
-        "id": record["fileuuid"],
-        "title": b64encode_string(fn),
-        "relative_path": b64encode_string(record["relative_path"]),
-        "size": record["size"],
-        "tags": record["tags"],
-        "bulk_extractor_reports": record["bulk_extractor_reports"],
-        "not_draggable": _is_hidden(fn) or not draggable,
-    }
-
-    if record["modification_date"]:
-        child["last_modified"] = record["modification_date"]
-
-    if record["format"]:
-        format = record["format"][0]  # TODO handle multiple format identifications
-        child["format"] = format["format"]
-        child["group"] = format["group"]
-        child["puid"] = format["puid"]
-
-    record_map[dir]["children"].append(child)
-    record_map[dir]["object_count"] += 1
-
-
-def transfer_backlog(request, ui):
-    """
-    AJAX endpoint to query for and return transfer backlog items.
-    """
-    search_service = setup_search_service_from_conf(django_settings)
-    results = None
-
-    # Return files which are in the backlog
-    backlog_filter = {"bool": {"must": {"term": {"status": STATUS_BACKLOG}}}}
-    # Omit files without UUIDs (metadata and logs directories):
-    # - When the `hidemetadatalogs` param is sent from SIP arrange.
-    if request.GET.get("hidemetadatalogs"):
-        backlog_filter["bool"]["must_not"] = {"term": {"fileuuid": ""}}
-
-    # Get search parameters from request
-    if "query" not in request.GET:
-        # Use backlog boolean filter as boolean query
-        query = {"query": backlog_filter}
-    else:
-        queries, ops, fields, types = advanced_search.search_parameter_prep(request)
-
-        try:
-            query = advanced_search.assemble_query(
-                queries, ops, fields, types, filters=[backlog_filter]
-            )
-        except Exception:
-            logger.exception("Error accessing index.")
-            return HttpResponse("Error accessing index.")
-
-    # perform search
-    try:
-        results = search_service.search_transfer_files(query)
-    except Exception:
-        logger.exception("Error accessing index.")
-        return HttpResponse("Error accessing index.")
-
-    # Convert results into a more workable form
-    results = utils.augment_raw_search_results(results)
-
-    # Convert to a form JS can use:
-    # [{'name': <filename>,
-    #   'properties': {'not_draggable': False}},
-    #  {'name': <directory name>,
-    #   'properties': {'not_draggable': True, 'object count': 3, 'display_string': '3 objects'},
-    #   'children': [
-    #    {'name': <filename>,
-    #     'properties': {'not_draggable': True}},
-    #    {'name': <directory name>,
-    #     'children': [...]
-    #    }
-    #   ]
-    #  },
-    # ]
-    return_list = []
-    directory_map = {}
-    # _es_results_to_directory_tree requires that paths MUST be sorted
-    results.sort(key=lambda x: x["relative_path"])
-    for path in results:
-        # If a path is in SIPArrange.original_path, then it shouldn't be draggable
-        not_draggable = False
-        if models.SIPArrange.objects.filter(
-            original_path__endswith=path["relative_path"]
-        ).exists():
-            not_draggable = True
-        if ui == "legacy":
-            _es_results_to_directory_tree(
-                path["relative_path"], return_list, not_draggable=not_draggable
-            )
-        else:
-            _es_results_to_appraisal_tab_format(
-                path, directory_map, return_list, not_draggable=not_draggable
-            )
-
-    if ui == "legacy":
-        response = return_list
-    else:
-        _adjust_directories_draggability(return_list)
-        response = {"formats": [], "transfers": return_list}  # TODO populate this
-
-    # return JSON response
-    return helpers.json_response(response)
 
 
 def transfer_file_download(request, uuid):

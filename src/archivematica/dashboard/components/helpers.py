@@ -20,7 +20,6 @@ import mimetypes
 import os
 import pprint
 from urllib.parse import urlencode
-from urllib.parse import urljoin
 from wsgiref.util import FileWrapper
 
 import requests
@@ -31,22 +30,16 @@ from django.core.paginator import InvalidPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
 from django.db import connection
-from django.db.models import Max
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 from django.utils.dateformat import format
-from django.utils.translation import gettext as _
 from tastypie.models import ApiKey
 
 from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
-
-
-class AtomError(Exception):
-    pass
 
 
 # Used for debugging
@@ -202,53 +195,6 @@ def set_setting(setting, value=""):
         value = ""
     setting_data.value = value
     setting_data.save()
-
-
-def get_atom_levels_of_description(clear=True):
-    """
-    Fetch levels of description from an AtoM instance and store them in the database.
-    The URL and authentication details for the AtoM instance must already be stored in the settings.
-    Note that only English levels of description are fetched at this point in time.
-
-    :param bool clear: When True, deletes all existing levels of description from the Archivematica database before fetching; otherwise, the fetched levels of description will be appended to the already-stored values.
-    :raises AtomError: if no AtoM URL or authentication credentials are defined in the settings, or if the levels of description cannot be fetched for another reason
-    """
-    settings = models.DashboardSetting.objects.get_dict("upload-qubit_v0.0")
-
-    url = settings.get("url")
-    if not url:
-        raise AtomError(_("AtoM URL not defined!"))
-
-    email = settings.get("email")
-    password = settings.get("password")
-    if not email or not password:
-        raise AtomError(_("AtoM authentication settings not defined!"))
-    auth = (email, password)
-
-    # taxonomy 34 is "level of description"
-    dest = urljoin(url, "api/taxonomies/34")
-    response = requests.get(
-        dest,
-        params={"culture": "en"},
-        auth=auth,
-        timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT,
-    )
-    if response.status_code == 200:
-        base = 1
-        if clear:
-            models.LevelOfDescription.objects.all().delete()
-        else:
-            # Add after existing LoD
-            base = (
-                models.LevelOfDescription.objects.aggregate(max=Max("sortorder"))["max"]
-                + 1
-            )
-        levels = response.json()
-        for idx, level in enumerate(levels):
-            lod = models.LevelOfDescription(name=level["name"], sortorder=base + idx)
-            lod.save()
-    else:
-        raise AtomError(_("Unable to fetch levels of description from AtoM!"))
 
 
 def redirect_with_get_params(url_name, *args, **kwargs):

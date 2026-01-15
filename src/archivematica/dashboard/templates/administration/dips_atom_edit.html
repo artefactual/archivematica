@@ -26,12 +26,6 @@
 
     <div class="col-md-10">
 
-      {% url 'administration:atom_levels_of_description' as url_atom_levels_of_description %}
-
-      <div style="float: right">
-        <a href="{{ url_atom_levels_of_description }}" class="btn btn-default">{% trans "Levels of Description" %}</a>
-      </div>
-
       <form class="form-stacked" method="post" action="{% url 'administration:dips_atom_index' %}">
         {% csrf_token %}
 

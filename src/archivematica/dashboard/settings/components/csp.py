@@ -10,8 +10,6 @@ CONTENT_SECURITY_POLICY = {
         "style-src": [SELF, UNSAFE_INLINE],
         "img-src": [SELF, "data:"],
         "font-src": [SELF, "data:"],
-        # for preview file pane in the appraisal tab
-        "frame-src": [SELF],
         # for /status
         "connect-src": [SELF],
     }

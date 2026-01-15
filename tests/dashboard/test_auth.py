@@ -22,7 +22,6 @@ class TestAuth(TestCase):
     API_URLS = (
         reverse("api:completed_transfers"),
         reverse("api:completed_ingests"),
-        reverse("api:get_levels_of_description"),
     )
 
     @pytest.fixture(autouse=True)

@@ -88,8 +88,6 @@ urlpatterns = [
         r"^backlog/file/download/(?P<uuid>" + settings.UUID_REGEX + ")/",
         views.transfer_file_download,
     ),
-    path("backlog/", views.transfer_backlog, {"ui": "legacy"}),
-    path("appraisal_list/", views.transfer_backlog, {"ui": "appraisal"}),
 ]
 
 # ArchivesSpace

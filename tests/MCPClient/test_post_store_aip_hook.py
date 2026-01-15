@@ -159,17 +159,14 @@ def test_call_updates_storage_service_content(
     # Disable ES indexing.
     settings.SEARCH_ENABLED = "aips"
 
-    arrangement = models.SIPArrange.objects.create(
-        file_uuid=sip_file.uuid, transfer_uuid=transfer.uuid
+    transfer_path = pathlib.Path(
+        transfer.currentlocation.replace("%sharedPath%", settings.SHARED_DIRECTORY, 1)
     )
     mcp_job.args = ["post_store_aip_hook", str(sip.uuid)]
 
     post_store_aip_hook.call([mcp_job])
 
     assert mcp_job.get_exit_code() == 0
-
-    arrangement.refresh_from_db()
-    assert arrangement.aip_created
 
     assert [r.message for r in caplog.records] == [
         "Skipping indexing: Transfers indexing is currently disabled."
@@ -179,6 +176,7 @@ def test_call_updates_storage_service_content(
         f"Checking if transfer {transfer.uuid} is fully stored...",
         f"Transfer {transfer.uuid} fully stored, sending delete request to storage service, deleting from transfer backlog",
         f"SIP {sip.uuid} not associated with an ArchivesSpace component",
+        f"Transfer directory deleted: {transfer_path}",
     ]
     assert mcp_job.get_stderr().splitlines() == []
 

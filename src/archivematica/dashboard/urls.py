@@ -40,7 +40,6 @@ urlpatterns = [
         include("archivematica.dashboard.components.rights.transfer_urls"),
     ),
     path("transfer/", include("archivematica.dashboard.components.transfer.urls")),
-    path("appraisal/", include("archivematica.dashboard.components.appraisal.urls")),
     re_path(
         r"^ingest/(?P<uuid>" + settings.UUID_REGEX + ")/rights/",
         include("archivematica.dashboard.components.rights.ingest_urls"),
@@ -55,8 +54,6 @@ urlpatterns = [
         include("archivematica.dashboard.components.filesystem_ajax.urls"),
     ),
     path("api/", include("archivematica.dashboard.components.api.urls")),
-    path("file/", include("archivematica.dashboard.components.file.urls")),
-    path("access/", include("archivematica.dashboard.components.access.urls")),
     path("backlog/", include("archivematica.dashboard.components.backlog.urls")),
     path("", include("archivematica.dashboard.main.urls")),
 ]

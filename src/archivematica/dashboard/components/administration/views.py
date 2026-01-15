@@ -23,8 +23,6 @@ import subprocess
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.db.models import Max
-from django.db.models import Min
 from django.http import Http404
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseRedirect
@@ -92,84 +90,6 @@ def failure_report_detail(request):
     return render(
         request, "administration/reports/failure_report_detail.html", locals()
     )
-
-
-def atom_levels_of_description(request):
-    if request.method == "POST":
-        level_operation = request.POST.get("operation")
-        level_id = request.POST.get("id")
-
-        if level_operation == "promote":
-            if _atom_levels_of_description_sort_adjust(level_id, "promote"):
-                messages.info(request, _("Promoted."))
-            else:
-                messages.error(
-                    request, _("Error attempting to promote level of description.")
-                )
-        elif level_operation == "demote":
-            if _atom_levels_of_description_sort_adjust(level_id, "demote"):
-                messages.info(request, _("Demoted."))
-            else:
-                messages.error(
-                    request, _("Error attempting to demote level of description.")
-                )
-        elif level_operation == "delete":
-            try:
-                level = models.LevelOfDescription.objects.get(id=level_id)
-                level.delete()
-                messages.info(request, _("Deleted."))
-            except models.LevelOfDescription.DoesNotExist:
-                messages.error(request, _("Level of description not found."))
-
-    levels = models.LevelOfDescription.objects.order_by("sortorder")
-    sortorder_min = models.LevelOfDescription.objects.aggregate(min=Min("sortorder"))[
-        "min"
-    ]
-    sortorder_max = models.LevelOfDescription.objects.aggregate(max=Max("sortorder"))[
-        "max"
-    ]
-
-    return render(
-        request,
-        "administration/atom_levels_of_description.html",
-        {
-            "levels": levels,
-            "sortorder_min": sortorder_min,
-            "sortorder_max": sortorder_max,
-        },
-    )
-
-
-def _atom_levels_of_description_sort_adjust(level_id, sortorder="promote"):
-    """
-    Move LevelOfDescription with level_id up or down one.
-
-    :param int level_id: ID of LevelOfDescription to adjust
-    :param string sortorder: 'promote' to demote level_id, 'demote' to promote level_id
-    :returns: True if success, False otherwise.
-    """
-    try:
-        level = models.LevelOfDescription.objects.get(id=level_id)
-        # Get object with next highest/lowest sortorder
-        if sortorder == "demote":
-            previous_level = models.LevelOfDescription.objects.order_by(
-                "sortorder"
-            ).filter(sortorder__gt=level.sortorder)[:1][0]
-        elif sortorder == "promote":
-            previous_level = models.LevelOfDescription.objects.order_by(
-                "-sortorder"
-            ).filter(sortorder__lt=level.sortorder)[:1][0]
-    except (models.LevelOfDescription.DoesNotExist, IndexError):
-        return False
-
-    # Swap
-    level.sortorder, previous_level.sortorder = (
-        previous_level.sortorder,
-        level.sortorder,
-    )
-    level.save()
-    previous_level.save()
-    return True
 
 
 def storage(request):

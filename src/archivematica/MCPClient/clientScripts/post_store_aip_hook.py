@@ -47,7 +47,8 @@ def find_transfer_ids_by_unit_uuid(unit_uuid: str) -> set[str]:
 def delete_transfer_directory(job, sip_uuid):
     """Delete the transfer directory that sourced this SIP.
 
-    This is only expected to work when the SIP was not arranged in backlog.
+    This is only expected to work when the transfer directory is under
+    currentlyProcessing.
     """
     current_location = (
         models.File.objects.filter(
@@ -161,33 +162,26 @@ def post_store_hook(job, sip_uuid):
         logger.info("Skipping indexing: Transfers indexing is currently disabled.")
         search_service = None
 
-    # SIP ARRANGEMENT
-
-    # Mark files in this SIP as in an AIP (aip_created)
-    file_uuids = models.File.objects.filter(sip=sip_uuid).values_list("uuid", flat=True)
-    models.SIPArrange.objects.filter(file_uuid__in=file_uuids).update(aip_created=True)
-
-    # Check if any of component transfers are completely stored
-    # TODO Storage service should index AIPs, knows when to update ES
-    transfer_uuids = set(
-        models.SIPArrange.objects.filter(file_uuid__in=file_uuids).values_list(
-            "transfer_uuid", flat=True
-        )
-    )
+    # Check if any component transfers are fully stored in this SIP.
+    transfer_uuids = {
+        transfer_uuid
+        for transfer_uuid in find_transfer_ids_by_unit_uuid(sip_uuid)
+        if transfer_uuid
+    }
     for transfer_uuid in transfer_uuids:
         job.pyprint("Checking if transfer", transfer_uuid, "is fully stored...")
-        arranged_uuids = set(
-            models.SIPArrange.objects.filter(
-                transfer_uuid=transfer_uuid, aip_created=True
-            ).values_list("file_uuid", flat=True)
-        )
-        backlog_uuids = set(
+        transfer_file_uuids = set(
             models.File.objects.filter(transfer=transfer_uuid).values_list(
                 "uuid", flat=True
             )
         )
-        # If all backlog UUIDs have been arranged
-        if arranged_uuids == backlog_uuids:
+        sip_transfer_file_uuids = set(
+            models.File.objects.filter(
+                transfer=transfer_uuid, sip=sip_uuid
+            ).values_list("uuid", flat=True)
+        )
+        # If all transfer files are in this SIP, the transfer is fully stored.
+        if transfer_file_uuids and transfer_file_uuids == sip_transfer_file_uuids:
             job.pyprint(
                 "Transfer",
                 transfer_uuid,
@@ -210,15 +204,13 @@ def post_store_hook(job, sip_uuid):
     # POST-STORE CALLBACK
     storage_service.post_store_aip_callback(str(sip_uuid))
 
-    # When not using SIP arrangement, we perform best-effort deletion of the
-    # original transfer directory under currentlyProcessing.
-    if not transfer_uuids:
-        try:
-            transfer_dir = delete_transfer_directory(job, sip_uuid)
-        except Exception as err:
-            job.pyprint("Failed to delete transfer directory: ", err, file=sys.stderr)
-            return
-        job.pyprint("Transfer directory deleted: ", transfer_dir)
+    # Best-effort deletion of the original transfer directory under currentlyProcessing.
+    try:
+        transfer_dir = delete_transfer_directory(job, sip_uuid)
+    except Exception as err:
+        job.pyprint("Failed to delete transfer directory:", err, file=sys.stderr)
+        return
+    job.pyprint("Transfer directory deleted:", transfer_dir)
 
 
 def call(jobs):

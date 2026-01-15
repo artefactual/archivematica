@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.    If not, see <http://www.gnu.org/licenses/>.
 import collections
-import copy
 import os
 import pprint
 import re
@@ -54,7 +53,6 @@ from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FileID
 from archivematica.dashboard.main.models import FPCommandOutput
-from archivematica.dashboard.main.models import SIPArrange
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataXML
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSReingest
 from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataCSV import (
@@ -249,7 +247,7 @@ def getDirDmdSec(dir_mdl, relativeDirectoryPath):
     It describes the directory as a PREMIS:OBJECT of type
     premis:intellectualEntity and lists the directory's original name (i.e.,
     relative path within the transfer) as well as the UUID assigned to it during
-    transfer (or arrange), and any other identifiers, as
+    transfer, and any other identifiers, as
     premis:objectIdentifiers. Cf. https://projects.artefactual.com/issues/11192.
     """
     dir_uuid = dir_mdl.uuid
@@ -1326,75 +1324,6 @@ def createFileSec(
     return structMapDiv
 
 
-def build_arranged_structmap(job, original_structmap, sip_uuid):
-    """
-    Given a structMap, builds a new copy of the structMap with file and directory labels assigned according to their intellectual arrangement.
-    Logical arrangement is determined using the levels of description which were assigned to them during SIP arrange.
-
-    :param etree.Element original_structmap: the structMap on which the arranged structMap should be based.
-    :param str sip_uuid: the SIP's UUID
-    """
-    tag_dict = {
-        arrange_path.decode(): level_of_description
-        for arrange_path, level_of_description in SIPArrange.objects.filter(
-            sip_id=sip_uuid
-        ).values_list("arrange_path", "level_of_description")
-    }
-    if not tag_dict:
-        return
-
-    structmap = copy.deepcopy(original_structmap)
-    structmap.attrib["TYPE"] = "logical"
-    structmap.attrib["LABEL"] = "Hierarchical"
-    structmap.attrib["ID"] = f"structMap_{uuid4()}"
-    root_div = structmap.find("./mets:div", namespaces=ns.NSMAP)
-    del root_div.attrib["TYPE"]
-    objects = root_div.find('./mets:div[@LABEL="objects"]', namespaces=ns.NSMAP)
-
-    # The contents of submissionDocumentation and metadata do
-    # not have intellectual arrangement, so don't need to be
-    # represented in this structMap.
-    for label in ("submissionDocumentation", "metadata"):
-        div = objects.find(f'.mets:div[@LABEL="{label}"]', namespaces=ns.NSMAP)
-        if div is not None:
-            objects.remove(div)
-
-    # Handle objects level of description separately, since tag paths are relative to objects
-    tag = tag_dict.get(".")
-    if tag:
-        job.pyprint("Adding TYPE=%s for logical structMap element objects" % tag)
-        objects.attrib["TYPE"] = tag
-    else:
-        del objects.attrib["TYPE"]
-
-    for element in objects.iterdescendants():
-        if element.tag != ns.metsBNS + "div":
-            continue
-
-        # Build the full path relative to objects dir
-        path = [element.attrib["LABEL"]]
-        parent = element.getparent()
-        while parent != objects:
-            path.insert(0, parent.attrib["LABEL"])
-            parent = parent.getparent()
-        relative_location = os.path.join(*path)
-
-        # Certain items won't have a level of description;
-        # they should be retained in the tree, but have
-        # no TYPE attribute.
-        tag = tag_dict.get(relative_location)
-        if tag:
-            job.pyprint(
-                "Adding TYPE=%s for logical structMap element %s"
-                % (tag, relative_location)
-            )
-            element.attrib["TYPE"] = tag
-        else:
-            del element.attrib["TYPE"]
-
-    return structmap
-
-
 def find_source_metadata(path):
     """
     Returns lists of all metadata to be referenced in the final document.
@@ -1878,10 +1807,6 @@ def main(
 
         if state.trimStructMap is not None:
             root.append(state.trimStructMap)
-
-        arranged_structmap = build_arranged_structmap(job, structMap, sipUUID)
-        if arranged_structmap is not None:
-            root.append(arranged_structmap)
 
         # Parse METS to metsrw
         mets = metsrw.METSDocument.fromtree(root)

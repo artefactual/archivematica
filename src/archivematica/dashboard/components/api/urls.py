@@ -76,17 +76,6 @@ urlpatterns = [
     ),
     re_path(r"^ingest/completed", views.completed_ingests, name="completed_ingests"),
     path("ingest/copy_metadata_files/", views.copy_metadata_files_api),
-    path(
-        "filesystem/administration/dips/atom/levels/",
-        views.get_levels_of_description,
-        name="get_levels_of_description",
-    ),
-    path(
-        "administration/dips/atom/fetch_levels/",
-        views.fetch_levels_of_description_from_atom,
-        name="fetch_atom_lods",
-    ),
-    path("filesystem/metadata/", views.path_metadata, name="path_metadata"),
     re_path(
         r"processing-configuration/(?P<name>\w{1,16})",
         views.processing_configuration,

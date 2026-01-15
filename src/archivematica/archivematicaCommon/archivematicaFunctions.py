@@ -420,12 +420,11 @@ def reconstruct_empty_directories(mets_file_path, objects_path, logger=None):
 
 
 def find_transfer_path_from_ingest(transfer_path, shared_path):
-    """Find path of a transfer arranged or coming straight from processing.
+    """Find path of a transfer coming straight from processing.
 
     In Ingest, access to the original transfers is needed in order to copy
     submission docs, metadata and logs. Transfers can be found under
-    ``currentlyProcessing`` unless they come from SIP Arrangement, in which case
-    they're found under the temporary shared directory.
+    ``currentlyProcessing``.
 
     TODO: use ``Transfer.currentlocation`` or a model method?
     """

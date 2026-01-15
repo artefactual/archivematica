@@ -574,7 +574,7 @@ MICROSERVICES_HELP = {
     ),
     "Create SIP(s)": _("Create a SIP from the transfer."),
     "Approve SIP Creation": _(
-        'Once you have added files from the transfer to the SIP and have completed any appraisal and physical arrangement, select "SIP creation complete" to start ingest micro-services.'
+        'Once you have added files from the transfer to the SIP, select "SIP creation complete" to start ingest micro-services.'
     ),
     "Normalize": _(
         "Create preservation and/or access copies of files if desired. Creating access copies will result in a DIP being generated for upload into an access system."

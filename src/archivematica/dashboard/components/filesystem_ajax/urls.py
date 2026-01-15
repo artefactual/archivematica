@@ -24,27 +24,10 @@ app_name = "filesystem_ajax"
 urlpatterns = [
     path("download_ss/", views.download_ss),
     path("download_fs/", views.download_fs),
-    re_path(
-        r"^(?P<uuid>" + settings.UUID_REGEX + ")/download/$", views.download_by_uuid
-    ),
-    re_path(r"^(?P<uuid>" + settings.UUID_REGEX + ")/preview/$", views.preview_by_uuid),
-    path("contents/arrange/", views.arrange_contents, name="contents_arrange"),
     path("contents/", views.contents, name="contents"),
     re_path(
         r"^children/location/(?P<location_uuid>" + settings.UUID_REGEX + ")/$",
         views.directory_children_proxy_to_storage_server,
-    ),
-    path("delete/arrange/", views.delete_arrange, name="delete_arrange"),
-    path(
-        "create_directory_within_arrange/",
-        views.create_directory_within_arrange,
-        name="create_directory_within_arrange",
-    ),
-    path("copy_to_arrange/", views.copy_to_arrange, name="copy_to_arrange"),
-    path(
-        "copy_from_arrange/",
-        views.copy_from_arrange_to_completed,
-        name="copy_from_arrange",
     ),
     path("copy_metadata_files/", views.copy_metadata_files, name="copy_metadata_files"),
 ]

@@ -43,11 +43,6 @@ urlpatterns = [
     path("reports/failures/", views.failure_report, name="reports_failures_index"),
     path("dips/as/", views_dip_upload.admin_as, name="dips_as"),
     path("dips/atom/", views_dip_upload.admin_atom, name="dips_atom_index"),
-    path(
-        "dips/atom/edit_levels/",
-        views.atom_levels_of_description,
-        name="atom_levels_of_description",
-    ),
     path("i18n/", include(("django.conf.urls.i18n", "i18n"), namespace="i18n")),
     path(
         "language/",

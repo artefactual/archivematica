@@ -12,7 +12,6 @@ from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import MetadataAppliesToType
-from archivematica.dashboard.main.models import SIPArrange
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.create_mets_v2 import (
     createDMDIDsFromCSVMetadata,
@@ -335,99 +334,6 @@ def test_xml_validation_fail_on_error(
             "Error(s) processing and/or validating XML metadata:\n\t- xml_validation_error"
             in mcp_job.get_stderr()
         )
-
-
-@pytest.fixture
-def arranged_sip_path(tmp_path: pathlib.Path) -> pathlib.Path:
-    sip_path = tmp_path / "sip"
-    sip_path.mkdir()
-
-    return sip_path
-
-
-@pytest.fixture
-def create_arrangement(sip: SIP, arranged_sip_path: pathlib.Path) -> None:
-    # Create the directory structure representing the new arrangement.
-    objects_path = arranged_sip_path / "objects"
-    objects_path.mkdir()
-    SIPArrange.objects.create(sip=sip, arrange_path=b".")
-
-    for path, level_of_description in [
-        ((arranged_sip_path / "objects" / "subdir"), "Series"),
-        ((arranged_sip_path / "objects" / "subdir" / "first"), "Subseries"),
-        ((arranged_sip_path / "objects" / "subdir" / "second"), "Subseries"),
-    ]:
-        path.mkdir()
-        SIPArrange.objects.create(
-            sip=sip,
-            arrange_path=bytes(path.relative_to(objects_path)),
-            level_of_description=level_of_description,
-        )
-
-    # Add files to the arrangement.
-    for path in [
-        (arranged_sip_path / "objects" / "file1"),
-        (arranged_sip_path / "objects" / "subdir" / "file2"),
-        (arranged_sip_path / "objects" / "subdir" / "first" / "file3"),
-        (arranged_sip_path / "objects" / "subdir" / "second" / "file4"),
-    ]:
-        path.touch()
-        f = File.objects.create(
-            originallocation=f"%TransferDirectory%{path.relative_to(arranged_sip_path)}".encode(),
-            currentlocation=f"%SIPDirectory%{path.relative_to(arranged_sip_path)}".encode(),
-            sip=sip,
-            filegrpuse="original",
-        )
-        SIPArrange.objects.create(
-            sip=sip,
-            arrange_path=bytes(path.relative_to(objects_path)),
-            level_of_description="File",
-            file_uuid=f.uuid,
-        )
-
-
-@pytest.mark.django_db
-def test_structmap_is_created_from_sip_arrangement(
-    mcp_job: Job, create_arrangement: None, arranged_sip_path: pathlib.Path, sip: SIP
-) -> None:
-    mets_path = f"{arranged_sip_path}/METS.{sip.uuid}.xml"
-
-    main(
-        mcp_job,
-        sipType="SIP",
-        baseDirectoryPath=(arranged_sip_path),
-        XMLFile=mets_path,
-        sipUUID=sip.pk,
-        includeAmdSec=False,
-        createNormativeStructmap=False,
-    )
-
-    # Verify the logical structMap for the SIP arrangement.
-    mets_xml = etree.parse(mets_path)
-    logical_structmap = mets_xml.find(
-        './/mets:structMap[@TYPE="logical"]', namespaces=NSMAP
-    )
-    assert logical_structmap.attrib["LABEL"] == "Hierarchical"
-
-    # Get the relevant elements from the logical structMap.
-    sip_div = logical_structmap.find('mets:div[@LABEL="sip"]', namespaces=NSMAP)
-    objects_div = sip_div.find('mets:div[@LABEL="objects"]', namespaces=NSMAP)
-    file1_div = objects_div.find('mets:div[@LABEL="file1"]', namespaces=NSMAP)
-    subdir_div = objects_div.find('mets:div[@LABEL="subdir"]', namespaces=NSMAP)
-    file2_div = subdir_div.find('mets:div[@LABEL="file2"]', namespaces=NSMAP)
-    subdir_first_div = subdir_div.find('mets:div[@LABEL="first"]', namespaces=NSMAP)
-    file3_div = subdir_first_div.find('mets:div[@LABEL="file3"]', namespaces=NSMAP)
-    subdir_second_div = subdir_div.find('mets:div[@LABEL="second"]', namespaces=NSMAP)
-    file4_div = subdir_second_div.find('mets:div[@LABEL="file4"]', namespaces=NSMAP)
-
-    # Verify the levels of descriptions are preserved.
-    assert file1_div.attrib["TYPE"] == "File"
-    assert subdir_div.attrib["TYPE"] == "Series"
-    assert file2_div.attrib["TYPE"] == "File"
-    assert subdir_first_div.attrib["TYPE"] == "Subseries"
-    assert file3_div.attrib["TYPE"] == "File"
-    assert subdir_second_div.attrib["TYPE"] == "Subseries"
-    assert file4_div.attrib["TYPE"] == "File"
 
 
 @pytest.fixture

@@ -4,7 +4,6 @@ import uuid
 from unittest import mock
 
 import pytest
-import requests
 from django.core.management import call_command
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -16,14 +15,11 @@ from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.api import views
 from archivematica.dashboard.main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
 from archivematica.dashboard.main.models import SIP
-from archivematica.dashboard.main.models import DashboardSetting
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Job
-from archivematica.dashboard.main.models import LevelOfDescription
 from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
-from archivematica.dashboard.main.models import SIPArrange
 from archivematica.dashboard.main.models import Task
 from archivematica.dashboard.main.models import Transfer
 
@@ -702,24 +698,6 @@ def test_task(admin_client, dashboard_uuid, jobs_transfer_backlog):
     assert payload["duration"] == 5
 
 
-@pytest.mark.django_db
-def test_get_levels_of_description(admin_client, dashboard_uuid):
-    LevelOfDescription.objects.create(name="Item", sortorder=2)
-    LevelOfDescription.objects.create(name="Collection", sortorder=0)
-    LevelOfDescription.objects.create(name="Fonds", sortorder=1)
-    expected = ["Collection", "Fonds", "Item"]
-
-    resp = admin_client.get(reverse("api:get_levels_of_description"))
-    payload = json.loads(resp.content.decode("utf8"))
-
-    result = []
-    for level_of_description in payload:
-        name = next(iter(level_of_description.values()))
-        result.append(name)
-
-    assert result == expected
-
-
 @pytest.fixture
 def shared_dir(tmp_path, settings):
     shared_dir = tmp_path / "shared_dir"
@@ -930,81 +908,6 @@ def test_reingest_approve(gearman_client, job_complete, admin_client, dashboard_
     assert (
         json.loads(response.content.decode("utf8")).get("message")
         == "Approval successful."
-    )
-
-
-def test_path_metadata_get(admin_client, dashboard_uuid):
-    SIPArrange.objects.create(
-        arrange_path=b"/arrange/testsip/", level_of_description="Folder"
-    )
-
-    response = admin_client.get(
-        reverse("api:path_metadata"), {"path": "/arrange/testsip"}
-    )
-    assert response.status_code == 200
-
-    payload = json.loads(response.content.decode("utf8"))
-    assert payload["level_of_description"] == "Folder"
-
-
-def test_path_metadata_raises_404_if_siparrange_does_not_exist(
-    admin_client, dashboard_uuid
-):
-    response = admin_client.get(
-        reverse("api:path_metadata"), {"path": "/arrange/testsip"}
-    )
-    assert response.status_code == 404
-
-
-def test_path_metadata_post(admin_client, dashboard_uuid):
-    SIPArrange.objects.create(
-        arrange_path=b"/arrange/testsip/", level_of_description="Folder"
-    )
-    level_of_description = LevelOfDescription.objects.create(
-        name="Collection", sortorder=0
-    )
-    expected = [
-        {"arrange_path": b"/arrange/testsip/", "level_of_description": "Collection"}
-    ]
-
-    response = admin_client.post(
-        reverse("api:path_metadata"),
-        data={
-            "path": "/arrange/testsip",
-            "level_of_description": level_of_description.pk,
-        },
-    )
-    assert response.status_code == 201
-
-    payload = json.loads(response.content.decode("utf8"))
-    assert payload["success"]
-
-    # Verify the SIPArrange instance was updated as expected.
-    assert (
-        list(SIPArrange.objects.values("arrange_path", "level_of_description"))
-        == expected
-    )
-
-
-def test_path_metadata_post_resets_level_of_description(admin_client, dashboard_uuid):
-    SIPArrange.objects.create(
-        arrange_path=b"/arrange/testsip/", level_of_description="Folder"
-    )
-    expected = [{"arrange_path": b"/arrange/testsip/", "level_of_description": ""}]
-
-    response = admin_client.post(
-        reverse("api:path_metadata"),
-        data={"path": "/arrange/testsip"},
-    )
-    assert response.status_code == 201
-
-    payload = json.loads(response.content.decode("utf8"))
-    assert payload["success"]
-
-    # Verify the level of description was reset.
-    assert (
-        list(SIPArrange.objects.values("arrange_path", "level_of_description"))
-        == expected
     )
 
 
@@ -1319,77 +1222,6 @@ def test_reingest_partial(sip_path, settings, admin_client, dashboard_uuid):
     reingests_path = shared_directory / "watchedDirectories" / "system" / "reingestAIP"
     assert [e.name for e in reingests_path.iterdir()] == [sip_path.name]
     assert (reingests_path / sip_path.name / "myfile.txt").read_text() == "my file"
-
-
-@pytest.mark.django_db
-@mock.patch("requests.get")
-def test_fetch_levels_of_description_from_atom(get, admin_client, dashboard_uuid):
-    # Set up the AtoM settings used on the Administration tab.
-    DashboardSetting.objects.set_dict(
-        "upload-qubit_v0.0",
-        {
-            "url": "http://example.com",
-            "email": "demo@example.com",
-            "password": "password",
-        },
-    )
-
-    # Simulate interaction with AtoM.
-    lods = ["Series", "Subseries", "File"]
-    get.side_effect = [
-        mock.Mock(
-            **{
-                "status_code": 200,
-                "json.return_value": [{"name": lod} for lod in lods],
-            },
-            spec=requests.Response,
-        )
-    ]
-
-    # Add existing LODs before calling the endpoint.
-    LevelOfDescription.objects.create(name="One existing", sortorder=1)
-    LevelOfDescription.objects.create(name="Another existing", sortorder=1)
-
-    response = admin_client.get(reverse("api:fetch_atom_lods"))
-    assert response.status_code == 200
-
-    # Verify the initial LODS were deleted and we only have the retrieved ones.
-    result = []
-    for lod in json.loads(response.content.decode("utf8")):
-        # LODs are represented as [{"8263fd14-2488-49f7-ac9d-fcfd02b524f0": "Series"}, ...]
-        name = list(lod.values())[0]
-        result.append(name)
-    assert result == lods
-    assert set(LevelOfDescription.objects.values_list("name")) == {
-        (lod,) for lod in lods
-    }
-
-
-@pytest.mark.django_db
-@mock.patch(
-    "requests.get", side_effect=[mock.Mock(status_code=503, spec=requests.Response)]
-)
-def test_fetch_levels_of_description_from_atom_communication_failure(
-    get, admin_client, dashboard_uuid
-):
-    # Set up the AtoM settings used on the Administration tab.
-    DashboardSetting.objects.set_dict(
-        "upload-qubit_v0.0",
-        {
-            "url": "http://example.com",
-            "email": "demo@example.com",
-            "password": "password",
-        },
-    )
-
-    response = admin_client.get(reverse("api:fetch_atom_lods"))
-
-    assert response.status_code == 500
-    payload = json.loads(response.content.decode("utf8"))
-    assert payload == {
-        "success": False,
-        "error": "Unable to fetch levels of description from AtoM!",
-    }
 
 
 @pytest.mark.django_db
