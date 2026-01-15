@@ -12,6 +12,9 @@ from django.test.client import Client
 from django.urls import reverse
 
 from archivematica.archivematicaCommon.archivematicaFunctions import b64decode_string
+from archivematica.dashboard.components.ingest.pair_matcher import (
+    ingest_upload_atk_get_dip_object_paths,
+)
 from archivematica.dashboard.components.ingest.views import (
     _adjust_directories_draggability,
 )
@@ -19,6 +22,7 @@ from archivematica.dashboard.components.ingest.views import (
     _es_results_to_appraisal_tab_format,
 )
 from archivematica.dashboard.components.ingest.views_as import get_as_system_client
+from archivematica.dashboard.main import models
 from archivematica.dashboard.main.models import Access
 from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
 from archivematica.dashboard.main.models import DashboardSetting
@@ -402,3 +406,55 @@ def test_ingest_upload_as_match_shows_deleted_rows(
 
     log_record = caplog.records[0]
     assert log_record.message == f"Resource {resource_id} File {file_uuid} matches 1"
+
+
+@pytest.mark.django_db
+def test_ingest_upload_atk_get_dip_object_paths_uuid_strings(tmp_path, settings):
+    settings.WATCH_DIRECTORY = str(tmp_path)
+    sip_uuid = uuid.uuid4()
+    sip_uuid_str = str(sip_uuid)
+    dip_dir_name = f"dip-{sip_uuid}"
+    dip_upload_dir = tmp_path / "uploadDIP" / dip_dir_name
+    dip_upload_dir.mkdir(parents=True)
+
+    object_paths = ["objects/beta.txt", "objects/alpha.txt"]
+    mets_path = dip_upload_dir / f"METS.{sip_uuid}.xml"
+    mets_path.write_text(
+        f"""<?xml version="1.0" encoding="UTF-8"?>
+<mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <mets:fileSec>
+    <mets:fileGrp USE="original">
+      <mets:file ID="file1">
+        <mets:FLocat xlink:href="{object_paths[0]}" />
+      </mets:file>
+      <mets:file ID="file2">
+        <mets:FLocat xlink:href="{object_paths[1]}" />
+      </mets:file>
+    </mets:fileGrp>
+  </mets:fileSec>
+</mets:mets>
+""",
+        encoding="utf-8",
+    )
+
+    sip = models.SIP.objects.create(
+        uuid=sip_uuid,
+        currentpath=f"{settings.WATCH_DIRECTORY}/uploadDIP/{dip_dir_name}/",
+    )
+    file_beta = models.File.objects.create(
+        sip=sip,
+        originallocation=b"origin-beta",
+        currentlocation=f"%SIPDirectory%{object_paths[0]}".encode(),
+    )
+    file_alpha = models.File.objects.create(
+        sip=sip,
+        originallocation=b"origin-alpha",
+        currentlocation=f"%SIPDirectory%{object_paths[1]}".encode(),
+    )
+
+    result = ingest_upload_atk_get_dip_object_paths(sip_uuid_str)
+
+    assert result == [
+        {"uuid": str(file_alpha.uuid), "path": "alpha.txt"},
+        {"uuid": str(file_beta.uuid), "path": "beta.txt"},
+    ]
