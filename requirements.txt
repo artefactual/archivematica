@@ -102,11 +102,11 @@ packaging==25.0
     # via
     #   django-csp
     #   gunicorn
-prometheus-client==0.24.0
+prometheus-client==0.24.1
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
-pyasn1==0.6.1
+pyasn1==0.6.2
     # via
     #   pyasn1-modules
     #   python-ldap
