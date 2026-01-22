@@ -23,8 +23,8 @@ function storage::manage {
 	docker compose run \
 		--user=$(id -u):$(id -g) \
 		--rm --no-deps \
-		--workdir=/src/storage_service \
-		--entrypoint=/src/storage_service/manage.py \
+		--workdir=/src/src/archivematica/storage_service \
+		--entrypoint=/src/src/archivematica/storage_service/manage.py \
 			archivematica-storage-service "$@"
 }
 
