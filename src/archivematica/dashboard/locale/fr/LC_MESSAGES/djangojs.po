@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-07 15:42+0000\n"
+"POT-Creation-Date: 2026-01-22 19:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/"
@@ -18,15 +18,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
-#: media/js/administration/atom_levels_of_description.js:17
-msgid "Error retrieving levels of description from AtoM"
-msgstr ""
-"Erreur lors de la récupération des niveaux de description venant d'AtoM"
-
-#: media/js/administration/atom_levels_of_description.js:43
-msgid "Are you sure you want to delete this level of description?"
-msgstr "Êtes-vous certain de vouloir supprimer ce niveau de description ?"
 
 #: media/js/advanced-search-query-creator.js:14 media/js/file_browser.js:59
 #: media/js/file_browser.js:64 media/js/repeating-ajax-data.js:211
@@ -492,6 +483,10 @@ msgstr "Examiner"
 msgid "%(directory) &raquo; %(type) &raquo; Tasks"
 msgstr "%(directory) &raquo; %(type) &raquo; Tâches"
 
+#: media/js/jobs.js:596
+msgid "Select an action..."
+msgstr "Sélectionner une action..."
+
 #: media/js/jobs.js:664
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
@@ -529,13 +524,13 @@ msgstr "Précédent"
 msgid "Next"
 msgstr "Suivant"
 
-#: media/js/jobs.js:879
+#: media/js/jobs.js:890
 msgid "Error trying to connect to database. Trying again..."
 msgstr ""
 "Erreur lors de la tentative de connexion à la base de données. Essayer de "
 "nouveau..."
 
-#: media/js/jobs.js:929
+#: media/js/jobs.js:945
 msgid "Error trying to connect to MCP server. Trying again..."
 msgstr ""
 "Erreur lors de la tentative de connexion au serveur MPC. Essayer de "
@@ -752,8 +747,12 @@ msgstr "Erreur: Le chemin d'accès sélectionné existe déjà."
 msgid "Are you sure you want to remove %s?"
 msgstr "Êtes-vous certain de vouloir retirer %s?"
 
-#~ msgid "Select an action..."
-#~ msgstr "Sélectionner une action..."
+#~ msgid "Error retrieving levels of description from AtoM"
+#~ msgstr ""
+#~ "Erreur lors de la récupération des niveaux de description venant d'AtoM"
+
+#~ msgid "Are you sure you want to delete this level of description?"
+#~ msgstr "Êtes-vous certain de vouloir supprimer ce niveau de description ?"
 
 #~ msgctxt "Archivists's Toolkit: specific property required"
 #~ msgid "Property %(name) required."
