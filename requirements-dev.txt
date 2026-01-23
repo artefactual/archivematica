@@ -88,11 +88,11 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via archivematica (pyproject.toml)
 gevent==25.9.1
     # via archivematica (pyproject.toml)
-greenlet==3.3.0
+greenlet==3.3.1
     # via
     #   gevent
     #   playwright
-gunicorn==23.0.0
+gunicorn==24.1.0
     # via archivematica (pyproject.toml)
 idna==3.11
     # via requests
@@ -128,7 +128,7 @@ opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe
     # via archivematica (pyproject.toml)
 orjson==3.11.5
     # via archivematica (pyproject.toml)
-packaging==25.0
+packaging==26.0
     # via
     #   build
     #   django-csp
@@ -136,6 +136,7 @@ packaging==25.0
     #   pyproject-api
     #   pytest
     #   tox
+    #   wheel
 pip-tools==7.5.2
     # via archivematica (pyproject.toml)
 platformdirs==4.5.1
@@ -161,7 +162,7 @@ pyasn1==0.6.2
     #   python-ldap
 pyasn1-modules==0.4.2
     # via python-ldap
-pycparser==2.23
+pycparser==3.0
     # via cffi
 pyee==13.0.0
     # via playwright
@@ -265,7 +266,7 @@ urllib3==2.6.3
     #   requests
 virtualenv==20.36.1
     # via tox
-wheel==0.45.1
+wheel==0.46.3
     # via pip-tools
 whitenoise==6.11.0
     # via archivematica (pyproject.toml)
@@ -277,5 +278,5 @@ zope-interface==8.2
 # The following packages are considered to be unsafe in a requirements file:
 pip==25.3
     # via pip-tools
-setuptools==80.9.0
+setuptools==80.10.1
     # via pip-tools

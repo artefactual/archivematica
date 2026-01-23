@@ -64,9 +64,9 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via archivematica (pyproject.toml)
 gevent==25.9.1
     # via archivematica (pyproject.toml)
-greenlet==3.3.0
+greenlet==3.3.1
     # via gevent
-gunicorn==23.0.0
+gunicorn==24.1.0
     # via archivematica (pyproject.toml)
 idna==3.11
     # via requests
@@ -98,7 +98,7 @@ opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe
     # via archivematica (pyproject.toml)
 orjson==3.11.5
     # via archivematica (pyproject.toml)
-packaging==25.0
+packaging==26.0
     # via
     #   django-csp
     #   gunicorn
@@ -112,7 +112,7 @@ pyasn1==0.6.2
     #   python-ldap
 pyasn1-modules==0.4.2
     # via python-ldap
-pycparser==2.23
+pycparser==3.0
     # via cffi
 pyjwt==2.10.1
     # via
