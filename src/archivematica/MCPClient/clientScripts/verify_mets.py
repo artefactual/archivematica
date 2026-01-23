@@ -2,8 +2,7 @@
 """verify_mets.py
 
 Verify METS documents provided to the script. Its first, and primary use so
-far is to verify the validity of custom structmaps included with transfers and
-supplied on ingest after appraisal.
+far is to verify the validity of custom structmaps included with transfers.
 """
 
 import os
