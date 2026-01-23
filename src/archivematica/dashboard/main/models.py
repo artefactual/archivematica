@@ -48,8 +48,6 @@ METADATA_STATUS = (
     (METADATA_STATUS_UPDATED, "updated"),  # Might be updated for both, on rereingest
 )
 
-# How many objects are created through bulk_create in a single database query
-
 # CUSTOM FIELDS
 
 
