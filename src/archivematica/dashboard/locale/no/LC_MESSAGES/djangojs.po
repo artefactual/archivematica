@@ -731,9 +731,3 @@ msgstr "Feil: Den valgte stien er allerede til stede."
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr "Er du sikker på at du vil fjerne %s?"
-
-#~ msgid "Error retrieving levels of description from AtoM"
-#~ msgstr "Kunne ikke hente beskrivelsesnivåer fra AtoM"
-
-#~ msgid "Are you sure you want to delete this level of description?"
-#~ msgstr "Er du sikker på at du vil slette dette beskrivelsesnivået?"

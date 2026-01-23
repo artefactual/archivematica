@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-22 19:22+0000\n"
+"POT-Creation-Date: 2026-01-23 19:47+0000\n"
 "PO-Revision-Date: 2020-10-19 21:03+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -348,7 +348,7 @@ msgstr "Bygg inn"
 msgid "New"
 msgstr "Ny"
 
-#: components/administration/forms_dip_upload.py:17 main/models.py:1077
+#: components/administration/forms_dip_upload.py:17 main/models.py:1075
 msgid "Other"
 msgstr "Annet"
 
@@ -791,7 +791,7 @@ msgid "Status"
 msgstr "Status"
 
 #: components/archival_storage/views.py:218
-#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1063
+#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1061
 #: templates/administration/reports/failures.html:25
 #: templates/rights/rights_edit.html:102 templates/rights/rights_edit.html:154
 #: templates/rights/rights_edit.html:204 templates/rights/rights_edit.html:252
@@ -831,7 +831,19 @@ msgstr ""
 msgid "Error re-ingesting package: %(message)s"
 msgstr "Feil ved gjenopplasting av pakke: %(message)s"
 
-#: components/backlog/views.py:362
+#: components/archival_storage/views.py:880 components/backlog/views.py:356
+#, fuzzy
+#| msgid "An error has occurred."
+msgid "An unknown error occurred."
+msgstr "En feil har oppstått."
+
+#: components/archival_storage/views.py:884 components/backlog/views.py:360
+#, fuzzy
+#| msgid "Deletion requested"
+msgid "Deletion request submitted."
+msgstr "Sletting forespurt"
+
+#: components/backlog/views.py:369
 msgid "Unable to connect to storage server. Please contact your administrator."
 msgstr ""
 "Kan ikke koble til lagringsserveren. Vennligst kontakt administratoren din."
@@ -2328,89 +2340,89 @@ msgstr ""
 "Feil ved oppretting av rør: kjører lagringsserveren? Vennligst kontakt en "
 "administrator."
 
-#: main/models.py:243
+#: main/models.py:241
 msgid "Part of AIC"
 msgstr "Del av AIC"
 
-#: main/models.py:244
+#: main/models.py:242
 msgid "Optional: leave blank if unsure"
 msgstr "Valgfritt: la stå tomt hvis du er usikker"
 
-#: main/models.py:253
+#: main/models.py:251
 msgid "Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
 msgstr "Bruk ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
 
-#: main/models.py:263
+#: main/models.py:261
 msgid "Use ISO 639"
 msgstr "Bruk ISO 639"
 
-#: main/models.py:281
+#: main/models.py:279
 msgid "Untitled"
 msgstr "Uten navn"
 
-#: main/models.py:339
+#: main/models.py:337
 #, python-format
 msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
 msgstr "%(type)s hendelse på %(file_uuid)s (%(detail)s)"
 
-#: main/models.py:384
+#: main/models.py:382
 #, python-format
 msgid "%(derived)s derived from %(src)s in %(event)s"
 msgstr "%(derived)s avledet av %(src) s i %(event)s"
 
-#: main/models.py:417 main/models.py:845
+#: main/models.py:415 main/models.py:843
 msgid "Unknown"
 msgstr "Ukjent"
 
-#: main/models.py:418
+#: main/models.py:416
 #, fuzzy
 #| msgctxt "DataTable - processing"
 #| msgid "Processing..."
 msgid "Processing"
 msgstr "Behandler..."
 
-#: main/models.py:419 templates/rights/rights_grants_edit.html:109
+#: main/models.py:417 templates/rights/rights_grants_edit.html:109
 msgid "Done"
 msgstr "Ferdig"
 
-#: main/models.py:420 main/models.py:847
+#: main/models.py:418 main/models.py:845
 msgid "Completed successfully"
 msgstr "Fullført"
 
-#: main/models.py:421 main/models.py:849
+#: main/models.py:419 main/models.py:847
 msgid "Failed"
 msgstr "Mislyktes"
 
-#: main/models.py:435
+#: main/models.py:433
 msgid "SIP"
 msgstr "SIP"
 
-#: main/models.py:436
+#: main/models.py:434
 msgid "AIC"
 msgstr "AIC"
 
-#: main/models.py:437
+#: main/models.py:435
 msgid "Reingested AIP"
 msgstr "Gjenopplasteted AIP"
 
-#: main/models.py:438
+#: main/models.py:436
 msgid "Reingested AIC"
 msgstr "Gjenopplasteted AIC"
 
-#: main/models.py:459
+#: main/models.py:457
 #, python-brace-format
 msgid "SIP: {path}"
 msgstr "SIP: {path}"
 
-#: main/models.py:611
+#: main/models.py:609
 msgid "Identifier Type"
 msgstr "Identifikasjonstype"
 
-#: main/models.py:613
+#: main/models.py:611
 msgid "Identifier Value"
 msgstr "Identifikasjonsverdi"
 
-#: main/models.py:615
+#: main/models.py:613
 msgid ""
 "Used for premis:objectIdentifierType and premis:objectIdentifierValue in the "
 "METS file."
@@ -2418,42 +2430,42 @@ msgstr ""
 "Brukes for premis: objectIdentifierType og premis: objectIdentifierValue i "
 "METS-filen."
 
-#: main/models.py:688
+#: main/models.py:686
 #, python-format
 msgid "File %(uuid)s:%(originallocation)s now at %(currentlocation)s"
 msgstr "Fil %(uuid)s:%(originallocation)s nå på %(currentlocation)s"
 
-#: main/models.py:741
+#: main/models.py:739
 #, python-format
 msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
 msgstr "Mappe %(uuid)s: %(originallocation)s nå på %(currentlocation)s"
 
-#: main/models.py:805
+#: main/models.py:803
 #, python-format
 msgid "%(file)s is %(format)s"
 msgstr "%(file)s er %(format)s"
 
-#: main/models.py:823
+#: main/models.py:821
 msgid "(Unnamed)"
 msgstr "(Uten navn)"
 
-#: main/models.py:846
+#: main/models.py:844
 msgid "Awaiting decision"
 msgstr "Venter på avgjørelse"
 
-#: main/models.py:848
+#: main/models.py:846
 msgid "Executing command(s)"
 msgstr "Utføre kommando(er)"
 
-#: main/models.py:982
+#: main/models.py:980
 msgid "Agent Identifier Type"
 msgstr "Agentidentifikator type"
 
-#: main/models.py:987
+#: main/models.py:985
 msgid "Agent Identifier Value"
 msgstr "Agentidentifikator verdi"
 
-#: main/models.py:989
+#: main/models.py:987
 msgid ""
 "Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue "
 "in the METS file."
@@ -2461,23 +2473,23 @@ msgstr ""
 "Brukes til premis: agentIdentifierValue og premis: "
 "linkingAgentIdentifierValue i METS-filen."
 
-#: main/models.py:996
+#: main/models.py:994
 msgid "Agent Name"
 msgstr "Agentnavn"
 
-#: main/models.py:997
+#: main/models.py:995
 msgid "Used for premis:agentName in the METS file."
 msgstr "Brukes til premis: agentName i METS-filen."
 
-#: main/models.py:1003
+#: main/models.py:1001
 msgid "Agent Type"
 msgstr "Agenttype"
 
-#: main/models.py:1004
+#: main/models.py:1002
 msgid "Used for premis:agentType in the METS file."
 msgstr "Brukes til premis: agentType inn METS-filen."
 
-#: main/models.py:1026
+#: main/models.py:1024
 msgid ""
 "If checked, this user will receive system emails, such as Transfer Fail and "
 "Normalization Reports."
@@ -2485,312 +2497,312 @@ msgstr ""
 "Hvis avkrysset, vil denne brukeren motta system-e-postmeldinger, for "
 "eksempel overføringsfeil og normaliseringsrapporter."
 
-#: main/models.py:1028
+#: main/models.py:1026
 msgid "Send system emails?"
 msgstr "Send system-e-post?"
 
-#: main/models.py:1066 templates/rights/rights_edit.html:106
+#: main/models.py:1064 templates/rights/rights_edit.html:106
 #: templates/rights/rights_edit.html:158 templates/rights/rights_edit.html:208
 #: templates/rights/rights_edit.html:256
 msgid "Value"
 msgstr "Verdi"
 
-#: main/models.py:1069
+#: main/models.py:1067
 msgid "Rights holder"
 msgstr "Rettighetsinnehaver"
 
-#: main/models.py:1072
+#: main/models.py:1070
 msgid "Copyright"
 msgstr "Opphavsrett"
 
-#: main/models.py:1073
+#: main/models.py:1071
 msgid "Statute"
 msgstr "Vedtekt"
 
-#: main/models.py:1074
+#: main/models.py:1072
 msgid "License"
 msgstr "Lisens"
 
-#: main/models.py:1075
+#: main/models.py:1073
 msgid "Donor"
 msgstr "Donor"
 
-#: main/models.py:1076
+#: main/models.py:1074
 msgid "Policy"
 msgstr "Grunnregel"
 
-#: main/models.py:1083 templates/rights/rights_list.html:34
+#: main/models.py:1081 templates/rights/rights_list.html:34
 msgid "Basis"
 msgstr "Basis"
 
-#: main/models.py:1095
+#: main/models.py:1093
 msgid "Rights Statement"
 msgstr "Rettighetserklæring"
 
-#: main/models.py:1099
+#: main/models.py:1097
 #, python-format
 msgid "%(basis)s for %(unit)s (%(id)s)"
 msgstr "%(basis)s for %(unit)s (%(id)s)"
 
-#: main/models.py:1114
+#: main/models.py:1112
 msgid "copyrighted"
 msgstr "opphavsrettsbeskyttet"
 
-#: main/models.py:1115
+#: main/models.py:1113
 msgid "public domain"
 msgstr "public domain"
 
-#: main/models.py:1116
+#: main/models.py:1114
 msgid "unknown"
 msgstr "ukjent"
 
-#: main/models.py:1121
+#: main/models.py:1119
 msgid "Copyright status"
 msgstr "Opphavsrettsstatus"
 
-#: main/models.py:1126
+#: main/models.py:1124
 msgid "Copyright jurisdiction"
 msgstr "Opphavsrettsjurisdiksjon"
 
-#: main/models.py:1132
+#: main/models.py:1130
 msgid "Copyright determination date"
 msgstr "Dato for opphavsrettsbestemmelse"
 
-#: main/models.py:1133 main/models.py:1140 main/models.py:1147
-#: main/models.py:1217 main/models.py:1224 main/models.py:1290
-#: main/models.py:1297 main/models.py:1359 main/models.py:1368
-#: main/models.py:1375 main/models.py:1447 main/models.py:1454
+#: main/models.py:1131 main/models.py:1138 main/models.py:1145
+#: main/models.py:1215 main/models.py:1222 main/models.py:1288
+#: main/models.py:1295 main/models.py:1357 main/models.py:1366
+#: main/models.py:1373 main/models.py:1445 main/models.py:1452
 #, fuzzy
 #| msgid "Use ISO 8061 (YYYY-MM-DD)"
 msgid "Use ISO 8601 (YYYY-MM-DD)"
 msgstr "Bruk ISO 8061 (YYYY-MM-DD)"
 
-#: main/models.py:1139
+#: main/models.py:1137
 msgid "Copyright start date"
 msgstr "Startdato for opphavsrett"
 
-#: main/models.py:1146
+#: main/models.py:1144
 msgid "Copyright end date"
 msgstr "Sluttdato for opphavsrett"
 
-#: main/models.py:1152 main/models.py:1229 main/models.py:1304
-#: main/models.py:1380 main/models.py:1459
+#: main/models.py:1150 main/models.py:1227 main/models.py:1302
+#: main/models.py:1378 main/models.py:1457
 msgid "Open End Date"
 msgstr "Åpne sluttdato"
 
-#: main/models.py:1153 main/models.py:1230 main/models.py:1305
-#: main/models.py:1381 main/models.py:1460
+#: main/models.py:1151 main/models.py:1228 main/models.py:1303
+#: main/models.py:1379 main/models.py:1458
 msgid "Indicate end date is open"
 msgstr "Angi at sluttdatoen er åpen"
 
-#: main/models.py:1158
+#: main/models.py:1156
 msgid "Rights: Copyright"
 msgstr "Rettigheter: Opphavsrett"
 
-#: main/models.py:1170
+#: main/models.py:1168
 msgid "Copyright document identification type"
 msgstr "Opphavsrettsdokuments identifikasjonstype"
 
-#: main/models.py:1174
+#: main/models.py:1172
 msgid "Copyright document identification value"
 msgstr "Opphavsrettsdokuments identifikasjonsverdi"
 
-#: main/models.py:1180
+#: main/models.py:1178
 msgid "Copyright document identification role"
 msgstr "Opphavsrettsdokuments identifikasjonsrolle"
 
-#: main/models.py:1185
+#: main/models.py:1183
 msgid "Rights: Copyright: Docs ID"
 msgstr "Rettigheter: Opphavsrett: Dokument-ID"
 
-#: main/models.py:1196 templates/rights/rights_edit.html:117
+#: main/models.py:1194 templates/rights/rights_edit.html:117
 msgid "Copyright note"
 msgstr "Opphavsrettsmerknad"
 
-#: main/models.py:1201
+#: main/models.py:1199
 msgid "Rights: Copyright: Note"
 msgstr "Rettigheter: Opphavsrett: Merknad"
 
-#: main/models.py:1210
+#: main/models.py:1208
 msgid "License terms"
 msgstr "License terms"
 
-#: main/models.py:1216
+#: main/models.py:1214
 msgid "License start date"
 msgstr "Lisensens startdato"
 
-#: main/models.py:1223
+#: main/models.py:1221
 msgid "License end date"
 msgstr "Lisensens sluttdato"
 
-#: main/models.py:1235
+#: main/models.py:1233
 msgid "Rights: License"
 msgstr "Rettigheter: Lisens"
 
-#: main/models.py:1247
+#: main/models.py:1245
 msgid "License documentation identification type"
 msgstr "Lisensdokuments identifikasjonstype"
 
-#: main/models.py:1251
+#: main/models.py:1249
 msgid "License documentation identification value"
 msgstr "Lisensdokuments identifikasjonsverdi"
 
-#: main/models.py:1257
+#: main/models.py:1255
 msgid "License document identification role"
 msgstr "Lisensdokuments identifikasjonsrolle"
 
-#: main/models.py:1262
+#: main/models.py:1260
 msgid "Rights: License: Docs ID"
 msgstr "Rettigheter: Lisens: Dokument-ID"
 
-#: main/models.py:1273 templates/rights/rights_edit.html:219
+#: main/models.py:1271 templates/rights/rights_edit.html:219
 msgid "License note"
 msgstr "Lisensmerknad"
 
-#: main/models.py:1278
+#: main/models.py:1276
 msgid "Rights: License: Note"
 msgstr "Rettigheter: Lisens: Merknad"
 
-#: main/models.py:1289 templates/rights/rights_list.html:36
+#: main/models.py:1287 templates/rights/rights_list.html:36
 msgid "Start"
 msgstr "Start"
 
-#: main/models.py:1296 templates/rights/rights_list.html:37
+#: main/models.py:1294 templates/rights/rights_list.html:37
 msgid "End"
 msgstr "Slutt"
 
-#: main/models.py:1310
+#: main/models.py:1308
 msgid "Rights: Granted"
 msgstr "Rettigheter: Innvilget"
 
-#: main/models.py:1322
+#: main/models.py:1320
 msgid "Rights note"
 msgstr "Rettighetsmerknad"
 
-#: main/models.py:1327
+#: main/models.py:1325
 msgid "Rights: Granted: Note"
 msgstr "Rettigheter: Innvilget: Merknad"
 
-#: main/models.py:1342
+#: main/models.py:1340
 msgid "Rights: Granted: Restriction"
 msgstr "Rettigheter: Innvilget: Begrensning"
 
-#: main/models.py:1351
+#: main/models.py:1349
 msgid "Statute jurisdiction"
 msgstr "Vedtekts jurisdiksjon"
 
-#: main/models.py:1354
+#: main/models.py:1352
 msgid "Statute citation"
 msgstr "Vedtekts sitering"
 
-#: main/models.py:1358
+#: main/models.py:1356
 msgid "Statute determination date"
 msgstr "Dato for fastsettelse av vedtekt"
 
-#: main/models.py:1367
+#: main/models.py:1365
 msgid "Statute start date"
 msgstr "Startdato for vedtekt"
 
-#: main/models.py:1374
+#: main/models.py:1372
 msgid "Statute end date"
 msgstr "Sluttdato for vedtekt"
 
-#: main/models.py:1386
+#: main/models.py:1384
 msgid "Rights: Statute"
 msgstr "Rettigheter: Vedtekt"
 
-#: main/models.py:1397 templates/rights/rights_edit.html:169
+#: main/models.py:1395 templates/rights/rights_edit.html:169
 msgid "Statute note"
 msgstr "Vedtektsmerknad"
 
-#: main/models.py:1402
+#: main/models.py:1400
 msgid "Rights: Statute: Note"
 msgstr "Rettigheter: Vedtekt: Merknad"
 
-#: main/models.py:1414
+#: main/models.py:1412
 msgid "Statute document identification type"
 msgstr "Vedtektsdokuments identifikasjonstype"
 
-#: main/models.py:1418
+#: main/models.py:1416
 msgid "Statute document identification value"
 msgstr "Vedtektsdokuments identifikasjonsverdi"
 
-#: main/models.py:1424
+#: main/models.py:1422
 msgid "Statute document identification role"
 msgstr "Vedtektsdokuments identifikasjonsrolle"
 
-#: main/models.py:1429
+#: main/models.py:1427
 msgid "Rights: Statute: Docs ID"
 msgstr "Rettigheter: Vedtekt: Dokument-ID"
 
-#: main/models.py:1439
+#: main/models.py:1437
 msgid "Other rights basis"
 msgstr "Andre rettighetsgrunnlag"
 
-#: main/models.py:1446
+#: main/models.py:1444
 msgid "Other rights start date"
 msgstr "Startdato for andre rettigheter"
 
-#: main/models.py:1453
+#: main/models.py:1451
 msgid "Other rights end date"
 msgstr "Sluttdato for andre rettigheter"
 
-#: main/models.py:1465
+#: main/models.py:1463
 msgid "Rights: Other"
 msgstr "Rettigheter: Andre"
 
-#: main/models.py:1477
+#: main/models.py:1475
 msgid "Other rights document identification type"
 msgstr "Annet rettighetsdokuments identifikasjonstype"
 
-#: main/models.py:1481
+#: main/models.py:1479
 msgid "Other right document identification value"
 msgstr "Annet rettighetsdokuments identifikasjonsverdi"
 
-#: main/models.py:1487
+#: main/models.py:1485
 msgid "Other rights document identification role"
 msgstr "Annet rettighetsdokuments identifikasjonsrolle"
 
-#: main/models.py:1492
+#: main/models.py:1490
 msgid "Rights: Other: Docs ID"
 msgstr "Rettigheter: Andre: Dokument-ID"
 
-#: main/models.py:1503
+#: main/models.py:1501
 msgid "Other rights note"
 msgstr "Andre rettigheters merknad"
 
-#: main/models.py:1508
+#: main/models.py:1506
 msgid "Rights: Other: Note"
 msgstr "Rettigheter: Andre: Merknad"
 
-#: main/models.py:1518
+#: main/models.py:1516
 msgid "Linking Agent"
 msgstr "Koblingsagent"
 
-#: main/models.py:1523
+#: main/models.py:1521
 msgid "Linking Agent Value"
 msgstr "Koblingsagentsverdi"
 
-#: main/models.py:1529
+#: main/models.py:1527
 msgid "Rights: Agent"
 msgstr "Rettigheter: Agent"
 
-#: main/models.py:1582
+#: main/models.py:1580
 msgid "Semantically a foreign key to SIP or Transfer"
 msgstr "Semantisk sett en fremmednøkkel for SIP eller overføring"
 
-#: main/models.py:1618
+#: main/models.py:1616
 msgid "ASDIPObjectResourcePairing"
 msgstr "ASDIPObjectResourcePairing"
 
-#: main/models.py:1633
+#: main/models.py:1631
 msgid ""
 "Whether or not a SIP has been started using files in this digital object."
 msgstr ""
 "Hvorvidt en SIP har blitt startet med bruk av filer i dette digitale "
 "objektet."
 
-#: main/models.py:1640
+#: main/models.py:1638
 msgid ""
 "ID in the remote ArchivesSpace system, after digital object has been created."
 msgstr ""
@@ -4292,357 +4304,3 @@ msgstr "Metadata for overføring"
 #: templates/transfer/grid.html:81
 msgid "Transfer start time"
 msgstr "Starttid for overføring"
-
-#~ msgid "AtoM/Binder version"
-#~ msgstr "AtoM-/Binder-versjon"
-
-#~ msgid "Promoted."
-#~ msgstr "Forfremmet."
-
-#~ msgid "Error attempting to promote level of description."
-#~ msgstr "Feil ved forsøk på å forfremme beskrivelsesnivå."
-
-#~ msgid "Demoted."
-#~ msgstr "Degradert."
-
-#~ msgid "Error attempting to demote level of description."
-#~ msgstr "Feil ved forsøk på å degradere beskrivelsesnivå."
-
-#~ msgid "Level of description not found."
-#~ msgstr "Beskrivelsesnår ikke funnet."
-
-#~ msgid "Only needed in full re-ingest"
-#~ msgstr "Bare nødvendig i full gjenopplasting"
-
-#~ msgid "default"
-#~ msgstr "standard"
-
-#, python-format
-#~ msgid "Could not base64-decode provided path: %(path)s"
-#~ msgstr "Kunne ikke base64-dekode oppgitt sti: %(path)s"
-
-#, python-format
-#~ msgid "No files or directories found under path: %(path)s"
-#~ msgstr "Ingen filer eller mapper funnet under bane: %(path)s"
-
-#~ msgid "No filepath to delete was provided!"
-#~ msgstr "Ingen filsti ble angitt for sletting!"
-
-#~ msgid "Delete successful."
-#~ msgstr "Sletting vellykket."
-
-#, python-format
-#~ msgid "Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!"
-#~ msgstr "Angitt SIP-UUID (%(uuid)s) tilhører en allerede startet SIP!"
-
-#, python-format
-#~ msgid "Provided UUID (%(uuid)s) is not a valid UUID!"
-#~ msgstr "Angitt UUID (%(uuid)s) er ikke en gyldig UUID!"
-
-#, python-format
-#~ msgid "%(path1)s is not in %(path2)s"
-#~ msgstr "%(path1)s er ikke i %(path2)s"
-
-#, python-format
-#~ msgid "%(path)s is not a directory"
-#~ msgstr "%(path)s er ikke en mappe"
-
-#~ msgid "SIP created."
-#~ msgstr "SIP opprettet."
-
-#~ msgid "All directories must be within the arrange directory."
-#~ msgstr "Alle mapper må være innenfor ordningsmappen."
-
-#~ msgid "Creation successful."
-#~ msgstr "Opprettelse vellykket."
-
-#, python-format
-#~ msgid "%(src)s and %(dst)s must be inside %(path)s"
-#~ msgstr "%(src)s og %(dst)s må være i %(path)s"
-
-#~ msgid "You cannot drag and drop onto a file."
-#~ msgstr "Du kan ikke dra og slippe til en fil."
-
-#~ msgid "GET parameter 'filepath' or 'destination' was blank."
-#~ msgstr "GET-parameteren 'filepath' eller 'destination' var tom."
-
-#, python-format
-#~ msgid "%(path)s must be in arrange directory."
-#~ msgstr "%(path)s må være i ordningsmappen."
-
-#, python-format
-#~ msgid "%(path1)s must go in a SIP, cannot be dropped onto %(path2)s"
-#~ msgstr "%(path1)s må i en SIP, kan ikke slippes på %(path2)s"
-
-#, python-format
-#~ msgid "Storage Service failed with the message: %(messsage)s"
-#~ msgstr "Lagringstjenesten mislyktes med meldingen : %(messsage)s"
-
-#, python-format
-#~ msgid ""
-#~ "No file information returned from the Storage Service for file at "
-#~ "relative_path: %(path)s"
-#~ msgstr ""
-#~ "Ingen filinformasjon returnert fra lagringstjenesten for fil på "
-#~ "relative_path: %(path)s"
-
-#, python-format
-#~ msgid "%(path)s is not in base backlog path nor arrange path"
-#~ msgstr "%(path)s er ikke i base backlogg-stien eller i ordner-stien"
-
-#~ msgid "SIP files successfully moved."
-#~ msgstr "Flytting av SIP-filer vellykket."
-
-#~ msgid "Files added to the SIP."
-#~ msgstr "Filer lagt til SIP-en."
-
-#, python-format
-#~ msgid "File with UUID %(uuid)s could not be found"
-#~ msgstr "Kunne ikke finne fil med UUID %(uuid)s"
-
-#~ msgid "AtoM URL not defined!"
-#~ msgstr "AtoM-URL ikke definert!"
-
-#~ msgid "AtoM authentication settings not defined!"
-#~ msgstr "AtoM autentikasjonsinnstillinger ikke definert!"
-
-#~ msgid "Unable to fetch levels of description from AtoM!"
-#~ msgstr "Kunne ikke hente beskrivelsesnivåer fra AtoM!"
-
-#~ msgid "Arranged SIPs"
-#~ msgstr "Ordnede SIP-er"
-
-#, python-format
-#~ msgid "%(original)s -> %(arrange)s"
-#~ msgstr "%(original)s -> %(arrange)s"
-
-#, python-format
-#~ msgid "%(sortorder)s: %(name)s"
-#~ msgstr "%(sortorder)s: %(name)s"
-
-#~ msgid "Fetch from AtoM"
-#~ msgstr "Hent fra AtoM"
-
-#~ msgid "AtoM Levels of Description"
-#~ msgstr "AtoM beskrivelsesnivåer"
-
-#~ msgid "Promote"
-#~ msgstr "Forfrem"
-
-#~ msgid "Demote"
-#~ msgstr "Degrader"
-
-#~ msgid "No levels found."
-#~ msgstr "Fant ingen nivåer."
-
-#~ msgid "Levels of Description"
-#~ msgstr "Beskrivelsesnivåer"
-
-#~ msgid "AtoM/Binder"
-#~ msgstr "AtoM/Binder"
-
-#~ msgid "Appraisal"
-#~ msgstr "Vurdering"
-
-#~ msgid ""
-#~ "Sorry, Elasticsearch indexing has been disabled for the Transfers related "
-#~ "indexes in this Archivematica installation. The appraisal tab is non-"
-#~ "functional when indexing is turned off."
-#~ msgstr ""
-#~ "Beklager, Elasticsearch-indeksering er deaktivert for de "
-#~ "overføringsrelaterte indeksene i denne Archivematica-installasjonen. "
-#~ "Vurderingsfanen er ikke funksjonell når indeksering er slått av."
-
-#~ msgid "Elasticsearch error"
-#~ msgstr "Elasticsearch feil"
-
-#~ msgid "ElasticSearch server issue"
-#~ msgstr "Elasticsearch serverfeil"
-
-#~ msgid ""
-#~ "<strong>Binder:</strong> In Binder, this is an identifier that indicates "
-#~ "which resource or technology record the DIP will be attached to. "
-#~ "Resources are preceded by 'ar:' (e.g. 'ar:123') and technology records "
-#~ "are preceded by 'tr:' (e.g. 'tr:456')."
-#~ msgstr ""
-#~ "<strong>Binder:</strong> I Binder er dette en identifikator som indikerer "
-#~ "hvilken ressurs eller teknologiregistrering DIP-en vil være knyttet til. "
-#~ "Ressurser blir innledet med 'ar:' (f.eks. 'ar: 123') og "
-#~ "teknologiregistreringer er innledet med 'tr:' (f.eks. 'tr: 456')."
-
-#~ msgid "Assign UUIDs to directories"
-#~ msgstr "Tildel mapper UUID-er"
-
-#~ msgid "Generate transfer structure report"
-#~ msgstr "Generer overføringsstruktursrapport"
-
-#~ msgid "Extract packages"
-#~ msgstr "Pakk ut pakker"
-
-#~ msgid "Delete packages after extraction"
-#~ msgstr "Slett pakker etter utpakking"
-
-#~ msgid "Perform policy checks on originals"
-#~ msgstr "Utfør samsvarskontroll av originaler"
-
-#~ msgid "Examine contents"
-#~ msgstr "Undersøk innhold"
-
-#~ msgid "Create SIP(s)"
-#~ msgstr "Opprett SIP(-er)"
-
-#~ msgid "Normalize"
-#~ msgstr "Normaliser"
-
-#~ msgid "Approve normalization"
-#~ msgstr "Godkjenn normalisering"
-
-#~ msgid "Generate thumbnails"
-#~ msgstr "Generer miniatyrbilder"
-
-#~ msgid "Perform policy checks on preservation derivatives"
-#~ msgstr "Utfør samsvarskontroll på bevaringssderivater"
-
-#~ msgid "Perform policy checks on access derivatives"
-#~ msgstr "Utfør samsvarskontroll på tilgangsderivater"
-
-#~ msgid "Bind PIDs"
-#~ msgstr "Bind PID-er"
-
-#~ msgid "Document empty directories"
-#~ msgstr "Dokumenter tomme mapper"
-
-#~ msgid "Reminder: add metadata if desired"
-#~ msgstr "Påminnelse: legg til metadata om ønsket"
-
-#~ msgid "Transcribe files (OCR)"
-#~ msgstr "Transkriber filer (OCR)"
-
-#~ msgid "Select compression algorithm"
-#~ msgstr "Velg kompresjonsalgoritme"
-
-#~ msgid "Select compression level"
-#~ msgstr "Velg kompresjonsnivå"
-
-#~ msgid "Store AIP"
-#~ msgstr "Lagre AIP"
-
-#~ msgid "Store AIP location"
-#~ msgstr "Lagre AIP-plassering"
-
-#~ msgid "Store DIP"
-#~ msgstr "Lagre DIP"
-
-#~ msgid "Store DIP location"
-#~ msgstr "Lagre DIP-plassering"
-
-#~ msgid "Default location"
-#~ msgstr "Standardplassering"
-
-#~ msgid "agent identifier type"
-#~ msgstr "agentidentifikator type"
-
-#~ msgid "agent identifier value"
-#~ msgstr "agentidentifikator verdi"
-
-#~ msgid "agent name"
-#~ msgstr "agentnavn"
-
-#~ msgid "agent type"
-#~ msgstr "agenttype"
-
-#~ msgid "client IP address"
-#~ msgstr "klients IP-adresse"
-
-#~ msgid "replaces"
-#~ msgstr "erstatter"
-
-#~ msgid "type"
-#~ msgstr "type"
-
-#~ msgid "command type"
-#~ msgstr "kommandotype"
-
-#~ msgid "verification command"
-#~ msgstr "bekreftelseskommando"
-
-#~ msgid "event detail command"
-#~ msgstr "hendelsesdetaljkommando"
-
-#~ msgid "supported by"
-#~ msgstr "støttet av"
-
-#~ msgid "output file format"
-#~ msgstr "utdatafilformat"
-
-#~ msgid "valid preservation format"
-#~ msgstr "gyldig bevaringsformat"
-
-#~ msgid "valid access format"
-#~ msgstr "gyldig tilgangsformat"
-
-#~ msgid "file ID type"
-#~ msgstr "fil-ID-type"
-
-#~ msgid "classification"
-#~ msgstr "klassifisering"
-
-#~ msgid "command clasification"
-#~ msgstr "kommandoklassifisering"
-
-#~ msgid "file ID"
-#~ msgstr "fil-ID"
-
-#~ msgid "tool"
-#~ msgstr "verktøy"
-
-#~ msgid "Search administration"
-#~ msgstr "Søkeadministrasjon"
-
-#~ msgid ""
-#~ "\n"
-#~ "          %(count)s AIP files indexed.\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "          %(count)s AIP-filer indeksert.\n"
-#~ "        "
-
-#~ msgid "Flush AIP Index"
-#~ msgstr "Flush AIP-Indeks"
-
-#~ msgid "Show AICs?"
-#~ msgstr "Vis AIC-er?"
-
-#~ msgid "Sort"
-#~ msgstr "Sorter"
-
-#~ msgid "Archival storage is empty."
-#~ msgstr "Arkivlageret er tom."
-
-#~ msgid "Files"
-#~ msgstr "Filer"
-
-#~ msgid ""
-#~ "\n"
-#~ "                    Part of %(item)s\n"
-#~ "                  "
-#~ msgstr ""
-#~ "\n"
-#~ "                    Del av %(item)s\n"
-#~ "                  "
-
-#~ msgid "File(s)"
-#~ msgstr "Fil(er)"
-
-#~ msgid "AIP(s)"
-#~ msgstr "AIP(er)"
-
-#~ msgid "view raw"
-#~ msgstr "vis i råformat"
-
-#~ msgid "AIP %(uuid)s details missing from database."
-#~ msgstr "AIP %(uuid)s detaljer mangler i databasen."
-
-#~ msgid "No results, please try another search."
-#~ msgstr "Ingen resultater, prøv et nytt søk."

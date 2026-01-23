@@ -709,9 +709,3 @@ msgstr ""
 #, javascript-format
 msgid "Are you sure you want to remove %s?"
 msgstr ""
-
-#~ msgid "Edit metadata"
-#~ msgstr "Editar metadatos"
-
-#~ msgid "Create SIP"
-#~ msgstr "Crear SIP"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-22 19:22+0000\n"
+"POT-Creation-Date: 2026-01-23 19:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -365,7 +365,7 @@ msgstr "Embutir"
 msgid "New"
 msgstr "Novo"
 
-#: components/administration/forms_dip_upload.py:17 main/models.py:1077
+#: components/administration/forms_dip_upload.py:17 main/models.py:1075
 msgid "Other"
 msgstr "Outro"
 
@@ -820,7 +820,7 @@ msgid "Status"
 msgstr "Status"
 
 #: components/archival_storage/views.py:218
-#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1063
+#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1061
 #: templates/administration/reports/failures.html:25
 #: templates/rights/rights_edit.html:102 templates/rights/rights_edit.html:154
 #: templates/rights/rights_edit.html:204 templates/rights/rights_edit.html:252
@@ -862,7 +862,19 @@ msgstr ""
 msgid "Error re-ingesting package: %(message)s"
 msgstr "Erro ao readmitir o pacote: %(message)s"
 
-#: components/backlog/views.py:362
+#: components/archival_storage/views.py:880 components/backlog/views.py:356
+#, fuzzy
+#| msgid "An error has occurred."
+msgid "An unknown error occurred."
+msgstr "Ocorreu um erro."
+
+#: components/archival_storage/views.py:884 components/backlog/views.py:360
+#, fuzzy
+#| msgid "Deletion requested"
+msgid "Deletion request submitted."
+msgstr "Eliminação solicitada"
+
+#: components/backlog/views.py:369
 msgid "Unable to connect to storage server. Please contact your administrator."
 msgstr ""
 "Não é possível conectar ao servidor de armazenamento. Entre em contato com o "
@@ -2535,86 +2547,86 @@ msgstr ""
 "Erro ao criar pipeline: o servidor de armazenamento está em execução? Entre "
 "em contato com o administrador."
 
-#: main/models.py:243
+#: main/models.py:241
 msgid "Part of AIC"
 msgstr "Parte da AIC"
 
-#: main/models.py:244
+#: main/models.py:242
 msgid "Optional: leave blank if unsure"
 msgstr "Opcional: deixe em branco se não tiver certeza"
 
-#: main/models.py:253
+#: main/models.py:251
 msgid "Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
 msgstr "Utilize o formato ISO 8601 (AAAA-MM-DD ou AAAA-MM-DD/AAAA-MM-DD)"
 
-#: main/models.py:263
+#: main/models.py:261
 msgid "Use ISO 639"
 msgstr "Utilize a ISO 639"
 
-#: main/models.py:281
+#: main/models.py:279
 msgid "Untitled"
 msgstr "Sem título"
 
-#: main/models.py:339
+#: main/models.py:337
 #, python-format
 msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
 msgstr "%(type)s evento em%(file_uuid)s (%(detail)s)"
 
-#: main/models.py:384
+#: main/models.py:382
 #, python-format
 msgid "%(derived)s derived from %(src)s in %(event)s"
 msgstr "%(derived)sderivado de%(src)sem%(event)s"
 
-#: main/models.py:417 main/models.py:845
+#: main/models.py:415 main/models.py:843
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: main/models.py:418
+#: main/models.py:416
 msgid "Processing"
 msgstr ""
 
-#: main/models.py:419 templates/rights/rights_grants_edit.html:109
+#: main/models.py:417 templates/rights/rights_grants_edit.html:109
 msgid "Done"
 msgstr "Feito"
 
-#: main/models.py:420 main/models.py:847
+#: main/models.py:418 main/models.py:845
 msgid "Completed successfully"
 msgstr "Completado com sucesso"
 
-#: main/models.py:421 main/models.py:849
+#: main/models.py:419 main/models.py:847
 msgid "Failed"
 msgstr "Falhou"
 
-#: main/models.py:435
+#: main/models.py:433
 msgid "SIP"
 msgstr "SIP"
 
-#: main/models.py:436
+#: main/models.py:434
 msgid "AIC"
 msgstr "AIC"
 
-#: main/models.py:437
+#: main/models.py:435
 msgid "Reingested AIP"
 msgstr "AIP readmitido"
 
-#: main/models.py:438
+#: main/models.py:436
 msgid "Reingested AIC"
 msgstr "AIC readmitido"
 
-#: main/models.py:459
+#: main/models.py:457
 #, python-brace-format
 msgid "SIP: {path}"
 msgstr "SIP: {path}"
 
-#: main/models.py:611
+#: main/models.py:609
 msgid "Identifier Type"
 msgstr "Tipo de Identificador"
 
-#: main/models.py:613
+#: main/models.py:611
 msgid "Identifier Value"
 msgstr "Valor do Identificador"
 
-#: main/models.py:615
+#: main/models.py:613
 msgid ""
 "Used for premis:objectIdentifierType and premis:objectIdentifierValue in the "
 "METS file."
@@ -2622,44 +2634,44 @@ msgstr ""
 "Usado como premis:objectIdentifierType e premis:objectIdentifierValue no "
 "arquivo METS."
 
-#: main/models.py:688
+#: main/models.py:686
 #, fuzzy, python-format
 #| msgid "File %(uuid)s: %(originallocation)s now at %(currentlocation)s"
 msgid "File %(uuid)s:%(originallocation)s now at %(currentlocation)s"
 msgstr "Arquivo %(uuid)s:%(originallocation)sagora em %(currentlocation)s"
 
-#: main/models.py:741
+#: main/models.py:739
 #, python-format
 msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
 msgstr "Diretório %(uuid)s:%(originallocation)s agora em %(currentlocation)s"
 
-#: main/models.py:805
+#: main/models.py:803
 #, fuzzy, python-format
 #| msgid "File format"
 msgid "%(file)s is %(format)s"
 msgstr "Formato de arquivo"
 
-#: main/models.py:823
+#: main/models.py:821
 msgid "(Unnamed)"
 msgstr "(Sem nome)"
 
-#: main/models.py:846
+#: main/models.py:844
 msgid "Awaiting decision"
 msgstr "Aguardando decisão"
 
-#: main/models.py:848
+#: main/models.py:846
 msgid "Executing command(s)"
 msgstr "Executando o(s) comando(s)"
 
-#: main/models.py:982
+#: main/models.py:980
 msgid "Agent Identifier Type"
 msgstr "Tipo de Identificador de Agente"
 
-#: main/models.py:987
+#: main/models.py:985
 msgid "Agent Identifier Value"
 msgstr "Valor de Identificador de Agente"
 
-#: main/models.py:989
+#: main/models.py:987
 msgid ""
 "Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue "
 "in the METS file."
@@ -2667,332 +2679,332 @@ msgstr ""
 "Usado como premis:agentIdentifierValue e premis:linkingAgentIdentifierValue "
 "no arquivo METS."
 
-#: main/models.py:996
+#: main/models.py:994
 msgid "Agent Name"
 msgstr "Nome do Agente"
 
-#: main/models.py:997
+#: main/models.py:995
 msgid "Used for premis:agentName in the METS file."
 msgstr "Usado como premis:agentName no arquivo METS."
 
-#: main/models.py:1003
+#: main/models.py:1001
 msgid "Agent Type"
 msgstr "Tipo de Agente"
 
-#: main/models.py:1004
+#: main/models.py:1002
 msgid "Used for premis:agentType in the METS file."
 msgstr "Usado como premis:agentType no arquivo METS."
 
-#: main/models.py:1026
+#: main/models.py:1024
 msgid ""
 "If checked, this user will receive system emails, such as Transfer Fail and "
 "Normalization Reports."
 msgstr ""
 
-#: main/models.py:1028
+#: main/models.py:1026
 msgid "Send system emails?"
 msgstr ""
 
-#: main/models.py:1066 templates/rights/rights_edit.html:106
+#: main/models.py:1064 templates/rights/rights_edit.html:106
 #: templates/rights/rights_edit.html:158 templates/rights/rights_edit.html:208
 #: templates/rights/rights_edit.html:256
 msgid "Value"
 msgstr "Valor"
 
-#: main/models.py:1069
+#: main/models.py:1067
 msgid "Rights holder"
 msgstr "Detentor dos direitos"
 
-#: main/models.py:1072
+#: main/models.py:1070
 msgid "Copyright"
 msgstr "Direitos autorais"
 
-#: main/models.py:1073
+#: main/models.py:1071
 msgid "Statute"
 msgstr "Regulamento"
 
-#: main/models.py:1074
+#: main/models.py:1072
 msgid "License"
 msgstr "Licença"
 
-#: main/models.py:1075
+#: main/models.py:1073
 msgid "Donor"
 msgstr "Doador"
 
-#: main/models.py:1076
+#: main/models.py:1074
 msgid "Policy"
 msgstr "Política"
 
-#: main/models.py:1083 templates/rights/rights_list.html:34
+#: main/models.py:1081 templates/rights/rights_list.html:34
 msgid "Basis"
 msgstr "Base"
 
-#: main/models.py:1095
+#: main/models.py:1093
 msgid "Rights Statement"
 msgstr "Declaração de Direitos"
 
-#: main/models.py:1099
+#: main/models.py:1097
 #, python-format
 msgid "%(basis)s for %(unit)s (%(id)s)"
 msgstr "%(basis)spara %(unit)s (%(id)s)"
 
-#: main/models.py:1114
+#: main/models.py:1112
 msgid "copyrighted"
 msgstr "protegido por direitos autorais"
 
-#: main/models.py:1115
+#: main/models.py:1113
 msgid "public domain"
 msgstr "domínio público"
 
-#: main/models.py:1116
+#: main/models.py:1114
 msgid "unknown"
 msgstr "desconhecido"
 
-#: main/models.py:1121
+#: main/models.py:1119
 msgid "Copyright status"
 msgstr "Status dos direitos autorais"
 
-#: main/models.py:1126
+#: main/models.py:1124
 msgid "Copyright jurisdiction"
 msgstr "Juridisção dos direitos de autor"
 
-#: main/models.py:1132
+#: main/models.py:1130
 msgid "Copyright determination date"
 msgstr "Data de determinação dos direitos autorais"
 
-#: main/models.py:1133 main/models.py:1140 main/models.py:1147
-#: main/models.py:1217 main/models.py:1224 main/models.py:1290
-#: main/models.py:1297 main/models.py:1359 main/models.py:1368
-#: main/models.py:1375 main/models.py:1447 main/models.py:1454
+#: main/models.py:1131 main/models.py:1138 main/models.py:1145
+#: main/models.py:1215 main/models.py:1222 main/models.py:1288
+#: main/models.py:1295 main/models.py:1357 main/models.py:1366
+#: main/models.py:1373 main/models.py:1445 main/models.py:1452
 #, fuzzy
 #| msgid "Use ISO 8061 (YYYY-MM-DD)"
 msgid "Use ISO 8601 (YYYY-MM-DD)"
 msgstr "Utilize o formato ISO 8061 (AAAA-MM-DD)"
 
-#: main/models.py:1139
+#: main/models.py:1137
 msgid "Copyright start date"
 msgstr "Data inicial dos direitos autoriais"
 
-#: main/models.py:1146
+#: main/models.py:1144
 msgid "Copyright end date"
 msgstr "Data final dos direitos autoriais"
 
-#: main/models.py:1152 main/models.py:1229 main/models.py:1304
-#: main/models.py:1380 main/models.py:1459
+#: main/models.py:1150 main/models.py:1227 main/models.py:1302
+#: main/models.py:1378 main/models.py:1457
 msgid "Open End Date"
 msgstr "Data Final Aberta"
 
-#: main/models.py:1153 main/models.py:1230 main/models.py:1305
-#: main/models.py:1381 main/models.py:1460
+#: main/models.py:1151 main/models.py:1228 main/models.py:1303
+#: main/models.py:1379 main/models.py:1458
 msgid "Indicate end date is open"
 msgstr "Indica que a data final está aberta"
 
-#: main/models.py:1158
+#: main/models.py:1156
 msgid "Rights: Copyright"
 msgstr "Direitos: Direitos autorais"
 
-#: main/models.py:1170
+#: main/models.py:1168
 msgid "Copyright document identification type"
 msgstr "Tipo de documento de identificação de direitos autorais"
 
-#: main/models.py:1174
+#: main/models.py:1172
 msgid "Copyright document identification value"
 msgstr "Valor do documento de identificação de direitos autorais"
 
-#: main/models.py:1180
+#: main/models.py:1178
 msgid "Copyright document identification role"
 msgstr "Função do documento de identificação de direitos autorais"
 
-#: main/models.py:1185
+#: main/models.py:1183
 msgid "Rights: Copyright: Docs ID"
 msgstr "Direitos: Direito Autoral: ID dos Documentos"
 
-#: main/models.py:1196 templates/rights/rights_edit.html:117
+#: main/models.py:1194 templates/rights/rights_edit.html:117
 msgid "Copyright note"
 msgstr "Nota de direitos autorais"
 
-#: main/models.py:1201
+#: main/models.py:1199
 msgid "Rights: Copyright: Note"
 msgstr "Direitos: Direito Autoral: Nota"
 
-#: main/models.py:1210
+#: main/models.py:1208
 msgid "License terms"
 msgstr "Termos de licença"
 
-#: main/models.py:1216
+#: main/models.py:1214
 msgid "License start date"
 msgstr "Data inicial da Licença"
 
-#: main/models.py:1223
+#: main/models.py:1221
 msgid "License end date"
 msgstr "Data final da Licença"
 
-#: main/models.py:1235
+#: main/models.py:1233
 msgid "Rights: License"
 msgstr "Direitos: Licença"
 
-#: main/models.py:1247
+#: main/models.py:1245
 msgid "License documentation identification type"
 msgstr "Tipo de documento de identificação de licença"
 
-#: main/models.py:1251
+#: main/models.py:1249
 msgid "License documentation identification value"
 msgstr "Valor do documento de identificação de licença"
 
-#: main/models.py:1257
+#: main/models.py:1255
 msgid "License document identification role"
 msgstr "Função do documento de identificação de licença"
 
-#: main/models.py:1262
+#: main/models.py:1260
 msgid "Rights: License: Docs ID"
 msgstr "Direitos: Licença: ID dos Documentos"
 
-#: main/models.py:1273 templates/rights/rights_edit.html:219
+#: main/models.py:1271 templates/rights/rights_edit.html:219
 msgid "License note"
 msgstr "Nota de licença"
 
-#: main/models.py:1278
+#: main/models.py:1276
 msgid "Rights: License: Note"
 msgstr "Direitos: Licença: Nota"
 
-#: main/models.py:1289 templates/rights/rights_list.html:36
+#: main/models.py:1287 templates/rights/rights_list.html:36
 msgid "Start"
 msgstr "Início"
 
-#: main/models.py:1296 templates/rights/rights_list.html:37
+#: main/models.py:1294 templates/rights/rights_list.html:37
 msgid "End"
 msgstr "Fim"
 
-#: main/models.py:1310
+#: main/models.py:1308
 msgid "Rights: Granted"
 msgstr "Direitos: Garantia"
 
-#: main/models.py:1322
+#: main/models.py:1320
 msgid "Rights note"
 msgstr "Nota de direitos"
 
-#: main/models.py:1327
+#: main/models.py:1325
 msgid "Rights: Granted: Note"
 msgstr "Direitos: Garantia: Nota"
 
-#: main/models.py:1342
+#: main/models.py:1340
 msgid "Rights: Granted: Restriction"
 msgstr "Direitos: Garantia: Restição"
 
-#: main/models.py:1351
+#: main/models.py:1349
 msgid "Statute jurisdiction"
 msgstr " Jurisdição do regulamento"
 
-#: main/models.py:1354
+#: main/models.py:1352
 msgid "Statute citation"
 msgstr "Citação do regulamento"
 
-#: main/models.py:1358
+#: main/models.py:1356
 msgid "Statute determination date"
 msgstr "Data de determinação do regulamento"
 
-#: main/models.py:1367
+#: main/models.py:1365
 msgid "Statute start date"
 msgstr "Data inicial do estatuto"
 
-#: main/models.py:1374
+#: main/models.py:1372
 msgid "Statute end date"
 msgstr "Data final do estatuto"
 
-#: main/models.py:1386
+#: main/models.py:1384
 msgid "Rights: Statute"
 msgstr "Direitos: Estatuto"
 
-#: main/models.py:1397 templates/rights/rights_edit.html:169
+#: main/models.py:1395 templates/rights/rights_edit.html:169
 msgid "Statute note"
 msgstr "Nota do estatuto"
 
-#: main/models.py:1402
+#: main/models.py:1400
 msgid "Rights: Statute: Note"
 msgstr "Direitos: Estatuto: Nota"
 
-#: main/models.py:1414
+#: main/models.py:1412
 msgid "Statute document identification type"
 msgstr "Tipo de documento de identificação de estatuto"
 
-#: main/models.py:1418
+#: main/models.py:1416
 msgid "Statute document identification value"
 msgstr "Valor do documento de identificação de estatuto"
 
-#: main/models.py:1424
+#: main/models.py:1422
 msgid "Statute document identification role"
 msgstr "Função do documento de identificação de estatuto"
 
-#: main/models.py:1429
+#: main/models.py:1427
 msgid "Rights: Statute: Docs ID"
 msgstr "Direitos: Estatuto: ID dos Documentos"
 
-#: main/models.py:1439
+#: main/models.py:1437
 msgid "Other rights basis"
 msgstr "Base de outros direitos"
 
-#: main/models.py:1446
+#: main/models.py:1444
 msgid "Other rights start date"
 msgstr "Data inicial de outros direitos"
 
-#: main/models.py:1453
+#: main/models.py:1451
 msgid "Other rights end date"
 msgstr "Data final de outros direitos"
 
-#: main/models.py:1465
+#: main/models.py:1463
 msgid "Rights: Other"
 msgstr "Direitos: Outros"
 
-#: main/models.py:1477
+#: main/models.py:1475
 msgid "Other rights document identification type"
 msgstr "Tipo de documento de identificação de outros direitos"
 
-#: main/models.py:1481
+#: main/models.py:1479
 msgid "Other right document identification value"
 msgstr "Valor do documento de identificação de outros direitos"
 
-#: main/models.py:1487
+#: main/models.py:1485
 msgid "Other rights document identification role"
 msgstr "Função do documento de identificação de outros direitos"
 
-#: main/models.py:1492
+#: main/models.py:1490
 msgid "Rights: Other: Docs ID"
 msgstr "Direitos: Outros: ID dos Documentos"
 
-#: main/models.py:1503
+#: main/models.py:1501
 msgid "Other rights note"
 msgstr "Nota de outros direitos"
 
-#: main/models.py:1508
+#: main/models.py:1506
 msgid "Rights: Other: Note"
 msgstr "Direitos: Outros: Nota"
 
-#: main/models.py:1518
+#: main/models.py:1516
 msgid "Linking Agent"
 msgstr "Agente de Ligação"
 
-#: main/models.py:1523
+#: main/models.py:1521
 msgid "Linking Agent Value"
 msgstr "Valor do Agente de Ligação"
 
-#: main/models.py:1529
+#: main/models.py:1527
 msgid "Rights: Agent"
 msgstr "Direitos: Agente"
 
-#: main/models.py:1582
+#: main/models.py:1580
 msgid "Semantically a foreign key to SIP or Transfer"
 msgstr "Semanticamente uma chave estrangeira para o SIP ou Transferência"
 
-#: main/models.py:1618
+#: main/models.py:1616
 msgid "ASDIPObjectResourcePairing"
 msgstr "ASDIPObjectResourcePairing"
 
-#: main/models.py:1633
+#: main/models.py:1631
 msgid ""
 "Whether or not a SIP has been started using files in this digital object."
 msgstr "Se um SIP foi iniciado ou não usando arquivos deste objeto digital."
 
-#: main/models.py:1640
+#: main/models.py:1638
 msgid ""
 "ID in the remote ArchivesSpace system, after digital object has been created."
 msgstr ""
@@ -4509,482 +4521,3 @@ msgstr "Transferir metadados"
 #: templates/transfer/grid.html:81
 msgid "Transfer start time"
 msgstr "Hora inicial da transferência"
-
-#~ msgid "AtoM/Binder version"
-#~ msgstr "Versão do AtoM/Binder"
-
-#~ msgid "Promoted."
-#~ msgstr "Promovido."
-
-#~ msgid "Error attempting to promote level of description."
-#~ msgstr "Erro ao tentar promover o nível de descrição."
-
-#~ msgid "Demoted."
-#~ msgstr "Rebaixar"
-
-#~ msgid "Error attempting to demote level of description."
-#~ msgstr "Erro ao tentar diminuir o nível de descrição."
-
-#~ msgid "Level of description not found."
-#~ msgstr "Nível de descrição não encontrado."
-
-#~ msgid "Only needed in full re-ingest"
-#~ msgstr "Apenas necessário em readmissão completa"
-
-#~ msgid "default"
-#~ msgstr "padrão"
-
-#, python-format
-#~ msgid "Could not base64-decode provided path: %(path)s"
-#~ msgstr "Não foi possível o caminho fornecido base64-decode %(path)s"
-
-#, python-format
-#~ msgid "No files or directories found under path: %(path)s"
-#~ msgstr "Nenhum arquivo ou diretório encontrado no caminho: %(path)s"
-
-#~ msgid "No filepath to delete was provided!"
-#~ msgstr "Não foi fornecido nenhum caminho de arquivo para excluir!"
-
-#~ msgid "Delete successful."
-#~ msgstr "Exclusão bem sucedida."
-
-#, python-format
-#~ msgid "Provided SIP UUID (%(uuid)s) belongs to an already-started SIP!"
-#~ msgstr "O SIP UUID fornecido (%(uuid)s) pertence a um SIP já iniciado!"
-
-#, python-format
-#~ msgid "Provided UUID (%(uuid)s) is not a valid UUID!"
-#~ msgstr "O UUID fornecido (%(uuid)s) não é um UUID válido!"
-
-#, python-format
-#~ msgid "%(path1)s is not in %(path2)s"
-#~ msgstr "%(path1)s não está em %(path2)s"
-
-#, python-format
-#~ msgid "%(path)s is not a directory"
-#~ msgstr "%(path)snão é um diretório"
-
-#~ msgid "SIP created."
-#~ msgstr "SIP criado."
-
-#, fuzzy
-#~| msgid "Directory is not within the arrange directory."
-#~ msgid "All directories must be within the arrange directory."
-#~ msgstr "O diretório não está dentro do diretório de arranjo."
-
-#~ msgid "Creation successful."
-#~ msgstr "Criação bem sucedida."
-
-#, python-format
-#~ msgid "%(src)s and %(dst)s must be inside %(path)s"
-#~ msgstr "%(src)se %(dst)sdeve estar dentro %(path)s"
-
-#~ msgid "You cannot drag and drop onto a file."
-#~ msgstr "Você não pode arrastar e soltar em um arquivo."
-
-#~ msgid "GET parameter 'filepath' or 'destination' was blank."
-#~ msgstr "GET parâmetro 'caminho do arquivo' ou 'destino' estava em branco."
-
-#, python-format
-#~ msgid "%(path)s must be in arrange directory."
-#~ msgstr "%(path)sdeve estar no diretório de arranjo."
-
-#, python-format
-#~ msgid "%(path1)s must go in a SIP, cannot be dropped onto %(path2)s"
-#~ msgstr "%(path1)sdeve entrar em um SIP, não pode ser descartado %(path2)s"
-
-#, python-format
-#~ msgid "Storage Service failed with the message: %(messsage)s"
-#~ msgstr "O serviço de armazenamento falhou com a mensagem: %(messsage)s"
-
-#, python-format
-#~ msgid ""
-#~ "No file information returned from the Storage Service for file at "
-#~ "relative_path: %(path)s"
-#~ msgstr ""
-#~ "Nenhuma informação de arquivo retornada do Storage Service para arquivo "
-#~ "em relative_path:%(path)s"
-
-#, python-format
-#~ msgid "%(path)s is not in base backlog path nor arrange path"
-#~ msgstr "%(path)snão está no caminho base backlog  nem no caminho de arranjo"
-
-#~ msgid "SIP files successfully moved."
-#~ msgstr "Os arquivos SIP foram movidos com sucesso"
-
-#~ msgid "Files added to the SIP."
-#~ msgstr "Arquivos adicionados ao SIP."
-
-#, python-format
-#~ msgid "File with UUID %(uuid)s could not be found"
-#~ msgstr "Arquivo com UUID%(uuid)snão pode ser achado"
-
-#~ msgid "AtoM URL not defined!"
-#~ msgstr "AtoM URL não definido!"
-
-#~ msgid "AtoM authentication settings not defined!"
-#~ msgstr "Configurações de autenticação AtoM não definidas!"
-
-#~ msgid "Unable to fetch levels of description from AtoM!"
-#~ msgstr "Não é possível buscar níveis de descrição do AtoM!"
-
-#~ msgid "Arranged SIPs"
-#~ msgstr "SIPs Organizados"
-
-#, python-format
-#~ msgid "%(original)s -> %(arrange)s"
-#~ msgstr "%(original)s -> %(arrange)s"
-
-#, python-format
-#~ msgid "%(sortorder)s: %(name)s"
-#~ msgstr "%(sortorder)s:%(name)s"
-
-#~ msgid "Fetch from AtoM"
-#~ msgstr "Buscar do AtoM"
-
-#~ msgid "AtoM Levels of Description"
-#~ msgstr "AtoM Níveis de Descrição"
-
-#~ msgid "Promote"
-#~ msgstr "Promover"
-
-#~ msgid "Demote"
-#~ msgstr "Rebaixar"
-
-#~ msgid "No levels found."
-#~ msgstr "Nenhum nível encontrado."
-
-#~ msgid "Levels of Description"
-#~ msgstr "Níveis de Descrição"
-
-#~ msgid "AtoM/Binder"
-#~ msgstr "AtoM/Binder"
-
-#~ msgid "Appraisal"
-#~ msgstr "Arranjo"
-
-#~ msgid ""
-#~ "Sorry, Elasticsearch indexing has been disabled for the Transfers related "
-#~ "indexes in this Archivematica installation. The appraisal tab is non-"
-#~ "functional when indexing is turned off."
-#~ msgstr ""
-#~ "Desculpe, a indexação do Elasticsearch foi desabilitada para índices "
-#~ "relacionados a Transferências nesta instalação do Archivematica. A tela "
-#~ "appraisal (avaliação) não funciona quando a indexação estiver desativada."
-
-#~ msgid "Elasticsearch error"
-#~ msgstr "Erro do Elasticsearch"
-
-#~ msgid "ElasticSearch server issue"
-#~ msgstr "Problema do servidor ElasticSearch"
-
-#~ msgid ""
-#~ "<strong>Binder:</strong> In Binder, this is an identifier that indicates "
-#~ "which resource or technology record the DIP will be attached to. "
-#~ "Resources are preceded by 'ar:' (e.g. 'ar:123') and technology records "
-#~ "are preceded by 'tr:' (e.g. 'tr:456')."
-#~ msgstr ""
-#~ "<strong>Binder:</strong> No Binder, este é um identificador que indica a "
-#~ "qual recurso ou registro tecnológico o DIP será anexado. Os recursos são "
-#~ "precedidos de 'ar:' (por exemplo: 'ar:123') e registros tecnológicos são "
-#~ "precedidos de 'tr:' (por exemplo: 'tr:456')."
-
-#~ msgid "Assign UUIDs to directories"
-#~ msgstr "Atribuir UUIDs para diretórios"
-
-#~ msgid "Generate transfer structure report"
-#~ msgstr "Gerar relatório de estrutura de transferência"
-
-#~ msgid "Extract packages"
-#~ msgstr "Extrair pacotes"
-
-#~ msgid "Delete packages after extraction"
-#~ msgstr "Eliminar pacotes após a extração"
-
-#~ msgid "Perform policy checks on originals"
-#~ msgstr "Execute verificações de políticas em originais"
-
-#~ msgid "Examine contents"
-#~ msgstr "Examinar conteúdos"
-
-#~ msgid "Create SIP(s)"
-#~ msgstr "Criar SIP(s)"
-
-#~ msgid "Normalize"
-#~ msgstr "Normalizar"
-
-#~ msgid "Approve normalization"
-#~ msgstr "Aprovar a normalização"
-
-#~ msgid "Generate thumbnails"
-#~ msgstr "Gerar miniaturas"
-
-#~ msgid "Perform policy checks on preservation derivatives"
-#~ msgstr "Realizar verificações de política sobre derivativos de preservação"
-
-#~ msgid "Perform policy checks on access derivatives"
-#~ msgstr "Execute verificações de políticas sobre derivativos de acesso"
-
-#~ msgid "Bind PIDs"
-#~ msgstr "Vincular PIDs"
-
-#~ msgid "Document empty directories"
-#~ msgstr "Documentar diretórios vazios"
-
-#~ msgid "Reminder: add metadata if desired"
-#~ msgstr "Lembrete: adicione metadados se desejar"
-
-#~ msgid "Transcribe files (OCR)"
-#~ msgstr "Transcrever arquivos (OCR)"
-
-#~ msgid "Select compression algorithm"
-#~ msgstr "Selecione o algoritmo de compressão"
-
-#~ msgid "Select compression level"
-#~ msgstr "Selecione o nível de compressão"
-
-#~ msgid "Store AIP"
-#~ msgstr "Armazenar AIP"
-
-#~ msgid "Store AIP location"
-#~ msgstr "Local de armazenamento do AIP"
-
-#~ msgid "Store DIP"
-#~ msgstr "Armazenar DIP"
-
-#~ msgid "Store DIP location"
-#~ msgstr "Local de armazenamento do DIP"
-
-#~ msgid "Default location"
-#~ msgstr "Localização padrão"
-
-#, fuzzy
-#~| msgid "Agent Identifier Type"
-#~ msgid "agent identifier type"
-#~ msgstr "Tipo de Identificador de Agente"
-
-#, fuzzy
-#~| msgid "Agent Identifier Value"
-#~ msgid "agent identifier value"
-#~ msgstr "Valor de Identificador de Agente"
-
-#, fuzzy
-#~| msgid "Agent Name"
-#~ msgid "agent name"
-#~ msgstr "Nome do Agente"
-
-#, fuzzy
-#~| msgid "Agent Type"
-#~ msgid "agent type"
-#~ msgstr "Tipo de Agente"
-
-#, fuzzy
-#~| msgid "Replace"
-#~ msgid "replaces"
-#~ msgstr "Substituir"
-
-#, fuzzy
-#~| msgid "Executing command(s)"
-#~ msgid "verification command"
-#~ msgstr "Executando o(s) comando(s)"
-
-#, fuzzy
-#~| msgid "File format"
-#~ msgid "output file format"
-#~ msgstr "Formato de arquivo"
-
-#, fuzzy
-#~| msgid "Already in preservation format"
-#~ msgid "valid preservation format"
-#~ msgstr "Já está em formato de preservação"
-
-#, fuzzy
-#~| msgid "Already in access format"
-#~ msgid "valid access format"
-#~ msgstr "Já está no formato de acesso"
-
-#, fuzzy
-#~| msgid "File UUID"
-#~ msgid "file ID"
-#~ msgstr "Arquivo UUID"
-
-#~ msgid "Search administration"
-#~ msgstr "Administração de pesquisa"
-
-#~ msgid ""
-#~ "\n"
-#~ "          %(count)s AIP files indexed.\n"
-#~ "        "
-#~ msgstr ""
-#~ "\n"
-#~ "          %(count)s Arquivos AIP indexados.\n"
-#~ "        "
-
-#~ msgid "Flush AIP Index"
-#~ msgstr "Índice de descarga de AIP"
-
-#~ msgid "Send transfer to quarantine"
-#~ msgstr "Enviar transferência para quarentena"
-
-#~ msgid "Remove from quarantine after (days)"
-#~ msgstr "Remova da quarentena após (dias)"
-
-#~ msgid "days"
-#~ msgstr "dias"
-
-#~ msgid "ArchivesSpace host"
-#~ msgstr "ArchivesSpace host"
-
-#~ msgid "Do not include http:// or www. Example: aspace.test.org"
-#~ msgstr "Não inclua http: // ou www. Exemplo: aspace.test.org"
-
-#~ msgid "Example: 8089"
-#~ msgstr "Exemplo: 8089"
-
-#~ msgid "Database host"
-#~ msgstr "Host de banco de dados"
-
-#~ msgid "Database port"
-#~ msgstr "Porta do banco de dados"
-
-#~ msgid "Database name"
-#~ msgstr "Nome do banco de dados"
-
-#~ msgid "Database user"
-#~ msgstr "Usuário de banco de dados"
-
-#~ msgid "Database password"
-#~ msgstr "Senha do banco de dados"
-
-#~ msgid "Archivists' Toolkit username"
-#~ msgstr "Nome de usuário da ferramenta dos Arquivos"
-
-#~ msgid "EAD DAO actuate"
-#~ msgstr "acionar EAD DAO"
-
-#~ msgid "EAD DAO show"
-#~ msgstr "Mostrar EAD DAO"
-
-#~ msgid "MicroServiceChain ID: %(uuid)s; %(desc)s"
-#~ msgstr "MicroServiceChain ID: %(uuid)s;%(desc)s"
-
-#~ msgid "MicroServiceChainLink ID: %(id)s"
-#~ msgstr "MicroServiceChainLink ID: %(id)s"
-
-#~ msgid "MicroServiceChainChoice ID: %(uuid)s (%(chain)s at %(choice)s)"
-#~ msgstr "MicroServiceChainChoice ID: %(uuid)s (%(chain)sem%(choice)s)"
-
-#~ msgid "Invalid syntax."
-#~ msgstr "Sintaxe inválida."
-
-#~ msgid "TaskType ID: %(id)s, desc: %(desc)s"
-#~ msgstr "ID da TaskType: %(id)s, desc: %(desc)s"
-
-#~ msgid ""
-#~ "UUID of the MicroServiceChainLink if used in task type "
-#~ "linkTaskManagerUnitVariableLinkPull"
-#~ msgstr ""
-#~ "UUID do MicroServiceChainLink se usado no tipo de tarefa "
-#~ "linkTaskManagerUnitVariableLinkPull"
-
-#~ msgid ""
-#~ "If desired, quarantine transfer to allow definitions in anti-virus "
-#~ "software to be updated."
-#~ msgstr ""
-#~ "Se desejar, a transferência de quarentena permite que as definições no "
-#~ "software anti-vírus sejam atualizadas."
-
-#~ msgid ""
-#~ "If desired, select \"Unquarantine\" to remove the transfer from "
-#~ "quarantine immediately. Otherwise, wait until the quarantine period has "
-#~ "expired and the transfer will be removed automatically."
-#~ msgstr ""
-#~ "Se desejar, selecione \"Sem quarentena\" para remover a transferência da "
-#~ "quarentena imediatamente. Caso contrário, espere até o período de "
-#~ "quarentena ter expirado e a transferência será removida automaticamente."
-
-#~ msgid "Archivists Toolkit DIP upload"
-#~ msgstr "Arquivistas Toolkit DIP upload"
-
-#~ msgid "Archivists’ Toolkit"
-#~ msgstr "Archivists’ Toolkit"
-
-#~ msgid "Show AICs?"
-#~ msgstr "Mostrar AICs ?"
-
-#~ msgid "Sort"
-#~ msgstr "Ordenar"
-
-#~ msgid "Archival storage is empty."
-#~ msgstr "O  armazenamento de arquivo está vazio."
-
-#~ msgid "Files"
-#~ msgstr "Arquivos"
-
-#~ msgid "view raw"
-#~ msgstr "visualizar bruto"
-
-#~ msgid ""
-#~ "\n"
-#~ "                    Part of %(item)s\n"
-#~ "                  "
-#~ msgstr ""
-#~ "\n"
-#~ "                    Parte de %(item)s\n"
-#~ "                  "
-
-#~ msgid "File(s)"
-#~ msgstr "Arquivo(s)"
-
-#~ msgid "AIP(s)"
-#~ msgstr "AIP(s)"
-
-#~ msgid "AIP %(uuid)s details missing from database."
-#~ msgstr "AIP %(uuid)s falta detalhes no banco de dados."
-
-#~ msgid "No results, please try another search."
-#~ msgstr "Sem resultados, tente outra pesquisa."
-
-#~ msgid "Level of sescription"
-#~ msgstr "Nível de descrição"
-
-#~ msgid "View file"
-#~ msgstr "Visualizar arquivo"
-
-#~ msgid "Hide"
-#~ msgstr "Ocultar"
-
-#~ msgid "Edit metadata"
-#~ msgstr "Editar metadado"
-
-#~ msgid ""
-#~ "No AtoM levels of description found. Please contact an administrator."
-#~ msgstr ""
-#~ "Não foram encontrados níveis de descrição AtoM. Entre em contato com um "
-#~ "administrador."
-
-#~ msgid "Metadatos"
-#~ msgstr "Metadados"
-
-#~ msgid "Standard error (stderr)"
-#~ msgstr "Erro padrão (stderr)"
-
-#~ msgid ""
-#~ "\n"
-#~ "      %(content_type)s not found\n"
-#~ "    "
-#~ msgstr ""
-#~ "\n"
-#~ "      %(content_type)s não encontrado\n"
-#~ "    "
-
-#~ msgid ""
-#~ "\n"
-#~ "        Sorry! The %(content_type)s that you are trying to %(verb)s is "
-#~ "not here.\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        Desculpe! o %(content_type)sque você está tentando %(verb)s não "
-#~ "está aqui.\n"
-#~ "      "

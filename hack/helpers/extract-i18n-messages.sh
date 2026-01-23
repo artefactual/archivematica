@@ -40,8 +40,8 @@ function storage::manage {
 #
 
 echo "Dashboard: extracting messages..."
-dashboard::manage makemessages --all --domain django
-dashboard::manage makemessages --all --domain djangojs --ignore dist/* --ignore node_modules/*
+dashboard::manage makemessages --all --domain django --no-obsolete
+dashboard::manage makemessages --all --domain djangojs --ignore dist/* --ignore node_modules/* --no-obsolete
 
 (cd ${__root_dir} && git status -s)
 
@@ -51,8 +51,8 @@ dashboard::manage makemessages --all --domain djangojs --ignore dist/* --ignore 
 #
 
 echo "Storage Service: extracting messages..."
-storage::manage makemessages --all --domain django
-storage::manage makemessages --all --domain djangojs
+storage::manage makemessages --all --domain django --no-obsolete
+storage::manage makemessages --all --domain djangojs --no-obsolete
 
 (cd ${__root_dir}/hack/submodules/archivematica-storage-service && git status -s)
 
