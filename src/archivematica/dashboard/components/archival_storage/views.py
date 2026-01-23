@@ -875,9 +875,16 @@ def view_aip(request, uuid):
                 request.user.email,
                 form_delete.cleaned_data["reason"],
             )
-            messages.info(request, response["message"])
-            search_service = setup_search_service_from_conf(settings)
-            search_service.mark_aip_for_deletion(uuid)
+            if response.get("error", False):
+                messages.error(
+                    request, response.get("message", _("An unknown error occurred."))
+                )
+            else:
+                messages.info(
+                    request, response.get("message", _("Deletion request submitted."))
+                )
+                search_service = setup_search_service_from_conf(settings)
+                search_service.mark_aip_for_deletion(uuid)
             return redirect("archival_storage:archival_storage_index")
 
     context = {

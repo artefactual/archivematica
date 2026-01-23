@@ -540,7 +540,11 @@ def request_file_deletion(uuid, user_id, user_email, reason_for_deletion):
     url = _storage_service_url() + "file/" + uuid + "/delete_aip/"
     with ss_api_timer(function="request_file_deletion"):
         response = _storage_api_session().post(url, json=api_request)
-    return response.json()
+    try:
+        return response.json()
+    except ValueError:
+        message = response.text or "Storage service returned a non-JSON response."
+        return {"error": True, "message": message, "status": response.status_code}
 
 
 def post_store_aip_callback(uuid):

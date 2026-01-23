@@ -12,6 +12,7 @@ from requests import Response
 from archivematica.archivematicaCommon.storageService import (
     location_description_from_slug,
 )
+from archivematica.archivematicaCommon.storageService import request_file_deletion
 from archivematica.archivematicaCommon.storageService import (
     retrieve_storage_location_description,
 )
@@ -99,3 +100,30 @@ def test_retrieve_storage_location(
     location_description_from_slug.return_value = return_value
     res = retrieve_storage_location_description(slug)
     assert res == expected_result
+
+
+@pytest.mark.django_db
+@mock.patch("archivematica.archivematicaCommon.storageService._storage_api_session")
+@mock.patch(
+    "archivematica.archivematicaCommon.storageService._storage_service_url",
+    return_value="http://ss/",
+)
+def test_request_file_deletion_handles_non_json_response(
+    _storage_service_url, _storage_api_session
+):
+    response = Response()
+    response.status_code = 404
+    response.headers["content-type"] = "text/plain"
+    response._content = b"Not Found"
+    session = mock.Mock()
+    session.post.return_value = response
+    _storage_api_session.return_value = session
+
+    result = request_file_deletion(
+        "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        0,
+        "archivematica@example.com",
+        "testing",
+    )
+
+    assert result == {"error": True, "message": "Not Found", "status": 404}
