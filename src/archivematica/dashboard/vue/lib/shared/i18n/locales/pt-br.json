@@ -55,5 +55,12 @@
     "unzippedBag": "Descompactado",
     "zipfile": "Diretório compactado",
     "zippedBag": "Compactado"
+  },
+  "topbar": {
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "errorConnecting": "Erro ao conectar ao servidor. Tentando novamente...",
+    "initializing": "Inicializando...",
+    "loading": "Carregando..."
   }
 }

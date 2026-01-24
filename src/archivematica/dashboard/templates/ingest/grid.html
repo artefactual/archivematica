@@ -12,7 +12,6 @@
 
 {% block js %}
   <script type="text/javascript" src="{% static 'js/jobs.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/online.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/ingest.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function()
@@ -112,13 +111,6 @@
     </div>
     <div class="job-detail-actions">
       <a class="btn_show_tasks" href="#" title="{% trans 'Tasks' %}"><span>{% trans "Tasks" %}</span></a>
-    </div>
-  </script>
-
-  <script type="text/template" id="status-template">
-    <div id="status-bullet">
-      <span>{% trans "Initializing..." %}</span>
-      <img src="{% static 'images/bullet_delete.png' %}" />
     </div>
   </script>
 

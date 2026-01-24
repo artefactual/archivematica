@@ -55,5 +55,12 @@
     "unzippedBag": "Upakket bag",
     "zipfile": "Komprimert katalog",
     "zippedBag": "Komprimert bag"
+  },
+  "topbar": {
+    "connected": "Tilkoblet",
+    "disconnected": "Frakoblet",
+    "errorConnecting": "Feil ved tilkobling til server. Prøver igjen...",
+    "initializing": "Initialiserer...",
+    "loading": "Laster..."
   }
 }

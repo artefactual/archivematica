@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:01+0000\n"
+"POT-Creation-Date: 2026-01-27 15:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
@@ -712,9 +712,9 @@ msgstr "Var god skriv UUIDet för att bekräfta"
 #: fpr/templates/fpr/idtool/detail.html:23
 #: fpr/templates/fpr/revisions/list.html:25
 #: templates/administration/reports/failures.html:27
-#: templates/archival_storage/view.html:63 templates/ingest/grid.html:58
-#: templates/ingest/grid.html:79 templates/transfer/grid.html:77
-#: templates/transfer/grid.html:99
+#: templates/archival_storage/view.html:63 templates/ingest/grid.html:57
+#: templates/ingest/grid.html:78 templates/transfer/grid.html:76
+#: templates/transfer/grid.html:98
 msgid "UUID"
 msgstr "UUID"
 
@@ -1667,7 +1667,7 @@ msgstr ""
 #: templates/accounts/edit.html:40 templates/accounts/profile.html:45
 #: templates/administration/processing_edit.html:40
 #: templates/delete_request.html:20 templates/ingest/as/match.html:129
-#: templates/ingest/grid.html:169 templates/ingest/metadata_edit.html:67
+#: templates/ingest/grid.html:161 templates/ingest/metadata_edit.html:67
 #: templates/rights/rights_edit.html:291 templates/rights/rights_edit.html:293
 #: templates/rights/rights_grants_edit.html:112
 #: templates/rights/rights_grants_edit.html:114
@@ -2255,7 +2255,7 @@ msgstr "Konfigurering"
 #: fpr/templates/fpr/idtool/detail.html:49
 #: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
 #: templates/ingest/as/match.html:120
-#: templates/ingest/as/review_matches.html:31 templates/ingest/grid.html:160
+#: templates/ingest/as/review_matches.html:31 templates/ingest/grid.html:152
 msgid "Identifier"
 msgstr "Signum"
 
@@ -3661,7 +3661,7 @@ msgstr "Visa filer?"
 msgid "Pointer file"
 msgstr "Pointer-fil"
 
-#: templates/archival_storage/view.html:109 templates/ingest/grid.html:151
+#: templates/archival_storage/view.html:109 templates/ingest/grid.html:143
 msgid "Upload DIP"
 msgstr "Ladda upp DIP"
 
@@ -3674,7 +3674,7 @@ msgstr "Återingestera"
 msgid "Metadata-only DIP upload to AtoM"
 msgstr "Ladda upp DIP med enbart metadata till AtoM"
 
-#: templates/archival_storage/view.html:125 templates/ingest/grid.html:168
+#: templates/archival_storage/view.html:125 templates/ingest/grid.html:160
 msgid "Upload"
 msgstr "Ladda upp"
 
@@ -3728,7 +3728,7 @@ msgstr "Du har tyvärr inte tillräckliga åtkomstbehörigheter för denna åtg�
 msgid "AIP"
 msgstr "AIP"
 
-#: templates/ingest/aip_browse.html:38 templates/ingest/detail.html:10
+#: templates/ingest/aip_browse.html:36 templates/ingest/detail.html:10
 #: templates/ingest/grid.html:5 templates/ingest/grid.html:6
 #: templates/ingest/metadata_add_files.html:31
 #: templates/ingest/metadata_edit.html:31
@@ -3738,11 +3738,6 @@ msgstr "AIP"
 #: templates/rights/rights_list.html:9
 msgid "Ingest"
 msgstr "Ingest"
-
-#: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:120
-#: templates/transfer/grid.html:137
-msgid "Initializing..."
-msgstr "Initialiserar..."
 
 #: templates/ingest/as/_search_form.html:4 templates/ingest/as/match.html:101
 #: templates/ingest/as/match.html:119
@@ -3883,7 +3878,7 @@ msgstr "Avsluta matchning"
 msgid "Search transfer backlog"
 msgstr "Sök i överföringarnas backlogg"
 
-#: templates/ingest/detail.html:16 templates/ingest/grid.html:57
+#: templates/ingest/detail.html:16 templates/ingest/grid.html:56
 msgid "Submission Information Package"
 msgstr "Submission Information Package"
 
@@ -3917,9 +3912,9 @@ msgstr "Micro-servicear"
 msgid "Rights"
 msgstr "Rättigheter"
 
-#: templates/ingest/detail.html:46 templates/ingest/grid.html:84
+#: templates/ingest/detail.html:46 templates/ingest/grid.html:83
 #: templates/ingest/metadata_edit.html:32 templates/transfer/detail.html:54
-#: templates/transfer/grid.html:104 templates/transfer/metadata_edit.html:31
+#: templates/transfer/grid.html:103 templates/transfer/metadata_edit.html:31
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -3931,37 +3926,37 @@ msgstr "Detaljer över manuell normaliserings-händelse"
 msgid "Add metadata files"
 msgstr "Lägg till metadatafiler"
 
-#: templates/ingest/grid.html:59
+#: templates/ingest/grid.html:58
 msgid "Ingest start time"
 msgstr "Starttid för ingest"
 
-#: templates/ingest/grid.html:62 templates/transfer/grid.html:80
+#: templates/ingest/grid.html:61 templates/transfer/grid.html:79
 msgid "Remove all completed"
 msgstr "Ta bort alla avklarade"
 
-#: templates/ingest/grid.html:85 templates/transfer/grid.html:105
+#: templates/ingest/grid.html:84 templates/transfer/grid.html:104
 msgid "Remove"
 msgstr "Ta bort"
 
-#: templates/ingest/grid.html:94 templates/transfer/grid.html:114
+#: templates/ingest/grid.html:93 templates/transfer/grid.html:113
 msgid "Microservice"
 msgstr "Micro-service"
 
-#: templates/ingest/grid.html:100 templates/transfer/grid.html:120
+#: templates/ingest/grid.html:99 templates/transfer/grid.html:119
 msgid "Job"
 msgstr "Jobb"
 
-#: templates/ingest/grid.html:114 templates/main/tasks.html:16
-#: templates/transfer/grid.html:131
+#: templates/ingest/grid.html:113 templates/main/tasks.html:16
+#: templates/transfer/grid.html:130
 msgid "Tasks"
 msgstr "Uppgifter"
 
-#: templates/ingest/grid.html:154
+#: templates/ingest/grid.html:146
 msgid ""
 "Please provide the identifier required by the AtoM SWORD V1 deposit endpoint."
 msgstr ""
 
-#: templates/ingest/grid.html:156
+#: templates/ingest/grid.html:148
 msgid ""
 "<strong>AtoM:</strong> In AtoM, this is the permalink or slug of the target "
 "archival description where the DIP will be attached as a child. For example, "
@@ -4182,7 +4177,7 @@ msgstr "Archivematica översiktsvy"
 #: templates/rights/rights_grants_edit.html:18
 #: templates/rights/rights_list.html:11 templates/transfer/component.html:10
 #: templates/transfer/detail.html:9 templates/transfer/grid.html:5
-#: templates/transfer/grid.html:6 templates/transfer/grid.html:76
+#: templates/transfer/grid.html:6 templates/transfer/grid.html:75
 #: templates/transfer/metadata_edit.html:30
 #: templates/transfer/microservices.html:10
 msgid "Transfer"
@@ -4412,6 +4407,6 @@ msgstr "Visa micro-servicear"
 msgid "Transfer metadata"
 msgstr "Överföringens metadata"
 
-#: templates/transfer/grid.html:78
+#: templates/transfer/grid.html:77
 msgid "Transfer start time"
 msgstr "Överföringens starttid"

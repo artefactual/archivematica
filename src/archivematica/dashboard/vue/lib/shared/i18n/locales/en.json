@@ -55,5 +55,12 @@
     "unzippedBag": "Unzipped bag",
     "zipfile": "Zipped directory",
     "zippedBag": "Zipped bag"
+  },
+  "topbar": {
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "errorConnecting": "Error trying to connect to server. Trying again...",
+    "initializing": "Initializing...",
+    "loading": "Loading..."
   }
 }

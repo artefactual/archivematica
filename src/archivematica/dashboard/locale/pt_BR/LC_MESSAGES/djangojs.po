@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:02+0000\n"
+"POT-Creation-Date: 2026-01-27 15:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Cintya Takahaschi <cintya.takahaschi@gmail.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -515,33 +515,13 @@ msgstr "Removido com sucesso o seguinte%ss: %s"
 msgid "Failed to remove all completed %ss"
 msgstr "Falha ao remover todos os concluídos%ss"
 
-#: media/js/jobs.js:753
+#: media/js/jobs.js:751
 msgid "Previous"
 msgstr "Anterior"
 
-#: media/js/jobs.js:768
+#: media/js/jobs.js:766
 msgid "Next"
 msgstr "Próximo"
-
-#: media/js/jobs.js:817
-msgid "Error trying to connect to database. Trying again..."
-msgstr "Erro ao tentar se conectar ao banco de dados. Tentando novamente..."
-
-#: media/js/jobs.js:872
-msgid "Error trying to connect to MCP server. Trying again..."
-msgstr "Erro ao tentar se conectar ao servidor MCP. Tentando novamente..."
-
-#: media/js/online.js:46 media/js/online.js:47 media/js/online.js:72
-msgid "Connected"
-msgstr "Conectado"
-
-#: media/js/online.js:53
-msgid "Loading"
-msgstr "Carregando"
-
-#: media/js/online.js:67
-msgid "Disconnected"
-msgstr "Desconectado"
 
 #: media/js/repeating-ajax-data.js:217
 msgid "Are you sure?"

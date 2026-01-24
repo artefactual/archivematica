@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:02+0000\n"
+"POT-Creation-Date: 2026-01-27 15:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: María Jesús Colmenero <mjcolmenero@gmail.com>, 2018\n"
 "Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
@@ -507,33 +507,13 @@ msgstr ""
 msgid "Failed to remove all completed %ss"
 msgstr ""
 
-#: media/js/jobs.js:753
+#: media/js/jobs.js:751
 msgid "Previous"
 msgstr "Previa"
 
-#: media/js/jobs.js:768
+#: media/js/jobs.js:766
 msgid "Next"
 msgstr "Siguiente"
-
-#: media/js/jobs.js:817
-msgid "Error trying to connect to database. Trying again..."
-msgstr ""
-
-#: media/js/jobs.js:872
-msgid "Error trying to connect to MCP server. Trying again..."
-msgstr ""
-
-#: media/js/online.js:46 media/js/online.js:47 media/js/online.js:72
-msgid "Connected"
-msgstr ""
-
-#: media/js/online.js:53
-msgid "Loading"
-msgstr ""
-
-#: media/js/online.js:67
-msgid "Disconnected"
-msgstr ""
 
 #: media/js/repeating-ajax-data.js:217
 msgid "Are you sure?"

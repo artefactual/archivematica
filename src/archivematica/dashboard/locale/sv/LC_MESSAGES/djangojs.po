@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:02+0000\n"
+"POT-Creation-Date: 2026-01-27 15:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: August Frihammar <august.frihammar@arkivit.se>, 2017\n"
 "Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
@@ -515,33 +515,13 @@ msgstr "Radering av följande %s: %s lyckad"
 msgid "Failed to remove all completed %ss"
 msgstr "Avlägsning av alla avslutade %s misslyckades"
 
-#: media/js/jobs.js:753
+#: media/js/jobs.js:751
 msgid "Previous"
 msgstr "Föregående"
 
-#: media/js/jobs.js:768
+#: media/js/jobs.js:766
 msgid "Next"
 msgstr "Nästa"
-
-#: media/js/jobs.js:817
-msgid "Error trying to connect to database. Trying again..."
-msgstr "Fel under anslutning till databas. Försöker igen..."
-
-#: media/js/jobs.js:872
-msgid "Error trying to connect to MCP server. Trying again..."
-msgstr "Fel under anslutning till MCP-server. Försöker igen..."
-
-#: media/js/online.js:46 media/js/online.js:47 media/js/online.js:72
-msgid "Connected"
-msgstr "Ansluten"
-
-#: media/js/online.js:53
-msgid "Loading"
-msgstr "Laddar"
-
-#: media/js/online.js:67
-msgid "Disconnected"
-msgstr "Frånkopplad"
 
 #: media/js/repeating-ajax-data.js:217
 msgid "Are you sure?"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:02+0000\n"
+"POT-Creation-Date: 2026-01-27 15:18+0000\n"
 "PO-Revision-Date: 2020-10-19 21:12+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -512,33 +512,13 @@ msgstr "Fjernet følgende %ss: %s"
 msgid "Failed to remove all completed %ss"
 msgstr "Kunne ikke fjerne alle fullførte %ss"
 
-#: media/js/jobs.js:753
+#: media/js/jobs.js:751
 msgid "Previous"
 msgstr "Forrige"
 
-#: media/js/jobs.js:768
+#: media/js/jobs.js:766
 msgid "Next"
 msgstr "Neste"
-
-#: media/js/jobs.js:817
-msgid "Error trying to connect to database. Trying again..."
-msgstr "Feil ved forsøk på å koble til databasen. Prøver igjen..."
-
-#: media/js/jobs.js:872
-msgid "Error trying to connect to MCP server. Trying again..."
-msgstr "Feil ved forsøk på å koble til MCP-server. Prøver igjen..."
-
-#: media/js/online.js:46 media/js/online.js:47 media/js/online.js:72
-msgid "Connected"
-msgstr "Tilkoblet"
-
-#: media/js/online.js:53
-msgid "Loading"
-msgstr "Laster"
-
-#: media/js/online.js:67
-msgid "Disconnected"
-msgstr "Frakoblet"
 
 #: media/js/repeating-ajax-data.js:217
 msgid "Are you sure?"

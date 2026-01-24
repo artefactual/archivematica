@@ -87,6 +87,7 @@ export default defineConfig(({ command }) => {
             name: 'Archivematica',
             entry: {
               browser: resolve(__dirname, 'lib/browser/index.ts'),
+              topbar: resolve(__dirname, 'lib/topbar/index.ts'),
             },
             formats: ['es'],
           },

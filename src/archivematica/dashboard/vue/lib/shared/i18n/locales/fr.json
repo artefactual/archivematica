@@ -55,5 +55,12 @@
     "unzippedBag": "Bag non compressé",
     "zipfile": "Répertoire compressé",
     "zippedBag": "Bag compressé"
+  },
+  "topbar": {
+    "connected": "Connecté",
+    "disconnected": "Déconnecté",
+    "errorConnecting": "Erreur de connexion au serveur. Nouvelle tentative...",
+    "initializing": "Initialisation...",
+    "loading": "Chargement..."
   }
 }

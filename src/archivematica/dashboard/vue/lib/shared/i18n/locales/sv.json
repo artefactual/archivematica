@@ -55,5 +55,12 @@
     "unzippedBag": "Unzipped bad",
     "zipfile": "Zippad katalog",
     "zippedBag": "Zipped bag"
+  },
+  "topbar": {
+    "connected": "Ansluten",
+    "disconnected": "Frånkopplad",
+    "errorConnecting": "Fel vid anslutning till servern. Försöker igen...",
+    "initializing": "Initialiserar...",
+    "loading": "Laddar..."
   }
 }

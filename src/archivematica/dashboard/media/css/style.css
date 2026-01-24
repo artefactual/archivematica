@@ -105,24 +105,6 @@ body {
   position: relative;
 }
 
-.nav li span {
-  position: absolute;
-  float: right;
-  top: 4px;
-  right: -8px;
-  -webkit-border-radius: 999px;
-  -moz-border-radius: 999px;
-  border-radius: 999px;
-  background-color: Red;
-  color: White;
-  font-weight: bold;
-  font-size: 9px;
-  width: 2em;
-  height: 16px;
-  text-align: center;
-  z-index: 10;
-}
-
 li.active {
   background-color: #eee;
 }
