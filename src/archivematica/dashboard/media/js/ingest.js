@@ -221,15 +221,7 @@ $(function()
           var choices = this.model.get('choices');
           if (choices)
           {
-            var $select = $('<select />').append('<option>' + gettext('Actions') + '</option>')
-              , numberOfChoices = Object.keys(choices).length;
-
-            // use pop-up action selector for long choice lists
-            if (numberOfChoices >= 10)
-            {
-              var statusObject = {};
-              this.activateEnhancedActionSelect($select, statusObject);
-            }
+            var $select = $('<select />').append('<option>' + gettext('Actions') + '</option>');
 
             for (var code in choices)
             {
