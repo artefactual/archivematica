@@ -1,0 +1,2 @@
+src/archivematica/dashboard/locale/**/*.po linguist-generated=true
+src/archivematica/dashboard/vue/lib/shared/i18n/locales/*.json linguist-generated=true
