@@ -142,7 +142,8 @@ $(document).ready(function() {
   var search = renderArchivalStorageSearchForm(null, null, null);
 
   function render_thumbnail(file_uuid) {
-    return '<img src="/archival-storage/thumbnail/' + file_uuid + '/">';
+    var url = '/archival-storage/thumbnail/' + file_uuid + '/';
+    return '<img class="aip-thumbnail-img" src="' + url + '" onerror="handle_thumbnail_error(this)">';
   }
 
   function render_filepath(filepath, type, row_data) {
@@ -177,6 +178,11 @@ $(document).ready(function() {
       + text_span
       + '</a>';
   }
+
+  window.handle_thumbnail_error = function(img) {
+    $(img).closest('td').text(gettext('N/A'));
+  };
+
 
   function render_aip_name(name, type, row_data) {
     return '<a href="/archival-storage/' + row_data.uuid + '/">' + name + '</a>';

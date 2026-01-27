@@ -25,6 +25,7 @@ from urllib.parse import urlencode
 import metsrw
 import pytest
 from agentarchives.atom.client import CommunicationError
+from django.conf import settings
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 from django.http import StreamingHttpResponse
@@ -118,6 +119,53 @@ def test_get_mets_unknown_mets(mock_search_service, dashboard_uuid, admin_client
         "/archival-storage/download/aip/11111111-1111-1111-1111-111111111111/mets_download/"
     )
     assert isinstance(response, HttpResponseNotFound)
+
+
+def test_send_thumbnail_allows_missing(
+    mock_search_service, dashboard_uuid, admin_client
+):
+    file_uuid = "11111111-1111-1111-1111-111111111111"
+    aip_uuid = "22222222-2222-2222-2222-222222222222"
+    mock_search_service.get_aipfile_data.return_value = {
+        "_source": {"AIPUUID": aip_uuid}
+    }
+
+    with mock.patch(
+        "archivematica.dashboard.components.archival_storage.views.helpers.send_file"
+    ) as mock_send_file:
+        mock_send_file.return_value = HttpResponse(status=404)
+        response = admin_client.get(f"/archival-storage/thumbnail/{file_uuid}/")
+
+    assert response.status_code == 404
+    expected_path = os.path.join(
+        settings.SHARED_DIRECTORY,
+        "www",
+        "thumbnails",
+        aip_uuid,
+        f"{file_uuid}.jpg",
+    )
+    mock_send_file.assert_called_once_with(mock.ANY, expected_path, allow_missing=True)
+
+
+def test_send_thumbnail_existing_file(
+    mock_search_service, dashboard_uuid, admin_client, settings, tmp_path
+):
+    file_uuid = "33333333-3333-3333-3333-333333333333"
+    aip_uuid = "44444444-4444-4444-4444-444444444444"
+    mock_search_service.get_aipfile_data.return_value = {
+        "_source": {"AIPUUID": aip_uuid}
+    }
+
+    settings.SHARED_DIRECTORY = str(tmp_path)
+    thumbnail_path = tmp_path / "www" / "thumbnails" / aip_uuid / f"{file_uuid}.jpg"
+    thumbnail_path.parent.mkdir(parents=True)
+    thumbnail_path.write_bytes(b"thumbnail-bytes")
+
+    response = admin_client.get(f"/archival-storage/thumbnail/{file_uuid}/")
+
+    assert response.status_code == 200
+    assert response["Content-Type"] == "image/jpeg"
+    assert response["Content-Length"] == str(len(b"thumbnail-bytes"))
 
 
 @mock.patch(

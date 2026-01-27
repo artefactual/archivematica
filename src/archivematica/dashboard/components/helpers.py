@@ -19,6 +19,7 @@ import logging
 import mimetypes
 import os
 import pprint
+from http import HTTPStatus
 from urllib.parse import urlencode
 from wsgiref.util import FileWrapper
 
@@ -203,12 +204,18 @@ def redirect_with_get_params(url_name, *args, **kwargs):
     return HttpResponseRedirect(url + "?%s" % params)
 
 
-def send_file(request, filepath, force_download=False):
+def send_file(request, filepath, force_download=False, allow_missing=False):
     """
     Send a file through Django without loading the whole file into
     memory at once. The FileWrapper will turn the file object into an
     iterator for chunks of 8KB.
+
+    When allow_missing is True and the file does not exist, return an
+    empty response with HTTP 404 (Not Found) instead of raising.
     """
+    if allow_missing and not os.path.exists(filepath):
+        return HttpResponse(status=HTTPStatus.NOT_FOUND)
+
     filename = os.path.basename(filepath)
     extension = os.path.splitext(filepath)[1].lower()
 
@@ -222,7 +229,8 @@ def send_file(request, filepath, force_download=False):
         response["Content-Type"] = "application/force-download"
         response["Content-Disposition"] = 'attachment; filename="' + filename + '"'
     else:
-        response["Content-type"] = mimetypes.guess_type(filename)[0]
+        mime_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        response["Content-Type"] = mime_type
 
     response["Content-Length"] = os.path.getsize(filepath)
     return response

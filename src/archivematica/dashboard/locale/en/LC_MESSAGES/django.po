@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-23 19:47+0000\n"
+"POT-Creation-Date: 2026-01-27 15:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -639,9 +639,9 @@ msgstr ""
 #: fpr/templates/fpr/idtool/detail.html:23
 #: fpr/templates/fpr/revisions/list.html:25
 #: templates/administration/reports/failures.html:27
-#: templates/archival_storage/view.html:63 templates/ingest/grid.html:62
-#: templates/ingest/grid.html:83 templates/transfer/grid.html:80
-#: templates/transfer/grid.html:102
+#: templates/archival_storage/view.html:63 templates/ingest/grid.html:58
+#: templates/ingest/grid.html:79 templates/transfer/grid.html:77
+#: templates/transfer/grid.html:99
 msgid "UUID"
 msgstr ""
 
@@ -729,27 +729,27 @@ msgstr ""
 msgid "The AIP package containing the requested METS cannot be found"
 msgstr ""
 
-#: components/archival_storage/views.py:826
+#: components/archival_storage/views.py:820
 msgid "Metadata-only DIP upload failed, check the logs for more details"
 msgstr ""
 
-#: components/archival_storage/views.py:838
+#: components/archival_storage/views.py:832
 #, python-format
 msgid ""
 "Metadata-only DIP upload has been completed successfully. New resource has "
 "slug: %(slug)s"
 msgstr ""
 
-#: components/archival_storage/views.py:861
+#: components/archival_storage/views.py:855
 #, python-format
 msgid "Error re-ingesting package: %(message)s"
 msgstr ""
 
-#: components/archival_storage/views.py:880 components/backlog/views.py:356
+#: components/archival_storage/views.py:874 components/backlog/views.py:356
 msgid "An unknown error occurred."
 msgstr ""
 
-#: components/archival_storage/views.py:884 components/backlog/views.py:360
+#: components/archival_storage/views.py:878 components/backlog/views.py:360
 msgid "Deletion request submitted."
 msgstr ""
 
@@ -1463,7 +1463,7 @@ msgstr ""
 #: templates/accounts/edit.html:40 templates/accounts/profile.html:45
 #: templates/administration/processing_edit.html:40
 #: templates/delete_request.html:20 templates/ingest/as/match.html:129
-#: templates/ingest/grid.html:173 templates/ingest/metadata_edit.html:67
+#: templates/ingest/grid.html:169 templates/ingest/metadata_edit.html:67
 #: templates/rights/rights_edit.html:291 templates/rights/rights_edit.html:293
 #: templates/rights/rights_grants_edit.html:112
 #: templates/rights/rights_grants_edit.html:114
@@ -1990,7 +1990,7 @@ msgstr ""
 #: fpr/templates/fpr/idtool/detail.html:49
 #: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
 #: templates/ingest/as/match.html:120
-#: templates/ingest/as/review_matches.html:31 templates/ingest/grid.html:164
+#: templates/ingest/as/review_matches.html:31 templates/ingest/grid.html:160
 msgid "Identifier"
 msgstr ""
 
@@ -3022,7 +3022,7 @@ msgstr ""
 #: templates/ingest/normalization_report.html:60
 #: templates/ingest/normalization_report.html:100
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: templates/administration/locations.html:53
 msgid "No available locations."
@@ -3272,7 +3272,7 @@ msgid "Download CSV"
 msgstr ""
 
 #: templates/archival_storage/archival_storage.html:74
-#: templates/backlog/backlog.html:34
+#: templates/backlog/backlog.html:33
 msgid "Elasticsearch Indexing Disabled"
 msgstr ""
 
@@ -3299,7 +3299,7 @@ msgstr ""
 msgid "Pointer file"
 msgstr ""
 
-#: templates/archival_storage/view.html:109 templates/ingest/grid.html:155
+#: templates/archival_storage/view.html:109 templates/ingest/grid.html:151
 msgid "Upload DIP"
 msgstr ""
 
@@ -3312,7 +3312,7 @@ msgstr ""
 msgid "Metadata-only DIP upload to AtoM"
 msgstr ""
 
-#: templates/archival_storage/view.html:125 templates/ingest/grid.html:172
+#: templates/archival_storage/view.html:125 templates/ingest/grid.html:168
 msgid "Upload"
 msgstr ""
 
@@ -3337,7 +3337,7 @@ msgstr ""
 msgid "Backlog search"
 msgstr ""
 
-#: templates/backlog/backlog.html:35
+#: templates/backlog/backlog.html:34
 msgid ""
 "Sorry, Elasticsearch indexing has been disabled for the Transfers related "
 "indexes in this Archivematica installation. The backlog tab is non-"
@@ -3372,8 +3372,8 @@ msgstr ""
 msgid "Ingest"
 msgstr ""
 
-#: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:124
-#: templates/transfer/grid.html:140
+#: templates/ingest/aip_browse.html:69 templates/ingest/grid.html:120
+#: templates/transfer/grid.html:137
 msgid "Initializing..."
 msgstr ""
 
@@ -3516,7 +3516,7 @@ msgstr ""
 msgid "Search transfer backlog"
 msgstr ""
 
-#: templates/ingest/detail.html:16 templates/ingest/grid.html:61
+#: templates/ingest/detail.html:16 templates/ingest/grid.html:57
 msgid "Submission Information Package"
 msgstr ""
 
@@ -3547,9 +3547,9 @@ msgstr ""
 msgid "Rights"
 msgstr ""
 
-#: templates/ingest/detail.html:46 templates/ingest/grid.html:88
+#: templates/ingest/detail.html:46 templates/ingest/grid.html:84
 #: templates/ingest/metadata_edit.html:32 templates/transfer/detail.html:54
-#: templates/transfer/grid.html:107 templates/transfer/metadata_edit.html:31
+#: templates/transfer/grid.html:104 templates/transfer/metadata_edit.html:31
 msgid "Metadata"
 msgstr ""
 
@@ -3561,37 +3561,37 @@ msgstr ""
 msgid "Add metadata files"
 msgstr ""
 
-#: templates/ingest/grid.html:63
+#: templates/ingest/grid.html:59
 msgid "Ingest start time"
 msgstr ""
 
-#: templates/ingest/grid.html:66 templates/transfer/grid.html:83
+#: templates/ingest/grid.html:62 templates/transfer/grid.html:80
 msgid "Remove all completed"
 msgstr ""
 
-#: templates/ingest/grid.html:89 templates/transfer/grid.html:108
+#: templates/ingest/grid.html:85 templates/transfer/grid.html:105
 msgid "Remove"
 msgstr ""
 
-#: templates/ingest/grid.html:98 templates/transfer/grid.html:117
+#: templates/ingest/grid.html:94 templates/transfer/grid.html:114
 msgid "Microservice"
 msgstr ""
 
-#: templates/ingest/grid.html:104 templates/transfer/grid.html:123
+#: templates/ingest/grid.html:100 templates/transfer/grid.html:120
 msgid "Job"
 msgstr ""
 
-#: templates/ingest/grid.html:118 templates/main/tasks.html:16
-#: templates/transfer/grid.html:134
+#: templates/ingest/grid.html:114 templates/main/tasks.html:16
+#: templates/transfer/grid.html:131
 msgid "Tasks"
 msgstr ""
 
-#: templates/ingest/grid.html:158
+#: templates/ingest/grid.html:154
 msgid ""
 "Please provide the identifier required by the AtoM SWORD V1 deposit endpoint."
 msgstr ""
 
-#: templates/ingest/grid.html:160
+#: templates/ingest/grid.html:156
 msgid ""
 "<strong>AtoM:</strong> In AtoM, this is the permalink or slug of the target "
 "archival description where the DIP will be attached as a child. For example, "
@@ -3792,7 +3792,7 @@ msgstr ""
 #: templates/rights/rights_grants_edit.html:18
 #: templates/rights/rights_list.html:11 templates/transfer/component.html:10
 #: templates/transfer/detail.html:9 templates/transfer/grid.html:5
-#: templates/transfer/grid.html:6 templates/transfer/grid.html:79
+#: templates/transfer/grid.html:6 templates/transfer/grid.html:76
 #: templates/transfer/metadata_edit.html:30
 #: templates/transfer/microservices.html:10
 msgid "Transfer"
@@ -4009,6 +4009,6 @@ msgstr ""
 msgid "Transfer metadata"
 msgstr ""
 
-#: templates/transfer/grid.html:81
+#: templates/transfer/grid.html:78
 msgid "Transfer start time"
 msgstr ""

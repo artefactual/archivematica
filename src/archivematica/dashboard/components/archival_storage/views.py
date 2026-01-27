@@ -717,15 +717,9 @@ def send_thumbnail(request, fileuuid):
         settings.SHARED_DIRECTORY, "www", "thumbnails", sipuuid, fileuuid + ".jpg"
     )
 
-    # send "blank" thumbnail if one exists:
-    # Because thumbnails aren't kept in ElasticSearch they can be queried for,
-    # during searches, from multiple dashboard servers.
-    # Because ElasticSearch don't know if a thumbnail exists or not, this is
-    # a way of not causing visual disruption if a thumbnail doesn't exist.
-    if not os.path.exists(thumbnail_path):
-        thumbnail_path = os.path.join(settings.BASE_PATH, "media/images/1x1-pixel.png")
-
-    return helpers.send_file(request, thumbnail_path)
+    # If a thumbnail is missing, return 404 so the UI can render a placeholder
+    # without showing a broken image icon.
+    return helpers.send_file(request, thumbnail_path, allow_missing=True)
 
 
 def aips_pending_deletion():
