@@ -3,11 +3,6 @@
 Vue.js components for Archivematica Dashboard, migrating from Angular 1.x to
 modern Vue 3 + TypeScript.
 
-## Components
-
-- **Transfer Browser** (`/browser`) - File system browser for transfer content
-  selection
-
 ## Development
 
 ### Setup
@@ -16,98 +11,53 @@ modern Vue 3 + TypeScript.
 npm install
 ```
 
-### Development Server
+### Development server
 
 ```bash
 npm run dev
 # Starts on http://localhost:3000 (or custom port with --port)
 ```
 
-### Testing & Quality
+### Testing
 
 ```bash
-npm run test          # Run unit tests
-npm run lint          # Run ESLint with auto-fix
-npm run type-check    # Run TypeScript checks
-npm run format        # Run Prettier formatter
-npm run check         # Run all checks (lint + type-check + test + build)
+npm run test              # Run unit tests
+npm run test:interactive  # Run unit tests in watch mode
+npm run lint              # Run ESLint with auto-fix
+npm run type-check        # Run TypeScript checks
+npm run check             # Run all checks (lint + type-check + test + build)
 ```
 
 ### Build
 
 ```bash
-npm run build         # Production build
-npm run preview       # Preview production build locally
+npm run build             # Production build
+npm run build:watch       # Production build (watch mode)
+npm run preview           # Preview production build locally
 ```
 
 ## Internationalization (i18n)
 
-The application uses a **gettext-compatible workflow** with Vue i18n for runtime
-translation management. This hybrid approach maintains compatibility with
-existing Weblate translation infrastructure while using modern Vue i18n for
-development.
+Vue i18n is configured in `lib/shared/i18n` and loads JSON translation bundles
+at runtime. The Vue package does not include gettext conversion scripts; the
+JSON files under `lib/shared/i18n/locales` are the runtime source of truth.
 
-### Supported Languages
+### Translation files structure
 
-- English (en) - Base language
-- Spanish (es)
-- French (fr)
-- Japanese (ja)
-- Portuguese (pt)
-- Portuguese Brazil (pt_BR)
-- Swedish (sv)
-
-### Translation Workflow
-
-The workflow uses custom scripts in `scripts/i18n/` to bridge gettext (.po
-files) and vue-i18n (JSON files):
-
-#### For Developers
-
-1. **Extract translation keys** from Vue components:
-
-   ```bash
-   npm run i18n:extract-pot    # Creates messages.pot template
-   ```
-
-2. **Convert existing translations** to .po format:
-
-   ```bash
-   npm run i18n:json-to-po     # JSON → .po files
-   ```
-
-3. **Generate runtime files** for Vue i18n:
-
-   ```bash
-   npm run i18n:po-to-json     # .po files → JSON
-   ```
-
-#### Quick Commands
-
-```bash
-npm run i18n:build          # Extract + convert to JSON (standard workflow)
-npm run i18n:setup          # Extract + convert to .po (for new translations)
-npm run i18n:full           # Complete cycle: extract + po + json
-```
-
-### Translation Files Structure
+The locale JSON files are located in `lib/shared/i18n/locales`:
 
 ```text
-scripts/i18n/
-├── messages.pot             # Generated template (all translatable strings)
-├── locales/                 # Source .po files for translators
-│   ├── en.po               # English (source language)
-│   ├── es.po               # Spanish
-│   └── ...                 # Other languages
-└── [scripts]               # Conversion utilities
-
-lib/browser/i18n/locales/   # Runtime JSON files for Vue i18n
+lib/shared/i18n/locales/
 ├── en.json
 ├── es.json
 └── ...
 ```
 
-### Adding Translations
+`en.json` is the source language file and must contain all translation keys used
+in the Vue components. Other language files should mirror the structure of
+`en.json`.
+
+### Adding translations
 
 Use `$t()` in templates and `t()` in script sections:
 
@@ -128,7 +78,7 @@ function showMessage() {
 </script>
 ```
 
-#### Translation Key Naming Convention
+#### Translation key naming convention
 
 Follow the existing nested structure:
 
@@ -137,7 +87,7 @@ Follow the existing nested structure:
 - `transferTypes.*` - Transfer type options
 - `fileBrowser.*` - File browser interface elements
 
-#### Message Interpolation
+#### Message interpolation
 
 Use Vue i18n interpolation syntax:
 
@@ -149,62 +99,36 @@ t('alerts.transferStarted', { name: transferName })
 "Transfer \"{name}\" started successfully"
 ```
 
-### Development Environment
+### Development environment
 
-- **Language selector**: Available in navbar during development
-- **Language persistence**: Selected language saved in localStorage
-- **Hot reload**: Translation changes reflected immediately during development
+- **Language selector**: Available in `npm run dev` via the navbar dropdown
+- **Runtime loading**: Locale JSON is lazy-loaded by `setLocale`
 
-### Translator Workflow
+### Adding a new language
 
-1. **Work with .po files** in `scripts/i18n/locales/`
-2. **Use standard tools**: Poedit, Weblate, or any gettext-compatible editor
-3. **Reference source**: English translations in `en.po`
-4. **Generate runtime**: Run `npm run i18n:po-to-json` after updates
+1. Add a new JSON file in `lib/shared/i18n/locales` (BCP 47 filename, e.g.
+   `pt-br.json`).
+2. Add the locale code to `AVAILABLE_LOCALES` in `lib/shared/i18n/index.ts`.
+3. Ensure the backend sets `window.DashboardConfig.currentLanguage` to the
+   POSIX/CLDR form (e.g. `pt_BR`) when needed.
 
-### CI/CD Integration
+### Language selection at runtime
 
-Maintains compatibility with existing translation infrastructure:
-
-1. **Extract**: `npm run i18n:extract-pot` → generates `messages.pot`
-2. **Translate**: Existing Weblate integration processes .po files
-3. **Build**: `npm run i18n:po-to-json` → generates runtime JSON
-4. **Deploy**: JSON files included in application build
-
-Benefits:
-
-- `.po` files work with Weblate translation platform
-- Standard gettext tools remain functional
-- CI pipelines can validate and process `.po` files as before
-- No changes required to existing translation management
-
-### Migration from Angular
-
-Translations were migrated from the Angular 1.x app. The migration script maps
-Angular's flat keys to Vue's nested structure while preserving all existing
-translations.
-
-### Available Scripts Reference
-
-| Script | Purpose | Input | Output |
-| ------ | ------- | ----- | ------ |
-| `i18n:extract-pot` | Extract translatable strings | Vue components | `messages.pot` |
-| `i18n:json-to-po` | Convert JSON to .po | JSON files | .po files with translations |
-| `i18n:po-to-json` | Convert .po to JSON | .po files | JSON files for vue-i18n |
-| `i18n:build` | Extract + convert to JSON | Vue components | Runtime JSON files |
-| `i18n:setup` | Extract + populate .po files | Vue components + JSON | .po files with translations |
-| `i18n:full` | Complete workflow | Vue components + JSON | All outputs |
+- The initial locale comes from `window.DashboardConfig.currentLanguage` when
+  present, and falls back to English.
+- The runtime expects POSIX/CLDR style values like `pt_BR` and converts them to
+  BCP 47 (`pt-br`) internally.
 
 ### Troubleshooting
 
 **Missing translations:**
 
-- Check `.po` files have non-empty `msgstr` values
-- Verify translation keys match between Vue components and .po files
-- Run `npm run i18n:po-to-json` to regenerate runtime files
+- Check the JSON files in `lib/shared/i18n/locales` for the missing key
+- Verify translation keys match between Vue components and JSON files
+- Ensure the locale code exists in `AVAILABLE_LOCALES` and on disk
 
 **Build issues:**
 
 - Ensure Vue components use correct `t()` or `$t()` syntax
-- Validate .po file format (no syntax errors)
-- Confirm language codes match between .po files and Vue i18n config
+- Validate JSON file format (no syntax errors)
+- Confirm locale codes match between JSON files and Vue i18n config
