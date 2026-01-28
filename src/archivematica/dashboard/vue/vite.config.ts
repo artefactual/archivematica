@@ -83,6 +83,7 @@ export default defineConfig(({ command }) => {
     build: isServing
       ? {}
       : {
+          manifest: 'manifest.json',
           lib: {
             name: 'Archivematica',
             entry: {
