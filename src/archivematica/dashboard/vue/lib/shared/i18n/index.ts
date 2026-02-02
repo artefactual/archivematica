@@ -74,12 +74,17 @@ if (window.DashboardConfig?.currentLanguage) {
   }
 }
 
-setLocale(initialLocale).catch((error) => {
-  console.warn('Failed to set initial locale:', error)
-})
+async function initI18n(): Promise<void> {
+  try {
+    await setLocale(initialLocale)
+  } catch (error) {
+    console.warn('Failed to set initial locale:', error)
+  }
+}
 
 export {
   i18n,
+  initI18n,
 
   // Used for testing.
   createI18nMock,

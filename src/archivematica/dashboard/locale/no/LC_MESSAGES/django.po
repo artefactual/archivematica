@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-08 07:06+0000\n"
+"POT-Creation-Date: 2026-02-10 06:43+0000\n"
 "PO-Revision-Date: 2020-10-19 21:03+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -561,7 +561,7 @@ msgstr "REST API-nøkkel"
 msgid "Used in metadata-only DIP upload."
 msgstr "Brukes i kun-metadata DIP opplasting."
 
-#: components/administration/views.py:85 components/ingest/views.py:267
+#: components/administration/views.py:85 components/ingest/views.py:287
 #: fpr/views.py:265 main/views.py:306
 msgid "Deleted."
 msgstr "Slettet."
@@ -718,8 +718,8 @@ msgstr "Vennligst skriv inn UUID-en for å bekrefte"
 #: fpr/templates/fpr/revisions/list.html:25
 #: templates/administration/reports/failures.html:27
 #: templates/archival_storage/view.html:63 templates/ingest/grid.html:54
-#: templates/ingest/grid.html:72 templates/transfer/grid.html:71
-#: templates/transfer/grid.html:88
+#: templates/ingest/grid.html:72 templates/transfer/grid.html:66
+#: templates/transfer/grid.html:83
 msgid "UUID"
 msgstr "UUID"
 
@@ -805,7 +805,7 @@ msgstr "Kryptert"
 
 #: components/archival_storage/views.py:220
 #: templates/archival_storage/view.html:83
-#: templates/ingest/normalization_report.html:30
+#: templates/ingest/normalization_report.html:45
 msgid "Location"
 msgstr "Plasseringer"
 
@@ -989,7 +989,7 @@ msgstr ""
 "Feil ved henting av originaler-/ordne-mappeplasseringer: kjører "
 "lagringsserveren ? Vennligst kontakt en administrator."
 
-#: components/ingest/views.py:160
+#: components/ingest/views.py:161
 msgid ""
 "Error retrieving source directories: is the storage server running? Please "
 "contact an administrator."
@@ -997,25 +997,25 @@ msgstr ""
 "Feil ved henting av kildekmapper: kjører lagringsserveren? Vennligst kontakt "
 "en administrator."
 
-#: components/ingest/views.py:169
+#: components/ingest/views.py:170
 msgid ""
 "No transfer source locations are available. Please contact an administrator."
 msgstr ""
 "Ingen overføringskildeplasseringer tilgjengelig. Kontakt en administrator."
 
-#: components/ingest/views.py:258
+#: components/ingest/views.py:278
 msgid "Are you sure you want to delete this metadata?"
 msgstr "Er du sikker på at du vil slette disse metadataene?"
 
-#: components/ingest/views.py:393
+#: components/ingest/views.py:413
 msgid "Review normalization"
 msgstr "Gjennomgå normalisering"
 
-#: components/ingest/views.py:396
+#: components/ingest/views.py:416
 msgid "Review AIP"
 msgstr "Gjennomgå AIP"
 
-#: components/ingest/views.py:399
+#: components/ingest/views.py:419
 msgid "Review DIP"
 msgstr "Gjennomgå DIP"
 
@@ -1247,7 +1247,7 @@ msgstr "slug"
 
 #: fpr/models.py:161 fpr/templates/fpr/format/version/detail.html:31
 #: fpr/templates/fpr/fprule/list.html:30 fpr/templates/fpr/idrule/list.html:28
-#: templates/ingest/normalization_report.html:31
+#: templates/ingest/normalization_report.html:46
 msgid "Format"
 msgstr "Format"
 
@@ -1401,7 +1401,7 @@ msgstr "Formatidentifikasjonsverktøy"
 msgid "%(description)s"
 msgstr "%(description)s"
 
-#: fpr/models.py:452 templates/layout.html:67 templates/main/access.html:4
+#: fpr/models.py:452 templates/layout.html:65 templates/main/access.html:4
 #: templates/main/access.html:5
 msgid "Access"
 msgstr "Tilgang"
@@ -1828,13 +1828,13 @@ msgstr "Aktivert"
 #: fpr/templates/fpr/idrule/list.html:43
 #: fpr/templates/fpr/idtool/detail.html:30
 #: fpr/templates/fpr/idtool/detail.html:61
-#: templates/ingest/normalization_report.html:38
-#: templates/ingest/normalization_report.html:44
-#: templates/ingest/normalization_report.html:65
-#: templates/ingest/normalization_report.html:71
-#: templates/ingest/normalization_report.html:73
-#: templates/ingest/normalization_report.html:79
-#: templates/ingest/normalization_report.html:84
+#: templates/ingest/normalization_report.html:53
+#: templates/ingest/normalization_report.html:59
+#: templates/ingest/normalization_report.html:80
+#: templates/ingest/normalization_report.html:86
+#: templates/ingest/normalization_report.html:88
+#: templates/ingest/normalization_report.html:94
+#: templates/ingest/normalization_report.html:99
 msgid "Yes,No"
 msgstr "Ja,Nei"
 
@@ -3053,11 +3053,11 @@ msgstr "Oppdater"
 msgid "First"
 msgstr "Første"
 
-#: templates/_pager.html:13 templates/ingest/normalization_report.html:114
+#: templates/_pager.html:13 templates/ingest/normalization_report.html:129
 msgid "Previous"
 msgstr "Forrige"
 
-#: templates/_pager.html:35 templates/ingest/normalization_report.html:120
+#: templates/_pager.html:35 templates/ingest/normalization_report.html:135
 #: templates/rights/rights_edit.html:288
 msgid "Next"
 msgstr "Neste"
@@ -3188,7 +3188,7 @@ msgstr ""
 #: templates/administration/term_detail.html:5
 #: templates/administration/term_detail.html:6
 #: templates/administration/terms.html:5 templates/administration/terms.html:6
-#: templates/layout.html:68
+#: templates/layout.html:66
 msgid "Administration"
 msgstr "Administrasjon"
 
@@ -3324,8 +3324,8 @@ msgid "Path"
 msgstr "Sti"
 
 #: templates/administration/locations.html:44
-#: templates/ingest/normalization_report.html:59
-#: templates/ingest/normalization_report.html:99
+#: templates/ingest/normalization_report.html:74
+#: templates/ingest/normalization_report.html:114
 msgid "N/A"
 msgstr "Ikke tilgjengelig"
 
@@ -3542,7 +3542,7 @@ msgstr "Søk i arkivlager"
 #: templates/archival_storage/archival_storage.html:31
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
-#: templates/archival_storage/view.html:50 templates/layout.html:64
+#: templates/archival_storage/view.html:50 templates/layout.html:62
 msgid "Archival storage"
 msgstr "Arkivlagring"
 
@@ -3704,11 +3704,11 @@ msgstr ""
 msgid "AIP"
 msgstr "AIP"
 
-#: templates/ingest/aip_browse.html:36 templates/ingest/detail.html:10
+#: templates/ingest/aip_browse.html:27 templates/ingest/detail.html:10
 #: templates/ingest/grid.html:5 templates/ingest/grid.html:6
-#: templates/ingest/metadata_add_files.html:31
+#: templates/ingest/metadata_add_files.html:15
 #: templates/ingest/metadata_edit.html:10
-#: templates/ingest/microservices.html:11 templates/layout.html:62
+#: templates/ingest/microservices.html:11 templates/layout.html:60
 #: templates/rights/rights_edit.html:16
 #: templates/rights/rights_grants_edit.html:16
 #: templates/rights/rights_list.html:9
@@ -3890,7 +3890,7 @@ msgstr "Rettigheter"
 
 #: templates/ingest/detail.html:46 templates/ingest/grid.html:77
 #: templates/ingest/metadata_edit.html:11 templates/transfer/detail.html:54
-#: templates/transfer/grid.html:93 templates/transfer/metadata_edit.html:10
+#: templates/transfer/grid.html:88 templates/transfer/metadata_edit.html:10
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -3898,7 +3898,7 @@ msgstr "Metadata"
 msgid "Manual normalization event detail"
 msgstr "Manuell normalisering av hendelsesdetaljer"
 
-#: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:32
+#: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:16
 msgid "Add metadata files"
 msgstr "Legg til metadatafiler"
 
@@ -3906,24 +3906,24 @@ msgstr "Legg til metadatafiler"
 msgid "Ingest start time"
 msgstr "Opplastnings starttid"
 
-#: templates/ingest/grid.html:58 templates/transfer/grid.html:74
+#: templates/ingest/grid.html:58 templates/transfer/grid.html:69
 msgid "Remove all completed"
 msgstr "Fjern alle fullførte"
 
-#: templates/ingest/grid.html:78 templates/transfer/grid.html:94
+#: templates/ingest/grid.html:78 templates/transfer/grid.html:89
 msgid "Remove"
 msgstr "Fjern"
 
-#: templates/ingest/grid.html:87 templates/transfer/grid.html:103
+#: templates/ingest/grid.html:87 templates/transfer/grid.html:98
 msgid "Microservice"
 msgstr "Mikrotjeneste"
 
-#: templates/ingest/grid.html:93 templates/transfer/grid.html:109
+#: templates/ingest/grid.html:93 templates/transfer/grid.html:104
 msgid "Job"
 msgstr "Jobb"
 
 #: templates/ingest/grid.html:104 templates/main/tasks.html:16
-#: templates/transfer/grid.html:120
+#: templates/transfer/grid.html:115
 msgid "Tasks"
 msgstr "Oppgaver"
 
@@ -3950,58 +3950,54 @@ msgstr ""
 "hvis URL-en til arkivbeskrivelsen er 'http://myAtoM.ca/newsletters-2;rad', "
 "vil du skrive inn 'newsletters-2'."
 
-#: templates/ingest/metadata_add_files.html:47
-msgid "Select a directory"
-msgstr "Velg en mappe"
-
-#: templates/ingest/normalization_report.html:13 templates/main/tasks.html:36
+#: templates/ingest/normalization_report.html:28 templates/main/tasks.html:36
 msgid "File name"
 msgstr "Filnavn"
 
-#: templates/ingest/normalization_report.html:14
+#: templates/ingest/normalization_report.html:29
 msgid "File format"
 msgstr "Filformat"
 
-#: templates/ingest/normalization_report.html:15
+#: templates/ingest/normalization_report.html:30
 msgid "Preservation normalization attempted"
 msgstr "Bevaringsnormalisering forsøkt"
 
-#: templates/ingest/normalization_report.html:16
+#: templates/ingest/normalization_report.html:31
 msgid "Preservation normalization failed"
 msgstr "Bevaringsnormalisering mislyktes"
 
-#: templates/ingest/normalization_report.html:17
+#: templates/ingest/normalization_report.html:32
 msgid "Preservation conformance check"
 msgstr "Kontroll av bevarings-samsvar"
 
-#: templates/ingest/normalization_report.html:18
+#: templates/ingest/normalization_report.html:33
 msgid "Already in preservation format"
 msgstr "Allerede i bevaringsformat"
 
-#: templates/ingest/normalization_report.html:19
+#: templates/ingest/normalization_report.html:34
 msgid "Access normalization attempted"
 msgstr "Tilgangsnormalisering forsøkt"
 
-#: templates/ingest/normalization_report.html:20
+#: templates/ingest/normalization_report.html:35
 msgid "Access normalization failed"
 msgstr "Tilgangsnormalisering mislyktes"
 
-#: templates/ingest/normalization_report.html:21
+#: templates/ingest/normalization_report.html:36
 msgid "Already in access format"
 msgstr "Already in access format"
 
-#: templates/ingest/normalization_report.html:22
+#: templates/ingest/normalization_report.html:37
 msgid "Access conformance check"
 msgstr "Kontroll av tilgangs-samsvar"
 
-#: templates/ingest/normalization_report.html:54
-#: templates/ingest/normalization_report.html:56
-#: templates/ingest/normalization_report.html:94
-#: templates/ingest/normalization_report.html:96
+#: templates/ingest/normalization_report.html:69
+#: templates/ingest/normalization_report.html:71
+#: templates/ingest/normalization_report.html:109
+#: templates/ingest/normalization_report.html:111
 msgid "Failed,Passed"
 msgstr "Mislyktes,Bestått"
 
-#: templates/ingest/normalization_report.html:109
+#: templates/ingest/normalization_report.html:124
 #, python-format
 msgid ""
 "\n"
@@ -4043,29 +4039,29 @@ msgstr ""
 msgid "Archivematica Dashboard"
 msgstr "Archivematica-Dashboard"
 
-#: templates/layout.html:58 templates/rights/rights_edit.html:18
+#: templates/layout.html:56 templates/rights/rights_edit.html:18
 #: templates/rights/rights_grants_edit.html:18
 #: templates/rights/rights_list.html:11 templates/transfer/component.html:10
 #: templates/transfer/detail.html:9 templates/transfer/grid.html:5
-#: templates/transfer/grid.html:6 templates/transfer/grid.html:70
+#: templates/transfer/grid.html:6 templates/transfer/grid.html:65
 #: templates/transfer/metadata_edit.html:9
 #: templates/transfer/microservices.html:10
 msgid "Transfer"
 msgstr "Overføring"
 
-#: templates/layout.html:60
+#: templates/layout.html:58
 msgid "Backlog"
 msgstr "Backlogg"
 
-#: templates/layout.html:66
+#: templates/layout.html:64
 msgid "Preservation planning"
 msgstr "Planlegg bevaring"
 
-#: templates/layout.html:76
+#: templates/layout.html:74
 msgid "Your profile"
 msgstr "Din profil"
 
-#: templates/layout.html:81
+#: templates/layout.html:79
 msgid "Log out"
 msgstr "Logg ut"
 
@@ -4277,6 +4273,6 @@ msgstr "Vis mikrotjenester"
 msgid "Transfer metadata"
 msgstr "Metadata for overføring"
 
-#: templates/transfer/grid.html:72
+#: templates/transfer/grid.html:67
 msgid "Transfer start time"
 msgstr "Starttid for overføring"

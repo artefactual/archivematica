@@ -151,6 +151,7 @@ def ingest_metadata_edit(request, uuid, id=None):
 
 
 def ingest_metadata_add_files(request, sip_uuid):
+    source_directories = []
     try:
         source_directories = storage_service.get_location(purpose="TS")
     except Exception:
@@ -173,7 +174,26 @@ def ingest_metadata_add_files(request, sip_uuid):
     jobs = models.Job.objects.filter(sipuuid=sip_uuid)
     name = jobs.get_directory_name()
 
-    return render(request, "ingest/metadata_add_files.html", locals())
+    editor_payload = None
+    if source_directories:
+        dirs = {}
+        for directory in source_directories:
+            dir_uuid = directory.get("uuid")
+            dir_path = directory.get("path")
+            if dir_uuid and dir_path:
+                dirs[dir_uuid] = dir_path
+        if dirs:
+            editor_payload = {
+                "sipUUID": sip_uuid,
+                "sourceDirectories": dirs,
+            }
+
+    context = {
+        "name": name,
+        "sip_uuid": sip_uuid,
+        "editor_payload": editor_payload,
+    }
+    return render(request, "ingest/metadata_add_files.html", context)
 
 
 def aic_metadata_add(request, uuid):

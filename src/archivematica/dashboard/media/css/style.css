@@ -302,6 +302,7 @@ li.user > a {
 .microservice-group {
   cursor: pointer;
   border-top: 1px solid #ddd;
+  padding: 2px 0px;
 }
 
 .job {
@@ -530,21 +531,6 @@ textarea.command {
   font-size: 14px;
   line-height: 1.5em;
 }
-
-/*
- * Global file browser tweaks
- */
-
-.backbone-file-explorer {
-  border: 1px solid #eee;
-  padding: 5px;
-}
-
-.modal-body > .backbone-file-explorer {
-  height: 300px;
-  overflow: scroll;
-}
-
 
 /*
  * Login

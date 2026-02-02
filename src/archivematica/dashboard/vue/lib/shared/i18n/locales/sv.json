@@ -8,13 +8,15 @@
     "loadingIndicator": "Laddar",
     "notifications": "Notifikationer",
     "transferFailed": "Kunde inte starta SIP; se din översiktvylogg.",
-    "transferStarted": "Överföring \"{name}\" startad framgångsrikt"
+    "transferStarted": "Överföringen \"{name}\" startades med bearbetningskonfigurationen \"{config}\"."
   },
   "fileBrowser": {
     "addToTransfer": "Lägg till {path} till överföring",
     "browser": "Filläsare",
     "collapsed": "minimerad",
     "collapseFolder": "Minimera mapp",
+    "containsManyItems": "som innehåller {count} objekt",
+    "containsOneItem": "som innehåller 1 objekt",
     "editComponent": "Redigera komponent: {path}",
     "emptyFolder": "Inga filer eller mappar att visa",
     "expanded": "expanderad",
@@ -24,6 +26,7 @@
     "locationHelp": "Välj en källplats för att bläddra bland filer och mappar",
     "notSelectableFor": "inte valbar för {type} överföring",
     "removeComponent": "Ta bort komponent: {path}",
+    "removeComponentConfirm": "Är du säker på att du vill ta bort den här överföringskomponenten ({path})?",
     "selectFileOrFolder": "Välj en fil eller mapp att lägga till",
     "sourceLocation": "Källplats:"
   },
@@ -45,7 +48,8 @@
     "startWithConfig": "Starta överföring med {config}",
     "startWithDefault": "Starta överföring med standardkonfiguration",
     "submissionOptions": "Överföringsinlämningsalternativ",
-    "type": "Överföringstyp"
+    "type": "Överföringstyp",
+    "autoApproveHelp": "Godkänn automatiskt denna överföring för behandling"
   },
   "transferTypes": {
     "dataverse": "Dataverse",
@@ -62,5 +66,30 @@
     "errorConnecting": "Fel vid anslutning till servern. Försöker igen...",
     "initializing": "Initialiserar...",
     "loading": "Laddar..."
+  },
+  "metadata": {
+    "add": "Lägg till",
+    "addFiles": "Lägg till filer",
+    "browse": "Bläddra",
+    "close": "Stäng",
+    "duplicatePath": "Fel: vald sökväg existerar redan.",
+    "loadFailed": "Misslyckades att ladda kataloginnehåll.",
+    "retry": "Försök igen",
+    "loading": "Läser in kataloginnehåll…",
+    "noDirectorySelected": "Ingen mapp vald.",
+    "removeConfirm": "Är du säker på att du vill radera {path}?",
+    "selectAtLeastOne": "Välj minst en metadatafil.",
+    "selectDirectory": "Välj en mapp",
+    "sourceLocation": "Källplats:",
+    "submitSuccess": "Metadatafiler har lagts till.",
+    "submitFailed": "Misslyckades att lägga till metadatafiler."
+  },
+  "aipBrowser": {
+    "ariaLabel": "AIP-utforskare",
+    "loading": "Läser in AIP-innehåll…",
+    "loadFailed": "Kunde inte läsa in AIP-innehållet",
+    "retry": "Försök igen",
+    "empty": "Inga filer eller mappar att visa.",
+    "noDirectoryProvided": "Ingen katalog angiven för AIP-utforskaren."
   }
 }

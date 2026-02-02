@@ -92,6 +92,75 @@ class TestIngest(TestCase):
         )
         assert title in response.content.decode("utf8")
 
+    @mock.patch(
+        "archivematica.dashboard.components.ingest.views.storage_service.get_location"
+    )
+    def test_add_metadata_files_view_uses_unnamed_when_sip_has_no_jobs(
+        self, mocked_get_location
+    ):
+        mocked_get_location.return_value = []
+        sip_uuid = str(uuid.uuid4())
+        url = reverse("ingest:ingest_metadata_add_files", args=[sip_uuid])
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert response.context["name"] == "(Unnamed)"
+        assert "(Unnamed)" in response.content.decode("utf8")
+        mocked_get_location.assert_called_once_with(purpose="TS")
+
+    @mock.patch(
+        "archivematica.dashboard.components.ingest.views.storage_service.get_location"
+    )
+    def test_add_metadata_files_view_includes_editor_payload_for_valid_source_directories(
+        self, mocked_get_location
+    ):
+        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
+        mocked_get_location.return_value = [
+            {"uuid": "source-a", "path": "/var/archivematica/source-a"},
+            {"uuid": "source-b", "path": "/var/archivematica/source-b"},
+        ]
+
+        response = self.client.get(
+            reverse("ingest:ingest_metadata_add_files", args=[sip_uuid]),
+        )
+
+        assert response.status_code == 200
+        assert response.context["editor_payload"] == {
+            "sipUUID": sip_uuid,
+            "sourceDirectories": {
+                "source-a": "/var/archivematica/source-a",
+                "source-b": "/var/archivematica/source-b",
+            },
+        }
+        content = response.content.decode("utf8")
+        assert '<div id="md-editor"></div>' in content
+        assert 'id="md-editor-data"' in content
+
+    @mock.patch(
+        "archivematica.dashboard.components.ingest.views.storage_service.get_location"
+    )
+    def test_add_metadata_files_view_ignores_invalid_source_directory_entries(
+        self, mocked_get_location
+    ):
+        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
+        mocked_get_location.return_value = [
+            {"uuid": "missing-path"},
+            {"path": "/var/archivematica/missing-uuid"},
+            {"uuid": "", "path": "/var/archivematica/empty-uuid"},
+            {"uuid": "source-c", "path": ""},
+        ]
+
+        response = self.client.get(
+            reverse("ingest:ingest_metadata_add_files", args=[sip_uuid]),
+        )
+
+        assert response.status_code == 200
+        assert response.context["editor_payload"] is None
+        content = response.content.decode("utf8")
+        assert '<div id="md-editor"></div>' not in content
+        assert 'id="md-editor-data"' not in content
+
     def test_ingest_upload_get(self):
         sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
         access_target = "description-slug"

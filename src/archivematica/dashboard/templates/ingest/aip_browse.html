@@ -7,17 +7,8 @@
 {% block h1 %}{% trans "AIP" %}{% endblock %}
 {% block page_id %}aip{% endblock %}
 
-{% block extra_css %}
-  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/backbone-file-explorer.css' %}" />
-  <link type="text/css" rel="stylesheet" media="all" href="{% static 'css/directory_picker.css' %}" />
-{% endblock %}
-
 {% block js %}
-  <!-- browser related -->
-  <script type="text/javascript" src="{% static 'js/file-explorer.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/file_browser.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/ingest/aip_browser.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
+  <script type="module" src="{% static 'vue/aip-browser.js' %}"></script>
 {% endblock %}
 
 {% block topbar %}
@@ -38,29 +29,9 @@
         {% breadcrumb name %}
       </ul>
 
-      <div id="explorer" class="backbone-file-explorer" style="float: left;"></div>
-
-      <script>
-        $(document).ready(function() {
-          setupAIPBrowser('{{ directory }}');
-        });
-      </script>
+      <div id="aip-browser" data-directory="{{ directory|escapejs }}"></div>
 
       <br clear="all" />
-
-      <!-- Templates -->
-
-      <script type="text/template" id="template-dir-level">
-        <div class="backbone-file-explorer-level"></div>
-      </script>
-
-      <script type="text/template" id="template-dir-entry">
-        <div class="backbone-file-explorer-entry" style="clear: both;">
-          <span class="backbone-file-explorer-directory_icon_button"></span>
-          <span class="backbone-file-explorer-directory_entry_name"><%= name %></span>
-          <span class="backbone-file-explorer-directory_entry_actions"></span>
-        </div>
-      </script>
 
     </div>
 

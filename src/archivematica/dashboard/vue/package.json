@@ -8,7 +8,7 @@
     "prepare": "npm run build",
     "build": "run-p type-check \"build-only {@}\" --",
     "build-only": "vite build",
-    "build:watch": "run-p type-check \"build-only -- --watch\"",
+    "build:watch": "run-p type-check \"build-only -- --watch --mode=development\"",
     "preview": "vite preview",
     "test": "vitest run",
     "test:interactive": "vitest",
@@ -18,7 +18,9 @@
     "deps": "npx npm-check-updates --interactive"
   },
   "dependencies": {
+    "@vueuse/core": "^14.2.0",
     "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
+    "reka-ui": "^2.8.0",
     "vue": "^3.5.27",
     "vue-i18n": "^11.2.8"
   },

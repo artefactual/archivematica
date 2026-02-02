@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import TransferBrowser from '@/browser/TransferBrowser.vue'
+import TransferBrowser from '@/browser/App.vue'
 import { useLanguage } from './useLanguage'
 import { useSession } from './useSession'
 import { type AvailableLocale } from '@/shared/i18n'

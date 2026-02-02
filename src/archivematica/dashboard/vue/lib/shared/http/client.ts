@@ -10,6 +10,9 @@ export type RequestOptions = {
   credentials?: RequestCredentials
   cacheBust?: boolean
   signal?: AbortSignal
+
+  // Artificial delay for testing purposes (in milliseconds).
+  delay?: number
 }
 
 export type HttpClientOptions = {
@@ -86,6 +89,39 @@ const buildUrl = (
   return url.toString()
 }
 
+export const createUrl = (
+  path: string,
+  options: Pick<RequestOptions, 'query' | 'cacheBust'> = {},
+  baseUrl = window.location.origin,
+): string => {
+  return buildUrl(baseUrl, path, options.query, options.cacheBust)
+}
+
+export const openDownload = (
+  path: string,
+  options: Pick<RequestOptions, 'query'> = {},
+  baseUrl = window.location.origin,
+): void => {
+  const url = buildUrl(baseUrl, path, options.query, false)
+  window.open(url, '_blank', 'noopener')
+}
+
+const getCookie = (name: string): string => {
+  const prefix = `${name}=`
+  return document.cookie
+    .split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith(prefix))
+    ?.slice(prefix.length) ?? ''
+}
+
+const getCsrfToken = (): string => {
+  return getCookie('csrftoken')
+}
+
+const needsCsrf = (method?: string) =>
+  !method || !['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase())
+
 const buildRequestInit = (
   options: RequestOptions,
   defaults: Required<Pick<HttpClientOptions, 'defaultHeaders' | 'credentials'>>,
@@ -109,6 +145,13 @@ const buildRequestInit = (
     }
   }
 
+  if (needsCsrf(options.method ?? 'GET')) {
+    const token = getCsrfToken()
+    if (token && !headers.has('X-CSRFToken')) {
+      headers.set('X-CSRFToken', token)
+    }
+  }
+
   return {
     method: options.method ?? 'GET',
     headers,
@@ -118,14 +161,37 @@ const buildRequestInit = (
   }
 }
 
+export const delay = (ms: number, signal?: AbortSignal): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'))
+      return
+    }
+    const timeout = setTimeout(resolve, ms)
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timeout)
+        reject(new DOMException('Aborted', 'AbortError'))
+      },
+      { once: true },
+    )
+  })
+
 export const createHttpClient = (options: HttpClientOptions = {}) => {
   const baseUrl = options.baseUrl ?? window.location.origin
   const defaultHeaders = options.defaultHeaders ?? {}
   const credentials = options.credentials ?? 'same-origin'
 
   const requestJson = async <T>(path: string, requestOptions: RequestOptions = {}): Promise<T> => {
+    if (requestOptions.delay) {
+      await delay(requestOptions.delay, requestOptions.signal)
+    }
     const url = buildUrl(baseUrl, path, requestOptions.query, requestOptions.cacheBust)
-    const response = await fetch(url, buildRequestInit(requestOptions, { defaultHeaders, credentials }))
+    const response = await fetch(
+      url,
+      buildRequestInit(requestOptions, { defaultHeaders, credentials }),
+    )
 
     if (!response.ok) {
       const bodyText = await response.text()

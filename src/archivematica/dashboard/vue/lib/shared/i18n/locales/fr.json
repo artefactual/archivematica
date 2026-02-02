@@ -8,13 +8,15 @@
     "loadingIndicator": "Chargement",
     "notifications": "Notifications",
     "transferFailed": "Incapable de commencer le SIP; vérifiez les journaux du tableau de bord.",
-    "transferStarted": "Transfert \"{name}\" démarré avec succès"
+    "transferStarted": "Le transfert \"{name}\" a démarré avec la configuration de traitement \"{config}\"."
   },
   "fileBrowser": {
     "addToTransfer": "Ajouter {path} au transfert",
     "browser": "Navigateur de fichiers",
     "collapsed": "réduit",
     "collapseFolder": "Réduire le dossier",
+    "containsManyItems": "contenant {count} éléments",
+    "containsOneItem": "contenant 1 élément",
     "editComponent": "Modifier le composant: {path}",
     "emptyFolder": "Aucun fichier ou dossier à afficher",
     "expanded": "développé",
@@ -24,6 +26,7 @@
     "locationHelp": "Sélectionnez un emplacement source pour parcourir les fichiers et dossiers",
     "notSelectableFor": "non sélectionnable pour le transfert {type}",
     "removeComponent": "Supprimer le composant: {path}",
+    "removeComponentConfirm": "Êtes-vous sûr de vouloir supprimer ce composant de transfert ({path})?",
     "selectFileOrFolder": "Sélectionnez un fichier ou un dossier à ajouter",
     "sourceLocation": "Emplacement source:"
   },
@@ -45,7 +48,8 @@
     "startWithConfig": "Commencer le transfert avec {config}",
     "startWithDefault": "Commencer le transfert avec la configuration par défaut",
     "submissionOptions": "Options de soumission du transfert",
-    "type": "Type de transfert"
+    "type": "Type de transfert",
+    "autoApproveHelp": "Approuver automatiquement ce transfert pour traitement"
   },
   "transferTypes": {
     "dataverse": "Dataverse",
@@ -62,5 +66,30 @@
     "errorConnecting": "Erreur de connexion au serveur. Nouvelle tentative...",
     "initializing": "Initialisation...",
     "loading": "Chargement..."
+  },
+  "metadata": {
+    "add": "Ajouter",
+    "addFiles": "Ajouter des fichiers",
+    "browse": "Naviguer",
+    "close": "Fermer",
+    "duplicatePath": "Erreur: Le chemin d'accès sélectionné existe déjà.",
+    "loadFailed": "Échec du chargement du contenu du répertoire.",
+    "retry": "Réessayer",
+    "loading": "Chargement du contenu du répertoire…",
+    "noDirectorySelected": "Aucun répertoire sélectionné.",
+    "removeConfirm": "Êtes-vous certain de vouloir retirer {path}?",
+    "selectAtLeastOne": "Sélectionner au moins un fichier de métadonnées.",
+    "selectDirectory": "Sélectionner un répertoire",
+    "sourceLocation": "Emplacement source:",
+    "submitSuccess": "Les fichiers de métadonnées ont été ajoutés avec succès.",
+    "submitFailed": "Échec de l'ajout des fichiers de métadonnées."
+  },
+  "aipBrowser": {
+    "ariaLabel": "Explorateur AIP",
+    "loading": "Chargement du contenu AIP…",
+    "loadFailed": "Échec du chargement du contenu AIP",
+    "retry": "Réessayer",
+    "empty": "Aucun fichier ni dossier à afficher.",
+    "noDirectoryProvided": "Aucun répertoire fourni pour l’explorateur AIP."
   }
 }

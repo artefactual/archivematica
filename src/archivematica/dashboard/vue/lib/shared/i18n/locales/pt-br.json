@@ -8,13 +8,15 @@
     "loadingIndicator": "Carregando",
     "notifications": "Notificações",
     "transferFailed": "Não é possível iniciar o SIP; Verifique os logs do painel.",
-    "transferStarted": "Transferência \"{name}\" iniciada com sucesso"
+    "transferStarted": "A transferência \"{name}\" foi iniciada com a configuração de processamento \"{config}\"."
   },
   "fileBrowser": {
     "addToTransfer": "Adicionar {path} à transferência",
     "browser": "Navegador de arquivos",
     "collapsed": "recolhido",
     "collapseFolder": "Recolher pasta",
+    "containsManyItems": "contendo {count} itens",
+    "containsOneItem": "contendo 1 item",
     "editComponent": "Editar componente: {path}",
     "emptyFolder": "Nenhum arquivo ou pasta para exibir",
     "expanded": "expandido",
@@ -24,6 +26,7 @@
     "locationHelp": "Selecione um local de origem para navegar pelos arquivos e pastas",
     "notSelectableFor": "não selecionável para transferência {type}",
     "removeComponent": "Remover componente: {path}",
+    "removeComponentConfirm": "Tem certeza de que deseja remover este componente de transferência ({path})?",
     "selectFileOrFolder": "Selecione um arquivo ou pasta para adicionar",
     "sourceLocation": "Local de origem:"
   },
@@ -45,7 +48,8 @@
     "startWithConfig": "Iniciar transferência com {config}",
     "startWithDefault": "Iniciar transferência com configuração padrão",
     "submissionOptions": "Opções de envio de transferência",
-    "type": "Tipo de transferência"
+    "type": "Tipo de transferência",
+    "autoApproveHelp": "Aprovar automaticamente esta transferência para processamento"
   },
   "transferTypes": {
     "dataverse": "Dataverse",
@@ -62,5 +66,30 @@
     "errorConnecting": "Erro ao conectar ao servidor. Tentando novamente...",
     "initializing": "Inicializando...",
     "loading": "Carregando..."
+  },
+  "metadata": {
+    "add": "Adicionar",
+    "addFiles": "Adicionar arquivos",
+    "browse": "Navegador",
+    "close": "Fechar",
+    "duplicatePath": "Erro: o caminho selecionado já existe.",
+    "loadFailed": "Falha ao carregar o conteúdo do diretório.",
+    "retry": "Repetir",
+    "loading": "Carregando o conteúdo do diretório…",
+    "noDirectorySelected": "Nenhum diretório selecionado.",
+    "removeConfirm": "Você tem certeza que deseja remover {path}?",
+    "selectAtLeastOne": "Selecione pelo menos um arquivo de metadados.",
+    "selectDirectory": "Selecione um diretório",
+    "sourceLocation": "Local de origem:",
+    "submitSuccess": "Os arquivos de metadados foram adicionados com sucesso.",
+    "submitFailed": "Falha ao adicionar arquivos de metadados."
+  },
+  "aipBrowser": {
+    "ariaLabel": "Navegador AIP",
+    "loading": "Carregando conteúdos do AIP…",
+    "loadFailed": "Falha ao carregar conteúdos do AIP",
+    "retry": "Repetir",
+    "empty": "Nenhum arquivo ou pasta para exibir.",
+    "noDirectoryProvided": "Nenhum diretório fornecido para o navegador AIP."
   }
 }

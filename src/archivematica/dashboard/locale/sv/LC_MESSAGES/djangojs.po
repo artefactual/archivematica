@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-07 11:44+0000\n"
+"POT-Creation-Date: 2026-02-10 06:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: August Frihammar <august.frihammar@arkivit.se>, 2017\n"
 "Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
@@ -19,8 +19,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: media/js/advanced-search-query-creator.js:14 media/js/file_browser.js:59
-#: media/js/file_browser.js:64 media/js/repeating-ajax-data.js:211
+#: media/js/advanced-search-query-creator.js:14
+#: media/js/repeating-ajax-data.js:211
 msgid "Delete"
 msgstr "Radera"
 
@@ -351,44 +351,6 @@ msgstr "Överföringens UUID"
 msgid "Ingest date"
 msgstr "Ingestdatum"
 
-#: media/js/directory_picker.js:46
-#: media/js/transfer/component_directory_select.js:49
-msgid "Select"
-msgstr "Välj"
-
-#: media/js/directory_picker.js:47
-msgid "Select directory"
-msgstr "Välj mapp"
-
-#: media/js/directory_picker.js:83 media/js/file_browser.js:171
-msgid "Yes"
-msgstr "Ja"
-
-#: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:131 media/js/jobs.js:600
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: media/js/file_browser.js:60
-msgid "Delete file or directory"
-msgstr "Radera fil eller mapp"
-
-#: media/js/file_browser.js:65
-msgid "Are you sure you want to delete this directory or file?"
-msgstr "Är du säker på att du vill radera denna mapp eller fil?"
-
-#: media/js/file_browser.js:132
-msgid "Dropped ID %(dropped_path) onto %(container_path)"
-msgstr "Lämnade ID %(dropped_path) till %(container_path)"
-
-#: media/js/file_browser.js:138
-msgid "You can't move a directory into its subdirectory."
-msgstr "Du kan inte flytta en mapp till dess undermapp."
-
-#: media/js/file_browser.js:152
-msgid "OK"
-msgstr "OK"
-
 #: media/js/ingest.js:71
 msgid "It is not possible to remove active SIPs."
 msgstr ""
@@ -418,6 +380,10 @@ msgstr "Radera SIP"
 #: media/js/ingest.js:102 media/js/jobs.js:568 media/js/transfer.js:102
 msgid "Confirm"
 msgstr "Bekräfta"
+
+#: media/js/ingest.js:131 media/js/jobs.js:600
+msgid "Cancel"
+msgstr "Avbryt"
 
 #: media/js/ingest.js:179
 msgid "Report"
@@ -454,18 +420,6 @@ msgstr "Filnamn"
 #: media/js/ingest/backlog.js:38
 msgid "Ingest date (YYYY-MM-DD)"
 msgstr "Ingestdatum (ÅÅÅÅ-MM-DD)"
-
-#: media/js/ingest/metadata_form.js:84
-msgid "Browse"
-msgstr "Bläddra"
-
-#: media/js/ingest/metadata_form.js:86
-msgid "Add files"
-msgstr "Lägg till filer"
-
-#: media/js/ingest/metadata_form.js:125
-msgid "Please select at least one metadata file."
-msgstr "Välj minst en metadatafil."
 
 #: media/js/jobs.js:482
 msgid "Review"
@@ -681,12 +635,3 @@ msgid ""
 msgstr ""
 "Är du säker på att du vill ta bort detta överföringspaket från översiktsvyn? "
 "Notera att detta inte raderar överföringspaketet eller relaterade objekt."
-
-#: media/js/transfer/component_directory_select.js:57
-msgid "Error: The selected path is already present."
-msgstr "Fel: vald sökväg existerar redan."
-
-#: media/js/transfer/component_directory_select.js:80
-#, javascript-format
-msgid "Are you sure you want to remove %s?"
-msgstr "Är du säker på att du vill radera %s?"

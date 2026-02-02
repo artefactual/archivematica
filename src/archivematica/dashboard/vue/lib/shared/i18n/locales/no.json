@@ -8,13 +8,15 @@
     "loadingIndicator": "Laster",
     "notifications": "Varsler",
     "transferFailed": "Kunne ikke starte SIP; sjekk dashbord-loggene dine.",
-    "transferStarted": "Overføring \"{name}\" startet"
+    "transferStarted": "Overføring \"{name}\" startet med behandlingskonfigurasjon \"{config}\"."
   },
   "fileBrowser": {
     "addToTransfer": "Legg {path} til overføring",
     "browser": "Filutforsker",
     "collapseFolder": "Skjul mappe",
     "collapsed": "skjult",
+    "containsManyItems": "som inneholder {count} elementer",
+    "containsOneItem": "som inneholder 1 element",
     "editComponent": "Rediger komponent: {path}",
     "emptyFolder": "Ingen filer eller mapper å vise",
     "expandFolder": "Utvid mappe",
@@ -24,6 +26,7 @@
     "locationHelp": "Velg en kildeplassering for å bla gjennom filer og mapper",
     "notSelectableFor": "ikke valgbar for {type} overføring",
     "removeComponent": "Fjern komponent: {path}",
+    "removeComponentConfirm": "Er du sikker på at du vil fjerne denne overføringskomponenten ({path})?",
     "selectFileOrFolder": "Velg en fil eller mappe å legge til",
     "sourceLocation": "Kildeplassering:"
   },
@@ -45,7 +48,8 @@
     "startWithConfig": "Start overføring med {config}",
     "startWithDefault": "Start overføring med standardkonfigurasjon",
     "submissionOptions": "Overføringsinnsendingsalternativer",
-    "type": "Overføringstype"
+    "type": "Overføringstype",
+    "autoApproveHelp": "Godkjenn automatisk denne overføringen for behandling"
   },
   "transferTypes": {
     "dataverse": "Dataverse",
@@ -62,5 +66,30 @@
     "errorConnecting": "Feil ved tilkobling til server. Prøver igjen...",
     "initializing": "Initialiserer...",
     "loading": "Laster..."
+  },
+  "metadata": {
+    "add": "Legg til",
+    "addFiles": "Legg til filer",
+    "browse": "Bla gjennom",
+    "close": "Lukk",
+    "duplicatePath": "Feil: Den valgte stien er allerede til stede.",
+    "loadFailed": "Kunne ikke laste inn kataloginnhold.",
+    "retry": "Prøv igjen",
+    "loading": "Laster kataloginnhold…",
+    "noDirectorySelected": "Ingen mappe valgt.",
+    "removeConfirm": "Er du sikker på at du vil fjerne {path}?",
+    "selectAtLeastOne": "Velg minst én metadatafil.",
+    "selectDirectory": "Velg en mappe",
+    "sourceLocation": "Kildeplassering:",
+    "submitSuccess": "Metadatafiler ble lagt til.",
+    "submitFailed": "Kunne ikke legge til metadatafiler."
+  },
+  "aipBrowser": {
+    "ariaLabel": "AIP-nettleser",
+    "loading": "Laster AIP-innhold…",
+    "loadFailed": "Kunne ikke laste AIP-innhold",
+    "retry": "Prøv igjen",
+    "empty": "Ingen filer eller mapper å vise.",
+    "noDirectoryProvided": "Ingen katalog oppgitt for AIP-nettleseren."
   }
 }

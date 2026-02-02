@@ -8,13 +8,15 @@
     "loadingIndicator": "Cargando",
     "notifications": "Notificaciones",
     "transferFailed": "Error al iniciar la transferencia",
-    "transferStarted": "Transferencia \"{name}\" iniciada con éxito"
+    "transferStarted": "La transferencia \"{name}\" se inició con la configuración de procesamiento \"{config}\"."
   },
   "fileBrowser": {
     "addToTransfer": "Añadir {path} a la transferencia",
     "browser": "Explorador de archivos",
     "collapseFolder": "Contraer carpeta",
     "collapsed": "contraído",
+    "containsManyItems": "que contiene {count} elementos",
+    "containsOneItem": "que contiene 1 elemento",
     "editComponent": "Editar componente: {path}",
     "emptyFolder": "No hay archivos o carpetas para mostrar",
     "expandFolder": "Expandir carpeta",
@@ -24,6 +26,7 @@
     "locationHelp": "Seleccione una ubicación de origen para explorar archivos y carpetas",
     "notSelectableFor": "no seleccionable para transferencia {type}",
     "removeComponent": "Eliminar componente: {path}",
+    "removeComponentConfirm": "¿Está seguro de que desea eliminar este componente de transferencia ({path})?",
     "selectFileOrFolder": "Seleccione un archivo o carpeta para añadir",
     "sourceLocation": "Ubicación de origen:"
   },
@@ -45,7 +48,8 @@
     "startWithConfig": "Comenzar transferencia con {config}",
     "startWithDefault": "Comenzar transferencia con configuración predeterminada",
     "submissionOptions": "Opciones de envío de transferencia",
-    "type": "Tipo de transferencia"
+    "type": "Tipo de transferencia",
+    "autoApproveHelp": "Aprobar automáticamente esta transferencia para su procesamiento"
   },
   "transferTypes": {
     "dataverse": "Dataverse",
@@ -62,5 +66,30 @@
     "errorConnecting": "Error al conectar con el servidor. Reintentando...",
     "initializing": "Inicializando...",
     "loading": "Cargando..."
+  },
+  "metadata": {
+    "add": "Añadir",
+    "addFiles": "Añadir archivos",
+    "browse": "Navegar",
+    "close": "Cerrar",
+    "duplicatePath": "Error: La ruta seleccionada ya está presente.",
+    "loadFailed": "No se pudo cargar el contenido del directorio.",
+    "retry": "Reintentar",
+    "loading": "Cargando el contenido del directorio…",
+    "noDirectorySelected": "No se seleccionó ningún directorio.",
+    "removeConfirm": "¿Está seguro de que desea eliminar {path}?",
+    "selectAtLeastOne": "Seleccione al menos un archivo de metadatos.",
+    "selectDirectory": "Seleccionar un directorio",
+    "sourceLocation": "Ubicación de origen:",
+    "submitSuccess": "Los archivos de metadatos se añadieron correctamente.",
+    "submitFailed": "No se pudieron añadir los archivos de metadatos."
+  },
+  "aipBrowser": {
+    "ariaLabel": "Explorador de AIP",
+    "loading": "Cargando el contenido del AIP…",
+    "loadFailed": "No se pudo cargar el contenido del AIP",
+    "retry": "Reintentar",
+    "empty": "No hay archivos o carpetas para mostrar.",
+    "noDirectoryProvided": "No se proporcionó un directorio para el explorador de AIP."
   }
 }

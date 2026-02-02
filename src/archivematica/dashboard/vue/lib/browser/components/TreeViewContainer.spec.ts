@@ -2,8 +2,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createI18nMock } from '@/shared/i18n'
 import TreeViewContainer from '@/browser/components/TreeViewContainer.vue'
-import TreeView from '@/browser/components/TreeView.vue'
-import type { SourceLocation, FileNode } from '@/shared/models'
+import TreeView from '@/shared/components/TreeView.vue'
+import type { FileNode } from '@/browser/types'
+import type { SourceLocation } from '@/shared/http/transfer'
 
 const i18n = createI18nMock()
 
@@ -72,8 +73,6 @@ describe('TreeViewContainer', () => {
     loading: false,
     apiError: null,
     fileNodes: [],
-    selectedPath: '',
-    canAddSelectedPath: false,
     transferType: 'standard',
     expandedPaths: [],
   }
@@ -179,36 +178,12 @@ describe('TreeViewContainer', () => {
 
     const treeView = wrapper.findComponent(TreeView)
     expect(treeView.exists()).toBe(true)
-    expect(treeView.props()).toEqual({
-      nodes: mockFileNodes,
-      selectedPath: '',
-      transferType: 'standard',
-      expandedPaths: [],
-    })
-  })
-
-  it('emits select event when tree node is selected', async () => {
-    const wrapper = mount(TreeViewContainer, {
-      global: {
-        ...global,
-        plugins: [i18n],
-      },
-      props: {
-        ...defaultProps,
-        currentLocation: 'loc1',
-        fileNodes: mockFileNodes,
-      },
-    })
-
-    const treeView = wrapper.findComponent(TreeView)
-    treeView.vm.$emit('select', { path: '/folder1', canAdd: true })
-
-    const selectEvents = wrapper.emitted('select') ?? []
-    const firstSelect = selectEvents[0]
-    if (!firstSelect) {
-      throw new Error('Expected select event payload')
-    }
-    expect(firstSelect).toEqual([{ path: '/folder1', canAdd: true }])
+    expect(treeView.props('items')).toEqual(mockFileNodes)
+    expect(treeView.props('expanded')).toEqual([])
+    expect(treeView.props('variant')).toBe('compact')
+    expect(treeView.props('frameStyle')).toBe('well')
+    expect(treeView.props('autoFocusOnMount')).toBe(true)
+    expect(treeView.props('autoFocusTarget')).toBe('selected')
   })
 
   it('emits expand event when tree node is expanded', async () => {
@@ -229,7 +204,7 @@ describe('TreeViewContainer', () => {
     if (!firstFileNode) {
       throw new Error('Expected at least one file node')
     }
-    treeView.vm.$emit('expand', firstFileNode)
+    treeView.vm.$emit('toggle', firstFileNode)
 
     const expandEvents = wrapper.emitted('expand') ?? []
     const firstExpand = expandEvents[0]
@@ -237,9 +212,10 @@ describe('TreeViewContainer', () => {
       throw new Error('Expected expand event payload')
     }
     expect(firstExpand).toEqual([firstFileNode])
+    expect(wrapper.emitted('toggle')).toEqual([[firstFileNode.path]])
   })
 
-  it('disables Add button when no path is selected', () => {
+  it('renders external Add button and keeps it disabled without selection', () => {
     const wrapper = mount(TreeViewContainer, {
       global: {
         ...global,
@@ -252,63 +228,12 @@ describe('TreeViewContainer', () => {
       },
     })
 
-    const addButton = wrapper.find('button.add-button')
-    expect(addButton.attributes('disabled')).toBeDefined()
+    const externalAddButton = wrapper.find('button.transfer-tree-add-btn')
+    expect(externalAddButton.exists()).toBe(true)
+    expect(externalAddButton.attributes('disabled')).toBeDefined()
   })
 
-  it('enables Add button when path is selected', async () => {
-    const wrapper = mount(TreeViewContainer, {
-      global: {
-        ...global,
-        plugins: [i18n],
-      },
-      props: {
-        ...defaultProps,
-        currentLocation: 'loc1',
-        fileNodes: mockFileNodes,
-        selectedPath: '/folder1',
-        canAddSelectedPath: true,
-      },
-    })
-
-    const addButton = wrapper.find('button.add-button')
-    expect(addButton.attributes('disabled')).toBeUndefined()
-  })
-
-  it('emits add event when Add button is clicked', async () => {
-    const wrapper = mount(TreeViewContainer, {
-      global: {
-        ...global,
-        plugins: [i18n],
-      },
-      props: {
-        ...defaultProps,
-        currentLocation: 'loc1',
-        fileNodes: mockFileNodes,
-        selectedPath: '/folder1',
-        canAddSelectedPath: true,
-      },
-    })
-
-    const addButton = wrapper.find('button.add-button')
-    await addButton.trigger('click')
-
-    expect(wrapper.emitted('add')).toBeTruthy()
-  })
-
-  it('does not show tree container when no location is selected', () => {
-    const wrapper = mount(TreeViewContainer, {
-      global: {
-        ...global,
-        plugins: [i18n],
-      },
-      props: defaultProps,
-    })
-
-    expect(wrapper.find('.transfer-tree-container').exists()).toBe(false)
-  })
-
-  it('updates selected path in tree when prop changes', async () => {
+  it('emits add event when external Add button is clicked with a selectable node', async () => {
     const wrapper = mount(TreeViewContainer, {
       global: {
         ...global,
@@ -322,11 +247,379 @@ describe('TreeViewContainer', () => {
     })
 
     const treeView = wrapper.findComponent(TreeView)
-    expect(treeView.props('selectedPath')).toBe('')
+    const firstNode = mockFileNodes[0]
+    if (!firstNode) {
+      throw new Error('Expected at least one file node')
+    }
+    treeView.vm.$emit('update:modelValue', firstNode)
+    await wrapper.vm.$nextTick()
 
-    await wrapper.setProps({ selectedPath: '/folder1' })
+    const externalAddButton = wrapper.find('button.transfer-tree-add-btn')
+    expect(externalAddButton.attributes('disabled')).toBeUndefined()
+    await externalAddButton.trigger('click')
 
-    expect(treeView.props('selectedPath')).toBe('/folder1')
+    const addEvents = wrapper.emitted('add') ?? []
+    const firstAdd = addEvents[0]
+    if (!firstAdd) {
+      throw new Error('Expected add event payload')
+    }
+    expect(firstAdd[0]).toEqual(firstNode)
+  })
+
+  it('does not render per-row Add action buttons', () => {
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: mockFileNodes,
+      },
+    })
+
+    expect(wrapper.find('.transfer-tree-action').exists()).toBe(false)
+  })
+
+  it('renders 0-byte size text for file nodes', () => {
+    const zeroByteFile: FileNode = {
+      name: 'empty.txt',
+      path: '/empty.txt',
+      type: 'file',
+      size: 0,
+    }
+
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: [zeroByteFile],
+      },
+    })
+
+    expect(wrapper.text()).toContain('(0 bytes)')
+  })
+
+  it('includes 0-byte size in aria labels for file nodes', () => {
+    const zeroByteFile: FileNode = {
+      name: 'empty.txt',
+      path: '/empty.txt',
+      type: 'file',
+      size: 0,
+    }
+
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: [zeroByteFile],
+      },
+    })
+
+    const treeView = wrapper.findComponent(TreeView)
+    const getAriaLabel = treeView.props('getAriaLabel') as ((node: FileNode, context: {
+      node: FileNode
+      isExpanded: boolean
+      isSelected: boolean
+      isDisabled: boolean
+    }) => string) | undefined
+    if (!getAriaLabel) {
+      throw new Error('Expected getAriaLabel handler')
+    }
+
+    const label = getAriaLabel(zeroByteFile, {
+      node: zeroByteFile,
+      isExpanded: false,
+      isSelected: false,
+      isDisabled: false,
+    })
+    expect(label).toContain('0 bytes')
+  })
+
+  it('localizes directory aria label item count for one child', () => {
+    const directoryNode: FileNode = {
+      name: 'folder',
+      path: '/folder',
+      type: 'directory',
+      children_fetched: true,
+      children: [
+        {
+          name: 'child.txt',
+          path: '/folder/child.txt',
+          type: 'file',
+        },
+      ],
+    }
+
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: [directoryNode],
+      },
+    })
+
+    const treeView = wrapper.findComponent(TreeView)
+    const getAriaLabel = treeView.props('getAriaLabel') as ((node: FileNode, context: {
+      node: FileNode
+      isExpanded: boolean
+      isSelected: boolean
+      isDisabled: boolean
+    }) => string) | undefined
+    if (!getAriaLabel) {
+      throw new Error('Expected getAriaLabel handler')
+    }
+
+    const label = getAriaLabel(directoryNode, {
+      node: directoryNode,
+      isExpanded: true,
+      isSelected: false,
+      isDisabled: false,
+    })
+    expect(label).toContain('containing 1 item')
+  })
+
+  it('localizes directory aria label item count for multiple children', () => {
+    const directoryNode: FileNode = {
+      name: 'folder',
+      path: '/folder',
+      type: 'directory',
+      children_fetched: true,
+      children: [
+        {
+          name: 'child-1.txt',
+          path: '/folder/child-1.txt',
+          type: 'file',
+        },
+        {
+          name: 'child-2.txt',
+          path: '/folder/child-2.txt',
+          type: 'file',
+        },
+      ],
+    }
+
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: [directoryNode],
+      },
+    })
+
+    const treeView = wrapper.findComponent(TreeView)
+    const getAriaLabel = treeView.props('getAriaLabel') as ((node: FileNode, context: {
+      node: FileNode
+      isExpanded: boolean
+      isSelected: boolean
+      isDisabled: boolean
+    }) => string) | undefined
+    if (!getAriaLabel) {
+      throw new Error('Expected getAriaLabel handler')
+    }
+
+    const label = getAriaLabel(directoryNode, {
+      node: directoryNode,
+      isExpanded: true,
+      isSelected: false,
+      isDisabled: false,
+    })
+    expect(label).toContain('containing 2 items')
+  })
+
+  it('emits add event on Enter key select', async () => {
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: mockFileNodes,
+      },
+    })
+
+    const treeView = wrapper.findComponent(TreeView)
+    const firstNode = mockFileNodes[0]
+    if (!firstNode) {
+      throw new Error('Expected at least one file node')
+    }
+
+    const onEnter = treeView.props('onEnter') as ((node: FileNode) => void) | undefined
+    if (!onEnter) {
+      throw new Error('Expected onEnter handler')
+    }
+    onEnter(firstNode)
+
+    const addEvents = wrapper.emitted('add') ?? []
+    const firstAdd = addEvents[0]
+    if (!firstAdd) {
+      throw new Error('Expected add event payload')
+    }
+    expect(firstAdd[0]).toEqual(firstNode)
+  })
+
+  it('emits escape when TreeView emits escape', async () => {
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: {
+        ...defaultProps,
+        currentLocation: 'loc1',
+        fileNodes: mockFileNodes,
+      },
+    })
+
+    const treeView = wrapper.findComponent(TreeView)
+    treeView.vm.$emit('escape')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.emitted('escape')).toHaveLength(1)
+  })
+
+  describe('compressed file rules', () => {
+    const triggerEnter = (transferType: string, node: FileNode) => {
+      const wrapper = mount(TreeViewContainer, {
+        global: {
+          ...global,
+          plugins: [i18n],
+        },
+        props: {
+          ...defaultProps,
+          currentLocation: 'loc1',
+          transferType,
+          fileNodes: [node],
+        },
+      })
+
+      const treeView = wrapper.findComponent(TreeView)
+      const onEnter = treeView.props('onEnter') as ((node: FileNode) => void) | undefined
+      if (!onEnter) {
+        throw new Error('Expected onEnter handler')
+      }
+      onEnter(node)
+      return wrapper
+    }
+
+    it.each(['zipfile', 'zipped bag'])(
+      'allows supported compressed extensions for %s transfer type',
+      (transferType) => {
+        for (const ext of ['zip', 'tgz', 'tar.gz']) {
+          const node: FileNode = {
+            name: `archive.${ext}`,
+            path: `/archive.${ext}`,
+            type: 'file',
+          }
+
+          const wrapper = triggerEnter(transferType, node)
+
+          const addEvents = wrapper.emitted('add') ?? []
+          const firstAdd = addEvents[0]
+          if (!firstAdd) {
+            throw new Error('Expected add event payload')
+          }
+          expect(firstAdd[0]).toEqual(node)
+        }
+      },
+    )
+
+    it.each(['zipfile', 'zipped bag'])('rejects .7z for %s transfer type', (transferType) => {
+      const node: FileNode = {
+        name: 'archive.7z',
+        path: '/archive.7z',
+        type: 'file',
+      }
+
+      const wrapper = triggerEnter(transferType, node)
+
+      expect(wrapper.emitted('add')).toBeUndefined()
+    })
+
+    it.each(['zipfile', 'zipped bag'])(
+      'keeps non-addable directories navigable while keeping non-addable files disabled for %s',
+      (transferType) => {
+        const wrapper = mount(TreeViewContainer, {
+          global: {
+            ...global,
+            plugins: [i18n],
+          },
+          props: {
+            ...defaultProps,
+            currentLocation: 'loc1',
+            transferType,
+            fileNodes: [],
+          },
+        })
+
+        const treeView = wrapper.findComponent(TreeView)
+        const getDisabled = treeView.props('getDisabled') as ((node: FileNode) => boolean) | undefined
+        const getContentClass = treeView.props('getContentClass') as ((node: FileNode) => Record<string, boolean>) | undefined
+
+        if (!getDisabled || !getContentClass) {
+          throw new Error('Expected getDisabled and getContentClass handlers')
+        }
+
+        const directoryNode: FileNode = {
+          name: 'ZippedDirectoryTransfers',
+          path: '/ZippedDirectoryTransfers',
+          type: 'directory',
+          children: [],
+          children_fetched: true,
+        }
+        const nonAddableFileNode: FileNode = {
+          name: 'README.md',
+          path: '/README.md',
+          type: 'file',
+        }
+
+        expect(getDisabled(directoryNode)).toBe(false)
+        expect(getContentClass(directoryNode)).toMatchObject({
+          'tree-node-expandable': true,
+          'tree-node-not-addable': true,
+          'tree-node-not-addable-dir': true,
+        })
+
+        expect(getDisabled(nonAddableFileNode)).toBe(true)
+        expect(getContentClass(nonAddableFileNode)).toMatchObject({
+          'tree-node-expandable': false,
+          'tree-node-not-addable': true,
+          'tree-node-not-addable-file': true,
+        })
+      },
+    )
+  })
+
+  it('does not show tree container when no location is selected', () => {
+    const wrapper = mount(TreeViewContainer, {
+      global: {
+        ...global,
+        plugins: [i18n],
+      },
+      props: defaultProps,
+    })
+
+    expect(wrapper.find('.transfer-tree-container').exists()).toBe(false)
+    expect(wrapper.find('.transfer-tree-add-btn').exists()).toBe(false)
   })
 
   describe('WCAG Compliance', () => {
@@ -395,7 +688,7 @@ describe('TreeViewContainer', () => {
       expect(alert.text()).toBe(errorMessage)
     })
 
-    it('should have accessible add button', () => {
+    it('should have accessible external add action', () => {
       const wrapper = mount(TreeViewContainer, {
         global: {
           ...global,
@@ -405,35 +698,12 @@ describe('TreeViewContainer', () => {
           ...defaultProps,
           currentLocation: 'loc1',
           fileNodes: mockFileNodes,
-          selectedPath: '/folder1',
-          canAddSelectedPath: true,
         },
       })
 
-      const addButton = wrapper.find('.add-button')
-      expect(addButton.attributes('type')).toBe('button')
-      expect(addButton.attributes('aria-disabled')).toBe('false')
-      expect(addButton.attributes('aria-label')).toBe('Add /folder1 to transfer')
-    })
-
-    it('should have proper disabled state for add button', () => {
-      const wrapper = mount(TreeViewContainer, {
-        global: {
-          ...global,
-          plugins: [i18n],
-        },
-        props: {
-          ...defaultProps,
-          currentLocation: 'loc1',
-          fileNodes: mockFileNodes,
-          selectedPath: '',
-        },
-      })
-
-      const addButton = wrapper.find('.add-button')
-      expect(addButton.attributes('aria-disabled')).toBe('true')
-      expect(addButton.attributes('disabled')).toBeDefined()
-      expect(addButton.attributes('aria-label')).toBe('Select a file or folder to add')
+      const externalAddButton = wrapper.find('.transfer-tree-add-btn')
+      expect(externalAddButton.attributes('type')).toBe('button')
+      expect(externalAddButton.attributes('aria-label')).toBe('Select a file or folder to add')
     })
 
     it('should update aria-busy when loading', () => {

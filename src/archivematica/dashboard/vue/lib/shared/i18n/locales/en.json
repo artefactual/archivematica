@@ -8,13 +8,15 @@
     "loadingIndicator": "Loading",
     "notifications": "Notifications",
     "transferFailed": "Failed to start transfer",
-    "transferStarted": "Transfer \"{name}\" started successfully"
+    "transferStarted": "Transfer \"{name}\" started with processing configuration \"{config}\"."
   },
   "fileBrowser": {
     "addToTransfer": "Add {path} to transfer",
     "browser": "File browser",
     "collapseFolder": "Collapse folder",
     "collapsed": "collapsed",
+    "containsManyItems": "containing {count} items",
+    "containsOneItem": "containing 1 item",
     "editComponent": "Edit component: {path}",
     "emptyFolder": "No files or folders to display",
     "expandFolder": "Expand folder",
@@ -24,6 +26,7 @@
     "locationHelp": "Select a source location to browse files and folders",
     "notSelectableFor": "not selectable for {type} transfer",
     "removeComponent": "Remove component: {path}",
+    "removeComponentConfirm": "Are you sure you want to remove this transfer component ({path})?",
     "selectFileOrFolder": "Select a file or folder to add",
     "sourceLocation": "Source location:"
   },
@@ -32,6 +35,7 @@
     "accession": "Accession no.",
     "add": "Add",
     "autoApprove": "Approve automatically",
+    "autoApproveHelp": "Automatically approve this transfer for processing",
     "browse": "Browse",
     "configurationForm": "Transfer configuration form",
     "fileBrowserSection": "File browser section",
@@ -62,5 +66,30 @@
     "errorConnecting": "Error trying to connect to server. Trying again...",
     "initializing": "Initializing...",
     "loading": "Loading..."
+  },
+  "metadata": {
+    "add": "Add",
+    "addFiles": "Add files",
+    "browse": "Browse",
+    "close": "Close",
+    "duplicatePath": "Error: The selected path is already present.",
+    "loadFailed": "Failed to load directory contents.",
+    "retry": "Retry",
+    "loading": "Loading directory contents…",
+    "noDirectorySelected": "No directory selected.",
+    "removeConfirm": "Are you sure you want to remove {path}?",
+    "selectAtLeastOne": "Please select at least one metadata file.",
+    "selectDirectory": "Select a directory",
+    "sourceLocation": "Source location:",
+    "submitSuccess": "Metadata files added successfully.",
+    "submitFailed": "Failed to add metadata files."
+  },
+  "aipBrowser": {
+    "ariaLabel": "AIP browser",
+    "loading": "Loading AIP contents…",
+    "loadFailed": "Failed to load AIP contents",
+    "retry": "Retry",
+    "empty": "No files or folders to display.",
+    "noDirectoryProvided": "No directory provided for AIP browser."
   }
 }

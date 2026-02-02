@@ -3,24 +3,8 @@
 {% load i18n %}
 {% load static %}
 
-{% block extra_css %}
-<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/backbone-file-explorer.css' %}" />
-<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/directory_picker.css' %}" />
-<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/transfer_grid.css' %}" />
-
-<style type="text/css">
-select {
-  width: auto;
-}
-</style>
-{% endblock %}
-
 {% block js %}
-  <script type="text/javascript" src="{% static 'js/ingest/metadata_form.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/file-explorer.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/directory_picker.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/transfer/component_directory_select.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/base64.js' %}"></script>
+  <script type="module" src="{% static 'vue/md-editor.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -40,73 +24,10 @@ select {
       <small>{{ name }}</small>
     </h1>
 
-    {% if source_directories %}
-
-    <div id='add_metadata_files_form'></div>
-    <div class="inline-file-explorer">
-      <h4>{% trans "Select a directory" %}</h4>
-      <button type="button" class="close">×</button>
-      <div id="explorer" class="backbone-file-explorer"></div>
-    </div>
-
-    <script>
-    $(document).ready(function() {
-      var sourceDirectories = {
-        {% for dir in source_directories %}
-          '{{ dir.uuid }}': '{{ dir.path }}',
-        {% endfor %}
-      };
-      var form = new MetadataFormView({
-        el: $('#add_metadata_files_form'),
-        form_layout_template: $('#add-metadata-files-layout').html(),
-        modal_template: $('#add-metadata-files-select-modal-layout').html(),
-        sourceDirectories: sourceDirectories,
-        sipUUID: "{{ sip_uuid }}"
-      });
-
-      form.render();
-    });
-    </script>
+    {% if editor_payload %}
+      <div id="md-editor"></div>
+      {{ editor_payload|json_script:"md-editor-data" }}
     {% endif %}
     </div>
   </div>
-
- <!-- Templates -->
-
-  <!-- Transfer component form layout templates -->
-  <script type="text/template" id='add-metadata-files-layout'>
-    <div id="metadata-file-form">
-      <div class="activity-indicator">
-        <img src="{% static 'images/ajax-loader.gif' %}" />
-      </div>
-      <div id="transfer_paths_area">
-        <%= transfer_paths %>
-      </div>
-    </div>
-    <br clear='all'/>
-  </script>
-
-  <script type="text/template" id='add-metadata-files-path-item'>
-    <div id='add-metadata-files-path-item-<%= path_counter %>'>
-      <span class="transfer_path" id="<%= location_path %>"><%= path %></span>
-      <span class="transfer_path_icons">
-        <span class="transfer_path_edit_icon"><img src="{% static 'images/table_edit.png' %}" /></span>
-        <span class="transfer_path_delete_icon"><img src="{% static 'images/delete.png' %}" /></span>
-      </span>
-    </div>
-  </script>
-  <!-- File explorer templates -->
-
-  <script type="text/template" id='template-dir-level'>
-    <div class="backbone-file-explorer-level"></div>
-  </script>
-
-  <script type="text/template" id='template-dir-entry'>
-    <div class="backbone-file-explorer-entry" style='clear:both'>
-      <span class="backbone-file-explorer-directory_icon_button"></span>
-      <span class="backbone-file-explorer-directory_entry_name"><%= name %> <i><%= extra %></i></span>
-      <span class="backbone-file-explorer-directory_entry_actions"></span>
-    </div>
-  </script>
-
 {% endblock %}

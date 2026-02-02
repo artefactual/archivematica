@@ -6,11 +6,8 @@
 {% block h1 %}{% trans "Transfer" %}{% endblock %}
 {% block page_id %}transfer{% endblock %}
 
-{% block extra_css %}
-<link type="text/css" rel="stylesheet" media="all" href="{% static 'css/transfer_grid.css' %}" />
-{% endblock %}
-
 {% block js %}
+  <script type="module" src="{% static 'vue/browser.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/misc.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/jobs.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/transfer.js' %}"></script>
@@ -62,8 +59,6 @@
 {% block content %}
 
   <div id="transfer-browser"></div>
-  <script type="module" src="{% static 'vue/browser.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'vue/browser.css' %}">
 
   <div id="sip-container">
     <div id="sip-header">
