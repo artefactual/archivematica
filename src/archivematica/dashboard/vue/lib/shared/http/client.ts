@@ -15,6 +15,21 @@ export type RequestOptions = {
   delay?: number
 }
 
+export type JsonIfChangedResult<T>
+  = | {
+    changed: true
+    raw: string
+    data: T
+  }
+  | {
+    changed: false
+    raw: string
+  }
+
+export type JsonIfChangedRequestOptions = RequestOptions & {
+  previousRaw?: string
+}
+
 export type HttpClientOptions = {
   baseUrl?: string
   defaultHeaders?: HeadersInit
@@ -183,7 +198,7 @@ export const createHttpClient = (options: HttpClientOptions = {}) => {
   const defaultHeaders = options.defaultHeaders ?? {}
   const credentials = options.credentials ?? 'same-origin'
 
-  const requestJson = async <T>(path: string, requestOptions: RequestOptions = {}): Promise<T> => {
+  const requestText = async (path: string, requestOptions: RequestOptions = {}): Promise<string> => {
     if (requestOptions.delay) {
       await delay(requestOptions.delay, requestOptions.signal)
     }
@@ -204,20 +219,65 @@ export const createHttpClient = (options: HttpClientOptions = {}) => {
       )
     }
 
-    const text = await response.text()
+    return response.text()
+  }
+
+  const requestJson = async <T>(path: string, requestOptions: RequestOptions = {}): Promise<T> => {
+    const text = await requestText(path, requestOptions)
     const parsed = safeParseJson(text)
     if (requestOptions.strictJson && parsed === null) {
-      throw new Error(`Expected JSON response from ${response.url || url}.`)
+      const strictUrl = buildUrl(baseUrl, path, requestOptions.query, requestOptions.cacheBust)
+      throw new Error(`Expected JSON response from ${strictUrl}.`)
     }
     return (parsed ?? null) as T
+  }
+
+  const requestJsonIfChanged = async <T>(
+    path: string,
+    requestOptions: JsonIfChangedRequestOptions = {},
+  ): Promise<JsonIfChangedResult<T>> => {
+    const text = await requestText(path, requestOptions)
+    if (requestOptions.previousRaw !== undefined && requestOptions.previousRaw === text) {
+      return {
+        changed: false,
+        raw: text,
+      }
+    }
+
+    const parsed = safeParseJson(text)
+    if (requestOptions.strictJson && parsed === null) {
+      const strictUrl = buildUrl(baseUrl, path, requestOptions.query, requestOptions.cacheBust)
+      throw new Error(`Expected JSON response from ${strictUrl}.`)
+    }
+
+    return {
+      changed: true,
+      raw: text,
+      data: (parsed ?? null) as T,
+    }
   }
 
   const getJson = async <T>(path: string, requestOptions: RequestOptions = {}): Promise<T> => {
     return requestJson<T>(path, { ...requestOptions, method: 'GET' })
   }
 
+  const getJsonIfChanged = async <T>(
+    path: string,
+    requestOptions: JsonIfChangedRequestOptions = {},
+  ): Promise<JsonIfChangedResult<T>> => {
+    return requestJsonIfChanged<T>(path, { ...requestOptions, method: 'GET' })
+  }
+
+  const getText = async (path: string, requestOptions: RequestOptions = {}): Promise<string> => {
+    return requestText(path, { ...requestOptions, method: 'GET' })
+  }
+
   return {
+    requestText,
     requestJson,
+    requestJsonIfChanged,
+    getText,
     getJson,
+    getJsonIfChanged,
   }
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { HttpError, toHttpErrorInfo } from '@/shared/http'
+import { toHttpErrorInfo } from '@/shared/http'
+import { HttpError } from '@/shared/http/client'
 import { createHttpClient } from '@/shared/http/client'
 
 const mockFetch = vi.fn()
@@ -139,5 +140,77 @@ describe('shared http client', () => {
     await expect(client.getJson('/status/', { strictJson: true })).rejects.toThrow(
       'Expected JSON response',
     )
+  })
+
+  it('returns plain text responses without JSON parsing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      text: async () => 'OK',
+    })
+
+    const client = createHttpClient()
+    const result = await client.getText('/mcp/list/')
+
+    expect(result).toBe('OK')
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
+    expect(url).toContain('/mcp/list/')
+  })
+
+  it('returns changed payload metadata when JSON response differs', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      text: async () => JSON.stringify({ objects: [], mcp: true }),
+    })
+
+    const client = createHttpClient()
+    const result = await client.getJsonIfChanged('/transfer/status/', {
+      previousRaw: '{"objects":[],"mcp":false}',
+      strictJson: true,
+      cacheBust: true,
+    })
+
+    expect(result).toMatchObject({
+      changed: true,
+      data: { objects: [], mcp: true },
+    })
+    expect(result.raw).toContain('"mcp":true')
+  })
+
+  it('returns unchanged payload metadata when raw response is identical', async () => {
+    const raw = '{"objects":[],"mcp":true}'
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      text: async () => raw,
+    })
+
+    const client = createHttpClient()
+    const result = await client.getJsonIfChanged('/transfer/status/', {
+      previousRaw: raw,
+      strictJson: true,
+      cacheBust: true,
+    })
+
+    expect(result).toEqual({
+      changed: false,
+      raw,
+    })
+  })
+
+  it('sends CSRF header for unsafe API requests when csrftoken cookie exists', async () => {
+    document.cookie = 'csrftoken=test-csrf-token'
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      text: async () => JSON.stringify({ ok: true }),
+    })
+
+    const client = createHttpClient()
+    await client.requestJson('/api/test/', {
+      method: 'POST',
+      json: { a: 1 },
+    })
+
+    const [, init] = mockFetch.mock.calls[0] as [string, RequestInit?]
+    const headers = new Headers(init?.headers as HeadersInit)
+    expect(headers.get('X-CSRFToken')).toBe('test-csrf-token')
   })
 })

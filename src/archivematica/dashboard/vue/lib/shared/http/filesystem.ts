@@ -2,6 +2,13 @@ import { createHttpClient, openDownload } from './client'
 import type { RequestOptions } from './client'
 import type { Base64String } from '@/shared/encoding/base64'
 
+export type FilesystemEntryProperties = {
+  [key: string]: unknown
+  size?: number
+  modified?: string
+  display_string?: string
+}
+
 export type DirectoryEntry = {
   name: Base64String
   parent?: Base64String
@@ -11,11 +18,11 @@ export type DirectoryEntry = {
 export type FilesystemBrowseResponse = {
   entries: Base64String[]
   directories: Base64String[]
-  properties?: Record<Base64String, Record<string, unknown>>
+  properties?: Record<Base64String, FilesystemEntryProperties>
 }
 
 export type CopyMetadataFilesResponse = {
-  error?: string | boolean
+  error?: boolean
   message?: string
 }
 
@@ -26,6 +33,7 @@ export const getFilesystemContents = async (
   requestOptions: Omit<RequestOptions, 'query'> = {},
 ): Promise<DirectoryEntry> => {
   return http.getJson<DirectoryEntry>('/filesystem/contents/', {
+    strictJson: true,
     query: { path },
     ...requestOptions,
   })
@@ -36,6 +44,7 @@ export const getFilesystemChildren = async (
   path?: Base64String,
 ): Promise<FilesystemBrowseResponse> => {
   return http.getJson<FilesystemBrowseResponse>(`/filesystem/children/location/${locationUUID}/`, {
+    strictJson: true,
     query: path ? { path } : undefined,
   })
 }
@@ -52,6 +61,7 @@ export const copyMetadataFiles = async (
 
   return http.requestJson<CopyMetadataFilesResponse>('/filesystem/copy_metadata_files/', {
     method: 'POST',
+    strictJson: true,
     body: body.toString(),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',

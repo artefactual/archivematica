@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { HttpError, toHttpErrorInfo } from '@/shared/http'
+import { toHttpErrorInfo } from '@/shared/http'
+import { HttpError } from '@/shared/http/client'
 import { getStatus } from '@/shared/http/status'
 
 const mockFetch = vi.fn()
