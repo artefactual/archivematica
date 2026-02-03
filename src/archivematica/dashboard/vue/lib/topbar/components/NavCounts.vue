@@ -41,11 +41,13 @@ onMounted(() => {
   </Teleport>
 </template>
 
-<style scoped>
-.nav-count {
-  position: absolute;
-  top: 2px;
-  right: -6px;
+<style>
+.topbar a.nav-transfer,
+.topbar a.nav-ingest {
+  position: relative;
+}
+
+.topbar .nav-count {
   border-radius: 999px;
   background-color: red;
   color: white;
@@ -59,5 +61,18 @@ onMounted(() => {
   justify-content: center;
   line-height: 1;
   z-index: 10;
+  position: static;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+@media (min-width: 768px) {
+  .topbar .nav-count {
+    position: absolute;
+    top: 2px;
+    right: -6px;
+    margin-left: 0;
+    vertical-align: baseline;
+  }
 }
 </style>
