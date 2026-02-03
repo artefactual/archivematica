@@ -40,15 +40,12 @@ logger = logging.getLogger("archivematica.dashboard")
 
 
 def grid(request):
-    return render(
-        request,
-        "transfer/grid.html",
-        {
-            "polling_interval": django_settings.POLLING_INTERVAL,
-            "microservices_help": django_settings.MICROSERVICES_HELP,
-            "job_statuses": dict(models.Job.STATUS),
-        },
-    )
+    config = {
+        "polling_interval": django_settings.POLLING_INTERVAL,
+        "microservices_help": django_settings.MICROSERVICES_HELP,
+        "job_statuses": dict(models.Job.STATUS),
+    }
+    return render(request, "transfer/monitor.html", {"config": config})
 
 
 def transfer_source_locations(request):

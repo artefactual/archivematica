@@ -17,64 +17,62 @@ You should have received a copy of the GNU General Public License
 along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-Date.prototype.getArchivematicaDateTime = function()
-  {
-    return this.getArchivematicaDateString();
-  };
-
-Date.prototype.getArchivematicaDateString = function()
-  {
-    var pad = function (n)
-      {
-        return n < 10 ? '0' + n : n;
-      }
-
-    var dateText = this.getFullYear()
-      + '-' + pad(this.getMonth() + 1)
-      + '-' + pad(this.getDate())
-      + ' ' + pad(this.getHours())
-      + ':' + pad(this.getMinutes());
-
-    if (dateText == 'NaN-NaN-NaN NaN:NaN') {
-      dateText = '';
-    }
-
-    return dateText;
-  };
-
+// Converts a Unix timestamp in seconds to a local datetime string formatted as
+// "YYYY-MM-DD HH:mm".
+// TODO: use Intl.DateTimeFormat instead of manual formatting.
 function timestampToLocal(timestamp) {
-  // convert to milliseconds
-  'use strict';
   var date = new Date(timestamp * 1000);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
 
-  return date.getArchivematicaDateString();
+  const pad = (n) => String(n).padStart(2, '0');
+
+  const datePart = [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate())
+  ].join('-');
+
+  const timePart = [
+    pad(date.getHours()),
+    pad(date.getMinutes())
+  ].join(':');
+
+  return `${datePart} ${timePart}`;
 }
 
+// Converts an ISO datetime string to a localized date-time string.
 function datetimeToLocal(dt) {
-  // Converts an ISO formatted string to localtime
-  'use strict';
   var date = new Date(dt);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
   return date.toLocaleString();
 }
 
+// Localizes the text of .timestamp and .datetime elements.
 function localizeTimestampElements() {
-  'use strict';
   $('.timestamp').each(function() {
-    $(this).text(timestampToLocal($(this).text()));
+    const $el = $(this);
+    $el.text(timestampToLocal($el.text()));
   });
+
   $('.datetime').each(function() {
-    $(this).text(datetimeToLocal($(this).text()));
+    const $el = $(this);
+    $el.text(datetimeToLocal($el.text()));
   });
 }
 
-function getCookie(c_name) {
-  var i,x,y,ARRcookies=document.cookie.split(";");
-  for (i=0;i<ARRcookies.length;i++) {
-    x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-    y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-    x=x.replace(/^\s+|\s+$/g,"");
-    if (x==c_name) {
-      return unescape(y);
+// Returns the value of the cookie with the given name, or undefined.
+function getCookie(name) {
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [key, ...rest] = cookie.split('=');
+    if (key.trim() === name) {
+      return decodeURIComponent(rest.join('='));
     }
   }
+
+  return undefined;
 }

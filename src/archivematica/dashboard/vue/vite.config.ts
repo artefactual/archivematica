@@ -104,6 +104,7 @@ export default defineConfig(({ mode }) => {
           'aip-browser': resolve(__dirname, 'lib/aip-browser/index.ts'),
           'md-editor': resolve(__dirname, 'lib/md-editor/index.ts'),
           'topbar': resolve(__dirname, 'lib/topbar/index.ts'),
+          'monitor': resolve(__dirname, 'lib/monitor/index.ts'),
         },
         formats: ['es'],
       },

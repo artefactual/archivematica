@@ -7,6 +7,7 @@ export type ProcessingJob = {
   currentstep: number
   currentstep_label?: string
   timestamp: number
+  produces_tasks: boolean
   choices?: ProcessingChoiceMap
   link_id?: string
   filename?: string

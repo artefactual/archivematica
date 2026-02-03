@@ -45,3 +45,10 @@ const { t } = useI18n()
     {{ message }}
   </div>
 </template>
+
+<style scoped>
+.activity-indicator {
+  float: right;
+  display: none;
+}
+</style>

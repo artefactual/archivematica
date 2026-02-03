@@ -1,3 +1,4 @@
+export { default as HelpTooltip } from './HelpTooltip.vue'
 export { default as MultiAlert } from './MultiAlert.vue'
 export type { Alert } from './MultiAlert.vue'
 export { default as PathContainer } from './PathContainer.vue'

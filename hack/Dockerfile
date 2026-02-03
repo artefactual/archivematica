@@ -114,6 +114,7 @@ RUN set -ex \
 FROM node:${NODE_VERSION} AS archivematica-dashboard-vue-builder
 
 COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
+COPY --link src/archivematica/dashboard/media/images /src/src/archivematica/dashboard/media/images
 
 WORKDIR /src/src/archivematica/dashboard/vue
 

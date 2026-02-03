@@ -22,7 +22,7 @@ const parseDeleteResponse = (data: unknown): UnitDeleteResponse => {
   throw new Error('Unexpected "removed" field type in delete response.')
 }
 
-const tryParseConflictResponse = (err: unknown): UnitDeleteResponse | null => {
+const safeParseConflictResponse = (err: unknown): UnitDeleteResponse | null => {
   if (!(err instanceof HttpError)) return null
   if (err.status !== 409) return null
 
@@ -44,7 +44,7 @@ export const deleteUnit = async (unitType: UnitType, unitUuid: string): Promise<
     })
     return parseDeleteResponse(data)
   } catch (err) {
-    const parsed = tryParseConflictResponse(err)
+    const parsed = safeParseConflictResponse(err)
     if (parsed) return parsed
     throw err
   }

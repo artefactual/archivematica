@@ -1,0 +1,22 @@
+{% extends "layout_fluid.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Transfer" %}{% endblock %}
+{% block h1 %}{% trans "Transfer" %}{% endblock %}
+{% block page_id %}transfer{% endblock %}
+
+{% block js %}
+  <script type="module" src="{% static 'vue/browser.js' %}"></script>
+  <script type="module" src="{% static 'vue/monitor.js' %}"></script>
+  {{ config|json_script:"transfer-monitor-config" }}
+{% endblock %}
+
+{% block topbar %}
+  <div id="connection-status" class="pull-right"></div>
+{% endblock %}
+
+{% block content %}
+  <div id="transfer-browser"></div>
+  <div id="transfer-monitor"></div>
+{% endblock %}

@@ -62,18 +62,17 @@ def ingest_grid(request):
         messages.warning(
             request,
             _(
-                "Error retrieving originals directory locations: is the storage server running? Please contact an administrator."
+                "Error retrieving originals directory locations: "
+                "is the storage server running? "
+                "Please contact an administrator."
             ),
         )
-    return render(
-        request,
-        "ingest/grid.html",
-        {
-            "polling_interval": django_settings.POLLING_INTERVAL,
-            "microservices_help": django_settings.MICROSERVICES_HELP,
-            "job_statuses": dict(models.Job.STATUS),
-        },
-    )
+    config = {
+        "polling_interval": django_settings.POLLING_INTERVAL,
+        "microservices_help": django_settings.MICROSERVICES_HELP,
+        "job_statuses": dict(models.Job.STATUS),
+    }
+    return render(request, "ingest/monitor.html", {"config": config})
 
 
 class SipsView(View):

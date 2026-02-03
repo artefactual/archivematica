@@ -1,0 +1,20 @@
+﻿{% extends "layout_fluid.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Ingest" %}{% endblock %}
+{% block h1 %}{% trans "Ingest" %}{% endblock %}
+{% block page_id %}ingest{% endblock %}
+
+{% block js %}
+  <script type="module" src="{% static 'vue/monitor.js' %}"></script>
+  {{ config|json_script:"ingest-monitor-config" }}
+{% endblock %}
+
+{% block topbar %}
+  <div id="connection-status" class="pull-right"></div>
+{% endblock %}
+
+{% block content %}
+  <div id="ingest-monitor"></div>
+{% endblock %}
