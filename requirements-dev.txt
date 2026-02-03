@@ -10,7 +10,7 @@ amclient==1.6.0
     # via archivematica (pyproject.toml)
 ammcpc==0.3.0
     # via archivematica (pyproject.toml)
-asgiref==3.11.0
+asgiref==3.11.1
     # via django
 attrs==25.4.0
     # via
@@ -22,7 +22,7 @@ brotli==1.2.0
     # via archivematica (pyproject.toml)
 build==1.4.0
     # via pip-tools
-cachetools==6.2.4
+cachetools==7.0.0
     # via tox
 certifi==2026.1.4
     # via
@@ -40,15 +40,15 @@ click==8.3.1
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.13.1
+coverage[toml]==7.13.3
     # via
     #   archivematica (pyproject.toml)
     #   pytest-cov
-cryptography==46.0.3
+cryptography==46.0.4
     # via mozilla-django-oidc
 distlib==0.4.0
     # via virtualenv
-django==5.2.10
+django==5.2.11
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -92,7 +92,7 @@ greenlet==3.3.1
     # via
     #   gevent
     #   playwright
-gunicorn==24.1.0
+gunicorn==25.0.1
     # via archivematica (pyproject.toml)
 idna==3.11
     # via requests
@@ -126,7 +126,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via archivematica (pyproject.toml)
-orjson==3.11.5
+orjson==3.11.7
     # via archivematica (pyproject.toml)
 packaging==26.0
     # via
@@ -143,7 +143,7 @@ platformdirs==4.5.1
     # via
     #   tox
     #   virtualenv
-playwright==1.57.0
+playwright==1.58.0
     # via
     #   archivematica (pyproject.toml)
     #   pytest-playwright
@@ -168,7 +168,7 @@ pyee==13.0.0
     # via playwright
 pygments==2.19.2
     # via pytest
-pyjwt==2.10.1
+pyjwt==2.11.0
     # via
     #   archivematica (pyproject.toml)
     #   mozilla-django-oidc
@@ -276,7 +276,7 @@ zope-interface==8.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==25.3
+pip==26.0
     # via pip-tools
-setuptools==80.10.1
+setuptools==80.10.2
     # via pip-tools
