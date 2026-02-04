@@ -198,7 +198,6 @@ li.user > a {
 #sip-header-directory { width: 322px; }
 #sip-header-uuid { width: 310px; }
 #sip-header-timestamp { width: 180px; }
-#sip-header-actions { }
 
 .sip {
   width: 100%;
@@ -274,8 +273,6 @@ li.user > a {
 {
   background-image: url(/media/images/delete.png);
 }
-
-.btn_edit_metadata { background-image: url(/media/images/table_edit.png); }
 
 .sip-removing .sip-detail-actions > a,
 .sip:hover .sip-detail-actions > a,

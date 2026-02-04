@@ -135,67 +135,6 @@ $(function()
                       }
                   }]
             });
-        },
-
-       openMetadataEditor: function(event)
-        {
-          event.stopPropagation();
-          event.preventDefault();
-
-          var url = '/ingest/metadata/' + this.model.get('uuid') + '/';
-          var self = this;
-
-          var showDialog = function(data)
-            {
-              var dialog = $('<div class="metadata-dialog"></div>')
-                .append(_.template($('#metadata-dialog').html(), data))
-                .dialog({
-                  title: gettext('Dublin Core metadata editor'),
-                  width: 610,
-                  height: 480,
-                  modal: true,
-                  resizable: false,
-                  buttons: [
-                    {
-                      text: gettext('Close'),
-                      click: function()
-                        {
-                          $(this).dialog('close');
-                        }
-                    },
-                    {
-                      text: 'Save',
-                      click: function()
-                        {
-                          $.ajax({
-                            context: this,
-                            type: 'POST',
-                            dataType: 'json',
-                            data: $(this).find('form').serialize(),
-                            success: function()
-                              {
-                                $(this).dialog('close');
-                              },
-                            error: function()
-                              {
-                                alert(gettext('Error'));
-                              },
-                            url: url});
-                        }
-                    }]
-                });
-            };
-
-          $.ajax({
-            type: 'GET',
-            dataType: 'json',
-            success: function(data)
-              {
-                showDialog(data);
-              },
-            url: url
-          });
-
         }
     });
 
@@ -453,7 +392,6 @@ $(function()
 
     window.AppView = BaseAppView.extend({
       el: $('#sip-container'),
-      pagingCookie: 'archivematicaCurrentIngestPage',
       unitType: 'SIP'
     });
 

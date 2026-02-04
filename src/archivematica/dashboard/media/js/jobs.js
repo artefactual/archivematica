@@ -705,87 +705,6 @@ BaseAppView = Backbone.View.extend({
         });
     },
 
-  updateSips: function(objects)
-    {
-      var itemsPerPage = 5
-        , page = parseInt(getCookie(this.pagingCookie))
-        , page = (isNaN(page) || page == undefined) ? 1 : page
-        , itemsToSkip = (page - 1) * itemsPerPage
-        , totalPages = Math.ceil(objects.length / itemsPerPage)
-        , hasNextPage = page < totalPages;
-
-      setCookie(this.pagingCookie, page, 1);
-
-      for (i in objects)
-        {
-          if (i >= itemsToSkip && i < (itemsToSkip + itemsPerPage))
-            {
-              var sip = objects[i];
-
-              var item = Sips.find(function(item)
-                {
-                  return item.get('uuid') == sip.uuid;
-                });
-
-              if (undefined === item)
-                {
-                  // Add new sips
-                  Sips.add(sip);
-                }
-              else
-                {
-                  // Update sips
-                  item.set(sip);
-                  //if ($('#sip-row-' + sip.uuid).length) {
-                  $('#sip-row-' + sip.uuid).parent().show();
-                  //} else {
-                  //  Sips.add(sip);
-                  //}
-                }
-            }
-        }
-
-      // set up previous/next paging links
-      var self = this;
-
-      var $prev = $('<a href="#">' + gettext('Previous') + '</a>');
-
-      $prev.click(function() {
-        $('.sip').hide();
-        var page = parseInt(getCookie(self.pagingCookie));
-        setCookie(self.pagingCookie, page - 1, 1);
-        self.updateSips(objects);
-      });
-
-      $('.grid-pager-previous-area').empty();
-      if (page > 1)
-        {
-          $('.grid-pager-previous-area').append($prev);
-        }
-
-      var $next = $('<a href="#">' + gettext('Next') + '</a>');
-
-      $next.click(function() {
-        $('.sip').hide();
-        var page = parseInt(getCookie(self.pagingCookie));
-        setCookie(self.pagingCookie, page + 1, 1);
-        self.updateSips(objects);
-      });
-
-      $('.grid-pager-next-area').empty();
-      if (hasNextPage)
-        {
-          $('.grid-pager-next-area').append($next);
-        }
-
-      $('.grid-pager-summary-area').empty();
-      if (totalPages > 1)
-        {
-          var pageDescription = '(page ' + page + ' of ' + totalPages + ')';
-          $('.grid-pager-summary-area').text(pageDescription);
-        }
-    },
-
   // Check if the response from the API has changed since the last poll.
   hasResponseChanged: function(response)
     {
@@ -815,29 +734,23 @@ BaseAppView = Backbone.View.extend({
             var data = JSON.parse(response);
             var objects = data.objects;
 
-            if (getURLParameter('paged'))
+            for (i in objects)
               {
-                this.updateSips(objects);
-              } else {
-
-                for (i in objects)
+                var sip = objects[i];
+                var item = Sips.find(function(item)
                   {
-                    var sip = objects[i];
-                    var item = Sips.find(function(item)
-                      {
-                        return item.get('uuid') == sip.uuid;
-                      });
+                    return item.get('uuid') == sip.uuid;
+                  });
 
-                    if (undefined === item)
-                      {
-                        // Add new sips
-                        Sips.add(sip);
-                      }
-                    else
-                      {
-                        // Update sips
-                        item.set(sip);
-                      }
+                if (undefined === item)
+                  {
+                    // Add new sips
+                    Sips.add(sip);
+                  }
+                else
+                  {
+                    // Update sips
+                    item.set(sip);
                   }
               }
 

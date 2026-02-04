@@ -201,8 +201,7 @@ $(function()
     });
 
     window.AppView = BaseAppView.extend({
-      el: $('#sip-container'),
-      pagingCookie: 'archivematicaCurrentTransferPage'
+      el: $('#sip-container')
     });
 
     $.fn.tooltip = tooltipPlugin;
