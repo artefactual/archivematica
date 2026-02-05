@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block header %}{% endblock %}
 
@@ -7,7 +7,11 @@
 
   <div id="login">
 
-    <h1><a href="http://www.archivematica.org">Archivematica</a></h1>
+    <h1>
+      <a href="http://www.archivematica.org">
+        <img class="logo logo-login" src="{% static 'images/logo-dark.svg' %}" alt="Archivematica" />
+      </a>
+    </h1>
 
     <form class="form-stacked" method="post" action="{% url 'accounts:login' %}">
 

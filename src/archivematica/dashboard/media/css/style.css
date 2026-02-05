@@ -4,6 +4,30 @@ body {
 }
 
 /*
+ * Logos
+ */
+
+.logo {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.logo-welcome {
+  width: 469px;
+  margin: 0 0 20px 0;
+}
+
+.logo-login {
+  width: 240px;
+  margin: 0 auto 20px auto;
+}
+
+.logo-header {
+  width: 100%;
+}
+
+/*
  * Navigation bar
  */
 
@@ -596,17 +620,6 @@ textarea.command {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-
-}
-
-#login h1 {
-
-  background-image: url('../images/logo_login.gif');
-  background-size: 239px 28px;
-  background-position: top center;
-  background-repeat: no-repeat;
-  text-indent: -9999px;
-  overflow: hidden;
 
 }
 
