@@ -422,28 +422,10 @@ li.user > a {
   background-color: transparent;
 }
 
-#polling-notification {
-  position: absolute;
-  right: 32px;
-  top: 54px;
-  padding: 2px 4px 2px 22px;
-  font-size: 12px;
-  color: Red;
-  background: transparent url(/media/images/clock.png) no-repeat center left;
-}
-
 .activity-indicator {
   float: right;
   display: none;
 }
-
-/*
- * Preservation planning report
- */
-
-#page-preservation-planning table { }
-#page-preservation-planning table ul { list-style: none; }
-#page-preservation-planning table ul li { display: inline; }
 
 /*
  * Optimizations based in screen width
