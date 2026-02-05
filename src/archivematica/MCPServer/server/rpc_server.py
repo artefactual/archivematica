@@ -356,7 +356,7 @@ class RPCServer(GearmanWorker):
         if payload["type"] == "SIP":
             sql = """
             SELECT Jobs.SIPUUID,
-                   MAX(UNIX_TIMESTAMP(Jobs.createdTime) + Jobs.createdTimeDec) AS timestamp
+                   MAX(UNIX_TIMESTAMP(Jobs.createdTime)) AS timestamp
                 FROM Jobs
                 JOIN SIPs
                     ON Jobs.SIPUUID = SIPs.sipUUID
@@ -364,11 +364,11 @@ class RPCServer(GearmanWorker):
                     Jobs.unitType=%s
                     AND NOT Jobs.SIPUUID LIKE '%%None%%'
                     AND NOT SIPs.hidden
-                GROUP BY SIPUUID;"""
+                GROUP BY Jobs.SIPUUID;"""
         else:
             sql = """
-            SELECT SIPUUID,
-                   MAX(UNIX_TIMESTAMP(Jobs.createdTime) + Jobs.createdTimeDec) AS timestamp
+            SELECT Jobs.SIPUUID,
+                   MAX(UNIX_TIMESTAMP(Jobs.createdTime)) AS timestamp
                 FROM Jobs
                 JOIN Transfers
                     ON Jobs.SIPUUID = Transfers.transferUUID
@@ -376,7 +376,7 @@ class RPCServer(GearmanWorker):
                     Jobs.unitType=%s
                     AND NOT Jobs.SIPUUID LIKE '%%None%%'
                     AND NOT Transfers.hidden
-                GROUP BY SIPUUID;"""
+                GROUP BY Jobs.SIPUUID;"""
         with connection.cursor() as cursor:
             cursor.execute(sql, (model_attrs[1],))
             sipuuids_and_timestamps = cursor.fetchall()
@@ -391,7 +391,9 @@ class RPCServer(GearmanWorker):
                 "active": unit.active,
                 "jobs": [],
             }
-            jobs = Job.objects.filter(sipuuid=unit_id).order_by("-createdtime")
+            jobs = Job.objects.filter(sipuuid=unit_id).order_by(
+                "-createdtime", "-jobuuid"
+            )
             if jobs:
                 item["directory"] = jobs[0].get_directory_name()
             # Embed "Access System ID" in status data (used in Upload DIP).
@@ -415,9 +417,8 @@ class RPCServer(GearmanWorker):
                 new_job["uuid"] = str(job_.jobuuid)
                 new_job["link_id"] = str(job_.microservicechainlink)
                 new_job["currentstep"] = job_.currentstep
-                new_job["timestamp"] = "%d.%s" % (
-                    calendar.timegm(job_.createdtime.timetuple()),
-                    str(job_.createdtimedec).split(".")[-1],
+                new_job["timestamp"] = (
+                    f"{calendar.timegm(job_.createdtime.timetuple())}.{job_.createdtime.microsecond:06d}"
                 )
                 new_job["microservicegroup"] = link.get_label("group", lang)
                 new_job["type"] = link.get_label("description", lang)

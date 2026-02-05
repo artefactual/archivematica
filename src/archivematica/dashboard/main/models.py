@@ -826,9 +826,6 @@ class Job(models.Model):
     jobuuid = UUIDField(db_column="jobUUID", primary_key=True, default=uuid.uuid4)
     jobtype = models.CharField(max_length=250, db_column="jobType", blank=True)
     createdtime = models.DateTimeField(db_column="createdTime")
-    createdtimedec = models.DecimalField(
-        db_column="createdTimeDec", max_digits=26, decimal_places=10, default=0.0
-    )
     directory = models.TextField(blank=True)
     sipuuid = UUIDField(
         db_column="SIPUUID", db_index=True, default=uuid.uuid4
@@ -863,9 +860,13 @@ class Job(models.Model):
     class Meta:
         db_table = "Jobs"
         indexes = [
-            models.Index(fields=("sipuuid", "createdtime", "createdtimedec")),
             models.Index(
-                fields=("sipuuid", "jobtype", "createdtime", "createdtimedec")
+                fields=("sipuuid", "createdtime", "jobuuid"),
+                name="jobs_sipuuid_ctime_juidx",
+            ),
+            models.Index(
+                fields=("sipuuid", "jobtype", "createdtime", "jobuuid"),
+                name="jobs_sipuuid_jt_ctime_juidx",
             ),
             models.Index(
                 fields=(
@@ -877,7 +878,8 @@ class Job(models.Model):
             ),
             models.Index(fields=("jobtype", "currentstep")),
             models.Index(
-                fields=("unittype", "sipuuid", "createdtime", "createdtimedec")
+                fields=("unittype", "sipuuid", "createdtime", "jobuuid"),
+                name="jobs_unit_sip_ctime_juidx",
             ),
         ]
 

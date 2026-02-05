@@ -186,7 +186,7 @@ def get_unit_status(unit_uuid, unit_type):
     unit_jobs = (
         models.Job.objects.filter(sipuuid=unit_uuid)
         .filter(unittype=unit_type)
-        .order_by("-createdtime", "-createdtimedec")
+        .order_by("-createdtime", "-jobuuid")
     )
     # tentatively choose the job with the latest created time to be the current/last for the unit
     job = unit_jobs[0]

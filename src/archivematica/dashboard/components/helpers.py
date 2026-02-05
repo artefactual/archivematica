@@ -375,7 +375,7 @@ def completed_units_efficient(unit_type="transfer", include_failed=True):
         " INNER JOIN Jobs as j"
         f" ON j.SIPUUID = u.{pk_name}"
         " WHERE u.hidden = 0"
-        f" ORDER BY u.{pk_name}, j.createdTime DESC, j.createdTimeDec DESC;"
+        f" ORDER BY u.{pk_name}, j.createdTime DESC, j.jobUUID DESC;"
     )
     completed = set()
     current_uuid = None
