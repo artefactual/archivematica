@@ -91,10 +91,7 @@
   <script type="text/template" id="job-template">
     <div class="job-detail-microservice">
       <span class="job-type-label">{% trans "Job" %}</span>
-      <span title="<%= uuid %>">
-        <%= type %>
-        <% if (obj.filename) { %> (file: <i><%= filename %></i>)<% } %>
-      </span>
+      <span title="<%= uuid %>"><%= type %></span>
       <% tmp = window.microservices_help[type]; %>
       <% if (tmp !== undefined) { %>
         [<a href="#" title="<%= tmp %>">?</a>]
