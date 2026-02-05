@@ -373,10 +373,6 @@ li.user > a {
   font-size: 11px;
 }
 
-.task-dialog > table {
-  width: 100%;
-}
-
 .task-dialog a {
   color: Blue;
   text-decoration: none;

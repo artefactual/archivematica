@@ -505,39 +505,6 @@ var BaseJobView = Backbone.View.extend({
       this.model.view = this;
     },
 
-  taskDialog: function(data, options)
-    {
-      var dialog = $('<div class="task-dialog"><a name="tasks-dialog-top"></a></div>');
-
-      if (options == undefined) {
-        options = {};
-      }
-
-      if (options.width == undefined) {
-        options.width = 640;
-      }
-
-      if (options.height == undefined) {
-        options.height = 640;
-      }
-
-      var table = $('<table class="table"></table>');
-      table.append(data);
-      dialog.append(table)
-
-      return dialog.dialog({
-          title: interpolate(gettext('%(directory) &raquo; %(type) &raquo; Tasks'), {'directory': this.model.sip.get('directory'), 'type': this.model.get('type')}, true),
-          width: options.width,
-          height: options.height,
-          modal: true,
-          buttons: [
-            {
-              text: gettext('Close'),
-              click: function() { $(this).dialog('close'); }
-            }]
-        });
-    },
-
   showTasks: function(event)
     {
       event.preventDefault();
