@@ -80,7 +80,6 @@ class Job(metaclass=abc.ABCMeta):
             unittype=self.package.JOB_UNIT_TYPE,
             microservicegroup=self.group,
             createdtime=self.created_at,
-            createdtimedec=float(self.created_at.strftime("0.%f")),
             microservicechainlink=self.link.id,
         )
 

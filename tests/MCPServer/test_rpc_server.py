@@ -1,4 +1,3 @@
-import importlib.resources
 import threading
 import uuid
 from unittest import mock
@@ -8,7 +7,6 @@ from django.utils import timezone
 
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server import rpc_server
-from archivematica.MCPServer.server import workflow
 from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 
 TASK_PRODUCING_LINK_ID = "002716a1-ae29-4f36-98ab-0d97192669c4"
@@ -62,7 +60,7 @@ def test_units_statuses_handler_sets_produces_tasks_from_job_class(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_returns_transfers():
+def test_units_statuses_handler_returns_transfers(wf):
     transfer_uuid = str(uuid.uuid4())
     transfer = models.Transfer.objects.create(uuid=transfer_uuid)
     models.Job.objects.create(
@@ -74,12 +72,6 @@ def test_units_statuses_handler_returns_transfers():
     )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        wf = workflow.load(fp)
     shutdown_event = threading.Event()
     shutdown_event.set()
 
@@ -93,7 +85,7 @@ def test_units_statuses_handler_returns_transfers():
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_returns_sips():
+def test_units_statuses_handler_returns_sips(wf):
     sip_uuid = str(uuid.uuid4())
     sip = models.SIP.objects.create(uuid=sip_uuid)
     models.Job.objects.create(
@@ -105,12 +97,6 @@ def test_units_statuses_handler_returns_sips():
     )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        wf = workflow.load(fp)
     shutdown_event = threading.Event()
     shutdown_event.set()
 
@@ -122,7 +108,7 @@ def test_units_statuses_handler_returns_sips():
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_excludes_hidden_transfers():
+def test_units_statuses_handler_excludes_hidden_transfers(wf):
     visible_transfer_uuid = str(uuid.uuid4())
     hidden_transfer_uuid = str(uuid.uuid4())
     visible_transfer = models.Transfer.objects.create(
@@ -147,12 +133,6 @@ def test_units_statuses_handler_excludes_hidden_transfers():
     )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        wf = workflow.load(fp)
     shutdown_event = threading.Event()
     shutdown_event.set()
 
@@ -166,7 +146,7 @@ def test_units_statuses_handler_excludes_hidden_transfers():
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_excludes_hidden_sips():
+def test_units_statuses_handler_excludes_hidden_sips(wf):
     visible_sip_uuid = str(uuid.uuid4())
     hidden_sip_uuid = str(uuid.uuid4())
     visible_sip = models.SIP.objects.create(uuid=visible_sip_uuid, hidden=False)
@@ -187,12 +167,6 @@ def test_units_statuses_handler_excludes_hidden_sips():
     )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        wf = workflow.load(fp)
     shutdown_event = threading.Event()
     shutdown_event.set()
 
@@ -204,14 +178,8 @@ def test_units_statuses_handler_excludes_hidden_sips():
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_raises_error_when_type_missing():
+def test_units_statuses_handler_raises_error_when_type_missing(wf):
     package_queue = mock.MagicMock()
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        wf = workflow.load(fp)
     shutdown_event = threading.Event()
     shutdown_event.set()
 
@@ -224,14 +192,8 @@ def test_units_statuses_handler_raises_error_when_type_missing():
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_raises_error_when_lang_missing():
+def test_units_statuses_handler_raises_error_when_lang_missing(wf):
     package_queue = mock.MagicMock()
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        wf = workflow.load(fp)
     shutdown_event = threading.Event()
     shutdown_event.set()
 

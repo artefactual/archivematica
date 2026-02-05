@@ -2,14 +2,16 @@ import importlib.resources
 
 import pytest
 
-from archivematica.MCPServer.server import workflow as workflow_module
+from archivematica.MCPServer.server import workflow
 
 
 @pytest.fixture
 def wf():
-    with open(
+    resource = (
         importlib.resources.files("archivematica.MCPServer")
         / "assets"
         / "workflow.json"
-    ) as fp:
-        return workflow_module.load(fp)
+    )
+    with importlib.resources.as_file(resource) as workflow_path:
+        with open(workflow_path) as fp:
+            return workflow.load(fp)

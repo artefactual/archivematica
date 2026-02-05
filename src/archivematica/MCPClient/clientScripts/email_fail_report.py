@@ -124,7 +124,7 @@ def get_unit_job_log_html(sip_uuid):
     rows = (
         Job.objects.filter(sipuuid=sip_uuid)
         .exclude(jobtype="Email fail report")
-        .order_by("-createdtime", "-createdtimedec")
+        .order_by("-createdtime", "-jobuuid")
         .values_list("jobtype", "currentstep", "createdtime")
     )
     html = HTML.table(rows, header_row=["Type", "Status", "Started"])
