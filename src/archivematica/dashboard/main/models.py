@@ -853,7 +853,6 @@ class Job(models.Model):
     microservicechainlink = UUIDField(
         default=uuid.uuid4, null=True, blank=True, db_column="MicroServiceChainLinksPK"
     )
-    subjobof = models.CharField(max_length=36, db_column="subJobOf", blank=True)
 
     objects = JobQuerySet.as_manager()
 
