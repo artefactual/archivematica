@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:18+0000\n"
+"POT-Creation-Date: 2026-02-07 11:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Language-Team: Portuguese (https://www.transifex.com/artefactual/teams/1506/"
 "pt/)\n"
@@ -175,7 +175,7 @@ msgstr ""
 #: media/js/archival_storage/archival_storage_search.js:252
 #: media/js/archival_storage/archival_storage_search.js:267
 #: media/js/backlog/backlog-search.js:44 media/js/backlog/backlog-search.js:56
-#: media/js/ingest.js:224 media/js/transfer.js:161
+#: media/js/ingest.js:163 media/js/transfer.js:161
 msgid "Actions"
 msgstr ""
 
@@ -350,7 +350,7 @@ msgid "Yes"
 msgstr ""
 
 #: media/js/directory_picker.js:90 media/js/file_browser.js:178
-#: media/js/ingest.js:131 media/js/jobs.js:633
+#: media/js/ingest.js:131 media/js/jobs.js:600
 msgid "Cancel"
 msgstr ""
 
@@ -398,31 +398,19 @@ msgstr ""
 msgid "Remove SIP"
 msgstr ""
 
-#: media/js/ingest.js:102 media/js/jobs.js:601 media/js/transfer.js:102
+#: media/js/ingest.js:102 media/js/jobs.js:568 media/js/transfer.js:102
 msgid "Confirm"
 msgstr ""
 
-#: media/js/ingest.js:153
-msgid "Dublin Core metadata editor"
-msgstr ""
-
-#: media/js/ingest.js:160 media/js/jobs.js:535
-msgid "Close"
-msgstr ""
-
-#: media/js/ingest.js:181
-msgid "Error"
-msgstr ""
-
-#: media/js/ingest.js:240
+#: media/js/ingest.js:179
 msgid "Report"
 msgstr ""
 
-#: media/js/ingest.js:243
+#: media/js/ingest.js:182
 msgid "Match DIP objects to resources"
 msgstr ""
 
-#: media/js/ingest.js:302
+#: media/js/ingest.js:241
 msgid "Loading..."
 msgstr ""
 
@@ -466,42 +454,30 @@ msgstr ""
 msgid "Review"
 msgstr ""
 
-#: media/js/jobs.js:529
-msgid "%(directory) &raquo; %(type) &raquo; Tasks"
-msgstr ""
-
-#: media/js/jobs.js:591
+#: media/js/jobs.js:558
 msgid ""
 "Are you sure you want to remove all completed %(unit)ss from the dashboard? "
 "Note that this does not delete the %(unit)ss or related entities."
 msgstr ""
 
-#: media/js/jobs.js:597
+#: media/js/jobs.js:564
 #, javascript-format
 msgid "Remove All Completed %ss"
 msgstr ""
 
-#: media/js/jobs.js:611
+#: media/js/jobs.js:578
 #, javascript-format
 msgid "There were no completed %ss to remove"
 msgstr ""
 
-#: media/js/jobs.js:615
+#: media/js/jobs.js:582
 #, javascript-format
 msgid "Successfully removed the following %ss: %s"
 msgstr ""
 
-#: media/js/jobs.js:621
+#: media/js/jobs.js:588
 #, javascript-format
 msgid "Failed to remove all completed %ss"
-msgstr ""
-
-#: media/js/jobs.js:751
-msgid "Previous"
-msgstr ""
-
-#: media/js/jobs.js:766
-msgid "Next"
 msgstr ""
 
 #: media/js/repeating-ajax-data.js:217

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 15:18+0000\n"
+"POT-Creation-Date: 2026-02-08 07:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Swedish (https://www.transifex.com/artefactual/teams/1506/"
@@ -712,9 +712,9 @@ msgstr "Var god skriv UUIDet för att bekräfta"
 #: fpr/templates/fpr/idtool/detail.html:23
 #: fpr/templates/fpr/revisions/list.html:25
 #: templates/administration/reports/failures.html:27
-#: templates/archival_storage/view.html:63 templates/ingest/grid.html:57
-#: templates/ingest/grid.html:78 templates/transfer/grid.html:76
-#: templates/transfer/grid.html:98
+#: templates/archival_storage/view.html:63 templates/ingest/grid.html:54
+#: templates/ingest/grid.html:72 templates/transfer/grid.html:71
+#: templates/transfer/grid.html:88
 msgid "UUID"
 msgstr "UUID"
 
@@ -800,7 +800,7 @@ msgstr "Krypterad"
 
 #: components/archival_storage/views.py:220
 #: templates/archival_storage/view.html:83
-#: templates/ingest/normalization_report.html:31
+#: templates/ingest/normalization_report.html:30
 msgid "Location"
 msgstr "Plats"
 
@@ -877,6 +877,104 @@ msgstr "Följande fel uppstod: %(message)s"
 #: components/filesystem_ajax/views.py:350
 msgid "Files added successfully."
 msgstr "Tilläggande av filer lyckades."
+
+# Contextual help migrated from metadata templates to forms
+#: components/ingest/forms.py:29
+#, python-brace-format
+msgid "A name given to the resource. ({iso15836})"
+msgstr "Ett namn för denna resurs ({iso15836})"
+
+#: components/ingest/forms.py:31
+#, python-brace-format
+msgid "An entity primarily responsible for making the resource. ({iso15836})"
+msgstr ""
+"En entitet som är huvudsakligt ansvarig för att skapa resursen. ({iso15836})"
+
+#: components/ingest/forms.py:33
+#, python-brace-format
+msgid "The topic of the resource. ({iso15836})"
+msgstr "Resursens ämne. ({iso15836})"
+
+#: components/ingest/forms.py:34
+#, python-brace-format
+msgid "An account of the resource. ({iso15836})"
+msgstr "En redogörelse för resursen. ({iso15836})"
+
+#: components/ingest/forms.py:36
+#, python-brace-format
+msgid "An entity responsible for making the resource available. ({iso15836})"
+msgstr ""
+"En entitet som ansvarar för att göra resursen tillgänglig. ({iso15836})"
+
+#: components/ingest/forms.py:39
+#, python-brace-format
+msgid ""
+"An entity responsible for making contributions to the resource. ({iso15836})"
+msgstr "En entitet som ansvarar för att bidra till resursen. ({iso15836})"
+
+#: components/ingest/forms.py:43
+#, python-brace-format
+msgid ""
+"A point or period of time associated with an event in the lifecycle of the "
+"resource. ({iso15836})"
+msgstr ""
+"En punkt eller period av tid som associeras med en händelse i resursens "
+"livscykel. ({iso15836})"
+
+#: components/ingest/forms.py:47
+#, python-brace-format
+msgid ""
+"The file format, physical medium, or dimensions of the resource. "
+"({iso15836}) Best practice is to use a controlled vocabulary such as the "
+"{mime_link}."
+msgstr ""
+"Filformat, fysiskt medium eller dimensioner som resursen har. ({iso15836}) "
+"God praxis är att använda ett kontrollerat vokabulär, såsom {mime_link}."
+
+#: components/ingest/forms.py:52
+#, python-brace-format
+msgid ""
+"An unambiguous reference to the resource within a given context. ({iso15836})"
+msgstr "En entydig referens till resursen inom en given kontext. ({iso15836})"
+
+#: components/ingest/forms.py:56
+#, python-brace-format
+msgid ""
+"A related resource from which the described resource is derived. ({iso15836})"
+msgstr ""
+"En relaterad resurs från vilken den beskrivna resursen är bearbetad. "
+"({iso15836})"
+
+#: components/ingest/forms.py:59
+#, python-brace-format
+msgid "A related resource. ({iso15836})"
+msgstr "En relaterad resurs. ({iso15836})"
+
+#: components/ingest/forms.py:60
+#, python-brace-format
+msgid "A language of the resource. ({iso15836})"
+msgstr "Ett språk för denna resurs. ({iso15836})"
+
+#: components/ingest/forms.py:62
+#, python-brace-format
+msgid ""
+"The spatial or temporal topic of the resource, the spatial applicability of "
+"the resource, or the jurisdiction under which the resource is relevant. "
+"({iso15836})"
+msgstr ""
+"Resursens rumsliga eller den tidsmässiga tema, resursens rumsliga "
+"tillämplighet, eller den jurisdiktion under vilken resursen är relevant. "
+"({iso15836})"
+
+#: components/ingest/forms.py:67
+#, python-brace-format
+msgid "Information about rights held in and over the resource. ({iso15836})"
+msgstr ""
+"Information om rättigheter som lagras i och över resursen. ({iso15836})"
+
+#: components/ingest/forms.py:122
+msgid "Internet Media Types (MIME) registry"
+msgstr "registret över medietyper på internet (MIME)"
 
 #: components/ingest/views.py:65
 #, fuzzy
@@ -1163,7 +1261,7 @@ msgstr ""
 
 #: fpr/models.py:161 fpr/templates/fpr/format/version/detail.html:31
 #: fpr/templates/fpr/fprule/list.html:30 fpr/templates/fpr/idrule/list.html:28
-#: templates/ingest/normalization_report.html:32
+#: templates/ingest/normalization_report.html:31
 msgid "Format"
 msgstr "Format"
 
@@ -1667,11 +1765,11 @@ msgstr ""
 #: templates/accounts/edit.html:40 templates/accounts/profile.html:45
 #: templates/administration/processing_edit.html:40
 #: templates/delete_request.html:20 templates/ingest/as/match.html:129
-#: templates/ingest/grid.html:161 templates/ingest/metadata_edit.html:67
+#: templates/ingest/grid.html:131 templates/ingest/metadata_edit.html:46
 #: templates/rights/rights_edit.html:291 templates/rights/rights_edit.html:293
 #: templates/rights/rights_grants_edit.html:112
 #: templates/rights/rights_grants_edit.html:114
-#: templates/simple_confirm.html:11 templates/transfer/metadata_edit.html:66
+#: templates/simple_confirm.html:11 templates/transfer/metadata_edit.html:45
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1739,11 +1837,11 @@ msgstr "Åtgärder"
 #: fpr/templates/fpr/idtool/detail.html:33
 #: fpr/templates/fpr/idtool/list.html:43 templates/accounts/list.html:41
 #: templates/administration/processing.html:27
-#: templates/ingest/metadata_edit.html:33 templates/rights/rights_edit.html:19
+#: templates/ingest/metadata_edit.html:12 templates/rights/rights_edit.html:19
 #: templates/rights/rights_grants_edit.html:19
 #: templates/rights/rights_list.html:12 templates/rights/rights_list.html:54
 #: templates/rights/rights_list.html:57 templates/transfer/detail.html:50
-#: templates/transfer/metadata_edit.html:32
+#: templates/transfer/metadata_edit.html:11
 msgid "Edit"
 msgstr "Redigera"
 
@@ -1814,13 +1912,13 @@ msgstr ""
 #: fpr/templates/fpr/idrule/list.html:43
 #: fpr/templates/fpr/idtool/detail.html:30
 #: fpr/templates/fpr/idtool/detail.html:61
-#: templates/ingest/normalization_report.html:39
-#: templates/ingest/normalization_report.html:45
-#: templates/ingest/normalization_report.html:66
-#: templates/ingest/normalization_report.html:72
-#: templates/ingest/normalization_report.html:74
-#: templates/ingest/normalization_report.html:80
-#: templates/ingest/normalization_report.html:85
+#: templates/ingest/normalization_report.html:38
+#: templates/ingest/normalization_report.html:44
+#: templates/ingest/normalization_report.html:65
+#: templates/ingest/normalization_report.html:71
+#: templates/ingest/normalization_report.html:73
+#: templates/ingest/normalization_report.html:79
+#: templates/ingest/normalization_report.html:84
 msgid "Yes,No"
 msgstr "Ja,Nej"
 
@@ -1868,10 +1966,10 @@ msgstr ""
 #: templates/administration/premis_agent.html:25
 #: templates/administration/processing_edit.html:39
 #: templates/administration/term_detail.html:35
-#: templates/ingest/metadata_edit.html:63 templates/rights/rights_edit.html:286
+#: templates/ingest/metadata_edit.html:42 templates/rights/rights_edit.html:286
 #: templates/rights/rights_grants_edit.html:107
 #: templates/transfer/component.html:55
-#: templates/transfer/metadata_edit.html:62
+#: templates/transfer/metadata_edit.html:41
 msgid "Save"
 msgstr "Spara"
 
@@ -2255,7 +2353,7 @@ msgstr "Konfigurering"
 #: fpr/templates/fpr/idtool/detail.html:49
 #: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
 #: templates/ingest/as/match.html:120
-#: templates/ingest/as/review_matches.html:31 templates/ingest/grid.html:152
+#: templates/ingest/as/review_matches.html:31 templates/ingest/grid.html:122
 msgid "Identifier"
 msgstr "Signum"
 
@@ -3084,11 +3182,11 @@ msgstr "Uppdatera"
 msgid "First"
 msgstr "Först"
 
-#: templates/_pager.html:13 templates/ingest/normalization_report.html:115
+#: templates/_pager.html:13 templates/ingest/normalization_report.html:114
 msgid "Previous"
 msgstr "Föregående"
 
-#: templates/_pager.html:35 templates/ingest/normalization_report.html:121
+#: templates/_pager.html:35 templates/ingest/normalization_report.html:120
 #: templates/rights/rights_edit.html:288
 msgid "Next"
 msgstr "Nästa"
@@ -3126,8 +3224,8 @@ msgstr "Användare"
 msgid "Add new user"
 msgstr "Lägg till ny användare"
 
-#: templates/accounts/add.html:35 templates/ingest/metadata_edit.html:65
-#: templates/installer/welcome.html:50 templates/transfer/metadata_edit.html:64
+#: templates/accounts/add.html:35 templates/ingest/metadata_edit.html:44
+#: templates/installer/welcome.html:50 templates/transfer/metadata_edit.html:43
 msgid "Create"
 msgstr "Skapa"
 
@@ -3164,11 +3262,11 @@ msgstr "Du är utloggad."
 msgid "Log in again"
 msgstr "Logga in igen"
 
-#: templates/accounts/login.html:21
+#: templates/accounts/login.html:25
 msgid "Forgot your password?"
 msgstr "Glömt lösenord?"
 
-#: templates/accounts/login.html:22
+#: templates/accounts/login.html:26
 msgid "Log in"
 msgstr "Logga in"
 
@@ -3352,8 +3450,8 @@ msgid "Path"
 msgstr "§"
 
 #: templates/administration/locations.html:44
-#: templates/ingest/normalization_report.html:60
-#: templates/ingest/normalization_report.html:100
+#: templates/ingest/normalization_report.html:59
+#: templates/ingest/normalization_report.html:99
 msgid "N/A"
 msgstr "Ej tillgänglig"
 
@@ -3393,12 +3491,12 @@ msgid ""
 msgstr "Följande filer ignoreras då de inte når kraven."
 
 #: templates/administration/processing.html:59 templates/ingest/detail.html:43
-#: templates/ingest/detail.html:49 templates/ingest/metadata_edit.html:34
+#: templates/ingest/detail.html:49 templates/ingest/metadata_edit.html:13
 #: templates/rights/rights_edit.html:20
 #: templates/rights/rights_grants_edit.html:20
 #: templates/rights/rights_list.html:13 templates/rights/rights_list.html:82
 #: templates/rights/rights_list.html:84 templates/transfer/detail.html:44
-#: templates/transfer/detail.html:57 templates/transfer/metadata_edit.html:33
+#: templates/transfer/detail.html:57 templates/transfer/metadata_edit.html:12
 msgid "Add"
 msgstr "Lägg till"
 
@@ -3661,7 +3759,7 @@ msgstr "Visa filer?"
 msgid "Pointer file"
 msgstr "Pointer-fil"
 
-#: templates/archival_storage/view.html:109 templates/ingest/grid.html:143
+#: templates/archival_storage/view.html:109 templates/ingest/grid.html:113
 msgid "Upload DIP"
 msgstr "Ladda upp DIP"
 
@@ -3674,7 +3772,7 @@ msgstr "Återingestera"
 msgid "Metadata-only DIP upload to AtoM"
 msgstr "Ladda upp DIP med enbart metadata till AtoM"
 
-#: templates/archival_storage/view.html:125 templates/ingest/grid.html:160
+#: templates/archival_storage/view.html:125 templates/ingest/grid.html:130
 msgid "Upload"
 msgstr "Ladda upp"
 
@@ -3731,7 +3829,7 @@ msgstr "AIP"
 #: templates/ingest/aip_browse.html:36 templates/ingest/detail.html:10
 #: templates/ingest/grid.html:5 templates/ingest/grid.html:6
 #: templates/ingest/metadata_add_files.html:31
-#: templates/ingest/metadata_edit.html:31
+#: templates/ingest/metadata_edit.html:10
 #: templates/ingest/microservices.html:11 templates/layout.html:62
 #: templates/rights/rights_edit.html:16
 #: templates/rights/rights_grants_edit.html:16
@@ -3878,7 +3976,7 @@ msgstr "Avsluta matchning"
 msgid "Search transfer backlog"
 msgstr "Sök i överföringarnas backlogg"
 
-#: templates/ingest/detail.html:16 templates/ingest/grid.html:56
+#: templates/ingest/detail.html:16 templates/ingest/grid.html:53
 msgid "Submission Information Package"
 msgstr "Submission Information Package"
 
@@ -3912,9 +4010,9 @@ msgstr "Micro-servicear"
 msgid "Rights"
 msgstr "Rättigheter"
 
-#: templates/ingest/detail.html:46 templates/ingest/grid.html:83
-#: templates/ingest/metadata_edit.html:32 templates/transfer/detail.html:54
-#: templates/transfer/grid.html:103 templates/transfer/metadata_edit.html:31
+#: templates/ingest/detail.html:46 templates/ingest/grid.html:77
+#: templates/ingest/metadata_edit.html:11 templates/transfer/detail.html:54
+#: templates/transfer/grid.html:93 templates/transfer/metadata_edit.html:10
 msgid "Metadata"
 msgstr "Metadata"
 
@@ -3926,37 +4024,37 @@ msgstr "Detaljer över manuell normaliserings-händelse"
 msgid "Add metadata files"
 msgstr "Lägg till metadatafiler"
 
-#: templates/ingest/grid.html:58
+#: templates/ingest/grid.html:55
 msgid "Ingest start time"
 msgstr "Starttid för ingest"
 
-#: templates/ingest/grid.html:61 templates/transfer/grid.html:79
+#: templates/ingest/grid.html:58 templates/transfer/grid.html:74
 msgid "Remove all completed"
 msgstr "Ta bort alla avklarade"
 
-#: templates/ingest/grid.html:84 templates/transfer/grid.html:104
+#: templates/ingest/grid.html:78 templates/transfer/grid.html:94
 msgid "Remove"
 msgstr "Ta bort"
 
-#: templates/ingest/grid.html:93 templates/transfer/grid.html:113
+#: templates/ingest/grid.html:87 templates/transfer/grid.html:103
 msgid "Microservice"
 msgstr "Micro-service"
 
-#: templates/ingest/grid.html:99 templates/transfer/grid.html:119
+#: templates/ingest/grid.html:93 templates/transfer/grid.html:109
 msgid "Job"
 msgstr "Jobb"
 
-#: templates/ingest/grid.html:113 templates/main/tasks.html:16
-#: templates/transfer/grid.html:130
+#: templates/ingest/grid.html:104 templates/main/tasks.html:16
+#: templates/transfer/grid.html:120
 msgid "Tasks"
 msgstr "Uppgifter"
 
-#: templates/ingest/grid.html:146
+#: templates/ingest/grid.html:116
 msgid ""
 "Please provide the identifier required by the AtoM SWORD V1 deposit endpoint."
 msgstr ""
 
-#: templates/ingest/grid.html:148
+#: templates/ingest/grid.html:118
 msgid ""
 "<strong>AtoM:</strong> In AtoM, this is the permalink or slug of the target "
 "archival description where the DIP will be attached as a child. For example, "
@@ -3968,169 +4066,54 @@ msgstr ""
 msgid "Select a directory"
 msgstr "Välj en mapp"
 
-#: templates/ingest/metadata_edit.html:78
-#: templates/transfer/metadata_edit.html:77
-msgid "A name given to the resource."
-msgstr "Ett namn för denna resurs"
-
-#: templates/ingest/metadata_edit.html:82
-#: templates/transfer/metadata_edit.html:81
-msgid "An entity primarily responsible for making the resource."
-msgstr "En entitet som är huvudsakligt ansvarig för att skapa resursen."
-
-#: templates/ingest/metadata_edit.html:86
-#: templates/transfer/metadata_edit.html:85
-msgid "The topic of the resource."
-msgstr "Resursens ämne."
-
-#: templates/ingest/metadata_edit.html:90
-#: templates/transfer/metadata_edit.html:89
-msgid "An account of the resource."
-msgstr "En redogörelse för resursen."
-
-#: templates/ingest/metadata_edit.html:94
-#: templates/transfer/metadata_edit.html:93
-msgid "An entity responsible for making the resource available."
-msgstr "En entitet som ansvarar för att göra resursen tillgänglig."
-
-#: templates/ingest/metadata_edit.html:98
-#: templates/transfer/metadata_edit.html:97
-msgid "An entity responsible for making contributions to the resource."
-msgstr "En entitet som ansvarar för att bidra till resursen."
-
-#: templates/ingest/metadata_edit.html:102
-#: templates/transfer/metadata_edit.html:101
-msgid ""
-"A point or period of time associated with an event in the lifecycle of the "
-"resource."
-msgstr ""
-"En punkt eller period av tid som associeras med en händelse i resursens "
-"livscykel."
-
-#: templates/ingest/metadata_edit.html:107
-#: templates/transfer/metadata_edit.html:106
-msgid "The nature or genre of the resource."
-msgstr "Resursens karaktär eller genre."
-
-#: templates/ingest/metadata_edit.html:109
-#: templates/transfer/metadata_edit.html:108
-msgid ""
-"\n"
-"        You may wish to use the DCMI type vocabulary provided here: <a "
-"href=\"http://dublincore.org/documents/dcmi-type-vocabulary/\">http://"
-"dublincore.org/documents/dcmi-type-vocabulary/</a>\n"
-"      "
-msgstr ""
-"\n"
-"        Du kommer eventuellt vilja använda det vokabulär över DCMI-typer som "
-"ges här  <a href=\"http://dublincore.org/documents/dcmi-type-vocabulary/"
-"\">http://dublincore.org/documents/dcmi-type-vocabulary/</a>\n"
-"      "
-
-#: templates/ingest/metadata_edit.html:117
-#: templates/transfer/metadata_edit.html:116
-msgid "The file format, physical medium, or dimensions of the resource."
-msgstr "Filformat, fysiskt medium eller dimensioner som resursen har."
-
-#: templates/ingest/metadata_edit.html:119
-#: templates/transfer/metadata_edit.html:118
-msgid ""
-"\n"
-"        Best practice is to use a controlled vocabulary such as the list of "
-"Internet Media Types [MIME] provided here: <a href=\"http://www.iana.org/"
-"assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/"
-"media-types/</a>\n"
-"      "
-msgstr ""
-"\n"
-"        God praxis är att använda ett kontrollerat vokabulär så som listan "
-"på Internet Media Typer [MIME] som ges här: <a href=\"http://www.iana.org/"
-"assignments/media-types/\" target=\"_blank\">http://www.iana.org/assignments/"
-"media-types/</a>\n"
-"      "
-
-#: templates/ingest/metadata_edit.html:126
-#: templates/transfer/metadata_edit.html:125
-msgid "An unambiguous reference to the resource within a given context."
-msgstr "En entydig referens till resursen inom en given kontext."
-
-#: templates/ingest/metadata_edit.html:130
-#: templates/transfer/metadata_edit.html:129
-msgid "A related resource from which the described resource is derived."
-msgstr "En relaterad resurs från vilken den beskrivna resursen är bearbetad."
-
-#: templates/ingest/metadata_edit.html:134
-#: templates/transfer/metadata_edit.html:133
-msgid "A related resource."
-msgstr "En relaterad resurs."
-
-#: templates/ingest/metadata_edit.html:138
-#: templates/transfer/metadata_edit.html:137
-msgid "A language of the resource."
-msgstr "Ett språk för denna resurs."
-
-#: templates/ingest/metadata_edit.html:142
-#: templates/transfer/metadata_edit.html:141
-msgid ""
-"The spatial or temporal topic of the resource, the spatial applicability of "
-"the resource, or the jurisdiction under which the resource is relevant."
-msgstr ""
-"Resursens rumsliga eller den tidsmässiga tema, resursens rumsliga "
-"tillämplighet, eller den jurisdiktion under vilken resursen är relevant."
-
-#: templates/ingest/metadata_edit.html:146
-#: templates/transfer/metadata_edit.html:145
-msgid "Information about rights held in and over the resource."
-msgstr "Information om rättigheter som lagras i och över resursen."
-
-#: templates/ingest/normalization_report.html:14 templates/main/tasks.html:36
+#: templates/ingest/normalization_report.html:13 templates/main/tasks.html:36
 msgid "File name"
 msgstr "Filnamn"
 
-#: templates/ingest/normalization_report.html:15
+#: templates/ingest/normalization_report.html:14
 msgid "File format"
 msgstr "Filformat"
 
-#: templates/ingest/normalization_report.html:16
+#: templates/ingest/normalization_report.html:15
 msgid "Preservation normalization attempted"
 msgstr "Ett försök till normalisering för bevarande utfört"
 
-#: templates/ingest/normalization_report.html:17
+#: templates/ingest/normalization_report.html:16
 msgid "Preservation normalization failed"
 msgstr "Normalisering för bevarande misslyckades"
 
-#: templates/ingest/normalization_report.html:18
+#: templates/ingest/normalization_report.html:17
 msgid "Preservation conformance check"
 msgstr "Kontroll av överensstämmelse med bevarandeformat"
 
-#: templates/ingest/normalization_report.html:19
+#: templates/ingest/normalization_report.html:18
 msgid "Already in preservation format"
 msgstr "Redan i bevarandeformat"
 
-#: templates/ingest/normalization_report.html:20
+#: templates/ingest/normalization_report.html:19
 msgid "Access normalization attempted"
 msgstr "Försök till normalisering för åtkomst utfört"
 
-#: templates/ingest/normalization_report.html:21
+#: templates/ingest/normalization_report.html:20
 msgid "Access normalization failed"
 msgstr "Normalisering för åtkomst misslyckades"
 
-#: templates/ingest/normalization_report.html:22
+#: templates/ingest/normalization_report.html:21
 msgid "Already in access format"
 msgstr "Redan i åtkomstformat."
 
-#: templates/ingest/normalization_report.html:23
+#: templates/ingest/normalization_report.html:22
 msgid "Access conformance check"
 msgstr "Kontroll av överenstämmelse med åtkomstformat"
 
-#: templates/ingest/normalization_report.html:55
-#: templates/ingest/normalization_report.html:57
-#: templates/ingest/normalization_report.html:95
-#: templates/ingest/normalization_report.html:97
+#: templates/ingest/normalization_report.html:54
+#: templates/ingest/normalization_report.html:56
+#: templates/ingest/normalization_report.html:94
+#: templates/ingest/normalization_report.html:96
 msgid "Failed,Passed"
 msgstr "Misslyckades,Lyckades"
 
-#: templates/ingest/normalization_report.html:110
+#: templates/ingest/normalization_report.html:109
 #, python-format
 msgid ""
 "\n"
@@ -4177,8 +4160,8 @@ msgstr "Archivematica översiktsvy"
 #: templates/rights/rights_grants_edit.html:18
 #: templates/rights/rights_list.html:11 templates/transfer/component.html:10
 #: templates/transfer/detail.html:9 templates/transfer/grid.html:5
-#: templates/transfer/grid.html:6 templates/transfer/grid.html:75
-#: templates/transfer/metadata_edit.html:30
+#: templates/transfer/grid.html:6 templates/transfer/grid.html:70
+#: templates/transfer/metadata_edit.html:9
 #: templates/transfer/microservices.html:10
 msgid "Transfer"
 msgstr "Transfer"
@@ -4407,6 +4390,6 @@ msgstr "Visa micro-servicear"
 msgid "Transfer metadata"
 msgstr "Överföringens metadata"
 
-#: templates/transfer/grid.html:77
+#: templates/transfer/grid.html:72
 msgid "Transfer start time"
 msgstr "Överföringens starttid"

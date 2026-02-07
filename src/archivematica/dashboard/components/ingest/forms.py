@@ -16,11 +16,58 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 from django import forms
 from django.conf import settings
+from django.utils.html import format_html
+from django.utils.html import format_html_join
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from archivematica.dashboard.main import models
 
 
 class DublinCoreMetadataForm(forms.ModelForm):
+    CONTEXTUAL_HELP_TEXT = {
+        "title": _("A name given to the resource. ({iso15836})"),
+        "creator": _(
+            "An entity primarily responsible for making the resource. ({iso15836})"
+        ),
+        "subject": _("The topic of the resource. ({iso15836})"),
+        "description": _("An account of the resource. ({iso15836})"),
+        "publisher": _(
+            "An entity responsible for making the resource available. ({iso15836})"
+        ),
+        "contributor": _(
+            "An entity responsible for making contributions to the resource. "
+            "({iso15836})"
+        ),
+        "date": _(
+            "A point or period of time associated with an event in the "
+            "lifecycle of the resource. ({iso15836})"
+        ),
+        "format": _(
+            "The file format, physical medium, or dimensions of the resource. "
+            "({iso15836}) Best practice is to use a controlled vocabulary "
+            "such as the {mime_link}."
+        ),
+        "identifier": _(
+            "An unambiguous reference to the resource within a given context. "
+            "({iso15836})"
+        ),
+        "source": _(
+            "A related resource from which the described resource is derived. "
+            "({iso15836})"
+        ),
+        "relation": _("A related resource. ({iso15836})"),
+        "language": _("A language of the resource. ({iso15836})"),
+        "coverage": _(
+            "The spatial or temporal topic of the resource, the spatial "
+            "applicability of the resource, or the jurisdiction under which "
+            "the resource is relevant. ({iso15836})"
+        ),
+        "rights": _(
+            "Information about rights held in and over the resource. ({iso15836})"
+        ),
+    }
+
     class Meta:
         model = models.DublinCore
         fields = (
@@ -48,7 +95,6 @@ class DublinCoreMetadataForm(forms.ModelForm):
             "publisher": forms.TextInput,
             "contributor": forms.TextInput,
             "date": forms.TextInput,
-            "type": forms.TextInput,
             "format": forms.TextInput,
             "identifier": forms.TextInput,
             "source": forms.TextInput,
@@ -61,11 +107,45 @@ class DublinCoreMetadataForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields:
-            if isinstance(self.fields[field].widget, forms.widgets.TextInput):
-                self.fields[field].widget.attrs = settings.INPUT_WITH_HELP_ATTRS
-            elif isinstance(self.fields[field].widget, forms.widgets.Textarea):
-                self.fields[field].widget.attrs = settings.TEXTAREA_WITH_HELP_ATTRS
+        links = self._build_contextual_links()
+        for field_name, field in self.fields.items():
+            self._apply_widget_attrs(field)
+            self._compose_help_text(field_name, field, links)
+
+    def _build_contextual_links(self):
+        return {
+            "iso15836": mark_safe(
+                '<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>'
+            ),
+            "mime_link": format_html(
+                '<a href="http://www.iana.org/assignments/media-types/" target="_blank">{}</a>',
+                _("Internet Media Types (MIME) registry"),
+            ),
+        }
+
+    def _apply_widget_attrs(self, field):
+        if isinstance(field.widget, forms.widgets.TextInput):
+            field.widget.attrs = settings.INPUT_ATTRS.copy()
+        elif isinstance(field.widget, forms.widgets.Textarea):
+            field.widget.attrs = settings.TEXTAREA_ATTRS.copy()
+
+    def _compose_help_text(self, field_name, field, links):
+        help_parts = []
+        model_help_text = field.help_text
+        contextual_help = self.CONTEXTUAL_HELP_TEXT.get(field_name)
+
+        if contextual_help:
+            help_parts.append(format_html(contextual_help, **links))
+
+        if model_help_text:
+            help_parts.append(model_help_text)
+
+        if help_parts:
+            field.help_text = format_html_join(
+                mark_safe("<br />"),
+                "{}",
+                ((help_part,) for help_part in help_parts),
+            )
 
     def save(self, *args, **kwargs):
         # Status is set to REINGEST when metadata is parsed into the DB. If it

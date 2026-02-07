@@ -1,29 +1,8 @@
 {% extends "layout_fluid.html" %}
 {% load breadcrumb %}
 {% load i18n %}
-{% load static %}
-
-{% block js %}
-  <script type="text/javascript" src="{% static 'js/contextual_help.js' %}"></script>
-{% endblock %}
 
 {% block content %}
-<style>
-#contextual_help {
-  width: 220px;
-  background-color: #eee;
-  padding: 1em;
-  position: absolute;
-  left: 700px;
-}
-</style>
-
-<script>
-$(document).ready(function() {
-  archivematicaEnableContextualHelp();
-});
-</script>
-
   <div class="row">
     <div class="col-md-12">
 
@@ -70,79 +49,4 @@ $(document).ready(function() {
 
     </div>
   </div>
-
-  <!-- define contextual help -->
-
-  <div id='id_title_help' style='display:none'>
-    <p>{% trans "A name given to the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_creator_help' style='display:none'>
-    <p>{% trans "An entity primarily responsible for making the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_subject_help' style='display:none'>
-    <p>{% trans "The topic of the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_description_help' style='display:none'>
-    <p>{% trans "An account of the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_publisher_help' style='display:none'>
-    <p>{% trans "An entity responsible for making the resource available." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_contributor_help' style='display:none'>
-    <p>{% trans "An entity responsible for making contributions to the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_date_help' style='display:none'>
-    <p>{% trans "A point or period of time associated with an event in the lifecycle of the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_type_help' style='display:none'>
-    <p>
-      {% trans "The nature or genre of the resource." %}
-      (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)
-      {% blocktrans %}
-        You may wish to use the DCMI type vocabulary provided here: <a href="http://dublincore.org/documents/dcmi-type-vocabulary/">http://dublincore.org/documents/dcmi-type-vocabulary/</a>
-      {% endblocktrans %}
-    </p>
-  </div>
-
-  <div id='id_format_help' style='display:none'>
-    <p>
-      {% trans "The file format, physical medium, or dimensions of the resource." %}
-      (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)
-      {% blocktrans %}
-        Best practice is to use a controlled vocabulary such as the list of Internet Media Types [MIME] provided here: <a href="http://www.iana.org/assignments/media-types/" target="_blank">http://www.iana.org/assignments/media-types/</a>
-      {% endblocktrans %}
-    </p>
-  </div>
-
-  <div id='id_identifier_help' style='display:none'>
-    <p>{% trans "An unambiguous reference to the resource within a given context." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_source_help' style='display:none'>
-    <p>{% trans "A related resource from which the described resource is derived." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_relation_help' style='display:none'>
-    <p>{% trans "A related resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_language_help' style='display:none'>
-    <p>{% trans "A language of the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_coverage_help' style='display:none'>
-    <p>{% trans "The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
-  <div id='id_rights_help' style='display:none'>
-    <p>{% trans "Information about rights held in and over the resource." %} (<a href="http://dublincore.org/documents/dces/" target="_blank">ISO15836</a>)</p>
-  </div>
-
 {% endblock %}
