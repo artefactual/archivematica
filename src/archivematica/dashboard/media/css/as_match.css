@@ -28,11 +28,11 @@
 
 #object_pane_search, #resource_pane_search {
   width: 210px;
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
 
 #object_pane_search > input, #resource_pane_search > input {
-  margin-right:5px;
+  margin-right: 5px;
 }
 
 #match_pane {
