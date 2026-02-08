@@ -5,14 +5,14 @@
 }
 
 .backbone-file-explorer-busy {
-  background-color: '#eee';
+  background-color: #eee;
   opacity: .5;
   background-image: url('../images/ajax-loader.gif');
   background-position: 99% 50%;
 }
 
 .backbone-file-explorer-idle {
-  background-color: 'white';
+  background-color: white;
   opacity: 1;
   background-image: none;
 }
