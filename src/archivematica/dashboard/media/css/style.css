@@ -555,22 +555,6 @@ textarea.command {
 }
 
 /*
- * Preview help text (non-js friendly)
- */
-
-.preview-help-text {
-
-}
-
-.preview-help-text .preview {
-  display: none;
-}
-
-.preview-help-text .content {
-
-}
-
-/*
  * Global file browser tweaks
  */
 
