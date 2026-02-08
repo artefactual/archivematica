@@ -3,7 +3,22 @@
 {% load static %}
 
 {% block js %}
-<script type="text/javascript" src="{% static 'js/ingest/normalization_report.js' %}"></script>
+<script type="text/javascript">
+  $(function() {
+    $('a.file-location')
+      .on('click', function(event) {
+        event.preventDefault();
+      })
+      .popover({
+        trigger: 'hover focus',
+        container: 'body',
+        placement: 'auto top',
+        content: function() {
+          return (this.getAttribute('data-location') || '').replace(/%[^%]*%/g, '');
+        }
+      });
+  });
+</script>
 {% endblock %}
 
 {% block content %}
