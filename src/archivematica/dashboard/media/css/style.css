@@ -42,13 +42,7 @@ body {
 
 .topbar-inner {
   background-color: #222222;
-  background-image: -khtml-gradient(linear, left top, left bottom, from(#333333), to(#222222));
-  background-image: -moz-linear-gradient(top, #333333, #222222);
-  background-image: -ms-linear-gradient(top, #333333, #222222);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #333333), color-stop(100%, #222222));
-  background-image: -webkit-linear-gradient(top, #333333, #222222);
-  background-image: -o-linear-gradient(top, #333333, #222222);
-  background-image: linear-gradient(top, #333333, #222222);
+  background-image: linear-gradient(to bottom, #333333, #222222);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -158,11 +152,7 @@ li.user > a {
   background: #f7f5d1;
   color: #333;
   border-radius: 4px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
   box-shadow: 4px 4px 4px #999999;
-  -webkit-box-shadow: 4px 4px 4px #999999;
-  -moz-box-shadow: 4px 4px 4px #999999;
   filter: progid:DXImageTransform.Microsoft.dropShadow(color=#999999, offX=4, offY=4, positive=true);
 }
 
@@ -380,8 +370,7 @@ li.user > a {
 .job-detail-actions > .btn_as_upload { background-image: url(/media/images/table_edit.png); }
 
 .job-detail-microservice > .title {
-  -webkit-transform: rotate(-90deg);
-  -moz-transform: rotate(-90deg);
+  transform: rotate(-90deg);
   filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
   background-color: Green;
   left: 0px;
@@ -500,13 +489,8 @@ div.has-error div p.help-block {
 
 .ui-dialog {
   box-shadow: 0px 0px 8px #333;
-  -webkit-box-shadow: 0px 0px 8px #333;
-  -moz-box-shadow: 0px 0px 8px #333;
   filter: progid:DXImageTransform.Microsoft.dropShadow(color=#333, offX=4, offY=4, positive=true);
   padding: 0;
-  -moz-border-radius: 0px;
-  -webkit-border-radius: 0px;
-  -khtml-border-radius: 0px;
   border-radius: 0px;
 }
 
@@ -523,9 +507,6 @@ div.has-error div p.help-block {
 }
 
 .ui-dialog .ui-dialog-titlebar {
-  -moz-border-radius: 0px;
-  -webkit-border-radius: 0px;
-  -khtml-border-radius: 0px;
   border-radius: 0px;
   background-color: #eee;
   padding: 10px 18px;
@@ -578,11 +559,7 @@ textarea.command {
 }
 
 #login * {
-
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
-
 }
 
 #login form {
@@ -590,11 +567,7 @@ textarea.command {
   padding: 26px 0 0 0;
   background: #eee;
   border: 1px solid #c5c5c5;
-  -moz-box-shadow: rgba(200,200,200,0.7) 0 4px 10px -1px;
-  -webkit-box-shadow: rgba(200, 200, 200, 0.7) 0 4px 10px -1px;
   box-shadow: rgba(200, 200, 200, 0.7) 0 4px 10px -1px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
   border-radius: 4px;
 
 }
@@ -619,8 +592,6 @@ textarea.command {
   padding: 10px 20px;
   background-color: #fafafa;
   border-top: 1px solid #bbb;
-  -mox-box-shadow: inset 0px 3px 14px -6px rgba(0, 0, 0 ,0.6);
-  -webkit-box-shadow: inset 0px 3px 14px -6px rgba(0, 0, 0, 0.6);
   box-shadow: inset 0px 3px 14px -6px rgba(0, 0, 0, 0.6);
 
 }
@@ -648,10 +619,6 @@ textarea.command {
 .sidebar .active {
   border: 1px solid #666;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
-  -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, .5);
-  -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .5);
-  -webkit-border-radius: 0px 4px 4px 0;
-  -moz-border-radius: 0px 4px 4px 0;
   border-radius: 0px 4px 4px 0;
 }
 
@@ -708,7 +675,6 @@ textarea.command {
   float: right;
   border: 1px solid #666;
   border-radius: 15px;
-  -moz-border-radius: 15px;
   padding: 5px;
   color: black;
   background-color: #eee;
@@ -728,10 +694,7 @@ textarea.command {
   background-image: none;
   border: 1px solid #ccc;
   border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
-  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
