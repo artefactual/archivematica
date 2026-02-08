@@ -59,7 +59,7 @@ tbody > tr:last-child > td {
 }
 
 tfoot > tr > td {
-  border: 0px;
+  border: 0;
 }
 
 td.size {
