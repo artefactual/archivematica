@@ -78,31 +78,3 @@ function getCookie(c_name) {
     }
   }
 }
-
-$(document).ready(
-  function()
-    {
-      // Set up the button which allows users to copy the API key to the clipboard.
-      $('#copy-api-key-button').tooltip().click(function () {
-        var button = $(this);
-        navigator.clipboard.writeText($('#api-key').val()).then(function () {
-          var button_icon = $('#copy-button-icon');
-          var icon_original_class = button_icon.data('icon-original-class');
-          var icon_clicked_class = button_icon.data('icon-clicked-class');
-
-          // Update the button icon.
-          button_icon.removeClass(icon_original_class).addClass(icon_clicked_class).css('color', 'green');
-
-          // Update the button tooltip.
-          button.tooltip('option', 'content', button.data('clicked-label')).tooltip('open');
-
-          // Reset the button after 2 seconds.
-          setTimeout(function () {
-            button_icon.removeClass(icon_clicked_class).addClass(icon_original_class).css('color', '');
-            button.tooltip('option', 'content', button.data('original-label')).tooltip('close');
-          }, 2000);
-        }).catch(function (err) {
-          console.error('Failed to copy API key to clipboard: ', err);
-        });
-      });
-});
