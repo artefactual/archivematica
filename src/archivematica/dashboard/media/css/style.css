@@ -483,10 +483,6 @@ textarea {
   margin: 20px 0 0;
 }
 
-#directory-metadata-form td {
-  line-height: 35px;
-}
-
 /* Error help messages are coded bright red to ensure that they stand
  * out on the page for users. */
 div.has-error div span.error-msg {
