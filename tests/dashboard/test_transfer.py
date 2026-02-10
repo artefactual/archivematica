@@ -6,7 +6,6 @@ from django.test.client import Client
 from django.urls import reverse
 
 from archivematica.dashboard.main.models import DublinCore
-from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import Taxonomy
 from archivematica.dashboard.main.models import TaxonomyTerm
 from archivematica.dashboard.main.models import TransferMetadataField
@@ -30,7 +29,6 @@ class TestTransferViews(TestCase):
     def test_metadata_edit(self):
         """Test the metadata form of a transfer"""
         transfer_uuid = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
-        MetadataAppliesToType.objects.get_or_create(description="Transfer")
         url = reverse("transfer:transfer_metadata_add", args=[transfer_uuid])
         # Post metadata in Spanish
         response = self.client.post(

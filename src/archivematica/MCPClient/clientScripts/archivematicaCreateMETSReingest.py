@@ -181,7 +181,7 @@ def update_dublincore(job, mets, sip_uuid):
     # Check for DC in DB with METADATA_STATUS_UPDATED or METADATA_STATUS_ORIGINAL
     untouched = models.DublinCore.objects.filter(
         metadataappliestoidentifier=sip_uuid,
-        metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
+        metadata_applies_to=models.MetadataAppliesTo.SIP,
         status=models.METADATA_STATUS_REINGEST,
     ).exists()
     if untouched:
@@ -193,7 +193,7 @@ def update_dublincore(job, mets, sip_uuid):
     objects_div = mets.get_file(label="objects", type="Directory")
 
     # Create element
-    dc_elem = createmets2.getDublinCore(createmets2.SIPMetadataAppliesToType, sip_uuid)
+    dc_elem = createmets2.getDublinCore(models.MetadataAppliesTo.SIP, sip_uuid)
 
     if dc_elem is None:
         if objects_div.has_dmdsec("DC"):
@@ -223,7 +223,7 @@ def update_rights(job, mets, sip_uuid, state):
         # ORIGINAL RightsStatements are unrelated to the old one.
         rightsmds_db[rightsbasis[0]] = models.RightsStatement.objects.filter(
             metadataappliestoidentifier=sip_uuid,
-            metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
+            metadata_applies_to=models.MetadataAppliesTo.SIP,
             rightsbasis=rightsbasis[0],
         ).exclude(status=models.METADATA_STATUS_ORIGINAL)
 
@@ -259,7 +259,7 @@ def update_rights(job, mets, sip_uuid, state):
     # Check for newly added rights
     rights_list = models.RightsStatement.objects.filter(
         metadataappliestoidentifier=sip_uuid,
-        metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
+        metadata_applies_to=models.MetadataAppliesTo.SIP,
         status=models.METADATA_STATUS_ORIGINAL,
     )
     if not rights_list:
@@ -270,7 +270,7 @@ def update_rights(job, mets, sip_uuid, state):
     # Check for updated rights
     rights_list = models.RightsStatement.objects.filter(
         metadataappliestoidentifier=sip_uuid,
-        metadataappliestotype_id=createmets2.SIPMetadataAppliesToType,
+        metadata_applies_to=models.MetadataAppliesTo.SIP,
         status=models.METADATA_STATUS_UPDATED,
     )
     if not rights_list:

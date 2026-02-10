@@ -8,13 +8,8 @@ from archivematica.MCPClient.clientScripts.create_mets_v2 import MetsState
 
 @pytest.fixture()
 def rights_statement(db, sip_file):
-    models.MetadataAppliesToType.objects.get_or_create(
-        pk="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17", description="File"
-    )
     statement = models.RightsStatement.objects.create(
-        metadataappliestotype=models.MetadataAppliesToType.objects.get(
-            id=models.MetadataAppliesToType.FILE_TYPE
-        ),
+        metadata_applies_to=models.MetadataAppliesTo.FILE,
         metadataappliestoidentifier=sip_file.uuid,
         rightsbasis="Copyright",
     )
@@ -32,7 +27,7 @@ def test_archivematicaGetRights_with_non_ascii_copyright_jurisdiction(
     rights_statement,
 ):
     metadataAppliesToList = [
-        (sip_file.uuid, models.MetadataAppliesToType.FILE_TYPE),
+        (sip_file.uuid, models.MetadataAppliesTo.FILE),
     ]
     result = archivematicaCreateMETSRights.archivematicaGetRights(
         mcp_job, metadataAppliesToList, str(sip_file.uuid), MetsState()

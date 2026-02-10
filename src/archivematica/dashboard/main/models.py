@@ -228,15 +228,16 @@ class Access(models.Model):
         return Job.objects.filter(sipuuid=self.sipuuid).get_directory_name()
 
 
+class MetadataAppliesTo(models.TextChoices):
+    SIP = "sip", "SIP"
+    TRANSFER = "transfer", "Transfer"
+    FILE = "file", "File"
+
+
 class DublinCore(models.Model):
     """DublinCore metadata associated with a SIP or Transfer."""
 
     id = models.AutoField(primary_key=True, db_column="pk")
-    metadataappliestotype = models.ForeignKey(
-        "MetadataAppliesToType",
-        db_column="metadataAppliesToType",
-        on_delete=models.CASCADE,
-    )
     metadataappliestoidentifier = models.CharField(
         max_length=36,
         blank=True,
@@ -244,6 +245,13 @@ class DublinCore(models.Model):
         default=None,
         db_column="metadataAppliesToidentifier",
     )  # Foreign key to SIPs or Transfers
+    metadata_applies_to = models.CharField(
+        max_length=8,
+        choices=MetadataAppliesTo,
+        blank=False,
+        null=False,
+        db_column="metadataAppliesTo",
+    )
     title = models.TextField(db_column="title", blank=True)
     is_part_of = models.TextField(
         db_column="isPartOf",
@@ -280,38 +288,30 @@ class DublinCore(models.Model):
 
     class Meta:
         db_table = "Dublincore"
+        indexes = [
+            models.Index(
+                fields=("metadata_applies_to", "metadataappliestoidentifier"),
+                name="Dublincore_metadat_a3f17c_idx",
+            ),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(
+                    metadata_applies_to__in=(
+                        MetadataAppliesTo.SIP,
+                        MetadataAppliesTo.TRANSFER,
+                        MetadataAppliesTo.FILE,
+                    )
+                ),
+                name="dublincore_metadata_applies_to_valid",
+            ),
+        ]
 
     def __str__(self):
         if self.title:
             return "%s" % self.title
         else:
             return str(_("Untitled"))
-
-
-class MetadataAppliesToType(models.Model):
-    """
-    What type of unit (SIP, DIP, Transfer etc) the metadata link is.
-
-    TODO replace this with choices fields.
-    """
-
-    # Generated via migrations.
-    SIP_TYPE = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
-    TRANSFER_TYPE = "45696327-44c5-4e78-849b-e027a189bf4d"
-    FILE_TYPE = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
-
-    id = UUIDField(primary_key=True, db_column="pk", default=uuid.uuid4)
-    description = models.CharField(max_length=50, db_column="description")
-    replaces = models.CharField(
-        max_length=36, db_column="replaces", null=True, blank=True
-    )
-    lastmodified = models.DateTimeField(db_column="lastModified", auto_now=True)
-
-    class Meta:
-        db_table = "MetadataAppliesToTypes"
-
-    def __str__(self):
-        return str(self.description)
 
 
 class Event(models.Model):
@@ -1061,14 +1061,15 @@ class Report(models.Model):
 
 class RightsStatement(models.Model):
     id = models.AutoField(primary_key=True, db_column="pk")
-    metadataappliestotype = models.ForeignKey(
-        MetadataAppliesToType,
-        to_field="id",
-        db_column="metadataAppliesToType",
-        on_delete=models.CASCADE,
-    )
     metadataappliestoidentifier = models.CharField(
         max_length=36, blank=True, db_column="metadataAppliesToidentifier"
+    )
+    metadata_applies_to = models.CharField(
+        max_length=8,
+        choices=MetadataAppliesTo,
+        blank=False,
+        null=False,
+        db_column="metadataAppliesTo",
     )
     rightsstatementidentifiertype = models.TextField(
         db_column="rightsStatementIdentifierType", blank=True, verbose_name=_("Type")
@@ -1101,6 +1102,24 @@ class RightsStatement(models.Model):
     class Meta:
         db_table = "RightsStatement"
         verbose_name = _("Rights Statement")
+        indexes = [
+            models.Index(
+                fields=("metadata_applies_to", "metadataappliestoidentifier"),
+                name="RightsState_metadat_d1bc34_idx",
+            ),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(
+                    metadata_applies_to__in=(
+                        MetadataAppliesTo.SIP,
+                        MetadataAppliesTo.TRANSFER,
+                        MetadataAppliesTo.FILE,
+                    )
+                ),
+                name="rightsstatement_metadata_applies_to_valid",
+            ),
+        ]
 
     def __str__(self):
         return str(

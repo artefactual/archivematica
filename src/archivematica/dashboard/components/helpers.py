@@ -164,10 +164,6 @@ def task_duration_in_seconds(task):
     return duration
 
 
-def get_metadata_type_id_by_description(description):
-    return models.MetadataAppliesToType.objects.get(description=description)
-
-
 def get_setting(setting, default="") -> object:
     try:
         setting = models.DashboardSetting.objects.get(name=setting)

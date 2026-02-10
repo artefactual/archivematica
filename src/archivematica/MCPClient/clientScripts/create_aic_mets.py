@@ -18,6 +18,7 @@ from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon import fileOperations
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon import storageService as storage_service
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import UnitVariable
 from archivematica.MCPClient.clientScripts import create_mets_v2
 
@@ -101,9 +102,7 @@ def create_mets_file(aic, aips, job):
 
     # Add Dublin Core info
     xml_data = mets.find("mets:dmdSec/mets:mdWrap/mets:xmlData", namespaces=ns.NSMAP)
-    dublincore = create_mets_v2.getDublinCore(
-        create_mets_v2.SIPMetadataAppliesToType, aic["uuid"]
-    )
+    dublincore = create_mets_v2.getDublinCore(MetadataAppliesTo.SIP, aic["uuid"])
     # Add <extent> with number of AIPs
     extent = etree.SubElement(dublincore, ns.dctermsBNS + "extent")
     extent.text = f"{len(aips)} AIPs"

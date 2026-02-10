@@ -6,7 +6,7 @@ from metsrw.plugins import premisrw
 from archivematica.dashboard.components.rights import load
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import File
-from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import Transfer
 
 RIGHTS_STATEMENT_IDENTIFIER = (
@@ -188,10 +188,10 @@ def file(db):
 
 
 @pytest.mark.django_db
-def test_mdtype(metadata_applies_to_types):
-    assert isinstance(load._mdtype(File()), MetadataAppliesToType)
-    assert isinstance(load._mdtype(Transfer()), MetadataAppliesToType)
-    assert isinstance(load._mdtype(SIP()), MetadataAppliesToType)
+def test_mdtype():
+    assert load._mdtype(File()) == MetadataAppliesTo.FILE
+    assert load._mdtype(Transfer()) == MetadataAppliesTo.TRANSFER
+    assert load._mdtype(SIP()) == MetadataAppliesTo.SIP
 
     class UnknownClass:
         pass
@@ -202,11 +202,9 @@ def test_mdtype(metadata_applies_to_types):
 
 
 @pytest.mark.django_db
-def test_load_rights(
-    file, rights_statement_with_basis_copyright, metadata_applies_to_types
-):
+def test_load_rights(file, rights_statement_with_basis_copyright):
     stmt = load.load_rights(file, rights_statement_with_basis_copyright)
-    assert stmt.metadataappliestotype.description == "File"
+    assert stmt.metadata_applies_to == MetadataAppliesTo.FILE
     assert stmt.metadataappliestoidentifier == file.uuid
     assert stmt.rightsstatementidentifiertype == "UUID"
     assert stmt.rightsstatementidentifiervalue == "3a9838ac-ebe9-4ecb-ba46-c31ee1d6e7c2"
@@ -231,9 +229,7 @@ def test_load_rights(
 
 
 @pytest.mark.django_db
-def test_load_rights_with_basis_copyright(
-    file, rights_statement_with_basis_copyright, metadata_applies_to_types
-):
+def test_load_rights_with_basis_copyright(file, rights_statement_with_basis_copyright):
     stmt = load.load_rights(file, rights_statement_with_basis_copyright)
 
     assert stmt.rightsbasis == "Copyright"
@@ -267,9 +263,7 @@ def test_load_rights_with_basis_copyright(
 
 
 @pytest.mark.django_db
-def test_load_rights_with_basis_license(
-    file, rights_statement_with_basis_license, metadata_applies_to_types
-):
+def test_load_rights_with_basis_license(file, rights_statement_with_basis_license):
     stmt = load.load_rights(file, rights_statement_with_basis_license)
 
     assert stmt.rightsbasis == "License"
@@ -300,9 +294,7 @@ def test_load_rights_with_basis_license(
 
 
 @pytest.mark.django_db
-def test_load_rights_with_basis_statute(
-    file, rights_statement_with_basis_statute, metadata_applies_to_types
-):
+def test_load_rights_with_basis_statute(file, rights_statement_with_basis_statute):
     stmt = load.load_rights(file, rights_statement_with_basis_statute)
 
     assert stmt.rightsbasis == "Statute"
@@ -336,9 +328,7 @@ def test_load_rights_with_basis_statute(
 
 
 @pytest.mark.django_db
-def test_load_rights_with_basis_other(
-    file, rights_statement_with_basis_other, metadata_applies_to_types
-):
+def test_load_rights_with_basis_other(file, rights_statement_with_basis_other):
     stmt = load.load_rights(file, rights_statement_with_basis_other)
 
     assert stmt.rightsbasis == "Other"

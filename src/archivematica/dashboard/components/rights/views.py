@@ -17,17 +17,31 @@
 import logging
 
 from django.forms.models import inlineformset_factory
+from django.http import Http404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from archivematica.dashboard.components import decorators
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.rights import forms
 from archivematica.dashboard.main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
+
+SECTION_TO_METADATA_APPLIES_TO = {
+    "transfer": models.MetadataAppliesTo.TRANSFER,
+    "ingest": models.MetadataAppliesTo.SIP,
+    "file": models.MetadataAppliesTo.FILE,
+}
+
+
+def _metadata_applies_to_for_section(section):
+    try:
+        return SECTION_TO_METADATA_APPLIES_TO[section]
+    except KeyError as exc:
+        raise Http404(f"Unknown rights section: {section}") from exc
+
 
 """ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
       Rights-related
@@ -190,12 +204,9 @@ def rights_edit(request, uuid, id=None, section="ingest"):
         if id:
             createdRights = viewRights
         else:
-            sectionTypeID = {"transfer": "Transfer", "ingest": "SIP"}
-            type_id = helpers.get_metadata_type_id_by_description(
-                sectionTypeID[section]
-            )
             newRights = models.RightsStatement(
-                metadataappliestotype=type_id, metadataappliestoidentifier=uuid
+                metadata_applies_to=_metadata_applies_to_for_section(section),
+                metadataappliestoidentifier=uuid,
             )
             form = forms.RightsForm(request.POST, instance=newRights)
             createdRights = form.save()
@@ -717,12 +728,10 @@ def rights_list(request, uuid, section):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = jobs.get_directory_name()
 
-    # See MetadataAppliesToTypes table
-    types = {"transfer": "Transfer", "ingest": "SIP", "file": "File"}
-    type_id = helpers.get_metadata_type_id_by_description(types[section])
+    type_id = _metadata_applies_to_for_section(section)
 
     grants = models.RightsStatementRightsGranted.objects.filter(
-        rightsstatement__metadataappliestotype=type_id,
+        rightsstatement__metadata_applies_to=type_id,
         rightsstatement__metadataappliestoidentifier__exact=uuid,
     )
 
@@ -739,7 +748,7 @@ def rights_list(request, uuid, section):
                 .distinct()
             )
             transfer_grants = models.RightsStatementRightsGranted.objects.filter(
-                rightsstatement__metadataappliestotype__description=types["transfer"],
+                rightsstatement__metadata_applies_to=models.MetadataAppliesTo.TRANSFER,
                 rightsstatement__metadataappliestoidentifier__in=transfer_uuids,
             )
         except Exception:

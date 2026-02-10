@@ -65,17 +65,17 @@ def archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
 
     :param job: MCPClient Job
     :param metadataAppliesToList: list of tuples of (
-        UUID of File/SIP/Transfer, PK from MetadataAppliesToType,
+        UUID of File/SIP/Transfer, metadata_applies_to value,
     )
     :param fileUUID: string with UUID of the File
     :param state: create_mets_v2.MetsState object
     :return ret: list of lxml Element objects
     """
     ret = []
-    for metadataAppliesToidentifier, metadataAppliesToType in metadataAppliesToList:
+    for metadataAppliesToidentifier, metadata_applies_to in metadataAppliesToList:
         statements = RightsStatement.objects.filter(
             metadataappliestoidentifier=metadataAppliesToidentifier,
-            metadataappliestotype_id=metadataAppliesToType,
+            metadata_applies_to=metadata_applies_to,
         )
         for statement in statements:
             rightsStatement = createRightsStatement(job, statement, fileUUID, state)

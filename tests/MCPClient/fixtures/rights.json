@@ -4,7 +4,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "ORIGINAL",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Copyright",
@@ -16,7 +16,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "ORIGINAL",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Statute",
@@ -28,7 +28,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "ORIGINAL",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "License",
@@ -40,7 +40,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "ORIGINAL",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Donor",
@@ -52,7 +52,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "REINGEST",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "10d57d98-29e5-4b2c-9f9f-d163e632eb31",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Copyright",
@@ -64,7 +64,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "UPDATED",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Statute",
@@ -76,7 +76,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "REINGEST",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Copyright",
@@ -88,7 +88,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "REINGEST",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "License",
@@ -100,7 +100,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "REINGEST",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Donor",
@@ -112,7 +112,7 @@
     "model": "main.rightsstatement",
     "fields": {
         "status": "REINGEST",
-        "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
+        "metadata_applies_to": "sip",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Policy",
@@ -387,33 +387,6 @@
     "fields": {
         "rightsstatementotherrights": 1,
         "otherrightsnote": "Contact in 2010 for earlier release."
-    }
-},
-{
-    "pk": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
-    "model": "main.metadataappliestotype",
-    "fields": {
-        "lastmodified": "2012-10-02T00:25:05Z",
-        "replaces": null,
-        "description": "SIP"
-    }
-},
-{
-    "pk": "45696327-44c5-4e78-849b-e027a189bf4d",
-    "model": "main.metadataappliestotype",
-    "fields": {
-        "lastmodified": "2012-10-02T00:25:05Z",
-        "replaces": null,
-        "description": "Transfer"
-    }
-},
-{
-    "pk": "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17",
-    "model": "main.metadataappliestotype",
-    "fields": {
-        "lastmodified": "2012-10-02T00:25:05Z",
-        "replaces": null,
-        "description": "File"
     }
 }
 ]

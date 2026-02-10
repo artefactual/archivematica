@@ -16,7 +16,7 @@ from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.dashboard.fpr import models as fpr_models
 from archivematica.dashboard.main import models
 
-MD_TYPE_SIP_ID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
+MD_TYPE_SIP_ID = models.MetadataAppliesTo.SIP
 
 
 def parse_format_version(job, element):
@@ -186,7 +186,7 @@ def parse_dc(job, sip_uuid, root):
     """
     # Delete existing DC
     models.DublinCore.objects.filter(
-        metadataappliestoidentifier=sip_uuid, metadataappliestotype_id=MD_TYPE_SIP_ID
+        metadataappliestoidentifier=sip_uuid, metadata_applies_to=MD_TYPE_SIP_ID
     ).delete()
     # Parse DC
     dmds = root.xpath(
@@ -235,7 +235,7 @@ def parse_dc(job, sip_uuid, root):
                 break
         dc_model = models.DublinCore(
             metadataappliestoidentifier=sip_uuid,
-            metadataappliestotype_id=MD_TYPE_SIP_ID,
+            metadata_applies_to=MD_TYPE_SIP_ID,
             status=models.METADATA_STATUS_REINGEST,
         )
         job.pyprint("Dublin Core:")
@@ -262,7 +262,7 @@ def parse_rights(job, sip_uuid, root):
     """
     # Delete existing PREMIS Rights
     del_rights = models.RightsStatement.objects.filter(
-        metadataappliestoidentifier=sip_uuid, metadataappliestotype_id=MD_TYPE_SIP_ID
+        metadataappliestoidentifier=sip_uuid, metadata_applies_to=MD_TYPE_SIP_ID
     )
     # TODO delete all the other rights things?
     models.RightsStatementCopyright.objects.filter(
@@ -300,7 +300,7 @@ def parse_rights(job, sip_uuid, root):
             job.pyprint("rights_basis", rights_basis)
             # Don't parse identifier type/value so if it's modified the new one gets unique identifiers
             rights = models.RightsStatement.objects.create(
-                metadataappliestotype_id=MD_TYPE_SIP_ID,
+                metadata_applies_to=MD_TYPE_SIP_ID,
                 metadataappliestoidentifier=sip_uuid,
                 rightsstatementidentifiertype="",
                 rightsstatementidentifiervalue="",

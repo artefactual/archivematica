@@ -19,15 +19,13 @@ class TestRightsImportFromCsvBase(TestCase):
     file_2_uuid = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"  # UUID of second file created by files-transfer.json fixture
 
     def get_metadata_applies_to_type_for_file(self):
-        """Get MetadataAppliesToType instance that allies to files."""
-        return models.MetadataAppliesToType.objects.filter(description="File").first()
+        return models.MetadataAppliesTo.FILE
 
 
 class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
     """Test rights importing from CSV files."""
 
     fixture_files = [
-        "metadata_applies_to_type.json",
         "transfer.json",
         "files-transfer.json",
     ]
@@ -75,7 +73,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 1
         row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
         assert (
-            row_1_rights_statement.metadataappliestotype
+            row_1_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_1_rights_statement.metadataappliestoidentifier == self.file_1_uuid
@@ -133,7 +131,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 3 (row 2 is skipped as it has the same act and basis as a previous right for the file)
         row_3_rights_statement = models.RightsStatement.objects.order_by("pk")[1]
         assert (
-            row_3_rights_statement.metadataappliestotype
+            row_3_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_3_rights_statement.metadataappliestoidentifier == self.file_1_uuid
@@ -188,7 +186,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 4
         row_4_rights_statement = models.RightsStatement.objects.order_by("pk")[2]
         assert (
-            row_4_rights_statement.metadataappliestotype
+            row_4_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_4_rights_statement.metadataappliestoidentifier == self.file_1_uuid
@@ -237,7 +235,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 5
         row_5_rights_statement = models.RightsStatement.objects.order_by("pk")[3]
         assert (
-            row_5_rights_statement.metadataappliestotype
+            row_5_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_5_rights_statement.metadataappliestoidentifier == self.file_1_uuid
@@ -295,7 +293,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 6
         row_6_rights_statement = models.RightsStatement.objects.order_by("pk")[4]
         assert (
-            row_6_rights_statement.metadataappliestotype
+            row_6_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_6_rights_statement.metadataappliestoidentifier == self.file_1_uuid
@@ -339,7 +337,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 7
         row_7_rights_statement = models.RightsStatement.objects.order_by("pk")[5]
         assert (
-            row_7_rights_statement.metadataappliestotype
+            row_7_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_7_rights_statement.metadataappliestoidentifier == self.file_2_uuid
@@ -365,7 +363,7 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         # Test row 8
         row_8_rights_statement = models.RightsStatement.objects.order_by("pk")[6]
         assert (
-            row_8_rights_statement.metadataappliestotype
+            row_8_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_8_rights_statement.metadataappliestoidentifier == self.file_2_uuid
@@ -391,7 +389,6 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
 
 class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
     fixture_files = [
-        "metadata_applies_to_type.json",
         "transfer.json",
         "files-transfer-unicode.json",
     ]
@@ -418,7 +415,7 @@ class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
         # Test row 1
         row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
         assert (
-            row_1_rights_statement.metadataappliestotype
+            row_1_rights_statement.metadata_applies_to
             == self.get_metadata_applies_to_type_for_file()
         )
         assert row_1_rights_statement.metadataappliestoidentifier == self.file_1_uuid

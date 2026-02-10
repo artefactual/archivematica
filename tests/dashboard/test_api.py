@@ -18,7 +18,7 @@ from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Job
-from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Task
 from archivematica.dashboard.main.models import Transfer
@@ -1094,14 +1094,13 @@ def test_reingest_deletes_existing_models_related_to_sip(
         createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30)),
     )
     SIP.objects.create(uuid=transfer.uuid)
-    metadata_applies_to_type = MetadataAppliesToType.objects.create()
     RightsStatement.objects.create(
         metadataappliestoidentifier=transfer.uuid,
-        metadataappliestotype=metadata_applies_to_type,
+        metadata_applies_to=MetadataAppliesTo.TRANSFER,
     )
     DublinCore.objects.create(
         metadataappliestoidentifier=transfer.uuid,
-        metadataappliestotype=metadata_applies_to_type,
+        metadata_applies_to=MetadataAppliesTo.TRANSFER,
     )
 
     response = admin_client.post(

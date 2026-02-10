@@ -53,6 +53,7 @@ from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FileID
 from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataXML
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSReingest
 from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataCSV import (
@@ -152,11 +153,6 @@ def newChild(parent, tag, text=None, tailText=None, sets=None):
     return child
 
 
-SIPMetadataAppliesToType = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
-TransferMetadataAppliesToType = "45696327-44c5-4e78-849b-e027a189bf4d"
-FileMetadataAppliesToType = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
-
-
 def getDublinCore(unit, id_):
     db_field_mapping = collections.OrderedDict(
         [
@@ -181,7 +177,7 @@ def getDublinCore(unit, id_):
 
     try:
         dc = DublinCore.objects.get(
-            metadataappliestotype_id=unit, metadataappliestoidentifier=id_
+            metadata_applies_to=unit, metadataappliestoidentifier=id_
         )
     except DublinCore.DoesNotExist:
         return
@@ -390,7 +386,7 @@ def createDublincoreDMDSecFromDBData(
     If DC metadata exists in the DB, use that.
     If not, check the transfer metadata directory for a dublincore.xml file, and use that.
 
-    :param str unit_type: Pk from MetadataAppliesToType
+    :param str unit_type: MetadataAppliesTo value (sip|transfer|file)
     :param str unit_uuid: SIP UUID
     :param str baseDirectoryPath: SIP path to check for transfer metadata
     :return: Tuple of (dmdSec Element, DMDID), or None
@@ -872,9 +868,9 @@ def getAMDSec(
 
     if use == "original":
         metadataAppliesToList = [
-            (fileUUID, FileMetadataAppliesToType),
-            (sip_uuid, SIPMetadataAppliesToType),
-            (transferUUID, TransferMetadataAppliesToType),
+            (fileUUID, MetadataAppliesTo.FILE),
+            (sip_uuid, MetadataAppliesTo.SIP),
+            (transferUUID, MetadataAppliesTo.TRANSFER),
         ]
         for a in archivematicaGetRights(job, metadataAppliesToList, fileUUID, state):
             state.globalRightsMDCounter += 1
@@ -1765,7 +1761,7 @@ def main(
 
         dc = createDublincoreDMDSecFromDBData(
             job,
-            SIPMetadataAppliesToType,
+            MetadataAppliesTo.SIP,
             sipUUID,
             baseDirectoryPath,
             state,
