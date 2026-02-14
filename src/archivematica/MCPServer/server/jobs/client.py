@@ -35,6 +35,8 @@ class ClientScriptJob(Job, metaclass=abc.ABCMeta):
     For task details, see the `Task` and `GearmanTaskBackend` classes.
     """
 
+    produces_tasks = True
+
     # The number of files we'll pack into each MCP Client job.  Chosen somewhat
     # arbitrarily, but benchmarking with larger values (like 512) didn't make much
     # difference to throughput.

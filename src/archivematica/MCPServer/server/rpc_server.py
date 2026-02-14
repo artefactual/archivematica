@@ -28,6 +28,7 @@ from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Job
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.packages import get_approve_transfer_chain_id
 from archivematica.MCPServer.server.processing_config import get_processing_fields
@@ -404,6 +405,12 @@ class RPCServer(GearmanWorker):
                 )
                 new_job["microservicegroup"] = link.get_label("group", lang)
                 new_job["type"] = link.get_label("description", lang)
+                try:
+                    new_job["produces_tasks"] = get_job_class_for_link(
+                        link
+                    ).produces_tasks
+                except ValueError:
+                    new_job["produces_tasks"] = False
                 try:
                     new_job["choices"] = _pull_choices(
                         str(job_.jobuuid), lang, jobs_awaiting_for_approval

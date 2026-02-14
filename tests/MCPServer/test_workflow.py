@@ -98,9 +98,7 @@ def test_load_valid_document(path):
     assert first_link.get_label("foobar") is None
 
 
-def test_link_browse_methods():
-    with open(ASSETS_DIR / "workflow.json") as fp:
-        wf = workflow.load(fp)
+def test_link_browse_methods(wf):
     ln = wf.get_link("1ba589db-88d1-48cf-bb1a-a5f9d2b17378")
     assert ln.get_next_link(code="0").id == "087d27be-c719-47d8-9bbb-9a7d8b609c44"
     assert ln.get_status_id(code="0") == workflow._STATUSES["Completed successfully"]
