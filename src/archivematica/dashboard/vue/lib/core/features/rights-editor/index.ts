@@ -1,4 +1,4 @@
-import $ from 'jquery'
+import { applyDateInputMask } from './inputmask'
 
 const PAGE_IDS = {
   main: 'page-rights-editor-main',
@@ -6,15 +6,15 @@ const PAGE_IDS = {
 } as const
 
 function initMainPage(): void {
-  window.alert('rights-editor main init')
+  applyDateInputMask()
 }
 
 function initGrantsPage(): void {
-  window.alert('rights-editor grants init')
+  applyDateInputMask()
 }
 
 export function init(): void {
-  const pageId = $('body').attr('id') ?? ''
+  const pageId = document.body.id
 
   if (pageId === PAGE_IDS.main) {
     initMainPage()

@@ -48,7 +48,7 @@ const getLocaleChunkName = (facade: string): string | null => {
 // Convert a chunk's source module path into our desired output filename.
 // We use it to apply stable naming conventions for special cases and
 // fall back to Vite's default naming for everything else.
-const chunkFileNameForFacade = (facadeModuleId?: string): string => {
+const chunkFileNameForFacade = (facadeModuleId?: string | null): string => {
   if (!facadeModuleId) {
     return '[name]-[hash].js'
   }
