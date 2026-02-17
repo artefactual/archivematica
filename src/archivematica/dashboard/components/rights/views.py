@@ -15,10 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import logging
-import re
 
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -90,25 +88,6 @@ def ingest_rights_grants_edit(request, uuid, id):
     return rights_grants_edit(request, uuid, id, "ingest")
 
 
-def rights_parse_agent_id(input):
-    return 0
-    if input == "":
-        agentId = 0
-    else:
-        agentRaw = input
-        try:
-            int(agentRaw)
-            agentId = int(agentRaw)
-        except ValueError:
-            agentRe = re.compile(r"(.*)\[(\d*)\]")
-            match = agentRe.match(agentRaw)
-            if match:
-                agentId = match.group(2)
-            else:
-                agentId = 0
-    return agentId
-
-
 def rights_edit(request, uuid, id=None, section="ingest"):
     jobs = models.Job.objects.filter(sipuuid=uuid)
     name = jobs.get_directory_name()
@@ -120,19 +99,8 @@ def rights_edit(request, uuid, id=None, section="ingest"):
 
     if id:
         viewRights = models.RightsStatement.objects.get(pk=id)
-        agentId = None
         if request.method == "POST":
             postData = request.POST.copy()
-            """
-            agentId = rights_parse_agent_id(postData.get('rightsholder'))
-            if agentId == 0 and postData.get('rightsholder') != '0' and postData.get('rightsholder') != '':
-                agent = models.RightsStatementLinkingAgentIdentifier()
-                agent.rightsstatement = viewRights
-                agent.linkingagentidentifiervalue = postData.get('rightsholder')
-                agent.save()
-                agentId = agent.id
-            postData.__setitem__('rightsholder', agentId)
-            """
             form = forms.RightsForm(postData, instance=viewRights)
             form.cleaned_data = postData
             viewRights = form.save()
@@ -168,10 +136,7 @@ def rights_edit(request, uuid, id=None, section="ingest"):
         )
     else:
         if request.method == "POST":
-            postData = request.POST.copy()
-            agentId = rights_parse_agent_id(postData.get("rightsholder"))
-            postData.__setitem__("rightsholder", agentId)
-            form = forms.RightsForm(postData)
+            form = forms.RightsForm(request.POST)
         else:
             form = forms.RightsForm()
             viewRights = models.RightsStatement()
@@ -746,30 +711,6 @@ def rights_delete(request, uuid, id, section):
 def rights_grant_delete(request, uuid, id, section):
     models.RightsStatementRightsGranted.objects.get(pk=id).delete()
     return redirect("rights_%s:index" % section, uuid)
-
-
-def rights_holders_lookup(request, id):
-    try:
-        agent = models.RightsStatementLinkingAgentIdentifier.objects.get(pk=id)
-        result = agent.linkingagentidentifiervalue + " [" + str(agent.id) + "]"
-    except Exception:
-        result = ""
-    return HttpResponse(result)
-
-
-def rights_holders_autocomplete(request):
-    search_text = request.GET.get("text", "")
-
-    response = {}
-
-    agents = models.RightsStatementLinkingAgentIdentifier.objects.filter(
-        linkingagentidentifiervalue__icontains=search_text
-    )
-    for agent in agents:
-        value = agent.linkingagentidentifiervalue + " [" + str(agent.id) + "]"
-        response[value] = value
-
-    return helpers.json_response(response)
 
 
 def rights_list(request, uuid, section):

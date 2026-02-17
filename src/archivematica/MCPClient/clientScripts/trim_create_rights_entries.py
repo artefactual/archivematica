@@ -163,7 +163,6 @@ def call(jobs):
                             metadataappliestoidentifier=fileUUID,
                             rightsstatementidentifiertype="UUID",
                             rightsstatementidentifiervalue=str(uuid.uuid4()),
-                            rightsholder=1,
                             rightsbasis="Other",
                         )
 

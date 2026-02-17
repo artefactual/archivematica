@@ -131,14 +131,8 @@ Type will default to textarea.
 var RepeatingDataView = Backbone.View.extend({
 
   initialize: function() {
-    this.items = [];
-
     if (this.options.schema) {
       this.schema = this.options.schema;
-    }
-
-    if (this.options.description) {
-      this.description = this.options.description;
     }
 
     if (this.options.parentId) {
@@ -148,85 +142,6 @@ var RepeatingDataView = Backbone.View.extend({
     if (this.options.url) {
       this.url = this.options.url;
     }
-
-    if (this.options.noCreation != undefined) {
-      this.noCreation = this.options.noCreation;
-    }
-
-    if (this.options.canDelete != undefined) {
-      this.canDelete = this.options.canDelete;
-    }
-
-    this.waitingForInput = false;
-  },
-
-  newLinkEl: function() {
-    var $linkEl = $('<div class="btn btn-default">New ' + this.description + '</div>')
-      , self = this;
-
-    // allow suppression of button for creating new records
-    if (this.noCreation) {
-      return;
-    }
-
-    $linkEl.click(function() {
-      $(this).attr('disabled', 'true');
-      if (!self.waitingForInput) {
-      self.waitingForInput = true;
-      var field = new RepeatingDataRecordView(
-          0,
-          self.schema
-        )
-        , fieldEl = field.render().el;
-
-      var $input = $(fieldEl)
-        , $div = $('<div/>');
-
-      $div.append($input);
-      $(self.el).append($div);
-      $input.on('change', function() {
-        $.ajax({
-          url: self.url,
-          type: 'POST',
-          data: field.getValues(),
-          headers: {'X-CSRFToken': getCookie('csrftoken')},
-          success: function(result) {
-            $(self).attr('disabled', 'false');
-            self.waitingForInput = false;
-            $input.hide();
-            $input.fadeIn(function() {
-              self.render();
-            });
-          }
-        });
-      });
-
-      }
-    });
-
-    return $linkEl;
-  },
-
-  appendDelHandlerToRecord: function(fieldEl, id) {
-    var $delHandle = $('<span>' + gettext('Delete') + '</span>')
-      , self = this;
-
-    $(fieldEl).append($delHandle);
-
-    $delHandle.click(function() {
-      var deleteConfirm = gettext('Are you sure?');
-      if (confirm(deleteConfirm)) {
-        $.ajax({
-          url: self.url + '/' + id,
-          type: 'DELETE',
-          data: {'id': id},
-          headers: {'X-CSRFToken': getCookie('csrftoken')},
-          success: function(result) {
-            self.render();
-          }
-        });
-      }
-    });
   },
 
   render: function(cb) {
@@ -237,8 +152,7 @@ var RepeatingDataView = Backbone.View.extend({
         type: 'GET',
         success: function(result) {
           $(self.el)
-            .empty()
-            .append(self.newLinkEl());
+            .empty();
 
           // cycle through each result
           for(var index in result.results) {
@@ -268,10 +182,6 @@ var RepeatingDataView = Backbone.View.extend({
                 self.url
               )
               , fieldEl = field.render().el;
-
-            if (self.canDelete) {
-              self.appendDelHandlerToRecord(fieldEl, fieldData.id);
-            }
 
             $(self.el).append(fieldEl);
 

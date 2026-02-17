@@ -46,7 +46,7 @@ function repeatingNotesRecordsSchema(dataType) {
 
 function setUpRepeatingCopyrightNotesRecords(parentId) {
   var schema = repeatingNotesRecordsSchema('copyright');
-  setUpRepeatingField('copyrightnotes_', parentId, gettext('Copyright Note'), schema, '/formdata/copyrightnote/' + parentId + '/', true);
+  setUpRepeatingField('copyrightnotes_', parentId, gettext('Copyright Note'), schema, '/formdata/copyrightnote/' + parentId + '/');
 }
 
 function setUpCopyrightDocumentationIdentifierAttributes() {
@@ -59,7 +59,7 @@ function setUpCopyrightDocumentationIdentifierAttributes() {
 
 function setUpRepeatingCopyrightDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('copyright');
-  setUpRepeatingField('copyrightdocidfields_', parentId, gettext('Copyright Documentation Identifier'), schema, '/formdata/copyrightdocumentationidentifier/' + parentId + '/', true, setUpCopyrightDocumentationIdentifierAttributes);
+  setUpRepeatingField('copyrightdocidfields_', parentId, gettext('Copyright Documentation Identifier'), schema, '/formdata/copyrightdocumentationidentifier/' + parentId + '/', setUpCopyrightDocumentationIdentifierAttributes);
   setUpCopyrightDocumentationIdentifierAttributes();
 }
 
@@ -71,7 +71,7 @@ function setUpStatuteDocumentationIdentifierAttributes() {
 
 function setUpRepeatingStatuteDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('statute');
-  setUpRepeatingField('statutedocidfields_', parentId, gettext('Statute Documentation Identifier'), schema, '/formdata/statutedocumentationidentifier/' + parentId + '/', true, setUpStatuteDocumentationIdentifierAttributes);
+  setUpRepeatingField('statutedocidfields_', parentId, gettext('Statute Documentation Identifier'), schema, '/formdata/statutedocumentationidentifier/' + parentId + '/', setUpStatuteDocumentationIdentifierAttributes);
   setUpStatuteDocumentationIdentifierAttributes();
 }
 
@@ -83,7 +83,7 @@ function setUpStatuteNoteAttributes() {
 
 function setUpRepeatingStatuteNotesRecords(parentId) {
   var schema = repeatingNotesRecordsSchema('statute');
-  setUpRepeatingField('statutenotes_', parentId, gettext('Statute Note'), schema, '/formdata/statutenote/' + parentId + '/', true, setUpStatuteNoteAttributes);
+  setUpRepeatingField('statutenotes_', parentId, gettext('Statute Note'), schema, '/formdata/statutenote/' + parentId + '/', setUpStatuteNoteAttributes);
   setUpStatuteNoteAttributes();
 }
 
@@ -93,20 +93,20 @@ function setUpLicenseDocumentationIdentifierAttributes() {
 
 function setUpRepeatingLicenseDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('license');
-  setUpRepeatingField('licensedocidfields_', parentId, gettext('License Documentation Identifier'), schema, '/formdata/licensedocumentationidentifier/' + parentId + '/', true, setUpLicenseDocumentationIdentifierAttributes);
+  setUpRepeatingField('licensedocidfields_', parentId, gettext('License Documentation Identifier'), schema, '/formdata/licensedocumentationidentifier/' + parentId + '/', setUpLicenseDocumentationIdentifierAttributes);
   setUpLicenseDocumentationIdentifierAttributes();
 }
 
 function setUpRepeatingOtherRightsDocumentationIdentifierRecords(parentId) {
   var schema = repeatingDocumentationIdentifierRecordsSchema('otherrights');
-  setUpRepeatingField('otherrightsdocidfields_', parentId, gettext('Other Rights Documentation Identifier'), schema, '/formdata/otherrightsdocumentationidentifier/' + parentId + '/', true);
+  setUpRepeatingField('otherrightsdocidfields_', parentId, gettext('Other Rights Documentation Identifier'), schema, '/formdata/otherrightsdocumentationidentifier/' + parentId + '/');
 }
 
 function setUpRepeatingOtherRightsNotesRecords(parentId) {
   var schema = {
     'otherrightsnote': {},
   };
-  setUpRepeatingField('otherrightsnotes_', parentId, gettext('Other Rights Note'), schema, '/formdata/otherrightsnote/' + parentId + '/', true);
+  setUpRepeatingField('otherrightsnotes_', parentId, gettext('Other Rights Note'), schema, '/formdata/otherrightsnote/' + parentId + '/');
 }
 
 function setUpLicenseNoteAttributes() {
@@ -119,7 +119,7 @@ function setUpRepeatingLicenseNotesRecords(parentId) {
   var schema = {
     'licensenote': {},
   };
-  setUpRepeatingField('licensenotes_', parentId, gettext('License Note'), schema, '/formdata/licensenote/' + parentId + '/', true, setUpLicenseNoteAttributes);
+  setUpRepeatingField('licensenotes_', parentId, gettext('License Note'), schema, '/formdata/licensenote/' + parentId + '/', setUpLicenseNoteAttributes);
   setUpLicenseNoteAttributes();
 }
 
@@ -141,7 +141,7 @@ function setUpRepeatingRightsGrantedRestrictionRecords(parentId) {
       }
     }
   };
-  setUpRepeatingField('rightsrestrictions_', parentId, gettext('Restriction'), schema, '/formdata/rightsrestriction/' + parentId + '/', true, setUpRepeatingRightsGrantedRestrictionAttributes);
+  setUpRepeatingField('rightsrestrictions_', parentId, gettext('Restriction'), schema, '/formdata/rightsrestriction/' + parentId + '/', setUpRepeatingRightsGrantedRestrictionAttributes);
   setUpRepeatingRightsGrantedRestrictionAttributes();
 }
 
@@ -149,42 +149,19 @@ function setUpRepeatingRightsGrantedNotesRecords(parentId) {
   var schema = {
     'rightsgrantednote': {},
   };
-  setUpRepeatingField('rightsfields_', parentId, gettext('Rights Granted Note'), schema, '/formdata/rightsnote/' + parentId + '/', true);
+  setUpRepeatingField('rightsfields_', parentId, gettext('Rights Granted Note'), schema, '/formdata/rightsnote/' + parentId + '/');
 }
 
 // repeating child field to a formset bound to existing data
-function setUpRepeatingField(idPrefix, parentId, description, schema, url, noCreation, cb) {
+function setUpRepeatingField(idPrefix, parentId, description, schema, url, cb) {
   var rights = new RepeatingDataView({
     el: $('#' + idPrefix + parentId),
     description: description,
     parentId: parentId,
     schema: schema,
-    url: url,
-    noCreation: noCreation
+    url: url
   });
   rights.render(cb);
-
-  if (parentId == '' || parentId == 'None') {
-    var instructionDescription = description.toLowerCase()
-      , instructions;
-
-    // make other rights fields instructions generic as they are used with
-    // a number of types of basises
-    if (instructionDescription == 'other rights documentation identifier') {
-      instructionDescription = 'documentation identifier';
-    }
-
-    if (instructionDescription == 'other rights note') {
-      instructionDescription = 'note';
-    }
-
-    if (noCreation == undefined || !noCreation) {
-      instructions = interpolate(gettext('You\'ll be able to create a %s record once the above section is completed.'), [instructionDescription]);
-      $('#' + idPrefix + parentId).append(
-        '<span class="help-block">' + instructions + '</span>'
-      );
-    }
-  }
 }
 
 // logic to hide forms to create new data if data already exists:
@@ -314,35 +291,4 @@ $(document).ready(function() {
   $('.rights-grant-restrictions').each(function() {
     $($(this).parent().children().first().next().next()).after($(this));
   });
-
-  // establish rightsholder autocomplete
-  if ($('#id_rightsholder').length > 0) {
-    // lookup rightsholder
-    $.get('lookup/rightsholder/' + $('#id_rightsholder').val(), function(data) {
-      $('#id_rightsholder').val(data);
-    });
-
-    // attach autocomplete
-    $("#id_rightsholder").autocomplete({  
-
-      // define callback to format results  
-      source: function(req, add){  
- 
-        // pass request to server  
-        $.getJSON("autocomplete/rightsholders", {'text': req.term}, function(data) {  
- 
-          // create array for response objects  
-          var suggestions = [];  
-  
-          // process response  
-          $.each(data, function(i, val){  
-            suggestions.push(val);  
-          });  
-
-          // pass array to callback  
-          add(suggestions);  
-        });
-      }
-    });
-  }
 });

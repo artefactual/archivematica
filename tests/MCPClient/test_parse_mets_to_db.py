@@ -184,7 +184,6 @@ class TestParsePremisRights(TestCase):
         )
         assert rights.rightsstatementidentifiertype == ""
         assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsholder == 0
         assert rights.rightsbasis == "Copyright"
         assert rights.status == "REINGEST"
         cr = models.RightsStatementCopyright.objects.get(rightsstatement=rights)
@@ -240,7 +239,6 @@ class TestParsePremisRights(TestCase):
         )
         assert rights.rightsstatementidentifiertype == ""
         assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsholder == 0
         assert rights.rightsbasis == "License"
         assert rights.status == "REINGEST"
         li = models.RightsStatementLicense.objects.get(rightsstatement=rights)
@@ -279,7 +277,6 @@ class TestParsePremisRights(TestCase):
         )
         assert rights.rightsstatementidentifiertype == ""
         assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsholder == 0
         assert rights.rightsbasis == "Statute"
         assert rights.status == "REINGEST"
         st = models.RightsStatementStatuteInformation.objects.get(
@@ -325,7 +322,6 @@ class TestParsePremisRights(TestCase):
         )
         assert rights.rightsstatementidentifiertype == ""
         assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsholder == 0
         assert rights.rightsbasis == "Policy"
         assert rights.status == "REINGEST"
         other = models.RightsStatementOtherRightsInformation.objects.get(
@@ -369,7 +365,6 @@ class TestParsePremisRights(TestCase):
         )
         assert rights.rightsstatementidentifiertype == ""
         assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsholder == 0
         assert rights.rightsbasis == "Donor"
         assert rights.status == "REINGEST"
         other = models.RightsStatementOtherRightsInformation.objects.get(
@@ -414,7 +409,6 @@ class TestParsePremisRights(TestCase):
         )
         assert rights.rightsstatementidentifiertype == ""
         assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsholder == 0
         assert rights.rightsbasis == "Statute"
         assert rights.status == "REINGEST"
         st = models.RightsStatementStatuteInformation.objects.get(

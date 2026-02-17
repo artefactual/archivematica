@@ -1063,9 +1063,6 @@ class RightsStatement(models.Model):
     rightsstatementidentifiervalue = models.TextField(
         db_column="rightsStatementIdentifierValue", blank=True, verbose_name=_("Value")
     )
-    rightsholder = models.IntegerField(
-        db_column="fkAgent", default=0, verbose_name=_("Rights holder")
-    )
     RIGHTS_BASIS_CHOICES = (
         ("Copyright", _("Copyright")),
         ("Statute", _("Statute")),
@@ -1504,27 +1501,6 @@ class RightsStatementOtherRightsInformationNote(models.Model):
     class Meta:
         db_table = "RightsStatementOtherRightsNote"
         verbose_name = _("Rights: Other: Note")
-
-
-class RightsStatementLinkingAgentIdentifier(models.Model):
-    id = models.AutoField(primary_key=True, db_column="pk")
-    rightsstatement = models.ForeignKey(
-        RightsStatement, db_column="fkRightsStatement", on_delete=models.CASCADE
-    )
-    linkingagentidentifiertype = models.TextField(
-        db_column="linkingAgentIdentifierType",
-        verbose_name=_("Linking Agent"),
-        blank=True,
-    )
-    linkingagentidentifiervalue = models.TextField(
-        db_column="linkingAgentIdentifierValue",
-        verbose_name=_("Linking Agent Value"),
-        blank=True,
-    )
-
-    class Meta:
-        db_table = "RightsStatementLinkingAgentIdentifier"
-        verbose_name = _("Rights: Agent")
 
 
 class UnitVariableManager(models.Manager):

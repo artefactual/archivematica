@@ -6,7 +6,6 @@
         "status": "ORIGINAL",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Copyright",
         "rightsstatementidentifiertype": ""
@@ -19,7 +18,6 @@
         "status": "ORIGINAL",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Statute",
         "rightsstatementidentifiertype": ""
@@ -32,7 +30,6 @@
         "status": "ORIGINAL",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "License",
         "rightsstatementidentifiertype": ""
@@ -45,7 +42,6 @@
         "status": "ORIGINAL",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Donor",
         "rightsstatementidentifiertype": ""
@@ -58,7 +54,6 @@
         "status": "REINGEST",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "10d57d98-29e5-4b2c-9f9f-d163e632eb31",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Copyright",
         "rightsstatementidentifiertype": ""
@@ -71,7 +66,6 @@
         "status": "UPDATED",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Statute",
         "rightsstatementidentifiertype": ""
@@ -84,7 +78,6 @@
         "status": "REINGEST",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Copyright",
         "rightsstatementidentifiertype": ""
@@ -97,7 +90,6 @@
         "status": "REINGEST",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "License",
         "rightsstatementidentifiertype": ""
@@ -110,7 +102,6 @@
         "status": "REINGEST",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Donor",
         "rightsstatementidentifiertype": ""
@@ -123,7 +114,6 @@
         "status": "REINGEST",
         "metadataappliestotype": "3e48343d-e2d2-4956-aaa3-b54d26eb9761",
         "metadataappliestoidentifier": "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0",
-        "rightsholder": 0,
         "rightsstatementidentifiervalue": "",
         "rightsbasis": "Policy",
         "rightsstatementidentifiertype": ""

@@ -25,7 +25,6 @@ class RightsForm(forms.ModelForm):
     class Meta:
         model = models.RightsStatement
         fields = ("rightsbasis",)
-        widgets = {"rightsholder": forms.widgets.TextInput(attrs=settings.INPUT_ATTRS)}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
