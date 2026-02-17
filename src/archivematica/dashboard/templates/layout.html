@@ -28,7 +28,10 @@
       };
     </script>
   </head>
-  <body id="page-{% block page_id %}default{% endblock %}">
+  <body
+    id="page-{% block page_id %}default{% endblock %}"
+    data-features="{% block data_features %}{% endblock %}"
+  >
 
     {% block header %}
 
