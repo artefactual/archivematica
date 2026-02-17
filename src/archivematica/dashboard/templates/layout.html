@@ -109,6 +109,7 @@
 
     {% endblock %}
 
+    <script type="module" src="{% static 'vue/core.js' %}"></script>
     {% block extra_js %}{% endblock extra_js %}
     {% if user.is_authenticated %}
       <script type="module" src="{% static 'vue/topbar.js' %}"></script>

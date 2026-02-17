@@ -20,6 +20,7 @@
   "dependencies": {
     "@vueuse/core": "^14.2.0",
     "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
+    "jquery": "^4.0.0",
     "reka-ui": "^2.8.0",
     "vue": "^3.5.27",
     "vue-i18n": "^11.2.8"
