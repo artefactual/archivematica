@@ -1,27 +1,23 @@
-import { applyDateInputMask } from './inputmask'
+import { initI18n } from '@/shared/i18n'
+import { initGrantsPage } from './grants-page'
+import { initMainPage } from './main-page'
 
 const PAGE_IDS = {
   main: 'page-rights-editor-main',
   grants: 'page-rights-editor-grants',
 } as const
 
-function initMainPage(): void {
-  applyDateInputMask()
-}
+export async function init(): Promise<void> {
+  await initI18n()
 
-function initGrantsPage(): void {
-  applyDateInputMask()
-}
-
-export function init(): void {
   const pageId = document.body.id
 
   if (pageId === PAGE_IDS.main) {
-    initMainPage()
+    await initMainPage()
     return
   }
 
   if (pageId === PAGE_IDS.grants) {
-    initGrantsPage()
+    await initGrantsPage()
   }
 }

@@ -73,9 +73,10 @@ class RightsGrantedForm(forms.ModelForm):
             ),
             "enddateopen": forms.widgets.CheckboxInput(
                 attrs={
+                    "class": "js-rights-open-end-date",
                     "title": _(
                         'Use "OPEN" for an open ended term of restriction. Omit end date if the ending date is unknown or the permission statement applies to many objects with different end dates.'
-                    )
+                    ),
                 }
             ),
         }

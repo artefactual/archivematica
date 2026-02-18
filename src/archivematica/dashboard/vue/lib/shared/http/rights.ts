@@ -16,6 +16,12 @@ export type RightsFormdataType
 export const RIGHTS_EDITOR_FORMDATA_TYPES = {
   copyrightDocumentationIdentifier: 'copyrightdocumentationidentifier',
   copyrightNote: 'copyrightnote',
+  statuteDocumentationIdentifier: 'statutedocumentationidentifier',
+  statuteNote: 'statutenote',
+  licenseDocumentationIdentifier: 'licensedocumentationidentifier',
+  licenseNote: 'licensenote',
+  otherRightsDocumentationIdentifier: 'otherrightsdocumentationidentifier',
+  otherRightsNote: 'otherrightsnote',
   rightsRestriction: 'rightsrestriction',
   rightsNote: 'rightsnote',
 } as const
