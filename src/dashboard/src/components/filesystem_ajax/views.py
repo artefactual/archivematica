@@ -243,6 +243,8 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
     if not paths:
         raise ValueError("No path provided.")
 
+    logger.debug("start_transfer() begin: transfer_name: %s, paths: %s", transfer_name, paths)
+
     # Create temp directory that everything will be copied into
     temp_base_dir = os.path.join(SHARED_DIRECTORY_ROOT, "tmp")
     temp_dir = tempfile.mkdtemp(dir=temp_base_dir)
@@ -268,8 +270,11 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
             filepath = os.path.join(temp_dir, target)
 
         transfer_relative = transfer_dir.replace(SHARED_DIRECTORY_ROOT, "", 1)
+        logger.debug("before _copy_from_transfer_sources(%s, %s", [path], transfer_relative)
         _copy_from_transfer_sources([path], transfer_relative)
+        logger.debug("after _copy_from_transfer_sources(%s, %s", [path], transfer_relative)
         try:
+            logger.debug("before _copy_to_start_transfer(): filepath=%s", filepath)
             destination = _copy_to_start_transfer(
                 filepath=filepath,
                 type=transfer_type,
@@ -277,11 +282,14 @@ def start_transfer(transfer_name, transfer_type, accession, access_id, paths, ro
                 access_id=access_id,
                 transfer_metadata_set_row_uuid=row_id,
             )
+            logger.debug("after _copy_to_start_transfer(): destination=%s", destination)
+
         except Exception as e:
             logger.exception(f"Error starting transfer {filepath}: {e}")
             raise Exception(f"Error starting transfer {filepath}: {e}")
 
     shutil.rmtree(temp_dir)
+    logger.debug("start_transfer() end: destination: %s", destination)
     return {"message": _("Copy successful."), "path": destination}
 
 

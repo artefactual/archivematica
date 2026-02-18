@@ -367,11 +367,14 @@ def start_transfer_api(request):
     paths = [archivematicaFunctions.b64decode_string(path) for path in paths]
     row_ids = request.POST.getlist("row_ids[]", [""])
     try:
+        LOGGER.debug("before start_transfer()")
         response = filesystem_ajax_views.start_transfer(
             transfer_name, transfer_type, accession, access_id, paths, row_ids
         )
+        LOGGER.debug("after start_transfer()")
         return helpers.json_response(response)
     except Exception as e:
+        LOGGER.debug("Exception occurred in start_transfer(): %s", str(e))
         return _error_response(str(e), status_code=500)
 
 
