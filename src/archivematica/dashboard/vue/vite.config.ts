@@ -12,6 +12,14 @@ const VITE_PROXY_TARGET = 'http://127.0.0.1:62080'
 // Define manual chunks for better control over code splitting.
 const CHUNK_ROUTES = [
   {
+    name: 'jquery',
+    match: ['node_modules/jquery/'],
+  },
+  {
+    name: 'inputmask',
+    match: ['node_modules/inputmask/'],
+  },
+  {
     name: 'runtime',
     match: [
       'node_modules/vue/',
