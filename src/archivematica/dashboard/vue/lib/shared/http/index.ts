@@ -44,3 +44,16 @@ export {
   deleteUnit,
   deleteCompletedUnits,
 } from './unit'
+export type {
+  RightsFormdataType,
+  RightsEditorFormdataType,
+  RightsFormdataValues,
+  RightsFormdataRecord,
+  RightsFormdataResponse,
+} from './rights'
+export {
+  RIGHTS_EDITOR_FORMDATA_TYPES,
+  listRightsFormdata,
+  saveRightsFormdata,
+  deleteRightsFormdata,
+} from './rights'
