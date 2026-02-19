@@ -228,4 +228,79 @@ describe('useProcessingMonitor', () => {
 
     wrapper.unmount()
   })
+
+  it('accelerates next poll to one second when requested', async () => {
+    vi.useFakeTimers()
+
+    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
+      options: TransferStatusesIfChangedOptions,
+    ) => Promise<TransferStatusesIfChangedResponse>>
+    mockGetTransferStatuses.mockResolvedValue({
+      changed: true,
+      raw: '{"objects":[],"mcp":true}',
+      data: { objects: [], mcp: true },
+    })
+
+    const pollIntervalMs = defaultConfig.polling_interval * 1000
+    const { wrapper, monitor } = await mountMonitor('Transfer')
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(5000)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    monitor.requestSoonerPoll()
+
+    await vi.advanceTimersByTimeAsync(999)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+
+    await vi.advanceTimersByTimeAsync(pollIntervalMs)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(3)
+
+    wrapper.unmount()
+  })
+
+  it('reschedules near-imminent polling to one second and keeps only one accelerated timer', async () => {
+    vi.useFakeTimers()
+
+    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
+      options: TransferStatusesIfChangedOptions,
+    ) => Promise<TransferStatusesIfChangedResponse>>
+    mockGetTransferStatuses.mockResolvedValue({
+      changed: true,
+      raw: '{"objects":[],"mcp":true}',
+      data: { objects: [], mcp: true },
+    })
+
+    const { wrapper, monitor } = await mountMonitor('Transfer')
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(defaultConfig.polling_interval * 1000 - 500)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    monitor.requestSoonerPoll()
+
+    await vi.advanceTimersByTimeAsync(500)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    monitor.requestSoonerPoll()
+
+    await vi.advanceTimersByTimeAsync(999)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+
+    wrapper.unmount()
+  })
 })

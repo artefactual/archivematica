@@ -38,7 +38,10 @@ const getPollingIntervalSeconds = (config: MonitorConfigJson): number => {
 
 export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorConfigJson) => {
   const pollingIntervalSeconds = getPollingIntervalSeconds(config)
-  const pollingTimer = ref<number | null>(null)
+  const pollingIntervalMs = pollingIntervalSeconds * 1000
+  const acceleratedPollingDelayMs = 1000
+  const pollingIntervalTimer = ref<number | null>(null)
+  const acceleratedPollingTimer = ref<number | null>(null)
   const documentVisibility = useDocumentVisibility()
   const unitsState = ref<ProcessingUnit[]>([])
   const loadingState = ref<boolean>(true)
@@ -136,19 +139,49 @@ export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorC
   const error = computed<string | null>(() => errorState.value)
 
   const stopPolling = (): void => {
-    if (pollingTimer.value !== null) {
-      window.clearInterval(pollingTimer.value)
-      pollingTimer.value = null
+    if (pollingIntervalTimer.value !== null) {
+      window.clearInterval(pollingIntervalTimer.value)
+      pollingIntervalTimer.value = null
+    }
+    if (acceleratedPollingTimer.value !== null) {
+      window.clearTimeout(acceleratedPollingTimer.value)
+      acceleratedPollingTimer.value = null
     }
   }
 
   const startPolling = (): void => {
-    if (pollingTimer.value !== null || documentVisibility.value !== 'visible') {
+    if (
+      pollingIntervalTimer.value !== null
+      || acceleratedPollingTimer.value !== null
+      || documentVisibility.value !== 'visible'
+    ) {
       return
     }
-    pollingTimer.value = window.setInterval(() => {
+    pollingIntervalTimer.value = window.setInterval(() => {
       void refresh()
-    }, pollingIntervalSeconds * 1000)
+    }, pollingIntervalMs)
+  }
+
+  const requestSoonerPoll = (): void => {
+    if (documentVisibility.value !== 'visible') {
+      return
+    }
+
+    if (pollingIntervalTimer.value !== null) {
+      window.clearInterval(pollingIntervalTimer.value)
+      pollingIntervalTimer.value = null
+    }
+    if (acceleratedPollingTimer.value !== null) {
+      window.clearTimeout(acceleratedPollingTimer.value)
+      acceleratedPollingTimer.value = null
+    }
+
+    acceleratedPollingTimer.value = window.setTimeout(() => {
+      acceleratedPollingTimer.value = null
+      void refresh().finally(() => {
+        startPolling()
+      })
+    }, acceleratedPollingDelayMs)
   }
 
   watch(documentVisibility, (visibility) => {
@@ -177,5 +210,6 @@ export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorC
     error,
     pollingIntervalSeconds,
     refresh,
+    requestSoonerPoll,
   }
 }

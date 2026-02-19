@@ -560,6 +560,60 @@ describe('ProcessMonitor', () => {
     wrapper.unmount()
   })
 
+  it('accelerates polling after executing a job choice', async () => {
+    vi.useFakeTimers()
+    vi.mocked(getTransferStatuses).mockResolvedValue({
+      objects: [{
+        uuid: 't-1',
+        directory: 'Transfer-1',
+        timestamp: 1,
+        jobs: [{
+          uuid: 'j-1',
+          type: 'Job 1',
+          microservicegroup: 'Group A',
+          currentstep: 1,
+          timestamp: 1,
+          produces_tasks: true,
+          choices: {
+            approve: 'Approve transfer',
+          },
+        }],
+      }],
+      mcp: true,
+    })
+    vi.mocked(executeChoice).mockResolvedValueOnce('ok')
+
+    const wrapper = mount(ProcessMonitor, {
+      props: { unitType: 'Transfer', config: defaultConfig },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    const choiceSelect = wrapper.find('.job-detail-actions select')
+    expect(choiceSelect.exists()).toBe(true)
+    await choiceSelect.setValue('approve')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    expect(executeChoice).toHaveBeenCalledWith({
+      uuid: 'j-1',
+      choice: 'approve',
+    })
+
+    await vi.advanceTimersByTimeAsync(999)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+
+    wrapper.unmount()
+  })
+
   it('redirects to SIP upload mapping page for Upload DIP to ArchivesSpace choice', async () => {
     vi.mocked(getIngestStatuses).mockReset()
     vi.mocked(getIngestUploadAsUrl).mockClear()

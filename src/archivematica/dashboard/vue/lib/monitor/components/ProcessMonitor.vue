@@ -34,7 +34,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const { units, loading, error, refresh } = useProcessingMonitor(props.unitType, props.config)
+const { units, loading, error, refresh, requestSoonerPoll } = useProcessingMonitor(props.unitType, props.config)
 
 // List of expanded units by UUID.
 const expandedUnitUuids = ref<Record<string, boolean>>({})
@@ -283,6 +283,7 @@ const executeMcpChoice = async (job: ProcessingJob, choice: string): Promise<voi
       uuid: job.uuid,
       choice,
     })
+    requestSoonerPoll()
     job.currentstep = STATUS_CODE_BY_NAME.STATUS_EXECUTING_COMMANDS
     job.currentstep_label = undefined
     job.choices = undefined
@@ -471,6 +472,7 @@ const confirmRemoveUnit = async (): Promise<void> => {
     await deleteUnit(getApiUnitType(), unitPendingRemoval.value.uuid)
     await new Promise(resolve => window.setTimeout(resolve, 250))
     await refresh()
+    requestSoonerPoll()
     unitPendingRemoval.value = null
   } catch {
     window.alert(t('monitor.failedRemoveUnit'))
@@ -497,6 +499,7 @@ const confirmRemoveAllUnits = async (): Promise<void> => {
       window.alert(t(messageKeys.noCompletedToRemove))
     }
     await refresh()
+    requestSoonerPoll()
     removeAllDialogOpen.value = false
   } catch {
     window.alert(t(getRemoveAllMessageKeys().failedRemoveAllCompleted))
