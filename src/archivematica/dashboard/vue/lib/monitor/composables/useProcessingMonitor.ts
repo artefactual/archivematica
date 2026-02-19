@@ -1,4 +1,5 @@
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useDocumentVisibility } from '@vueuse/core'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { getIngestStatuses } from '@/shared/http/ingest'
 import { getTransferStatuses } from '@/shared/http/transfer'
 import type { ProcessingStatusesResponse, ProcessingUnit } from '@/shared/http/processing'
@@ -38,6 +39,7 @@ const getPollingIntervalSeconds = (config: MonitorConfigJson): number => {
 export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorConfigJson) => {
   const pollingIntervalSeconds = getPollingIntervalSeconds(config)
   const pollingTimer = ref<number | null>(null)
+  const documentVisibility = useDocumentVisibility()
   const unitsState = ref<ProcessingUnit[]>([])
   const loadingState = ref<boolean>(true)
   const errorState = ref<string | null>(null)
@@ -133,18 +135,40 @@ export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorC
   const loading = computed<boolean>(() => loadingState.value)
   const error = computed<string | null>(() => errorState.value)
 
-  onMounted(() => {
-    void refresh()
-    pollingTimer.value = window.setInterval(() => {
-      void refresh()
-    }, pollingIntervalSeconds * 1000)
-  })
-
-  onUnmounted(() => {
+  const stopPolling = (): void => {
     if (pollingTimer.value !== null) {
       window.clearInterval(pollingTimer.value)
       pollingTimer.value = null
     }
+  }
+
+  const startPolling = (): void => {
+    if (pollingTimer.value !== null || documentVisibility.value !== 'visible') {
+      return
+    }
+    pollingTimer.value = window.setInterval(() => {
+      void refresh()
+    }, pollingIntervalSeconds * 1000)
+  }
+
+  watch(documentVisibility, (visibility) => {
+    if (visibility !== 'visible') {
+      stopPolling()
+      return
+    }
+    void refresh()
+    startPolling()
+  })
+
+  onMounted(() => {
+    if (documentVisibility.value === 'visible') {
+      void refresh()
+    }
+    startPolling()
+  })
+
+  onUnmounted(() => {
+    stopPolling()
   })
 
   return {

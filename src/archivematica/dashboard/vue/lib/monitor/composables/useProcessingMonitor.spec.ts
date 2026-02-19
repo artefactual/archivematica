@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
 import type { MockedFunction } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
@@ -35,6 +35,40 @@ const defaultConfig: MonitorConfigJson = {
   job_statuses: {},
 }
 
+let visibilityState: DocumentVisibilityState = 'visible'
+let originalVisibilityStateDescriptor: PropertyDescriptor | undefined
+let originalHiddenDescriptor: PropertyDescriptor | undefined
+
+const applyDocumentVisibilityState = (): void => {
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    get: () => visibilityState,
+  })
+  Object.defineProperty(document, 'hidden', {
+    configurable: true,
+    get: () => visibilityState === 'hidden',
+  })
+}
+
+const setDocumentVisibility = (state: DocumentVisibilityState): void => {
+  visibilityState = state
+  applyDocumentVisibilityState()
+  document.dispatchEvent(new Event('visibilitychange'))
+}
+
+const restoreDocumentVisibilityDescriptors = (): void => {
+  if (originalVisibilityStateDescriptor) {
+    Object.defineProperty(document, 'visibilityState', originalVisibilityStateDescriptor)
+  } else {
+    Reflect.deleteProperty(document, 'visibilityState')
+  }
+  if (originalHiddenDescriptor) {
+    Object.defineProperty(document, 'hidden', originalHiddenDescriptor)
+  } else {
+    Reflect.deleteProperty(document, 'hidden')
+  }
+}
+
 type ProcessingMonitorState = ReturnType<typeof useProcessingMonitor>
 
 const mountMonitor = async (
@@ -59,12 +93,23 @@ const mountMonitor = async (
 }
 
 describe('useProcessingMonitor', () => {
+  beforeAll(() => {
+    originalVisibilityStateDescriptor = Object.getOwnPropertyDescriptor(document, 'visibilityState')
+    originalHiddenDescriptor = Object.getOwnPropertyDescriptor(document, 'hidden')
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
+    visibilityState = 'visible'
+    applyDocumentVisibilityState()
   })
 
   afterEach(() => {
     vi.useRealTimers()
+  })
+
+  afterAll(() => {
+    restoreDocumentVisibilityDescriptors()
   })
 
   it('uses changed-aware polling and skips unchanged payload updates', async () => {
@@ -110,6 +155,76 @@ describe('useProcessingMonitor', () => {
       previousRaw: '{"objects":[{"uuid":"t-1"}],"mcp":true}',
     })
     expect(monitor.units.value.map((unit: ProcessingUnit) => unit.uuid)).toEqual(['t-2'])
+
+    wrapper.unmount()
+  })
+
+  it('pauses polling while hidden and resumes when visible', async () => {
+    vi.useFakeTimers()
+
+    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
+      options: TransferStatusesIfChangedOptions,
+    ) => Promise<TransferStatusesIfChangedResponse>>
+    mockGetTransferStatuses.mockResolvedValue({
+      changed: true,
+      raw: '{"objects":[],"mcp":true}',
+      data: { objects: [], mcp: true },
+    })
+
+    const pollIntervalMs = defaultConfig.polling_interval * 1000
+    const { wrapper } = await mountMonitor('Transfer')
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(pollIntervalMs)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+
+    setDocumentVisibility('hidden')
+    await flushPromises()
+
+    await vi.advanceTimersByTimeAsync(pollIntervalMs * 3)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+
+    setDocumentVisibility('visible')
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(3)
+
+    await vi.advanceTimersByTimeAsync(pollIntervalMs)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(4)
+
+    wrapper.unmount()
+  })
+
+  it('skips initial polling while hidden and starts after becoming visible', async () => {
+    vi.useFakeTimers()
+    setDocumentVisibility('hidden')
+
+    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
+      options: TransferStatusesIfChangedOptions,
+    ) => Promise<TransferStatusesIfChangedResponse>>
+    mockGetTransferStatuses.mockResolvedValue({
+      changed: true,
+      raw: '{"objects":[],"mcp":true}',
+      data: { objects: [], mcp: true },
+    })
+
+    const pollIntervalMs = defaultConfig.polling_interval * 1000
+    const { wrapper } = await mountMonitor('Transfer')
+    expect(getTransferStatuses).toHaveBeenCalledTimes(0)
+
+    await vi.advanceTimersByTimeAsync(pollIntervalMs * 2)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(0)
+
+    setDocumentVisibility('visible')
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(pollIntervalMs)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
 
     wrapper.unmount()
   })
