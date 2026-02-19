@@ -285,7 +285,9 @@ def copy_files(source_location, destination_location, files):
         source_location and destination_location, respectively.  All other
         fields ignored.
     """
+    LOGGER.debug("before get_pipeline()")
     pipeline = get_pipeline(am.get_setting("dashboard_uuid"))
+    LOGGER.debug("after get_pipeline()")
     move_files = {
         "origin_location": source_location["resource_uri"],
         "files": files,
@@ -308,8 +310,10 @@ def copy_files(source_location, destination_location, files):
 
     url = _storage_service_url() + "location/" + destination_location["uuid"] + "/"
     try:
+        LOGGER.debug("before SS API call")
         with ss_api_timer(function="copy_files"):
             response = _storage_api_slow_session().post(url, json=move_files)
+        LOGGER.debug("after SS API call, response: %s", response)
         response.raise_for_status()
         return (response.json(), None)
     except requests.exceptions.RequestException as e:

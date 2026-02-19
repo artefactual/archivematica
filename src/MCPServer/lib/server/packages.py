@@ -244,12 +244,15 @@ def _copy_from_transfer_sources(paths, relative_destination):
 
     message = []
     for item in files.values():
+        logger.debug("before storage_service.copy_files, item: %s", item)
         reply, error = storage_service.copy_files(
             item["location"], processing_location, item["files"]
         )
+        logger.debug("after storage_service.copy_files, reply: %s, error: %s", reply, error)
         if reply is None:
             message.append(str(error))
     if message:
+        logger.debug("message not empty: %s", message)
         raise Exception(
             "The following errors occurred: %(message)s"
             % {"message": ", ".join(message)}
