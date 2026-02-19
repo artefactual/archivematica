@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { createI18nMock } from '@/shared/i18n'
 import App from './App.vue'
 import type { TransferComponent, TransferFormData } from '@/browser/types'
+import { TRANSFER_STARTED_EVENT } from '@/shared/events/monitor'
 
 // Type for the TransferBrowser component instance
 type TransferBrowserComponent = {
@@ -335,6 +336,39 @@ describe('TransferBrowser', () => {
       expect(lastAlert?.message).toBe(
         'Transfer "test-transfer" started with processing configuration "default".',
       )
+    })
+
+    it('dispatches a transfer-started event after a successful transfer', async () => {
+      mockCreateTransfer.mockResolvedValue({
+        id: 'transfer-1',
+      })
+      const dispatchSpy = vi.spyOn(document, 'dispatchEvent')
+
+      const wrapper = mount(App, {
+        global: {
+          plugins: [i18nMock],
+        },
+      })
+
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      const transferBrowser = wrapper.vm as unknown as TransferBrowserComponent
+      transferBrowser.transferComponents.push({
+        id: '1',
+        path: '/test/path',
+        location: 'loc-1',
+      })
+      transferBrowser.transferFormData.name = 'test-transfer'
+
+      await wrapper.vm.$nextTick()
+      await wrapper.find('button.btn-success').trigger('click')
+      await flushPromises()
+
+      expect(
+        dispatchSpy.mock.calls.some(([event]) => event.type === TRANSFER_STARTED_EVENT),
+      ).toBe(true)
+      dispatchSpy.mockRestore()
     })
   })
 

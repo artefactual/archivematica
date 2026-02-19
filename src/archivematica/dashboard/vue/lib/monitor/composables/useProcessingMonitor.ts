@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { getIngestStatuses } from '@/shared/http/ingest'
 import { getTransferStatuses } from '@/shared/http/transfer'
 import type { ProcessingStatusesResponse, ProcessingUnit } from '@/shared/http/processing'
+import { TRANSFER_STARTED_EVENT } from '@/shared/events/monitor'
 
 export type MonitorUnitType = 'Transfer' | 'SIP'
 
@@ -184,6 +185,10 @@ export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorC
     }, acceleratedPollingDelayMs)
   }
 
+  const handleTransferStarted = (): void => {
+    requestSoonerPoll()
+  }
+
   watch(documentVisibility, (visibility) => {
     if (visibility !== 'visible') {
       stopPolling()
@@ -198,9 +203,11 @@ export const useProcessingMonitor = (unitType: MonitorUnitType, config: MonitorC
       void refresh()
     }
     startPolling()
+    document.addEventListener(TRANSFER_STARTED_EVENT, handleTransferStarted)
   })
 
   onUnmounted(() => {
+    document.removeEventListener(TRANSFER_STARTED_EVENT, handleTransferStarted)
     stopPolling()
   })
 

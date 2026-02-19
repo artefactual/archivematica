@@ -13,6 +13,7 @@ import type {
   FileNode,
 } from '@/browser/types'
 import type { SourceLocation } from '@/shared/http/transfer'
+import { dispatchTransferStartedEvent } from '@/shared/events/monitor'
 
 const { t } = useI18n()
 
@@ -259,6 +260,7 @@ const startTransfer = async (processingConfig: string = 'default') => {
       processingConfig, // Use the passed processing config.
       components: transferComponents.value,
     })
+    dispatchTransferStartedEvent()
 
     // Find the processing config name for display.
     const selectedConfig = processingConfigs.value.find(config => config.pk === processingConfig)

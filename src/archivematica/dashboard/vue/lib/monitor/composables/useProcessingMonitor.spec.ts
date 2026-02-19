@@ -10,6 +10,7 @@ import type {
   TransferStatusesIfChangedOptions,
   TransferStatusesIfChangedResponse,
 } from '@/shared/http/transfer'
+import { TRANSFER_STARTED_EVENT } from '@/shared/events/monitor'
 
 vi.mock('@/shared/http/transfer', async () => {
   const actual = await vi.importActual<typeof import('@/shared/http/transfer')>('@/shared/http/transfer')
@@ -292,6 +293,38 @@ describe('useProcessingMonitor', () => {
     expect(getTransferStatuses).toHaveBeenCalledTimes(1)
 
     monitor.requestSoonerPoll()
+
+    await vi.advanceTimersByTimeAsync(999)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+
+    wrapper.unmount()
+  })
+
+  it('accelerates polling when a transfer-started event is received', async () => {
+    vi.useFakeTimers()
+
+    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
+      options: TransferStatusesIfChangedOptions,
+    ) => Promise<TransferStatusesIfChangedResponse>>
+    mockGetTransferStatuses.mockResolvedValue({
+      changed: true,
+      raw: '{"objects":[],"mcp":true}',
+      data: { objects: [], mcp: true },
+    })
+
+    const { wrapper } = await mountMonitor('Transfer')
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(5000)
+    await flushPromises()
+    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+
+    document.dispatchEvent(new CustomEvent(TRANSFER_STARTED_EVENT))
 
     await vi.advanceTimersByTimeAsync(999)
     await flushPromises()
