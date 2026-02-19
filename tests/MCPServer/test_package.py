@@ -11,6 +11,7 @@ from archivematica.MCPServer.server.packages import DIP
 from archivematica.MCPServer.server.packages import SIP
 from archivematica.MCPServer.server.packages import Package
 from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.packages import _capture_transfer_failure
 from archivematica.MCPServer.server.packages import _determine_transfer_paths
 from archivematica.MCPServer.server.packages import _move_to_internal_shared_dir
 from archivematica.MCPServer.server.packages import (
@@ -430,3 +431,34 @@ def test_create_package(tmp_path, admin_user, settings):
 
     # Verify a transfer was added.
     assert models.Transfer.objects.count() == 1
+
+
+def test_capture_transfer_failure_propagates_transfer_does_not_exist():
+    @_capture_transfer_failure
+    def fn():
+        raise models.Transfer.DoesNotExist
+
+    with pytest.raises(models.Transfer.DoesNotExist):
+        fn()
+
+
+def test_capture_transfer_failure_propagates_validation_error():
+    @_capture_transfer_failure
+    def fn():
+        raise ValidationError("invalid argument")
+
+    with pytest.raises(ValidationError):
+        fn()
+
+
+def test_capture_transfer_failure_logs_other_exceptions():
+    @_capture_transfer_failure
+    def fn():
+        raise RuntimeError("something went wrong")
+
+    with mock.patch("archivematica.MCPServer.server.packages.logger") as mock_logger:
+        fn()
+
+    mock_logger.exception.assert_called_once_with(
+        "Exception occurred during transfer processing"
+    )
