@@ -611,7 +611,7 @@ const iconDeleteBackground = `url("${icons.delete}")`
         v-if="loading"
         id="sip-loading"
       >
-        {{ t('monitor.loading') }}
+        {{ t('misc.loading') }}
       </p>
       <p
         v-else-if="error"

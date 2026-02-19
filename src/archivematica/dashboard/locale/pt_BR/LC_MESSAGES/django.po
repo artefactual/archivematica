@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:14+0000\n"
+"POT-Creation-Date: 2026-03-03 20:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -1661,12 +1661,12 @@ msgstr ""
 #: fpr/templates/fpr/disable.html:27
 #, python-format
 msgid "Disable %(object)s"
-msgstr "Desabilitar %(object)s"
+msgstr "Desativar %(object)s"
 
 #: fpr/templates/fpr/disable.html:29
 #, python-format
 msgid "Enable %(object)s"
-msgstr "Habilitar %(object)s"
+msgstr "Ativar %(object)s"
 
 #: fpr/templates/fpr/disable.html:36
 #: fpr/templates/fpr/format/group/delete.html:20
@@ -1810,7 +1810,7 @@ msgstr "Lista"
 #: fpr/templates/fpr/format/version/detail.html:5
 #, python-format
 msgid "Format version %(description)s"
-msgstr "Versão de formato %(description)s"
+msgstr "Versão do formato %(description)s"
 
 #: fpr/templates/fpr/format/version/detail.html:6
 #, python-format
@@ -1944,7 +1944,7 @@ msgstr ""
 #: fpr/templates/fpr/fprule/detail.html:35
 #, python-format
 msgid "Failure: %(count)s"
-msgstr "Falha: %(count)s"
+msgstr "Falhas: %(count)s"
 
 #: fpr/templates/fpr/fprule/detail.html:36
 #, python-format
@@ -3261,77 +3261,28 @@ msgstr "Sobre Archivematica"
 msgid "Agent code"
 msgstr "Código do agente"
 
-#: templates/archival_storage/_archival_storage_search_form.html:7
-msgid "Show files?"
-msgstr "Mostrar arquivos?"
-
-#: templates/archival_storage/_archival_storage_search_form.html:9
-msgid "Search archival storage"
-msgstr "Pesquisar no armazenamento de arquivo"
-
 #: templates/archival_storage/archival_storage.html:6
-#: templates/archival_storage/archival_storage.html:7
-#: templates/archival_storage/archival_storage.html:31
+#: templates/archival_storage/archival_storage.html:19
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
 #: templates/archival_storage/view.html:28 templates/layout.html:58
 msgid "Archival storage"
 msgstr "Armazenamento de arquivo"
 
-#: templates/archival_storage/archival_storage.html:32
+#: templates/archival_storage/archival_storage.html:20
 #: templates/ingest/as/_search_form.html:6
 msgid "Search"
 msgstr "Pesquisa"
 
-#: templates/archival_storage/archival_storage.html:40
+#: templates/archival_storage/archival_storage.html:25
 msgid "Browse archival storage"
 msgstr "Navegue no armazenamento de arquivo"
 
-#: templates/archival_storage/archival_storage.html:43
-#, python-format
-msgid ""
-"\n"
-"            Total size: %(size)s\n"
-"          "
-msgstr ""
-"\n"
-"            Tamanho total: %(size)s MB\n"
-"          "
-
-#: templates/archival_storage/archival_storage.html:49
-#, python-format
-msgid ""
-"\n"
-"              Files indexed: %(count)s\n"
-"            "
-msgstr ""
-"\n"
-"              Arquivos indexados : %(count)s\n"
-"            "
-
-#: templates/archival_storage/archival_storage.html:60
-msgid "Create an AIC from current search results"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:61
-msgid "Create an AIC"
-msgstr "Criar SIP"
-
-#: templates/archival_storage/archival_storage.html:65
-msgid ""
-"Download all results from archival storage as a CSV (Comma-separated-values) "
-"table"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:66
-msgid "Download CSV"
-msgstr "Download"
-
-#: templates/archival_storage/archival_storage.html:74
+#: templates/archival_storage/archival_storage.html:35
 msgid "Elasticsearch Indexing Disabled"
 msgstr "Indexação do Elasticsearch Desabilitada"
 
-#: templates/archival_storage/archival_storage.html:75
+#: templates/archival_storage/archival_storage.html:36
 msgid ""
 "Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes "
 "in this Archivematica installation. The archival storage tab is non-"

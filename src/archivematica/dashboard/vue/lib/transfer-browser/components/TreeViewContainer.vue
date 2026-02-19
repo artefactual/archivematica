@@ -260,7 +260,7 @@ const addSelectedNode = () => {
             role="status"
             aria-live="polite"
           >
-            {{ t('transfer.loading') }}
+            {{ t('misc.loading') }}
           </div>
           <div
             v-else-if="isDirectoryLike(node, hasChildren) && toFileNode(node).children_fetched && (toFileNode(node).children?.length ?? 0) === 0"

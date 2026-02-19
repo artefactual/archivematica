@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:14+0000\n"
+"POT-Creation-Date: 2026-03-03 20:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Nicolas Bednarz <nicolas.bednarz@ville.montreal.qc.ca>, "
 "2017\n"
@@ -1763,7 +1763,7 @@ msgstr "Liste"
 #: fpr/templates/fpr/format/version/detail.html:5
 #, python-format
 msgid "Format version %(description)s"
-msgstr "Version de format %(description)s"
+msgstr "Version du format %(description)s"
 
 #: fpr/templates/fpr/format/version/detail.html:6
 #, python-format
@@ -1897,7 +1897,7 @@ msgstr ""
 #: fpr/templates/fpr/fprule/detail.html:35
 #, python-format
 msgid "Failure: %(count)s"
-msgstr "Échec : %(count)s"
+msgstr "Échecs : %(count)s"
 
 #: fpr/templates/fpr/fprule/detail.html:36
 #, python-format
@@ -3187,74 +3187,28 @@ msgstr "À propos d'Archivematica"
 msgid "Agent code"
 msgstr ""
 
-#: templates/archival_storage/_archival_storage_search_form.html:7
-msgid "Show files?"
-msgstr "Afficher les fichiers?"
-
-#: templates/archival_storage/_archival_storage_search_form.html:9
-msgid "Search archival storage"
-msgstr "Faire une recherche dans le dossier de stockage des archives"
-
 #: templates/archival_storage/archival_storage.html:6
-#: templates/archival_storage/archival_storage.html:7
-#: templates/archival_storage/archival_storage.html:31
+#: templates/archival_storage/archival_storage.html:19
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
 #: templates/archival_storage/view.html:28 templates/layout.html:58
 msgid "Archival storage"
 msgstr "Dossier de stockage des archives"
 
-#: templates/archival_storage/archival_storage.html:32
+#: templates/archival_storage/archival_storage.html:20
 #: templates/ingest/as/_search_form.html:6
 msgid "Search"
 msgstr "Rechercher"
 
-#: templates/archival_storage/archival_storage.html:40
+#: templates/archival_storage/archival_storage.html:25
 msgid "Browse archival storage"
 msgstr "Parcourir le dossier de stockage des archives"
 
-#: templates/archival_storage/archival_storage.html:43
-#, python-format
-msgid ""
-"\n"
-"            Total size: %(size)s\n"
-"          "
-msgstr ""
-"\n"
-"            Total size: %(size)s\n"
-"          "
-
-#: templates/archival_storage/archival_storage.html:49
-#, python-format
-msgid ""
-"\n"
-"              Files indexed: %(count)s\n"
-"            "
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:60
-msgid "Create an AIC from current search results"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:61
-msgid "Create an AIC"
-msgstr "Créer un SIP "
-
-#: templates/archival_storage/archival_storage.html:65
-msgid ""
-"Download all results from archival storage as a CSV (Comma-separated-values) "
-"table"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:66
-msgid "Download CSV"
-msgstr "Télécharger"
-
-#: templates/archival_storage/archival_storage.html:74
+#: templates/archival_storage/archival_storage.html:35
 msgid "Elasticsearch Indexing Disabled"
 msgstr ""
 
-#: templates/archival_storage/archival_storage.html:75
+#: templates/archival_storage/archival_storage.html:36
 msgid ""
 "Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes "
 "in this Archivematica installation. The archival storage tab is non-"

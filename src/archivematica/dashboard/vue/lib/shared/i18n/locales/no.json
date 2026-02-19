@@ -39,7 +39,6 @@
     "configurationForm": "Overføringskonfigurasjonsskjema",
     "fileBrowserSection": "Filutforskerseksjon",
     "hideBrowser": "Skjul filutforsker",
-    "loading": "Laster...",
     "name": "Overføringsnavn",
     "showBrowser": "Vis filutforsker",
     "showConfigOptions": "Vis behandlingskonfigurasjonsalternativer",
@@ -64,8 +63,7 @@
     "connected": "Tilkoblet",
     "disconnected": "Frakoblet",
     "errorConnecting": "Feil ved tilkobling til server. Prøver igjen...",
-    "initializing": "Initialiserer...",
-    "loading": "Laster..."
+    "initializing": "Initialiserer..."
   },
   "metadata": {
     "add": "Legg til",
@@ -105,7 +103,6 @@
     "transferStartTime": "Starttid for overføring",
     "ingestStartTime": "Opplastnings starttid",
     "removeAllCompleted": "Fjern alle fullførte",
-    "loading": "Laster...",
     "metadata": "Metadata",
     "remove": "Fjern",
     "job": "Jobb",
@@ -148,7 +145,16 @@
       "previous": "Forrige",
       "next": "Neste",
       "ariaLabel": "Paginering",
-      "filteredInfoTemplate": "Viser {start} til {end} av {filtered} oppføringer (filtrert fra totalt {total} oppføringer)"
+      "filteredInfoTemplate": "Viser {start} til {end} av {filtered} oppføringer (filtrert fra totalt {total} oppføringer)",
+      "first": "Første",
+      "last": "Siste",
+      "show": "Vis",
+      "pageOfTemplate": "Side {current} av {total}"
+    },
+    "loading": "Laster...",
+    "boolean": {
+      "true": "Ja",
+      "false": "Nei"
     }
   },
   "rights": {
@@ -242,10 +248,6 @@
       "uuid": "UUID",
       "actions": "Handlinger"
     },
-    "boolean": {
-      "true": "Ja",
-      "false": "Nei"
-    },
     "search": {
       "label": "Søk",
       "placeholder": "Filtrer rader",
@@ -318,5 +320,86 @@
         "default_thumbnail": "Standard miniatyrbilde"
       }
     }
+  },
+  "archivalStorage": {
+    "archiveSize": "Arkivstørrelse",
+    "filesIndexed": "Indekserte filer",
+    "aipsInAic": "AIP-er i AIC",
+    "aipInAic": "AIP i AIC",
+    "partOf": "Del av",
+    "none": "Ingen",
+    "na": "N/A",
+    "viewRaw": "vis rådata",
+    "download": "Last ned",
+    "view": "Vis",
+    "filter": "Filter",
+    "booleanOperator": "Boolsk operator",
+    "query": "Søk",
+    "field": "Felt",
+    "otherFieldName": "Annet feltnavn",
+    "queryType": "Søketype",
+    "delete": "Slett",
+    "sortedAscending": "sortert stigende",
+    "activateToSortDescending": "Aktiver for å sortere synkende",
+    "sortedDescending": "sortert synkende",
+    "activateToRemoveSorting": "Aktiver for å fjerne sortering",
+    "notSorted": "ikke sortert",
+    "activateToSortAscending": "Aktiver for å sortere stigende",
+    "loadingResults": "Laster resultater",
+    "error": "Feil",
+    "noResultsFound": "Ingen resultater funnet",
+    "filters": "Filtre",
+    "showFiles": "Vis filer",
+    "addFilter": "Legg til filter",
+    "reset": "Tilbakestill",
+    "search": "Søk",
+    "createAnAic": "Opprett en AIC",
+    "downloadCsv": "Last ned CSV",
+    "selectColumns": "Velg kolonner",
+    "filePathWithRawTemplate": "{path} ({link})",
+    "lookups": {
+      "operators": {
+        "or": "eller",
+        "and": "og",
+        "not": "ikke"
+      },
+      "searchFields": {
+        "any": "Alle",
+        "fileUuid": "Fil-UUID",
+        "filePath": "Filsti",
+        "fileExtension": "Filendelse",
+        "aipUuid": "AIP-UUID",
+        "aipName": "AIP-navn",
+        "identifiers": "Identifikatorer",
+        "partOfAic": "Del av AIC",
+        "aicIdentifier": "AIC-identifikator",
+        "transferMetadata": "Overføringsmetadata",
+        "transferMetadataOther": "Overføringsmetadata (annet)"
+      },
+      "queryTypes": {
+        "keyword": "Nøkkelord",
+        "phrase": "Frase",
+        "dateRange": "Datointervall"
+      },
+      "columns": {
+        "name": "Navn",
+        "uuid": "UUID",
+        "aic": "AIC",
+        "size": "Størrelse",
+        "fileCount": "Antall filer",
+        "accessionNumbers": "Aksessjonsnumre",
+        "created": "Opprettet",
+        "status": "Status",
+        "encrypted": "Kryptert",
+        "location": "Plassering",
+        "actions": "Handlinger",
+        "thumbnail": "Miniatyr",
+        "file": "Fil",
+        "aip": "AIP",
+        "accessionNumber": "Aksessjonsnummer",
+        "fileUuid": "Fil-UUID"
+      }
+    },
+    "searchRequestFailed": "Søkeforspørselen mislyktes"
   }
 }

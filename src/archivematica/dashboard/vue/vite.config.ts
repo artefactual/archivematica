@@ -39,6 +39,13 @@ const CHUNK_ROUTES = [
     name: 'treeview',
     match: ['node_modules/reka-ui/', 'lib/shared/components/Tree'],
   },
+  {
+    name: 'tanstack-table',
+    match: [
+      'node_modules/@tanstack/table-core/',
+      'node_modules/@tanstack/vue-table/',
+    ],
+  },
 ] as const
 
 const CORE_FEATURE_FACADE_RE = /\/lib\/core\/features\/([^/]+)\/index\.ts$/
@@ -154,6 +161,7 @@ export default defineConfig(({ mode }) => {
           'transfer-browser': resolve(__dirname, 'lib/transfer-browser/index.ts'),
           'aip-browser': resolve(__dirname, 'lib/aip-browser/index.ts'),
           'as-matcher': resolve(__dirname, 'lib/as-matcher/index.ts'),
+          'archival-storage': resolve(__dirname, 'lib/archival-storage/index.ts'),
           'md-editor': resolve(__dirname, 'lib/md-editor/index.ts'),
           'topbar': resolve(__dirname, 'lib/topbar/index.ts'),
           'monitor': resolve(__dirname, 'lib/monitor/index.ts'),

@@ -39,7 +39,6 @@
     "configurationForm": "Formulário de configuração de transferência",
     "fileBrowserSection": "Seção do navegador de arquivos",
     "hideBrowser": "Ocultar navegador de arquivos",
-    "loading": "Carregando...",
     "name": "Nome da transferência",
     "showBrowser": "Mostrar navegador de arquivos",
     "showConfigOptions": "Mostrar opções de configuração de processamento",
@@ -64,8 +63,7 @@
     "connected": "Conectado",
     "disconnected": "Desconectado",
     "errorConnecting": "Erro ao conectar ao servidor. Tentando novamente...",
-    "initializing": "A inicializar...",
-    "loading": "A carregar..."
+    "initializing": "A inicializar..."
   },
   "metadata": {
     "add": "Adicionar",
@@ -105,7 +103,6 @@
     "transferStartTime": "Transfer start time",
     "ingestStartTime": "Ingest start time",
     "removeAllCompleted": "Remove all completed",
-    "loading": "Loading...",
     "metadata": "Metadata",
     "remove": "Remove",
     "job": "Job",
@@ -143,12 +140,21 @@
   "misc": {
     "help": "Ajuda",
     "pagination": {
-      "infoTemplate": "A mostrar de {start} a {end} de {total} entradas",
+      "infoTemplate": "A mostrar {start} a {end} de {total} entradas",
       "lengthTemplate": "Mostrar {select} entradas",
       "previous": "Anterior",
       "next": "Seguinte",
       "ariaLabel": "Paginação",
-      "filteredInfoTemplate": "A mostrar de {start} a {end} de {filtered} entradas (filtradas de um total de {total} entradas)"
+      "filteredInfoTemplate": "A mostrar de {start} a {end} de {filtered} entradas (filtradas de um total de {total} entradas)",
+      "first": "Primeiro",
+      "last": "Último",
+      "show": "Mostrar",
+      "pageOfTemplate": "Página {current} de {total}"
+    },
+    "loading": "A carregar...",
+    "boolean": {
+      "true": "Sim",
+      "false": "Não"
     }
   },
   "rights": {
@@ -242,10 +248,6 @@
       "uuid": "UUID",
       "actions": "Ações"
     },
-    "boolean": {
-      "true": "Sim",
-      "false": "Não"
-    },
     "search": {
       "label": "Pesquisa",
       "placeholder": "Filtrar linhas",
@@ -318,5 +320,86 @@
         "default_thumbnail": "Miniatura predefinida"
       }
     }
+  },
+  "archivalStorage": {
+    "archiveSize": "Tamanho do arquivo",
+    "filesIndexed": "Ficheiros indexados",
+    "aipsInAic": "AIPs no AIC",
+    "aipInAic": "AIP no AIC",
+    "partOf": "Parte de",
+    "none": "Nenhum",
+    "na": "N/A",
+    "viewRaw": "ver em bruto",
+    "download": "Descarregar",
+    "view": "Ver",
+    "filter": "Filtro",
+    "booleanOperator": "Operador booleano",
+    "query": "Consulta",
+    "field": "Campo",
+    "otherFieldName": "Outro nome de campo",
+    "queryType": "Tipo de consulta",
+    "delete": "Eliminar",
+    "sortedAscending": "ordenado ascendente",
+    "activateToSortDescending": "Ativar para ordenar descendente",
+    "sortedDescending": "ordenado descendente",
+    "activateToRemoveSorting": "Ativar para remover ordenação",
+    "notSorted": "sem ordenação",
+    "activateToSortAscending": "Ativar para ordenar ascendente",
+    "loadingResults": "A carregar resultados",
+    "error": "Erro",
+    "noResultsFound": "Nenhum resultado encontrado",
+    "filters": "Filtros",
+    "showFiles": "Mostrar ficheiros",
+    "addFilter": "Adicionar filtro",
+    "reset": "Repor",
+    "search": "Pesquisar",
+    "createAnAic": "Criar um AIC",
+    "downloadCsv": "Descarregar CSV",
+    "selectColumns": "Selecionar colunas",
+    "filePathWithRawTemplate": "{path} ({link})",
+    "lookups": {
+      "operators": {
+        "or": "ou",
+        "and": "e",
+        "not": "não"
+      },
+      "searchFields": {
+        "any": "Qualquer",
+        "fileUuid": "UUID do ficheiro",
+        "filePath": "Caminho do ficheiro",
+        "fileExtension": "Extensão do ficheiro",
+        "aipUuid": "UUID do AIP",
+        "aipName": "Nome do AIP",
+        "identifiers": "Identificadores",
+        "partOfAic": "Parte do AIC",
+        "aicIdentifier": "Identificador AIC",
+        "transferMetadata": "Metadados da transferência",
+        "transferMetadataOther": "Metadados da transferência (outro)"
+      },
+      "queryTypes": {
+        "keyword": "Palavra-chave",
+        "phrase": "Frase",
+        "dateRange": "Intervalo de datas"
+      },
+      "columns": {
+        "name": "Nome",
+        "uuid": "UUID",
+        "aic": "AIC",
+        "size": "Tamanho",
+        "fileCount": "Contagem de ficheiros",
+        "accessionNumbers": "Números de accession",
+        "created": "Criado",
+        "status": "Estado",
+        "encrypted": "Encriptado",
+        "location": "Localização",
+        "actions": "Ações",
+        "thumbnail": "Miniatura",
+        "file": "Ficheiro",
+        "aip": "AIP",
+        "accessionNumber": "Número de accession",
+        "fileUuid": "UUID do ficheiro"
+      }
+    },
+    "searchRequestFailed": "A solicitação de pesquisa falhou"
   }
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:14+0000\n"
+"POT-Creation-Date: 2026-03-03 20:47+0000\n"
 "PO-Revision-Date: 2020-10-19 21:03+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2177,7 +2177,7 @@ msgstr "Identifikasjonskommando"
 
 #: fpr/views.py:831
 msgid "(no description)"
-msgstr "(ingen beskrivelse)"
+msgstr "%(description)s"
 
 #: fpr/views.py:837
 #, python-format
@@ -3256,77 +3256,28 @@ msgstr "Om Archivematica"
 msgid "Agent code"
 msgstr "Agentkode"
 
-#: templates/archival_storage/_archival_storage_search_form.html:7
-msgid "Show files?"
-msgstr "Vis filer?"
-
-#: templates/archival_storage/_archival_storage_search_form.html:9
-msgid "Search archival storage"
-msgstr "Søk i arkivlager"
-
 #: templates/archival_storage/archival_storage.html:6
-#: templates/archival_storage/archival_storage.html:7
-#: templates/archival_storage/archival_storage.html:31
+#: templates/archival_storage/archival_storage.html:19
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
 #: templates/archival_storage/view.html:28 templates/layout.html:58
 msgid "Archival storage"
 msgstr "Arkivlagring"
 
-#: templates/archival_storage/archival_storage.html:32
+#: templates/archival_storage/archival_storage.html:20
 #: templates/ingest/as/_search_form.html:6
 msgid "Search"
 msgstr "Søk"
 
-#: templates/archival_storage/archival_storage.html:40
+#: templates/archival_storage/archival_storage.html:25
 msgid "Browse archival storage"
 msgstr "Bla gjennom arkivlager"
 
-#: templates/archival_storage/archival_storage.html:43
-#, python-format
-msgid ""
-"\n"
-"            Total size: %(size)s\n"
-"          "
-msgstr ""
-"\n"
-"            Total størrelse: %(size)s MB\n"
-"          "
-
-#: templates/archival_storage/archival_storage.html:49
-#, python-format
-msgid ""
-"\n"
-"              Files indexed: %(count)s\n"
-"            "
-msgstr ""
-"\n"
-"              Filer indeksert: %(count)s\n"
-"            "
-
-#: templates/archival_storage/archival_storage.html:60
-msgid "Create an AIC from current search results"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:61
-msgid "Create an AIC"
-msgstr "Opprett en AIC"
-
-#: templates/archival_storage/archival_storage.html:65
-msgid ""
-"Download all results from archival storage as a CSV (Comma-separated-values) "
-"table"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:66
-msgid "Download CSV"
-msgstr "Last ned"
-
-#: templates/archival_storage/archival_storage.html:74
+#: templates/archival_storage/archival_storage.html:35
 msgid "Elasticsearch Indexing Disabled"
 msgstr "Elasticsearch indeksering deaktivert"
 
-#: templates/archival_storage/archival_storage.html:75
+#: templates/archival_storage/archival_storage.html:36
 msgid ""
 "Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes "
 "in this Archivematica installation. The archival storage tab is non-"

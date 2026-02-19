@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:14+0000\n"
+"POT-Creation-Date: 2026-03-03 20:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Daniel Flores (PhD.) <dfloresbr@gmail.com>, 2017\n"
 "Language-Team: Spanish (https://www.transifex.com/artefactual/teams/1506/"
@@ -1534,7 +1534,7 @@ msgstr "Identificador"
 
 #: fpr/templates/fpr/_sidebar.html:20 fpr/templates/fpr/_sidebar.html:25
 msgid "Tools"
-msgstr "Herramientas"
+msgstr ""
 
 #: fpr/templates/fpr/_sidebar.html:21 fpr/templates/fpr/_sidebar.html:31
 msgid "Rules"
@@ -1543,7 +1543,7 @@ msgstr ""
 #: fpr/templates/fpr/_sidebar.html:22 fpr/templates/fpr/_sidebar.html:32
 #: fpr/templates/fpr/idtool/detail.html:34
 msgid "Commands"
-msgstr "Comandos"
+msgstr ""
 
 #: fpr/templates/fpr/_sidebar.html:24
 msgid "Format policy registry"
@@ -1772,13 +1772,13 @@ msgstr ""
 #: fpr/templates/fpr/fpcommand/detail.html:25
 #: fpr/templates/fpr/idcommand/detail.html:23
 msgid "Tool"
-msgstr "Herramienta"
+msgstr ""
 
 #: fpr/templates/fpr/fpcommand/detail.html:27
 #: fpr/templates/fpr/fprule/detail.html:31
 #: fpr/templates/fpr/idrule/detail.html:25
 msgid "Command"
-msgstr "Comando"
+msgstr ""
 
 #: fpr/templates/fpr/fpcommand/detail.html:29
 #: fpr/templates/fpr/idcommand/detail.html:31
@@ -1835,7 +1835,7 @@ msgstr ""
 #: fpr/templates/fpr/fprule/detail.html:35
 #, python-format
 msgid "Failure: %(count)s"
-msgstr "Error: %(count)s"
+msgstr "Fallos: %(count)s"
 
 #: fpr/templates/fpr/fprule/detail.html:36
 #, python-format
@@ -3106,71 +3106,28 @@ msgstr "Sobre Archivematica"
 msgid "Agent code"
 msgstr "Código del agente"
 
-#: templates/archival_storage/_archival_storage_search_form.html:7
-msgid "Show files?"
-msgstr "¿Mostrar ficheros?"
-
-#: templates/archival_storage/_archival_storage_search_form.html:9
-msgid "Search archival storage"
-msgstr ""
-
 #: templates/archival_storage/archival_storage.html:6
-#: templates/archival_storage/archival_storage.html:7
-#: templates/archival_storage/archival_storage.html:31
+#: templates/archival_storage/archival_storage.html:19
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
 #: templates/archival_storage/view.html:28 templates/layout.html:58
 msgid "Archival storage"
 msgstr "Almacén archivístico"
 
-#: templates/archival_storage/archival_storage.html:32
+#: templates/archival_storage/archival_storage.html:20
 #: templates/ingest/as/_search_form.html:6
 msgid "Search"
 msgstr "Búsqueda"
 
-#: templates/archival_storage/archival_storage.html:40
+#: templates/archival_storage/archival_storage.html:25
 msgid "Browse archival storage"
 msgstr ""
 
-#: templates/archival_storage/archival_storage.html:43
-#, python-format
-msgid ""
-"\n"
-"            Total size: %(size)s\n"
-"          "
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:49
-#, python-format
-msgid ""
-"\n"
-"              Files indexed: %(count)s\n"
-"            "
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:60
-msgid "Create an AIC from current search results"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:61
-msgid "Create an AIC"
-msgstr "Crear SIP"
-
-#: templates/archival_storage/archival_storage.html:65
-msgid ""
-"Download all results from archival storage as a CSV (Comma-separated-values) "
-"table"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:66
-msgid "Download CSV"
-msgstr "Descargas"
-
-#: templates/archival_storage/archival_storage.html:74
+#: templates/archival_storage/archival_storage.html:35
 msgid "Elasticsearch Indexing Disabled"
 msgstr ""
 
-#: templates/archival_storage/archival_storage.html:75
+#: templates/archival_storage/archival_storage.html:36
 msgid ""
 "Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes "
 "in this Archivematica installation. The archival storage tab is non-"
