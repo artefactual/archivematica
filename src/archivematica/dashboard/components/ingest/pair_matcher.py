@@ -247,7 +247,7 @@ def review_matches(client, request, template, uuid, matches=None):
     if matches is None:
         matches = []
     object_paths = {
-        file_.uuid: remove_review_matches_prefixes(file_.currentlocation.decode())
+        str(file_.uuid): remove_review_matches_prefixes(file_.currentlocation.decode())
         for file_ in models.File.objects.filter(sip=uuid)
     }
     for match in matches:

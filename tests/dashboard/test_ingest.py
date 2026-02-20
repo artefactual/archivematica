@@ -275,3 +275,120 @@ def test_ingest_upload_atk_get_dip_object_paths_uuid_strings(tmp_path, settings)
         {"uuid": str(file_alpha.uuid), "path": "alpha.txt"},
         {"uuid": str(file_beta.uuid), "path": "beta.txt"},
     ]
+
+
+AS_RESOURCE_ID = "/repositories/2/resources/1"
+AS_COMPONENT_ID = "/repositories/2/archival_objects/61"
+
+
+@pytest.fixture
+def as_pair_record():
+    dip_uuid = uuid.uuid4()
+    file_uuid = uuid.uuid4()
+    ArchivesSpaceDIPObjectResourcePairing.objects.create(
+        dipuuid=dip_uuid,
+        fileuuid=file_uuid,
+        resourceid=AS_COMPONENT_ID,
+    )
+    return dip_uuid, file_uuid
+
+
+@pytest.fixture
+def dummy_as_client():
+    class DummyASClient:
+        RESOURCE = "resource"
+
+        def find_parent_id_for_component(self, _resource_component_id):
+            return self.RESOURCE, AS_RESOURCE_ID
+
+        def get_resource_component_children(self, resource_id):
+            return {"uri": resource_id, "children": []}
+
+        def get_resource_component_and_children(self, resource_id):
+            return {"uri": resource_id, "children": []}
+
+    return DummyASClient()
+
+
+@mock.patch(
+    "archivematica.dashboard.components.ingest.pair_matcher.ingest_upload_atk_get_dip_object_paths",
+    return_value=[],
+)
+@mock.patch("archivematica.dashboard.components.ingest.views_as.get_as_system_client")
+def test_ingest_upload_as_match_resource_component_serializes_existing_pair_file_uuid(
+    get_as_system_client_mock,
+    _,
+    admin_client,
+    dashboard_uuid,
+    as_pair_record,
+    dummy_as_client,
+):
+    dip_uuid, file_uuid = as_pair_record
+    get_as_system_client_mock.return_value = dummy_as_client
+
+    response = admin_client.get(
+        reverse(
+            "ingest:ingest_upload_as_match_dip_objects_to_resource_component_levels",
+            kwargs={
+                "uuid": dip_uuid,
+                "resource_component_id": AS_COMPONENT_ID,
+            },
+        )
+    )
+
+    assert response.status_code == 200
+    matches = json.loads(response.context["matches_json"])
+    assert matches[0]["file_uuid"] == str(file_uuid)
+
+
+@mock.patch(
+    "archivematica.dashboard.components.ingest.pair_matcher.ingest_upload_atk_get_dip_object_paths",
+    return_value=[],
+)
+@mock.patch("archivematica.dashboard.components.ingest.views_as.get_as_system_client")
+def test_ingest_upload_as_match_resource_serializes_existing_pair_file_uuid(
+    get_as_system_client_mock,
+    _,
+    admin_client,
+    dashboard_uuid,
+    as_pair_record,
+    dummy_as_client,
+):
+    dip_uuid, file_uuid = as_pair_record
+    get_as_system_client_mock.return_value = dummy_as_client
+
+    response = admin_client.get(
+        reverse(
+            "ingest:ingest_upload_as_match_dip_objects_to_resource_levels",
+            kwargs={
+                "uuid": dip_uuid,
+                "resource_id": AS_RESOURCE_ID,
+            },
+        )
+    )
+
+    assert response.status_code == 200
+    matches = json.loads(response.context["matches_json"])
+    assert matches[0]["file_uuid"] == str(file_uuid)
+
+
+@mock.patch("archivematica.dashboard.components.ingest.views_as.get_as_system_client")
+def test_ingest_upload_as_review_matches_serializes_existing_pair_file_uuid(
+    get_as_system_client_mock,
+    admin_client,
+    dashboard_uuid,
+    as_pair_record,
+    dummy_as_client,
+):
+    dip_uuid, file_uuid = as_pair_record
+    get_as_system_client_mock.return_value = dummy_as_client
+
+    response = admin_client.get(
+        reverse(
+            "ingest:ingest_upload_as_review_matches",
+            kwargs={"uuid": dip_uuid},
+        )
+    )
+
+    assert response.status_code == 200
+    assert response.context["matches"][0]["file_uuid"] == str(file_uuid)

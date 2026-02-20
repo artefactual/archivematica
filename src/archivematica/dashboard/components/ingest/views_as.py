@@ -168,7 +168,7 @@ def ingest_upload_as_resource_component(client, request, uuid, resource_componen
 def _format_pair(client, resourceid, fileuuid):
     return {
         "resource_id": resourceid,
-        "file_uuid": fileuuid,
+        "file_uuid": str(fileuuid),
         # Returns verbose details about the resource/component, required
         # in order to populate the pair matching UI.
         "resource": client.get_resource_component_children(resourceid),
