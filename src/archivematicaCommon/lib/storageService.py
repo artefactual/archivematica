@@ -6,6 +6,7 @@ import urllib
 import archivematicaFunctions as am
 import requests
 from common_metrics import ss_api_timer
+from django.db import close_old_connections
 from django.conf import settings as django_settings
 from requests.auth import AuthBase
 
@@ -285,6 +286,11 @@ def copy_files(source_location, destination_location, files):
         source_location and destination_location, respectively.  All other
         fields ignored.
     """
+
+    # pre-emptively call close_old_connections() to prevent errors for lengthy copies
+    LOGGER.debug("Call close_old_connections()")
+    close_old_connections()
+
     LOGGER.debug("before get_pipeline()")
     pipeline = get_pipeline(am.get_setting("dashboard_uuid"))
     LOGGER.debug("after get_pipeline()")
