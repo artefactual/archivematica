@@ -154,11 +154,7 @@ def test_call_updates_storage_service_content(
     sip_file: models.File,
     mcp_job: Job,
     settings: pytest_django.fixtures.SettingsWrapper,
-    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    # Disable ES indexing.
-    settings.SEARCH_ENABLED = "aips"
-
     transfer_path = pathlib.Path(
         transfer.currentlocation.replace("%sharedPath%", settings.SHARED_DIRECTORY, 1)
     )
@@ -168,13 +164,9 @@ def test_call_updates_storage_service_content(
 
     assert mcp_job.get_exit_code() == 0
 
-    assert [r.message for r in caplog.records] == [
-        "Skipping indexing: Transfers indexing is currently disabled."
-    ]
-
     assert mcp_job.get_stdout().splitlines() == [
         f"Checking if transfer {transfer.uuid} is fully stored...",
-        f"Transfer {transfer.uuid} fully stored, sending delete request to storage service, deleting from transfer backlog",
+        f"Transfer {transfer.uuid} fully stored, sending delete request to storage service for transfer package cleanup",
         f"SIP {sip.uuid} not associated with an ArchivesSpace component",
         f"Transfer directory deleted: {transfer_path}",
     ]
@@ -183,7 +175,7 @@ def test_call_updates_storage_service_content(
     # Verify Storage Service calls.
     request.assert_has_calls(
         [
-            # Delete backlog transfer.
+            # Delete stored transfer package.
             mock.call(
                 "POST",
                 f"{storage_service_url}/api/v2/file/{transfer.uuid}/delete_aip/",

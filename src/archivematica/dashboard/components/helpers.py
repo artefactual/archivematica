@@ -389,7 +389,11 @@ def completed_units_efficient(unit_type="transfer", include_failed=True):
             current_uuid = str(uuid)
             if (
                 job_type
-                in ("Create SIP from transfer objects", "Move transfer to backlog")
+                in (
+                    "Create SIP from transfer objects",
+                    # Legacy compatibility for pre-1.19 transfers completed via backlog.
+                    "Move transfer to backlog",
+                )
             ) or (
                 first
                 and (

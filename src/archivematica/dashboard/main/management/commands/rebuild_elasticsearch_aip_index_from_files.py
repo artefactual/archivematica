@@ -285,7 +285,7 @@ class Command(DashboardCommand):
 
         for root, directories, files in os.walk(options["rootdir"]):
             # Ignore top-level directories inside ``rootdir`` that are not hex,
-            # e.g. we walk ``0771`` but we're ignoring ``transferBacklog``.
+            # e.g. we walk ``0771`` but ignore non-sharded directories.
             if root == options["rootdir"]:
                 directories[:] = [d for d in directories if is_hex(d) and len(d) == 4]
 

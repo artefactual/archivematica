@@ -14,7 +14,6 @@ logger = logging.getLogger("archivematica.mcp.server.shareddirs")
 def create():
     dirs = (
         "completed",
-        "completed/transfers",
         "currentlyProcessing",
         "failed",
         "rejected",
@@ -53,8 +52,6 @@ def create():
         "watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer",
         "www",
         "www/AIPsStore",
-        "www/AIPsStore/transferBacklog",
-        "www/AIPsStore/transferBacklog/originals",
         "www/DIPsStore",
     )
     for dirname in dirs:

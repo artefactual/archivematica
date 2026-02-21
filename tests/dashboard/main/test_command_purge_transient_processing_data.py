@@ -19,7 +19,6 @@ def search_disabled(settings):
 @pytest.fixture
 def search_enabled(settings):
     settings.SEARCH_ENABLED = [
-        archivematica.search.constants.TRANSFERS_INDEX,
         archivematica.search.constants.AIPS_INDEX,
     ]
 
@@ -104,14 +103,12 @@ def test_purge_command_removes_all_packages(
 def test_purge_command_removes_search_documents(
     mock_search_service,
     search_enabled,
-    old_transfer,
+    old_sip,
 ):
     call_command("purge_transient_processing_data")
 
-    mock_search_service.delete_transfer.assert_called_once_with(str(old_transfer.pk))
-    mock_search_service.delete_transfer_files.assert_called_once_with(
-        {str(old_transfer.pk)}
-    )
+    mock_search_service.delete_aip.assert_called_once_with(old_sip.pk)
+    mock_search_service.delete_aip_files.assert_called_once_with(old_sip.pk)
 
 
 @pytest.mark.django_db
@@ -124,8 +121,6 @@ def test_purge_command_keeps_search_documents(
 
     mock_search_service.delete_aip.assert_not_called()
     mock_search_service.delete_aip_files.assert_not_called()
-    mock_search_service.delete_transfer.assert_not_called()
-    mock_search_service.delete_transfer_files.assert_not_called()
 
 
 @pytest.mark.django_db

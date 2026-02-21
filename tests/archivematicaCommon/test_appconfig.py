@@ -16,63 +16,83 @@ CONFIG_MAPPING = {
 
 
 @pytest.mark.parametrize(
-    "option, value, expect",
+    "option, value, expect, warn_deprecated",
     [
-        ("search_enabled", "true", ["aips", "transfers"]),
-        ("search_enabled", "false", []),
-        ("search_enabled", " ", ImproperlyConfigured),
-        ("search_enabled", "aips", ["aips"]),
-        ("search_enabled", "transfers", ["transfers"]),
-        ("search_enabled", "aips,transfers", ["aips", "transfers"]),
-        ("search_enabled", "aips, transfers", ["aips", "transfers"]),
-        ("search_enabled", "unknown", ImproperlyConfigured),
-        ("search_enabled", "aips,unknown", ImproperlyConfigured),
-        ("disable_search_indexing", "true", []),
-        ("disable_search_indexing", "false", ["aips", "transfers"]),
+        ("search_enabled", "true", ["aips"], False),
+        ("search_enabled", "false", [], False),
+        ("search_enabled", " ", ImproperlyConfigured, False),
+        ("search_enabled", "aips", ["aips"], False),
+        ("search_enabled", "transfers", [], True),
+        ("search_enabled", "aips,transfers", ["aips"], True),
+        ("search_enabled", "aips, transfers", ["aips"], True),
+        ("search_enabled", "unknown", ImproperlyConfigured, False),
+        ("search_enabled", "aips,unknown", ImproperlyConfigured, False),
+        ("disable_search_indexing", "true", [], False),
+        ("disable_search_indexing", "false", ["aips"], False),
     ],
 )
-def test_mapping_list_config_file(option, value, expect):
+def test_mapping_list_config_file(option, value, expect, warn_deprecated, caplog):
     config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
     config.read_defaults(StringIO(f"[Dashboard]\n{option} = {value}"))
+    caplog.clear()
     if isinstance(expect, list):
         assert sorted(config.get("search_enabled")) == sorted(expect)
+        warning_messages = [record.message for record in caplog.records]
+        has_warning = any(
+            "Ignoring deprecated search_enabled value(s): transfers." in message
+            for message in warning_messages
+        )
+        assert has_warning is warn_deprecated
     else:
         with pytest.raises(expect):
             config.get("search_enabled")
 
 
 @pytest.mark.parametrize(
-    "envvars, expect",
+    "envvars, expect, warn_deprecated",
     [
         (
             {"ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED": "true"},
-            ["aips", "transfers"],
+            ["aips"],
+            False,
         ),
-        ({"ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED": "false"}, []),
-        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "true"}, ["aips", "transfers"]),
-        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "false"}, []),
-        ({"ARCHIVEMATICA_DASHBOARD_DASHBOARD_DISABLE_SEARCH_INDEXING": "true"}, []),
+        ({"ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED": "false"}, [], False),
+        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "true"}, ["aips"], False),
+        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "false"}, [], False),
+        (
+            {"ARCHIVEMATICA_DASHBOARD_DASHBOARD_DISABLE_SEARCH_INDEXING": "true"},
+            [],
+            False,
+        ),
         (
             {"ARCHIVEMATICA_DASHBOARD_DASHBOARD_DISABLE_SEARCH_INDEXING": "false"},
-            ["aips", "transfers"],
+            ["aips"],
+            False,
         ),
-        ({"ARCHIVEMATICA_DASHBOARD_DISABLE_SEARCH_INDEXING": "true"}, []),
+        ({"ARCHIVEMATICA_DASHBOARD_DISABLE_SEARCH_INDEXING": "true"}, [], False),
         (
             {"ARCHIVEMATICA_DASHBOARD_DISABLE_SEARCH_INDEXING": "false"},
-            ["aips", "transfers"],
+            ["aips"],
+            False,
         ),
-        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": ""}, ImproperlyConfigured),
-        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "aips"}, ["aips"]),
-        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "transfers"}, ["transfers"]),
+        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": ""}, ImproperlyConfigured, False),
+        ({"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "aips"}, ["aips"], False),
+        (
+            {"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "transfers"},
+            [],
+            True,
+        ),
         (
             {"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "aips,transfers"},
-            ["aips", "transfers"],
+            ["aips"],
+            True,
         ),
         (
             {"ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED": "unknown,transfers"},
             ImproperlyConfigured,
+            False,
         ),
-        ({}, ImproperlyConfigured),
+        ({}, ImproperlyConfigured, False),
         # Following two show that the DISABLE env var overrides the ENABLE one
         # because of the ordering in CONFIG_MAPPING.
         (
@@ -81,24 +101,35 @@ def test_mapping_list_config_file(option, value, expect):
                 "ARCHIVEMATICA_DASHBOARD_DASHBOARD_DISABLE_SEARCH_INDEXING": "true",
             },
             [],
+            False,
         ),
         (
             {
                 "ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED": "false",
                 "ARCHIVEMATICA_DASHBOARD_DASHBOARD_DISABLE_SEARCH_INDEXING": "false",
             },
-            ["aips", "transfers"],
+            ["aips"],
+            False,
         ),
     ],
 )
-def test_mapping_list_env_var(envvars, expect):
+def test_mapping_list_env_var(envvars, expect, warn_deprecated, caplog):
     for var, val in envvars.items():
         os.environ[var] = val
-    config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
-    if isinstance(expect, list):
-        assert sorted(config.get("search_enabled")) == sorted(expect)
-    else:
-        with pytest.raises(expect):
-            config.get("search_enabled")
-    for var in envvars:
-        del os.environ[var]
+    try:
+        config = Config(env_prefix="ARCHIVEMATICA_DASHBOARD", attrs=CONFIG_MAPPING)
+        caplog.clear()
+        if isinstance(expect, list):
+            assert sorted(config.get("search_enabled")) == sorted(expect)
+            warning_messages = [record.message for record in caplog.records]
+            has_warning = any(
+                "Ignoring deprecated search_enabled value(s): transfers." in message
+                for message in warning_messages
+            )
+            assert has_warning is warn_deprecated
+        else:
+            with pytest.raises(expect):
+                config.get("search_enabled")
+    finally:
+        for var in envvars:
+            del os.environ[var]

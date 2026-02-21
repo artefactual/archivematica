@@ -117,7 +117,6 @@ def storage(request):
         "AS": _("AIP Storage"),
         "DS": _("DIP Storage"),
         "SD": _("FEDORA Deposits"),
-        "BL": _("Transfer Backlog"),
         "TS": _("Transfer Source"),
         "RP": _("Replicator"),
     }

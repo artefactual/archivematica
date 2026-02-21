@@ -5,19 +5,7 @@ MCPClient).
 
 from django.conf import settings
 
-ABILITIES = (
-    # The (elastic)search Transfers indexes must be enabled for the transfers
-    # backlog. Therefore, the "Send to backlog" choice at the "Create SIP(s)"
-    # decision point should not be available when the 'transfers' indexes are
-    # not included in the SEARCH_ENABLED setting.
-    {
-        "name": "search",
-        "enabled_attr": "SEARCH_ENABLED",
-        "enabled_condition": "in",
-        "enabled_value": "transfers",
-        "dependencies": (("Create SIP(s)", "Send to backlog"),),
-    },
-)
+ABILITIES = ()
 
 
 def choice_is_available(link, chain):

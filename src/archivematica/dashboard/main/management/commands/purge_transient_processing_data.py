@@ -90,7 +90,11 @@ class Command(DashboardCommand):
 
     def handle(self, *args, **options):
         search_service = None
-        if not options["keep_searches"] and django_settings.SEARCH_ENABLED:
+        if (
+            not options["keep_searches"]
+            and archivematica.search.constants.AIPS_INDEX
+            in django_settings.SEARCH_ENABLED
+        ):
             # Ignore elasticsearch-py logging events unless they're errors.
             logging.getLogger("elasticsearch").setLevel(logging.ERROR)
             logging.getLogger("archivematica.common").setLevel(logging.ERROR)
@@ -177,16 +181,6 @@ class Command(DashboardCommand):
                     models.Transfer.objects.filter(pk=package_id),
                     options["quiet"],
                 )
-                if (
-                    not options["keep_searches"]
-                    and archivematica.search.constants.TRANSFERS_INDEX
-                    in django_settings.SEARCH_ENABLED
-                ):
-                    if not options["quiet"]:
-                        self.info("  Purging search documents...")
-                    search_service.delete_transfer(str(package_id))
-                    transfer_ids = {str(package_id)}
-                    search_service.delete_transfer_files(transfer_ids)
             except Exception as err:
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.format_exc())

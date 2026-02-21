@@ -469,13 +469,13 @@ def test_unit_jobs_with_bogus_unit_uuid(admin_client, dashboard_uuid):
 
 
 @pytest.mark.django_db
-def test_unit_jobs(admin_client, dashboard_uuid, transfer, jobs_transfer_backlog):
+def test_unit_jobs(admin_client, dashboard_uuid, transfer, jobs_transfer_complete):
     # Add a task to an existing job
     task_uuid = uuid.uuid4()
     job_index = 1
     Task.objects.create(
         taskuuid=task_uuid,
-        job=jobs_transfer_backlog[job_index],
+        job=jobs_transfer_complete[job_index],
         createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
         starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
         endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
@@ -483,7 +483,7 @@ def test_unit_jobs(admin_client, dashboard_uuid, transfer, jobs_transfer_backlog
     )
     # each payload mapping has information about the job and its tasks
     expected = []
-    for job in jobs_transfer_backlog:
+    for job in jobs_transfer_complete:
         expected.append(
             {
                 "uuid": str(job.jobuuid),
@@ -503,7 +503,7 @@ def test_unit_jobs(admin_client, dashboard_uuid, transfer, jobs_transfer_backlog
 
     # payload contains a mapping for each job
     payload = json.loads(resp.content.decode("utf8"))
-    assert len(payload) == len(jobs_transfer_backlog)
+    assert len(payload) == len(jobs_transfer_complete)
     assert payload == expected
     # check the task added before is associated to the expected job
     assert payload[job_index]["tasks"] == [{"uuid": str(task_uuid), "exit_code": 0}]
@@ -672,8 +672,8 @@ def test_task_with_bogus_task_uuid(admin_client, dashboard_uuid):
 
 
 @pytest.mark.django_db
-def test_task(admin_client, dashboard_uuid, jobs_transfer_backlog):
-    stored_job = jobs_transfer_backlog[1]
+def test_task(admin_client, dashboard_uuid, jobs_transfer_complete):
+    stored_job = jobs_transfer_complete[1]
     # fixtures don't have any tasks
     task_uuid = uuid.uuid4()
     Task.objects.create(

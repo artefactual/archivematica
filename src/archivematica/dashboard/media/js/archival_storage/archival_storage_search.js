@@ -101,7 +101,7 @@ function renderArchivalStorageSearchForm(search_uri, on_success, on_error) {
 
   if (on_success !== null) {
     function aipSearchSubmit() {
-      // Query Django, which queries ElasticSearch, to get the backlog file info
+      // Query Django (backed by Elasticsearch) for archival storage results.
       var query_url = search_uri + '?' + search.toUrlParams();
       if($('#id_show_files').is(':checked')) {
         query_url += '&filemode=true';

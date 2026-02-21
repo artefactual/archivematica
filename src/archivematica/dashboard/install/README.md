@@ -213,7 +213,7 @@ variables or in the gunicorn configuration file.
     client can retrieve. Note that when using a value greater than 10000, the
     `total_fields.limit` and `max_result_window` must be increased in indices
     (For instance, when using `100000` run on ES server linux CLI:
-    `curl -XPUT 'http://localhost:9200/aips,aipfiles,transfers,transferfiles/_settings'
+    `curl -XPUT 'http://localhost:9200/aips,aipfiles/_settings'
     -H "Content-Type: application/json" -d '{"index.mapping.total_fields.limit":
     100000, "index.max_result_window": 100000}'`)
   - **Config file example:** `Dashboard.elasticsearch_max_query_size`
@@ -222,12 +222,8 @@ variables or in the gunicorn configuration file.
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_SEARCH_ENABLED`**:
   - **Description:** controls what Elasticsearch indexes are enabled:
-    - When set to `aips`, the Backlog tab will not be displayed.
-    - When set to `transfers`, the Archival storage tab will not be displayed.
-    - When set to `false`, all the mentioned parts in the previous cases will
-      not be displayed.
-    - When set to `aips,transfers` (the order does not matter) or `true`, all
-      the mentioned parts will be displayed.
+    - When set to `aips` or `true`, AIPs related indexes are enabled.
+    - When set to `false`, AIPs related indexes are disabled.
     The status of Elasticsearch indexing is indicated in the Archivematica GUI
     under Administration > General.
   - **Config file example:** `Dashboard.search_enabled`

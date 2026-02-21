@@ -19,7 +19,6 @@ from archivematica.archivematicaCommon.archivematicaFunctions import (
 )
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main import models
-from archivematica.search.service import setup_search_service_from_conf
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
@@ -155,13 +154,6 @@ def post_store_hook(job, sip_uuid):
     """
     Hook for doing any work after an AIP is stored successfully.
     """
-    update_es = "transfers" in mcpclient_settings.SEARCH_ENABLED
-    if update_es:
-        search_service = setup_search_service_from_conf(mcpclient_settings)
-    else:
-        logger.info("Skipping indexing: Transfers indexing is currently disabled.")
-        search_service = None
-
     # Check if any component transfers are fully stored in this SIP.
     transfer_uuids = {
         transfer_uuid
@@ -185,18 +177,15 @@ def post_store_hook(job, sip_uuid):
             job.pyprint(
                 "Transfer",
                 transfer_uuid,
-                "fully stored, sending delete request to storage service, deleting from transfer backlog",
+                "fully stored, sending delete request to storage service for transfer package cleanup",
             )
-            # Submit delete req to SS (not actually delete), remove from ES
+            # Request package deletion in Storage Service (if a stored transfer exists).
             storage_service.request_file_deletion(
                 uuid=str(transfer_uuid),
                 user_id=0,
                 user_email="archivematica system",
                 reason_for_deletion="All files in Transfer are now in AIPs.",
             )
-            if update_es:
-                transfer_ids = find_transfer_ids_by_unit_uuid(transfer_uuid)
-                search_service.delete_transfer_files(transfer_ids)
 
     # DSPACE HANDLE TO ARCHIVESSPACE
     dspace_handle_to_archivesspace(job, sip_uuid)

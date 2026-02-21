@@ -215,6 +215,7 @@ def get_unit_status(unit_uuid, unit_type):
         if sips:
             ret["status"] = "COMPLETE"
             ret["sip_uuid"] = str(sips[0]["sip"])
+    # Legacy compatibility for pre-1.19 transfers that completed via backlog.
     elif (
         models.Job.objects.filter(sipuuid=unit_uuid)
         .filter(jobtype="Move transfer to backlog")
