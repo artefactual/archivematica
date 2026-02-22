@@ -663,20 +663,6 @@ var ATKMatcherView = Backbone.View.extend({
   },
 
   notify: function(text) {
-    var dialog = $('<div>' + text + '</div>');
-
-    setTimeout(function() {
-      $(dialog).dialog('close');
-    }, 2000);
-
-    dialog.dialog({
-      title: gettext('Warning'),
-      width: 640,
-      height: 200,
-      buttons: [{
-        text: gettext('Dismiss'),
-        click: function() { $(this).dialog('close'); }
-      }]
-    });
+    window.alert(text);
   }
 });
