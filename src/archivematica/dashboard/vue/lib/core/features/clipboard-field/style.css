@@ -1,0 +1,45 @@
+am-clipboard-field {
+  display: block;
+}
+
+am-clipboard-field .am-clipboard-field__icon {
+  display: inline-block;
+  transform-origin: center;
+  transition: color 120ms ease-out;
+}
+
+am-clipboard-field .am-clipboard-field-icon-copied {
+  color: #3c763d;
+  transform: scale(1.25);
+}
+
+am-clipboard-field .am-clipboard-field-icon-copied-animate {
+  animation: am-clipboard-field-icon-pop 180ms ease-out;
+}
+
+@keyframes am-clipboard-field-icon-pop {
+  0% {
+    opacity: 0.75;
+    transform: translateY(2px) scale(0.62);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.35);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  am-clipboard-field .am-clipboard-field__icon {
+    transition: none;
+  }
+
+  am-clipboard-field .am-clipboard-field-icon-copied-animate {
+    animation: none;
+  }
+}

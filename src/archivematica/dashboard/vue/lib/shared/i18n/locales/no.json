@@ -92,6 +92,11 @@
     "empty": "Ingen filer eller mapper å vise.",
     "noDirectoryProvided": "Ingen katalog oppgitt for AIP-nettleseren."
   },
+  "clipboardField": {
+    "copy": "Kopier",
+    "copied": "Kopiert!",
+    "copyFailed": "Kunne ikke kopiere. Kopier teksten manuelt."
+  },
   "monitor": {
     "microservice": "Mikrotjeneste",
     "transfer": "Overføring",

@@ -92,6 +92,11 @@
     "empty": "Nenhum arquivo ou pasta para exibir.",
     "noDirectoryProvided": "Nenhum diretório fornecido para o navegador AIP."
   },
+  "clipboardField": {
+    "copy": "Copiar",
+    "copied": "Copiado!",
+    "copyFailed": "Não foi possível copiar. Copie o texto manualmente."
+  },
   "monitor": {
     "microservice": "Microservice",
     "transfer": "Transfer",

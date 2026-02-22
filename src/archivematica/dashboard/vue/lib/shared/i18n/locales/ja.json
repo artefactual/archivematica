@@ -92,6 +92,11 @@
     "empty": "表示するファイルまたはフォルダがありません。",
     "noDirectoryProvided": "AIP ブラウザにディレクトリが指定されていません。"
   },
+  "clipboardField": {
+    "copy": "コピー",
+    "copied": "コピーしました！",
+    "copyFailed": "コピーできませんでした。テキストを手動でコピーしてください。"
+  },
   "monitor": {
     "microservice": "Microservice",
     "transfer": "転送",
