@@ -30,7 +30,7 @@
   </head>
   <body
     id="page-{% block page_id %}default{% endblock %}"
-    data-features="{% block data_features %}{% endblock %}"
+    data-features="dropdown {% block data_features %}{% endblock %}"
   >
 
     {% block header %}
@@ -70,7 +70,7 @@
 
               {% if user.is_authenticated %}
                 <li class="user dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" id="dropdownUser" aria-haspopup="true">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownUser" aria-haspopup="true" aria-expanded="false">
                     {{ request.user }} <div class="caret"></div>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
