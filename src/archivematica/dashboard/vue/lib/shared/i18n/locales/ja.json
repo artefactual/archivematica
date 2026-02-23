@@ -141,7 +141,14 @@
     "removeAllConfirmSip": "Are you sure you want to remove all completed SIPs from the dashboard? Note that this does not delete the SIPs or related entities."
   },
   "misc": {
-    "help": "ヘルプ"
+    "help": "ヘルプ",
+    "pagination": {
+      "infoTemplate": "{total} 件中 {start} から {end} を表示",
+      "lengthTemplate": "{select} 件ずつ表示",
+      "previous": "前へ",
+      "next": "次へ",
+      "ariaLabel": "ページネーション"
+    }
   },
   "rights": {
     "type": "種別",
@@ -209,5 +216,105 @@
     "pairRequestFailed": "ペアリングを保存できませんでした。",
     "deleteRequestFailed": "ペアリングを削除できませんでした。",
     "noPairsYet": "まだペアはありません。"
+  },
+  "fpr": {
+    "columns": {
+      "description": "説明",
+      "group": "グループ",
+      "command": "コマンド",
+      "type": "タイプ",
+      "tool": "ツール",
+      "tools": "ツール",
+      "mode": "モード",
+      "enabled": "有効",
+      "usage": "用途",
+      "version": "バージョン",
+      "format": "フォーマット",
+      "output": "出力",
+      "purpose": "目的",
+      "success": "成功",
+      "pronomId": "PRONOM ID",
+      "accessFormat": "アクセス用フォーマット?",
+      "preservationFormat": "保存用フォーマット?",
+      "configuration": "設定",
+      "identifier": "識別子",
+      "uuid": "UUID",
+      "actions": "操作"
+    },
+    "boolean": {
+      "true": "はい",
+      "false": "いいえ"
+    },
+    "search": {
+      "label": "検索",
+      "placeholder": "Filter rows",
+      "clear": "クリア"
+    },
+    "actions": {
+      "view": "見る",
+      "edit": "編集",
+      "replace": "置換",
+      "disable": "無効化",
+      "enable": "有効化",
+      "delete": "削除"
+    },
+    "create": {
+      "format": "Create new format",
+      "command": "Create new command",
+      "tool": "Create new tool",
+      "formatGroup": "Create new format group",
+      "rule": "Create new rule",
+      "formatVersion": "Create new format version",
+      "toolCommand": "Create new tool command"
+    },
+    "empty": {
+      "formats": "No formats exist.",
+      "idCommands": "No identification commands exist.",
+      "fpCommands": "No format policy commands exist.",
+      "idTools": "No identification tools exist.",
+      "tools": "No tools exist.",
+      "formatGroups": "No format groups exist.",
+      "idRules": "No identification rules exist.",
+      "fpRules": "No format policy rules exist.",
+      "versions": "No versions exist.",
+      "commands": "No commands exist."
+    },
+    "values": {
+      "successTemplate": "{attempts} 件中 {okay} 件成功",
+      "formatVersionTemplate": "バージョン: {version}",
+      "scriptType": {
+        "bashScript": "Bash スクリプト",
+        "pythonScript": "Python スクリプト",
+        "command": "コマンドライン",
+        "as_is": "shebang 不要"
+      },
+      "configuration": {
+        "PUID": "PUID",
+        "MIME": "MIME タイプ",
+        "ext": "ファイル拡張子"
+      },
+      "commandUsage": {
+        "characterization": "特性評価",
+        "event_detail": "イベント詳細",
+        "extraction": "抽出",
+        "normalization": "正規化",
+        "transcription": "文字起こし",
+        "validation": "検証",
+        "verification": "照合"
+      },
+      "purpose": {
+        "access": "アクセス",
+        "characterization": "特性評価",
+        "extract": "抽出",
+        "preservation": "保存",
+        "thumbnail": "サムネイル",
+        "transcription": "文字起こし",
+        "validation": "検証",
+        "policy_check": "ポリシーに対する検証",
+        "default_access": "デフォルトアクセス",
+        "default_characterization": "デフォルト特性評価",
+        "default_thumbnail": "デフォルトサムネイル"
+      }
+    }
   }
 }

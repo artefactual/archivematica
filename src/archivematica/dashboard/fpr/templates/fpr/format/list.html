@@ -18,47 +18,11 @@
 
   <div class="col-xs-10">
 
-    {% if request.user.is_superuser %}
-      {% include '_fpr_update_button.html' %}
-    {% endif %}
-
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:format_create' %}">{% trans "Create new format" %}</a></p>
-    {% endif %}
-
-    {% if formats %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Description" %}</th>
-            <th>{% trans "Group" %}</th>
-            <th>{% trans "Actions" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for format in formats %}
-          <tr>
-            <td><a href="{% url 'fpr:format_detail' format.slug %}">{{ format.description }}</a></td>
-            <td>
-              {% if request.user.is_superuser %}
-                <a href="{% url 'fpr:formatgroup_edit' format.group_slug %}">{{ format.group_name }}</a>
-              {% else %}
-                {{ format.group_name }}
-              {% endif %}
-            </td>
-            <td>
-              <a href="{% url 'fpr:format_detail' format.slug %}">{% trans "View" %}</a>
-              {% if request.user.is_superuser %}
-                | <a href="{% url 'fpr:format_edit' format.slug %}">{% trans "Edit" %}</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>{% trans "No formats exist." %}</p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-format-list-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-format-list-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

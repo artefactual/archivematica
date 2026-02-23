@@ -41,50 +41,11 @@
 
     <h2>{% trans "Specific versions" %}</h2>
 
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:formatversion_create' format.slug %}">{% trans "Create new format version" %}</a></p>
-    {% endif %}
-
-    {% if format_versions %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Description" %}</th>
-            <th>{% trans "Version" %}</th>
-            <th>{% trans "Pronom ID" %}</th>
-            <th>{% trans "Access format?" %}</th>
-            <th>{% trans "Preservation format?" %}</th>
-            <th>{% trans "Enabled" %}</th>
-            <th>{% trans "Actions" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for version in format_versions %}
-          <tr>
-            <td><a href="{% url 'fpr:formatversion_detail' format.slug version.slug %}">{{ version.description }}</a></td>
-            <td>{% if version.version  %}{{ version.version }}{% endif %}</td>
-            <td>{% if version.pronom_id %}<a href="https://www.nationalarchives.gov.uk/PRONOM/{{ version.pronom_id }}" target=_blank>{{ version.pronom_id}}</a>{% endif %}</td>
-            <td>{{ version.access_format|yesno:_("Yes,No") }}</td>
-            <td>{{ version.preservation_format|yesno:_("Yes,No") }}</td>
-            <td>{{ version.enabled }}</td>
-            <td>
-              <a href="{% url 'fpr:formatversion_detail' format.slug version.slug %}">{% trans "View" %}</a>
-              {% if request.user.is_superuser %}
-                | <a href="{% url 'fpr:formatversion_edit' format.slug version.slug %}">{% trans "Replace" %}</a>
-                | <a href="{% url 'fpr:formatversion_delete' format.slug version.slug %}">{{ version.enabled|yesno:_("Disable,Enable") }}</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>
-        {% blocktrans with description=format.description %}
-          No versions exist for {{ description }}.
-        {% endblocktrans %}
-      </p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-format-detail-versions-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-format-detail-versions-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

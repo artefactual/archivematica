@@ -17,44 +17,11 @@
 
   <div class="col-xs-10">
 
-  {% if request.user.is_superuser %}
-  <p><a href="{% url 'fpr:idrule_create' %}">{% trans "Create new rule" %}</a></p>
-  {% endif %}
-
-{% if idrules %}
-  <table class="datatable">
-    <thead>
-      <tr>
-        <th>{% trans "Format" %}</th>
-        <th>{% trans "Command" %}</th>
-        <th>{% trans "Output" %}</th>
-        <th>{% trans "Tools" %}</th>
-        <th>{% trans "Enabled" %}</th>
-        <th>{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for idrule in idrules %}
-      <tr>
-        <td><a href="{% url 'fpr:format_detail' idrule.format.format.slug %}">{{ idrule.format }}</a></td>
-        <td><a href="{% url 'fpr:idcommand_detail' idrule.command.uuid %}">{{ idrule.command.description }}</a></td>
-        <td><a href="{% url 'fpr:idrule_detail' idrule.uuid %}">{{ idrule.command_output }}</a></td>
-        <td><a href="{% url 'fpr:idtool_detail' idrule.command.tool.slug %}">{{ idrule.command.tool }}</a></td>
-        <td>{{ idrule.enabled|yesno:_('Yes,No') }}</td>
-        <td>
-          <a href="{% url 'fpr:idrule_detail' idrule.uuid %}">{% trans "View" %}</a>
-          {% if request.user.is_superuser %}
-            | <a href="{% url 'fpr:idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a>
-            | <a href="{% url 'fpr:idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a>
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-{% else %}
-  <p>{% trans "No identification rules exist." %}</p>
-{% endif %}
+  <div
+    class="fpr-vue-table"
+    data-fpr-table-root
+    data-fpr-table-script-id="fpr-idrule-list-payload"></div>
+  {{ fpr_table_payload|json_script:"fpr-idrule-list-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

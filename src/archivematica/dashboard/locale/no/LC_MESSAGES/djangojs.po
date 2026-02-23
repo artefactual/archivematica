@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-21 14:35+0000\n"
+"POT-Creation-Date: 2026-03-02 09:13+0000\n"
 "PO-Revision-Date: 2020-10-19 21:12+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -112,7 +112,6 @@ msgid "AIP in AIC"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:198
-#, fuzzy
 #| msgid "Part of AIC"
 msgid "Part of"
 msgstr "Del av AIC"
@@ -146,7 +145,6 @@ msgid "Thumbnail"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:247
-#, fuzzy
 #| msgid "Filename"
 msgid "File"
 msgstr "Filnavn"
@@ -174,7 +172,6 @@ msgid "Name"
 msgstr "Navn"
 
 #: media/js/archival_storage/archival_storage_search.js:258
-#, fuzzy
 #| msgid "AIP UUID"
 msgid "UUID"
 msgstr "AIP-UUID"
@@ -192,7 +189,6 @@ msgid "File count"
 msgstr "Antall filer"
 
 #: media/js/archival_storage/archival_storage_search.js:262
-#, fuzzy
 #| msgid "Accession number"
 msgid "Accession numbers"
 msgstr "Inventarnummer"
@@ -206,13 +202,11 @@ msgid "Encrypted"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:266
-#, fuzzy
 #| msgid "Actions"
 msgid "Location"
 msgstr "Handlinger"
 
 #: media/js/archival_storage/archival_storage_search.js:321
-#, fuzzy
 #| msgid "Select an action..."
 msgid "Select columns"
 msgstr "Velg en handling..."
@@ -296,19 +290,3 @@ msgstr ": aktiver for å sortere kolonne stigende"
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
 msgstr ": aktiver for å sortere kolonne synkende"
-
-#: media/js/ingest/as_matcher.js:553
-msgid "No resource selected."
-msgstr "Ingen ressurs valgt."
-
-#: media/js/ingest/as_matcher.js:560
-msgid "No objects selected."
-msgstr "Ingen objekter valgt."
-
-#: media/js/ingest/as_matcher.js:673
-msgid "Warning"
-msgstr "Advarsel"
-
-#: media/js/ingest/as_matcher.js:677
-msgid "Dismiss"
-msgstr "Avvis"

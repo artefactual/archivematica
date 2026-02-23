@@ -109,10 +109,8 @@ export const getIngestUploadAsReviewMatchesUrl = (sipUuid: string): string => {
   return createUrl(`/ingest/${sipUuid}/upload/as/review/`)
 }
 
-/**
- * Preserve the legacy matcher contract: 201 creates a pairing, 409 means the
- * file was already paired, and other failures surface as errors.
- */
+// Preserve the legacy matcher contract: 201 creates a pairing, 409 means the
+// file was already paired, and other failures surface as errors.
 export const createArchivesSpacePair = async ({
   dipUuid,
   resourceId,

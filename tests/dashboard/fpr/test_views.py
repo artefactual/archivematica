@@ -1,10 +1,41 @@
 import uuid
+from typing import Any
 
 import pytest
 from django.test import Client
 from django.urls import reverse
 
 from archivematica.dashboard.fpr import models
+
+
+def _assert_fpr_table_payload(response: Any, *, kind: str, script_id: str) -> None:
+    payload = response.context["fpr_table_payload"]
+
+    assert response.status_code == 200
+    assert payload["version"] == 1
+    assert payload["kind"] == kind
+    assert "permissions" not in payload
+    if payload["ui"]["create"] is not None:
+        assert "url" not in payload["ui"]["create"]
+    for row in payload["rows"]:
+        for action in row.get("actions", []):
+            assert "url" not in action
+    assert f'id="{script_id}"' in response.content.decode()
+
+
+def _create_format_version(
+    *,
+    group_description: str = "Group",
+    format_description: str = "Format",
+    version_description: str = "Format version",
+) -> models.FormatVersion:
+    return models.FormatVersion.objects.create(
+        format=models.Format.objects.create(
+            group=models.FormatGroup.objects.create(description=group_description),
+            description=format_description,
+        ),
+        description=version_description,
+    )
 
 
 @pytest.mark.django_db
@@ -296,4 +327,266 @@ def test_fprule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
             command=command.uuid,
         ).count()
         == 1
+    )
+
+
+@pytest.mark.django_db
+def test_format_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    group = models.FormatGroup.objects.create(description="Text")
+    models.Format.objects.create(description="Plain text", group=group)
+
+    response = admin_client.get(reverse("fpr:format_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="format-list", script_id="fpr-format-list-payload"
+    )
+
+
+@pytest.mark.django_db
+def test_format_detail_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    format_obj = models.Format.objects.create(
+        description="TIFF",
+        group=models.FormatGroup.objects.create(description="Image"),
+    )
+    models.FormatVersion.objects.create(
+        format=format_obj,
+        description="TIFF 6.0",
+        pronom_id="fmt/353",
+    )
+
+    response = admin_client.get(reverse("fpr:format_detail", args=[format_obj.slug]))
+
+    _assert_fpr_table_payload(
+        response,
+        kind="format-detail-versions",
+        script_id="fpr-format-detail-versions-payload",
+    )
+
+
+@pytest.mark.django_db
+def test_formatgroup_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    models.FormatGroup.objects.create(description="Audio")
+
+    response = admin_client.get(reverse("fpr:formatgroup_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="formatgroup-list", script_id="fpr-formatgroup-list-payload"
+    )
+
+
+@pytest.mark.django_db
+def test_formatgroup_edit_includes_fpr_table_payload_for_group_formats(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    group = models.FormatGroup.objects.create(description="Documents")
+    models.Format.objects.create(description="PDF", group=group)
+
+    response = admin_client.get(reverse("fpr:formatgroup_edit", args=[group.slug]))
+
+    _assert_fpr_table_payload(
+        response,
+        kind="formatgroup-form-formats",
+        script_id="fpr-formatgroup-form-formats-payload",
+    )
+
+
+@pytest.mark.django_db
+def test_idtool_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    models.IDTool.objects.create(description="Siegfried", version="1.11.2")
+
+    response = admin_client.get(reverse("fpr:idtool_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="idtool-list", script_id="fpr-idtool-list-payload"
+    )
+
+
+@pytest.mark.django_db
+def test_idtool_detail_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    idtool = models.IDTool.objects.create(description="DROID", version="6.7")
+    models.IDCommand.objects.create(tool=idtool)
+
+    response = admin_client.get(reverse("fpr:idtool_detail", args=[idtool.slug]))
+
+    _assert_fpr_table_payload(
+        response,
+        kind="idtool-detail-commands",
+        script_id="fpr-idtool-detail-commands-payload",
+    )
+
+
+@pytest.mark.django_db
+def test_idrule_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    format_version = _create_format_version(
+        group_description="Presentation",
+        format_description="PowerPoint",
+        version_description="PowerPoint 97-2003",
+    )
+    idtool = models.IDTool.objects.create(description="DROID", version="6.7")
+    idcommand = models.IDCommand.objects.create(tool=idtool, description="DROID PUID")
+    idrule = models.IDRule.objects.create(
+        format=format_version,
+        command=idcommand,
+        command_output="fmt/126",
+    )
+
+    class _ReplacingRulesQuerySet:
+        def values_list(self, *args: Any, **kwargs: Any) -> list[str]:
+            return []
+
+    observed_select_related_args: tuple[str, ...] | None = None
+
+    class _IDRulesQuerySet(list[models.IDRule]):
+        def select_related(self, *args: str) -> "_IDRulesQuerySet":
+            nonlocal observed_select_related_args
+            observed_select_related_args = args
+            return self
+
+    class _IDRuleManager:
+        def filter(self, **kwargs: Any) -> _ReplacingRulesQuerySet:
+            return _ReplacingRulesQuerySet()
+
+        def exclude(self, **kwargs: Any) -> _IDRulesQuerySet:
+            return _IDRulesQuerySet([idrule])
+
+    from archivematica.dashboard.fpr import views as fpr_views
+
+    monkeypatch.setattr(fpr_views.fprmodels.IDRule, "objects", _IDRuleManager())
+
+    response = admin_client.get(reverse("fpr:idrule_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="idrule-list", script_id="fpr-idrule-list-payload"
+    )
+    assert observed_select_related_args == ("format__format__group", "command__tool")
+
+
+@pytest.mark.django_db
+def test_idrule_list_handles_rules_without_tool(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    format_version = _create_format_version(
+        group_description="Presentation",
+        format_description="PowerPoint",
+        version_description="PowerPoint 97-2003",
+    )
+    idcommand = models.IDCommand.objects.create(
+        description="Rule command without tool",
+        tool=None,
+    )
+    idrule = models.IDRule.objects.create(
+        format=format_version,
+        command=idcommand,
+        command_output="fmt/126",
+    )
+
+    response = admin_client.get(reverse("fpr:idrule_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="idrule-list", script_id="fpr-idrule-list-payload"
+    )
+    payload = response.context["fpr_table_payload"]
+    row = next(row for row in payload["rows"] if row["id"] == str(idrule.uuid))
+    assert row["tool"] == ""
+    assert row["toolSlug"] is None
+
+
+@pytest.mark.django_db
+def test_idcommand_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    idtool = models.IDTool.objects.create(description="Siegfried", version="1.11.2")
+    models.IDCommand.objects.create(tool=idtool, description="Siegfried command")
+
+    response = admin_client.get(reverse("fpr:idcommand_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="idcommand-list", script_id="fpr-idcommand-list-payload"
+    )
+
+
+@pytest.mark.django_db
+def test_fprule_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    format_version = _create_format_version(
+        group_description="Video",
+        format_description="Matroska",
+        version_description="Matroska v4",
+    )
+    fptool = models.FPTool.objects.create(description="FFmpeg", version="6.0")
+    fpcommand = models.FPCommand.objects.create(
+        tool=fptool,
+        description="Transcode to access copy",
+        command_usage="normalization",
+    )
+    models.FPRule.objects.create(
+        purpose=models.FPRule.CHARACTERIZATION,
+        format=format_version,
+        command=fpcommand,
+    )
+
+    response = admin_client.get(reverse("fpr:fprule_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="fprule-list", script_id="fpr-fprule-list-payload"
+    )
+
+
+@pytest.mark.django_db
+def test_fptool_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    models.FPTool.objects.create(description="ImageMagick", version="7.1.1")
+
+    response = admin_client.get(reverse("fpr:fptool_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="fptool-list", script_id="fpr-fptool-list-payload"
+    )
+
+
+@pytest.mark.django_db
+def test_fptool_detail_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    fptool = models.FPTool.objects.create(description="FFmpeg", version="6.0")
+    models.FPCommand.objects.create(tool=fptool, command_usage="normalization")
+
+    response = admin_client.get(reverse("fpr:fptool_detail", args=[fptool.slug]))
+
+    _assert_fpr_table_payload(
+        response,
+        kind="fptool-detail-commands",
+        script_id="fpr-fptool-detail-commands-payload",
+    )
+
+
+@pytest.mark.django_db
+def test_fpcommand_list_includes_fpr_table_payload(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    fptool = models.FPTool.objects.create(description="FFmpeg", version="6.0")
+    models.FPCommand.objects.create(
+        tool=fptool,
+        description="Normalize",
+        command_usage="normalization",
+    )
+
+    response = admin_client.get(reverse("fpr:fpcommand_list"))
+
+    _assert_fpr_table_payload(
+        response, kind="fpcommand-list", script_id="fpr-fpcommand-list-payload"
     )

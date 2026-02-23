@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-21 14:35+0000\n"
+"POT-Creation-Date: 2026-03-02 09:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/"
@@ -113,7 +112,6 @@ msgid "AIP in AIC"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:198
-#, fuzzy
 #| msgid "Part of AIC"
 msgid "Part of"
 msgstr "Partie d'une AIC"
@@ -147,7 +145,6 @@ msgid "Thumbnail"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:247
-#, fuzzy
 #| msgid "Filename"
 msgid "File"
 msgstr "Nom du fichier"
@@ -175,7 +172,6 @@ msgid "Name"
 msgstr "Nom"
 
 #: media/js/archival_storage/archival_storage_search.js:258
-#, fuzzy
 #| msgid "AIP UUID"
 msgid "UUID"
 msgstr "UUID de l'AIP"
@@ -193,13 +189,11 @@ msgid "File count"
 msgstr "Nombre de fichiers"
 
 #: media/js/archival_storage/archival_storage_search.js:262
-#, fuzzy
 #| msgid "Accession number"
 msgid "Accession numbers"
 msgstr "Numéro d'acquisition"
 
 #: media/js/archival_storage/archival_storage_search.js:263
-#, fuzzy
 #| msgid "Create SIP"
 msgid "Created"
 msgstr "Créer un SIP "
@@ -209,13 +203,11 @@ msgid "Encrypted"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:266
-#, fuzzy
 #| msgid "Actions"
 msgid "Location"
 msgstr "Actions"
 
 #: media/js/archival_storage/archival_storage_search.js:321
-#, fuzzy
 #| msgid "Select an action..."
 msgid "Select columns"
 msgstr "Sélectionner une action..."
@@ -299,19 +291,3 @@ msgstr ": activer le tri ascendant"
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
 msgstr ": activer le tri descendant"
-
-#: media/js/ingest/as_matcher.js:553
-msgid "No resource selected."
-msgstr "Aucune ressource sélectionnée."
-
-#: media/js/ingest/as_matcher.js:560
-msgid "No objects selected."
-msgstr "Aucun objet sélectionné"
-
-#: media/js/ingest/as_matcher.js:673
-msgid "Warning"
-msgstr "Avertissement"
-
-#: media/js/ingest/as_matcher.js:677
-msgid "Dismiss"
-msgstr "Rejeter"
