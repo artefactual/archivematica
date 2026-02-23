@@ -157,6 +157,7 @@ export default defineConfig(({ mode }) => {
           'md-editor': resolve(__dirname, 'lib/md-editor/index.ts'),
           'topbar': resolve(__dirname, 'lib/topbar/index.ts'),
           'monitor': resolve(__dirname, 'lib/monitor/index.ts'),
+          'fpr-tables': resolve(__dirname, 'lib/fpr-tables/index.ts'),
         },
         formats: ['es'],
       },

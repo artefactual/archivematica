@@ -18,50 +18,11 @@
 
   <div class="col-xs-10">
 
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:fprule_create' %}">{% trans 'Create new rule' %}</a></p>
-    {% endif %}
-
-    {% if fprules %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Purpose" %}</th>
-            <th>{% trans "Format" %}</th>
-            <th>{% trans "Command" %}</th>
-            <th>{% trans "Success" %}</th>
-            <th>{% trans "Enabled" %}</th>
-            <th>{% trans "Actions" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for fprule in fprules %}
-          <tr>
-            <td><a href="{% url 'fpr:fprule_detail' fprule.uuid %}">{{ fprule.get_purpose_display }}</a></td>
-            {% spaceless %}
-            {% with version=fprule.format.version pronom_id=fprule.format.pronom_id %}
-            <td>{{ fprule.format.description }}{% if version or pronom_id %} ({% if version %}{% trans "version" %}: {{ version }}{% if pronom_id %}, {% endif %}{% endif %}{% if pronom_id %}{{ pronom_id }}{% endif %}){% endif %}</td>
-            {% endwith %}
-            {% endspaceless %}
-            <td>{{ fprule.command.description }}</td>
-            <td>{{ fprule.count_okay }} out of {{ fprule.count_attempts }}</td>
-            <td>{{ fprule.enabled|yesno:_('Yes,No') }}</td>
-            <td>
-              <a href="{% url 'fpr:fprule_detail' fprule.uuid %}">{% trans "View" %}</a>
-              {% if request.user.is_superuser %}
-                |
-                <a href="{% url 'fpr:fprule_edit' fprule.uuid %}">{% trans "Replace" %}</a>
-                |
-                <a href="{% url 'fpr:fprule_delete' fprule.uuid %}">{{ fprule.enabled|yesno:_("Disable,Enable") }}</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>{% trans "No format policy rules exist." %}</p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-fprule-list-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-fprule-list-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

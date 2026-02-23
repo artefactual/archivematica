@@ -18,8 +18,8 @@
     "deps": "npx npm-check-updates --interactive"
   },
   "dependencies": {
-    "@tanstack/vue-table": "^8.21.3",
     "@vueuse/core": "^14.2.1",
+    "@tanstack/vue-table": "^8.21.3",
     "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
     "inputmask": "^5.0.10-beta.61",
     "jquery": "^4.0.0",

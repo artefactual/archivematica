@@ -18,38 +18,11 @@
 
   <div class="col-xs-10">
 
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:idtool_create' %}">{% trans "Create new tool" %}</a></p>
-    {% endif %}
-
-    {% if idtools %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Description" %}</th>
-            <th>{% trans "Version" %}</th>
-            <th>{% trans "Actions" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for idtool in idtools %}
-          <tr>
-            <td><a href="{% url 'fpr:idtool_detail' idtool.slug %}">{{ idtool.description }}</a></td>
-            <td><a href="{% url 'fpr:idtool_detail' idtool.slug %}">{{ idtool.version }}</a></td>
-            <td>
-              <a href="{% url 'fpr:idtool_detail' idtool.slug %}">{% trans "View" %}</a>
-              {% if request.user.is_superuser %}
-                |
-                <a href="{% url 'fpr:idtool_edit' idtool.slug %}">{% trans "Edit" %}</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>{% trans "No identification tools exist." %}</p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-idtool-list-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-idtool-list-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

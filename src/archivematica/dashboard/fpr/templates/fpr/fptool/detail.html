@@ -35,40 +35,11 @@
 
     <h2>{% trans "Tool commands" %}</h2>
 
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:fpcommand_create' %}?parent={{ fptool.uuid }}">{% trans "Create new tool command" %}</a></p>
-    {% endif %}
-
-    {% if fpcommands %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Command" %}</th>
-            <th>{% trans "UUID" %}</th>
-            {% if request.user.is_superuser %}
-            <th>{% trans "Actions" %}</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-        {% for fpcommand in fpcommands %}
-          <tr>
-            <td><a href="{% url 'fpr:fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.description }}</a></td>
-            <td><a href="{% url 'fpr:fpcommand_detail' fpcommand.uuid %}">{{ fpcommand.uuid }}</a></td>
-            {% if request.user.is_superuser %}
-            <td><a href="{% url 'fpr:fpcommand_edit' fpcommand.uuid %}">{% trans "Replace" %}</a></td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>
-        {% blocktrans with description=fptool.description %}
-          No commands exist for {{ description }}.
-        {% endblocktrans %}
-      </p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-fptool-detail-commands-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-fptool-detail-commands-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

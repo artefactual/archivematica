@@ -141,7 +141,14 @@
     "uuidWithValue": "UUID: {value}"
   },
   "misc": {
-    "help": "Help"
+    "help": "Help",
+    "pagination": {
+      "infoTemplate": "Showing {start} to {end} of {total} entries",
+      "lengthTemplate": "Show {select} entries",
+      "previous": "Previous",
+      "next": "Next",
+      "ariaLabel": "Pagination"
+    }
   },
   "rights": {
     "type": "Type",
@@ -209,5 +216,105 @@
     "pairRequestFailed": "Could not save pairing.",
     "deleteRequestFailed": "Could not delete pairing.",
     "noPairsYet": "No pairs yet."
+  },
+  "fpr": {
+    "columns": {
+      "description": "Description",
+      "group": "Group",
+      "command": "Command",
+      "type": "Type",
+      "tool": "Tool",
+      "tools": "Tools",
+      "mode": "Mode",
+      "enabled": "Enabled",
+      "usage": "Usage",
+      "version": "Version",
+      "format": "Format",
+      "output": "Output",
+      "purpose": "Purpose",
+      "success": "Success",
+      "pronomId": "Pronom ID",
+      "accessFormat": "Access format?",
+      "preservationFormat": "Preservation format?",
+      "configuration": "Configuration",
+      "identifier": "Identifier",
+      "uuid": "UUID",
+      "actions": "Actions"
+    },
+    "boolean": {
+      "true": "Yes",
+      "false": "No"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "Filter rows",
+      "clear": "Clear"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "replace": "Replace",
+      "disable": "Disable",
+      "enable": "Enable",
+      "delete": "Delete"
+    },
+    "create": {
+      "format": "Create new format",
+      "command": "Create new command",
+      "tool": "Create new tool",
+      "formatGroup": "Create new format group",
+      "rule": "Create new rule",
+      "formatVersion": "Create new format version",
+      "toolCommand": "Create new tool command"
+    },
+    "empty": {
+      "formats": "No formats exist.",
+      "idCommands": "No identification commands exist.",
+      "fpCommands": "No format policy commands exist.",
+      "idTools": "No identification tools exist.",
+      "tools": "No tools exist.",
+      "formatGroups": "No format groups exist.",
+      "idRules": "No identification rules exist.",
+      "fpRules": "No format policy rules exist.",
+      "versions": "No versions exist.",
+      "commands": "No commands exist."
+    },
+    "values": {
+      "successTemplate": "{okay} out of {attempts}",
+      "formatVersionTemplate": "version: {version}",
+      "scriptType": {
+        "bashScript": "Bash script",
+        "pythonScript": "Python script",
+        "command": "Command line",
+        "as_is": "No shebang needed"
+      },
+      "configuration": {
+        "PUID": "PUID",
+        "MIME": "MIME type",
+        "ext": "File extension"
+      },
+      "commandUsage": {
+        "characterization": "Characterization",
+        "event_detail": "Event Detail",
+        "extraction": "Extraction",
+        "normalization": "Normalization",
+        "transcription": "Transcription",
+        "validation": "Validation",
+        "verification": "Verification"
+      },
+      "purpose": {
+        "access": "Access",
+        "characterization": "Characterization",
+        "extract": "Extract",
+        "preservation": "Preservation",
+        "thumbnail": "Thumbnail",
+        "transcription": "Transcription",
+        "validation": "Validation",
+        "policy_check": "Validation against a policy",
+        "default_access": "Default access",
+        "default_characterization": "Default characterization",
+        "default_thumbnail": "Default thumbnail"
+      }
+    }
   }
 }

@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-21 14:35+0000\n"
+"POT-Creation-Date: 2026-03-02 09:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Portuguese (https://www.transifex.com/artefactual/teams/1506/"
@@ -59,10 +58,10 @@ msgstr ""
 #: components/administration/views.py:425
 #: components/administration/views.py:472
 #: components/administration/views_dip_upload.py:23
-#: components/administration/views_dip_upload.py:37 fpr/views.py:110
-#: fpr/views.py:117 fpr/views.py:154 fpr/views.py:305 fpr/views.py:348
-#: fpr/views.py:441 fpr/views.py:539 fpr/views.py:547 fpr/views.py:614
-#: fpr/views.py:670
+#: components/administration/views_dip_upload.py:37 fpr/views.py:115
+#: fpr/views.py:122 fpr/views.py:159 fpr/views.py:321 fpr/views.py:365
+#: fpr/views.py:464 fpr/views.py:563 fpr/views.py:571 fpr/views.py:642
+#: fpr/views.py:699
 msgid "Saved."
 msgstr ""
 
@@ -248,6 +247,7 @@ msgstr ""
 #: components/administration/forms.py:281
 #: components/administration/forms_dip_upload.py:7
 #: components/administration/forms_dip_upload.py:16
+#: components/ingest/pair_matcher.py:54
 #: fpr/templates/fpr/fpcommand/detail.html:37
 #: fpr/templates/fpr/fpcommand/detail.html:39
 #: fpr/templates/fpr/fpcommand/detail.html:52
@@ -316,18 +316,11 @@ msgid "Other"
 msgstr ""
 
 #: components/administration/forms_dip_upload.py:18
-#: fpr/templates/fpr/format/detail.html:73
 #: fpr/templates/fpr/format/version/detail.html:36
 #: fpr/templates/fpr/fpcommand/detail.html:58
-#: fpr/templates/fpr/fpcommand/list.html:45
 #: fpr/templates/fpr/fprule/detail.html:46
-#: fpr/templates/fpr/fprule/list.html:53
-#: fpr/templates/fpr/fptool/detail.html:59
 #: fpr/templates/fpr/idcommand/detail.html:42
-#: fpr/templates/fpr/idcommand/list.html:47
 #: fpr/templates/fpr/idrule/detail.html:38
-#: fpr/templates/fpr/idrule/list.html:47
-#: fpr/templates/fpr/idtool/detail.html:65
 msgid "Replace"
 msgstr ""
 
@@ -495,7 +488,7 @@ msgid "Used in metadata-only DIP upload."
 msgstr ""
 
 #: components/administration/views.py:85 components/ingest/views.py:285
-#: fpr/views.py:265 main/views.py:306
+#: fpr/views.py:277 main/views.py:306
 msgid "Deleted."
 msgstr ""
 
@@ -631,13 +624,12 @@ msgstr ""
 #: fpr/templates/fpr/fpcommand/detail.html:26
 #: fpr/templates/fpr/fprule/detail.html:26
 #: fpr/templates/fpr/fptool/detail.html:23
-#: fpr/templates/fpr/fptool/detail.html:47
 #: fpr/templates/fpr/idcommand/detail.html:26
 #: fpr/templates/fpr/idrule/detail.html:26
 #: fpr/templates/fpr/idtool/detail.html:23
 #: fpr/templates/fpr/revisions/list.html:25
 #: templates/administration/reports/failures.html:27
-#: templates/archival_storage/view.html:63
+#: templates/archival_storage/view.html:41
 msgid "UUID"
 msgstr ""
 
@@ -662,7 +654,7 @@ msgid "Deletion requested"
 msgstr ""
 
 #: components/archival_storage/views.py:208 templates/accounts/list.html:24
-#: templates/accounts/profile.html:31
+#: templates/accounts/profile.html:32
 #: templates/administration/reports/failures.html:26
 msgid "Name"
 msgstr ""
@@ -681,7 +673,7 @@ msgstr ""
 
 #: components/archival_storage/views.py:213
 #: templates/administration/usage.html:90
-#: templates/archival_storage/view.html:67
+#: templates/archival_storage/view.html:45
 msgid "Size"
 msgstr ""
 
@@ -698,12 +690,11 @@ msgid "Created date (UTC)"
 msgstr ""
 
 #: components/archival_storage/views.py:217
-#: templates/archival_storage/view.html:75
+#: templates/archival_storage/view.html:53
 msgid "Status"
 msgstr ""
 
-#: components/archival_storage/views.py:218
-#: fpr/templates/fpr/idcommand/list.html:29 main/models.py:1062
+#: components/archival_storage/views.py:218 main/models.py:1062
 #: templates/administration/reports/failures.html:25
 #: templates/rights/rights_edit.html:98 templates/rights/rights_edit.html:144
 #: templates/rights/rights_edit.html:188 templates/rights/rights_edit.html:230
@@ -711,13 +702,13 @@ msgid "Type"
 msgstr ""
 
 #: components/archival_storage/views.py:219
-#: templates/archival_storage/view.html:79
+#: templates/archival_storage/view.html:57
 msgid "Encrypted"
 msgstr ""
 
 #: components/archival_storage/views.py:220
-#: templates/archival_storage/view.html:83
-#: templates/ingest/normalization_report.html:45
+#: templates/archival_storage/view.html:61
+#: templates/ingest/normalization_report.html:28
 msgid "Location"
 msgstr ""
 
@@ -878,6 +869,129 @@ msgstr "Informação sobre direitos detidos no e sobre o recurso. ({iso15836})"
 #: components/ingest/forms.py:122
 msgid "Internet Media Types (MIME) registry"
 msgstr "registo de tipos de média da Internet (MIME)"
+
+#: components/ingest/pair_matcher.py:37
+msgid "Filter objects"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:38
+msgid "Filter resources"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:39
+msgid "Pair"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:40
+msgid "Pair selected objects"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:41
+#: templates/ingest/as/resource_component.html:37
+#: templates/ingest/as/resource_component.html:39
+#: templates/ingest/as/resource_detail.html:28
+#: templates/ingest/as/resource_detail.html:30
+#: templates/ingest/as/resource_list.html:25
+#: templates/ingest/as/resource_list.html:27
+#: templates/ingest/as/review_matches.html:16
+msgid "Restart matching"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:42
+#: templates/ingest/as/resource_component.html:41
+#: templates/ingest/as/resource_detail.html:33
+#: templates/ingest/as/resource_list.html:29
+#: templates/ingest/as/review_matches.html:5
+#: templates/ingest/as/review_matches.html:6
+msgid "Review matches"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:43
+msgid "Objects"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:44
+msgid "Resources"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:45
+msgid "Pairs"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:46
+msgid "Select all"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:47
+#: templates/ingest/as/review_matches.html:23
+msgid "File"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:48
+#: templates/ingest/as/review_matches.html:24
+msgid "Level"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:49 templates/ingest/as/_search_form.html:4
+#: templates/ingest/as/resource_component.html:52
+#: templates/ingest/as/resource_detail.html:42
+#: templates/ingest/as/resource_list.html:34
+#: templates/ingest/as/review_matches.html:25
+msgid "Title"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:50 templates/ingest/as/_search_form.html:5
+#: templates/ingest/as/review_matches.html:26
+msgid "Identifier"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:51
+#: templates/ingest/as/resource_component.html:53
+#: templates/ingest/as/resource_detail.html:43
+#: templates/ingest/as/resource_list.html:35
+#: templates/ingest/as/review_matches.html:27
+msgid "Dates"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:52
+msgid "Selected resource"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:53
+msgid "Target resource"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:55
+msgid "Selected objects"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:56
+msgid "Delete match"
+msgstr ""
+
+#: components/ingest/pair_matcher.py:57
+msgid "No resource selected."
+msgstr ""
+
+#: components/ingest/pair_matcher.py:58
+msgid "No objects selected."
+msgstr ""
+
+#: components/ingest/pair_matcher.py:59
+msgid "This object is already paired."
+msgstr ""
+
+#: components/ingest/pair_matcher.py:60
+msgid "Could not save pairing."
+msgstr ""
+
+#: components/ingest/pair_matcher.py:61
+msgid "Could not delete pairing."
+msgstr ""
+
+#: components/ingest/pair_matcher.py:62
+msgid "No pairs yet."
+msgstr ""
 
 #: components/ingest/views.py:64
 msgid ""
@@ -1115,8 +1229,7 @@ msgid "slug"
 msgstr ""
 
 #: fpr/models.py:161 fpr/templates/fpr/format/version/detail.html:31
-#: fpr/templates/fpr/fprule/list.html:30 fpr/templates/fpr/idrule/list.html:28
-#: templates/ingest/normalization_report.html:46
+#: templates/ingest/normalization_report.html:29
 msgid "Format"
 msgstr ""
 
@@ -1130,7 +1243,6 @@ msgstr ""
 
 #: fpr/models.py:205 fpr/models.py:394 fpr/models.py:611
 #: fpr/templates/fpr/fprule/detail.html:33
-#: fpr/templates/fpr/fprule/list.html:43
 msgid "version"
 msgstr ""
 
@@ -1151,7 +1263,7 @@ msgid "preservation format"
 msgstr ""
 
 #: fpr/models.py:222 fpr/templates/fpr/fprule/detail.html:30
-#: fpr/templates/fpr/idrule/detail.html:28 fpr/views.py:738
+#: fpr/templates/fpr/idrule/detail.html:28 fpr/views.py:767
 msgid "Format version"
 msgstr ""
 
@@ -1266,7 +1378,7 @@ msgstr ""
 msgid "%(description)s"
 msgstr ""
 
-#: fpr/models.py:452 templates/layout.html:64 templates/main/access.html:4
+#: fpr/models.py:452 templates/layout.html:61 templates/main/access.html:4
 #: templates/main/access.html:5
 msgid "Access"
 msgstr ""
@@ -1327,7 +1439,7 @@ msgstr ""
 msgid "count not okay"
 msgstr ""
 
-#: fpr/models.py:494 fpr/views.py:743
+#: fpr/models.py:494 fpr/views.py:772
 msgid "Format policy rule"
 msgstr ""
 
@@ -1346,7 +1458,6 @@ msgid "command"
 msgstr ""
 
 #: fpr/models.py:551
-#, fuzzy
 #| msgid "Statute citation"
 msgid "output location"
 msgstr "Citação do estatuto"
@@ -1383,7 +1494,7 @@ msgstr ""
 msgid "the related event detail command"
 msgstr ""
 
-#: fpr/models.py:592 fpr/views.py:742
+#: fpr/models.py:592 fpr/views.py:771
 msgid "Format policy command"
 msgstr ""
 
@@ -1416,7 +1527,6 @@ msgid "Identification"
 msgstr ""
 
 #: fpr/templates/fpr/_sidebar.html:18 fpr/templates/fpr/_sidebar.html:23
-#: fpr/templates/fpr/idrule/list.html:31
 msgid "Tools"
 msgstr ""
 
@@ -1435,86 +1545,6 @@ msgstr ""
 
 #: fpr/templates/fpr/app_layout.html:5
 msgid "Format Policy Registry"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:36
-msgctxt "DataTable - emptyTable"
-msgid "No data available in table"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:37
-msgctxt "DataTable - info"
-msgid "Showing _START_ to _END_ of _TOTAL_ entries"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:38
-msgctxt "DataTable - infoEmpty"
-msgid "Showing 0 to 0 of 0 entries"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:39
-msgctxt "DataTable - infoFiltered"
-msgid "(filtered from _MAX_ total entries)"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:41
-msgctxt "DataTable - thousands"
-msgid ","
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:42
-msgctxt "DataTable - lengthMenu"
-msgid "Show _MENU_ entries"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:43
-msgctxt "DataTable - loadingRecords"
-msgid "Loading..."
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:44
-msgctxt "DataTable - processing"
-msgid "Processing..."
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:45
-msgctxt "DataTable - search"
-msgid "Search:"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:46
-msgctxt "DataTable - zeroRecords"
-msgid "No matching records found"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:48
-msgctxt "DataTable - first"
-msgid "First"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:49
-msgctxt "DataTable - last"
-msgid "Last"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:50
-msgctxt "DataTable - next"
-msgid "Next"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:51
-msgctxt "DataTable - previous"
-msgid "Previous"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:54
-msgctxt "DataTable - sortAscending"
-msgid ": activate to sort column ascending"
-msgstr ""
-
-#: fpr/templates/fpr/app_layout.html:55
-msgctxt "DataTable - sortDescending"
-msgid ": activate to sort column descending"
 msgstr ""
 
 #: fpr/templates/fpr/disable.html:32
@@ -1536,25 +1566,19 @@ msgstr ""
 msgid "The following rules will also be disabled:"
 msgstr ""
 
-#: fpr/templates/fpr/disable.html:57 fpr/templates/fpr/format/detail.html:74
-#: fpr/templates/fpr/fpcommand/detail.html:59
-#: fpr/templates/fpr/fpcommand/list.html:46
+#: fpr/templates/fpr/disable.html:57 fpr/templates/fpr/fpcommand/detail.html:59
 #: fpr/templates/fpr/fprule/detail.html:47
-#: fpr/templates/fpr/fprule/list.html:55
 #: fpr/templates/fpr/idcommand/detail.html:43
-#: fpr/templates/fpr/idcommand/list.html:48
 #: fpr/templates/fpr/idrule/detail.html:39
-#: fpr/templates/fpr/idrule/list.html:48
 msgid "Disable,Enable"
 msgstr ""
 
 #: fpr/templates/fpr/disable.html:58
 #: fpr/templates/fpr/format/group/delete.html:50 templates/accounts/add.html:36
-#: templates/accounts/edit.html:40 templates/accounts/profile.html:45
+#: templates/accounts/edit.html:41 templates/accounts/profile.html:46
 #: templates/administration/processing_edit.html:40
-#: templates/delete_request.html:20 templates/ingest/as/match.html:129
-#: templates/ingest/metadata_edit.html:46 templates/rights/rights_edit.html:263
-#: templates/rights/rights_edit.html:265
+#: templates/delete_request.html:20 templates/ingest/metadata_edit.html:46
+#: templates/rights/rights_edit.html:263 templates/rights/rights_edit.html:265
 #: templates/rights/rights_grants_edit.html:102
 #: templates/rights/rights_grants_edit.html:104
 #: templates/simple_confirm.html:11 templates/transfer/metadata_edit.html:45
@@ -1568,18 +1592,11 @@ msgid "Format %(description)s"
 msgstr ""
 
 #: fpr/templates/fpr/format/detail.html:25
-#: fpr/templates/fpr/format/detail.html:52
-#: fpr/templates/fpr/format/group/form.html:45
-#: fpr/templates/fpr/format/group/list.html:30
-#: fpr/templates/fpr/format/list.html:33
 #: fpr/templates/fpr/format/version/detail.html:28
 #: fpr/templates/fpr/fpcommand/detail.html:28
-#: fpr/templates/fpr/fpcommand/list.html:29
 #: fpr/templates/fpr/fptool/detail.html:25
-#: fpr/templates/fpr/fptool/list.html:29
 #: fpr/templates/fpr/idcommand/detail.html:30
 #: fpr/templates/fpr/idtool/detail.html:25
-#: fpr/templates/fpr/idtool/list.html:29
 #: templates/administration/locations.html:30
 #: templates/ingest/as/resource_component.html:16
 #: templates/ingest/as/resource_component.html:32
@@ -1587,42 +1604,24 @@ msgid "Description"
 msgstr ""
 
 #: fpr/templates/fpr/format/detail.html:27
-#: fpr/templates/fpr/format/list.html:34
 msgid "Group"
 msgstr ""
 
 #: fpr/templates/fpr/format/detail.html:36
-#: fpr/templates/fpr/format/detail.html:58
-#: fpr/templates/fpr/format/group/form.html:46
-#: fpr/templates/fpr/format/group/list.html:32
-#: fpr/templates/fpr/format/list.html:35
 #: fpr/templates/fpr/format/version/detail.html:36
 #: fpr/templates/fpr/fpcommand/detail.html:57
-#: fpr/templates/fpr/fpcommand/list.html:33
 #: fpr/templates/fpr/fprule/detail.html:45
-#: fpr/templates/fpr/fprule/list.html:34
 #: fpr/templates/fpr/fptool/detail.html:30
-#: fpr/templates/fpr/fptool/detail.html:49
-#: fpr/templates/fpr/fptool/list.html:30
 #: fpr/templates/fpr/idcommand/detail.html:41
-#: fpr/templates/fpr/idcommand/list.html:33
 #: fpr/templates/fpr/idrule/detail.html:37
-#: fpr/templates/fpr/idrule/list.html:33
 #: fpr/templates/fpr/idtool/detail.html:32
-#: fpr/templates/fpr/idtool/detail.html:52
-#: fpr/templates/fpr/idtool/list.html:31
-#: templates/archival_storage/view.html:104 templates/main/access.html:16
+#: templates/archival_storage/view.html:82 templates/main/access.html:16
 msgid "Actions"
 msgstr ""
 
 #: fpr/templates/fpr/format/detail.html:37
-#: fpr/templates/fpr/format/group/form.html:53
-#: fpr/templates/fpr/format/group/list.html:48
-#: fpr/templates/fpr/format/list.html:52
 #: fpr/templates/fpr/fptool/detail.html:31
-#: fpr/templates/fpr/fptool/list.html:40
-#: fpr/templates/fpr/idtool/detail.html:33
-#: fpr/templates/fpr/idtool/list.html:43 templates/accounts/list.html:41
+#: fpr/templates/fpr/idtool/detail.html:33 templates/accounts/list.html:41
 #: templates/administration/processing.html:27
 #: templates/ingest/metadata_edit.html:12 templates/rights/rights_edit.html:15
 #: templates/rights/rights_grants_edit.html:15
@@ -1636,96 +1635,6 @@ msgstr ""
 msgid "Specific versions"
 msgstr ""
 
-#: fpr/templates/fpr/format/detail.html:45
-msgid "Create new format version"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:53
-#: fpr/templates/fpr/format/version/detail.html:29
-#: fpr/templates/fpr/idtool/detail.html:27
-#: fpr/templates/fpr/idtool/list.html:30
-#: templates/administration/sidebar.html:51
-#: templates/administration/version.html:5
-#: templates/administration/version.html:6
-#: templates/administration/version.html:23
-msgid "Version"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:54
-msgid "Pronom ID"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:55
-msgid "Access format?"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:56
-msgid "Preservation format?"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:57
-#: fpr/templates/fpr/format/version/detail.html:34
-#: fpr/templates/fpr/fpcommand/detail.html:54
-#: fpr/templates/fpr/fpcommand/list.html:32
-#: fpr/templates/fpr/fprule/detail.html:42
-#: fpr/templates/fpr/fprule/list.html:33
-#: fpr/templates/fpr/fptool/detail.html:27
-#: fpr/templates/fpr/idcommand/detail.html:38
-#: fpr/templates/fpr/idcommand/list.html:32
-#: fpr/templates/fpr/idrule/detail.html:34
-#: fpr/templates/fpr/idrule/list.html:32
-#: fpr/templates/fpr/idtool/detail.html:29
-#: fpr/templates/fpr/idtool/detail.html:51
-msgid "Enabled"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:67
-#: fpr/templates/fpr/format/detail.html:68
-#: fpr/templates/fpr/format/version/detail.html:32
-#: fpr/templates/fpr/format/version/detail.html:33
-#: fpr/templates/fpr/format/version/detail.html:34
-#: fpr/templates/fpr/fpcommand/detail.html:55
-#: fpr/templates/fpr/fpcommand/list.html:42
-#: fpr/templates/fpr/fprule/detail.html:43
-#: fpr/templates/fpr/fprule/list.html:48
-#: fpr/templates/fpr/fptool/detail.html:28
-#: fpr/templates/fpr/idcommand/detail.html:39
-#: fpr/templates/fpr/idcommand/list.html:43
-#: fpr/templates/fpr/idrule/detail.html:35
-#: fpr/templates/fpr/idrule/list.html:43
-#: fpr/templates/fpr/idtool/detail.html:30
-#: fpr/templates/fpr/idtool/detail.html:61
-#: templates/ingest/normalization_report.html:53
-#: templates/ingest/normalization_report.html:59
-#: templates/ingest/normalization_report.html:80
-#: templates/ingest/normalization_report.html:86
-#: templates/ingest/normalization_report.html:88
-#: templates/ingest/normalization_report.html:94
-#: templates/ingest/normalization_report.html:99
-msgid "Yes,No"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:71
-#: fpr/templates/fpr/format/list.html:50
-#: fpr/templates/fpr/fpcommand/list.html:43
-#: fpr/templates/fpr/fprule/list.html:50 fpr/templates/fpr/fptool/list.html:38
-#: fpr/templates/fpr/idcommand/list.html:45
-#: fpr/templates/fpr/idrule/list.html:45
-#: fpr/templates/fpr/idtool/detail.html:63
-#: fpr/templates/fpr/idtool/list.html:40
-#: templates/archival_storage/view.html:92
-#: templates/archival_storage/view.html:98
-msgid "View"
-msgstr ""
-
-#: fpr/templates/fpr/format/detail.html:83
-#, python-format
-msgid ""
-"\n"
-"          No versions exist for %(description)s.\n"
-"        "
-msgstr ""
-
 #: fpr/templates/fpr/format/form.html:49
 #: fpr/templates/fpr/format/group/form.html:32
 #: fpr/templates/fpr/format/version/form.html:30
@@ -1733,7 +1642,7 @@ msgstr ""
 #: fpr/templates/fpr/fprule/form.html:47 fpr/templates/fpr/fptool/form.html:30
 #: fpr/templates/fpr/idcommand/form.html:32
 #: fpr/templates/fpr/idrule/form.html:29 fpr/templates/fpr/idtool/form.html:30
-#: templates/accounts/edit.html:39 templates/accounts/profile.html:44
+#: templates/accounts/edit.html:40 templates/accounts/profile.html:45
 #: templates/administration/api.html:37
 #: templates/administration/dips_as_edit.html:30
 #: templates/administration/dips_atom_edit.html:39
@@ -1757,13 +1666,12 @@ msgstr ""
 
 #: fpr/templates/fpr/format/group/delete.html:12
 #: fpr/templates/fpr/format/group/delete.html:49
-#: fpr/templates/fpr/format/group/list.html:51 templates/accounts/list.html:42
-#: templates/administration/processing.html:33
+#: templates/accounts/list.html:42 templates/administration/processing.html:33
 #: templates/administration/reports/failure_detail.html:31
 #: templates/administration/reports/failures.html:39
 #: templates/administration/term_detail.html:36
-#: templates/archival_storage/view.html:111
-#: templates/archival_storage/view.html:154 templates/main/access.html:25
+#: templates/archival_storage/view.html:89
+#: templates/archival_storage/view.html:132 templates/main/access.html:25
 #: templates/rights/rights_list.html:55 templates/rights/rights_list.html:58
 msgid "Delete"
 msgstr ""
@@ -1780,19 +1688,6 @@ msgstr ""
 #: fpr/templates/fpr/format/group/delete.html:37
 msgid ""
 "Substitute formats that are a member of this group with the following group:"
-msgstr ""
-
-#: fpr/templates/fpr/format/group/form.html:39
-#: fpr/templates/fpr/format/list.html:26
-msgid "Create new format"
-msgstr ""
-
-#: fpr/templates/fpr/format/group/form.html:60
-#, python-format
-msgid ""
-"\n"
-"          No formats exist for %(description)s.\n"
-"        "
 msgstr ""
 
 #: fpr/templates/fpr/format/group/list.html:4
@@ -1813,18 +1708,6 @@ msgstr ""
 msgid "List"
 msgstr ""
 
-#: fpr/templates/fpr/format/group/list.html:23
-msgid "Create new format group"
-msgstr ""
-
-#: fpr/templates/fpr/format/group/list.html:60
-msgid "No format groups exist."
-msgstr ""
-
-#: fpr/templates/fpr/format/list.html:60
-msgid "No formats exist."
-msgstr ""
-
 #: fpr/templates/fpr/format/version/detail.html:5
 #, python-format
 msgid "Format version %(description)s"
@@ -1835,12 +1718,50 @@ msgstr ""
 msgid "Format version %(format)s"
 msgstr ""
 
+#: fpr/templates/fpr/format/version/detail.html:29
+#: fpr/templates/fpr/idtool/detail.html:27
+#: templates/administration/sidebar.html:51
+#: templates/administration/version.html:5
+#: templates/administration/version.html:6
+#: templates/administration/version.html:23
+msgid "Version"
+msgstr ""
+
 #: fpr/templates/fpr/format/version/detail.html:30
 msgid "Pronom"
 msgstr ""
 
 #: fpr/templates/fpr/format/version/detail.html:32
 msgid "Access?"
+msgstr ""
+
+#: fpr/templates/fpr/format/version/detail.html:32
+#: fpr/templates/fpr/format/version/detail.html:33
+#: fpr/templates/fpr/format/version/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:55
+#: fpr/templates/fpr/fprule/detail.html:43
+#: fpr/templates/fpr/fptool/detail.html:28
+#: fpr/templates/fpr/idcommand/detail.html:39
+#: fpr/templates/fpr/idrule/detail.html:35
+#: fpr/templates/fpr/idtool/detail.html:30
+#: templates/ingest/normalization_report.html:36
+#: templates/ingest/normalization_report.html:42
+#: templates/ingest/normalization_report.html:63
+#: templates/ingest/normalization_report.html:69
+#: templates/ingest/normalization_report.html:71
+#: templates/ingest/normalization_report.html:77
+#: templates/ingest/normalization_report.html:82
+msgid "Yes,No"
+msgstr ""
+
+#: fpr/templates/fpr/format/version/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:54
+#: fpr/templates/fpr/fprule/detail.html:42
+#: fpr/templates/fpr/fptool/detail.html:27
+#: fpr/templates/fpr/idcommand/detail.html:38
+#: fpr/templates/fpr/idrule/detail.html:34
+#: fpr/templates/fpr/idtool/detail.html:29
+msgid "Enabled"
 msgstr ""
 
 #: fpr/templates/fpr/fpcommand/detail.html:5
@@ -1854,25 +1775,18 @@ msgstr ""
 #: fpr/templates/fpr/fpcommand/form.html:10
 #: fpr/templates/fpr/fpcommand/list.html:4
 #: fpr/templates/fpr/fpcommand/list.html:5
-#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:692
+#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:721
 msgid "Format policy commands"
 msgstr ""
 
 #: fpr/templates/fpr/fpcommand/detail.html:30
-#: fpr/templates/fpr/fpcommand/list.html:31
 #: fpr/templates/fpr/idcommand/detail.html:28
-#: fpr/templates/fpr/idcommand/list.html:30
 msgid "Tool"
 msgstr ""
 
 #: fpr/templates/fpr/fpcommand/detail.html:32
 #: fpr/templates/fpr/fprule/detail.html:36
-#: fpr/templates/fpr/fprule/list.html:31
-#: fpr/templates/fpr/fptool/detail.html:46
-#: fpr/templates/fpr/idcommand/list.html:28
 #: fpr/templates/fpr/idrule/detail.html:30
-#: fpr/templates/fpr/idrule/list.html:29
-#: fpr/templates/fpr/idtool/detail.html:50
 msgid "Command"
 msgstr ""
 
@@ -1886,7 +1800,6 @@ msgid "Output file format"
 msgstr ""
 
 #: fpr/templates/fpr/fpcommand/detail.html:38
-#, fuzzy
 #| msgid "Statute citation"
 msgid "Output location"
 msgstr "Citação do estatuto"
@@ -1903,21 +1816,6 @@ msgstr ""
 msgid "Event detail command"
 msgstr ""
 
-#: fpr/templates/fpr/fpcommand/list.html:22
-#: fpr/templates/fpr/idcommand/list.html:21
-#: fpr/templates/fpr/idtool/detail.html:41
-msgid "Create new command"
-msgstr ""
-
-#: fpr/templates/fpr/fpcommand/list.html:30
-#: templates/administration/usage.html:5 templates/administration/usage.html:6
-msgid "Usage"
-msgstr ""
-
-#: fpr/templates/fpr/fpcommand/list.html:54
-msgid "No format policy commands exist."
-msgstr ""
-
 #: fpr/templates/fpr/fprule/detail.html:5
 #: fpr/templates/fpr/fprule/detail.html:6
 #: fpr/templates/fpr/fprule/detail.html:11
@@ -1926,19 +1824,17 @@ msgid "Rule %(description)s"
 msgstr ""
 
 #: fpr/templates/fpr/fprule/detail.html:10
-#: fpr/templates/fpr/fprule/form.html:10 fpr/views.py:559
+#: fpr/templates/fpr/fprule/form.html:10 fpr/views.py:583
 msgid "Format policy rules"
 msgstr ""
 
 #: fpr/templates/fpr/fprule/detail.html:28
-#: fpr/templates/fpr/fprule/list.html:29
 #: templates/administration/locations.html:29
 #: templates/administration/usage.html:89
 msgid "Purpose"
 msgstr ""
 
 #: fpr/templates/fpr/fprule/detail.html:38
-#, fuzzy
 #| msgid "Statute"
 msgid "Stats"
 msgstr "Estatuto"
@@ -1963,18 +1859,6 @@ msgstr ""
 msgid "Format policy rules "
 msgstr ""
 
-#: fpr/templates/fpr/fprule/list.html:22 fpr/templates/fpr/idrule/list.html:21
-msgid "Create new rule"
-msgstr ""
-
-#: fpr/templates/fpr/fprule/list.html:32
-msgid "Success"
-msgstr ""
-
-#: fpr/templates/fpr/fprule/list.html:63
-msgid "No format policy rules exist."
-msgstr ""
-
 #: fpr/templates/fpr/fptool/detail.html:4
 #: fpr/templates/fpr/fptool/detail.html:5
 #, python-format
@@ -1991,27 +1875,6 @@ msgstr ""
 msgid "Tool commands"
 msgstr ""
 
-#: fpr/templates/fpr/fptool/detail.html:39
-msgid "Create new tool command"
-msgstr ""
-
-#: fpr/templates/fpr/fptool/detail.html:67
-#: fpr/templates/fpr/idtool/detail.html:75
-#, python-format
-msgid ""
-"\n"
-"          No commands exist for %(description)s.\n"
-"        "
-msgstr ""
-
-#: fpr/templates/fpr/fptool/list.html:22 fpr/templates/fpr/idtool/list.html:22
-msgid "Create new tool"
-msgstr ""
-
-#: fpr/templates/fpr/fptool/list.html:48
-msgid "No tools exist."
-msgstr ""
-
 #: fpr/templates/fpr/idcommand/detail.html:5
 #: fpr/templates/fpr/idcommand/detail.html:6
 #, python-format
@@ -2022,21 +1885,16 @@ msgstr ""
 #: fpr/templates/fpr/idcommand/form.html:10
 #: fpr/templates/fpr/idcommand/list.html:4
 #: fpr/templates/fpr/idcommand/list.html:5
-#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:453
+#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:476
 msgid "Identification commands"
 msgstr ""
 
 #: fpr/templates/fpr/idcommand/detail.html:32
-#: fpr/templates/fpr/idcommand/list.html:31
 msgid "Mode"
 msgstr ""
 
 #: fpr/templates/fpr/idcommand/detail.html:34
 msgid "Script"
-msgstr ""
-
-#: fpr/templates/fpr/idcommand/list.html:56
-msgid "No identification commands exist."
 msgstr ""
 
 #: fpr/templates/fpr/idrule/detail.html:5
@@ -2049,20 +1907,12 @@ msgstr ""
 #: fpr/templates/fpr/idrule/detail.html:10
 #: fpr/templates/fpr/idrule/form.html:10 fpr/templates/fpr/idrule/list.html:4
 #: fpr/templates/fpr/idrule/list.html:5 fpr/templates/fpr/idrule/list.html:9
-#: fpr/views.py:360
+#: fpr/views.py:377
 msgid "Identification rules"
 msgstr ""
 
 #: fpr/templates/fpr/idrule/detail.html:32
 msgid "Command output"
-msgstr ""
-
-#: fpr/templates/fpr/idrule/list.html:30
-msgid "Output"
-msgstr ""
-
-#: fpr/templates/fpr/idrule/list.html:56
-msgid "No identification rules exist."
 msgstr ""
 
 #: fpr/templates/fpr/idtool/detail.html:4
@@ -2075,25 +1925,6 @@ msgstr ""
 #: fpr/templates/fpr/idtool/list.html:4 fpr/templates/fpr/idtool/list.html:5
 #: fpr/templates/fpr/idtool/list.html:9
 msgid "Identification tools"
-msgstr ""
-
-#: fpr/templates/fpr/idtool/detail.html:48
-msgid "Configuration"
-msgstr ""
-
-#: fpr/templates/fpr/idtool/detail.html:49
-#: templates/ingest/as/_search_form.html:5 templates/ingest/as/match.html:102
-#: templates/ingest/as/match.html:120
-#: templates/ingest/as/review_matches.html:31
-msgid "Identifier"
-msgstr ""
-
-#: fpr/templates/fpr/idtool/detail.html:66
-msgid "Disable"
-msgstr ""
-
-#: fpr/templates/fpr/idtool/list.html:51
-msgid "No identification tools exist."
 msgstr ""
 
 #: fpr/templates/fpr/revisions/list.html:4
@@ -2123,139 +1954,139 @@ msgstr ""
 msgid "You are viewing a disabled revision."
 msgstr ""
 
-#: fpr/views.py:89
+#: fpr/views.py:94
 #, python-format
 msgid "Edit format %(name)s"
 msgstr ""
 
-#: fpr/views.py:91
+#: fpr/views.py:96
 msgid "Create format"
 msgstr ""
 
-#: fpr/views.py:138
+#: fpr/views.py:143
 #, python-format
 msgid "Replace format version %(name)s"
 msgstr ""
 
-#: fpr/views.py:141
+#: fpr/views.py:146
 msgid "Create format version"
 msgstr ""
 
-#: fpr/views.py:168
+#: fpr/views.py:173
 msgid "Format versions"
 msgstr ""
 
-#: fpr/views.py:177 fpr/views.py:366 fpr/views.py:462 fpr/views.py:566
-#: fpr/views.py:701
+#: fpr/views.py:182 fpr/views.py:383 fpr/views.py:485 fpr/views.py:590
+#: fpr/views.py:730
 msgid "Disabled."
 msgstr ""
 
-#: fpr/views.py:183 fpr/views.py:369 fpr/views.py:465 fpr/views.py:569
-#: fpr/views.py:707
+#: fpr/views.py:188 fpr/views.py:386 fpr/views.py:488 fpr/views.py:593
+#: fpr/views.py:736
 msgid "Enabled."
 msgstr ""
 
-#: fpr/views.py:196
+#: fpr/views.py:201
 msgid "Enable/disable format version"
 msgstr ""
 
-#: fpr/views.py:216
+#: fpr/views.py:222
 #, python-format
 msgid "Edit format group %(name)s"
 msgstr ""
 
-#: fpr/views.py:218
+#: fpr/views.py:224
 msgid "Create format group"
 msgstr ""
 
-#: fpr/views.py:253
+#: fpr/views.py:265
 #, python-format
 msgid "%(count)d substitutions were performed."
 msgstr ""
 
-#: fpr/views.py:260
+#: fpr/views.py:272
 msgid "Please select a group to substitute for this group in member formats."
 msgstr ""
 
-#: fpr/views.py:297
+#: fpr/views.py:313
 #, python-format
 msgid "Edit identification tool %(name)s"
 msgstr ""
 
-#: fpr/views.py:300
+#: fpr/views.py:316
 msgid "Create identification tool"
 msgstr ""
 
-#: fpr/views.py:337
+#: fpr/views.py:354
 #, python-format
 msgid "Replace identification rule %(uuid)s"
 msgstr ""
 
-#: fpr/views.py:340
+#: fpr/views.py:357
 msgid "Create identification rule"
 msgstr ""
 
-#: fpr/views.py:380
+#: fpr/views.py:397
 msgid "Enable/disable identification rule"
 msgstr ""
 
-#: fpr/views.py:413
+#: fpr/views.py:436
 #, python-format
 msgid "Replace identification command %(name)s"
 msgstr ""
 
-#: fpr/views.py:418
+#: fpr/views.py:441
 msgid "Create identification command"
 msgstr ""
 
-#: fpr/views.py:475
+#: fpr/views.py:498
 msgid "Enable/disable identification command"
 msgstr ""
 
-#: fpr/views.py:521
+#: fpr/views.py:545
 #, python-format
 msgid "Replace format policy rule %(uuid)s"
 msgstr ""
 
-#: fpr/views.py:525
+#: fpr/views.py:549
 msgid "Create format policy rule"
 msgstr ""
 
-#: fpr/views.py:580
+#: fpr/views.py:604
 msgid "Enable/disable format policy registry rule"
 msgstr ""
 
-#: fpr/views.py:605
+#: fpr/views.py:633
 #, python-format
 msgid "Replace format policy registry tool %(name)s"
 msgstr ""
 
-#: fpr/views.py:610
+#: fpr/views.py:638
 msgid "Create format policy registry tool"
 msgstr ""
 
-#: fpr/views.py:652
+#: fpr/views.py:681
 #, python-format
 msgid "Replace command %(name)s"
 msgstr ""
 
-#: fpr/views.py:655
+#: fpr/views.py:684
 msgid "Create format policy command"
 msgstr ""
 
-#: fpr/views.py:718
+#: fpr/views.py:747
 msgid "Enable/disable format policy command"
 msgstr ""
 
-#: fpr/views.py:739
+#: fpr/views.py:768
 msgid "Identification tool configuration"
 msgstr ""
 
-#: fpr/views.py:740
+#: fpr/views.py:769
 msgid "Identification rule"
 msgstr ""
 
-#: fpr/views.py:741
+#: fpr/views.py:770
 msgid "Identification command"
 msgstr ""
 
@@ -2842,19 +2673,15 @@ msgid ""
 "Sorry! Something wrong happened. Please, contact with your administrator."
 msgstr ""
 
-#: templates/_fpr_update_button.html:4
-msgid "Update"
-msgstr ""
-
 #: templates/_pager.html:9
 msgid "First"
 msgstr ""
 
-#: templates/_pager.html:13 templates/ingest/normalization_report.html:129
+#: templates/_pager.html:13 templates/ingest/normalization_report.html:112
 msgid "Previous"
 msgstr ""
 
-#: templates/_pager.html:35 templates/ingest/normalization_report.html:135
+#: templates/_pager.html:35 templates/ingest/normalization_report.html:118
 #: templates/rights/rights_edit.html:260
 msgid "Next"
 msgstr ""
@@ -2879,7 +2706,7 @@ msgstr ""
 msgid "Users - Add new"
 msgstr ""
 
-#: templates/accounts/add.html:20 templates/accounts/edit.html:21
+#: templates/accounts/add.html:20 templates/accounts/edit.html:22
 #: templates/accounts/list.html:4 templates/accounts/list.html:5
 #: templates/accounts/list.html:18 templates/administration/sidebar.html:44
 msgid "Users"
@@ -2899,11 +2726,11 @@ msgstr ""
 msgid "Users - Edit %(user)s"
 msgstr ""
 
-#: templates/accounts/list.html:23 templates/accounts/profile.html:29
+#: templates/accounts/list.html:23 templates/accounts/profile.html:30
 msgid "Username"
 msgstr ""
 
-#: templates/accounts/list.html:25 templates/accounts/profile.html:33
+#: templates/accounts/list.html:25 templates/accounts/profile.html:34
 msgid "E-mail"
 msgstr ""
 
@@ -2935,23 +2762,13 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: templates/accounts/profile.html:35
+#: templates/accounts/profile.html:36
 msgid "Admin"
 msgstr ""
 
 #: templates/accounts/user_api_key_alert.html:2
 msgid ""
 "Make sure to copy the API key now as you will not be able to see it again."
-msgstr ""
-
-#: templates/accounts/user_api_key_alert.html:4
-#, fuzzy
-#| msgid "Copyright"
-msgid "Copy"
-msgstr "Direitos de autor"
-
-#: templates/accounts/user_api_key_alert.html:5
-msgid "Copied!"
 msgstr ""
 
 #: templates/administration/api.html:5 templates/administration/api.html:6
@@ -2982,7 +2799,7 @@ msgstr ""
 #: templates/administration/term_detail.html:5
 #: templates/administration/term_detail.html:6
 #: templates/administration/terms.html:5 templates/administration/terms.html:6
-#: templates/layout.html:65
+#: templates/layout.html:62
 msgid "Administration"
 msgstr ""
 
@@ -3091,8 +2908,8 @@ msgid "Path"
 msgstr ""
 
 #: templates/administration/locations.html:44
-#: templates/ingest/normalization_report.html:74
-#: templates/ingest/normalization_report.html:114
+#: templates/ingest/normalization_report.html:57
+#: templates/ingest/normalization_report.html:97
 msgid "N/A"
 msgstr "Indisponível"
 
@@ -3112,7 +2929,7 @@ msgid "Processing configuration"
 msgstr ""
 
 #: templates/administration/processing.html:28
-#: templates/archival_storage/view.html:85
+#: templates/archival_storage/view.html:63
 msgid "Download"
 msgstr ""
 
@@ -3169,7 +2986,6 @@ msgid "Failures"
 msgstr ""
 
 #: templates/administration/sidebar.html:27
-#, fuzzy
 #| msgid "Statute citation"
 msgid "Storage locations"
 msgstr "Citação do estatuto"
@@ -3179,7 +2995,7 @@ msgstr "Citação do estatuto"
 msgid "Processing storage usage"
 msgstr ""
 
-#: templates/administration/sidebar.html:32 templates/ingest/as/match.html:61
+#: templates/administration/sidebar.html:32 templates/ingest/as/match.html:16
 #: templates/ingest/as/resource_component.html:13
 #: templates/ingest/as/resource_detail.html:13
 #: templates/ingest/as/resource_list.html:13
@@ -3219,6 +3035,10 @@ msgstr ""
 #: templates/administration/term_detail.html:20
 #: templates/administration/terms.html:20
 msgid "Taxonomy"
+msgstr ""
+
+#: templates/administration/usage.html:5 templates/administration/usage.html:6
+msgid "Usage"
 msgstr ""
 
 #: templates/administration/usage.html:22
@@ -3297,7 +3117,7 @@ msgstr ""
 #: templates/archival_storage/archival_storage.html:31
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
-#: templates/archival_storage/view.html:50 templates/layout.html:61
+#: templates/archival_storage/view.html:28 templates/layout.html:58
 msgid "Archival storage"
 msgstr ""
 
@@ -3355,48 +3175,53 @@ msgid ""
 "functional when indexing is turned off."
 msgstr ""
 
-#: templates/archival_storage/view.html:57
+#: templates/archival_storage/view.html:35
 msgid "Archival Information Package"
 msgstr ""
 
-#: templates/archival_storage/view.html:71
+#: templates/archival_storage/view.html:49
 msgid "Date stored"
 msgstr ""
 
-#: templates/archival_storage/view.html:90
+#: templates/archival_storage/view.html:68
 msgid "METS file"
 msgstr ""
 
-#: templates/archival_storage/view.html:96
+#: templates/archival_storage/view.html:70
+#: templates/archival_storage/view.html:76
+msgid "View"
+msgstr ""
+
+#: templates/archival_storage/view.html:74
 msgid "Pointer file"
 msgstr ""
 
-#: templates/archival_storage/view.html:109
+#: templates/archival_storage/view.html:87
 msgid "Upload DIP"
 msgstr ""
 
-#: templates/archival_storage/view.html:110
-#: templates/archival_storage/view.html:139
+#: templates/archival_storage/view.html:88
+#: templates/archival_storage/view.html:117
 msgid "Re-ingest"
 msgstr ""
 
-#: templates/archival_storage/view.html:121
+#: templates/archival_storage/view.html:99
 msgid "Metadata-only DIP upload to AtoM"
 msgstr ""
 
-#: templates/archival_storage/view.html:125
+#: templates/archival_storage/view.html:103
 msgid "Upload"
 msgstr ""
 
-#: templates/archival_storage/view.html:135
+#: templates/archival_storage/view.html:113
 msgid "Choose type of re-ingest"
 msgstr ""
 
-#: templates/archival_storage/view.html:149
+#: templates/archival_storage/view.html:127
 msgid "Are you sure that you want to delete this AIP"
 msgstr ""
 
-#: templates/archival_storage/view.html:150 templates/delete_request.html:8
+#: templates/archival_storage/view.html:128 templates/delete_request.html:8
 msgid ""
 "Choosing to delete this package will send a request to your Archival Storage "
 "administrator. If the administrator approves the request, your package will "
@@ -3426,20 +3251,11 @@ msgstr ""
 #: templates/ingest/metadata_add_files.html:15
 #: templates/ingest/metadata_edit.html:10
 #: templates/ingest/microservices.html:11 templates/ingest/monitor.html:5
-#: templates/ingest/monitor.html:6 templates/layout.html:59
+#: templates/ingest/monitor.html:6 templates/layout.html:56
 #: templates/rights/rights_edit.html:12
 #: templates/rights/rights_grants_edit.html:12
 #: templates/rights/rights_list.html:9
 msgid "Ingest"
-msgstr ""
-
-#: templates/ingest/as/_search_form.html:4 templates/ingest/as/match.html:101
-#: templates/ingest/as/match.html:119
-#: templates/ingest/as/resource_component.html:52
-#: templates/ingest/as/resource_detail.html:42
-#: templates/ingest/as/resource_list.html:34
-#: templates/ingest/as/review_matches.html:30
-msgid "Title"
 msgstr ""
 
 #: templates/ingest/as/match.html:6 templates/ingest/as/match.html:7
@@ -3450,91 +3266,17 @@ msgstr ""
 msgid "Match"
 msgstr ""
 
-#: templates/ingest/as/match.html:48
-msgid "Filter objects"
-msgstr ""
-
-#: templates/ingest/as/match.html:53
-msgid "Filter resources"
-msgstr ""
-
-#: templates/ingest/as/match.html:57
-msgid "Pair"
-msgstr ""
-
-#: templates/ingest/as/match.html:62
+#: templates/ingest/as/match.html:17
 #: templates/ingest/as/resource_component.html:15
 msgid "Parent record"
 msgstr ""
 
-#: templates/ingest/as/match.html:63 templates/ingest/as/match.html:70
+#: templates/ingest/as/match.html:18 templates/ingest/as/match.html:25
 msgid "Assign objects"
 msgstr ""
 
-#: templates/ingest/as/match.html:71
+#: templates/ingest/as/match.html:26
 msgid "Assign objects to descriptions"
-msgstr ""
-
-#: templates/ingest/as/match.html:75 templates/ingest/as/match.html:77
-#: templates/ingest/as/resource_component.html:37
-#: templates/ingest/as/resource_component.html:39
-#: templates/ingest/as/resource_detail.html:28
-#: templates/ingest/as/resource_detail.html:30
-#: templates/ingest/as/resource_list.html:25
-#: templates/ingest/as/resource_list.html:27
-#: templates/ingest/as/review_matches.html:21
-msgid "Restart matching"
-msgstr ""
-
-#: templates/ingest/as/match.html:79
-#: templates/ingest/as/resource_component.html:41
-#: templates/ingest/as/resource_detail.html:33
-#: templates/ingest/as/resource_list.html:29
-#: templates/ingest/as/review_matches.html:6
-#: templates/ingest/as/review_matches.html:7
-msgid "Review matches"
-msgstr ""
-
-#: templates/ingest/as/match.html:88
-msgid "Objects"
-msgstr ""
-
-#: templates/ingest/as/match.html:90
-msgid "Select all"
-msgstr ""
-
-#: templates/ingest/as/match.html:95
-msgid "Resources"
-msgstr ""
-
-#: templates/ingest/as/match.html:100 templates/ingest/as/match.html:118
-#: templates/ingest/as/review_matches.html:29
-msgid "Level"
-msgstr ""
-
-#: templates/ingest/as/match.html:103 templates/ingest/as/match.html:121
-#: templates/ingest/as/resource_component.html:53
-#: templates/ingest/as/resource_detail.html:43
-#: templates/ingest/as/resource_list.html:35
-#: templates/ingest/as/review_matches.html:32
-msgid "Dates"
-msgstr ""
-
-#: templates/ingest/as/match.html:112
-msgid "Pairs"
-msgstr ""
-
-#: templates/ingest/as/match.html:117
-#: templates/ingest/as/review_matches.html:28
-msgid "File"
-msgstr ""
-
-#: templates/ingest/as/match.html:128
-msgid "Confirm"
-msgstr ""
-
-#: templates/ingest/as/match.html:158
-msgid "Delete match"
 msgstr ""
 
 #: templates/ingest/as/resource_component.html:14
@@ -3564,7 +3306,7 @@ msgstr ""
 msgid "Collections"
 msgstr ""
 
-#: templates/ingest/as/review_matches.html:22
+#: templates/ingest/as/review_matches.html:17
 msgid "Finish matching"
 msgstr ""
 
@@ -3612,54 +3354,54 @@ msgstr ""
 msgid "Add metadata files"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:28 templates/main/tasks.html:36
+#: templates/ingest/normalization_report.html:11 templates/main/tasks.html:36
 msgid "File name"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:29
+#: templates/ingest/normalization_report.html:12
 msgid "File format"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:30
+#: templates/ingest/normalization_report.html:13
 msgid "Preservation normalization attempted"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:31
+#: templates/ingest/normalization_report.html:14
 msgid "Preservation normalization failed"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:32
+#: templates/ingest/normalization_report.html:15
 msgid "Preservation conformance check"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:33
+#: templates/ingest/normalization_report.html:16
 msgid "Already in preservation format"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:34
+#: templates/ingest/normalization_report.html:17
 msgid "Access normalization attempted"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:35
+#: templates/ingest/normalization_report.html:18
 msgid "Access normalization failed"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:36
+#: templates/ingest/normalization_report.html:19
 msgid "Already in access format"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:37
+#: templates/ingest/normalization_report.html:20
 msgid "Access conformance check"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:69
-#: templates/ingest/normalization_report.html:71
-#: templates/ingest/normalization_report.html:109
-#: templates/ingest/normalization_report.html:111
+#: templates/ingest/normalization_report.html:52
+#: templates/ingest/normalization_report.html:54
+#: templates/ingest/normalization_report.html:92
+#: templates/ingest/normalization_report.html:94
 msgid "Failed,Passed"
 msgstr ""
 
-#: templates/ingest/normalization_report.html:124
+#: templates/ingest/normalization_report.html:107
 #, python-format
 msgid ""
 "\n"
@@ -3697,7 +3439,7 @@ msgstr ""
 msgid "Archivematica Dashboard"
 msgstr ""
 
-#: templates/layout.html:58 templates/rights/rights_edit.html:14
+#: templates/layout.html:55 templates/rights/rights_edit.html:14
 #: templates/rights/rights_grants_edit.html:14
 #: templates/rights/rights_list.html:11 templates/transfer/component.html:10
 #: templates/transfer/detail.html:9 templates/transfer/metadata_edit.html:9
@@ -3706,15 +3448,15 @@ msgstr ""
 msgid "Transfer"
 msgstr ""
 
-#: templates/layout.html:63
+#: templates/layout.html:60
 msgid "Preservation planning"
 msgstr ""
 
-#: templates/layout.html:73
+#: templates/layout.html:70
 msgid "Your profile"
 msgstr ""
 
-#: templates/layout.html:78
+#: templates/layout.html:75
 msgid "Log out"
 msgstr ""
 

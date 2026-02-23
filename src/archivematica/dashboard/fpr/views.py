@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 
 from archivematica.dashboard.fpr import forms as fprforms
 from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.fpr import payloads
 from archivematica.dashboard.fpr import utils
 
 CLASS_CATEGORY_MAP = {
@@ -55,13 +56,14 @@ def toggle_enabled(request, category, uuid):
 
 
 def format_list(request):
+    formats = fprmodels.Format.objects.get_full_list()
     return render(
         request,
         "fpr/format/list.html",
         context(
             {
                 # TODO: use paginator or something like django_datatables_view.
-                "formats": fprmodels.Format.objects.get_full_list()
+                "fpr_table_payload": payloads.format_list_payload(request, formats)
             }
         ),
     )
@@ -77,6 +79,9 @@ def format_detail(request, slug):
     ]
     format_versions = fprmodels.FormatVersion.objects.filter(format=format).exclude(
         uuid__in=replacing_versions
+    )
+    fpr_table_payload = payloads.format_detail_versions_payload(
+        request, format, format_versions
     )
     return render(request, "fpr/format/detail.html", context(locals()))
 
@@ -205,6 +210,7 @@ def formatversion_delete(request, format_slug, slug):
 
 def formatgroup_list(request):
     groups = fprmodels.FormatGroup.objects.all()
+    fpr_table_payload = payloads.formatgroup_list_payload(request, groups)
     return render(request, "fpr/format/group/list.html", context(locals()))
 
 
@@ -223,6 +229,12 @@ def formatgroup_edit(request, slug=None):
         group = form.save()
         messages.info(request, "Saved.")
         return redirect("fpr:formatgroup_list")
+
+    fpr_table_payload = None
+    if group:
+        fpr_table_payload = payloads.formatgroup_form_formats_payload(
+            request, group_formats
+        )
 
     return render(request, "fpr/format/group/form.html", context(locals()))
 
@@ -273,6 +285,7 @@ def formatgroup_delete(request, slug):
 
 def idtool_list(request):
     idtools = fprmodels.IDTool.objects.filter(enabled=True)
+    fpr_table_payload = payloads.idtool_list_payload(request, idtools)
     return render(request, "fpr/idtool/list.html", context(locals()))
 
 
@@ -286,6 +299,9 @@ def idtool_detail(request, slug):
     ]
     idcommands = fprmodels.IDCommand.objects.filter(tool=idtool).exclude(
         uuid__in=replacing_commands
+    )
+    fpr_table_payload = payloads.idtool_detail_commands_payload(
+        request, idtool, idcommands
     )
     return render(request, "fpr/idtool/detail.html", context(locals()))
 
@@ -318,9 +334,10 @@ def idrule_list(request):
             "replaces_id"
         )
     ]
-    idrules = fprmodels.IDRule.objects.exclude(
-        uuid__in=replacing_rules
-    ).prefetch_related("format__format__group", "command")
+    idrules = fprmodels.IDRule.objects.exclude(uuid__in=replacing_rules).select_related(
+        "format__format__group", "command__tool"
+    )
+    fpr_table_payload = payloads.idrule_list_payload(request, idrules)
     return render(request, "fpr/idrule/list.html", context(locals()))
 
 
@@ -397,7 +414,13 @@ def idcommand_list(request):
     idcommands = fprmodels.IDCommand.objects.exclude(
         uuid__in=replacing_commands
     ).prefetch_related("tool")
-    return render(request, "fpr/idcommand/list.html", context(locals()))
+    return render(
+        request,
+        "fpr/idcommand/list.html",
+        context(
+            {"fpr_table_payload": payloads.idcommand_list_payload(request, idcommands)}
+        ),
+    )
 
 
 def idcommand_detail(request, uuid):
@@ -503,6 +526,7 @@ def fprule_list(request, usage=None):
         .exclude(uuid__in=replacing_rules)
         .prefetch_related("format__format__group", "command")
     )
+    fpr_table_payload = payloads.fprule_list_payload(request, fprules)
     return render(request, "fpr/fprule/list.html", context(locals()))
 
 
@@ -589,12 +613,16 @@ def fprule_delete(request, uuid):
 
 def fptool_list(request):
     fptools = fprmodels.FPTool.objects.filter(enabled=True)
+    fpr_table_payload = payloads.fptool_list_payload(request, fptools)
     return render(request, "fpr/fptool/list.html", context(locals()))
 
 
 def fptool_detail(request, slug):
     fptool = get_object_or_404(fprmodels.FPTool, slug=slug, enabled=True)
     fpcommands = fprmodels.FPCommand.objects.filter(tool__uuid=fptool.uuid)
+    fpr_table_payload = payloads.fptool_detail_commands_payload(
+        request, fptool, fpcommands
+    )
     return render(request, "fpr/fptool/detail.html", context(locals()))
 
 
@@ -635,6 +663,7 @@ def fpcommand_list(request, usage=None):
         .exclude(uuid__in=replacing_commands)
         .prefetch_related("tool")
     )
+    fpr_table_payload = payloads.fpcommand_list_payload(request, fpcommands)
     return render(request, "fpr/fpcommand/list.html", context(locals()))
 
 

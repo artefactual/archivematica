@@ -141,7 +141,14 @@
     "removeAllConfirmSip": "Er du sikker på at du vil fjerne alle fullførte SIPs fra dashbordet? Merk at dette ikke sletter SIPs eller relaterte enheter."
   },
   "misc": {
-    "help": "Hjelp"
+    "help": "Hjelp",
+    "pagination": {
+      "infoTemplate": "Viser {start} til {end} av {total} oppføringer",
+      "lengthTemplate": "Vis {select} oppføringer",
+      "previous": "Forrige",
+      "next": "Neste",
+      "ariaLabel": "Paginering"
+    }
   },
   "rights": {
     "type": "Type",
@@ -209,5 +216,105 @@
     "pairRequestFailed": "Kunne ikke lagre koblingen.",
     "deleteRequestFailed": "Kunne ikke slette koblingen.",
     "noPairsYet": "Ingen koblinger ennå."
+  },
+  "fpr": {
+    "columns": {
+      "description": "Beskrivelse",
+      "group": "Gruppe",
+      "command": "Kommando",
+      "type": "Type",
+      "tool": "Verktøy",
+      "tools": "Verktøy",
+      "mode": "Modus",
+      "enabled": "Aktivert",
+      "usage": "Bruk",
+      "version": "Versjon",
+      "format": "Format",
+      "output": "Utdata",
+      "purpose": "Formål",
+      "success": "Suksess",
+      "pronomId": "PRONOM-ID",
+      "accessFormat": "Tilgangsformat?",
+      "preservationFormat": "Bevaringsformat?",
+      "configuration": "Konfigurasjon",
+      "identifier": "Identifikator",
+      "uuid": "UUID",
+      "actions": "Handlinger"
+    },
+    "boolean": {
+      "true": "Ja",
+      "false": "Nei"
+    },
+    "search": {
+      "label": "Søk",
+      "placeholder": "Filter rows",
+      "clear": "Tøm"
+    },
+    "actions": {
+      "view": "Vis",
+      "edit": "Rediger",
+      "replace": "Erstatt",
+      "disable": "Deaktiver",
+      "enable": "Aktiver",
+      "delete": "Slett"
+    },
+    "create": {
+      "format": "Opprett nytt format",
+      "command": "Opprett ny kommando",
+      "tool": "Opprett nytt verktøy",
+      "formatGroup": "Opprett ny formatgruppe",
+      "rule": "Opprett ny regel",
+      "formatVersion": "Opprett ny formatversjon",
+      "toolCommand": "Opprett ny verktøykommando"
+    },
+    "empty": {
+      "formats": "Ingen formater finnes.",
+      "idCommands": "Det finnes ingen identifikasjonskommandoer.",
+      "fpCommands": "Ingen formatgrunnregelkommandoer eksisterer.",
+      "idTools": "Det finnes ingen identifikasjonsverktøy.",
+      "tools": "Det finnes ingen verktøy.",
+      "formatGroups": "Ingen formatgrupper finnes.",
+      "idRules": "Det finnes ingen identifikasjonsregler.",
+      "fpRules": "Det finnes ingen grunnregel for format.",
+      "versions": "No versions exist.",
+      "commands": "No commands exist."
+    },
+    "values": {
+      "successTemplate": "{okay} av {attempts}",
+      "formatVersionTemplate": "versjon: {version}",
+      "scriptType": {
+        "bashScript": "Bash-skript",
+        "pythonScript": "Python-skript",
+        "command": "Kommandolinje",
+        "as_is": "Shebang ikke nødvendig"
+      },
+      "configuration": {
+        "PUID": "PUID",
+        "MIME": "MIME-type",
+        "ext": "Filendelse"
+      },
+      "commandUsage": {
+        "characterization": "Karakterisering",
+        "event_detail": "Hendelsesdetalj",
+        "extraction": "Uttrekking",
+        "normalization": "Normalisering",
+        "transcription": "Transkribering",
+        "validation": "Validering",
+        "verification": "Verifisering"
+      },
+      "purpose": {
+        "access": "Tilgang",
+        "characterization": "Karakterisering",
+        "extract": "Uttrekk",
+        "preservation": "Bevaring",
+        "thumbnail": "Miniatyrbilde",
+        "transcription": "Transkribering",
+        "validation": "Validering",
+        "policy_check": "Validering mot en policy",
+        "default_access": "Standard tilgang",
+        "default_characterization": "Standard karakterisering",
+        "default_thumbnail": "Standard miniatyrbilde"
+      }
+    }
   }
 }

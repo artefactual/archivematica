@@ -19,46 +19,11 @@
 
   <div class="col-xs-10">
 
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:formatgroup_create' %}">{% trans "Create new format group" %}</a></p>
-    {% endif %}
-
-    {% if groups %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Description" %}</th>
-            {% if request.user.is_superuser %}
-              <th>{% trans "Actions" %}</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-        {% for group in groups %}
-          <tr>
-            <td>
-              {% if request.user.is_superuser %}
-                <a href="{% url 'fpr:formatgroup_edit' group.slug %}">{{ group.description }}</a>
-              {% else %}
-                {{ group.description }}
-              {% endif %}
-            </td>
-            {% if request.user.is_superuser %}
-            <td>
-              <a href="{% url 'fpr:formatgroup_edit' group.slug %}">{% trans "Edit" %}</a>
-              {% if request.user.is_superuser %}
-                |
-                <a href="{% url 'fpr:formatgroup_delete' group.slug %}">{% trans "Delete" %}</a>
-              {% endif %}
-            </td>
-            {% endif %}
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>{% trans "No format groups exist." %}</p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-formatgroup-list-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-formatgroup-list-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

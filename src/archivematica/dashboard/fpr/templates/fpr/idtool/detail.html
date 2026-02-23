@@ -37,46 +37,11 @@
 
     <h3>{% trans "Commands" %}</h3>
 
-    {% if request.user.is_superuser %}
-    <p><a href="{% url 'fpr:idcommand_create' %}?parent={{ idtool.uuid }}">{% trans "Create new command" %}</a></p>
-    {% endif %}
-
-    {% if idcommands %}
-      <table class="datatable">
-        <thead>
-          <tr>
-            <th>{% trans "Configuration" %}</th>
-            <th>{% trans "Identifier" %}</th>
-            <th>{% trans "Command" %}</th>
-            <th>{% trans "Enabled" %}</th>
-            <th>{% trans "Actions" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for command in idcommands %}
-          <tr>
-            <td>{{ command.get_config_display }}</td>
-            <td>{{ command.description }}</td>
-            <td>{{ command.script|truncatechars:100 }}</td>
-            <td>{{ command.enabled|yesno:_('Yes,No') }}</td>
-            <td>
-              <a href="{% url 'fpr:idcommand_detail' command.uuid  %}">{% trans "View" %}</a>
-              {% if request.user.is_superuser %}
-                | <a href="{% url 'fpr:idcommand_edit' command.uuid %}">{% trans "Replace" %}</a>
-                | <a href="{% url 'fpr:idcommand_delete' command.uuid %}">{% trans "Disable" %}</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>
-        {% blocktrans with description=idtool.description %}
-          No commands exist for {{ description }}.
-        {% endblocktrans %}
-      </p>
-    {% endif %}
+    <div
+      class="fpr-vue-table"
+      data-fpr-table-root
+      data-fpr-table-script-id="fpr-idtool-detail-commands-payload"></div>
+    {{ fpr_table_payload|json_script:"fpr-idtool-detail-commands-payload" }}
 
   </div> <!-- /col-xs-10 -->
 

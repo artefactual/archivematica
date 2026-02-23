@@ -141,7 +141,14 @@
     "removeAllConfirmSip": "Är du säker på att du vill ta bort alla färdigställda SIP från översiktsvyn? Notera att detta inte raderar SIP eller relaterade objekt."
   },
   "misc": {
-    "help": "Hjälp"
+    "help": "Hjälp",
+    "pagination": {
+      "infoTemplate": "Visar {start} till {end} av {total} poster",
+      "lengthTemplate": "Visa {select} poster",
+      "previous": "Föregående",
+      "next": "Nästa",
+      "ariaLabel": "Sidindelning"
+    }
   },
   "rights": {
     "type": "Typ",
@@ -209,5 +216,105 @@
     "pairRequestFailed": "Det gick inte att spara parningen.",
     "deleteRequestFailed": "Det gick inte att ta bort parningen.",
     "noPairsYet": "Inga parningar ännu."
+  },
+  "fpr": {
+    "columns": {
+      "description": "Beskrivning",
+      "group": "Grupp",
+      "command": "Kommando",
+      "type": "Typ",
+      "tool": "Verktyg",
+      "tools": "Verktyg",
+      "mode": "Läge",
+      "enabled": "Aktiverad",
+      "usage": "Användning",
+      "version": "Version",
+      "format": "Format",
+      "output": "Utdata",
+      "purpose": "Syfte",
+      "success": "Lyckades",
+      "pronomId": "PRONOM-ID",
+      "accessFormat": "Åtkomstformat?",
+      "preservationFormat": "Bevarandeformat?",
+      "configuration": "Konfiguration",
+      "identifier": "Identifierare",
+      "uuid": "UUID",
+      "actions": "Åtgärder"
+    },
+    "boolean": {
+      "true": "Ja",
+      "false": "Nej"
+    },
+    "search": {
+      "label": "Sök",
+      "placeholder": "Filter rows",
+      "clear": "Rensa"
+    },
+    "actions": {
+      "view": "Visa",
+      "edit": "Redigera",
+      "replace": "Ersätt",
+      "disable": "Inaktivera",
+      "enable": "Aktivera",
+      "delete": "Radera"
+    },
+    "create": {
+      "format": "Create new format",
+      "command": "Create new command",
+      "tool": "Create new tool",
+      "formatGroup": "Create new format group",
+      "rule": "Create new rule",
+      "formatVersion": "Create new format version",
+      "toolCommand": "Create new tool command"
+    },
+    "empty": {
+      "formats": "No formats exist.",
+      "idCommands": "No identification commands exist.",
+      "fpCommands": "No format policy commands exist.",
+      "idTools": "No identification tools exist.",
+      "tools": "No tools exist.",
+      "formatGroups": "No format groups exist.",
+      "idRules": "No identification rules exist.",
+      "fpRules": "No format policy rules exist.",
+      "versions": "No versions exist.",
+      "commands": "No commands exist."
+    },
+    "values": {
+      "successTemplate": "{okay} av {attempts}",
+      "formatVersionTemplate": "version: {version}",
+      "scriptType": {
+        "bashScript": "Bash-skript",
+        "pythonScript": "Python-skript",
+        "command": "Kommandorad",
+        "as_is": "Inget shebang behövs"
+      },
+      "configuration": {
+        "PUID": "PUID",
+        "MIME": "MIME-typ",
+        "ext": "Filändelse"
+      },
+      "commandUsage": {
+        "characterization": "Karaktärisering",
+        "event_detail": "Händelsedetalj",
+        "extraction": "Extrahering",
+        "normalization": "Normalisering",
+        "transcription": "Transkribering",
+        "validation": "Validering",
+        "verification": "Verifiering"
+      },
+      "purpose": {
+        "access": "Åtkomst",
+        "characterization": "Karaktärisering",
+        "extract": "Extrahera",
+        "preservation": "Bevarande",
+        "thumbnail": "Miniatyr",
+        "transcription": "Transkribering",
+        "validation": "Validering",
+        "policy_check": "Validering mot en policy",
+        "default_access": "Standardåtkomst",
+        "default_characterization": "Standardkaraktärisering",
+        "default_thumbnail": "Standardminiatyr"
+      }
+    }
   }
 }

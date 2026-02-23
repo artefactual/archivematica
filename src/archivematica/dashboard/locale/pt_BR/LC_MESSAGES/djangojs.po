@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-21 14:35+0000\n"
+"POT-Creation-Date: 2026-03-02 09:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Cintya Takahaschi <cintya.takahaschi@gmail.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -113,7 +112,6 @@ msgid "AIP in AIC"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:198
-#, fuzzy
 #| msgid "Part of AIC"
 msgid "Part of"
 msgstr "Parte da AIC"
@@ -147,7 +145,6 @@ msgid "Thumbnail"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:247
-#, fuzzy
 #| msgid "Filename"
 msgid "File"
 msgstr "Nome do arquivo"
@@ -175,7 +172,6 @@ msgid "Name"
 msgstr "Nome"
 
 #: media/js/archival_storage/archival_storage_search.js:258
-#, fuzzy
 #| msgid "AIP UUID"
 msgid "UUID"
 msgstr "AIP UUID"
@@ -193,13 +189,11 @@ msgid "File count"
 msgstr "Contagem de arquivos"
 
 #: media/js/archival_storage/archival_storage_search.js:262
-#, fuzzy
 #| msgid "Accession number"
 msgid "Accession numbers"
 msgstr "Número do registro de entrada"
 
 #: media/js/archival_storage/archival_storage_search.js:263
-#, fuzzy
 #| msgid "Create SIP"
 msgid "Created"
 msgstr "Criar SIP"
@@ -209,13 +203,11 @@ msgid "Encrypted"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:266
-#, fuzzy
 #| msgid "Actions"
 msgid "Location"
 msgstr "Ações"
 
 #: media/js/archival_storage/archival_storage_search.js:321
-#, fuzzy
 #| msgid "Select an action..."
 msgid "Select columns"
 msgstr "Selecione uma ação ..."
@@ -299,19 +291,3 @@ msgstr ": ativar para ordenar coluna ascendente"
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
 msgstr ": ativar para ordenar coluna descendente"
-
-#: media/js/ingest/as_matcher.js:553
-msgid "No resource selected."
-msgstr "Nenhum recurso selecionado."
-
-#: media/js/ingest/as_matcher.js:560
-msgid "No objects selected."
-msgstr "Nenhum objeto selecionado."
-
-#: media/js/ingest/as_matcher.js:673
-msgid "Warning"
-msgstr "Atenção"
-
-#: media/js/ingest/as_matcher.js:677
-msgid "Dismiss"
-msgstr "Dispensar"

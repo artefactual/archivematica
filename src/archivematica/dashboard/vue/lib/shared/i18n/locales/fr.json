@@ -141,7 +141,14 @@
     "removeAllConfirmSip": "Êtes-vous certain de vouloir retirer du tableau de bord  tous les SIPs terminés? Veuillez noter que cette action n'effacera pas les SIPs ou les entités associées."
   },
   "misc": {
-    "help": "Aide"
+    "help": "Aide",
+    "pagination": {
+      "infoTemplate": "Affichage de {start} à {end} sur {total} entrées",
+      "lengthTemplate": "Afficher {select} entrées",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "ariaLabel": "Pagination"
+    }
   },
   "rights": {
     "type": "Type",
@@ -209,5 +216,105 @@
     "pairRequestFailed": "Impossible d'enregistrer l'association.",
     "deleteRequestFailed": "Impossible de supprimer l'association.",
     "noPairsYet": "Aucune association pour le moment."
+  },
+  "fpr": {
+    "columns": {
+      "description": "Description",
+      "group": "Groupe",
+      "command": "Commande",
+      "type": "Type",
+      "tool": "Outil",
+      "tools": "Outils",
+      "mode": "Mode",
+      "enabled": "Activé",
+      "usage": "Utilisation",
+      "version": "Version",
+      "format": "Format",
+      "output": "Sortie",
+      "purpose": "Objectif",
+      "success": "Succès",
+      "pronomId": "ID PRONOM",
+      "accessFormat": "Format d’accès ?",
+      "preservationFormat": "Format de préservation ?",
+      "configuration": "Configuration",
+      "identifier": "Identifiant",
+      "uuid": "UUID",
+      "actions": "Actions"
+    },
+    "boolean": {
+      "true": "Oui",
+      "false": "Non"
+    },
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Filter rows",
+      "clear": "Effacer"
+    },
+    "actions": {
+      "view": "Affichage",
+      "edit": "Modifier",
+      "replace": "Remplacer",
+      "disable": "Désactiver",
+      "enable": "Activer",
+      "delete": "Supprimer"
+    },
+    "create": {
+      "format": "Create new format",
+      "command": "Create new command",
+      "tool": "Create new tool",
+      "formatGroup": "Create new format group",
+      "rule": "Create new rule",
+      "formatVersion": "Create new format version",
+      "toolCommand": "Create new tool command"
+    },
+    "empty": {
+      "formats": "No formats exist.",
+      "idCommands": "No identification commands exist.",
+      "fpCommands": "No format policy commands exist.",
+      "idTools": "No identification tools exist.",
+      "tools": "No tools exist.",
+      "formatGroups": "No format groups exist.",
+      "idRules": "No identification rules exist.",
+      "fpRules": "No format policy rules exist.",
+      "versions": "No versions exist.",
+      "commands": "No commands exist."
+    },
+    "values": {
+      "successTemplate": "{okay} sur {attempts}",
+      "formatVersionTemplate": "version : {version}",
+      "scriptType": {
+        "bashScript": "Script Bash",
+        "pythonScript": "Script Python",
+        "command": "Ligne de commande",
+        "as_is": "Shebang non requis"
+      },
+      "configuration": {
+        "PUID": "PUID",
+        "MIME": "Type MIME",
+        "ext": "Extension de fichier"
+      },
+      "commandUsage": {
+        "characterization": "Caractérisation",
+        "event_detail": "Détail de l'événement",
+        "extraction": "Extraction",
+        "normalization": "Normalisation",
+        "transcription": "Transcription",
+        "validation": "Validation",
+        "verification": "Vérification"
+      },
+      "purpose": {
+        "access": "Accès",
+        "characterization": "Caractérisation",
+        "extract": "Extraire",
+        "preservation": "Préservation",
+        "thumbnail": "Vignette",
+        "transcription": "Transcription",
+        "validation": "Validation",
+        "policy_check": "Validation selon une politique",
+        "default_access": "Accès par défaut",
+        "default_characterization": "Caractérisation par défaut",
+        "default_thumbnail": "Vignette par défaut"
+      }
+    }
   }
 }
