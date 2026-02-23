@@ -6,6 +6,7 @@
 {% block title %}{% trans "Archival storage" %}{% endblock %}
 {% block h1 %}{% trans "Archival storage" %}{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
+{% block data_features %}tab{% endblock %}
 
 {% block extra_css %}
   <link href="{% static 'css/archival_storage.css' %}" rel="stylesheet" type="text/css" />
@@ -16,29 +17,6 @@
     $(document).ready(function() {
 
       localizeTimestampElements();
-
-      var tbs = $('.tabs');
-      tbs.tabs();
-
-      var selection = false;
-      if (window.location.hash)
-      {
-        selection = window.location.hash;
-      }
-      else if (tbs.data('active-tab'))
-      {
-        selection = '#tab-' + tbs.data('active-tab');
-      }
-
-      if (selection)
-      {
-        var href = '[href=' + selection + ']';
-        var tab = $('.am-tabs-pane .tabs').find(href);
-        if (tab.length)
-        {
-          tab.trigger('click');
-        }
-      }
 
     });
   </script>
@@ -106,9 +84,9 @@
   <section class="am-tabs-pane">
 
     <ul class="nav nav-tabs" data-active-tab="{{ active_tab }}">
-      <li class="active"><a href="#tab-upload-dip" role="tab" data-toggle="tab">{% trans "Upload DIP" %}</a></li>
-      <li><a href="#tab-reingest" role="tab" data-toggle="tab">{% trans "Re-ingest" %}</a></li>
-      <li><a href="#tab-delete" role="tab" data-toggle="tab">{% trans "Delete" %}</a></li>
+      <li class="active"><a href="#tab-upload-dip" role="tab">{% trans "Upload DIP" %}</a></li>
+      <li><a href="#tab-reingest" role="tab">{% trans "Re-ingest" %}</a></li>
+      <li><a href="#tab-delete" role="tab">{% trans "Delete" %}</a></li>
     </ul>
 
     <div class="tab-content">

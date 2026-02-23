@@ -92,6 +92,11 @@
     "empty": "Aucun fichier ni dossier à afficher.",
     "noDirectoryProvided": "Aucun répertoire fourni pour l’explorateur AIP."
   },
+  "clipboardField": {
+    "copy": "Copier",
+    "copied": "Copié !",
+    "copyFailed": "Impossible de copier. Copiez le texte manuellement."
+  },
   "monitor": {
     "microservice": "Microservice",
     "transfer": "Transfert",

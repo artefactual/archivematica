@@ -20,9 +20,9 @@ along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 function selectField(el) {
   var target = $(el.parentNode.nextSibling.firstChild);
   if (el.value == 'transferMetadataOther') {
-    target.show('fade', {}, 250);
+    target.show();
   } else {
-    target.hide('fade', {}, 250);
+    target.hide();
   }
 }
 

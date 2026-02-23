@@ -92,6 +92,11 @@
     "empty": "Inga filer eller mappar att visa.",
     "noDirectoryProvided": "Ingen katalog angiven för AIP-utforskaren."
   },
+  "clipboardField": {
+    "copy": "Kopiera",
+    "copied": "Kopierat!",
+    "copyFailed": "Det gick inte att kopiera. Kopiera texten manuellt."
+  },
   "monitor": {
     "microservice": "Micro-service",
     "transfer": "Transfer",

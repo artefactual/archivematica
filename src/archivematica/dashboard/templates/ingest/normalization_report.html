@@ -2,24 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block js %}
-<script type="text/javascript">
-  $(function() {
-    $('a.file-location')
-      .on('click', function(event) {
-        event.preventDefault();
-      })
-      .popover({
-        trigger: 'hover focus',
-        container: 'body',
-        placement: 'auto top',
-        content: function() {
-          return (this.getAttribute('data-location') || '').replace(/%[^%]*%/g, '');
-        }
-      });
-  });
-</script>
-{% endblock %}
+{% block data_features %}popover{% endblock %}
 
 {% block content %}
   <table class="table">
@@ -42,8 +25,8 @@
 
         <tr>
           <!-- File name -->
-          <td><a class="file-location" href="#" title="{% trans 'Location' %}" data-location="{{ item.location }}">{{ item.fileName }}</a></td>
-          <td><a class="file-location" href="#" title="{% trans 'Format' %}" data-location="{{ item.description }}">{{ item.description }}</a></td>
+          <td><a class="file-location" data-toggle="popover" href="#" title="{% trans 'Location' %}" data-content="{{ item.location }}">{{ item.fileName }}</a></td>
+          <td><a class="file-location" data-toggle="popover" href="#" title="{% trans 'Format' %}" data-content="{{ item.description }}">{{ item.description }}</a></td>
 
           <!-- Never red -->
           <td>

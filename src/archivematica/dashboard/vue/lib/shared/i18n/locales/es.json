@@ -92,6 +92,11 @@
     "empty": "No hay archivos o carpetas para mostrar.",
     "noDirectoryProvided": "No se proporcionó un directorio para el explorador de AIP."
   },
+  "clipboardField": {
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "copyFailed": "No se pudo copiar. Copie el texto manualmente."
+  },
   "monitor": {
     "microservice": "Microservicio",
     "transfer": "Transferencia",

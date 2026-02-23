@@ -92,6 +92,11 @@
     "empty": "No files or folders to display.",
     "noDirectoryProvided": "No directory provided for AIP browser."
   },
+  "clipboardField": {
+    "copy": "Copy",
+    "copied": "Copied!",
+    "copyFailed": "Failed to copy. Copy the text manually."
+  },
   "monitor": {
     "microservice": "Microservice",
     "transfer": "Transfer",

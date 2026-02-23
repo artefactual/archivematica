@@ -8,7 +8,6 @@
     <title>{% trans "Archivematica Dashboard" %} - {% block title %}{% endblock %}</title>
     <meta charset="utf-8">
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
-    <link href="{% static 'vendor/jquery-ui/jquery-ui.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'vendor/twitter-bootstrap/css/bootstrap.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" />
@@ -16,8 +15,6 @@
     {% block extra_css %}{% endblock %}
     <script src="{% url 'main:javascript-catalog' %}" type="text/javascript"></script>
     <script src="{% static 'vendor/jquery.js' %}" type="text/javascript"></script>
-    <script src="{% static 'vendor/twitter-bootstrap/js/bootstrap.js' %}" type="text/javascript"></script>
-    <script src="{% static 'vendor/jquery-ui/jquery-ui.js' %}" type="text/javascript"></script>
     <script src="{% static 'vendor/underscore.js' %}" type="text/javascript"></script>
     <script src="{% static 'vendor/backbone.js' %}" type="text/javascript"></script>
     <script src="{% static 'js/misc.js' %}" type="text/javascript"></script>
@@ -30,7 +27,7 @@
   </head>
   <body
     id="page-{% block page_id %}default{% endblock %}"
-    data-features="{% block data_features %}{% endblock %}"
+    data-features="dropdown {% block data_features %}{% endblock %}"
   >
 
     {% block header %}
@@ -70,7 +67,7 @@
 
               {% if user.is_authenticated %}
                 <li class="user dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" id="dropdownUser" aria-haspopup="true">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownUser" aria-haspopup="true" aria-expanded="false">
                     {{ request.user }} <div class="caret"></div>
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownUser">
