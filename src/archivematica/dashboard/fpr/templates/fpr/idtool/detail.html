@@ -12,11 +12,6 @@
 
 {% block app_content %}
 
-<div class="row">
-
-  {% include 'fpr/_sidebar.html' %}
-
-  <div class="col-xs-10">
 
     <div class='format'>
       <dl>
@@ -28,12 +23,13 @@
         <dd>{{ idtool.version }}</dd>
         <dt>{% trans "Enabled" %}</dt>
         <dd>{{ idtool.enabled|yesno:_('Yes,No') }}</dd>
-        {% if request.user.is_superuser %}
-          <dt>{% trans "Actions" %}</dt>
-          <dd><a href="{% url 'fpr:idtool_edit' idtool.slug %}">{% trans "Edit" %}</a></dd>
-        {% endif %}
       </dl>
     </div>
+    {% if request.user.is_superuser %}
+      <div class="well well-sm">
+        <a class="btn btn-default btn-sm" href="{% url 'fpr:idtool_edit' idtool.slug %}">{% trans "Edit" %}</a>
+      </div>
+    {% endif %}
 
     <h3>{% trans "Commands" %}</h3>
 
@@ -42,9 +38,5 @@
       data-fpr-table-root
       data-fpr-table-script-id="fpr-idtool-detail-commands-payload"></div>
     {{ fpr_table_payload|json_script:"fpr-idtool-detail-commands-payload" }}
-
-  </div> <!-- /col-xs-10 -->
-
-</div> <!-- /row -->
 
 {% endblock app_content %}

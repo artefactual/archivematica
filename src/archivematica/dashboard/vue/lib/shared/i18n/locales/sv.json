@@ -147,7 +147,8 @@
       "lengthTemplate": "Visa {select} poster",
       "previous": "Föregående",
       "next": "Nästa",
-      "ariaLabel": "Sidindelning"
+      "ariaLabel": "Sidindelning",
+      "filteredInfoTemplate": "Visar {start} till {end} av {filtered} poster (filtrerat från totalt {total} poster)"
     }
   },
   "rights": {
@@ -247,8 +248,9 @@
     },
     "search": {
       "label": "Sök",
-      "placeholder": "Filter rows",
-      "clear": "Rensa"
+      "placeholder": "Filtrera rader",
+      "clear": "Rensa",
+      "noMatches": "Inga matchande poster hittades."
     },
     "actions": {
       "view": "Visa",
@@ -259,25 +261,25 @@
       "delete": "Radera"
     },
     "create": {
-      "format": "Create new format",
-      "command": "Create new command",
-      "tool": "Create new tool",
-      "formatGroup": "Create new format group",
-      "rule": "Create new rule",
-      "formatVersion": "Create new format version",
-      "toolCommand": "Create new tool command"
+      "format": "Skapa nytt format",
+      "command": "Skapa nytt kommando",
+      "tool": "Skapa nytt verktyg",
+      "formatGroup": "Skapa ny formatgrupp",
+      "rule": "Skapa ny regel",
+      "formatVersion": "Skapa ny formatversion",
+      "toolCommand": "Skapa nytt verktygskommando"
     },
     "empty": {
-      "formats": "No formats exist.",
-      "idCommands": "No identification commands exist.",
-      "fpCommands": "No format policy commands exist.",
-      "idTools": "No identification tools exist.",
-      "tools": "No tools exist.",
-      "formatGroups": "No format groups exist.",
-      "idRules": "No identification rules exist.",
-      "fpRules": "No format policy rules exist.",
-      "versions": "No versions exist.",
-      "commands": "No commands exist."
+      "formats": "Inga format finns.",
+      "idCommands": "Inga identifieringskommandon finns.",
+      "fpCommands": "Inga kommandon för formatpolicy finns.",
+      "idTools": "Inga identifieringsverktyg finns.",
+      "tools": "Inga verktyg finns.",
+      "formatGroups": "Inga formatgrupper finns.",
+      "idRules": "Inga identifieringsregler finns.",
+      "fpRules": "Inga regler för formatpolicy finns.",
+      "versions": "Inga versioner finns.",
+      "commands": "Inga kommandon finns."
     },
     "values": {
       "successTemplate": "{okay} av {attempts}",

@@ -147,7 +147,8 @@
       "lengthTemplate": "{select} 件ずつ表示",
       "previous": "前へ",
       "next": "次へ",
-      "ariaLabel": "ページネーション"
+      "ariaLabel": "ページネーション",
+      "filteredInfoTemplate": "{total} 件中 {filtered} 件に絞り込み（{start} から {end} を表示）"
     }
   },
   "rights": {
@@ -247,8 +248,9 @@
     },
     "search": {
       "label": "検索",
-      "placeholder": "Filter rows",
-      "clear": "クリア"
+      "placeholder": "行を絞り込む",
+      "clear": "クリア",
+      "noMatches": "一致するレコードが見つかりません。"
     },
     "actions": {
       "view": "見る",
@@ -259,25 +261,25 @@
       "delete": "削除"
     },
     "create": {
-      "format": "Create new format",
-      "command": "Create new command",
-      "tool": "Create new tool",
-      "formatGroup": "Create new format group",
-      "rule": "Create new rule",
-      "formatVersion": "Create new format version",
-      "toolCommand": "Create new tool command"
+      "format": "新しいフォーマットを作成",
+      "command": "新しいコマンドを作成",
+      "tool": "新しいツールを作成",
+      "formatGroup": "新しいフォーマットグループを作成",
+      "rule": "新しいルールを作成",
+      "formatVersion": "新しいフォーマットバージョンを作成",
+      "toolCommand": "新しいツールコマンドを作成"
     },
     "empty": {
-      "formats": "No formats exist.",
-      "idCommands": "No identification commands exist.",
-      "fpCommands": "No format policy commands exist.",
-      "idTools": "No identification tools exist.",
-      "tools": "No tools exist.",
-      "formatGroups": "No format groups exist.",
-      "idRules": "No identification rules exist.",
-      "fpRules": "No format policy rules exist.",
-      "versions": "No versions exist.",
-      "commands": "No commands exist."
+      "formats": "フォーマットがありません。",
+      "idCommands": "識別コマンドがありません。",
+      "fpCommands": "フォーマットポリシーコマンドがありません。",
+      "idTools": "識別ツールがありません。",
+      "tools": "ツールがありません。",
+      "formatGroups": "フォーマットグループがありません。",
+      "idRules": "識別ルールがありません。",
+      "fpRules": "フォーマットポリシールールがありません。",
+      "versions": "バージョンがありません。",
+      "commands": "コマンドがありません。"
     },
     "values": {
       "successTemplate": "{attempts} 件中 {okay} 件成功",

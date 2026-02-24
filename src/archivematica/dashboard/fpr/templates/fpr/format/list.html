@@ -12,20 +12,11 @@
 
 {% block app_content %}
 
-<div class="row">
-
-  {% include 'fpr/_sidebar.html' %}
-
-  <div class="col-xs-10">
 
     <div
       class="fpr-vue-table"
       data-fpr-table-root
       data-fpr-table-script-id="fpr-format-list-payload"></div>
     {{ fpr_table_payload|json_script:"fpr-format-list-payload" }}
-
-  </div> <!-- /col-xs-10 -->
-
-</div> <!-- /row -->
 
 {% endblock app_content %}

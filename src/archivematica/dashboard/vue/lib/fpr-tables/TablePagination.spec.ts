@@ -15,6 +15,7 @@ const baseProps = {
   startRow: 1,
   endRow: 10,
   filteredCount: 32,
+  totalCount: 32,
 }
 
 describe('TablePagination', () => {
@@ -30,6 +31,25 @@ describe('TablePagination', () => {
     expect(wrapper.find('.fpr-pagination-length select').exists()).toBe(true)
     expect(wrapper.find('.pagination').exists()).toBe(true)
     expect(wrapper.find('.pagination .active').text()).toContain('1')
+  })
+
+  it('renders legacy filtered info text with grouped numbers', () => {
+    const wrapper = mount(TablePagination, {
+      props: {
+        ...baseProps,
+        startRow: 1,
+        endRow: 4,
+        filteredCount: 4,
+        totalCount: 1582,
+      },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    expect(wrapper.text()).toContain(
+      'Showing 1 to 4 of 4 entries (filtered from 1,582 total entries)',
+    )
   })
 
   it('emits page and page-size events', async () => {

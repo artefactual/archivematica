@@ -12,11 +12,6 @@
 
 {% block app_content %}
 
-<div class="row">
-
-  {% include 'fpr/_sidebar.html' %}
-
-  <div class="col-xs-10">
 
     <div class='format'>
         <dl>
@@ -32,23 +27,20 @@
                   {{ format.group }}
                 {% endif %}
               </dd>
-            {% if request.user.is_superuser %}
-            <dt>{% trans "Actions" %}</dt>
-              <dd><a href="{% url 'fpr:format_edit' format.slug %}">{% trans "Edit" %}</a></dd>
-            {% endif %}
         </dl>
     </div>
+    {% if request.user.is_superuser %}
+      <div class="well well-sm">
+        <a class="btn btn-default btn-sm" href="{% url 'fpr:format_edit' format.slug %}">{% trans "Edit" %}</a>
+      </div>
+    {% endif %}
 
-    <h2>{% trans "Specific versions" %}</h2>
+    <h3>{% trans "Specific versions" %}</h3>
 
     <div
       class="fpr-vue-table"
       data-fpr-table-root
       data-fpr-table-script-id="fpr-format-detail-versions-payload"></div>
     {{ fpr_table_payload|json_script:"fpr-format-detail-versions-payload" }}
-
-  </div> <!-- /col-xs-10 -->
-
-</div> <!-- /row -->
 
 {% endblock app_content %}

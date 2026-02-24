@@ -14,8 +14,9 @@ const props = defineProps<{
   startRow: number
   endRow: number
   filteredCount: number
+  totalCount: number
 }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const emit = defineEmits<{
   setPageIndex: [pageIndex: number]
@@ -72,13 +73,25 @@ const onPageSizeChange = (event: Event) => {
   }
 }
 
-const infoText = computed(() =>
-  t('misc.pagination.infoTemplate', {
-    start: props.startRow,
-    end: props.endRow,
-    total: props.filteredCount,
-  }),
-)
+const numberFormatter = computed(() => new Intl.NumberFormat(locale.value))
+const formatNumber = (value: number) => numberFormatter.value.format(value)
+
+const infoText = computed(() => {
+  const params = {
+    start: formatNumber(props.startRow),
+    end: formatNumber(props.endRow),
+    total: formatNumber(props.totalCount),
+    filtered: formatNumber(props.filteredCount),
+  }
+  if (props.filteredCount < props.totalCount) {
+    return t('misc.pagination.filteredInfoTemplate', params)
+  }
+  return t('misc.pagination.infoTemplate', {
+    start: params.start,
+    end: params.end,
+    total: params.total,
+  })
+})
 
 const lengthTemplateParts = computed(() =>
   t('misc.pagination.lengthTemplate', { select: '{select}' }).split('{select}'),

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:13+0000\n"
+"POT-Creation-Date: 2026-03-02 09:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Cintya Takahaschi <cintya.takahaschi@gmail.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -112,7 +112,6 @@ msgid "AIP in AIC"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:198
-#| msgid "Part of AIC"
 msgid "Part of"
 msgstr "Parte da AIC"
 
@@ -145,7 +144,6 @@ msgid "Thumbnail"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:247
-#| msgid "Filename"
 msgid "File"
 msgstr "Nome do arquivo"
 
@@ -172,7 +170,6 @@ msgid "Name"
 msgstr "Nome"
 
 #: media/js/archival_storage/archival_storage_search.js:258
-#| msgid "AIP UUID"
 msgid "UUID"
 msgstr "AIP UUID"
 
@@ -189,12 +186,10 @@ msgid "File count"
 msgstr "Contagem de arquivos"
 
 #: media/js/archival_storage/archival_storage_search.js:262
-#| msgid "Accession number"
 msgid "Accession numbers"
 msgstr "Número do registro de entrada"
 
 #: media/js/archival_storage/archival_storage_search.js:263
-#| msgid "Create SIP"
 msgid "Created"
 msgstr "Criar SIP"
 
@@ -203,12 +198,10 @@ msgid "Encrypted"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:266
-#| msgid "Actions"
 msgid "Location"
 msgstr "Ações"
 
 #: media/js/archival_storage/archival_storage_search.js:321
-#| msgid "Select an action..."
 msgid "Select columns"
 msgstr "Selecione uma ação ..."
 

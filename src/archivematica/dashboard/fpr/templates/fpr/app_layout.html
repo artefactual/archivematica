@@ -8,55 +8,23 @@
 
 {% block extra_css %}
   {{ block.super }}
-  <style type="text/css">
-    .sidebar .fpr-sidebar-heading {
-      margin-top: 20px;
-      color: #555;
-      font-weight: bold;
-    }
-
-    .sidebar .fpr-sidebar-item {
-      border: 1px solid transparent;
-      border-radius: 4px;
-      margin: 1px 0;
-      transition: background-color 120ms ease-in-out;
-    }
-
-    .sidebar .fpr-sidebar-item.fpr-sidebar-indented {
-      padding-left: 16px;
-    }
-
-    .sidebar .fpr-sidebar-item > a {
-      display: block;
-      width: 100%;
-      color: #337ab7;
-      transition: none;
-    }
-
-    .sidebar .fpr-sidebar-item > a:hover,
-    .sidebar .fpr-sidebar-item > a:focus {
-      color: #337ab7;
-    }
-
-    .sidebar .fpr-sidebar-item:hover {
-      background-color: #f2f6fb;
-    }
-
-    .sidebar .fpr-sidebar-item:hover > a {
-      text-decoration: underline;
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'fpr/fpr.css' %}" type="text/css" />
 {% endblock extra_css %}
 
 {% block content %}
+  <div class="row fpr-layout">
+    {% include 'fpr/_sidebar.html' %}
 
-  <ul class="breadcrumb">
-    {% block breadcrumbs %}{% endblock breadcrumbs %}
-  </ul>
+    <div class="col-xs-10 fpr-main">
+      <ul class="breadcrumb">
+        {% block breadcrumbs %}{% endblock breadcrumbs %}
+      </ul>
 
-  <h2>{% block page_title %}{% endblock page_title %}</h2>
+      <h2>{% block page_title %}{% endblock page_title %}</h2>
 
-  {% block app_content %}{% endblock app_content %}
+      {% block app_content %}{% endblock app_content %}
+    </div>
+  </div>
 
 {% endblock content %}
 

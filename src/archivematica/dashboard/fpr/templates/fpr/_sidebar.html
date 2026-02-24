@@ -9,25 +9,28 @@
 {% url 'fpr:fprule_list' as url_fprule %}
 {% url 'fpr:fptool_list' as url_fptool %}
 
-<div class="sidebar col-xs-2">
-  <ul>
-    <li class="fpr-sidebar-item {% active request url_format %}"><a href="{{ url_format }}">{% trans "Formats" %}</a></li>
-    <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_formatgroup %}"><a href="{{ url_formatgroup }}">{% trans "Groups" %}</a></li>
+<div class="fpr-sidebar col-xs-2">
+  <div class="panel panel-default fpr-sidebar-panel">
+    <div class="panel-heading">{% trans "Format Policy Registry" %}</div>
+    <ul class="nav nav-pills nav-stacked fpr-sidebar-nav">
+      <li role="presentation" class="fpr-sidebar-item {% active request url_format %}"><a href="{{ url_format }}">{% trans "Formats" %}</a></li>
+      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_formatgroup %}"><a href="{{ url_formatgroup }}">{% trans "Groups" %}</a></li>
 
-    <li class="fpr-sidebar-heading">{% trans "Identification" %}</li>
-    <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idtool %}"><a href="{{ url_idtool }}">{% trans "Tools" %}</a></li>
-    <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idrule %}"><a href="{{ url_idrule }}">{% trans "Rules" %}</a></li>
-    <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idcommand %}"><a href="{{ url_idcommand }}">{% trans "Commands" %}</a></li>
+      <li class="fpr-sidebar-heading">{% trans "Identification" %}</li>
+      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idtool %}"><a href="{{ url_idtool }}">{% trans "Tools" %}</a></li>
+      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idrule %}"><a href="{{ url_idrule }}">{% trans "Rules" %}</a></li>
+      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idcommand %}"><a href="{{ url_idcommand }}">{% trans "Commands" %}</a></li>
 
-    <li class="fpr-sidebar-heading">{% trans "Format policy registry" %}</li>
-    <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fptool %}"><a href="{{ url_fptool }}">{% trans "Tools" %}</a></li>
+      <li class="fpr-sidebar-heading">{% trans "Format policy registry" %}</li>
+      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fptool %}"><a href="{{ url_fptool }}">{% trans "Tools" %}</a></li>
 
-    {% for usage, header in categories %}
-      {% url 'fpr:fprule_list' usage as url_fprule %}
-      {% url 'fpr:fpcommand_list' usage as url_fpcommand %}
-      <li class="fpr-sidebar-heading">{{ header }}</li>
-      <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fprule %}"><a href="{{ url_fprule }}">{% trans "Rules" %}</a></li>
-      <li class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fpcommand %}"><a href="{{ url_fpcommand }}">{% trans "Commands" %}</a></li>
-    {% endfor %}
-  </ul>
+      {% for usage, header in categories %}
+        {% url 'fpr:fprule_list' usage as url_fprule %}
+        {% url 'fpr:fpcommand_list' usage as url_fpcommand %}
+        <li class="fpr-sidebar-heading">{{ header }}</li>
+        <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fprule %}"><a href="{{ url_fprule }}">{% trans "Rules" %}</a></li>
+        <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fpcommand %}"><a href="{{ url_fpcommand }}">{% trans "Commands" %}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>

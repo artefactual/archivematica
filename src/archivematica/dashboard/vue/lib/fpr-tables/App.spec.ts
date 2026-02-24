@@ -82,10 +82,39 @@ describe('FprTables App', () => {
     await waitForSearchDebounce()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.text()).toContain('Showing 1 to 1 of 1 entries')
+    expect(wrapper.text()).toContain(
+      'Showing 1 to 1 of 1 entries (filtered from 12 total entries)',
+    )
     const bodyText = wrapper.find('tbody').text()
     expect(bodyText).toContain('Format 12')
     expect(bodyText).not.toContain('Format 11')
+  })
+
+  it('shows a no-match message when search filters all rows out', async () => {
+    const wrapper = mount(App, {
+      props: { payload: makePayload(12) },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    await wrapper.find('input[type="search"]').setValue('does-not-exist')
+    await waitForSearchDebounce()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('No matching records found.')
+    expect(wrapper.find('table').exists()).toBe(false)
+  })
+
+  it('shows the table empty message when payload has no rows', () => {
+    const wrapper = mount(App, {
+      props: { payload: makePayload(0) },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    expect(wrapper.text()).toContain('No formats exist.')
   })
 
   it('renders code-based values with Vue i18n labels', () => {
