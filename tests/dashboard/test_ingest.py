@@ -337,7 +337,7 @@ def test_ingest_upload_as_match_resource_component_serializes_existing_pair_file
     )
 
     assert response.status_code == 200
-    matches = json.loads(response.context["matches_json"])
+    matches = response.context["matcher_payload"]["initialMatches"]
     assert matches[0]["file_uuid"] == str(file_uuid)
 
 
@@ -368,7 +368,7 @@ def test_ingest_upload_as_match_resource_serializes_existing_pair_file_uuid(
     )
 
     assert response.status_code == 200
-    matches = json.loads(response.context["matches_json"])
+    matches = response.context["matcher_payload"]["initialMatches"]
     assert matches[0]["file_uuid"] == str(file_uuid)
 
 

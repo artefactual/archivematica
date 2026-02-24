@@ -32,13 +32,7 @@ def _build_as_matcher_payload(
         "objectPaths": object_paths,
         "resourceData": resource_data,
         "initialMatches": matches,
-        "urls": {
-            "match": reverse("ingest:ingest_upload_as_match", args=[uuid]),
-            "review": reverse("ingest:ingest_upload_as_review_matches", args=[uuid]),
-            "reset": (
-                reverse(reset_url_name, args=[uuid]) if reset_url_name is not None else None
-            ),
-        },
+        "resetAvailable": reset_url_name is not None,
         "labels": {
             "filterObjects": _("Filter objects"),
             "filterResources": _("Filter resources"),

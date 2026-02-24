@@ -25,7 +25,7 @@ class DummyClient:
         }
 
 
-def test_build_as_matcher_payload_contains_bootstrap_data_and_match_url() -> None:
+def test_build_as_matcher_payload_contains_bootstrap_data_and_flags() -> None:
     with mock.patch.object(
         pair_matcher,
         "reverse",
@@ -38,13 +38,9 @@ def test_build_as_matcher_payload_contains_bootstrap_data_and_match_url() -> Non
             matches=[],
         )
 
-    assert mocked_reverse.call_count == 2
-    mocked_reverse.assert_any_call("ingest:ingest_upload_as_match", args=["dip-1"])
-    mocked_reverse.assert_any_call("ingest:ingest_upload_as_review_matches", args=["dip-1"])
+    assert mocked_reverse.call_count == 0
     assert payload["dipUuid"] == "dip-1"
-    assert payload["urls"]["match"] == "/ingest/dip-1/upload/as/match/"
-    assert payload["urls"]["review"] == "/ingest/dip-1/upload/as/match/"
-    assert payload["urls"]["reset"] is None
+    assert payload["resetAvailable"] is False
     assert payload["objectPaths"][0]["uuid"] == "file-1"
     assert payload["labels"]["pair"]
     assert payload["labels"]["pairSelectedObjects"]
@@ -57,19 +53,23 @@ def test_match_dip_objects_to_resource_levels_renders_explicit_context() -> None
     client = DummyClient()
     fake_response = HttpResponse("ok")
 
-    with mock.patch.object(
-        pair_matcher,
-        "ingest_upload_atk_get_dip_object_paths",
-        return_value=[{"uuid": "file-1", "path": "a.txt"}],
-    ), mock.patch.object(
-        pair_matcher,
-        "_build_as_matcher_payload",
-        return_value={"boot": "payload"},
-    ) as mocked_payload, mock.patch.object(
-        pair_matcher,
-        "render",
-        return_value=fake_response,
-    ) as mocked_render:
+    with (
+        mock.patch.object(
+            pair_matcher,
+            "ingest_upload_atk_get_dip_object_paths",
+            return_value=[{"uuid": "file-1", "path": "a.txt"}],
+        ),
+        mock.patch.object(
+            pair_matcher,
+            "_build_as_matcher_payload",
+            return_value={"boot": "payload"},
+        ) as mocked_payload,
+        mock.patch.object(
+            pair_matcher,
+            "render",
+            return_value=fake_response,
+        ) as mocked_render,
+    ):
         response = pair_matcher.match_dip_objects_to_resource_levels(
             client=client,
             request=request,
@@ -79,7 +79,9 @@ def test_match_dip_objects_to_resource_levels_renders_explicit_context() -> None
             parent_url="ingest:ingest_upload_as_resource",
             reset_url="ingest:ingest_upload_as_reset",
             uuid="dip-1",
-            matches=[{"resource_id": "r1", "file_uuid": "f1", "resource": {"id": "r1"}}],
+            matches=[
+                {"resource_id": "r1", "file_uuid": "f1", "resource": {"id": "r1"}}
+            ],
         )
 
     assert response is fake_response

@@ -9,7 +9,12 @@ import {
 } from '@tanstack/vue-table'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { createArchivesSpacePair, deleteArchivesSpacePair } from '@/shared/http'
+import {
+  createArchivesSpacePair,
+  deleteArchivesSpacePair,
+  getIngestUploadAsResetUrl,
+  getIngestUploadAsReviewMatchesUrl,
+} from '@/shared/http'
 import MatcherAlerts from './components/MatcherAlerts.vue'
 import MatcherObjectPane from './components/MatcherObjectPane.vue'
 import MatcherPairsPane from './components/MatcherPairsPane.vue'
@@ -70,6 +75,10 @@ const matcherLabels = computed<MatcherBootstrapData['labels']>(() => ({
   deleteRequestFailed: translateMatcherLabel('deleteRequestFailed'),
   noPairsYet: translateMatcherLabel('noPairsYet'),
 }))
+
+const reviewUrl = getIngestUploadAsReviewMatchesUrl(props.dipUuid)
+const resetUrl = getIngestUploadAsResetUrl(props.dipUuid)
+const resetAvailable = Boolean(props.resetAvailable)
 
 const normalizeText = (value: unknown): string => {
   if (typeof value === 'string') {
@@ -536,7 +545,9 @@ initializePairs(props.initialMatches)
 
     <MatcherToolbar
       :labels="matcherLabels"
-      :urls="props.urls"
+      :review-url="reviewUrl"
+      :reset-url="resetUrl"
+      :reset-available="resetAvailable"
       :pair-disabled="pairButtonDisabled"
       @pair="pairSelectedObjects"
     />

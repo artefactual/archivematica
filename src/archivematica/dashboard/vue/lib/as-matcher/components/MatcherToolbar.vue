@@ -3,10 +3,9 @@ import type { MatcherLabels } from '../types'
 
 defineProps<{
   labels: MatcherLabels
-  urls: {
-    review: string
-    reset: string | null
-  }
+  reviewUrl: string
+  resetUrl: string
+  resetAvailable: boolean
   pairDisabled: boolean
 }>()
 
@@ -20,9 +19,9 @@ defineEmits<{
     <div class="as-matcher-toolbar-body">
       <div class="as-matcher-toolbar-group as-matcher-toolbar-actions">
         <a
-          v-if="urls.reset"
+          v-if="resetAvailable"
           class="btn btn-default btn-sm"
-          :href="urls.reset"
+          :href="resetUrl"
         >
           <i
             class="fa fa-undo"
@@ -44,7 +43,7 @@ defineEmits<{
         </button>
         <a
           class="btn btn-default btn-sm"
-          :href="urls.review"
+          :href="reviewUrl"
         >
           <i
             class="fa fa-list-ul"

@@ -4,17 +4,9 @@ import { i18n, initI18n } from '@/shared/i18n'
 import type { MatcherBootstrapData } from './types'
 
 const normalizeMatcherData = (raw: MatcherBootstrapData): MatcherBootstrapData => {
-  const dipUuid = raw.dipUuid
-  const reviewFallback = `/ingest/${dipUuid}/upload/as/review/`
-  const hasResetUrl = raw.urls != null && Object.prototype.hasOwnProperty.call(raw.urls, 'reset')
-
   return {
     ...raw,
-    urls: {
-      match: raw.urls?.match ?? `/ingest/${dipUuid}/upload/as/match/`,
-      review: raw.urls?.review ?? reviewFallback,
-      reset: hasResetUrl ? (raw.urls.reset ?? null) : null,
-    },
+    resetAvailable: Boolean(raw.resetAvailable),
   }
 }
 

@@ -12,6 +12,8 @@ const { mockCreateArchivesSpacePair, mockDeleteArchivesSpacePair } = vi.hoisted(
 vi.mock('@/shared/http', () => ({
   createArchivesSpacePair: mockCreateArchivesSpacePair,
   deleteArchivesSpacePair: mockDeleteArchivesSpacePair,
+  getIngestUploadAsReviewMatchesUrl: (dipUuid: string) => `/ingest/${dipUuid}/upload/as/review/`,
+  getIngestUploadAsResetUrl: (dipUuid: string) => `/ingest/${dipUuid}/upload/as/reset/`,
 }))
 
 const labels: MatcherBootstrapData['labels'] = {
@@ -67,11 +69,7 @@ const makeProps = (initialMatches: MatcherInitialMatch[] = []): MatcherBootstrap
     ],
   },
   initialMatches,
-  urls: {
-    match: '/ingest/dip-1/upload/as/match/',
-    review: '/ingest/dip-1/upload/as/review/',
-    reset: '/ingest/dip-1/upload/as/reset/',
-  },
+  resetAvailable: true,
   labels,
 })
 

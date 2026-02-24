@@ -47,18 +47,12 @@ export type MatcherLabels = Readonly<{
   noPairsYet: string
 }>
 
-export type MatcherUrls = Readonly<{
-  match: string
-  review: string
-  reset: string | null
-}>
-
 export type MatcherBootstrapData = Readonly<{
   dipUuid: string
   objectPaths: MatcherObjectPath[]
   resourceData: MatcherResourceNode
   initialMatches: MatcherInitialMatch[]
-  urls: MatcherUrls
+  resetAvailable?: boolean
   labels: MatcherLabels
 }>
 
