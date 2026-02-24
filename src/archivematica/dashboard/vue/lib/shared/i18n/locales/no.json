@@ -147,7 +147,8 @@
       "lengthTemplate": "Vis {select} oppføringer",
       "previous": "Forrige",
       "next": "Neste",
-      "ariaLabel": "Paginering"
+      "ariaLabel": "Paginering",
+      "filteredInfoTemplate": "Viser {start} til {end} av {filtered} oppføringer (filtrert fra totalt {total} oppføringer)"
     }
   },
   "rights": {
@@ -247,8 +248,9 @@
     },
     "search": {
       "label": "Søk",
-      "placeholder": "Filter rows",
-      "clear": "Tøm"
+      "placeholder": "Filtrer rader",
+      "clear": "Tøm",
+      "noMatches": "Ingen samsvarende poster funnet."
     },
     "actions": {
       "view": "Vis",
@@ -276,8 +278,8 @@
       "formatGroups": "Ingen formatgrupper finnes.",
       "idRules": "Det finnes ingen identifikasjonsregler.",
       "fpRules": "Det finnes ingen grunnregel for format.",
-      "versions": "No versions exist.",
-      "commands": "No commands exist."
+      "versions": "Ingen versjoner finnes.",
+      "commands": "Ingen kommandoer finnes."
     },
     "values": {
       "successTemplate": "{okay} av {attempts}",

@@ -1,6 +1,8 @@
 import django.template.base as base
 from django import template
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import gettext as _
 
 register = template.Library()
 
@@ -31,11 +33,14 @@ class RevisionLinkNode(template.Node):
         revision_type = self._resolve_if_template_variable(self.revision_type, context)
         object_uuid = self._resolve_if_template_variable(self.object_uuid, context)
 
-        return '<a class="revisions_link" href="{}">Revision history</a>'.format(
-            reverse(
-                "fpr:revision_list",
-                kwargs={"entity_name": revision_type, "uuid": object_uuid},
-            )
+        url = reverse(
+            "fpr:revision_list",
+            kwargs={"entity_name": revision_type, "uuid": object_uuid},
+        )
+        return format_html(
+            '<div class="well well-sm" style="margin-bottom: 12px;"><a class="btn btn-default btn-xs" href="{}">{}</a></div>',
+            url,
+            _("Revision history"),
         )
 
     def _convert_to_template_variable_if_not_in_quotes(self, value):

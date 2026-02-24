@@ -798,6 +798,8 @@ def revision_list(request, entity_name, uuid):
 
 def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
     for revision in revisions:
+        revision.display_title = _get_revision_display_title(entity_name, revision)
+
         if request.user.is_superuser:
             detail_view_name = entity_name + "_edit"
         else:
@@ -820,3 +822,41 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
 
         except Exception:
             revision.detail_url = reverse(detail_view_name, args=[revision.uuid])
+
+
+def _get_revision_display_title(entity_name, revision):
+    try:
+        if entity_name == "formatversion":
+            description = getattr(revision, "description", None) or _(
+                "(no description)"
+            )
+            version = getattr(revision, "version", None)
+            pronom_id = getattr(revision, "pronom_id", None)
+            suffix_parts = [part for part in [version, pronom_id] if part]
+            return (
+                _("%(description)s (%(suffix)s)")
+                % {"description": description, "suffix": ", ".join(suffix_parts)}
+                if suffix_parts
+                else description
+            )
+
+        if entity_name in {"idcommand", "fpcommand"}:
+            return getattr(revision, "description", None) or str(revision)
+
+        if entity_name == "idtoolconfig":
+            tool = getattr(revision, "tool", None)
+            config_display = (
+                revision.get_config_display()
+                if hasattr(revision, "get_config_display")
+                else None
+            )
+            parts = [str(tool) if tool else None, config_display]
+            title = " - ".join(part for part in parts if part)
+            return title or str(revision)
+
+        if hasattr(revision, "long_name") and callable(revision.long_name):
+            return revision.long_name()
+
+        return str(revision)
+    except Exception:
+        return str(revision)

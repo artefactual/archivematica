@@ -1,0 +1,103 @@
+.fpr-layout .fpr-sidebar .fpr-sidebar-panel {
+  margin-bottom: 12px;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-panel .panel-heading {
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav {
+  padding: 4px;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-heading {
+  margin: 6px 0 2px;
+  padding: 3px 8px 2px;
+  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav > li.fpr-sidebar-item > a {
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: #337ab7;
+  text-decoration: none;
+  background: transparent;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav > li.fpr-sidebar-item > a:hover,
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav > li.fpr-sidebar-item > a:focus {
+  color: #337ab7;
+  text-decoration: underline;
+  background-color: #f2f6fb;
+  background-image: none;
+  box-shadow: none;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav > li.active > a,
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav > li.active > a:hover,
+.fpr-layout .fpr-sidebar .fpr-sidebar-nav > li.active > a:focus {
+  background-color: #eaf2fb;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  color: #2b669a;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.fpr-layout .fpr-sidebar .fpr-sidebar-item.fpr-sidebar-indented > a {
+  padding-left: 16px;
+}
+
+.fpr-layout .fpr-main .format dl,
+.fpr-layout .fpr-main .config dl {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background: #fcfcfc;
+}
+
+.fpr-layout .fpr-main .format dl dt,
+.fpr-layout .fpr-main .config dl dt {
+  float: left;
+  clear: left;
+  width: 170px;
+  margin: 0;
+  padding: 4px 0;
+  text-align: left;
+  color: #555;
+  font-weight: 600;
+}
+
+.fpr-layout .fpr-main .format dl dd,
+.fpr-layout .fpr-main .config dl dd {
+  margin-left: 180px;
+  padding: 4px 0;
+}
+
+.fpr-layout .fpr-main .format dl dd pre,
+.fpr-layout .fpr-main .config dl dd pre {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 767px) {
+  .fpr-layout .fpr-main .format dl dt,
+  .fpr-layout .fpr-main .config dl dt {
+    float: none;
+    width: auto;
+    padding-bottom: 0;
+  }
+
+  .fpr-layout .fpr-main .format dl dd,
+  .fpr-layout .fpr-main .config dl dd {
+    margin-left: 0;
+    padding-top: 2px;
+  }
+}

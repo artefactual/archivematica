@@ -147,7 +147,8 @@
       "lengthTemplate": "Show {select} entries",
       "previous": "Previous",
       "next": "Next",
-      "ariaLabel": "Pagination"
+      "ariaLabel": "Pagination",
+      "filteredInfoTemplate": "Showing {start} to {end} of {filtered} entries (filtered from {total} total entries)"
     }
   },
   "rights": {
@@ -248,7 +249,8 @@
     "search": {
       "label": "Search",
       "placeholder": "Filter rows",
-      "clear": "Clear"
+      "clear": "Clear",
+      "noMatches": "No matching records found."
     },
     "actions": {
       "view": "View",

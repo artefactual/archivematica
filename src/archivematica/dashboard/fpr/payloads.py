@@ -141,7 +141,7 @@ def idcommand_list_payload(
             "id": str(command.uuid),
             "command": command.description,
             "type": command.script_type,
-            "tool": str(command.tool),
+            "tool": str(command.tool) if command.tool else "",
             "toolSlug": command.tool.slug if command.tool else None,
             "mode": command.config,
             "enabled": command.enabled,

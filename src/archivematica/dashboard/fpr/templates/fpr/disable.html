@@ -21,11 +21,6 @@
 
 {% block app_content %}
 
-<div class="row">
-
-  {% include 'fpr/_sidebar.html' %}
-
-  <div class="col-xs-10">
 
     <h2>
       {% if object.enabled %}
@@ -58,8 +53,5 @@
         <input type="submit" name="cancel" value="{% trans 'Cancel' %}" class="btn btn-default" />
       </form>
     </div>
-
-  </div> <!-- /col-xs-10 -->
-</div> <!-- /row -->
 
 {% endblock app_content %}

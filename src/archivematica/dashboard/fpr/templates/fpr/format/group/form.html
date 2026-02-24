@@ -14,11 +14,6 @@
 
 {% block app_content %}
 
-<div class="row">
-
-  {% include 'fpr/_sidebar.html' %}
-
-  <div class="col-xs-10">
 
     <div class='format'>
 
@@ -34,7 +29,7 @@
     </div>
 
     {% if group %}
-    <h2>{% trans "Formats" %}</h2>
+    <h3>{% trans "Formats" %}</h3>
 
       <div
         class="fpr-vue-table"
@@ -42,11 +37,6 @@
         data-fpr-table-script-id="fpr-formatgroup-form-formats-payload"></div>
       {{ fpr_table_payload|json_script:"fpr-formatgroup-form-formats-payload" }}
     {% endif %}
-
-  </div> <!-- /col-xs-10 -->
-
-
-</div> <!-- /row -->
 
 
 {% endblock app_content %}

@@ -147,7 +147,8 @@
       "lengthTemplate": "Mostrar {select} entradas",
       "previous": "Anterior",
       "next": "Seguinte",
-      "ariaLabel": "Paginação"
+      "ariaLabel": "Paginação",
+      "filteredInfoTemplate": "A mostrar de {start} a {end} de {filtered} entradas (filtradas de um total de {total} entradas)"
     }
   },
   "rights": {
@@ -242,13 +243,14 @@
       "actions": "Ações"
     },
     "boolean": {
-      "true": "Yes",
-      "false": "No"
+      "true": "Sim",
+      "false": "Não"
     },
     "search": {
-      "label": "Search",
-      "placeholder": "Filter rows",
-      "clear": "Clear"
+      "label": "Pesquisa",
+      "placeholder": "Filtrar linhas",
+      "clear": "Limpar",
+      "noMatches": "Nenhum registo correspondente encontrado."
     },
     "actions": {
       "view": "Ver",
@@ -259,25 +261,25 @@
       "delete": "Eliminar"
     },
     "create": {
-      "format": "Create new format",
-      "command": "Create new command",
-      "tool": "Create new tool",
-      "formatGroup": "Create new format group",
-      "rule": "Create new rule",
-      "formatVersion": "Create new format version",
-      "toolCommand": "Create new tool command"
+      "format": "Criar novo formato",
+      "command": "Criar novo comando",
+      "tool": "Criar nova ferramenta",
+      "formatGroup": "Criar novo grupo de formatos",
+      "rule": "Criar nova regra",
+      "formatVersion": "Criar nova versão de formato",
+      "toolCommand": "Criar novo comando de ferramenta"
     },
     "empty": {
-      "formats": "No formats exist.",
-      "idCommands": "No identification commands exist.",
-      "fpCommands": "No format policy commands exist.",
-      "idTools": "No identification tools exist.",
-      "tools": "No tools exist.",
-      "formatGroups": "No format groups exist.",
-      "idRules": "No identification rules exist.",
-      "fpRules": "No format policy rules exist.",
-      "versions": "No versions exist.",
-      "commands": "No commands exist."
+      "formats": "Não existem formatos.",
+      "idCommands": "Não existem comandos de identificação.",
+      "fpCommands": "Não existem comandos de política de formato.",
+      "idTools": "Não existem ferramentas de identificação.",
+      "tools": "Não existem ferramentas.",
+      "formatGroups": "Não existem grupos de formatos.",
+      "idRules": "Não existem regras de identificação.",
+      "fpRules": "Não existem regras de política de formato.",
+      "versions": "Não existem versões.",
+      "commands": "Não existem comandos."
     },
     "values": {
       "successTemplate": "{okay} de {attempts}",

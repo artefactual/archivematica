@@ -13,11 +13,6 @@
 
 {% block app_content %}
 
-<div class="row">
-
-  {% include 'fpr/_sidebar.html' %}
-
-  <div class="col-xs-10">
 
     {% revisions_link "idrule" idrule.uuid %}
 
@@ -33,16 +28,13 @@
           <dd>{{ idrule.command_output }}</dd>
         <dt>{% trans "Enabled" %}</dt>
           <dd>{{ idrule.enabled|yesno:_("Yes,No") }}</dd>
-        {% if request.user.is_superuser %}
-        <dt>{% trans "Actions" %}</dt>
-          <dd><a href="{% url 'fpr:idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a></dd>
-          <dd><a href="{% url 'fpr:idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a></dd>
-        {% endif %}
       </dl>
     </div>
-
-  </div> <!-- /col-xs-10 -->
-
-</div> <!-- /row -->
+    {% if request.user.is_superuser %}
+      <div class="well well-sm">
+        <a class="btn btn-default btn-sm" href="{% url 'fpr:idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a>
+        <a class="btn btn-default btn-sm" href="{% url 'fpr:idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a>
+      </div>
+    {% endif %}
 
 {% endblock app_content %}

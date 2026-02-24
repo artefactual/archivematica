@@ -337,8 +337,8 @@ const table = useVueTable({
 const filteredRows = computed(() => table.getPrePaginationRowModel().rows)
 // These are the rows currently rendered in the table body (after pagination).
 const rows = computed(() => table.getRowModel().rows)
-const actionButtonClass = (style: TableActionStyle) => {
-  const classes = ['btn', 'btn-xs']
+const actionButtonClass = (style: TableActionStyle, size: 'xs' | 'sm' = 'xs') => {
+  const classes = ['btn', size === 'sm' ? 'btn-sm' : 'btn-xs']
   if (style === 'primary') {
     classes.push('btn-primary')
   } else if (style === 'warning') {
@@ -352,7 +352,7 @@ const actionButtonClass = (style: TableActionStyle) => {
 const createButtonClass = computed(() => {
   // Let Django choose the create-action button style, with a safe default.
   const createStyle = props.payload.ui.create?.style ?? 'primary'
-  return `${actionButtonClass(createStyle)} fpr-toolbar-create`
+  return actionButtonClass(createStyle, 'sm')
 })
 
 const stringField = (row: FprRow, key: string): string | null => {
@@ -397,6 +397,9 @@ const createUrl = computed(() => {
 
 const createLabel = computed(() => t(CREATE_LABEL_KEY_BY_KIND[props.payload.kind]))
 const emptyText = computed(() => t(EMPTY_TEXT_KEY_BY_KIND[props.payload.kind]))
+const emptyAlertText = computed(() => (
+  props.payload.rows.length > 0 ? t('fpr.search.noMatches') : emptyText.value
+))
 
 // Centralize display normalization for mixed row cell values.
 const getString = (row: FprRow, key: string): string => displayValueForColumn(row, key)
@@ -614,7 +617,7 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
           <label class="control-label sr-only">
             {{ t('fpr.search.label') }}
           </label>
-          <div class="input-group input-group-sm">
+          <div class="input-group">
             <input
               ref="searchInputRef"
               v-model="searchFilterInput"
@@ -647,7 +650,7 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
       </div>
     </div>
 
-    <template v-if="payload.rows.length">
+    <template v-if="filteredRows.length">
       <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover table-condensed">
           <thead>
@@ -759,6 +762,7 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
         :start-row="pageStartRow"
         :end-row="pageEndRow"
         :filtered-count="filteredRows.length"
+        :total-count="payload.rows.length"
         @set-page-index="(nextPageIndex) => table.setPageIndex(nextPageIndex)"
         @previous-page="() => table.previousPage()"
         @next-page="() => table.nextPage()"
@@ -771,7 +775,7 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
       class="alert alert-info"
       role="status"
     >
-      {{ emptyText }}
+      {{ emptyAlertText }}
     </div>
   </div>
 </template>
@@ -800,15 +804,14 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
   margin-left: auto;
 }
 
-.fpr-toolbar-create {
-  margin-right: 0;
-  white-space: nowrap;
-}
-
 .fpr-toolbar-search {
   max-width: 380px;
   width: 100%;
   margin-left: 0;
+}
+
+.fpr-toolbar-left .btn {
+  white-space: nowrap;
 }
 
 .fpr-sortable {
