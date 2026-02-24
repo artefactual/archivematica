@@ -181,5 +181,33 @@
     "tooltipRestriction": "行為に対する条件または制限です。",
     "tooltipRightsGrantedNote": "許諾された権利に関する追加情報です。",
     "tooltipOpenEndDate": "終了日が未定の制限期間には \"OPEN\" を使用します。終了日が不明な場合、または許可声明が終了日の異なる多数のオブジェクトに適用される場合は endDate を省略してください。"
+  },
+  "asMatcher": {
+    "filterObjects": "オブジェクトを絞り込む",
+    "filterResources": "リソースを絞り込む",
+    "pair": "ペアリング",
+    "pairSelectedObjects": "選択したオブジェクトをペアリング",
+    "restartMatching": "ペアリングをやり直す",
+    "reviewMatches": "ペアリングを確認",
+    "objects": "オブジェクト",
+    "resources": "リソース",
+    "pairs": "ペア",
+    "selectAll": "すべて選択",
+    "file": "ファイル",
+    "level": "レベル",
+    "title": "タイトル",
+    "identifier": "識別子",
+    "dates": "日付",
+    "selectedResource": "選択中のリソース",
+    "targetResource": "対象リソース",
+    "noneSelected": "なし",
+    "selectedObjects": "選択したオブジェクト",
+    "deleteMatch": "ペアを削除",
+    "noResourceSelected": "リソースが選択されていません。",
+    "noObjectsSelected": "オブジェクトが選択されていません。",
+    "duplicateMatch": "このオブジェクトはすでにペアリングされています。",
+    "pairRequestFailed": "ペアリングを保存できませんでした。",
+    "deleteRequestFailed": "ペアリングを削除できませんでした。",
+    "noPairsYet": "まだペアはありません。"
   }
 }

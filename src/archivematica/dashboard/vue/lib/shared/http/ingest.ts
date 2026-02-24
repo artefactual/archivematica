@@ -89,6 +89,10 @@ export const getIngestUploadAsUrl = (sipUuid: string): string => {
   return createUrl(`/ingest/${sipUuid}/upload/as/`)
 }
 
+export const getIngestUploadAsMatchUrl = (sipUuid: string): string => {
+  return createUrl(`/ingest/${sipUuid}/upload/as/match/`)
+}
+
 export const getIngestPreviewUrl = (previewType: IngestPreviewType, jobUuid: string): string => {
   return createUrl(`/ingest/preview/${previewType}/${jobUuid}/`)
 }

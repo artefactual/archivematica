@@ -181,5 +181,33 @@
     "tooltipRestriction": "Una condición o limitación sobre el acto.",
     "tooltipRightsGrantedNote": "Información adicional sobre los derechos otorgados.",
     "tooltipOpenEndDate": "Use \"OPEN\" para un plazo de restricción abierto. Omita endDate si se desconoce la fecha de finalización o si la declaración de permiso se aplica a muchos objetos con distintas fechas de finalización."
+  },
+  "asMatcher": {
+    "filterObjects": "Filtrar objetos",
+    "filterResources": "Filtrar recursos",
+    "pair": "Emparejar",
+    "pairSelectedObjects": "Emparejar objetos seleccionados",
+    "restartMatching": "Reiniciar emparejamiento",
+    "reviewMatches": "Revisar emparejamientos",
+    "objects": "Objetos",
+    "resources": "Recursos",
+    "pairs": "Emparejamientos",
+    "selectAll": "Seleccionar todo",
+    "file": "Archivo",
+    "level": "Nivel",
+    "title": "Título",
+    "identifier": "Identificador",
+    "dates": "Fechas",
+    "selectedResource": "Recurso seleccionado",
+    "targetResource": "Recurso de destino",
+    "noneSelected": "Ninguno",
+    "selectedObjects": "Objetos seleccionados",
+    "deleteMatch": "Eliminar emparejamiento",
+    "noResourceSelected": "No hay ningún recurso seleccionado.",
+    "noObjectsSelected": "No hay objetos seleccionados.",
+    "duplicateMatch": "Este objeto ya está emparejado.",
+    "pairRequestFailed": "No se pudo guardar el emparejamiento.",
+    "deleteRequestFailed": "No se pudo eliminar el emparejamiento.",
+    "noPairsYet": "Aún no hay emparejamientos."
   }
 }

@@ -181,5 +181,33 @@
     "tooltipRestriction": "Condition ou limitation sur l’acte.",
     "tooltipRightsGrantedNote": "Information supplémentaire sur les droits accordés.",
     "tooltipOpenEndDate": "Utilisez \"OPEN\" pour une période de restriction sans date de fin. Omettez endDate si la date de fin est inconnue ou si la déclaration d’autorisation s’applique à de nombreux objets avec des dates de fin différentes."
+  },
+  "asMatcher": {
+    "filterObjects": "Filtrer les objets",
+    "filterResources": "Filtrer les ressources",
+    "pair": "Associer",
+    "pairSelectedObjects": "Associer les objets sélectionnés",
+    "restartMatching": "Recommencer l'association",
+    "reviewMatches": "Vérifier les associations",
+    "objects": "Objets",
+    "resources": "Ressources",
+    "pairs": "Associations",
+    "selectAll": "Tout sélectionner",
+    "file": "Fichier",
+    "level": "Niveau",
+    "title": "Titre",
+    "identifier": "Identifiant",
+    "dates": "Dates",
+    "selectedResource": "Ressource sélectionnée",
+    "targetResource": "Ressource cible",
+    "noneSelected": "Aucun",
+    "selectedObjects": "Objets sélectionnés",
+    "deleteMatch": "Supprimer l'association",
+    "noResourceSelected": "Aucune ressource sélectionnée.",
+    "noObjectsSelected": "Aucun objet sélectionné.",
+    "duplicateMatch": "Cet objet est déjà associé.",
+    "pairRequestFailed": "Impossible d'enregistrer l'association.",
+    "deleteRequestFailed": "Impossible de supprimer l'association.",
+    "noPairsYet": "Aucune association pour le moment."
   }
 }

@@ -1,4 +1,8 @@
 export { toHttpErrorInfo } from './client'
+export {
+  createArchivesSpacePair,
+  deleteArchivesSpacePair,
+} from './asMatcher'
 export { getJobTasksUrl } from './tasks'
 export { executeChoice } from './mcp'
 export {
@@ -35,6 +39,7 @@ export {
   checkUploadDestinationStatusCode,
   getIngestNormalizationReportUrl,
   getIngestUploadAsUrl,
+  getIngestUploadAsMatchUrl,
   getIngestPreviewUrl,
 } from './ingest'
 export type { StatusResponse } from './status'

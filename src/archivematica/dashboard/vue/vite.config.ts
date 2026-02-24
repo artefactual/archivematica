@@ -20,6 +20,13 @@ const CHUNK_ROUTES = [
     match: ['node_modules/inputmask/'],
   },
   {
+    name: 'tanstack-table',
+    match: [
+      'node_modules/@tanstack/table-core/',
+      'node_modules/@tanstack/vue-table/',
+    ],
+  },
+  {
     name: 'runtime',
     match: [
       'node_modules/vue/',
@@ -146,6 +153,7 @@ export default defineConfig(({ mode }) => {
           'core': resolve(__dirname, 'lib/core/index.ts'),
           'transfer-browser': resolve(__dirname, 'lib/transfer-browser/index.ts'),
           'aip-browser': resolve(__dirname, 'lib/aip-browser/index.ts'),
+          'as-matcher': resolve(__dirname, 'lib/as-matcher/index.ts'),
           'md-editor': resolve(__dirname, 'lib/md-editor/index.ts'),
           'topbar': resolve(__dirname, 'lib/topbar/index.ts'),
           'monitor': resolve(__dirname, 'lib/monitor/index.ts'),
