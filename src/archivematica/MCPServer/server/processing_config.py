@@ -13,7 +13,6 @@ from django.conf import settings
 from lxml import etree
 
 import archivematica.archivematicaCommon.storageService as storage_service
-from archivematica.MCPServer.server.workflow_abilities import choice_is_available
 
 logger = logging.getLogger("archivematica.mcp.server.processing_config")
 
@@ -122,8 +121,6 @@ class ChainChoicesField(ProcessingConfigField):
             chain = workflow.get_chain(chain_id)
             chain_desc = chain.get_label("description")
             if chain_desc in self.ignored_choices:
-                continue
-            if not choice_is_available(self.link, chain):
                 continue
             self.choices.append(
                 {
