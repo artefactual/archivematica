@@ -129,7 +129,7 @@ class TestMarkCompletedHiddenView:
             unittype="unitTransfer",
             createdtime=timezone.now(),
             currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-            jobtype="Move transfer to backlog",
+            jobtype="Create SIP from transfer objects",
         )
 
         url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})

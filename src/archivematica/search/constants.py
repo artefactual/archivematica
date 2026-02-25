@@ -1,12 +1,9 @@
 STATUS_DELETE_REQUESTED = "DEL_REQ"
 STATUS_DELETED = "DELETED"
 STATUS_UPLOADED = "UPLOADED"
-STATUS_BACKLOG = "backlog"
 
 AIPS_INDEX = "aips"
 AIP_FILES_INDEX = "aipfiles"
-TRANSFERS_INDEX = "transfers"
-TRANSFER_FILES_INDEX = "transferfiles"
 
 ES_FIELD_AICID = "AICID"
 ES_FIELD_ACCESSION_IDS = "accessionids"
@@ -23,9 +20,6 @@ ES_FIELD_UUID = "uuid"
 # Additional Elasticsearch field names
 ES_FIELD_AIPUUID = "AIPUUID"
 ES_FIELD_FILEUUID = "FILEUUID"
-ES_FIELD_SIPUUID = "sipuuid"
-ES_FIELD_FILEUUID_LOWER = "fileuuid"
-
 DEFAULT_TIMEOUT = 10
 # Known indexes. This indexes may be enabled or not based on the SEARCH_ENABLED
 # setting. To add a new index, make sure it's related to the setting values in
@@ -33,7 +27,7 @@ DEFAULT_TIMEOUT = 10
 # function declaring the index settings and mapping. For example, for an index
 # called `tests` the function must be called `_get_tests_index_body`. See the
 # functions related to the current known indexes for examples.
-INDEXES = [AIPS_INDEX, AIP_FILES_INDEX, TRANSFERS_INDEX, TRANSFER_FILES_INDEX]
+INDEXES = [AIPS_INDEX, AIP_FILES_INDEX]
 # Maximun ES result window. Use the scroll API for a better way to get all
 # results or change `index.max_result_window` on each index settings.
 MAX_QUERY_SIZE = 10000

@@ -219,7 +219,7 @@
         "pt_BR": "Criação do SIP concluída",
         "sv": "SIP skapelse fullföljd"
       },
-      "link_id": "36609513-6502-4aca-886a-6c4ae03a9f05"
+      "link_id": "70669a5b-01e4-4ea0-ac70-10292f87da05"
     },
     "34944d4f-762e-4262-8c79-b9fd48521ca0": {
       "description": {
@@ -527,16 +527,6 @@
         "sv": "Lagra AIP"
       },
       "link_id": "2d32235c-02d4-4686-88a6-96f4d6c7b1c3"
-    },
-    "7065d256-2f47-4b7d-baec-2c4699626121": {
-      "description": {
-        "en": "Send to backlog",
-        "fr": "Envoyer au backlog",
-        "no": "Send til feillogg",
-        "pt_BR": "Enviar para o backlog",
-        "sv": "Skicka till backlogg"
-      },
-      "link_id": "7e6330c6-0280-4b25-8bf8-4b8143b69bde"
     },
     "76befd52-14c3-44f9-838f-15a4e01624b0": {
       "description": {
@@ -3848,38 +3838,6 @@
         "sv": "Kontrollera överförings följsamhet"
       }
     },
-    "36609513-6502-4aca-886a-6c4ae03a9f05": {
-      "config": {
-        "@manager": "linkTaskManagerFiles",
-        "@model": "StandardTaskConfig",
-        "arguments": "--eventType \"removal from backlog\" --fileUUID \"%fileUUID%\" --eventIdentifierUUID \"%taskUUID%\" --eventDateTime \"%jobCreatedDate%\"",
-        "execute": "createEvent_v0.0"
-      },
-      "description": {
-        "en": "Create removal from backlog PREMIS events",
-        "es": "Crear eventos PREMIS de eliminación en cola",
-        "no": "Opprett sletting fra PREMIS-hendelsers feillogg",
-        "pt_BR": "Crie eliminação dos eventos PREMIS do backlog",
-        "sv": "Skapa borttaggning från backloggens PREMIS händelser"
-      },
-      "exit_codes": {
-        "0": {
-          "job_status": "Completed successfully",
-          "link_id": "70669a5b-01e4-4ea0-ac70-10292f87da05"
-        }
-      },
-      "fallback_job_status": "Failed",
-      "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-      "group": {
-        "en": "Approve SIP creation",
-        "es": "Aprobar creación de SIP",
-        "fr": "Approuver la création du SIP",
-        "ja": "SIP作成を承認",
-        "no": "Godkjenn opprettelse av SIP",
-        "pt_BR": "Confirmar criação SIP",
-        "sv": "Godkänn skapande av SIP"
-      }
-    },
     "370aca94-65ab-4f2a-9d7d-294a62c8b7ba": {
       "config": {
         "@manager": "linkTaskManagerDirectories",
@@ -6684,38 +6642,6 @@
         "sv": "SIP misslyckades"
       }
     },
-    "7e6330c6-0280-4b25-8bf8-4b8143b69bde": {
-      "config": {
-        "@manager": "linkTaskManagerDirectories",
-        "@model": "StandardTaskConfig",
-        "arguments": "\"%clientAssetsDirectory%README/TRANSFER_README.html\" \"%SIPDirectory%README.html\"",
-        "execute": "copy_v0.0"
-      },
-      "description": {
-        "en": "Add README file",
-        "ja": "READMEファイルを追加",
-        "no": "Legg til README-fil",
-        "pt_BR": "Adicionar arquivo README",
-        "sv": "Lägg till README-fil"
-      },
-      "exit_codes": {
-        "0": {
-          "job_status": "Completed successfully",
-          "link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a"
-        }
-      },
-      "fallback_job_status": "Failed",
-      "fallback_link_id": "e6e553cf-85f5-4e2f-abf4-d276acd66f5a",
-      "group": {
-        "en": "Create SIP from Transfer",
-        "es": "Crear SIP a partir de la transferencia",
-        "fr": "Créer un SIP à partir du Transfert",
-        "ja": "転送からSIPを作成する",
-        "no": "Opprett SIP fra overføring",
-        "pt_BR": "Crie SIP a partir da transferência",
-        "sv": "Skapa SIP från överföringspaket"
-      }
-    },
     "7e81f94e-6441-4430-a12d-76df09181b66": {
       "config": {
         "@manager": "linkTaskManagerChoice",
@@ -8284,38 +8210,6 @@
         "sv": "Godkänn skapande av SIP"
       }
     },
-    "abd6d60c-d50f-4660-a189-ac1b34fafe85": {
-      "config": {
-        "@manager": "linkTaskManagerDirectories",
-        "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPUUID%\" \"%SIPDirectory%\" \"%jobCreatedDate%\"",
-        "execute": "moveToBacklog_v1.0"
-      },
-      "description": {
-        "en": "Move transfer to backlog",
-        "es": "Mover transferencia a la cola",
-        "no": "Flytt overføring til feillogg",
-        "pt_BR": "Mover a transferência para o backlog",
-        "sv": "Flytta överföring till backlogg"
-      },
-      "end": true,
-      "exit_codes": {
-        "0": {
-          "job_status": "Completed successfully"
-        }
-      },
-      "fallback_job_status": "Failed",
-      "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
-      "group": {
-        "en": "Create SIP from Transfer",
-        "es": "Crear SIP a partir de la transferencia",
-        "fr": "Créer un SIP à partir du Transfert",
-        "ja": "転送からSIPを作成する",
-        "no": "Opprett SIP fra overføring",
-        "pt_BR": "Crie SIP a partir da transferência",
-        "sv": "Skapa SIP från överföringspaket"
-      }
-    },
     "accea2bf-ba74-4a3a-bb97-614775c74459": {
       "config": {
         "@manager": "linkTaskManagerChoice",
@@ -8950,7 +8844,6 @@
         "@model": "MicroServiceChainChoice",
         "chain_choices": [
           "61cfa825-120e-4b17-83e6-51a42b67d969",
-          "7065d256-2f47-4b7d-baec-2c4699626121",
           "1b04ec43-055c-43b7-9543-bd03c6a778ba"
         ]
       },
@@ -10705,37 +10598,6 @@
         "fr": "Transfert TRIM",
         "no": "TRIM-overføring",
         "pt_BR": "Transferência do TRIM "
-      }
-    },
-    "e6e553cf-85f5-4e2f-abf4-d276acd66f5a": {
-      "config": {
-        "@manager": "linkTaskManagerDirectories",
-        "@model": "StandardTaskConfig",
-        "arguments": "\"%SIPUUID%\" \"%relativeLocation%metadata/dc.json\"",
-        "execute": "saveDublinCore_v0.0"
-      },
-      "description": {
-        "en": "Serialize Dublin Core metadata to disk",
-        "no": "Serialiser Dublin Core-metadata til disk",
-        "pt_BR": "Seriar os metadados Dublin Core para o disco",
-        "sv": "Sänd Dublin Core metadata till disk som serie"
-      },
-      "exit_codes": {
-        "0": {
-          "job_status": "Completed successfully",
-          "link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85"
-        }
-      },
-      "fallback_job_status": "Failed",
-      "fallback_link_id": "abd6d60c-d50f-4660-a189-ac1b34fafe85",
-      "group": {
-        "en": "Create SIP from Transfer",
-        "es": "Crear SIP a partir de la transferencia",
-        "fr": "Créer un SIP à partir du Transfert",
-        "ja": "転送からSIPを作成する",
-        "no": "Opprett SIP fra overføring",
-        "pt_BR": "Crie SIP a partir da transferência",
-        "sv": "Skapa SIP från överföringspaket"
       }
     },
     "e76aec15-5dfa-4b14-9405-735863e3a6fa": {

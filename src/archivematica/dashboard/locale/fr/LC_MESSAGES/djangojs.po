@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-10 06:44+0000\n"
+"POT-Creation-Date: 2026-02-21 14:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Isabelle Alain <ialain@archivescanada.ca>, 2017\n"
 "Language-Team: French (https://www.transifex.com/artefactual/teams/1506/"
@@ -20,7 +20,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: media/js/advanced-search-query-creator.js:14
-#: media/js/repeating-ajax-data.js:211
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -29,12 +28,10 @@ msgid "Add"
 msgstr "Ajouter"
 
 #: media/js/archival_storage/archival_storage_search.js:41
-#: media/js/ingest/backlog.js:19
 msgid "Add new"
 msgstr "Ajouter"
 
 #: media/js/archival_storage/archival_storage_search.js:60
-#: media/js/ingest/backlog.js:34
 msgid "Any"
 msgstr "N'importe quel"
 
@@ -48,7 +45,6 @@ msgid "File path"
 msgstr "Chemin d'accès au fichier "
 
 #: media/js/archival_storage/archival_storage_search.js:63
-#: media/js/ingest/backlog.js:36
 msgid "File extension"
 msgstr "Extension de fichier"
 
@@ -85,12 +81,10 @@ msgid "other field name"
 msgstr "autre nom du champ"
 
 #: media/js/archival_storage/archival_storage_search.js:82
-#: media/js/ingest/backlog.js:44
 msgid "Keyword"
 msgstr "Terme"
 
 #: media/js/archival_storage/archival_storage_search.js:83
-#: media/js/ingest/backlog.js:45
 msgid "Phrase"
 msgstr "Phrase"
 
@@ -103,7 +97,6 @@ msgid "view raw"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:174
-#: media/js/backlog/backlog-search.js:6 media/js/backlog/backlog-search.js:12
 msgid "Download"
 msgstr "Télécharger"
 
@@ -142,12 +135,10 @@ msgid "False"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:224
-#: media/js/backlog/backlog-search.js:19
 msgid "Deletion requested"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:224
-#: media/js/backlog/backlog-search.js:19
 msgid "Stored"
 msgstr ""
 
@@ -166,26 +157,20 @@ msgid "AIP"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:250
-#: media/js/backlog/backlog-search.js:42 media/js/backlog/backlog-search.js:53
-#: media/js/ingest/backlog.js:37
 msgid "Accession number"
 msgstr "Numéro d'acquisition"
 
 #: media/js/archival_storage/archival_storage_search.js:251
 #: media/js/archival_storage/archival_storage_search.js:264
-#: media/js/backlog/backlog-search.js:43 media/js/backlog/backlog-search.js:55
 msgid "Status"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:252
 #: media/js/archival_storage/archival_storage_search.js:267
-#: media/js/backlog/backlog-search.js:44 media/js/backlog/backlog-search.js:56
-#: media/js/ingest.js:163 media/js/transfer.js:161
 msgid "Actions"
 msgstr "Actions"
 
 #: media/js/archival_storage/archival_storage_search.js:257
-#: media/js/backlog/backlog-search.js:49
 msgid "Name"
 msgstr "Nom"
 
@@ -200,12 +185,10 @@ msgid "AIC"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:260
-#: media/js/backlog/backlog-search.js:51
 msgid "Size"
 msgstr ""
 
 #: media/js/archival_storage/archival_storage_search.js:261
-#: media/js/backlog/backlog-search.js:52
 msgid "File count"
 msgstr "Nombre de fichiers"
 
@@ -232,170 +215,90 @@ msgid "Location"
 msgstr "Actions"
 
 #: media/js/archival_storage/archival_storage_search.js:321
-#: media/js/backlog/backlog-search.js:110
 #, fuzzy
 #| msgid "Select an action..."
 msgid "Select columns"
 msgstr "Sélectionner une action..."
 
 #: media/js/archival_storage/archival_storage_search.js:325
-#: media/js/backlog/backlog-search.js:114
 msgctxt "DataTable - sEmptyTable"
 msgid "No data available in table"
 msgstr "Aucune donnée disponible dans le tableau"
 
 #: media/js/archival_storage/archival_storage_search.js:326
-#: media/js/backlog/backlog-search.js:115
 msgctxt "DataTable - sInfo"
 msgid "Showing _START_ to _END_ of _TOTAL_ entries"
 msgstr "Afficher _START_ to _END_ of _TOTAL_ entrées"
 
 #: media/js/archival_storage/archival_storage_search.js:327
-#: media/js/backlog/backlog-search.js:116
 msgctxt "DataTable - sInfoEmpty"
 msgid "Showing 0 to 0 of 0 entries"
 msgstr "Afficher 0 à 0 sur 0 entrées"
 
 #: media/js/archival_storage/archival_storage_search.js:328
-#: media/js/backlog/backlog-search.js:117
 msgctxt "DataTable - sInfoFiltered"
 msgid "(filtered from _MAX_ total entries)"
 msgstr "(filtrés à partir d'un total de _MAX_ entrées)"
 
 #: media/js/archival_storage/archival_storage_search.js:330
-#: media/js/backlog/backlog-search.js:119
 msgctxt "DataTable - sInfoThousands"
 msgid ","
 msgstr ","
 
 #: media/js/archival_storage/archival_storage_search.js:331
-#: media/js/backlog/backlog-search.js:120
 msgctxt "DataTable - sLengthMenu"
 msgid "Show _MENU_ entries"
 msgstr "Afficher _MENU_ entries"
 
 #: media/js/archival_storage/archival_storage_search.js:332
-#: media/js/backlog/backlog-search.js:121
 msgctxt "DataTable - sLoadingRecords"
 msgid "Loading..."
 msgstr "Chargement …"
 
 #: media/js/archival_storage/archival_storage_search.js:333
-#: media/js/backlog/backlog-search.js:122
 msgctxt "DataTable - sProcessing"
 msgid "Processing..."
 msgstr "En traitement..."
 
 #: media/js/archival_storage/archival_storage_search.js:334
-#: media/js/backlog/backlog-search.js:123
 msgctxt "DataTable - sSearch"
 msgid "Search:"
 msgstr "Rechercher :"
 
 #: media/js/archival_storage/archival_storage_search.js:335
-#: media/js/backlog/backlog-search.js:124
 msgctxt "DataTable - sZeroRecords"
 msgid "No matching records found"
 msgstr "Aucun enregistrement correspondant trouvé"
 
 #: media/js/archival_storage/archival_storage_search.js:337
-#: media/js/backlog/backlog-search.js:126
 msgctxt "DataTable - sFirst"
 msgid "First"
 msgstr "Premier"
 
 #: media/js/archival_storage/archival_storage_search.js:338
-#: media/js/backlog/backlog-search.js:127
 msgctxt "DataTable - sLast"
 msgid "Last"
 msgstr "Dernier"
 
 #: media/js/archival_storage/archival_storage_search.js:339
-#: media/js/backlog/backlog-search.js:128
 msgctxt "DataTable - sNext"
 msgid "Next"
 msgstr "Suivant"
 
 #: media/js/archival_storage/archival_storage_search.js:340
-#: media/js/backlog/backlog-search.js:129
 msgctxt "DataTable - sPrevious"
 msgid "Previous"
 msgstr "Précédent"
 
 #: media/js/archival_storage/archival_storage_search.js:343
-#: media/js/backlog/backlog-search.js:132
 msgctxt "DataTable - sSortAscending"
 msgid ": activate to sort column ascending"
 msgstr ": activer le tri ascendant"
 
 #: media/js/archival_storage/archival_storage_search.js:344
-#: media/js/backlog/backlog-search.js:133
 msgctxt "DataTable - sSortDescending"
 msgid ": activate to sort column descending"
 msgstr ": activer le tri descendant"
-
-#: media/js/backlog/backlog-search.js:14
-msgid "Request deletion"
-msgstr "Demander la suppression"
-
-#: media/js/backlog/backlog-search.js:40
-msgid "Filename"
-msgstr "Nom du fichier"
-
-#: media/js/backlog/backlog-search.js:41 media/js/backlog/backlog-search.js:50
-#: media/js/ingest/backlog.js:39
-msgid "Transfer UUID"
-msgstr "UUID du transfert"
-
-#: media/js/backlog/backlog-search.js:54
-msgid "Ingest date"
-msgstr "Date d'entrée"
-
-#: media/js/ingest.js:71
-msgid "It is not possible to remove active SIPs."
-msgstr ""
-
-#: media/js/ingest.js:81
-msgid ""
-"Are you sure you want to remove this SIP from the dashboard? Note that this "
-"does not delete the SIP or related entities."
-msgstr ""
-"Voulez-vous vraiment effacer ce SIP du tableau de bord ? Cela ne supprimera "
-"pas le SIP ou les entités liées."
-
-#: media/js/ingest.js:83 media/js/transfer.js:83
-#, javascript-format
-msgid "Directory: %s"
-msgstr "Répertoire : %s"
-
-#: media/js/ingest.js:84 media/js/transfer.js:84
-#, javascript-format
-msgid "UUID: %s"
-msgstr "UUID : %s"
-
-#: media/js/ingest.js:91 media/js/transfer.js:91
-msgid "Remove SIP"
-msgstr "Effacer le SIP"
-
-#: media/js/ingest.js:102 media/js/jobs.js:568 media/js/transfer.js:102
-msgid "Confirm"
-msgstr "Confirmer"
-
-#: media/js/ingest.js:131 media/js/jobs.js:600
-msgid "Cancel"
-msgstr "Annuler"
-
-#: media/js/ingest.js:179
-msgid "Report"
-msgstr "Rapport"
-
-#: media/js/ingest.js:182
-msgid "Match DIP objects to resources"
-msgstr "Faire correspondre les objets DIP aux ressources"
-
-#: media/js/ingest.js:241
-msgid "Loading..."
-msgstr "Chargement … "
 
 #: media/js/ingest/as_matcher.js:553
 msgid "No resource selected."
@@ -412,234 +315,3 @@ msgstr "Avertissement"
 #: media/js/ingest/as_matcher.js:677
 msgid "Dismiss"
 msgstr "Rejeter"
-
-#: media/js/ingest/backlog.js:35
-msgid "File name"
-msgstr "Nom du fichier"
-
-#: media/js/ingest/backlog.js:38
-msgid "Ingest date (YYYY-MM-DD)"
-msgstr "Date d'entrée (AAAA-MM-JJ)"
-
-#: media/js/jobs.js:482
-msgid "Review"
-msgstr "Examiner"
-
-#: media/js/jobs.js:558
-msgid ""
-"Are you sure you want to remove all completed %(unit)ss from the dashboard? "
-"Note that this does not delete the %(unit)ss or related entities."
-msgstr ""
-"Êtes-vous certain de vouloir retirer du tableau de bord  tous les %(unit)ss "
-"terminés? Veuillez noter que cette action n'effacera pas les %(unit)ss ou "
-"les entités associées."
-
-#: media/js/jobs.js:564
-#, javascript-format
-msgid "Remove All Completed %ss"
-msgstr "Retirer tous les %ss terminés"
-
-#: media/js/jobs.js:578
-#, javascript-format
-msgid "There were no completed %ss to remove"
-msgstr "Il n'y avait aucun %s complété à retirer"
-
-#: media/js/jobs.js:582
-#, javascript-format
-msgid "Successfully removed the following %ss: %s"
-msgstr "Suppression réussie des éléments suivants %ss: %s"
-
-#: media/js/jobs.js:588
-#, javascript-format
-msgid "Failed to remove all completed %ss"
-msgstr "Échec de la suppression de tous les éléments terminés %ss"
-
-#: media/js/repeating-ajax-data.js:217
-msgid "Are you sure?"
-msgstr "Êtes-vous certain?"
-
-#: media/js/rights_edit.js:24
-msgid "Type"
-msgstr "Type"
-
-#: media/js/rights_edit.js:29
-msgid "Value"
-msgstr ""
-
-#: media/js/rights_edit.js:34
-msgid "Role"
-msgstr "Rôle "
-
-#: media/js/rights_edit.js:49
-msgid "Copyright Note"
-msgstr "Note sur le droit d'auteur"
-
-#: media/js/rights_edit.js:53
-msgid ""
-"designation used to uniquely identify documentation supporting the specified "
-"rights granted according to copyright within the repository system"
-msgstr ""
-"désignation utilisée pour identifier de manière unique la documentation "
-"prenant en charge les droits spécifiés accordés en fonction des droits "
-"d'auteur dans le système de dépôt"
-
-#: media/js/rights_edit.js:54
-msgid ""
-"a designation of the domain within which the copyright documentation "
-"identifier is unique"
-msgstr ""
-"une désignation du domaine dans lequel l'identifiant de documentation "
-"concernant les droits d’auteur est unique"
-
-#: media/js/rights_edit.js:55
-msgid "the value of the copyrightDocumentatinIdentifier"
-msgstr ""
-"la valeur de l'identifiant de documentation concernant les droits d’auteur "
-"(copyrightDocumentatinIdentifier)"
-
-#: media/js/rights_edit.js:56 media/js/rights_edit.js:69
-msgid ""
-"A value indicating the purpose or expected use of the documentation being "
-"identified"
-msgstr ""
-"Une valeur indiquant l'objet ou l'utilisation prévue de la documentation "
-"identifiée"
-
-#: media/js/rights_edit.js:57
-msgid "Additional information about the copyright status of the object"
-msgstr ""
-"Informations complémentaires sur le statut du droit d'auteur de l'objet."
-
-#: media/js/rights_edit.js:62
-msgid "Copyright Documentation Identifier"
-msgstr "Identifiant de la documentation sur le droit d'auteur"
-
-#: media/js/rights_edit.js:67
-msgid ""
-"a designation of the domain within which the statute documenation identifier "
-"is unique"
-msgstr ""
-"une désignation du domaine dans lequel l'identifiant de la documentation sur "
-"la réglementation est unique"
-
-#: media/js/rights_edit.js:68
-msgid "the value of the statuteDocumentatinIdentifier"
-msgstr ""
-"la valeur de l'identifiant de la documentation sur la réglementation "
-"(statuteDocumentatinIdentifier)"
-
-#: media/js/rights_edit.js:74
-msgid "Statute Documentation Identifier"
-msgstr "Identifiant de la documentation sur la réglementation"
-
-#: media/js/rights_edit.js:80
-msgid "additional information about the statute"
-msgstr "Informations complémentaires sur la réglementation"
-
-#: media/js/rights_edit.js:86
-msgid "Statute Note"
-msgstr "Note sur la réglementation"
-
-#: media/js/rights_edit.js:91
-msgid ""
-"a value indicating the purpose or expected use of the documentation being "
-"identified"
-msgstr ""
-"une valeur indiquant l'objet ou l'utilisation prévue de la documentation "
-"identifiée"
-
-#: media/js/rights_edit.js:96
-msgid "License Documentation Identifier"
-msgstr "Identifiant de la documentation sur la licence"
-
-#: media/js/rights_edit.js:102
-msgid "Other Rights Documentation Identifier"
-msgstr "Identifiant de la documentation sur les autres droits"
-
-#: media/js/rights_edit.js:109
-msgid "Other Rights Note"
-msgstr "Note sur les autres droits"
-
-#: media/js/rights_edit.js:114
-msgid "additional information about the license"
-msgstr "Informations complémentaires sur la licence"
-
-#: media/js/rights_edit.js:122
-msgid "License Note"
-msgstr "Note sur la licence"
-
-#: media/js/rights_edit.js:127
-msgid "a condition or limitation on the act"
-msgstr "condition ou restriction d'utilisation de l'acte."
-
-#: media/js/rights_edit.js:128
-msgid "additional information about the rights granted"
-msgstr "Informations complémentaires sur les droits accordés"
-
-#: media/js/rights_edit.js:129
-msgid ""
-"use \"OPEN\" for an open ended term of restriction. Omit endDate if the "
-"ending date is unknown or the permission statement applies to many objects "
-"with different end dates."
-msgstr ""
-"Utilisez \"OPEN\" pour une période de restriction ouverte. Omettez endDate "
-"si la date de fin est inconnue ou si la déclaration d'autorisation "
-"s'applique à de nombreux objets ayant des dates de fin différentes."
-
-#: media/js/rights_edit.js:144
-msgid "Restriction"
-msgstr "Restriction"
-
-#: media/js/rights_edit.js:152
-msgid "Rights Granted Note"
-msgstr "Note sur les droits accordés"
-
-#: media/js/rights_edit.js:182
-#, javascript-format
-msgid ""
-"You'll be able to create a %s record once the above section is completed."
-msgstr ""
-"Vous serez en mesure de créer une notice %s une fois la section ci-dessus "
-"complétée."
-
-#: media/js/rights_edit.js:231 media/js/rights_edit.js:244
-msgid "Note"
-msgstr "Note"
-
-#: media/js/rights_edit.js:235
-#, javascript-format
-msgid "%s documentation identifier"
-msgstr "%s identifiant de la documentation"
-
-#: media/js/rights_edit.js:239 media/js/rights_edit.js:242
-#, javascript-format
-msgid "%s note"
-msgstr "%s note"
-
-#: media/js/rights_edit.js:250
-#, javascript-format
-msgid "%s start date"
-msgstr "%s date de début"
-
-#: media/js/rights_edit.js:252
-#, javascript-format
-msgid "%s end date"
-msgstr "%s date de fin"
-
-#: media/js/rights_edit.js:263
-#, fuzzy, javascript-format
-#| msgid "Create new %(type)?"
-msgid "Create new %s?"
-msgstr "Créer un nouveau %(type) ?"
-
-#: media/js/transfer.js:71
-msgid "It is not possible to remove active transfers."
-msgstr ""
-
-#: media/js/transfer.js:81
-msgid ""
-"Are you sure you want to remove this transfer from the dashboard? Note that "
-"this does not delete the transfer or related entities."
-msgstr ""
-"Voulez-vous vraiment supprimer ce transfert du tableau de bord ? Cela ne "
-"supprimera pas le transfert ou les entités liées."

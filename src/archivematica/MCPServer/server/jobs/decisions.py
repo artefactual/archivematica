@@ -13,7 +13,6 @@ from archivematica.MCPServer.server.jobs.base import Job
 from archivematica.MCPServer.server.processing_config import load_preconfigured_choice
 from archivematica.MCPServer.server.processing_config import load_processing_xml
 from archivematica.MCPServer.server.translation import TranslationLabel
-from archivematica.MCPServer.server.workflow_abilities import choice_is_available
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.decisions")
 
@@ -103,8 +102,7 @@ class NextChainDecisionJob(DecisionJob):
                 chain = self.workflow.get_chain(chain_id)
             except KeyError:
                 continue
-            if choice_is_available(self.link, chain):
-                choices[chain_id] = chain["description"]
+            choices[chain_id] = chain["description"]
 
         return choices
 

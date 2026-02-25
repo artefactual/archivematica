@@ -15,10 +15,13 @@ current appconfig Config object and the section.
 """
 
 import configparser
+import logging
 
 from django.core.exceptions import ImproperlyConfigured
 
 from archivematica.archivematicaCommon.env_configparser import EnvConfigParser
+
+logger = logging.getLogger(__name__)
 
 
 class Config:
@@ -99,14 +102,15 @@ class Config:
 
 def process_search_enabled(config, section):
     """
-    The 'search_enabled' attribute accepts four options and its value
-    may be a boolean or a string containing a list of enabled parts
-    separated by comma after it's obtained from the ConfigParser.
-    This function normalizes and verifies the value to always return a list
-    with the enabled parts. It may raise ImproperlyConfigured if the
-    string value is empty or it contains an unrecognized search part.
+    Normalize search indexing configuration to the currently supported set.
+
+    The ``search_enabled`` attribute may be provided as a boolean or a comma
+    separated string. Only AIP indexing is supported.
     """
-    ALLOWED_SEARCH_PARTS = {"aips", "transfers"}
+    ALLOWED_SEARCH_PARTS = {"aips"}
+    # Transfer indexing was removed in Archivematica 1.19.0; keep accepting
+    # legacy "transfers" tokens during upgrades and normalize them away.
+    DEPRECATED_SEARCH_PARTS = {"transfers"}
     options = [
         {
             "section": section,
@@ -127,17 +131,28 @@ def process_search_enabled(config, section):
     if len(value) == 0:
         raise ImproperlyConfigured(config.UNDEFINED_ATTR_MSG % "search_enabled")
     enabled_parts = []
+    deprecated_parts_seen = set()
     for item in value.split(","):
         item = item.strip()
         if len(item) == 0:
             continue
         if item in ALLOWED_SEARCH_PARTS:
             enabled_parts.append(item)
+        elif item in DEPRECATED_SEARCH_PARTS:
+            deprecated_parts_seen.add(item)
         else:
             raise ImproperlyConfigured(
                 '"%s" is not a recognized value for the search_enabled '
-                'attribute. Only "aips" and/or "transfers" are allowed.' % item
+                'attribute. Only "aips" is allowed.' % item
             )
+
+    if deprecated_parts_seen:
+        logger.warning(
+            'Ignoring deprecated search_enabled value(s): %s. Only "aips" '
+            "indexing is supported.",
+            ", ".join(sorted(deprecated_parts_seen)),
+        )
+
     return set(enabled_parts)
 
 

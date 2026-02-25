@@ -29,8 +29,8 @@ class Command(DashboardCommand):
             self.error(
                 "The AIPs indexes are not enabled. Please, make sure to "
                 "set the *_SEARCH_ENABLED environment variables to `true` "
-                "to enable the AIPs and Transfers indexes, or to `aips` "
-                "to only enable the AIPs indexes."
+                "to enable the AIPs indexes, or to `aips` to only enable "
+                "the AIPs indexes."
             )
             sys.exit(1)
 

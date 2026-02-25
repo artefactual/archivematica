@@ -1,5 +1,4 @@
 import logging
-import os
 import time
 from abc import ABC
 from abc import abstractmethod
@@ -28,19 +27,14 @@ from archivematica.search.constants import ES_FIELD_CREATED
 from archivematica.search.constants import ES_FIELD_ENCRYPTED
 from archivematica.search.constants import ES_FIELD_FILECOUNT
 from archivematica.search.constants import ES_FIELD_FILEUUID
-from archivematica.search.constants import ES_FIELD_FILEUUID_LOWER
 from archivematica.search.constants import ES_FIELD_LOCATION
 from archivematica.search.constants import ES_FIELD_NAME
-from archivematica.search.constants import ES_FIELD_SIPUUID
 from archivematica.search.constants import ES_FIELD_SIZE
 from archivematica.search.constants import ES_FIELD_STATUS
 from archivematica.search.constants import ES_FIELD_UUID
-from archivematica.search.constants import STATUS_BACKLOG
 from archivematica.search.constants import STATUS_DELETE_REQUESTED
 from archivematica.search.constants import STATUS_UPLOADED
 from archivematica.search.constants import TOTAL_FIELDS_LIMIT
-from archivematica.search.constants import TRANSFER_FILES_INDEX
-from archivematica.search.constants import TRANSFERS_INDEX
 
 logger = logging.getLogger("archivematica.search")
 
@@ -84,12 +78,6 @@ class AIPFileNotFoundError(SearchServiceError):
     pass
 
 
-class TransferFileNotFoundError(SearchServiceError):
-    """Raised when a transfer file cannot be found by UUID."""
-
-    pass
-
-
 class MultipleResultsError(SearchServiceError):
     """Raised when a search expected to return a single result returns multiple."""
 
@@ -98,22 +86,6 @@ class MultipleResultsError(SearchServiceError):
 
 class SearchService(ABC):
     """Abstract base class for search services."""
-
-    @abstractmethod
-    def delete_transfer(self, transfer_uuid: str) -> None:
-        """Delete transfer from the search index.
-
-        :param str transfer_uuid: Transfer UUID to delete
-        """
-        pass
-
-    @abstractmethod
-    def delete_transfer_files(self, transfer_uuids: set[str]) -> None:
-        """Delete transfer files from the search index.
-
-        :param set[str] transfer_ids: Set of transfer UUIDs to delete files for
-        """
-        pass
 
     @abstractmethod
     def delete_aip(self, aip_uuid: str) -> None:
@@ -128,22 +100,6 @@ class SearchService(ABC):
         """Delete AIP files from the search index.
 
         :param str aip_uuid: AIP UUID to delete files for
-        """
-        pass
-
-    @abstractmethod
-    def mark_transfer_for_deletion(self, transfer_uuid: str) -> None:
-        """Mark transfer for deletion in the search index.
-
-        :param str transfer_uuid: Transfer UUID to mark for deletion
-        """
-        pass
-
-    @abstractmethod
-    def unmark_transfer_for_deletion(self, transfer_uuid: str) -> None:
-        """Unmark transfer for deletion in the search index.
-
-        :param str transfer_uuid: Transfer UUID to unmark for deletion
         """
         pass
 
@@ -248,73 +204,6 @@ class SearchService(ABC):
         pass
 
     @abstractmethod
-    def get_transfer_file_tags(self, uuid: str) -> list[str]:
-        """Get tags for a transfer file by file UUID.
-
-        :param str uuid: File UUID to retrieve tags for
-        :return: List of tags for the file
-        """
-        pass
-
-    @abstractmethod
-    def get_transfer_file_data(self, uuid: str) -> dict[str, Any]:
-        """Get transfer file data by file UUID.
-
-        :param str uuid: File UUID to search for
-        :return: Transfer file document data
-        """
-        pass
-
-    @abstractmethod
-    def set_transfer_file_tags(self, uuid: str, tags: list[str]) -> None:
-        """Set tags for a transfer file by file UUID.
-
-        :param str uuid: File UUID to update tags for
-        :param list[str] tags: List of tags to set (empty list clears tags)
-        """
-        pass
-
-    @abstractmethod
-    def search_transfer_files(
-        self,
-        query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
-    ) -> dict[str, Any]:
-        """Search transfer files with optional parameters.
-
-        :param dict[str, Any] query: Search query body
-        :param Optional[int] size: Optional size limit for results, defaults to max_query_size
-        :param Optional[int] from_: Optional start index for pagination
-        :param Optional[SortSpec] sort: Optional sort specification with field and order
-        :param Optional[list[str]] fields: Optional list of fields to return
-        :return: Raw search results
-        """
-        pass
-
-    @abstractmethod
-    def search_transfers(
-        self,
-        query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
-    ) -> dict[str, Any]:
-        """Search transfers with optional parameters.
-
-        :param dict[str, Any] query: Search query body
-        :param Optional[int] size: Optional size limit for results, defaults to max_query_size
-        :param Optional[int] from_: Optional start index for pagination
-        :param Optional[SortSpec] sort: Optional sort specification with field and order
-        :param Optional[list[str]] fields: Optional list of fields to return
-        :return: Raw search results
-        """
-        pass
-
-    @abstractmethod
     def search_aips(
         self,
         query: dict[str, Any],
@@ -406,36 +295,6 @@ class SearchService(ABC):
         """
         pass
 
-    @abstractmethod
-    def index_transfer(
-        self,
-        uuid: str,
-        path: str,
-        size: int,
-        transfer_index_data: Any,
-        pending_deletion: bool = False,
-        printfn: Any = print,
-        dashboard_uuid: str = "",
-        transfer_name: str = "",
-        accession_id: str = "",
-        ingest_date: str = "",
-    ) -> int:
-        """Index Transfer and Transfer files.
-
-        :param str uuid: UUID of the transfer to index
-        :param str path: path on disk, including the transfer directory and trailing /
-        :param int size: size of transfer in bytes
-        :param Any transfer_index_data: pre-computed transfer file index data
-        :param bool pending_deletion: whether transfer is pending deletion
-        :param printfn: optional print function
-        :param str dashboard_uuid: Pipeline UUID
-        :param str transfer_name: name of Transfer
-        :param str accession_id: optional accession ID
-        :param str ingest_date: date Transfer was indexed
-        :return: 0 if succeeded, 1 otherwise
-        """
-        pass
-
 
 class TermQuery(TypedDict):
     term: dict[str, str]
@@ -465,25 +324,20 @@ class ElasticsearchSearchService(SearchService):
     def __init__(
         self,
         client: Elasticsearch,
-        transfer_files_index: str = "transferfiles",
         aip_files_index: str = "aipfiles",
         aips_index: str = "aips",
-        transfers_index: str = "transfers",
         max_query_size: int = 10000,
     ) -> None:
         """Initialize with Elasticsearch client and configuration.
 
         :param Elasticsearch client: Elasticsearch client instance
-        :param str transfer_files_index: Name of the transfer files index
         :param str aip_files_index: Name of the AIP files index
         :param str aips_index: Name of the AIPs index
         :param int max_query_size: Maximum size for Elasticsearch queries
         """
         self.client = client
-        self.transfer_files_index = transfer_files_index
         self.aip_files_index = aip_files_index
         self.aips_index = aips_index
-        self.transfers_index = transfers_index
         self.max_query_size = max_query_size
 
     def _escape_slashes(self, value: str) -> str:
@@ -583,23 +437,6 @@ class ElasticsearchSearchService(SearchService):
             files_index, package_uuid_field, package_uuid, field, value
         )
 
-    def _update_transfer_pending_deletion(
-        self, transfer_uuid: str, pending: bool
-    ) -> None:
-        """Update pending_deletion field for a transfer and its files.
-
-        :param str transfer_uuid: Transfer UUID to update
-        :param bool pending: Whether transfer is pending deletion
-        """
-        self._update_field_for_package_and_files(
-            self.transfers_index,
-            self.transfer_files_index,
-            ES_FIELD_SIPUUID,
-            transfer_uuid,
-            "pending_deletion",
-            pending,
-        )
-
     def _update_aip_pending_deletion(self, aip_uuid: str, pending: bool) -> None:
         """Update status field for an AIP and its files based on pending deletion.
 
@@ -616,22 +453,6 @@ class ElasticsearchSearchService(SearchService):
             status_value,
         )
 
-    def delete_transfer(self, transfer_uuid: str) -> None:
-        """Delete transfer from the Elasticsearch index.
-
-        :param str transfer_uuid: Transfer UUID to delete
-        """
-        self._delete_by_field(self.transfers_index, ES_FIELD_UUID, transfer_uuid)
-
-    def delete_transfer_files(self, transfer_uuids: set[str]) -> None:
-        """Delete transfer files from the Elasticsearch index.
-
-        :param set[str] transfer_ids: Set of transfer UUIDs to delete files for
-        """
-        self._delete_by_field(
-            self.transfer_files_index, ES_FIELD_SIPUUID, transfer_uuids
-        )
-
     def delete_aip(self, aip_uuid: str) -> None:
         """Delete AIP from the Elasticsearch index.
 
@@ -645,20 +466,6 @@ class ElasticsearchSearchService(SearchService):
         :param str aip_uuid: AIP UUID to delete files for
         """
         self._delete_by_field(self.aip_files_index, ES_FIELD_AIPUUID, aip_uuid)
-
-    def mark_transfer_for_deletion(self, transfer_uuid: str) -> None:
-        """Mark transfer for deletion in the Elasticsearch index.
-
-        :param str transfer_uuid: Transfer UUID to mark for deletion
-        """
-        self._update_transfer_pending_deletion(transfer_uuid, True)
-
-    def unmark_transfer_for_deletion(self, transfer_uuid: str) -> None:
-        """Unmark transfer for deletion in the Elasticsearch index.
-
-        :param str transfer_uuid: Transfer UUID to unmark for deletion
-        """
-        self._update_transfer_pending_deletion(transfer_uuid, False)
 
     def mark_aip_for_deletion(self, aip_uuid: str) -> None:
         """Mark AIP for deletion in the Elasticsearch index.
@@ -687,8 +494,6 @@ class ElasticsearchSearchService(SearchService):
         valid_indexes = {
             self.aips_index,
             self.aip_files_index,
-            self.transfers_index,
-            self.transfer_files_index,
         }
 
         for index in indexes:
@@ -732,10 +537,6 @@ class ElasticsearchSearchService(SearchService):
             return self._get_aips_index_mappings()
         elif index == self.aip_files_index:
             return self._get_aipfiles_index_mappings()
-        elif index == self.transfers_index:
-            return self._get_transfers_index_mappings()
-        elif index == self.transfer_files_index:
-            return self._get_transferfiles_index_mappings()
         else:
             raise ValueError(f"Unknown index: {index}")
 
@@ -809,66 +610,6 @@ class ElasticsearchSearchService(SearchService):
                 "accessionid": {"type": "keyword"},
                 ES_FIELD_STATUS: {"type": "keyword"},
             },
-        }
-
-    def _get_transfers_index_mappings(self) -> dict[str, Any]:
-        """Return field mappings for the transfers index."""
-        return {
-            "properties": {
-                ES_FIELD_NAME: {
-                    "type": "text",
-                    "fields": {"raw": {"type": "keyword"}},
-                    "analyzer": "file_path_and_name",
-                },
-                ES_FIELD_STATUS: {"type": "text"},
-                "ingest_date": {"type": "date", "format": "date_optional_time"},
-                ES_FIELD_SIZE: {"type": "long"},
-                ES_FIELD_FILECOUNT: {"type": "integer"},
-                ES_FIELD_UUID: {"type": "keyword"},
-                "accessionid": {"type": "keyword"},
-                "pending_deletion": {"type": "boolean"},
-            }
-        }
-
-    def _get_transferfiles_index_mappings(self) -> dict[str, Any]:
-        """Return field mappings for the transfer files index."""
-        return {
-            "properties": {
-                "filename": {
-                    "type": "text",
-                    "fields": {"raw": {"type": "keyword"}},
-                    "analyzer": "file_path_and_name",
-                },
-                "relative_path": {
-                    "type": "text",
-                    "analyzer": "file_path_and_name",
-                },
-                ES_FIELD_FILEUUID_LOWER: {"type": "keyword"},
-                ES_FIELD_SIPUUID: {"type": "keyword"},
-                "accessionid": {"type": "keyword"},
-                ES_FIELD_STATUS: {"type": "keyword"},
-                "origin": {"type": "keyword"},
-                "ingestdate": {"type": "date", "format": "date_optional_time"},
-                "modification_date": {
-                    "type": "date",
-                    "format": "date_optional_time",
-                    "ignore_malformed": True,
-                },
-                ES_FIELD_CREATED: {"type": "double"},
-                ES_FIELD_SIZE: {"type": "double"},
-                "tags": {"type": "keyword"},
-                "file_extension": {"type": "keyword"},
-                "bulk_extractor_reports": {"type": "keyword"},
-                "format": {
-                    "type": "nested",
-                    "properties": {
-                        "puid": {"type": "keyword"},
-                        "format": {"type": "text"},
-                        "group": {"type": "text"},
-                    },
-                },
-                "pending_deletion": {"type": "boolean"},
-            }
         }
 
     def delete_indexes(self, indexes: list[str]) -> None:
@@ -1049,81 +790,6 @@ class ElasticsearchSearchService(SearchService):
                 f"AIP file document {document_id} not found: {e}"
             )
 
-    def get_transfer_file_tags(self, uuid: str) -> list[str]:
-        """Get tags for a transfer file by file UUID.
-
-        :param str uuid: File UUID to retrieve tags for
-        :return: List of tags for the file
-        :raises TransferFileNotFoundError: When no file is found with the given UUID
-        :raises MultipleResultsError: When multiple files are found with the same UUID
-        """
-        document = self._get_single_document_by_field(
-            index=self.transfer_files_index,
-            field=ES_FIELD_FILEUUID_LOWER,
-            value=uuid,
-            fields=["tags"],
-            not_found_exception_class=TransferFileNotFoundError,
-            error_context="transfer file",
-        )
-
-        source = document.get("_source", {})
-        tags = source.get("tags", [])
-        return list(tags) if tags else []
-
-    def get_transfer_file_data(self, uuid: str) -> dict[str, Any]:
-        """Get transfer file data by file UUID.
-
-        :param str uuid: File UUID to search for
-        :return: Transfer file document data
-        :raises SearchServiceError: When no results found or other search errors occur
-        """
-        results = {}
-        field = ES_FIELD_FILEUUID_LOWER
-
-        documents = self._search_by_term(
-            self.transfer_files_index, field, uuid, size=self.max_query_size
-        )
-
-        result_count = len(documents["hits"]["hits"])
-        if result_count == 0:
-            raise TransferFileNotFoundError(
-                f"No transfer file found with fileuuid {uuid}"
-            )
-        elif result_count == 1:
-            results = documents["hits"]["hits"][0]["_source"]
-        elif result_count > 1:
-            # Elasticsearch can rank results for different filenames above the queried file.
-            # Filter to ensure we only consider exact matches for the UUID.
-            filtered_results = [
-                result
-                for result in documents["hits"]["hits"]
-                if result["_source"][field] == uuid
-            ]
-
-            result_count = len(filtered_results)
-            if result_count == 1:
-                results = filtered_results[0]["_source"]
-            elif result_count > 1:
-                results = filtered_results[0]["_source"]
-            elif result_count < 1:
-                raise TransferFileNotFoundError(
-                    "get_transfer_file_data returned no exact results"
-                )
-
-        return results
-
-    def set_transfer_file_tags(self, uuid: str, tags: list[str]) -> None:
-        """Set tags for a transfer file by file UUID using update_by_query.
-
-        :param str uuid: File UUID to update tags for
-        :param list[str] tags: List of tags to set (empty list clears tags)
-        """
-        escaped_uuid = self._escape_slashes(uuid)
-        query = self._build_update_query(
-            ES_FIELD_FILEUUID_LOWER, escaped_uuid, "tags", tags
-        )
-        self.client.update_by_query(index=self.transfer_files_index, body=query)
-
     def _search_index(
         self,
         index: str,
@@ -1164,52 +830,6 @@ class ElasticsearchSearchService(SearchService):
             search_params["_source"] = fields
 
         return dict(self.client.search(**search_params))
-
-    def search_transfer_files(
-        self,
-        query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
-    ) -> dict[str, Any]:
-        """Search transfer files with optional parameters.
-
-        :param dict[str, Any] query: Elasticsearch query body
-        :param Optional[int] size: Optional size limit for results, defaults to max_query_size
-        :param Optional[int] from_: Optional start index for pagination
-        :param Optional[SortSpec] sort: Optional sort specification with field and order
-        :param Optional[list[str]] fields: Optional list of fields to return
-        :return: Raw search results from Elasticsearch
-        """
-        if size is None:
-            size = self.max_query_size
-        return self._search_index(
-            self.transfer_files_index, query, size, from_, sort, fields
-        )
-
-    def search_transfers(
-        self,
-        query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
-    ) -> dict[str, Any]:
-        """Search transfers with optional parameters.
-
-        :param dict[str, Any] query: Elasticsearch query body
-        :param Optional[int] size: Optional size limit for results, defaults to max_query_size
-        :param Optional[int] from_: Optional start index for pagination
-        :param Optional[SortSpec] sort: Optional sort specification with field and order
-        :param Optional[list[str]] fields: Optional list of fields to return
-        :return: Raw search results from Elasticsearch
-        """
-        if size is None:
-            size = self.max_query_size
-        return self._search_index(
-            self.transfers_index, query, size, from_, sort, fields
-        )
 
     def search_aips(
         self,
@@ -1409,101 +1029,6 @@ class ElasticsearchSearchService(SearchService):
         file_count, _ = self._bulk_index(_generator(), chunk_size=50)
         return file_count, list(accession_ids)
 
-    def _index_transfer_files(
-        self,
-        uuid: str,
-        path: str,
-        transfer_name: str,
-        accession_id: str,
-        ingest_date: str,
-        transfer_index_data: Any,
-        pending_deletion: bool = False,
-        printfn: Any = print,
-        dashboard_uuid: str = "",
-    ) -> int:
-        """Index files in the Transfer with UUID `uuid` at path `path`.
-
-        :param str uuid: UUID of the Transfer in the DB
-        :param str path: path on disk, including the transfer directory and trailing /
-        :param str transfer_name: name of Transfer
-        :param str accession_id: optional accession ID
-        :param str ingest_date: date Transfer was indexed
-        :param Any transfer_index_data: pre-computed transfer file index data
-        :param bool pending_deletion: whether transfer is pending deletion
-        :param printfn: optional print function
-        :param str dashboard_uuid: Pipeline UUID
-        :return: number of files indexed
-        """
-
-        def _generator() -> Generator[dict[str, Any], None, None]:
-            """Memory-efficient generator that processes pre-filtered files one at a time."""
-            for filepath in transfer_index_data.file_paths:
-                # Gather filesystem metadata (minimal per-file operations)
-                filename = os.path.basename(filepath)
-                stripped_path = filepath.replace(path, transfer_name + "/")
-                file_extension = os.path.splitext(filepath)[1][1:].lower()
-                size = os.path.getsize(filepath) / (1024 * 1024)  # Size in MB
-                create_time = os.stat(filepath).st_ctime
-
-                # Compute currentlocation for database lookup
-                currentlocation = "%transferDirectory%" + os.path.relpath(
-                    filepath, path
-                ).removeprefix("data/")
-
-                # Look up database information from pre-computed cache
-                file_record = transfer_index_data.files_by_location.get(currentlocation)
-                if file_record:
-                    file_uuid = str(file_record.uuid)
-                    formats = transfer_index_data.format_cache.get(file_uuid, [])
-                    modification_date = (
-                        file_record.modificationtime.strftime("%Y-%m-%d")
-                        if file_record.modificationtime
-                        else ""
-                    )
-                else:
-                    file_uuid = ""
-                    formats = []
-                    modification_date = ""
-
-                # Get bulk extractor reports from cache
-                bulk_extractor_reports = transfer_index_data.bulk_extractor_reports.get(
-                    file_uuid, []
-                )
-
-                index_data = {
-                    "filename": filename,
-                    "relative_path": stripped_path,
-                    ES_FIELD_FILEUUID_LOWER: file_uuid,
-                    ES_FIELD_CREATED: create_time,
-                    "modification_date": modification_date,
-                    ES_FIELD_SIZE: size,
-                    "file_extension": file_extension,
-                    "bulk_extractor_reports": bulk_extractor_reports,
-                    "format": formats,
-                    ES_FIELD_SIPUUID: uuid,
-                    "accessionid": accession_id,
-                    ES_FIELD_STATUS: STATUS_BACKLOG,
-                    "origin": dashboard_uuid,
-                    "ingestdate": ingest_date,
-                    "tags": [],
-                    "pending_deletion": pending_deletion,
-                }
-
-                printfn(
-                    f"Indexing {index_data['relative_path']} (UUID: {index_data['fileuuid']})"
-                )
-
-                yield {
-                    "_op_type": "index",
-                    "_index": self.transfer_files_index,
-                    "_source": index_data,
-                }
-
-        self._wait_for_cluster_yellow_status()
-        files_indexed, _ = self._bulk_index(_generator(), chunk_size=50)
-
-        return files_indexed
-
     def index_aip(
         self,
         uuid: str,
@@ -1576,68 +1101,6 @@ class ElasticsearchSearchService(SearchService):
             logger.error(f"Failed to index AIP {uuid}: {e}")
             return 1
 
-    def index_transfer(
-        self,
-        uuid: str,
-        path: str,
-        size: int,
-        transfer_index_data: Any,
-        pending_deletion: bool = False,
-        printfn: Any = print,
-        dashboard_uuid: str = "",
-        transfer_name: str = "",
-        accession_id: str = "",
-        ingest_date: str = "",
-    ) -> int:
-        """Index Transfer and Transfer files.
-
-        :param str uuid: UUID of the transfer to index
-        :param str path: path on disk, including the transfer directory and trailing /
-        :param int size: size of transfer in bytes
-        :param Any transfer_index_data: pre-computed transfer file index data
-        :param bool pending_deletion: whether transfer is pending deletion
-        :param printfn: optional print function
-        :param str dashboard_uuid: Pipeline UUID
-        :param str transfer_name: name of Transfer
-        :param str accession_id: optional accession ID
-        :param str ingest_date: date Transfer was indexed
-        :return: 0 if succeeded, 1 otherwise
-        """
-        try:
-            files_indexed = self._index_transfer_files(
-                uuid,
-                path,
-                transfer_name,
-                accession_id,
-                ingest_date,
-                transfer_index_data,
-                pending_deletion=pending_deletion,
-                printfn=printfn,
-                dashboard_uuid=dashboard_uuid,
-            )
-
-            printfn("Files indexed: " + str(files_indexed))
-            printfn("Indexing Transfer ...")
-
-            transfer_data = {
-                ES_FIELD_NAME: transfer_name,
-                ES_FIELD_STATUS: STATUS_BACKLOG,
-                "accessionid": accession_id,
-                "ingest_date": ingest_date,
-                ES_FIELD_FILECOUNT: files_indexed,
-                ES_FIELD_SIZE: int(size),
-                ES_FIELD_UUID: uuid,
-                "pending_deletion": pending_deletion,
-            }
-
-            self._wait_for_cluster_yellow_status()
-            self._try_to_index(transfer_data, self.transfers_index, printfn=printfn)
-
-            return 0
-        except Exception as e:
-            logger.error(f"Failed to index transfer {uuid}: {e}")
-            return 1
-
 
 def _create_elasticsearch_client(
     hosts: Union[str, list[str], tuple[str, ...]], timeout: int = DEFAULT_TIMEOUT
@@ -1654,7 +1117,7 @@ def _create_elasticsearch_client(
 def setup_search_service(
     hosts: Union[str, list[str], tuple[str, ...]],
     timeout: int = DEFAULT_TIMEOUT,
-    enabled: tuple[str, ...] = (AIPS_INDEX, TRANSFERS_INDEX),
+    enabled: tuple[str, ...] = (AIPS_INDEX,),
 ) -> SearchService:
     """Initialize and return the search service with Elasticsearch client.
 
@@ -1673,8 +1136,6 @@ def setup_search_service(
     indexes = []
     if AIPS_INDEX in enabled:
         indexes.extend([AIPS_INDEX, AIP_FILES_INDEX])
-    if TRANSFERS_INDEX in enabled:
-        indexes.extend([TRANSFERS_INDEX, TRANSFER_FILES_INDEX])
 
     if indexes:
         _search_service_instance.ensure_indexes_exist(indexes)

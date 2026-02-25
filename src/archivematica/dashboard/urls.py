@@ -54,7 +54,6 @@ urlpatterns = [
         include("archivematica.dashboard.components.filesystem_ajax.urls"),
     ),
     path("api/", include("archivematica.dashboard.components.api.urls")),
-    path("backlog/", include("archivematica.dashboard.components.backlog.urls")),
     path("", include("archivematica.dashboard.main.urls")),
 ]
 

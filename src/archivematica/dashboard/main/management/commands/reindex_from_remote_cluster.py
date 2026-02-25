@@ -2,8 +2,8 @@
 
 Creates the Elasticsearch 6.x indexes based on the configuration and reindexes
 the data from earlier AM versions from a remote cluster using the 1.x version.
-This task deletes the "aips", "aipfiles", "transfers" and "transferfiles"
-indexes by default before recreating them with the new mappings and settings.
+This task deletes the "aips" and "aipfiles" indexes by default before
+recreating them with the new mappings and settings.
 
 Execution example:
 
@@ -60,9 +60,8 @@ class Command(DashboardCommand):
             self.error(
                 "The Elasticsearch indexes are not enabled. Please, make sure "
                 "to set the *_SEARCH_ENABLED environment variables to `true` "
-                "to enable the AIPs and Transfers indexes, to `aips` "
-                "to only enable the AIPs indexes or to `transfers` "
-                "to only enable the Transfers indexes."
+                "to enable the AIPs indexes or to `aips` to only enable "
+                "the AIPs indexes."
             )
             sys.exit(1)
 
@@ -77,8 +76,6 @@ class Command(DashboardCommand):
         indexes = []
         if "aips" in settings.SEARCH_ENABLED:
             indexes.extend(["aips", "aipfiles"])
-        if "transfers" in settings.SEARCH_ENABLED:
-            indexes.extend(["transfers", "transferfiles"])
 
         # Delete all indexes and create enabled ones in new cluster
         self.info("Creating new indexes.")
@@ -112,14 +109,6 @@ class Command(DashboardCommand):
             {
                 "dest_index": "aipfiles",
                 "source_index": "aipfiles",
-            },
-            {
-                "dest_index": "transfers",
-                "source_index": "transfers",
-            },
-            {
-                "dest_index": "transferfiles",
-                "source_index": "transferfiles",
             },
         ]
 

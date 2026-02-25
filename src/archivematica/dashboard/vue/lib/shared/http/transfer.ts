@@ -2,7 +2,7 @@ import { createHttpClient } from './client'
 import type { JsonIfChangedResult } from './client'
 import type { ProcessingStatusesResponse } from './processing'
 
-export type SourceLocationPurpose = 'AR' | 'AS' | 'CP' | 'DS' | 'SD' | 'SS' | 'BL' | 'TS' | 'RP'
+export type SourceLocationPurpose = 'AR' | 'AS' | 'CP' | 'DS' | 'SD' | 'SS' | 'TS' | 'RP'
 
 export interface SourceLocation {
   uuid: string
@@ -27,7 +27,7 @@ export type TransferStatusesIfChangedOptions = {
 }
 
 const client = createHttpClient()
-const SOURCE_LOCATION_PURPOSES: SourceLocationPurpose[] = ['AR', 'AS', 'CP', 'DS', 'SD', 'SS', 'BL', 'TS', 'RP']
+const SOURCE_LOCATION_PURPOSES: SourceLocationPurpose[] = ['AR', 'AS', 'CP', 'DS', 'SD', 'SS', 'TS', 'RP']
 
 const isStringArray = (value: unknown): value is string[] => {
   return Array.isArray(value) && value.every(item => typeof item === 'string')

@@ -84,10 +84,6 @@ urlpatterns = [
         r"^preview/(?P<browse_type>[\w-]+)/(?P<jobuuid>" + settings.UUID_REGEX + ")/$",
         views.ingest_browse,
     ),
-    re_path(
-        r"^backlog/file/download/(?P<uuid>" + settings.UUID_REGEX + ")/",
-        views.transfer_file_download,
-    ),
 ]
 
 # ArchivesSpace

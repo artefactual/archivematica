@@ -1,6 +1,5 @@
 import uuid
 from collections.abc import Generator
-from pathlib import Path
 from typing import Any
 from unittest import mock
 
@@ -9,9 +8,6 @@ from elasticsearch import Elasticsearch
 
 from archivematica.search.constants import AIP_FILES_INDEX
 from archivematica.search.constants import AIPS_INDEX
-from archivematica.search.constants import STATUS_BACKLOG
-from archivematica.search.constants import TRANSFER_FILES_INDEX
-from archivematica.search.constants import TRANSFERS_INDEX
 from archivematica.search.service import AIPFileNotFoundError
 from archivematica.search.service import AIPNotFoundError
 from archivematica.search.service import ElasticsearchSearchService
@@ -19,7 +15,6 @@ from archivematica.search.service import MultipleResultsError
 from archivematica.search.service import SearchBackendInfo
 from archivematica.search.service import SearchServiceError
 from archivematica.search.service import SortSpec
-from archivematica.search.service import TransferFileNotFoundError
 from archivematica.search.service import get_search_service_instance
 from archivematica.search.service import setup_search_service
 from archivematica.search.service import setup_search_service_from_conf
@@ -99,10 +94,8 @@ def es_client(mock_transport: mock.Mock) -> Elasticsearch:
 def es_search_service(es_client: Elasticsearch) -> ElasticsearchSearchService:
     return ElasticsearchSearchService(
         client=es_client,
-        transfer_files_index="transferfiles",
         aip_files_index="aipfiles",
         aips_index="aips",
-        transfers_index="transfers",
         max_query_size=10000,
     )
 
@@ -135,172 +128,6 @@ def mock_aip_parser() -> mock.Mock:
     mock_parser.aic_identifier = "aic-123"
     mock_parser.created = 1640995200.0
     return mock_parser
-
-
-@pytest.fixture
-def transfer_directory(tmp_path: Path) -> str:
-    transfer_path = tmp_path / "test-transfer"
-    transfer_path.mkdir()
-
-    # Create the expected transfer directory structure
-    data_dir = transfer_path / "data"
-    data_dir.mkdir()
-
-    objects_dir = data_dir / "objects"
-    objects_dir.mkdir()
-
-    # Create test files
-    file1 = objects_dir / "file1.txt"
-    file1.write_text("This is test file 1")
-
-    file2 = objects_dir / "file2.txt"
-    file2.write_text("This is test file 2")
-
-    return str(transfer_path) + "/"
-
-
-@pytest.fixture
-def mock_transfer_index_data(transfer_directory: str) -> mock.Mock:
-    mock_file_record1 = mock.Mock()
-    mock_file_record1.uuid = uuid.uuid4()
-    mock_file_record1.modificationtime = None
-
-    mock_file_record2 = mock.Mock()
-    mock_file_record2.uuid = uuid.uuid4()
-    mock_file_record2.modificationtime = None
-
-    mock_data = mock.Mock()
-    mock_data.file_paths = [
-        transfer_directory + "data/objects/file1.txt",
-        transfer_directory + "data/objects/file2.txt",
-    ]
-    mock_data.files_by_location = {
-        "%transferDirectory%objects/file1.txt": mock_file_record1,
-        "%transferDirectory%objects/file2.txt": mock_file_record2,
-    }
-    mock_data.format_cache = {
-        str(mock_file_record1.uuid): [
-            {"puid": "fmt/95", "format": "PDF/A", "group": "Portable Document Format"}
-        ],
-        str(mock_file_record2.uuid): [
-            {"puid": "fmt/14", "format": "PDF", "group": "Portable Document Format"}
-        ],
-    }
-    mock_data.bulk_extractor_reports = {
-        str(mock_file_record1.uuid): ["credit_card_report", "email_report"],
-        str(mock_file_record2.uuid): ["email_report"],
-    }
-    return mock_data
-
-
-def test_delete_transfer_removes_transfer_for_single_uuid(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-
-    delete_by_query_response = {"deleted": 1}
-    mock_transport.return_value = _mock_es_response(delete_by_query_response)
-
-    es_search_service.delete_transfer(transfer_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_delete_by_query",
-            params={},
-            body={"query": {"term": {"uuid": transfer_uuid}}},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_delete_transfer_does_nothing_when_empty_string(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    es_search_service.delete_transfer("")
-
-    assert mock_transport.mock_calls == []
-
-
-def test_delete_transfer_files_removes_files_for_single_transfer(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    transfer_id = str(uuid.uuid4())
-
-    delete_by_query_response = {"deleted": 5}
-    mock_transport.return_value = _mock_es_response(delete_by_query_response)
-
-    es_search_service.delete_transfer_files({transfer_id})
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_delete_by_query",
-            params={},
-            body={"query": {"terms": {"sipuuid": [transfer_id]}}},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_delete_transfer_files_removes_files_for_multiple_transfers(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    transfer_ids = {str(uuid.uuid4()), str(uuid.uuid4())}
-
-    delete_by_query_response = {"deleted": 8}
-    mock_transport.return_value = _mock_es_response(delete_by_query_response)
-
-    es_search_service.delete_transfer_files(transfer_ids)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_delete_by_query",
-            params={},
-            body={"query": {"terms": {"sipuuid": mock.ANY}}},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-    # Validate sipuuid values independently, since the input set order is unpredictable.
-    body = mock_transport.mock_calls[0][2]["body"]
-    assert set(body["query"]["terms"]["sipuuid"]) == transfer_ids
-
-
-def test_delete_transfer_files_does_nothing_when_empty_set(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    es_search_service.delete_transfer_files(set())
-
-    assert mock_transport.mock_calls == []
-
-
-def test_delete_transfer_files_escapes_forward_slashes_in_transfer_id(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    transfer_id = "path/with/slashes"
-
-    delete_by_query_response = {"deleted": 0}
-    mock_transport.return_value = _mock_es_response(delete_by_query_response)
-
-    es_search_service.delete_transfer_files({transfer_id})
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_delete_by_query",
-            params={},
-            body={"query": {"terms": {"sipuuid": ["path\\/with\\/slashes"]}}},
-        )
-    ]
-    assert mock_transport.mock_calls == expected_calls
 
 
 def test_delete_aip_deletes_aip_for_single_uuid(
@@ -363,92 +190,6 @@ def test_delete_aip_files_does_nothing_when_empty_string(
     es_search_service.delete_aip_files("")
 
     assert mock_transport.mock_calls == []
-
-
-def test_mark_transfer_for_deletion_updates_transfer_and_files(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-
-    update_by_query_responses = [
-        _mock_es_response({"updated": 1}),
-        _mock_es_response({"updated": 5}),
-    ]
-    mock_transport.side_effect = update_by_query_responses
-
-    es_search_service.mark_transfer_for_deletion(transfer_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.pending_deletion = params.value",
-                    "params": {"value": True},
-                },
-                "query": {"term": {"uuid": transfer_uuid}},
-            },
-        ),
-        _make_es_call(
-            "POST",
-            "/transferfiles/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.pending_deletion = params.value",
-                    "params": {"value": True},
-                },
-                "query": {"term": {"sipuuid": transfer_uuid}},
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_unmark_transfer_for_deletion_updates_transfer_and_files(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-
-    update_by_query_responses = [
-        _mock_es_response({"updated": 1}),
-        _mock_es_response({"updated": 5}),
-    ]
-    mock_transport.side_effect = update_by_query_responses
-
-    es_search_service.unmark_transfer_for_deletion(transfer_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.pending_deletion = params.value",
-                    "params": {"value": False},
-                },
-                "query": {"term": {"uuid": transfer_uuid}},
-            },
-        ),
-        _make_es_call(
-            "POST",
-            "/transferfiles/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.pending_deletion = params.value",
-                    "params": {"value": False},
-                },
-                "query": {"term": {"sipuuid": transfer_uuid}},
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
 
 
 def test_mark_aip_for_deletion_updates_aip_and_files(
@@ -541,7 +282,7 @@ def test_ensure_indexes_exist_does_nothing_when_all_indexes_exist(
     es_search_service: ElasticsearchSearchService,
     mock_transport: mock.Mock,
 ) -> None:
-    indexes = ["aips", "transfers"]
+    indexes = ["aips", "aipfiles"]
 
     mock_transport.return_value = _mock_es_response(True)
 
@@ -550,7 +291,7 @@ def test_ensure_indexes_exist_does_nothing_when_all_indexes_exist(
     expected_calls = [
         _make_es_call(
             "HEAD",
-            "/aips,transfers",
+            "/aips,aipfiles",
             params={},
         ),
     ]
@@ -561,7 +302,7 @@ def test_ensure_indexes_exist_creates_missing_indexes(
     es_search_service: ElasticsearchSearchService,
     mock_transport: mock.Mock,
 ) -> None:
-    indexes = ["aips", "transfers"]
+    indexes = ["aips", "aipfiles"]
 
     # Set up responses for the sequence: exists check returns False, then two create responses.
     mock_transport.side_effect = [
@@ -575,7 +316,7 @@ def test_ensure_indexes_exist_creates_missing_indexes(
     expected_calls = [
         _make_es_call(
             "HEAD",
-            "/aips,transfers",
+            "/aips,aipfiles",
             params={},
         ),
         _make_es_call(
@@ -586,7 +327,7 @@ def test_ensure_indexes_exist_creates_missing_indexes(
         ),
         _make_es_call(
             "PUT",
-            "/transfers",
+            "/aipfiles",
             params={"ignore": 400},
             body={"settings": mock.ANY, "mappings": mock.ANY},
         ),
@@ -598,7 +339,7 @@ def test_ensure_indexes_exist_skips_invalid_index_names(
     es_search_service: ElasticsearchSearchService,
     mock_transport: mock.Mock,
 ) -> None:
-    indexes = ["aips", "invalid_index", "transfers"]
+    indexes = ["aips", "invalid_index", "aipfiles"]
 
     # Only valid indexes get created, so we expect two create responses after the exists check.
     mock_transport.side_effect = [
@@ -612,7 +353,7 @@ def test_ensure_indexes_exist_skips_invalid_index_names(
     expected_calls = [
         _make_es_call(
             "HEAD",
-            "/aips,invalid_index,transfers",
+            "/aips,invalid_index,aipfiles",
             params={},
         ),
         _make_es_call(
@@ -626,7 +367,7 @@ def test_ensure_indexes_exist_skips_invalid_index_names(
         ),
         _make_es_call(
             "PUT",
-            "/transfers",
+            "/aipfiles",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
@@ -650,12 +391,10 @@ def test_ensure_indexes_exist_creates_all_supported_indexes(
     es_search_service: ElasticsearchSearchService,
     mock_transport: mock.Mock,
 ) -> None:
-    indexes = ["aips", "aipfiles", "transfers", "transferfiles"]
+    indexes = ["aips", "aipfiles"]
 
     mock_transport.side_effect = [
         _mock_es_response(False, status=404),
-        _mock_es_response({"acknowledged": True}),
-        _mock_es_response({"acknowledged": True}),
         _mock_es_response({"acknowledged": True}),
         _mock_es_response({"acknowledged": True}),
     ]
@@ -665,7 +404,7 @@ def test_ensure_indexes_exist_creates_all_supported_indexes(
     expected_calls = [
         _make_es_call(
             "HEAD",
-            "/aips,aipfiles,transfers,transferfiles",
+            "/aips,aipfiles",
             params={},
         ),
         _make_es_call(
@@ -680,24 +419,6 @@ def test_ensure_indexes_exist_creates_all_supported_indexes(
         _make_es_call(
             "PUT",
             "/aipfiles",
-            params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": mock.ANY,
-            },
-        ),
-        _make_es_call(
-            "PUT",
-            "/transfers",
-            params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": mock.ANY,
-            },
-        ),
-        _make_es_call(
-            "PUT",
-            "/transferfiles",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
@@ -733,7 +454,7 @@ def test_delete_indexes_deletes_multiple_indexes(
     es_search_service: ElasticsearchSearchService,
     mock_transport: mock.Mock,
 ) -> None:
-    indexes = ["aips", "transfers"]
+    indexes = ["aips", "aipfiles"]
 
     delete_response = {"acknowledged": True}
     mock_transport.return_value = _mock_es_response(delete_response)
@@ -743,7 +464,7 @@ def test_delete_indexes_deletes_multiple_indexes(
     expected_calls = [
         _make_es_call(
             "DELETE",
-            "/aips,transfers",
+            "/aips,aipfiles",
             params={"ignore": 404},
         ),
     ]
@@ -858,9 +579,9 @@ def test_reindex_from_remote_handles_mixed_results(
     index_mappings = [
         {"dest_index": "aips", "source_index": "aips", "source_type": "aip"},
         {
-            "dest_index": "transfers",
-            "source_index": "transfers",
-            "source_type": "transfer",
+            "dest_index": "aipfiles",
+            "source_index": "aipfiles",
+            "source_type": "aip_file",
         },
     ]
 
@@ -874,7 +595,7 @@ def test_reindex_from_remote_handles_mixed_results(
 
     assert result == {
         "successful": [{"index": "aips", "response": reindex_response}],
-        "failed": [{"index": "transfers", "error": "Failed"}],
+        "failed": [{"index": "aipfiles", "error": "Failed"}],
     }
 
 
@@ -1131,1233 +852,6 @@ def test_get_aipfile_data_raises_exception_when_multiple_found(
         match=f"2 AIP files found with FILEUUID {file_uuid}; unable to fetch a single result",
     ):
         es_search_service.get_aipfile_data(file_uuid)
-
-
-def test_get_transfer_file_tags_returns_tags_when_present(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    tags = ["tag1", "tag2", "tag3"]
-    transfer_file_document = {
-        "_id": "file123",
-        "_source": {
-            "fileuuid": file_uuid,
-            "sipuuid": str(uuid.uuid4()),
-            "filename": "test.txt",
-            "tags": tags,
-        },
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 1},
-            "hits": [transfer_file_document],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.get_transfer_file_tags(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"_source": b"tags"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == tags
-
-
-def test_get_transfer_file_tags_returns_empty_list_when_no_tags(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    transfer_file_document = {
-        "_id": "file123",
-        "_source": {
-            "fileuuid": file_uuid,
-            "sipuuid": str(uuid.uuid4()),
-            "filename": "test.txt",
-        },
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 1},
-            "hits": [transfer_file_document],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.get_transfer_file_tags(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"_source": b"tags"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == []
-
-
-def test_get_transfer_file_tags_returns_empty_list_when_no_source(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    transfer_file_document = {
-        "_id": "file123",
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 1},
-            "hits": [transfer_file_document],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.get_transfer_file_tags(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"_source": b"tags"},
-            body={"query": {"term": {"fileuuid": file_uuid}}},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == []
-
-
-def test_get_transfer_file_tags_raises_exception_when_not_found(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-
-    search_response = {
-        "hits": {
-            "total": {"value": 0},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    with pytest.raises(
-        TransferFileNotFoundError,
-        match=f"No transfer file found with fileuuid {file_uuid}",
-    ):
-        es_search_service.get_transfer_file_tags(file_uuid)
-
-
-def test_get_transfer_file_tags_raises_exception_when_multiple_found(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-
-    search_response = {
-        "hits": {
-            "total": {"value": 2},
-            "hits": [
-                {"_id": "file1", "_source": {"fileuuid": file_uuid, "tags": ["tag1"]}},
-                {"_id": "file2", "_source": {"fileuuid": file_uuid, "tags": ["tag2"]}},
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    with pytest.raises(
-        MultipleResultsError,
-        match=f"2 transfer files found with fileuuid {file_uuid}; unable to fetch a single result",
-    ):
-        es_search_service.get_transfer_file_tags(file_uuid)
-
-
-def test_get_transfer_file_data_returns_single_result(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    transfer_file_data = {
-        "filename": "test.txt",
-        "fileuuid": file_uuid,
-        "sipuuid": str(uuid.uuid4()),
-        "relative_path": "data/test.txt",
-        "size": 1024,
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 1},
-            "hits": [
-                {
-                    "_id": "doc123",
-                    "_source": transfer_file_data,
-                }
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.get_transfer_file_data(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={},
-            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == transfer_file_data
-
-
-def test_get_transfer_file_data_handles_multiple_results_with_exact_match(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    correct_file_data = {
-        "filename": "correct.txt",
-        "fileuuid": file_uuid,
-    }
-    incorrect_file_data = {
-        "filename": "incorrect.txt",
-        "fileuuid": "different-uuid",
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 2},
-            "hits": [
-                {
-                    "_id": "doc1",
-                    "_source": incorrect_file_data,
-                },
-                {
-                    "_id": "doc2",
-                    "_source": correct_file_data,
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.get_transfer_file_data(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={},
-            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == correct_file_data
-
-
-def test_get_transfer_file_data_uses_first_when_multiple_exact_matches(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    first_file_data = {
-        "filename": "first.txt",
-        "fileuuid": file_uuid,
-    }
-    second_file_data = {
-        "filename": "second.txt",
-        "fileuuid": file_uuid,
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 2},
-            "hits": [
-                {
-                    "_id": "doc1",
-                    "_source": first_file_data,
-                },
-                {
-                    "_id": "doc2",
-                    "_source": second_file_data,
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.get_transfer_file_data(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={},
-            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == first_file_data
-
-
-def test_get_transfer_file_data_raises_exception_when_no_exact_matches(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    incorrect_file_data_1 = {
-        "filename": "incorrect1.txt",
-        "fileuuid": "different-uuid-1",
-    }
-    incorrect_file_data_2 = {
-        "filename": "incorrect2.txt",
-        "fileuuid": "different-uuid-2",
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 2},
-            "hits": [
-                {
-                    "_id": "doc1",
-                    "_source": incorrect_file_data_1,
-                },
-                {
-                    "_id": "doc2",
-                    "_source": incorrect_file_data_2,
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    with pytest.raises(
-        SearchServiceError,
-        match="get_transfer_file_data returned no exact results",
-    ):
-        es_search_service.get_transfer_file_data(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={},
-            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_get_transfer_file_data_raises_exception_when_no_results(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-
-    search_response = {
-        "hits": {
-            "total": {"value": 0},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    with pytest.raises(
-        TransferFileNotFoundError,
-        match=f"No transfer file found with fileuuid {file_uuid}",
-    ):
-        es_search_service.get_transfer_file_data(file_uuid)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={},
-            body={"query": {"term": {"fileuuid": file_uuid}}, "size": 10000},
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_set_transfer_file_tags_updates_tags_with_list(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    tags = ["tag1", "tag2", "tag3"]
-
-    update_by_query_response = {"updated": 1}
-    mock_transport.return_value = _mock_es_response(update_by_query_response)
-
-    es_search_service.set_transfer_file_tags(file_uuid, tags)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.tags = params.value",
-                    "params": {"value": tags},
-                },
-                "query": {"term": {"fileuuid": file_uuid}},
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_set_transfer_file_tags_clears_tags_with_empty_list(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    tags: list[str] = []
-
-    update_by_query_response = {"updated": 1}
-    mock_transport.return_value = _mock_es_response(update_by_query_response)
-
-    es_search_service.set_transfer_file_tags(file_uuid, tags)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.tags = params.value",
-                    "params": {"value": []},
-                },
-                "query": {"term": {"fileuuid": file_uuid}},
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_set_transfer_file_tags_escapes_forward_slashes_in_uuid(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = "path/with/slashes"
-    tags = ["tag1"]
-
-    update_by_query_response = {"updated": 1}
-    mock_transport.return_value = _mock_es_response(update_by_query_response)
-
-    es_search_service.set_transfer_file_tags(file_uuid, tags)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.tags = params.value",
-                    "params": {"value": tags},
-                },
-                "query": {"term": {"fileuuid": "path\\/with\\/slashes"}},
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_set_transfer_file_tags_handles_single_tag(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    file_uuid = str(uuid.uuid4())
-    tags = ["single_tag"]
-
-    update_by_query_response = {"updated": 1}
-    mock_transport.return_value = _mock_es_response(update_by_query_response)
-
-    es_search_service.set_transfer_file_tags(file_uuid, tags)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_update_by_query",
-            params={},
-            body={
-                "script": {
-                    "source": "ctx._source.tags = params.value",
-                    "params": {"value": tags},
-                },
-                "query": {"term": {"fileuuid": file_uuid}},
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_search_transfer_files_returns_search_results(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"status": "completed"}},
-                    {"match": {"filename": "test"}},
-                ]
-            }
-        }
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 2},
-            "hits": [
-                {
-                    "_id": "file1",
-                    "_source": {
-                        "fileuuid": str(uuid.uuid4()),
-                        "filename": "test1.txt",
-                        "status": "completed",
-                    },
-                },
-                {
-                    "_id": "file2",
-                    "_source": {
-                        "fileuuid": str(uuid.uuid4()),
-                        "filename": "test2.txt",
-                        "status": "completed",
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_uses_max_query_size(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 5000},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    es_search_service.search_transfer_files(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_search_transfer_files_with_complex_query(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"range": {"size": {"gte": 1000}}},
-                    {"terms": {"file_extension": ["txt", "pdf"]}},
-                ],
-                "filter": [
-                    {"term": {"pending_deletion": False}},
-                ],
-            }
-        },
-        "sort": [
-            {"created": {"order": "desc"}},
-        ],
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 150},
-            "hits": [
-                {
-                    "_id": "file1",
-                    "_source": {
-                        "fileuuid": str(uuid.uuid4()),
-                        "filename": "large_doc.pdf",
-                        "size": 5000,
-                        "file_extension": "pdf",
-                        "pending_deletion": False,
-                        "created": 1234567890,
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_returns_empty_results(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"term": {"nonexistent_field": "value"}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 0},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_with_custom_size(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 50},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query, size=50)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "50"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_with_pagination(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 100},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query, size=20, from_=40)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "20", "from": "40"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_with_sort(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 10},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(
-        query, sort=SortSpec(field="filename", order="asc")
-    )
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "10000", "sort": b"filename:asc"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_with_fields(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-    fields = ["filename", "fileuuid", "sipuuid"]
-
-    search_response = {
-        "hits": {
-            "total": {"value": 5},
-            "hits": [
-                {
-                    "_id": "file1",
-                    "_source": {
-                        "filename": "test.txt",
-                        "fileuuid": str(uuid.uuid4()),
-                        "sipuuid": str(uuid.uuid4()),
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query, fields=fields)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"_source": b"filename,fileuuid,sipuuid", "size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_with_all_parameters(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"status": "backlog"}},
-                    {"match": {"filename": "test"}},
-                ]
-            }
-        }
-    }
-    fields = ["filename", "sipuuid", "relative_path", "accessionid", "pending_deletion"]
-
-    search_response = {
-        "hits": {
-            "total": {"value": 25},
-            "hits": [
-                {
-                    "_id": "file1",
-                    "_source": {
-                        "filename": "test1.txt",
-                        "sipuuid": str(uuid.uuid4()),
-                        "relative_path": "data/test1.txt",
-                        "accessionid": "ACC001",
-                        "pending_deletion": False,
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(
-        query=query,
-        size=10,
-        from_=20,
-        sort=SortSpec(field="filename.raw", order="desc"),
-        fields=fields,
-    )
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={
-                "size": "10",
-                "from": "20",
-                "sort": b"filename.raw:desc",
-                "_source": b"filename,sipuuid,relative_path,accessionid,pending_deletion",
-            },
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfer_files_with_zero_from_parameter(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 30},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfer_files(query, from_=0)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transferfiles/_search",
-            params={"size": "10000", "from": "0"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_returns_search_results(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"status": "backlog"}},
-                    {"match": {"name": "test"}},
-                ]
-            }
-        }
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 2},
-            "hits": [
-                {
-                    "_id": "transfer1",
-                    "_source": {
-                        "uuid": str(uuid.uuid4()),
-                        "name": "test-transfer-1",
-                        "status": "backlog",
-                    },
-                },
-                {
-                    "_id": "transfer2",
-                    "_source": {
-                        "uuid": str(uuid.uuid4()),
-                        "name": "test-transfer-2",
-                        "status": "backlog",
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_uses_max_query_size(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 5000},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    es_search_service.search_transfers(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_search_transfers_with_complex_query(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"range": {"file_count": {"gte": 10}}},
-                    {"terms": {"status": ["backlog", "completed"]}},
-                ],
-                "filter": [
-                    {"term": {"pending_deletion": False}},
-                ],
-            }
-        },
-        "sort": [
-            {"ingest_date": {"order": "desc"}},
-        ],
-    }
-
-    search_response = {
-        "hits": {
-            "total": {"value": 150},
-            "hits": [
-                {
-                    "_id": "transfer1",
-                    "_source": {
-                        "uuid": str(uuid.uuid4()),
-                        "name": "large-transfer",
-                        "file_count": 50,
-                        "status": "backlog",
-                        "pending_deletion": False,
-                        "ingest_date": "2024-01-01",
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_returns_empty_results(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"term": {"nonexistent_field": "value"}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 0},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_with_custom_size(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 50},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query, size=50)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "50"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_with_pagination(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 100},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query, size=20, from_=40)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "20", "from": "40"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_with_sort(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 10},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(
-        query, sort=SortSpec(field="name", order="asc")
-    )
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000", "sort": b"name:asc"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_with_fields(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-    fields = ["name", "uuid", "status"]
-
-    search_response = {
-        "hits": {
-            "total": {"value": 5},
-            "hits": [
-                {
-                    "_id": "transfer1",
-                    "_source": {
-                        "name": "test-transfer",
-                        "uuid": str(uuid.uuid4()),
-                        "status": "backlog",
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query, fields=fields)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000", "_source": b"name,uuid,status"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_with_all_parameters(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"status": "backlog"}},
-                    {"match": {"name": "test"}},
-                ]
-            }
-        }
-    }
-    fields = ["name", "uuid", "accessionid", "file_count", "pending_deletion"]
-
-    search_response = {
-        "hits": {
-            "total": {"value": 25},
-            "hits": [
-                {
-                    "_id": "transfer1",
-                    "_source": {
-                        "name": "test-transfer-1",
-                        "uuid": str(uuid.uuid4()),
-                        "accessionid": "ACC001",
-                        "file_count": 15,
-                        "pending_deletion": False,
-                    },
-                },
-            ],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(
-        query=query,
-        size=10,
-        from_=20,
-        sort=SortSpec(field="name.raw", order="desc"),
-        fields=fields,
-    )
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={
-                "size": "10",
-                "from": "20",
-                "sort": b"name.raw:desc",
-                "_source": b"name,uuid,accessionid,file_count,pending_deletion",
-            },
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
-
-
-def test_search_transfers_with_zero_from_parameter(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-) -> None:
-    query: dict[str, Any] = {"query": {"match_all": {}}}
-
-    search_response = {
-        "hits": {
-            "total": {"value": 30},
-            "hits": [],
-        }
-    }
-    mock_transport.return_value = _mock_es_response(search_response)
-
-    result = es_search_service.search_transfers(query, from_=0)
-
-    expected_calls = [
-        _make_es_call(
-            "POST",
-            "/transfers/_search",
-            params={"size": "10000", "from": "0"},
-            body=query,
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == search_response
 
 
 def test_search_aips_returns_search_results(
@@ -3669,253 +2163,6 @@ def test_index_aip_waits_for_cluster_health_before_indexing(
     assert result == 0
 
 
-def test_index_transfer_successfully_indexes_transfer_and_files(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-    transfer_directory: str,
-    mock_transfer_index_data: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-    transfer_name = "test-transfer"
-    size = 1024000
-    accession_id = "ACC-123"
-    ingest_date = "2024-01-01T00:00:00Z"
-    dashboard_uuid = str(uuid.uuid4())
-
-    bulk_response = {"took": 100, "errors": False, "items": []}
-    cluster_health_response = {"status": "yellow"}
-    transfer_index_response = {"_id": "transfer1", "result": "created"}
-
-    mock_transport.side_effect = [
-        _mock_es_response(cluster_health_response),
-        _mock_es_response(bulk_response),
-        _mock_es_response(cluster_health_response),
-        _mock_es_response(transfer_index_response),
-    ]
-
-    result = es_search_service.index_transfer(
-        uuid=transfer_uuid,
-        path=transfer_directory,
-        size=size,
-        transfer_index_data=mock_transfer_index_data,
-        pending_deletion=False,
-        dashboard_uuid=dashboard_uuid,
-        transfer_name=transfer_name,
-        accession_id=accession_id,
-        ingest_date=ingest_date,
-    )
-
-    expected_calls = [
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call(
-            "PUT",
-            "/_bulk",
-            params={},
-            body=mock.ANY,
-        ),
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call(
-            "POST",
-            "/transfers/_doc",
-            params={},
-            body={
-                "name": transfer_name,
-                "status": STATUS_BACKLOG,
-                "accessionid": accession_id,
-                "ingest_date": ingest_date,
-                "file_count": 0,  # Actual bulk index return count from mock
-                "size": size,
-                "uuid": transfer_uuid,
-                "pending_deletion": False,
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == 0
-
-
-def test_index_transfer_handles_exception_and_returns_error(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-    transfer_directory: str,
-    mock_transfer_index_data: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-    transfer_name = "test-transfer"
-    size = 1024000
-    accession_id = "ACC-123"
-    ingest_date = "2024-01-01T00:00:00Z"
-    dashboard_uuid = str(uuid.uuid4())
-
-    mock_transport.side_effect = Exception("Elasticsearch connection failed")
-
-    with mock.patch("archivematica.search.service.time.sleep") as mock_sleep:
-        result = es_search_service.index_transfer(
-            uuid=transfer_uuid,
-            path=transfer_directory,
-            size=size,
-            transfer_index_data=mock_transfer_index_data,
-            pending_deletion=False,
-            dashboard_uuid=dashboard_uuid,
-            transfer_name=transfer_name,
-            accession_id=accession_id,
-            ingest_date=ingest_date,
-        )
-
-    # First cluster health check (10 retries), then bulk index, then subsequent health checks fail
-    expected_calls = [_make_es_call("GET", "/_cluster/health", params={})] * 10 + [
-        _make_es_call(
-            "PUT",
-            "/_bulk",
-            params={},
-            body=mock.ANY,
-        )
-    ]
-    mock_sleep.assert_called_with(10)
-    assert mock_sleep.call_count == 10
-    assert mock_transport.mock_calls == expected_calls
-    assert result == 1
-
-
-def test_index_transfer_with_optional_parameters(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-    transfer_directory: str,
-    mock_transfer_index_data: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-    transfer_name = "secure-transfer"
-    size = 2048000
-    accession_id = "SEC-456"
-    ingest_date = "2024-02-15T10:30:00Z"
-    dashboard_uuid = str(uuid.uuid4())
-
-    bulk_response = {"took": 150, "errors": False, "items": []}
-    cluster_health_response = {"status": "green"}
-    transfer_index_response = {"_id": "transfer2", "result": "created"}
-
-    mock_transport.side_effect = [
-        _mock_es_response(cluster_health_response),
-        _mock_es_response(bulk_response),
-        _mock_es_response(cluster_health_response),
-        _mock_es_response(transfer_index_response),
-    ]
-
-    result = es_search_service.index_transfer(
-        uuid=transfer_uuid,
-        path=transfer_directory,
-        size=size,
-        transfer_index_data=mock_transfer_index_data,
-        pending_deletion=True,
-        dashboard_uuid=dashboard_uuid,
-        transfer_name=transfer_name,
-        accession_id=accession_id,
-        ingest_date=ingest_date,
-    )
-
-    expected_calls = [
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call(
-            "PUT",
-            "/_bulk",
-            params={},
-            body=mock.ANY,
-        ),
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call(
-            "POST",
-            "/transfers/_doc",
-            params={},
-            body={
-                "name": transfer_name,
-                "status": STATUS_BACKLOG,
-                "accessionid": accession_id,
-                "ingest_date": ingest_date,
-                "file_count": 0,  # Actual bulk index return count from mock
-                "size": size,
-                "uuid": transfer_uuid,
-                "pending_deletion": True,
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == 0
-
-
-def test_index_transfer_waits_for_cluster_health_before_indexing(
-    es_search_service: ElasticsearchSearchService,
-    mock_transport: mock.Mock,
-    transfer_directory: str,
-    mock_transfer_index_data: mock.Mock,
-) -> None:
-    transfer_uuid = str(uuid.uuid4())
-    transfer_name = "test-transfer"
-    size = 1024000
-    accession_id = "ACC-123"
-    ingest_date = "2024-01-01T00:00:00Z"
-    dashboard_uuid = str(uuid.uuid4())
-
-    bulk_response = {"took": 100, "errors": False, "items": []}
-    red_health_response = {"status": "red"}
-    yellow_health_response = {"status": "yellow"}
-    transfer_index_response = {"_id": "transfer1", "result": "created"}
-
-    mock_transport.side_effect = [
-        _mock_es_response(red_health_response),
-        _mock_es_response(yellow_health_response),
-        _mock_es_response(bulk_response),
-        _mock_es_response(red_health_response),
-        _mock_es_response(yellow_health_response),
-        _mock_es_response(transfer_index_response),
-    ]
-
-    with mock.patch("archivematica.search.service.time.sleep") as mock_sleep:
-        result = es_search_service.index_transfer(
-            uuid=transfer_uuid,
-            path=transfer_directory,
-            size=size,
-            transfer_index_data=mock_transfer_index_data,
-            pending_deletion=False,
-            dashboard_uuid=dashboard_uuid,
-            transfer_name=transfer_name,
-            accession_id=accession_id,
-            ingest_date=ingest_date,
-        )
-
-    mock_sleep.assert_called_with(10)
-    assert mock_sleep.call_count == 2
-
-    expected_calls = [
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call(
-            "PUT",
-            "/_bulk",
-            params={},
-            body=mock.ANY,
-        ),
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call("GET", "/_cluster/health", params={}),
-        _make_es_call(
-            "POST",
-            "/transfers/_doc",
-            params={},
-            body={
-                "name": transfer_name,
-                "status": STATUS_BACKLOG,
-                "accessionid": accession_id,
-                "ingest_date": ingest_date,
-                "file_count": 0,  # Actual bulk index return count from mock
-                "size": size,
-                "uuid": transfer_uuid,
-                "pending_deletion": False,
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-    assert result == 0
-
-
 def test_setup_search_service_creates_elasticsearch_service_with_default_params(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -3949,7 +2196,7 @@ def test_setup_search_service_creates_elasticsearch_service_with_custom_params(
     assert nodes[1].port == 9201
 
 
-def test_setup_search_service_creates_aips_and_transfers_indexes_by_default(
+def test_setup_search_service_creates_aips_indexes_by_default(
     mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
@@ -3957,8 +2204,6 @@ def test_setup_search_service_creates_aips_and_transfers_indexes_by_default(
         _mock_es_response(False, status=404),  # Exists check returns False.
         _mock_es_response({"acknowledged": True}),  # AIPs create.
         _mock_es_response({"acknowledged": True}),  # AIP files create.
-        _mock_es_response({"acknowledged": True}),  # Transfers create.
-        _mock_es_response({"acknowledged": True}),  # Transfer files create.
     ]
 
     setup_search_service("http://localhost:9200")
@@ -3966,7 +2211,7 @@ def test_setup_search_service_creates_aips_and_transfers_indexes_by_default(
     expected_calls = [
         _make_es_call(
             "HEAD",
-            f"/{AIPS_INDEX},{AIP_FILES_INDEX},{TRANSFERS_INDEX},{TRANSFER_FILES_INDEX}",
+            f"/{AIPS_INDEX},{AIP_FILES_INDEX}",
             params={},
         ),
         _make_es_call(
@@ -3981,24 +2226,6 @@ def test_setup_search_service_creates_aips_and_transfers_indexes_by_default(
         _make_es_call(
             "PUT",
             f"/{AIP_FILES_INDEX}",
-            params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": mock.ANY,
-            },
-        ),
-        _make_es_call(
-            "PUT",
-            f"/{TRANSFERS_INDEX}",
-            params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": mock.ANY,
-            },
-        ),
-        _make_es_call(
-            "PUT",
-            f"/{TRANSFER_FILES_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
@@ -4040,47 +2267,6 @@ def test_setup_search_service_creates_only_aips_indexes_when_enabled(
         _make_es_call(
             "PUT",
             f"/{AIP_FILES_INDEX}",
-            params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": mock.ANY,
-            },
-        ),
-    ]
-    assert mock_transport.mock_calls == expected_calls
-
-
-def test_setup_search_service_creates_only_transfers_indexes_when_enabled(
-    mock_transport: mock.Mock, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    monkeypatch.setattr("archivematica.search.service._search_service_instance", None)
-    mock_transport.side_effect = [
-        _mock_es_response(False, status=404),  # Exists check returns False.
-        _mock_es_response({"acknowledged": True}),  # Transfers create.
-        _mock_es_response({"acknowledged": True}),  # Transfer files create.
-    ]
-    enabled = (TRANSFERS_INDEX,)
-
-    setup_search_service("http://localhost:9200", enabled=enabled)
-
-    expected_calls = [
-        _make_es_call(
-            "HEAD",
-            f"/{TRANSFERS_INDEX},{TRANSFER_FILES_INDEX}",
-            params={},
-        ),
-        _make_es_call(
-            "PUT",
-            f"/{TRANSFERS_INDEX}",
-            params={"ignore": 400},
-            body={
-                "settings": mock.ANY,
-                "mappings": mock.ANY,
-            },
-        ),
-        _make_es_call(
-            "PUT",
-            f"/{TRANSFER_FILES_INDEX}",
             params={"ignore": 400},
             body={
                 "settings": mock.ANY,
@@ -4164,13 +2350,11 @@ def test_setup_search_service_from_conf_calls_setup_with_settings_values() -> No
         mock_settings = mock.Mock()
         mock_settings.ELASTICSEARCH_SERVER = "http://localhost:9200"
         mock_settings.ELASTICSEARCH_TIMEOUT = 30
-        mock_settings.SEARCH_ENABLED = (AIPS_INDEX, TRANSFERS_INDEX)
+        mock_settings.SEARCH_ENABLED = (AIPS_INDEX,)
 
         result = setup_search_service_from_conf(mock_settings)
 
-        mock_setup.assert_called_once_with(
-            "http://localhost:9200", 30, (AIPS_INDEX, TRANSFERS_INDEX)
-        )
+        mock_setup.assert_called_once_with("http://localhost:9200", 30, (AIPS_INDEX,))
         assert result is mock_service
 
 

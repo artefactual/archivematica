@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 import os
-import re
 import shutil
 import tempfile
 import uuid
@@ -40,8 +39,6 @@ SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
 ACTIVE_TRANSFER_DIR = os.path.join(
     SHARED_DIRECTORY_ROOT, "watchedDirectories", "activeTransfers"
 )
-
-DEFAULT_BACKLOG_PATH = "originals/"
 
 TRANSFER_TYPE_DIRECTORIES = {
     "standard": "standardTransfer",
@@ -348,27 +345,6 @@ def _copy_from_transfer_sources(paths, relative_destination):
         )
     else:
         return False, _("Files added successfully.")
-
-
-def download_ss(request):
-    filepath = b64decode_string(request.GET.get("filepath", "")).lstrip("/")
-    logger.info("download filepath: %s", filepath)
-    if not filepath.startswith(DEFAULT_BACKLOG_PATH):
-        return django.http.HttpResponseBadRequest()
-    filepath = filepath.replace(DEFAULT_BACKLOG_PATH, "", 1)
-
-    # Get UUID
-    uuid_regex = r"[\w]{8}(-[\w]{4}){3}-[\w]{12}"
-    transfer_uuid = re.search(uuid_regex, filepath).group()
-
-    # Get relative path
-    # Find first /, should be at the end of the transfer name/uuid, rest is relative ptah
-    relative_path = filepath[filepath.find("/") + 1 :]
-
-    redirect_url = storage_service.extract_file_url(transfer_uuid, relative_path)
-    return helpers.stream_file_from_storage_service(
-        redirect_url, "Storage service returned {}; check logs?"
-    )
 
 
 def download_fs(request):

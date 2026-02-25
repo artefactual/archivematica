@@ -22,7 +22,6 @@ from archivematica.dashboard.components.filesystem_ajax import views
 
 app_name = "filesystem_ajax"
 urlpatterns = [
-    path("download_ss/", views.download_ss),
     path("download_fs/", views.download_fs),
     path("contents/", views.contents, name="contents"),
     re_path(
