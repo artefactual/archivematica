@@ -185,6 +185,8 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		-t archivematica-dashboard-vue-builder \
 		-f $(CURDIR)/Dockerfile \
 		--build-arg TARGET=archivematica-dashboard-vue-builder \
+		--build-arg USER_ID=$(CALLER_UID) \
+		--build-arg GROUP_ID=$(CALLER_GID) \
 			../
 	docker run \
 		-e HOME=/tmp/npm-config \
