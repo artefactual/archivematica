@@ -48,6 +48,6 @@
     "vue-tsc": "^3.2.5"
   },
   "overrides": {
-    "minimatch": "^9.0.6"
+    "minimatch": "9.0.9"
   }
 }
