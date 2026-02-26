@@ -113,6 +113,9 @@ RUN set -ex \
 
 FROM node:${NODE_VERSION} AS archivematica-dashboard-vue-builder
 
+ARG USER_ID
+ARG GROUP_ID
+
 WORKDIR /src/src/archivematica/dashboard/vue
 
 COPY --link src/archivematica/dashboard/vue/package.json /src/src/archivematica/dashboard/vue/package.json
@@ -126,7 +129,8 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
 COPY --link src/archivematica/dashboard/media/images /src/src/archivematica/dashboard/media/images
 
-RUN npm run build
+RUN npm run build \
+	&& chown -R ${USER_ID}:${GROUP_ID} /src/src/archivematica/dashboard/vue/node_modules
 
 # -----------------------------------------------------------------------------
 
