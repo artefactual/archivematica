@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import TreeView from '@/shared/components/TreeView.vue'
-import type { FileNode } from '@/browser/types'
+import type { FileNode } from '@/transfer-browser/types'
 import type { SourceLocation } from '@/shared/http/transfer'
 import type { TreeFocusOptions, TreeNode, TreeNodeContext } from '@/shared/components/TreeView.vue'
 

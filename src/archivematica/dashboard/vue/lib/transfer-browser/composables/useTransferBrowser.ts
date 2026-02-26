@@ -4,7 +4,7 @@ import type {
   TransferFormData,
   TransferComponent,
   FileNode,
-} from '@/browser/types'
+} from '@/transfer-browser/types'
 import type { SourceLocation } from '@/shared/http/transfer'
 import { encodeBase64, decodeBase64 } from '@/shared/encoding/base64'
 import type { Base64String } from '@/shared/encoding/base64'

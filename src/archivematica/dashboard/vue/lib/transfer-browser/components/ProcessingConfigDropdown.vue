@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
-import type { ProcessingConfig } from '@/browser/types'
+import type { ProcessingConfig } from '@/transfer-browser/types'
 
 const props = withDefaults(defineProps<{
   configs: ProcessingConfig[]

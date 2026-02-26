@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useTransferBrowser } from '@/browser/composables/useTransferBrowser'
+import { useTransferBrowser } from '@/transfer-browser/composables/useTransferBrowser'
 import { encodeBase64 } from '@/shared/encoding/base64'
-import type { TransferComponent } from '@/browser/types'
+import type { TransferComponent } from '@/transfer-browser/types'
 
 const mockGetProcessingConfigurations = vi.fn()
 const mockCreateTransferPackage = vi.fn()

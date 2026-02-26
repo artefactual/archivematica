@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createI18nMock } from '@/shared/i18n'
-import TreeViewContainer from '@/browser/components/TreeViewContainer.vue'
+import TreeViewContainer from '@/transfer-browser/components/TreeViewContainer.vue'
 import TreeView from '@/shared/components/TreeView.vue'
-import type { FileNode } from '@/browser/types'
+import type { FileNode } from '@/transfer-browser/types'
 import type { SourceLocation } from '@/shared/http/transfer'
 
 const i18n = createI18nMock()
