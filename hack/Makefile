@@ -191,6 +191,7 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
+		--volume "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/vue/node_modules" \
 		--entrypoint npm \
 			archivematica-dashboard-vue-builder \
 				clean-install
