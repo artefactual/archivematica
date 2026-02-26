@@ -179,6 +179,8 @@ onUnmounted(() => {
     :class="{ open: isOpen }"
     role="group"
     :aria-label="submissionOptionsLabel"
+    @click.stop
+    @keydown.stop
   >
     <button
       type="button"
@@ -205,6 +207,7 @@ onUnmounted(() => {
       <span class="caret" />
     </button>
     <ul
+      v-show="isOpen"
       ref="dropdownMenuRef"
       class="dropdown-menu dropdown-menu-right"
       role="menu"
