@@ -144,7 +144,7 @@ export default defineConfig(({ mode }) => {
         name: 'Archivematica',
         entry: {
           'core': resolve(__dirname, 'lib/core/index.ts'),
-          'browser': resolve(__dirname, 'lib/browser/index.ts'),
+          'transfer-browser': resolve(__dirname, 'lib/transfer-browser/index.ts'),
           'aip-browser': resolve(__dirname, 'lib/aip-browser/index.ts'),
           'md-editor': resolve(__dirname, 'lib/md-editor/index.ts'),
           'topbar': resolve(__dirname, 'lib/topbar/index.ts'),

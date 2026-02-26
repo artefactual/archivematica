@@ -3,7 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 import { createI18nMock } from '@/shared/i18n'
 import App from './App.vue'
-import type { TransferComponent, TransferFormData } from '@/browser/types'
+import type { TransferComponent, TransferFormData } from '@/transfer-browser/types'
 import { TRANSFER_STARTED_EVENT } from '@/shared/events/monitor'
 
 // Type for the TransferBrowser component instance

@@ -6,7 +6,7 @@ contexts such as:
   tab when previewing packages.
 - Metadata editor. Implemented in `lib/md-editor` for the add-metadata-files
   view in the Ingest workflow.
-- Transfer browser: implemented in `lib/browser` for the Transfer tab widget
+- Transfer browser: implemented in `lib/transfer-browser` for the Transfer tab widget
   used to choose contents and start new transfers.
 
 Goals:

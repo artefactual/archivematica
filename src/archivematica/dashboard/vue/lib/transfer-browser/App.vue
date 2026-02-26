@@ -5,13 +5,13 @@ import { MultiAlert, PathContainer } from '@/shared/components'
 import type { Alert } from '@/shared/components'
 import ProcessingConfigDropdown from './components/ProcessingConfigDropdown.vue'
 import TreeViewContainer from './components/TreeViewContainer.vue'
-import { useTransferBrowser } from '@/browser/composables/useTransferBrowser'
+import { useTransferBrowser } from '@/transfer-browser/composables/useTransferBrowser'
 import type {
   TransferFormData,
   ProcessingConfig,
   TransferComponent,
   FileNode,
-} from '@/browser/types'
+} from '@/transfer-browser/types'
 import type { SourceLocation } from '@/shared/http/transfer'
 import { dispatchTransferStartedEvent } from '@/shared/events/monitor'
 
