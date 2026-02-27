@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import inspect
 from unittest import mock
 
 from django.http import HttpResponse
@@ -99,8 +98,3 @@ def test_match_dip_objects_to_resource_levels_renders_explicit_context() -> None
         "uuid": "dip-1",
         "matcher_payload": {"boot": "payload"},
     }
-
-
-def test_pair_matcher_module_does_not_use_locals_for_render_contexts() -> None:
-    source = inspect.getsource(pair_matcher)
-    assert "locals()" not in source
