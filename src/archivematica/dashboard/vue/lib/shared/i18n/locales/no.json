@@ -181,5 +181,33 @@
     "tooltipRestriction": "En betingelse eller begrensning på handlingen.",
     "tooltipRightsGrantedNote": "Ytterligere informasjon om de tildelte rettighetene.",
     "tooltipOpenEndDate": "Bruk \"OPEN\" for en åpen tidsperiode for begrensning. Utelat endDate hvis sluttdatoen er ukjent, eller hvis tillatelseserklæringen gjelder mange objekter med ulike sluttdatoer."
+  },
+  "asMatcher": {
+    "filterObjects": "Filtrer objekter",
+    "filterResources": "Filtrer ressurser",
+    "pair": "Koble",
+    "pairSelectedObjects": "Koble valgte objekter",
+    "restartMatching": "Start kobling på nytt",
+    "reviewMatches": "Gjennomgå koblinger",
+    "objects": "Objekter",
+    "resources": "Ressurser",
+    "pairs": "Koblinger",
+    "selectAll": "Velg alle",
+    "file": "Fil",
+    "level": "Nivå",
+    "title": "Tittel",
+    "identifier": "Identifikator",
+    "dates": "Datoer",
+    "selectedResource": "Valgt ressurs",
+    "targetResource": "Målressurs",
+    "noneSelected": "Ingen",
+    "selectedObjects": "Valgte objekter",
+    "deleteMatch": "Slett kobling",
+    "noResourceSelected": "Ingen ressurs er valgt.",
+    "noObjectsSelected": "Ingen objekter er valgt.",
+    "duplicateMatch": "Dette objektet er allerede koblet.",
+    "pairRequestFailed": "Kunne ikke lagre koblingen.",
+    "deleteRequestFailed": "Kunne ikke slette koblingen.",
+    "noPairsYet": "Ingen koblinger ennå."
   }
 }

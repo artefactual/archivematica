@@ -181,5 +181,33 @@
     "tooltipRestriction": "Uma condição ou limitação sobre o ato.",
     "tooltipRightsGrantedNote": "Informação adicional sobre os direitos concedidos.",
     "tooltipOpenEndDate": "Use \"OPEN\" para um prazo de restrição em aberto. Omita endDate se a data de término for desconhecida ou se a declaração de permissão se aplicar a muitos objetos com diferentes datas de término."
+  },
+  "asMatcher": {
+    "filterObjects": "Filtrar objetos",
+    "filterResources": "Filtrar recursos",
+    "pair": "Emparelhar",
+    "pairSelectedObjects": "Emparelhar objetos selecionados",
+    "restartMatching": "Reiniciar pareamento",
+    "reviewMatches": "Revisar pareamentos",
+    "objects": "Objetos",
+    "resources": "Recursos",
+    "pairs": "Pareamentos",
+    "selectAll": "Selecionar tudo",
+    "file": "Arquivo",
+    "level": "Nível",
+    "title": "Título",
+    "identifier": "Identificador",
+    "dates": "Datas",
+    "selectedResource": "Recurso selecionado",
+    "targetResource": "Recurso de destino",
+    "noneSelected": "Nenhum",
+    "selectedObjects": "Objetos selecionados",
+    "deleteMatch": "Excluir pareamento",
+    "noResourceSelected": "Nenhum recurso selecionado.",
+    "noObjectsSelected": "Nenhum objeto selecionado.",
+    "duplicateMatch": "Este objeto já está pareado.",
+    "pairRequestFailed": "Não foi possível salvar o pareamento.",
+    "deleteRequestFailed": "Não foi possível excluir o pareamento.",
+    "noPairsYet": "Ainda não há pareamentos."
   }
 }

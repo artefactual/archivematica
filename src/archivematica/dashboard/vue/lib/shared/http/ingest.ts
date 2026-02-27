@@ -1,4 +1,4 @@
-import { createHttpClient, createUrl } from './client'
+import { HttpError, createHttpClient, createUrl } from './client'
 import type { JsonIfChangedResult } from './client'
 import type { ProcessingStatusesResponse } from './processing'
 
@@ -16,6 +16,14 @@ export type IngestUploadTargetResponse = {
 export type IngestUploadReadyResponse = {
   ready: boolean
 }
+
+export type IngestAsMatcherPairRequest = {
+  dipUuid: string
+  resourceId: string
+  fileUuid: string
+}
+
+export type IngestAsMatcherPairResult = 'created' | 'duplicate'
 
 const client = createHttpClient()
 
@@ -87,6 +95,60 @@ export const getIngestNormalizationReportUrl = (sipUuid: string): string => {
 
 export const getIngestUploadAsUrl = (sipUuid: string): string => {
   return createUrl(`/ingest/${sipUuid}/upload/as/`)
+}
+
+export const getIngestUploadAsMatchUrl = (sipUuid: string): string => {
+  return createUrl(`/ingest/${sipUuid}/upload/as/match/`)
+}
+
+export const getIngestUploadAsResetUrl = (sipUuid: string): string => {
+  return createUrl(`/ingest/${sipUuid}/upload/as/reset/`)
+}
+
+export const getIngestUploadAsReviewMatchesUrl = (sipUuid: string): string => {
+  return createUrl(`/ingest/${sipUuid}/upload/as/review/`)
+}
+
+/**
+ * Preserve the legacy matcher contract: 201 creates a pairing, 409 means the
+ * file was already paired, and other failures surface as errors.
+ */
+export const createArchivesSpacePair = async ({
+  dipUuid,
+  resourceId,
+  fileUuid,
+}: IngestAsMatcherPairRequest): Promise<IngestAsMatcherPairResult> => {
+  const matchUrl = getIngestUploadAsMatchUrl(dipUuid)
+  try {
+    await client.requestText(matchUrl, {
+      method: 'POST',
+      json: {
+        resource_id: resourceId,
+        file_uuid: fileUuid,
+      },
+    })
+    return 'created'
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 409) {
+      return 'duplicate'
+    }
+    throw error
+  }
+}
+
+export const deleteArchivesSpacePair = async ({
+  dipUuid,
+  resourceId,
+  fileUuid,
+}: IngestAsMatcherPairRequest): Promise<void> => {
+  const matchUrl = getIngestUploadAsMatchUrl(dipUuid)
+  await client.requestText(matchUrl, {
+    method: 'DELETE',
+    json: {
+      resource_id: resourceId,
+      file_uuid: fileUuid,
+    },
+  })
 }
 
 export const getIngestPreviewUrl = (previewType: IngestPreviewType, jobUuid: string): string => {

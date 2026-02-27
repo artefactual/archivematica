@@ -8,12 +8,60 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from lazy_paged_sequence import LazyPagedSequence
 
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
 
 PAGE_SIZE = 30
+
+
+def _build_as_matcher_payload(
+    uuid, object_paths, resource_data, matches, reset_url_name=None
+):
+    """Build one JSON-safe payload so template quoting cannot break the matcher.
+
+    The matcher UI is bootstrapped client-side from server data plus translated
+    labels. Keeping this in Python lets Django's ``json_script`` handle escaping
+    for paths/titles/translations without handwritten JSON in the template.
+    """
+
+    return {
+        "dipUuid": str(uuid),
+        "objectPaths": object_paths,
+        "resourceData": resource_data,
+        "initialMatches": matches,
+        "resetAvailable": reset_url_name is not None,
+        "labels": {
+            "filterObjects": _("Filter objects"),
+            "filterResources": _("Filter resources"),
+            "pair": _("Pair"),
+            "pairSelectedObjects": _("Pair selected objects"),
+            "restartMatching": _("Restart matching"),
+            "reviewMatches": _("Review matches"),
+            "objects": _("Objects"),
+            "resources": _("Resources"),
+            "pairs": _("Pairs"),
+            "selectAll": _("Select all"),
+            "file": _("File"),
+            "level": _("Level"),
+            "title": _("Title"),
+            "identifier": _("Identifier"),
+            "dates": _("Dates"),
+            "selectedResource": _("Selected resource"),
+            "targetResource": _("Target resource"),
+            "noneSelected": _("None"),
+            "selectedObjects": _("Selected objects"),
+            "deleteMatch": _("Delete match"),
+            "noResourceSelected": _("No resource selected."),
+            "noObjectsSelected": _("No objects selected."),
+            "duplicateMatch": _("This object is already paired."),
+            "pairRequestFailed": _("Could not save pairing."),
+            "deleteRequestFailed": _("Could not delete pairing."),
+            "noPairsYet": _("No pairs yet."),
+        },
+    }
 
 
 def _determine_reverse_sort_direction(sort):
@@ -73,7 +121,20 @@ def list_records(
 
     sort_direction = _determine_reverse_sort_direction(sort_by)
 
-    return render(request, list_redirect_target, locals())
+    return render(
+        request,
+        list_redirect_target,
+        {
+            "query": query,
+            "identifier": identifier,
+            "page": page,
+            "search_params": search_params,
+            "sort_by": sort_by,
+            "sort_direction": sort_direction,
+            "reset_url": reset_url,
+            "uuid": uuid,
+        },
+    )
 
 
 def pairs_saved_response(pairs_saved):
@@ -118,7 +179,22 @@ def render_resource(
             reverse(match_redirect_target, args=[uuid, resource_id])
         )
     else:
-        return render(request, resource_detail_template, locals())
+        return render(
+            request,
+            resource_detail_template,
+            {
+                "match_redirect_target": match_redirect_target,
+                "page": page,
+                "query": query,
+                "reset_url": reset_url,
+                "resource_data": resource_data,
+                "resource_id": resource_id,
+                "search_params": search_params,
+                "sort_by": sort_by,
+                "sort_direction": sort_direction,
+                "uuid": uuid,
+            },
+        )
 
 
 def render_resource_component(
@@ -183,18 +259,27 @@ def match_dip_objects_to_resource_levels(
 ):
     if matches is None:
         matches = []
-    # load object relative paths
-    object_path_json = json.JSONEncoder().encode(
-        ingest_upload_atk_get_dip_object_paths(uuid)
+    object_paths = ingest_upload_atk_get_dip_object_paths(uuid)
+    resource_data = client.get_resource_component_and_children(resource_id)
+    matcher_payload = _build_as_matcher_payload(
+        uuid=uuid,
+        object_paths=object_paths,
+        resource_data=resource_data,
+        matches=matches,
+        reset_url_name=reset_url,
     )
 
-    resource_data_json = json.JSONEncoder().encode(
-        client.get_resource_component_and_children(resource_id)
+    return render(
+        request,
+        match_template,
+        {
+            "parent_id": parent_id,
+            "parent_url": parent_url,
+            "reset_url": reset_url,
+            "uuid": uuid,
+            "matcher_payload": matcher_payload,
+        },
     )
-
-    matches_json = json.JSONEncoder().encode(matches)
-
-    return render(request, match_template, locals())
 
 
 def match_dip_objects_to_resource_component_levels(
@@ -210,19 +295,27 @@ def match_dip_objects_to_resource_component_levels(
 ):
     if matches is None:
         matches = []
-    # load object relative paths
-    object_path_json = json.JSONEncoder().encode(
-        ingest_upload_atk_get_dip_object_paths(uuid)
+    object_paths = ingest_upload_atk_get_dip_object_paths(uuid)
+    resource_data = client.get_resource_component_children(resource_component_id)
+    matcher_payload = _build_as_matcher_payload(
+        uuid=uuid,
+        object_paths=object_paths,
+        resource_data=resource_data,
+        matches=matches,
+        reset_url_name=reset_url,
     )
 
-    # load resource and child data
-    resource_data_json = json.JSONEncoder().encode(
-        client.get_resource_component_children(resource_component_id)
+    return render(
+        request,
+        match_template,
+        {
+            "parent_id": parent_id,
+            "parent_url": parent_url,
+            "reset_url": reset_url,
+            "uuid": uuid,
+            "matcher_payload": matcher_payload,
+        },
     )
-
-    matches_json = json.JSONEncoder().encode(matches)
-
-    return render(request, match_template, locals())
 
 
 def remove_prefix(string, prefix):

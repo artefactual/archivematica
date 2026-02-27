@@ -181,5 +181,33 @@
     "tooltipRestriction": "Ett villkor eller en begränsning av handlingen.",
     "tooltipRightsGrantedNote": "Ytterligare information om beviljade rättigheter.",
     "tooltipOpenEndDate": "Använd \"OPEN\" för en öppen begränsningsperiod. Utelämna endDate om slutdatumet är okänt eller om tillståndsuttalandet gäller många objekt med olika slutdatum."
+  },
+  "asMatcher": {
+    "filterObjects": "Filtrera objekt",
+    "filterResources": "Filtrera resurser",
+    "pair": "Para",
+    "pairSelectedObjects": "Para markerade objekt",
+    "restartMatching": "Starta om parning",
+    "reviewMatches": "Granska parningar",
+    "objects": "Objekt",
+    "resources": "Resurser",
+    "pairs": "Parningar",
+    "selectAll": "Markera alla",
+    "file": "Fil",
+    "level": "Nivå",
+    "title": "Titel",
+    "identifier": "Identifierare",
+    "dates": "Datum",
+    "selectedResource": "Vald resurs",
+    "targetResource": "Målresurs",
+    "noneSelected": "Ingen",
+    "selectedObjects": "Markerade objekt",
+    "deleteMatch": "Ta bort parning",
+    "noResourceSelected": "Ingen resurs vald.",
+    "noObjectsSelected": "Inga objekt markerade.",
+    "duplicateMatch": "Det här objektet är redan parat.",
+    "pairRequestFailed": "Det gick inte att spara parningen.",
+    "deleteRequestFailed": "Det gick inte att ta bort parningen.",
+    "noPairsYet": "Inga parningar ännu."
   }
 }

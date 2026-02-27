@@ -35,6 +35,11 @@ export {
   checkUploadDestinationStatusCode,
   getIngestNormalizationReportUrl,
   getIngestUploadAsUrl,
+  getIngestUploadAsMatchUrl,
+  getIngestUploadAsResetUrl,
+  getIngestUploadAsReviewMatchesUrl,
+  createArchivesSpacePair,
+  deleteArchivesSpacePair,
   getIngestPreviewUrl,
 } from './ingest'
 export type { StatusResponse } from './status'

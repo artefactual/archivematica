@@ -181,5 +181,33 @@
     "tooltipRestriction": "A condition or limitation on the act.",
     "tooltipRightsGrantedNote": "Additional information about the rights granted.",
     "tooltipOpenEndDate": "Use \"OPEN\" for an open ended term of restriction. Omit endDate if the ending date is unknown or the permission statement applies to many objects with different end dates."
+  },
+  "asMatcher": {
+    "filterObjects": "Filter objects",
+    "filterResources": "Filter resources",
+    "pair": "Pair",
+    "pairSelectedObjects": "Pair selected objects",
+    "restartMatching": "Restart matching",
+    "reviewMatches": "Review matches",
+    "objects": "Objects",
+    "resources": "Resources",
+    "pairs": "Pairs",
+    "selectAll": "Select all",
+    "file": "File",
+    "level": "Level",
+    "title": "Title",
+    "identifier": "Identifier",
+    "dates": "Dates",
+    "selectedResource": "Selected resource",
+    "targetResource": "Target resource",
+    "noneSelected": "None",
+    "selectedObjects": "Selected objects",
+    "deleteMatch": "Delete match",
+    "noResourceSelected": "No resource selected.",
+    "noObjectsSelected": "No objects selected.",
+    "duplicateMatch": "This object is already paired.",
+    "pairRequestFailed": "Could not save pairing.",
+    "deleteRequestFailed": "Could not delete pairing.",
+    "noPairsYet": "No pairs yet."
   }
 }
