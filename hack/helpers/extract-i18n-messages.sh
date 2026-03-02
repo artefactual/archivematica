@@ -17,10 +17,14 @@ __root_dir="$(cd "$(dirname "${__compose_dir}")" && pwd)"
 cd ${__compose_dir}
 
 only=""
+clear_fuzzy=false
 for arg in "$@"; do
 	case "$arg" in
 	--only=am|--only=ss)
 		only="${arg#--only=}"
+		;;
+	--clear-fuzzy)
+		clear_fuzzy=true
 		;;
 	--only=*)
 		echo "Invalid value for --only. Use --only=am or --only=ss" >&2
@@ -28,7 +32,7 @@ for arg in "$@"; do
 		;;
 	*)
 		echo "Unknown argument: $arg" >&2
-		echo "Usage: $0 [--only=am|ss]" >&2
+		echo "Usage: $0 [--only=am|ss] [--clear-fuzzy]" >&2
 		exit 2
 		;;
 	esac
@@ -43,6 +47,15 @@ function dashboard::manage {
 			archivematica-dashboard "$@"
 }
 
+function dashboard::shell {
+	docker compose run \
+		--user=$(id -u):$(id -g) \
+		--rm --no-deps \
+		--workdir=/src/src/archivematica/dashboard \
+		--entrypoint=/bin/bash \
+			archivematica-dashboard -lc "$1"
+}
+
 function storage::manage {
 	docker compose run \
 		--user=$(id -u):$(id -g) \
@@ -52,6 +65,14 @@ function storage::manage {
 			archivematica-storage-service "$@"
 }
 
+function storage::shell {
+	docker compose run \
+		--user=$(id -u):$(id -g) \
+		--rm --no-deps \
+		--workdir=/src/src/archivematica/storage_service \
+		--entrypoint=/bin/bash \
+			archivematica-storage-service -lc "$1"
+}
 
 #
 # Dashboard
@@ -61,6 +82,10 @@ if [[ -z "$only" || "$only" == "am" ]]; then
 	echo "Dashboard: extracting messages..."
 	dashboard::manage makemessages --all --domain django --no-obsolete
 	dashboard::manage makemessages --all --domain djangojs --ignore dist/* --ignore node_modules/* --no-obsolete
+	if [[ "$clear_fuzzy" == "true" ]]; then
+		echo "Dashboard: clearing fuzzy entries..."
+		dashboard::shell 'find locale -name "*.po" -print0 | xargs -0 -I{} msgattrib --clear-fuzzy --no-obsolete -o "{}" "{}"'
+	fi
 
 	(cd ${__root_dir} && git status -s)
 fi
@@ -74,6 +99,10 @@ if [[ -z "$only" || "$only" == "ss" ]]; then
 	echo "Storage Service: extracting messages..."
 	storage::manage makemessages --all --domain django --no-obsolete
 	storage::manage makemessages --all --domain djangojs --no-obsolete
+	if [[ "$clear_fuzzy" == "true" ]]; then
+		echo "Storage Service: clearing fuzzy entries..."
+		storage::shell 'find locale -name "*.po" -print0 | xargs -0 -I{} msgattrib --clear-fuzzy --no-obsolete -o "{}" "{}"'
+	fi
 
 	(cd ${__root_dir}/hack/submodules/archivematica-storage-service && git status -s)
 fi
