@@ -44,14 +44,6 @@
           </tbody>
         </table>
 
-        <script>
-        $(document).ready(function () {
-          $('#paging_jump_to').change(function() {
-            window.location = '/administration/reports/failures/?{{ search_params }}&page=' + $(this).val();
-          });
-        });
-        </script>
-
         {% include '_pager.html' %}
       {% else %}
         {% trans "No reports found." %}
