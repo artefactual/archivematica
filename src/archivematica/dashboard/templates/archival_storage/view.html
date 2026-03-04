@@ -6,21 +6,7 @@
 {% block title %}{% trans "Archival storage" %}{% endblock %}
 {% block h1 %}{% trans "Archival storage" %}{% endblock %}
 {% block page_id %}archival-storage{% endblock %}
-{% block data_features %}tab{% endblock %}
-
-{% block extra_css %}
-  <link href="{% static 'css/archival_storage.css' %}" rel="stylesheet" type="text/css" />
-{% endblock %}
-
-{% block extra_js %}
-  <script>
-    $(document).ready(function() {
-
-      localizeTimestampElements();
-
-    });
-  </script>
-{% endblock %}
+{% block data_features %}tab localize-timestamps{% endblock %}
 
 {% block content %}
 

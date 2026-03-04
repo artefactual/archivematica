@@ -5,6 +5,7 @@
 {% block title %}{% trans "Administration" %}{% endblock %}
 {% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
+{% block data_features %}localize-timestamps{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -59,10 +60,4 @@
     </div>
   </div>
 </div>
-  <script>
-  $(document).ready(function() {
-    localizeTimestampElements();
-  });
-  </script>
-
 {% endblock %}
