@@ -104,18 +104,20 @@ class SearchService(ABC):
         pass
 
     @abstractmethod
-    def mark_aip_for_deletion(self, aip_uuid: str) -> None:
+    def mark_aip_for_deletion(self, aip_uuid: str, refresh: bool = False) -> None:
         """Mark AIP for deletion in the search index.
 
         :param str aip_uuid: AIP UUID to mark for deletion
+        :param bool refresh: Whether to refresh affected indexes immediately
         """
         pass
 
     @abstractmethod
-    def unmark_aip_for_deletion(self, aip_uuid: str) -> None:
+    def unmark_aip_for_deletion(self, aip_uuid: str, refresh: bool = False) -> None:
         """Unmark AIP for deletion in the search index.
 
         :param str aip_uuid: AIP UUID to unmark for deletion
+        :param bool refresh: Whether to refresh affected indexes immediately
         """
         pass
 
@@ -376,6 +378,7 @@ class ElasticsearchSearchService(SearchService):
         value: str,
         update_field: str,
         update_value: Union[str, bool, list[str]],
+        refresh: bool = False,
     ) -> None:
         """Update documents in Elasticsearch index by field value.
 
@@ -384,12 +387,13 @@ class ElasticsearchSearchService(SearchService):
         :param str value: Value to match in query field
         :param str update_field: Field to update
         :param Union[str, bool, list[str]] update_value: Value to set in update field
+        :param bool refresh: Whether to refresh index after update
         """
         escaped_value = self._escape_slashes(value)
         query = self._build_update_query(
             field, escaped_value, update_field, update_value
         )
-        self.client.update_by_query(index=index, body=query)
+        self.client.update_by_query(index=index, body=query, refresh=refresh)
 
     def _build_update_query(
         self,
@@ -422,6 +426,7 @@ class ElasticsearchSearchService(SearchService):
         package_uuid: str,
         field: str,
         value: Union[str, bool],
+        refresh: bool = False,
     ) -> None:
         """Update field for a package and its related files using bulk operations.
 
@@ -431,17 +436,28 @@ class ElasticsearchSearchService(SearchService):
         :param str package_uuid: UUID of package to update
         :param str field: Field in indices to update
         :param Union[str, bool] value: Value to set in updated field
+        :param bool refresh: Whether to refresh affected indexes after updates
         """
-        self._update_by_field(package_index, ES_FIELD_UUID, package_uuid, field, value)
         self._update_by_field(
-            files_index, package_uuid_field, package_uuid, field, value
+            package_index, ES_FIELD_UUID, package_uuid, field, value, refresh=refresh
+        )
+        self._update_by_field(
+            files_index,
+            package_uuid_field,
+            package_uuid,
+            field,
+            value,
+            refresh=refresh,
         )
 
-    def _update_aip_pending_deletion(self, aip_uuid: str, pending: bool) -> None:
+    def _update_aip_pending_deletion(
+        self, aip_uuid: str, pending: bool, refresh: bool = False
+    ) -> None:
         """Update status field for an AIP and its files based on pending deletion.
 
         :param str aip_uuid: AIP UUID to update
         :param bool pending: Whether AIP is pending deletion
+        :param bool refresh: Whether to refresh affected indexes after updates
         """
         status_value = STATUS_DELETE_REQUESTED if pending else STATUS_UPLOADED
         self._update_field_for_package_and_files(
@@ -451,6 +467,7 @@ class ElasticsearchSearchService(SearchService):
             aip_uuid,
             ES_FIELD_STATUS,
             status_value,
+            refresh=refresh,
         )
 
     def delete_aip(self, aip_uuid: str) -> None:
@@ -467,19 +484,21 @@ class ElasticsearchSearchService(SearchService):
         """
         self._delete_by_field(self.aip_files_index, ES_FIELD_AIPUUID, aip_uuid)
 
-    def mark_aip_for_deletion(self, aip_uuid: str) -> None:
+    def mark_aip_for_deletion(self, aip_uuid: str, refresh: bool = False) -> None:
         """Mark AIP for deletion in the Elasticsearch index.
 
         :param str aip_uuid: AIP UUID to mark for deletion
+        :param bool refresh: Whether to refresh affected indexes immediately
         """
-        self._update_aip_pending_deletion(aip_uuid, True)
+        self._update_aip_pending_deletion(aip_uuid, True, refresh=refresh)
 
-    def unmark_aip_for_deletion(self, aip_uuid: str) -> None:
+    def unmark_aip_for_deletion(self, aip_uuid: str, refresh: bool = False) -> None:
         """Unmark AIP for deletion in the Elasticsearch index.
 
         :param str aip_uuid: AIP UUID to unmark for deletion
+        :param bool refresh: Whether to refresh affected indexes immediately
         """
-        self._update_aip_pending_deletion(aip_uuid, False)
+        self._update_aip_pending_deletion(aip_uuid, False, refresh=refresh)
 
     def ensure_indexes_exist(self, indexes: list[str]) -> None:
         """Ensure the specified search indexes exist.
