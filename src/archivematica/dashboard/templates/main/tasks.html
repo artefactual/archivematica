@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load l10n %}
 
+{% block data_features %}localize-timestamps{% endblock %}
+
 {% block content %}
 
   <ol class="breadcrumb">
@@ -112,8 +114,4 @@
 
   {% include "main/_tasks_pager.html" %}
 
-{% endblock %}
-
-{% block extra_js %}
-  <script>$(function() { localizeTimestampElements(); })</script>
 {% endblock %}

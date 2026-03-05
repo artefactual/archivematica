@@ -15,8 +15,8 @@ import {
   type Updater,
   useVueTable,
 } from '@tanstack/vue-table'
+import { ResultsPagination } from '@/shared/components'
 import * as fprRoutes from '@/shared/http/fpr'
-import TablePagination from './TablePagination.vue'
 import type { FprRow, FprTableKind, FprTablePayload, TableAction, TableActionStyle } from './types'
 import { useFprSearch } from './useFprSearch'
 
@@ -252,7 +252,7 @@ const displayValueForColumn = (row: FprRow, key: string): string => {
     return String(value)
   }
   if (typeof value === 'boolean') {
-    return value ? t('fpr.boolean.true') : t('fpr.boolean.false')
+    return value ? t('misc.boolean.true') : t('misc.boolean.false')
   }
   return ''
 }
@@ -752,7 +752,7 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
         </table>
       </div>
 
-      <TablePagination
+      <ResultsPagination
         :page-index="pageIndex"
         :page-count="pageCount"
         :page-size="pageSize"
@@ -763,6 +763,9 @@ watch(pageIndex, async (nextPageIndex, previousPageIndex) => {
         :end-row="pageEndRow"
         :filtered-count="filteredRows.length"
         :total-count="payload.rows.length"
+        control-mode="pages"
+        info-style="plain"
+        page-size-label-mode="template"
         @set-page-index="(nextPageIndex) => table.setPageIndex(nextPageIndex)"
         @previous-page="() => table.previousPage()"
         @next-page="() => table.nextPage()"

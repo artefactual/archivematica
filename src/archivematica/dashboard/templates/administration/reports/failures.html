@@ -5,6 +5,7 @@
 {% block title %}{% trans "Administration" %}{% endblock %}
 {% block h1 %}{% trans "Administration" %}{% endblock %}
 {% block page_id %}Administration{% endblock %}
+{% block data_features %}localize-timestamps{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -43,14 +44,6 @@
           </tbody>
         </table>
 
-        <script>
-        $(document).ready(function () {
-          $('#paging_jump_to').change(function() {
-            window.location = '/administration/reports/failures/?{{ search_params }}&page=' + $(this).val();
-          });
-        });
-        </script>
-
         {% include '_pager.html' %}
       {% else %}
         {% trans "No reports found." %}
@@ -59,10 +52,4 @@
     </div>
   </div>
 </div>
-  <script>
-  $(document).ready(function() {
-    localizeTimestampElements();
-  });
-  </script>
-
 {% endblock %}

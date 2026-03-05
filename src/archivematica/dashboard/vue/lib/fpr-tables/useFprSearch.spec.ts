@@ -78,6 +78,23 @@ describe('useFprSearch', () => {
     expect(search.tokenizedGlobalFilter(secondRow!, 'jpeg yes')).toBe(false)
   })
 
+  it('supports DataTables-style quoted search terms', () => {
+    const rows = makeRows()
+    const search = useFprSearch({
+      rows,
+      columns: computed(() => columns.value),
+      displayValueForColumn,
+    })
+
+    const firstRow = rows.value[0]
+    const secondRow = rows.value[1]
+    expect(firstRow).toBeDefined()
+    expect(secondRow).toBeDefined()
+
+    expect(search.tokenizedGlobalFilter(firstRow!, '"jpeg" "1.02"')).toBe(true)
+    expect(search.tokenizedGlobalFilter(secondRow!, '"jpeg" "1.02"')).toBe(false)
+  })
+
   it('clearSearch resets immediately and cancels stale debounced updates', async () => {
     vi.useFakeTimers()
     try {

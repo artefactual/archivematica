@@ -37,16 +37,27 @@ export const useFprSearch = ({
 
   let lastFilterValue = ''
   let lastFilterTokens: string[] = []
+
+  const tokenPattern = /"([^"]+)"|(\S+)/g
+
+  const tokenizeFilterValue = (value: string): string[] => {
+    const lowered = value.toLowerCase().trim()
+    const tokens: string[] = []
+    for (const match of lowered.matchAll(tokenPattern)) {
+      const candidate = (match[1] ?? match[2] ?? '').replace(/^"+|"+$/g, '').trim()
+      if (candidate) {
+        tokens.push(candidate)
+      }
+    }
+    return tokens
+  }
+
   const tokensForFilterValue = (filterValue: string): string[] => {
     if (filterValue === lastFilterValue) {
       return lastFilterTokens
     }
     lastFilterValue = filterValue
-    lastFilterTokens = filterValue
-      .toLowerCase()
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
+    lastFilterTokens = tokenizeFilterValue(filterValue)
     return lastFilterTokens
   }
 

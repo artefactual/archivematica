@@ -209,7 +209,7 @@ def test_mark_aip_for_deletion_updates_aip_and_files(
     expected_calls = [
         _make_es_call(
             "POST",
-            "/aips/_update_by_query",
+            "/aips/_update_by_query?refresh=false",
             params={},
             body={
                 "script": {
@@ -221,7 +221,7 @@ def test_mark_aip_for_deletion_updates_aip_and_files(
         ),
         _make_es_call(
             "POST",
-            "/aipfiles/_update_by_query",
+            "/aipfiles/_update_by_query?refresh=false",
             params={},
             body={
                 "script": {
@@ -252,7 +252,7 @@ def test_unmark_aip_for_deletion_updates_aip_and_files(
     expected_calls = [
         _make_es_call(
             "POST",
-            "/aips/_update_by_query",
+            "/aips/_update_by_query?refresh=false",
             params={},
             body={
                 "script": {
@@ -264,7 +264,7 @@ def test_unmark_aip_for_deletion_updates_aip_and_files(
         ),
         _make_es_call(
             "POST",
-            "/aipfiles/_update_by_query",
+            "/aipfiles/_update_by_query?refresh=false",
             params={},
             body={
                 "script": {

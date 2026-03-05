@@ -48,20 +48,33 @@
 {% block extra_js %}
 <script type="text/javascript">
 
-function display_extra_form() {
-  val = $("#id_f-command option:selected").val();
-  if (val == 'new') {
-    $('#fprule_command_form').show();
+function toggleExtraForm(selectElement, formElement) {
+  if (selectElement.value === 'new') {
+    formElement.style.display = '';
+    if (window.getComputedStyle(formElement).display === 'none') {
+      formElement.style.display = 'block';
+    }
   } else {
-    $('#fprule_command_form').hide();
+    formElement.style.display = 'none';
   }
 }
 
-$(document).ready(function () {
-  display_extra_form();
-  $("#id_f-command").change(function () {display_extra_form();});
+function initFormToggle() {
+  var commandSelect = document.getElementById('id_f-command');
+  var commandForm = document.getElementById('fprule_command_form');
 
-});
+  if (!commandSelect || !commandForm) {
+    return;
+  }
+
+  commandSelect.addEventListener('change', function () {
+    toggleExtraForm(commandSelect, commandForm);
+  });
+
+  toggleExtraForm(commandSelect, commandForm);
+}
+
+initFormToggle();
 
 </script>
 {% endblock %}

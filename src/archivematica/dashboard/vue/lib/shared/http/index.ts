@@ -7,7 +7,7 @@ export {
   copyMetadataFiles,
   openFilesystemDownload,
 } from './filesystem'
-export type { DirectoryEntry, FilesystemBrowseResponse } from './filesystem'
+export type { DirectoryEntry, FilesystemBrowseResponse, CopyMetadataFilesResponse } from './filesystem'
 export {
   getSourceLocations,
   getTransferStatus,
@@ -42,6 +42,22 @@ export {
   deleteArchivesSpacePair,
   getIngestPreviewUrl,
 } from './ingest'
+export {
+  createArchivalStorageAipFileDownloadUrl,
+  createArchivalStorageAipUrl,
+  searchArchivalStorage,
+  loadArchivalStorageState,
+  saveArchivalStorageState,
+  openArchivalStorageCsv,
+  createArchivalStorageAicUrl,
+  createArchivalStorageRawFileUrl,
+  createArchivalStorageSearchUrl,
+  createArchivalStorageThumbnailUrl,
+} from './archival-storage'
+export type {
+  ArchivalStorageSearchResponse,
+  ArchivalStorageTableState,
+} from './archival-storage'
 export type { StatusResponse } from './status'
 export { getStatus } from './status'
 export {

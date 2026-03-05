@@ -10,7 +10,7 @@ const hasTarget = ref(false)
 
 const connectionMessage = computed(() => {
   if (state.loading) {
-    return t('topbar.loading')
+    return t('misc.loading')
   }
   if (state.connected === null) {
     return t('topbar.initializing')

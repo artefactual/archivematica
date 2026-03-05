@@ -39,7 +39,6 @@
     "configurationForm": "Överföringskonfigurationsformulär",
     "fileBrowserSection": "Filläsarsektion",
     "hideBrowser": "Dölj filläsare",
-    "loading": "Laddar...",
     "name": "Överföringens namn",
     "showBrowser": "Visa filläsare",
     "showConfigOptions": "Visa bearbetningskonfigurationsalternativ",
@@ -64,8 +63,7 @@
     "connected": "Ansluten",
     "disconnected": "Frånkopplad",
     "errorConnecting": "Fel vid anslutning till servern. Försöker igen...",
-    "initializing": "Initialiserar...",
-    "loading": "Laddar..."
+    "initializing": "Initialiserar..."
   },
   "metadata": {
     "add": "Lägg till",
@@ -105,7 +103,6 @@
     "transferStartTime": "Överföringens starttid",
     "ingestStartTime": "Starttid för ingest",
     "removeAllCompleted": "Ta bort alla avklarade",
-    "loading": "Loading...",
     "metadata": "Metadata",
     "remove": "Ta bort",
     "job": "Jobb",
@@ -148,7 +145,16 @@
       "previous": "Föregående",
       "next": "Nästa",
       "ariaLabel": "Sidindelning",
-      "filteredInfoTemplate": "Visar {start} till {end} av {filtered} poster (filtrerat från totalt {total} poster)"
+      "filteredInfoTemplate": "Visar {start} till {end} av {filtered} poster (filtrerat från totalt {total} poster)",
+      "first": "Första",
+      "last": "Sista",
+      "show": "Visa",
+      "pageOfTemplate": "Sida {current} av {total}"
+    },
+    "loading": "Laddar...",
+    "boolean": {
+      "true": "Ja",
+      "false": "Nej"
     }
   },
   "rights": {
@@ -242,10 +248,6 @@
       "uuid": "UUID",
       "actions": "Åtgärder"
     },
-    "boolean": {
-      "true": "Ja",
-      "false": "Nej"
-    },
     "search": {
       "label": "Sök",
       "placeholder": "Filtrera rader",
@@ -318,5 +320,86 @@
         "default_thumbnail": "Standardminiatyr"
       }
     }
+  },
+  "archivalStorage": {
+    "archiveSize": "Arkivstorlek",
+    "filesIndexed": "Indexerade filer",
+    "aipsInAic": "AIP:er i AIC",
+    "aipInAic": "AIP i AIC",
+    "partOf": "Del av",
+    "none": "Ingen",
+    "na": "N/A",
+    "viewRaw": "visa rådata",
+    "download": "Ladda ner",
+    "view": "Visa",
+    "filter": "Filter",
+    "booleanOperator": "Boolesk operator",
+    "query": "Sökfråga",
+    "field": "Fält",
+    "otherFieldName": "Annat fältnamn",
+    "queryType": "Frågetyp",
+    "delete": "Radera",
+    "sortedAscending": "sorterad stigande",
+    "activateToSortDescending": "Aktivera för att sortera fallande",
+    "sortedDescending": "sorterad fallande",
+    "activateToRemoveSorting": "Aktivera för att ta bort sortering",
+    "notSorted": "inte sorterad",
+    "activateToSortAscending": "Aktivera för att sortera stigande",
+    "loadingResults": "Laddar resultat",
+    "error": "Fel",
+    "noResultsFound": "Inga resultat hittades",
+    "filters": "Filter",
+    "showFiles": "Visa filer",
+    "addFilter": "Lägg till filter",
+    "reset": "Återställ",
+    "search": "Sök",
+    "createAnAic": "Skapa en AIC",
+    "downloadCsv": "Ladda ner CSV",
+    "selectColumns": "Välj kolumner",
+    "filePathWithRawTemplate": "{path} ({link})",
+    "lookups": {
+      "operators": {
+        "or": "eller",
+        "and": "och",
+        "not": "inte"
+      },
+      "searchFields": {
+        "any": "Valfri",
+        "fileUuid": "Fil-UUID",
+        "filePath": "Filsökväg",
+        "fileExtension": "Filändelse",
+        "aipUuid": "AIP-UUID",
+        "aipName": "AIP-namn",
+        "identifiers": "Identifierare",
+        "partOfAic": "Del av AIC",
+        "aicIdentifier": "AIC-identifierare",
+        "transferMetadata": "Överföringsmetadata",
+        "transferMetadataOther": "Överföringsmetadata (annat)"
+      },
+      "queryTypes": {
+        "keyword": "Nyckelord",
+        "phrase": "Fras",
+        "dateRange": "Datumintervall"
+      },
+      "columns": {
+        "name": "Namn",
+        "uuid": "UUID",
+        "aic": "AIC",
+        "size": "Storlek",
+        "fileCount": "Antal filer",
+        "accessionNumbers": "Accessionsnummer",
+        "created": "Skapad",
+        "status": "Status",
+        "encrypted": "Krypterad",
+        "location": "Plats",
+        "actions": "Åtgärder",
+        "thumbnail": "Miniatyr",
+        "file": "Fil",
+        "aip": "AIP",
+        "accessionNumber": "Accessionsnummer",
+        "fileUuid": "Fil-UUID"
+      }
+    },
+    "searchRequestFailed": "Sökförfrågan misslyckades"
   }
 }

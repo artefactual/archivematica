@@ -39,7 +39,6 @@
     "configurationForm": "転送設定フォーム",
     "fileBrowserSection": "ファイルブラウザセクション",
     "hideBrowser": "ファイルブラウザを隠す",
-    "loading": "読み込み中...",
     "name": "転送名",
     "showBrowser": "ファイルブラウザを表示",
     "showConfigOptions": "処理設定オプションを表示",
@@ -64,8 +63,7 @@
     "connected": "接続済み",
     "disconnected": "未接続",
     "errorConnecting": "サーバーへの接続に失敗しました。再試行しています...",
-    "initializing": "初期化中...",
-    "loading": "読み込み中..."
+    "initializing": "初期化中..."
   },
   "metadata": {
     "add": "追加",
@@ -105,7 +103,6 @@
     "transferStartTime": "転送開始時刻",
     "ingestStartTime": "Ingest start time",
     "removeAllCompleted": "Remove all completed",
-    "loading": "Loading...",
     "metadata": "メタデータ",
     "remove": "取り除く",
     "job": "Job",
@@ -148,7 +145,16 @@
       "previous": "前へ",
       "next": "次へ",
       "ariaLabel": "ページネーション",
-      "filteredInfoTemplate": "{total} 件中 {filtered} 件に絞り込み（{start} から {end} を表示）"
+      "filteredInfoTemplate": "{total} 件中 {filtered} 件に絞り込み（{start} から {end} を表示）",
+      "first": "先頭",
+      "last": "最後",
+      "show": "表示",
+      "pageOfTemplate": "{total} ページ中 {current} ページ"
+    },
+    "loading": "読み込み中...",
+    "boolean": {
+      "true": "はい",
+      "false": "いいえ"
     }
   },
   "rights": {
@@ -242,10 +248,6 @@
       "uuid": "UUID",
       "actions": "操作"
     },
-    "boolean": {
-      "true": "はい",
-      "false": "いいえ"
-    },
     "search": {
       "label": "検索",
       "placeholder": "行を絞り込む",
@@ -318,5 +320,86 @@
         "default_thumbnail": "デフォルトサムネイル"
       }
     }
+  },
+  "archivalStorage": {
+    "archiveSize": "アーカイブサイズ",
+    "filesIndexed": "インデックス済みファイル",
+    "aipsInAic": "AIC 内の AIP 数",
+    "aipInAic": "AIC 内の AIP",
+    "partOf": "所属",
+    "none": "なし",
+    "na": "N/A",
+    "viewRaw": "生データを表示",
+    "download": "ダウンロード",
+    "view": "表示",
+    "filter": "フィルター",
+    "booleanOperator": "ブール演算子",
+    "query": "検索語",
+    "field": "フィールド",
+    "otherFieldName": "その他のフィールド名",
+    "queryType": "クエリ種別",
+    "delete": "削除",
+    "sortedAscending": "昇順で並び替え済み",
+    "activateToSortDescending": "降順で並び替えるには有効化",
+    "sortedDescending": "降順で並び替え済み",
+    "activateToRemoveSorting": "並び替えを解除するには有効化",
+    "notSorted": "未ソート",
+    "activateToSortAscending": "昇順で並び替えるには有効化",
+    "loadingResults": "結果を読み込み中",
+    "error": "エラー",
+    "noResultsFound": "結果が見つかりません",
+    "filters": "フィルター",
+    "showFiles": "ファイルを表示",
+    "addFilter": "フィルターを追加",
+    "reset": "リセット",
+    "search": "検索",
+    "createAnAic": "AIC を作成",
+    "downloadCsv": "CSV をダウンロード",
+    "selectColumns": "列を選択",
+    "filePathWithRawTemplate": "{path}（{link}）",
+    "lookups": {
+      "operators": {
+        "or": "または",
+        "and": "かつ",
+        "not": "除外"
+      },
+      "searchFields": {
+        "any": "任意",
+        "fileUuid": "ファイル UUID",
+        "filePath": "ファイルパス",
+        "fileExtension": "拡張子",
+        "aipUuid": "AIP UUID",
+        "aipName": "AIP 名",
+        "identifiers": "識別子",
+        "partOfAic": "AIC の一部",
+        "aicIdentifier": "AIC 識別子",
+        "transferMetadata": "転送メタデータ",
+        "transferMetadataOther": "転送メタデータ（その他）"
+      },
+      "queryTypes": {
+        "keyword": "キーワード",
+        "phrase": "フレーズ",
+        "dateRange": "日付範囲"
+      },
+      "columns": {
+        "name": "名前",
+        "uuid": "UUID",
+        "aic": "AIC",
+        "size": "サイズ",
+        "fileCount": "ファイル数",
+        "accessionNumbers": "受入番号一覧",
+        "created": "作成日時",
+        "status": "ステータス",
+        "encrypted": "暗号化",
+        "location": "場所",
+        "actions": "操作",
+        "thumbnail": "サムネイル",
+        "file": "ファイル",
+        "aip": "AIP",
+        "accessionNumber": "受入番号",
+        "fileUuid": "ファイル UUID"
+      }
+    },
+    "searchRequestFailed": "検索リクエストに失敗しました"
   }
 }

@@ -65,7 +65,6 @@ type StatusIconFile
     | 'arrow_refresh.png'
     | 'bell.png'
     | 'cancel.png'
-    | 'control_stop_blue.png'
 
 // Status-to-icon lookup used by monitor row icon rendering.
 const STATUS_ICON_BY_CODE: Readonly<Record<MonitorStatusCode, StatusIconFile>> = {
@@ -74,7 +73,7 @@ const STATUS_ICON_BY_CODE: Readonly<Record<MonitorStatusCode, StatusIconFile>> =
   [STATUS_CODE_BY_NAME.STATUS_COMPLETED_SUCCESSFULLY]: 'accept.png',
   [STATUS_CODE_BY_NAME.STATUS_EXECUTING_COMMANDS]: 'arrow_refresh.png',
   [STATUS_CODE_BY_NAME.STATUS_FAILED]: 'cancel.png',
-  [STATUS_CODE_BY_NAME.STATUS_REJECTED]: 'control_stop_blue.png',
+  [STATUS_CODE_BY_NAME.STATUS_REJECTED]: 'cancel.png',
 }
 
 // Status-to-background-color lookup used by job-row rendering.

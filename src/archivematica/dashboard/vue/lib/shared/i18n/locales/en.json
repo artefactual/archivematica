@@ -40,7 +40,6 @@
     "configurationForm": "Transfer configuration form",
     "fileBrowserSection": "File browser section",
     "hideBrowser": "Hide file browser",
-    "loading": "Loading...",
     "name": "Transfer name",
     "showBrowser": "Show file browser",
     "showConfigOptions": "Show processing configuration options",
@@ -64,8 +63,7 @@
     "connected": "Connected",
     "disconnected": "Disconnected",
     "errorConnecting": "Error trying to connect to server. Trying again...",
-    "initializing": "Initializing...",
-    "loading": "Loading..."
+    "initializing": "Initializing..."
   },
   "metadata": {
     "add": "Add",
@@ -105,7 +103,6 @@
     "transferStartTime": "Transfer start time",
     "ingestStartTime": "Ingest start time",
     "removeAllCompleted": "Remove all completed",
-    "loading": "Loading...",
     "metadata": "Metadata",
     "remove": "Remove",
     "job": "Job",
@@ -148,7 +145,16 @@
       "previous": "Previous",
       "next": "Next",
       "ariaLabel": "Pagination",
-      "filteredInfoTemplate": "Showing {start} to {end} of {filtered} entries (filtered from {total} total entries)"
+      "filteredInfoTemplate": "Showing {start} to {end} of {filtered} entries (filtered from {total} total entries)",
+      "first": "First",
+      "last": "Last",
+      "show": "Show",
+      "pageOfTemplate": "Page {current} of {total}"
+    },
+    "loading": "Loading...",
+    "boolean": {
+      "true": "Yes",
+      "false": "No"
     }
   },
   "rights": {
@@ -242,10 +248,6 @@
       "uuid": "UUID",
       "actions": "Actions"
     },
-    "boolean": {
-      "true": "Yes",
-      "false": "No"
-    },
     "search": {
       "label": "Search",
       "placeholder": "Filter rows",
@@ -318,5 +320,86 @@
         "default_thumbnail": "Default thumbnail"
       }
     }
+  },
+  "archivalStorage": {
+    "archiveSize": "Archive size",
+    "filesIndexed": "Files indexed",
+    "aipsInAic": "AIPs in AIC",
+    "aipInAic": "AIP in AIC",
+    "partOf": "Part of",
+    "none": "None",
+    "na": "N/A",
+    "viewRaw": "view raw",
+    "download": "Download",
+    "view": "View",
+    "filter": "Filter",
+    "booleanOperator": "Boolean operator",
+    "query": "Query",
+    "field": "Field",
+    "otherFieldName": "Other field name",
+    "queryType": "Query type",
+    "delete": "Delete",
+    "sortedAscending": "sorted ascending",
+    "activateToSortDescending": "Activate to sort descending",
+    "sortedDescending": "sorted descending",
+    "activateToRemoveSorting": "Activate to remove sorting",
+    "notSorted": "not sorted",
+    "activateToSortAscending": "Activate to sort ascending",
+    "loadingResults": "Loading results",
+    "error": "Error",
+    "noResultsFound": "No results found",
+    "filters": "Filters",
+    "showFiles": "Show files",
+    "addFilter": "Add filter",
+    "reset": "Reset",
+    "search": "Search",
+    "createAnAic": "Create an AIC",
+    "downloadCsv": "Download CSV",
+    "selectColumns": "Select columns",
+    "filePathWithRawTemplate": "{path} ({link})",
+    "lookups": {
+      "operators": {
+        "or": "or",
+        "and": "and",
+        "not": "not"
+      },
+      "searchFields": {
+        "any": "Any",
+        "fileUuid": "File UUID",
+        "filePath": "File path",
+        "fileExtension": "File extension",
+        "aipUuid": "AIP UUID",
+        "aipName": "AIP name",
+        "identifiers": "Identifiers",
+        "partOfAic": "Part of AIC",
+        "aicIdentifier": "AIC Identifier",
+        "transferMetadata": "Transfer metadata",
+        "transferMetadataOther": "Transfer metadata (other)"
+      },
+      "queryTypes": {
+        "keyword": "Keyword",
+        "phrase": "Phrase",
+        "dateRange": "Date range"
+      },
+      "columns": {
+        "name": "Name",
+        "uuid": "UUID",
+        "aic": "AIC",
+        "size": "Size",
+        "fileCount": "File count",
+        "accessionNumbers": "Accession numbers",
+        "created": "Created",
+        "status": "Status",
+        "encrypted": "Encrypted",
+        "location": "Location",
+        "actions": "Actions",
+        "thumbnail": "Thumbnail",
+        "file": "File",
+        "aip": "AIP",
+        "accessionNumber": "Accession number",
+        "fileUuid": "File UUID"
+      }
+    },
+    "searchRequestFailed": "Search request failed"
   }
 }
