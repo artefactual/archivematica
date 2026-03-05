@@ -68,7 +68,7 @@ def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):
                 except (models.File.DoesNotExist, ValidationError):
                     xml_metadata_errors.append(f"No uuid for file: {xml_rel_path}")
                     continue
-                valid, errors = _validate_xml(tree, schema_uri)
+                valid, errors = _validate_xml(tree, schema_uri, xml_validation)
                 _add_validation_event(
                     mets, str(metadata_file.uuid), schema_uri, valid, errors
                 )
@@ -185,11 +185,16 @@ def _get_schema_uri(tree, xml_validation):
 
 
 class Resolver(etree.Resolver):
-    def resolve(self, url, id, context):
+    def __init__(self, xml_validation = {}):
+        self.uri_mapping = xml_validation
+
+    def resolve_external_url(self, url, id, context):
         url_scheme = urlparse(url).scheme
         if url_scheme in ("http", "https"):
             try:
-                response = requests.get(url)
+                # timeout to prevent hang indefinitely, see
+                # https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
+                response = requests.get(url, timeout=10)
             except requests.RequestException:
                 return super().resolve(url, id, context)
             else:
@@ -197,8 +202,19 @@ class Resolver(etree.Resolver):
         else:
             return super().resolve(url, id, context)
 
+    def resolve(self, url, id, context):
+        # check URI mapping first
+        if url in self.uri_mapping.keys():
+            local_path = Path(self.uri_mapping[url])
+            if local_path.is_file():
+                return self.resolve_filename(str(local_path), context)
+            else:
+                return self.resolve_external_url(self.uri_mapping[url], id, context)
+        # fallback: URL not in mapping
+        return self.resolve_external_url(url, id, context)
 
-def _validate_xml(tree, schema_uri):
+
+def _validate_xml(tree, schema_uri, xml_validation):
     schema_type = schema_uri.split(".")[-1]
     parse_result = urlparse(schema_uri)
     if not parse_result.scheme and schema_uri == parse_result.path:
@@ -212,17 +228,13 @@ def _validate_xml(tree, schema_uri):
             if schema_type == "dtd":
                 schema = etree.DTD(f)
             elif schema_type == "xsd":
-                schema_contents = etree.parse(f)
-                try:
-                    schema = etree.XMLSchema(schema_contents)
-                except etree.XMLSchemaParseError:
-                    # Try parsing the schema again with a custom resolver
-                    parser = etree.XMLParser()
-                    resolver = Resolver()
-                    parser.resolvers.add(resolver)
-                    with urlopen(schema_uri) as f2:
-                        schema_contents = etree.parse(f2, parser)
-                    schema = etree.XMLSchema(schema_contents)
+                parser = etree.XMLParser()
+                # Parse schema using a custom resolver that abides the users XML validation settings, see
+                # https://github.com/artefactual/archivematica/tree/qa/1.x/src/archivematica/MCPClient/install#metadata-xml-validation-variables
+                resolver = Resolver(xml_validation)
+                parser.resolvers.add(resolver)
+                schema_contents = etree.parse(f, parser)
+                schema = etree.XMLSchema(schema_contents)
             elif schema_type == "rng":
                 schema_contents = etree.parse(f)
                 schema = etree.RelaxNG(schema_contents)
