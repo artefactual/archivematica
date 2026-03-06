@@ -3,7 +3,7 @@ import { TreeItem, injectTreeRootContext } from 'reka-ui'
 import { computed, nextTick, ref } from 'vue'
 import type { TreeItemSelectEvent } from 'reka-ui'
 import type { TreeNode, TreeNodeContext } from '@/shared/components/TreeView.vue'
-import { useTreeNodeConfig } from '@/shared/components/treeNodeConfig'
+import { useTreeNodeConfig } from '@/shared/treeNodeConfig'
 
 defineOptions({ name: 'TreeNode' })
 

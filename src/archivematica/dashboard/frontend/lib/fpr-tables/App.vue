@@ -18,7 +18,7 @@ import {
 import { ResultsPagination } from '@/shared/components'
 import * as fprRoutes from '@/shared/http/fpr'
 import type { FprRow, FprTableKind, FprTablePayload, TableAction, TableActionStyle } from './types'
-import { useFprSearch } from './useFprSearch'
+import { useFprSearch } from './composables/useFprSearch'
 
 const { t } = useI18n()
 

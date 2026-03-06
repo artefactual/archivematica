@@ -1,6 +1,6 @@
 import { computed, nextTick, ref } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
-import type { FprRow, TableColumnMeta } from './types'
+import type { FprRow, TableColumnMeta } from '../types'
 import { useFprSearch } from './useFprSearch'
 
 const makeRows = () =>

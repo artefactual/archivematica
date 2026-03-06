@@ -1,6 +1,6 @@
 import { computed, ref, watch, type Ref } from 'vue'
 import { refDebounced } from '@vueuse/core'
-import type { FprRow, TableColumnMeta } from './types'
+import type { FprRow, TableColumnMeta } from '../types'
 
 const SEARCH_DEBOUNCE_MS = 100
 

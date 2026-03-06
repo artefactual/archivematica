@@ -6,7 +6,7 @@ vi.mock('@/topbar/composables/useStatus', () => ({
   useStatus: vi.fn(),
 }))
 
-describe('TopbarApp', () => {
+describe('App', () => {
   let startPolling: ReturnType<typeof vi.fn>
   let stopPolling: ReturnType<typeof vi.fn>
 
@@ -32,8 +32,8 @@ describe('TopbarApp', () => {
   })
 
   it('renders connection status and nav counts components', async () => {
-    const { default: TopbarApp } = await import('@/topbar/TopbarApp.vue')
-    const wrapper = mount(TopbarApp, {
+    const { default: App } = await import('@/topbar/App.vue')
+    const wrapper = mount(App, {
       global: {
         stubs: {
           ConnectionStatus: { template: '<div class="connection-stub"></div>' },
