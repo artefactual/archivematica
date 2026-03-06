@@ -1,7 +1,7 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import App from './App.vue'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import { encodeBase64 } from '@/shared/encoding/base64'
 
 vi.mock('@/shared/http', async () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import App from './App.vue'
 import type { TransferComponent, TransferFormData } from '@/transfer-browser/types'
 import { TRANSFER_STARTED_EVENT } from '@/shared/events/monitor'

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect } from 'vitest'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import MetadataSubmitStatus from './MetadataSubmitStatus.vue'
 
 describe('MetadataSubmitStatus', () => {

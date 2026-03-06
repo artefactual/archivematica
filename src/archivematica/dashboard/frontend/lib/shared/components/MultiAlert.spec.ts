@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import MultiAlert from './MultiAlert.vue'
 import type { Alert } from './MultiAlert.vue'
 

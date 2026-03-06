@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import ProcessMonitor from './ProcessMonitor.vue'
 
 vi.mock('@/shared/http/transfer', async () => {

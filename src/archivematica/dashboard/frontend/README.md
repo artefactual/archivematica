@@ -11,13 +11,6 @@ modern Vue 3 + TypeScript.
 npm install
 ```
 
-### Development server
-
-```bash
-npm run dev
-# Starts on http://localhost:3000 (or custom port with --port)
-```
-
 ### Testing
 
 ```bash
@@ -33,7 +26,6 @@ npm run check             # Run all checks (lint + type-check + test + build)
 ```bash
 npm run build             # Production build
 npm run build:watch       # Production build (watch mode)
-npm run preview           # Preview production build locally
 ```
 
 ## Internationalization (i18n)
@@ -98,11 +90,6 @@ t('alerts.transferStarted', { name: transferName })
 // Translation file
 "Transfer \"{name}\" started successfully"
 ```
-
-### Development environment
-
-- **Language selector**: Available in `npm run dev` via the navbar dropdown
-- **Runtime loading**: Locale JSON is lazy-loaded by `setLocale`
 
 ### Adding a new language
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import { useStatus } from '@/topbar/composables/useStatus'
 
 const i18n = createI18nMock()
