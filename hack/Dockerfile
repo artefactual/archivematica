@@ -283,6 +283,8 @@ FROM base AS archivematica-tests
 FROM base AS archivematica-dashboard-integration-tests
 
 USER root
+ARG USER_ID
+ARG GROUP_ID
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -294,6 +296,9 @@ USER archivematica
 RUN set -ex \
 	&& mkdir -p /var/archivematica/.cache/ms-playwright \
 	&& python3 -m playwright install firefox
+
+# Copy frontend assets out of where /src is bind-mounted during tests.
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-vue-builder --link /src/src/archivematica/dashboard/vue/dist /opt/am-dashboard-dist
 
 # -----------------------------------------------------------------------------
 
