@@ -123,7 +123,6 @@ COPY --link src/archivematica/dashboard/frontend/package-lock.json /src/src/arch
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 	set -ex \
-	&& npm pkg delete scripts.prepare \
 	&& npm clean-install
 
 COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboard/frontend

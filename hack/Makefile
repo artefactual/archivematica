@@ -197,6 +197,15 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		--entrypoint npm \
 			archivematica-dashboard-frontend-builder \
 				clean-install
+	docker run \
+		-e HOME=/tmp/npm-config \
+		--rm \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
+		--volume "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/frontend/node_modules" \
+		--entrypoint npm \
+			archivematica-dashboard-frontend-builder \
+				run build
 
 bootstrap-storage-service-frontend:  ## Build Storage Service front-end assets.
 	docker build \
