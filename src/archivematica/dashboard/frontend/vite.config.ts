@@ -16,10 +16,6 @@ const CHUNK_ROUTES = [
     match: ['node_modules/jquery/'],
   },
   {
-    name: 'inputmask',
-    match: ['node_modules/inputmask/'],
-  },
-  {
     name: 'tanstack-table',
     match: [
       'node_modules/@tanstack/table-core/',

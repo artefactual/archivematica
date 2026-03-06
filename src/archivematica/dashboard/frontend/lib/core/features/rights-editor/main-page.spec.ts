@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { initBasisBehavior, initMainPage } from './main-page'
 
-const { listRightsFormdataMock, saveRightsFormdataMock, applyDateInputMaskMock } = vi.hoisted(
+const { listRightsFormdataMock, saveRightsFormdataMock, applyTemplateDateMaskMock } = vi.hoisted(
   () => ({
     listRightsFormdataMock: vi.fn(),
     saveRightsFormdataMock: vi.fn(),
-    applyDateInputMaskMock: vi.fn(),
+    applyTemplateDateMaskMock: vi.fn(),
   }),
 )
 
@@ -26,8 +26,8 @@ vi.mock('@/shared/http', () => ({
   saveRightsFormdata: saveRightsFormdataMock,
 }))
 
-vi.mock('./inputmask', () => ({
-  applyDateInputMask: applyDateInputMaskMock,
+vi.mock('@/core/features/datemask', () => ({
+  applyTemplateDateMask: applyTemplateDateMaskMock,
 }))
 
 vi.mock('@/shared/i18n/plain', () => ({
@@ -203,7 +203,7 @@ describe('rights-editor main page', () => {
 
     await initMainPage()
 
-    expect(applyDateInputMaskMock).toHaveBeenCalledTimes(1)
+    expect(applyTemplateDateMaskMock).toHaveBeenCalledTimes(1)
     MAIN_PAGE_TYPES.forEach((type) => {
       expect(listRightsFormdataMock).toHaveBeenCalledWith(type, '10')
     })

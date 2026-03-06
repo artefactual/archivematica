@@ -30,8 +30,8 @@ maps to the two Django templates:
 
 ## Shared Building Blocks
 
-- `inputmask.ts`
-  - applies date input mask to date-like text fields.
+- `core/features/datemask`
+  - shared date mask module used by rights-editor date fields.
 - `repeater.ts`
   - shared repeater runtime for both pages:
     - finds repeater containers by id prefix
@@ -118,7 +118,6 @@ Currently wired repeater flows:
 
 Feature tests live next to modules:
 
-- `inputmask.spec.ts`
 - `repeater.spec.ts`
 - `main-page.spec.ts`
 - `grants-page.spec.ts`
@@ -126,16 +125,15 @@ Feature tests live next to modules:
 They validate page dispatch behavior, repeater render/update behavior, and
 page-specific DOM behavior.
 
+Date mask behavior is covered in `core/features/datemask/index.spec.ts`.
+
 ## TODO
 
 - Improve legacy-derived DOM coupling in grants layout behavior
   (`repositionRestrictionField`) so it no longer depends on child index order.
 - Move new repeater status/error strings (`Saved`, load/save failures) into
   localized i18n keys once product wording is finalized.
-- Evaluate a follow-up iteration that removes jQuery and replaces `inputmask`
-  with a lighter alternative. Current usage imports
-  `inputmask/dist/inputmask.es6.js` (which loads the full `dist/inputmask.js`
-   bundle) and relies on full-library jQuery APIs, so tree-shaking benefits are
-   limited in this feature.
+- Evaluate a follow-up iteration that removes jQuery. Date masking no longer
+  uses `inputmask` and now lives in shared `core/features/datemask`.
 - Evaluate replacing native `title` attributes with an accessible design-system
   tooltip once strict migration parity is no longer required.

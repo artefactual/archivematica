@@ -1,7 +1,7 @@
 import $ from 'jquery'
+import { applyTemplateDateMask } from '@/core/features/datemask'
 import { translate } from '@/shared/i18n/plain'
 import { RIGHTS_EDITOR_FORMDATA_TYPES } from '@/shared/http'
-import { applyDateInputMask } from './inputmask'
 import { initRepeaters } from './repeater'
 import type { RepeaterConfig } from './repeater'
 import { applyGrantsPageTitleAttributes } from './tooltips'
@@ -34,6 +34,7 @@ const GRANTS_PAGE_REPEATERS: RepeaterConfig[] = [
     ],
   },
 ]
+const DATE_INPUT_SELECTOR = 'input[type="text"][name*="date"]'
 
 const appendRevealButton = ($list: ReturnType<typeof $>, dataType: string): void => {
   if ($list.length <= 1) {
@@ -75,7 +76,7 @@ export const initGrantsLayoutBehavior = (): void => {
 }
 
 export const initGrantsPage = async (): Promise<void> => {
-  applyDateInputMask()
+  applyTemplateDateMask(DATE_INPUT_SELECTOR)
   initGrantsLayoutBehavior()
   applyGrantsPageTitleAttributes()
   await initRepeaters(GRANTS_PAGE_REPEATERS)

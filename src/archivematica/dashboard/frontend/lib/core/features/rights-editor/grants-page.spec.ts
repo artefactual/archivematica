@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { initGrantsPage } from './grants-page'
 
-const { listRightsFormdataMock, saveRightsFormdataMock, applyDateInputMaskMock } = vi.hoisted(
+const { listRightsFormdataMock, saveRightsFormdataMock, applyTemplateDateMaskMock } = vi.hoisted(
   () => ({
     listRightsFormdataMock: vi.fn(),
     saveRightsFormdataMock: vi.fn(),
-    applyDateInputMaskMock: vi.fn(),
+    applyTemplateDateMaskMock: vi.fn(),
   }),
 )
 
@@ -37,8 +37,8 @@ vi.mock('@/shared/http', () => ({
   saveRightsFormdata: saveRightsFormdataMock,
 }))
 
-vi.mock('./inputmask', () => ({
-  applyDateInputMask: applyDateInputMaskMock,
+vi.mock('@/core/features/datemask', () => ({
+  applyTemplateDateMask: applyTemplateDateMaskMock,
 }))
 
 describe('rights-editor grants page', () => {
@@ -93,7 +93,7 @@ describe('rights-editor grants page', () => {
 
     await initGrantsPage()
 
-    expect(applyDateInputMaskMock).toHaveBeenCalledTimes(1)
+    expect(applyTemplateDateMaskMock).toHaveBeenCalledTimes(1)
     expect(listRightsFormdataMock).toHaveBeenCalledWith('rightsrestriction', '10')
     expect(listRightsFormdataMock).toHaveBeenCalledWith('rightsnote', '10')
 
