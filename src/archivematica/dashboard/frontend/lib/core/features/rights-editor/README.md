@@ -133,7 +133,5 @@ Date mask behavior is covered in `core/features/datemask/index.spec.ts`.
   (`repositionRestrictionField`) so it no longer depends on child index order.
 - Move new repeater status/error strings (`Saved`, load/save failures) into
   localized i18n keys once product wording is finalized.
-- Evaluate a follow-up iteration that removes jQuery. Date masking no longer
-  uses `inputmask` and now lives in shared `core/features/datemask`.
 - Evaluate replacing native `title` attributes with an accessible design-system
   tooltip once strict migration parity is no longer required.

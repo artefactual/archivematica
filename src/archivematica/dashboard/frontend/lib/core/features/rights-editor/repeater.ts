@@ -1,11 +1,9 @@
-import $ from 'jquery'
 import type { RightsEditorFormdataType, RightsFormdataRecord } from '@/shared/http'
 import { listRightsFormdata, saveRightsFormdata } from '@/shared/http'
 import { translate } from '@/shared/i18n/plain'
 
-type JQueryElement = ReturnType<typeof $>
-
 type RepeaterFieldType = 'input' | 'textarea' | 'select'
+type RepeaterControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 
 type RepeaterOptionConfig = {
   value: string
@@ -36,41 +34,61 @@ const saveQueueByRow = new WeakMap<Element, Promise<void>>()
 
 const extractParentId = (idPrefix: string, id: string): string => id.slice(idPrefix.length)
 
-const createFieldInput = (field: RepeaterFieldConfig): JQueryElement => {
+const getDirectChildrenByClass = (
+  element: HTMLElement,
+  className: string,
+): HTMLElement[] =>
+  Array.from(element.children).filter(
+    (child): child is HTMLElement =>
+      child instanceof HTMLElement && child.classList.contains(className),
+  )
+
+const getFieldControls = (row: HTMLElement): RepeaterControlElement[] =>
+  Array.from(row.querySelectorAll<RepeaterControlElement>('input,textarea,select'))
+
+const createFieldInput = (field: RepeaterFieldConfig): RepeaterControlElement => {
   const type = field.type ?? 'textarea'
   if (type === 'input') {
-    return $('<input>')
+    return document.createElement('input')
   }
 
   if (type === 'select') {
-    const select = $('<select>')
-    ;(field.options ?? []).forEach((option) => {
+    const select = document.createElement('select')
+    ;(field.options ?? []).forEach((option: RepeaterOptionConfig) => {
       const label = option.labelKey ? translate(option.labelKey) : (option.label ?? '')
-      select.append($('<option>').attr('value', option.value).text(label))
+      const optionElement = document.createElement('option')
+      optionElement.value = option.value
+      optionElement.textContent = label
+      select.append(optionElement)
     })
     return select
   }
 
-  return $('<textarea></textarea>')
+  return document.createElement('textarea')
 }
 
 const createRecordRow = (
   config: RepeaterConfig,
   record: RightsFormdataRecord,
-): JQueryElement => {
-  const row = $('<div class="repeating-ajax-data-row"></div>').attr('data-record-id', String(record.id))
+): HTMLElement => {
+  const row = document.createElement('div')
+  row.className = 'repeating-ajax-data-row'
+  row.dataset.recordId = String(record.id)
 
   config.fields.forEach((field) => {
     const label = field.labelKey ? translate(field.labelKey) : field.label
     if (label) {
-      row.append($('<label>').text(label))
+      const labelElement = document.createElement('label')
+      labelElement.textContent = label
+      row.append(labelElement)
     }
 
-    const fieldWrapper = $('<div class="repeating-ajax-data-field"></div>')
+    const fieldWrapper = document.createElement('div')
+    fieldWrapper.className = 'repeating-ajax-data-field'
     const input = createFieldInput(field)
-      .attr('name', field.name)
-      .addClass('form-control')
-      .val(record.values[field.name] ?? '')
+    input.name = field.name
+    input.classList.add('form-control')
+    input.value = String(record.values[field.name] ?? '')
 
     fieldWrapper.append(input)
     row.append(fieldWrapper)
@@ -80,11 +98,11 @@ const createRecordRow = (
 }
 
 const renderRepeatingData = (
-  container: JQueryElement,
+  container: HTMLElement,
   config: RepeaterConfig,
   records: RightsFormdataRecord[],
-): JQueryElement[] => {
-  container.empty()
+): HTMLElement[] => {
+  container.replaceChildren()
   return records.map((record) => {
     const row = createRecordRow(config, record)
     container.append(row)
@@ -92,78 +110,96 @@ const renderRepeatingData = (
   })
 }
 
-const toggleManualRow = (container: JQueryElement, hasData: boolean): void => {
-  const fieldset = container.closest('.repeating-ajax-data-fieldset')
-  if (!fieldset.length) {
+const toggleManualRow = (container: HTMLElement, hasData: boolean): void => {
+  const fieldset = container.closest<HTMLElement>('.repeating-ajax-data-fieldset')
+  if (!fieldset) {
     return
   }
-  fieldset.children('.repeating-ajax-data-row').toggle(!hasData)
+
+  getDirectChildrenByClass(fieldset, 'repeating-ajax-data-row').forEach((row) => {
+    if (hasData) {
+      row.style.display = 'none'
+      return
+    }
+
+    row.style.removeProperty('display')
+  })
 }
 
-const showLoadAlert = (container: JQueryElement, message: string): void => {
-  const fieldset = container.closest('.repeating-ajax-data-fieldset')
-  if (!fieldset.length) {
+const showLoadAlert = (container: HTMLElement, message: string): void => {
+  const fieldset = container.closest<HTMLElement>('.repeating-ajax-data-fieldset')
+  if (!fieldset) {
     return
   }
 
-  let alert = fieldset.children('.repeating-ajax-data-alert')
-  if (!alert.length) {
-    alert = $('<div class="repeating-ajax-data-alert alert alert-warning"></div>')
+  let alert = getDirectChildrenByClass(fieldset, 'repeating-ajax-data-alert')[0]
+  if (!alert) {
+    alert = document.createElement('div')
+    alert.className = 'repeating-ajax-data-alert alert alert-warning'
     fieldset.prepend(alert)
   }
-  alert.text(message)
+  alert.textContent = message
 }
 
-const clearLoadAlert = (container: JQueryElement): void => {
-  const fieldset = container.closest('.repeating-ajax-data-fieldset')
-  if (!fieldset.length) {
+const clearLoadAlert = (container: HTMLElement): void => {
+  const fieldset = container.closest<HTMLElement>('.repeating-ajax-data-fieldset')
+  if (!fieldset) {
     return
   }
-  fieldset.children('.repeating-ajax-data-alert').remove()
+
+  getDirectChildrenByClass(fieldset, 'repeating-ajax-data-alert').forEach((alert) => {
+    alert.remove()
+  })
 }
 
-const getStatusElement = (row: JQueryElement): JQueryElement => {
-  let status = row.children(ROW_STATUS_SELECTOR)
-  if (!status.length) {
-    status = $('<small class="repeating-ajax-data-status text-muted" aria-live="polite"></small>').hide()
-    row.append(status)
+const getStatusElement = (row: HTMLElement): HTMLElement => {
+  const existingStatus = row.querySelector<HTMLElement>(`:scope > ${ROW_STATUS_SELECTOR}`)
+  if (existingStatus) {
+    return existingStatus
   }
+
+  const status = document.createElement('small')
+  status.className = 'repeating-ajax-data-status text-muted'
+  status.setAttribute('aria-live', 'polite')
+  status.style.display = 'none'
+  row.append(status)
   return status
 }
 
-const clearStatusTimer = (status: JQueryElement): void => {
-  const timerId = Number(status.data('hideTimer') ?? 0)
+const clearStatusTimer = (status: HTMLElement): void => {
+  const timerId = Number(status.dataset.hideTimer ?? '0')
   if (timerId) {
     window.clearTimeout(timerId)
-    status.removeData('hideTimer')
+    delete status.dataset.hideTimer
   }
 }
 
-const showSavedStatus = (row: JQueryElement): void => {
+const showSavedStatus = (row: HTMLElement): void => {
   const status = getStatusElement(row)
   clearStatusTimer(status)
-  status.removeClass('text-danger').addClass('text-muted').text(SAVE_SUCCESS_MESSAGE).show()
+  status.classList.remove('text-danger')
+  status.classList.add('text-muted')
+  status.textContent = SAVE_SUCCESS_MESSAGE
+  status.style.removeProperty('display')
 
   const timerId = window.setTimeout(() => {
-    status.fadeOut(200)
-    status.removeData('hideTimer')
+    status.style.display = 'none'
+    delete status.dataset.hideTimer
   }, STATUS_HIDE_DELAY_MS)
 
-  status.data('hideTimer', timerId)
+  status.dataset.hideTimer = String(timerId)
 }
 
-const showSaveError = (row: JQueryElement): void => {
+const showSaveError = (row: HTMLElement): void => {
   const status = getStatusElement(row)
   clearStatusTimer(status)
-  status.removeClass('text-muted').addClass('text-danger').text(SAVE_FAILURE_MESSAGE).show()
+  status.classList.remove('text-muted')
+  status.classList.add('text-danger')
+  status.textContent = SAVE_FAILURE_MESSAGE
+  status.style.removeProperty('display')
 }
 
-const queueSaveForRow = (row: JQueryElement, task: () => Promise<void>): void => {
-  const rowElement = row.get(0)
-  if (!rowElement) {
-    return
-  }
-
+const queueSaveForRow = (rowElement: HTMLElement, task: () => Promise<void>): void => {
   const previous = saveQueueByRow.get(rowElement) ?? Promise.resolve()
   const next = previous.catch(() => undefined).then(task)
   saveQueueByRow.set(rowElement, next)
@@ -176,50 +212,52 @@ const queueSaveForRow = (row: JQueryElement, task: () => Promise<void>): void =>
 }
 
 const getRowValues = (
-  row: JQueryElement,
+  row: HTMLElement,
   fields: RepeaterConfig['fields'],
 ): Record<string, string> => {
   const values: Record<string, string> = {}
+  const controls = getFieldControls(row)
   fields.forEach((field) => {
-    const value = row.find(`[name="${field.name}"]`).first().val()
-    values[field.name] = String(value ?? '')
+    const control = controls.find(candidate => candidate.name === field.name)
+    values[field.name] = control?.value ?? ''
   })
   return values
 }
 
 const bindUpdateHandlers = (
-  row: JQueryElement,
+  row: HTMLElement,
   config: RepeaterConfig,
   parentId: string,
 ): void => {
-  const idAttr = row.attr('data-record-id')
-  const recordId = idAttr ? Number(idAttr) : undefined
+  const recordId = Number(row.dataset.recordId ?? '')
   if (!recordId) {
     return
   }
 
-  row.find('input,textarea,select').on('change', () => {
-    const values = getRowValues(row, config.fields)
-    queueSaveForRow(row, async () => {
-      try {
-        await saveRightsFormdata(config.formdataType, parentId, values, recordId)
-        showSavedStatus(row)
-      } catch (error) {
-        console.error(
-          `Failed to save rights repeater row ${config.idPrefix}${parentId}/${recordId}`,
-          error,
-        )
-        showSaveError(row)
-      }
+  getFieldControls(row).forEach((control) => {
+    control.addEventListener('change', () => {
+      const values = getRowValues(row, config.fields)
+      queueSaveForRow(row, async () => {
+        try {
+          await saveRightsFormdata(config.formdataType, parentId, values, recordId)
+          showSavedStatus(row)
+        } catch (error) {
+          console.error(
+            `Failed to save rights repeater row ${config.idPrefix}${parentId}/${recordId}`,
+            error,
+          )
+          showSaveError(row)
+        }
+      })
     })
   })
 }
 
 const initRepeaterContainer = async (
-  container: JQueryElement,
+  container: HTMLElement,
   config: RepeaterConfig,
 ): Promise<void> => {
-  const id = container.attr('id') ?? ''
+  const id = container.id
   const parentId = extractParentId(config.idPrefix, id)
   if (!parentId || parentId === 'None') {
     return
@@ -243,8 +281,8 @@ const initRepeaters = async (configs: RepeaterConfig[]): Promise<void> => {
   const tasks: Promise<void>[] = []
 
   configs.forEach((config) => {
-    $(`[id^="${config.idPrefix}"]`).each((_: number, element: Element) => {
-      tasks.push(initRepeaterContainer($(element as HTMLElement), config))
+    document.querySelectorAll<HTMLElement>(`[id^="${config.idPrefix}"]`).forEach((element) => {
+      tasks.push(initRepeaterContainer(element, config))
     })
   })
 

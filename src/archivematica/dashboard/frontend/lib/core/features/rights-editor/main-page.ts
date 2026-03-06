@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import { applyTemplateDateMask } from '@/core/features/datemask'
 import { translate } from '@/shared/i18n/plain'
 import { RIGHTS_EDITOR_FORMDATA_TYPES } from '@/shared/http'
@@ -152,49 +151,77 @@ const OTHER_END_DATE_LABEL
 const DATE_INPUT_SELECTOR = 'input[type="text"][name*="date"]'
 
 const revealSelectedBasis = (): void => {
-  const selectedBasis = String($('#id_rightsbasis').val() ?? '')
+  const basisField = document.querySelector<HTMLSelectElement>('#id_rightsbasis')
+  if (!basisField) {
+    return
+  }
+
+  const selectedBasis = basisField.value
   Object.entries(FORMSETS_BY_BASIS).forEach(([basis, formsetId]) => {
+    const formset = document.getElementById(formsetId)
     if (basis !== selectedBasis) {
-      $(`#${formsetId}`).hide()
+      formset?.style.setProperty('display', 'none')
     }
   })
 
   const selectedFormsetId = FORMSETS_BY_BASIS[selectedBasis]
   if (selectedFormsetId) {
-    $(`#${selectedFormsetId}`).show()
+    document.getElementById(selectedFormsetId)?.style.removeProperty('display')
   }
 
   const isDonorOrPolicy = selectedBasis === 'Donor' || selectedBasis === 'Policy'
+  const otherBasisContainer = document
+    .querySelector<HTMLElement>(OTHER_BASIS_FIELD)
+    ?.parentElement
+    ?.parentElement
   if (isDonorOrPolicy) {
-    $(OTHER_BASIS_FIELD).parent().parent().hide()
+    otherBasisContainer?.style.setProperty('display', 'none')
   } else {
-    $(OTHER_BASIS_FIELD).parent().parent().show()
-    $(OTHER_NOTE_LABEL).text(translate('rights.note'))
+    otherBasisContainer?.style.removeProperty('display')
+    const otherNoteLabel = document.querySelector<HTMLElement>(OTHER_NOTE_LABEL)
+    if (otherNoteLabel) {
+      otherNoteLabel.textContent = translate('rights.note')
+    }
   }
 
-  $(OTHER_DOC_ID_LABEL).text(
-    translate('rights.documentationIdentifierForBasis', { basis: selectedBasis }),
-  )
+  const otherDocLabel = document.querySelector<HTMLElement>(OTHER_DOC_ID_LABEL)
+  if (otherDocLabel) {
+    otherDocLabel.textContent = translate('rights.documentationIdentifierForBasis', {
+      basis: selectedBasis,
+    })
+  }
 
   const noteBasis = selectedBasis === 'Donor' ? translate('rights.donorAgreement') : selectedBasis
+  const otherNoteLabel = document.querySelector<HTMLElement>(OTHER_NOTE_LABEL)
   if (selectedBasis === 'Donor' || selectedBasis === 'Policy') {
-    $(OTHER_NOTE_LABEL).text(translate('rights.noteForBasis', { basis: noteBasis }))
+    if (otherNoteLabel) {
+      otherNoteLabel.textContent = translate('rights.noteForBasis', { basis: noteBasis })
+    }
   } else {
-    $(OTHER_NOTE_LABEL).text(translate('rights.note'))
+    if (otherNoteLabel) {
+      otherNoteLabel.textContent = translate('rights.note')
+    }
   }
 
   const dateBasis = selectedBasis === 'Donor' ? translate('rights.donorAgreement') : selectedBasis
-  $(OTHER_START_DATE_LABEL).text(translate('rights.startDateForBasis', { basis: dateBasis }))
-  $(OTHER_END_DATE_LABEL).text(translate('rights.endDateForBasis', { basis: dateBasis }))
+  const startDateLabel = document.querySelector<HTMLElement>(OTHER_START_DATE_LABEL)
+  if (startDateLabel) {
+    startDateLabel.textContent = translate('rights.startDateForBasis', { basis: dateBasis })
+  }
+
+  const endDateLabel = document.querySelector<HTMLElement>(OTHER_END_DATE_LABEL)
+  if (endDateLabel) {
+    endDateLabel.textContent = translate('rights.endDateForBasis', { basis: dateBasis })
+  }
 }
 
 export const initBasisBehavior = (): void => {
-  const basisField = $('#id_rightsbasis')
-  if (!basisField.length) {
+  const basisField = document.querySelector<HTMLElement>('#id_rightsbasis')
+  if (!basisField) {
     return
   }
 
-  basisField.on('change', revealSelectedBasis)
+  basisField.addEventListener('change', revealSelectedBasis)
   revealSelectedBasis()
 }
 

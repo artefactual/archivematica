@@ -9,10 +9,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 // Define manual chunks for better control over code splitting.
 const CHUNK_ROUTES = [
   {
-    name: 'jquery',
-    match: ['node_modules/jquery/'],
-  },
-  {
     name: 'tanstack-table',
     match: [
       'node_modules/@tanstack/table-core/',
