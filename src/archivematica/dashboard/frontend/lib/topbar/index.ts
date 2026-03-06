@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import TopbarApp from '@/topbar/TopbarApp.vue'
+import App from '@/topbar/App.vue'
 import { i18n, initI18n } from '@/shared/i18n'
 
 const ROOT_ID = 'archivematica-topbar-vue'
@@ -27,7 +27,7 @@ async function bootstrap() {
   await initI18n()
   const root = ensureRoot()
   if (root.dataset.mounted) return
-  createApp(TopbarApp).use(i18n).mount(root)
+  createApp(App).use(i18n).mount(root)
   root.dataset.mounted = 'true'
 }
 

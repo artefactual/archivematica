@@ -64,8 +64,8 @@ export type TreeNodeContext = {
 <script setup lang="ts">
 import { TreeRoot } from 'reka-ui'
 import TreeNode from '@/shared/components/TreeNode.vue'
-import { createTreeNodeKeyHelpers } from '@/shared/components/treeNodeKeys'
-import { provideTreeNodeConfig } from '@/shared/components/treeNodeConfig'
+import { createTreeNodeKeyHelpers } from '@/shared/treeNodeKeys'
+import { provideTreeNodeConfig } from '@/shared/treeNodeConfig'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 const props = withDefaults(defineProps<{
