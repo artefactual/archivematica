@@ -1,7 +1,7 @@
 import $ from 'jquery'
+import { applyTemplateDateMask } from '@/core/features/datemask'
 import { translate } from '@/shared/i18n/plain'
 import { RIGHTS_EDITOR_FORMDATA_TYPES } from '@/shared/http'
-import { applyDateInputMask } from './inputmask'
 import { initRepeaters } from './repeater'
 import type { RepeaterConfig } from './repeater'
 import { applyMainPageTitleAttributes } from './tooltips'
@@ -149,6 +149,7 @@ const OTHER_START_DATE_LABEL
   = 'label[for=\'id_rightsstatementotherrightsinformation_set-0-otherrightsapplicablestartdate\']'
 const OTHER_END_DATE_LABEL
   = 'label[for=\'id_rightsstatementotherrightsinformation_set-0-otherrightsapplicableenddate\']'
+const DATE_INPUT_SELECTOR = 'input[type="text"][name*="date"]'
 
 const revealSelectedBasis = (): void => {
   const selectedBasis = String($('#id_rightsbasis').val() ?? '')
@@ -198,7 +199,7 @@ export const initBasisBehavior = (): void => {
 }
 
 export const initMainPage = async (): Promise<void> => {
-  applyDateInputMask()
+  applyTemplateDateMask(DATE_INPUT_SELECTOR)
   initBasisBehavior()
   applyMainPageTitleAttributes()
   await initRepeaters(MAIN_PAGE_REPEATERS)
