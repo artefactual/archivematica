@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createI18nMock } from '@/shared/i18n'
+import { createI18nMock } from '@/shared/i18n/testing'
 import TreeViewContainer from '@/transfer-browser/components/TreeViewContainer.vue'
 import TreeView from '@/shared/components/TreeView.vue'
 import type { FileNode } from '@/transfer-browser/types'

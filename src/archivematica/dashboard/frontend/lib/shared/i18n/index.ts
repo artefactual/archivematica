@@ -1,5 +1,4 @@
 import { createI18n } from 'vue-i18n'
-import en from './locales/en.json'
 
 // Available locales for async loading. This mirrors the authoritative LANGUAGES
 // list in archivematica/dashboard/settings/base.py.
@@ -36,25 +35,6 @@ function posixToBcp47Locale(posixLocale: string): string {
   return posixLocale.replace('_', '-').toLowerCase()
 }
 
-// Convert BCP 47 format (pt-br) to POSIX/CLDR format (pt_BR).
-function bcp47ToPosixLocale(bcp47Locale: string): string {
-  const parts = bcp47Locale.split('-')
-  const language = parts[0] ?? ''
-  const region = parts[1]
-  return region ? `${language}_${region.toUpperCase()}` : language
-}
-
-function createI18nMock() {
-  return createI18n({
-    legacy: false,
-    locale: 'en',
-    fallbackLocale: 'en',
-    messages: { en: en },
-    silentTranslationWarn: true,
-    silentFallbackWarn: true,
-  })
-}
-
 // Initialize i18n.
 const i18n = createI18n({
   legacy: false,
@@ -85,15 +65,4 @@ async function initI18n(): Promise<void> {
 export {
   i18n,
   initI18n,
-
-  // Used for testing.
-  createI18nMock,
-
-  // Used in the development environment.
-  AVAILABLE_LOCALES,
-  type AvailableLocale,
-  initialLocale,
-  setLocale,
-  posixToBcp47Locale,
-  bcp47ToPosixLocale,
 }

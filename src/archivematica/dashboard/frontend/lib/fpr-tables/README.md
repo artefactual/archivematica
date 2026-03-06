@@ -74,7 +74,8 @@ Basic component tests live next to the components:
 - `App.spec.ts`
 - `TablePagination.spec.ts`
 
-Use `createI18nMock()` and standard Vue Test Utils `mount(...)`.
+Use `createI18nMock()` from `@/shared/i18n/testing` and standard Vue Test Utils
+`mount(...)`.
 
 ## Extending / Adding a New FPR Table
 
