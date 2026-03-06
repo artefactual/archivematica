@@ -185,7 +185,9 @@ def _get_schema_uri(tree, xml_validation):
 
 
 class Resolver(etree.Resolver):
-    def __init__(self, xml_validation = {}):
+    def __init__(self, xml_validation=None):
+        if xml_validation is None:
+            xml_validation = {}
         self.uri_mapping = xml_validation
 
     def resolve_external_url(self, url, id, context):
