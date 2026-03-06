@@ -10,18 +10,18 @@ repos:
         src/archivematica/(MCPClient|MCPServer|dashboard)/install/.*\.json
       )
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.0
+  rev: v0.15.5
   hooks:
   - id: ruff
     args: [--fix, --exit-non-zero-on-fix]
   - id: ruff-format
 - repo: https://github.com/adamchainz/django-upgrade
-  rev: "1.29.1"
+  rev: "1.30.0"
   hooks:
   - id: django-upgrade
     args: [--target-version, "5.2"]
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.47.0
+  rev: v0.48.0
   hooks:
   - id: markdownlint
     exclude: |
@@ -30,7 +30,7 @@ repos:
         src/archivematica/dashboard/media/vendor/.*
       )
 - repo: https://github.com/thlorenz/doctoc
-  rev: v2.2.0
+  rev: v2.3.0
   hooks:
   - id: doctoc
     files: |
