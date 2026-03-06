@@ -10,6 +10,7 @@ volumes:
   elasticsearch_data:
   archivematica_storage_service_staging_data:
   archivematica_dashboard_frontend_node_modules:
+  archivematica_storage_service_frontend_node_modules:
 
   # External named volumes.
   # These are intended to be accessible beyond the docker host (e.g. via NFS).
@@ -233,6 +234,7 @@ services:
     volumes:
       - "./submodules/archivematica-storage-service/:/src/"
       - "./submodules/archivematica-sampledata/:/home/archivematica/archivematica-sampledata/:ro"
+      - "archivematica_storage_service_frontend_node_modules:/src/src/archivematica/storage_service/frontend/node_modules"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
       - "archivematica_storage_service_staging_data:/var/archivematica/storage_service:rw"
       - "archivematica_storage_service_location_data:/home:rw"
