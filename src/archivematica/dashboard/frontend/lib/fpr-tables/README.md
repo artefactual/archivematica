@@ -22,7 +22,7 @@ This is a **first iteration**:
 1. Django template renders:
    - a mount node (`data-fpr-table-root`)
    - a `json_script` payload
-2. `fpr/templates/fpr/app_layout.html` loads `vue/fpr-tables.js`
+2. `fpr/templates/fpr/app_layout.html` loads `frontend/fpr-tables.js`
 3. `index.ts` initializes Vue i18n and mounts `App.vue` for each table root
 
 ## Files

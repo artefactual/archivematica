@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: .trivycache/
-          key: ${{ runner.os }}-trivy-${{ hashFiles('requirements*.txt', 'src/archivematica/dashboard/vue/package-lock.json') }}
+          key: ${{ runner.os }}-trivy-${{ hashFiles('requirements*.txt', 'src/archivematica/dashboard/frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-trivy-
 

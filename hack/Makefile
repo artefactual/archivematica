@@ -182,9 +182,9 @@ bootstrap-dashboard-db:  ## Bootstrap Dashboard (new database).
 
 bootstrap-dashboard-frontend:  ## Build front-end assets.
 	docker build \
-		-t archivematica-dashboard-vue-builder \
+		-t archivematica-dashboard-frontend-builder \
 		-f $(CURDIR)/Dockerfile \
-		--build-arg TARGET=archivematica-dashboard-vue-builder \
+		--build-arg TARGET=archivematica-dashboard-frontend-builder \
 		--build-arg USER_ID=$(CALLER_UID) \
 		--build-arg GROUP_ID=$(CALLER_GID) \
 			../
@@ -193,9 +193,9 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		--rm \
 		--user $(CALLER_UID):$(CALLER_GID) \
 		--volume "$(SRCDIR)/archivematica/dashboard:/src/src/archivematica/dashboard" \
-		--volume "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/vue/node_modules" \
+		--volume "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/frontend/node_modules" \
 		--entrypoint npm \
-			archivematica-dashboard-vue-builder \
+			archivematica-dashboard-frontend-builder \
 				clean-install
 
 bootstrap-storage-service-frontend:  ## Build Storage Service front-end assets.

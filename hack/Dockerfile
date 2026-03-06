@@ -111,26 +111,26 @@ RUN set -ex \
 
 # -----------------------------------------------------------------------------
 
-FROM node:${NODE_VERSION} AS archivematica-dashboard-vue-builder
+FROM node:${NODE_VERSION} AS archivematica-dashboard-frontend-builder
 
 ARG USER_ID
 ARG GROUP_ID
 
-WORKDIR /src/src/archivematica/dashboard/vue
+WORKDIR /src/src/archivematica/dashboard/frontend
 
-COPY --link src/archivematica/dashboard/vue/package.json /src/src/archivematica/dashboard/vue/package.json
-COPY --link src/archivematica/dashboard/vue/package-lock.json /src/src/archivematica/dashboard/vue/package-lock.json
+COPY --link src/archivematica/dashboard/frontend/package.json /src/src/archivematica/dashboard/frontend/package.json
+COPY --link src/archivematica/dashboard/frontend/package-lock.json /src/src/archivematica/dashboard/frontend/package-lock.json
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 	set -ex \
 	&& npm pkg delete scripts.prepare \
 	&& npm clean-install
 
-COPY --link src/archivematica/dashboard/vue /src/src/archivematica/dashboard/vue
+COPY --link src/archivematica/dashboard/frontend /src/src/archivematica/dashboard/frontend
 COPY --link src/archivematica/dashboard/media/images /src/src/archivematica/dashboard/media/images
 
 RUN npm run build \
-	&& chown -R ${USER_ID}:${GROUP_ID} /src/src/archivematica/dashboard/vue/node_modules
+	&& chown -R ${USER_ID}:${GROUP_ID} /src/src/archivematica/dashboard/frontend/node_modules
 
 # -----------------------------------------------------------------------------
 
@@ -258,7 +258,7 @@ RUN set -ex \
 
 USER archivematica
 
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-vue-builder --link /src/src/archivematica/dashboard/vue/dist /src/src/archivematica/dashboard/vue/dist
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/frontend/dist /src/src/archivematica/dashboard/frontend/dist
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.local
 ENV AM_GUNICORN_BIND=0.0.0.0:8000

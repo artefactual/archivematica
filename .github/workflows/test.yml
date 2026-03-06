@@ -153,12 +153,12 @@ jobs:
           name: ${{ matrix.rule }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  vue:
-    name: "Test Vue dashboard"
+  frontend:
+    name: "Test dashboard frontend"
     runs-on: "ubuntu-24.04"
     defaults:
       run:
-        working-directory: "./src/archivematica/dashboard/vue/"
+        working-directory: "./src/archivematica/dashboard/frontend/"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
@@ -168,11 +168,11 @@ jobs:
           node-version: "24"
           cache: "npm"
           cache-dependency-path: |
-            src/archivematica/dashboard/vue/package-lock.json
-      - name: "Install Vue dependencies"
+            src/archivematica/dashboard/frontend/package-lock.json
+      - name: "Install frontend dependencies"
         run: |
           npm clean-install
-      - name: "Run Vue checks"
+      - name: "Run frontend checks"
         run: |
           npm run check
   linting:

@@ -200,7 +200,7 @@ services:
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
     volumes:
       - "../:/src"
-      - "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/vue/node_modules"
+      - "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/frontend/node_modules"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
     depends_on:
       elasticsearch:
