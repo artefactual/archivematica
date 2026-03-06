@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import { translate } from '@/shared/i18n/plain'
 
 type TitleBinding = {
@@ -8,7 +7,9 @@ type TitleBinding = {
 
 const applyBindings = (bindings: TitleBinding[]): void => {
   bindings.forEach(({ selector, titleKey }) => {
-    $(selector).attr('title', translate(titleKey))
+    document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+      element.setAttribute('title', translate(titleKey))
+    })
   })
 }
 
@@ -16,8 +17,17 @@ const applyLabelTooltipByContainer = (
   containerPrefix: string,
   titleKey: string,
 ): void => {
-  $(`[id^="${containerPrefix}"]`).each((_: number, element: Element) => {
-    $(element).closest('.repeating-ajax-data-fieldset').children('label').attr('title', translate(titleKey))
+  document.querySelectorAll<HTMLElement>(`[id^="${containerPrefix}"]`).forEach((element) => {
+    const fieldset = element.closest<HTMLElement>('.repeating-ajax-data-fieldset')
+    if (!fieldset) {
+      return
+    }
+
+    Array.from(fieldset.children).forEach((child) => {
+      if (child instanceof HTMLLabelElement) {
+        child.setAttribute('title', translate(titleKey))
+      }
+    })
   })
 }
 
@@ -111,10 +121,12 @@ export const applyGrantsPageTitleAttributes = (): void => {
   ])
 
   const openEndDateTooltip = translate('rights.tooltipOpenEndDate')
-  $('input.js-rights-open-end-date')
-    .attr('title', openEndDateTooltip)
-    .closest('label')
-    .attr('title', openEndDateTooltip)
-    .find('span')
-    .attr('title', openEndDateTooltip)
+  document.querySelectorAll<HTMLInputElement>('input.js-rights-open-end-date').forEach((input) => {
+    input.setAttribute('title', openEndDateTooltip)
+    const label = input.closest<HTMLLabelElement>('label')
+    label?.setAttribute('title', openEndDateTooltip)
+    label?.querySelectorAll<HTMLElement>('span').forEach((span) => {
+      span.setAttribute('title', openEndDateTooltip)
+    })
+  })
 }

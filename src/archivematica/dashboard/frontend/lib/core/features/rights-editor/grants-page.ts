@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import { applyTemplateDateMask } from '@/core/features/datemask'
 import { translate } from '@/shared/i18n/plain'
 import { RIGHTS_EDITOR_FORMDATA_TYPES } from '@/shared/http'
@@ -36,41 +35,67 @@ const GRANTS_PAGE_REPEATERS: RepeaterConfig[] = [
 ]
 const DATE_INPUT_SELECTOR = 'input[type="text"][name*="date"]'
 
-const appendRevealButton = ($list: ReturnType<typeof $>, dataType: string): void => {
-  if ($list.length <= 1) {
+const appendRevealButton = (elements: HTMLElement[], dataType: string): void => {
+  if (elements.length <= 1) {
     return
   }
 
-  const $last = $list.last()
-  $last.hide()
+  const last = elements[elements.length - 1]
+  if (!last) {
+    return
+  }
+  last.style.display = 'none'
 
   const message = translate('rights.createNewRecordPrompt', { recordType: dataType })
-  const $toggleButton = $(`<h3 class="btn btn-default" style="float:right">${message}</h3>`)
+  const toggleButton = document.createElement('h3')
+  toggleButton.className = 'btn btn-default'
+  toggleButton.style.float = 'right'
+  toggleButton.textContent = message
 
-  $toggleButton.on('click', () => {
-    $toggleButton.fadeOut()
-    $last.slideDown()
+  toggleButton.addEventListener('click', () => {
+    toggleButton.style.display = 'none'
+    last.style.removeProperty('display')
   })
 
-  $last.prev().append($toggleButton).append('<br clear="all"></br>')
+  const previous = last.previousElementSibling
+  if (!previous) {
+    return
+  }
+
+  previous.append(toggleButton)
+  const clearBreak = document.createElement('br')
+  clearBreak.setAttribute('clear', 'all')
+  previous.append(clearBreak)
 }
 
 const applyGrantFieldsetStyling = (): void => {
-  $('.grant-fieldset:not(:first)').css('margin-top', '4em')
+  const grantFieldsets = document.querySelectorAll<HTMLElement>('.grant-fieldset')
+  grantFieldsets.forEach((fieldset, index) => {
+    if (index > 0) {
+      fieldset.style.marginTop = '4em'
+    }
+  })
 }
 
 const repositionRestrictionField = (): void => {
-  $('.rights-grant-restrictions').each((_: number, element: Element) => {
-    const $restriction = $(element as HTMLElement)
-    const target = $restriction.parent().children().first().next().next()
-    if (target.length) {
-      target.after($restriction)
+  document.querySelectorAll<HTMLElement>('.rights-grant-restrictions').forEach((restriction) => {
+    const parent = restriction.parentElement
+    if (!parent) {
+      return
+    }
+
+    const target = parent.children.item(2)
+    if (target) {
+      target.insertAdjacentElement('afterend', restriction)
     }
   })
 }
 
 export const initGrantsLayoutBehavior = (): void => {
-  appendRevealButton($('.grant-fieldset'), translate('rights.grantRestriction').toLowerCase())
+  appendRevealButton(
+    Array.from(document.querySelectorAll<HTMLElement>('.grant-fieldset')),
+    translate('rights.grantRestriction').toLowerCase(),
+  )
   applyGrantFieldsetStyling()
   repositionRestrictionField()
 }
