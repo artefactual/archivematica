@@ -5,11 +5,28 @@ import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
 from playwright.sync_api import Page
+from playwright.sync_api import expect
 from pytest_django.fixtures import SettingsWrapper
 from pytest_django.live_server_helper import LiveServer
 
 if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
+
+
+def open_user_menu(page: Page) -> None:
+    user_menu = page.locator("li.user.dropdown")
+    expect(user_menu).to_be_visible()
+    user_menu.evaluate("node => node.classList.add('open')")
+
+
+def click_profile_from_user_menu(page: Page) -> None:
+    open_user_menu(page)
+    page.get_by_role("link", name="Your profile").click()
+
+
+def click_logout_from_user_menu(page: Page) -> None:
+    open_user_menu(page)
+    page.get_by_role("button", name="Log out").click()
 
 
 @pytest.mark.django_db
@@ -27,8 +44,7 @@ def test_oidc_backend_creates_local_user(
     page.get_by_role("button", name="Sign In").click()
 
     assert page.url == f"{live_server.url}/transfer/"
-    page.get_by_text("demo@example.com").click()
-    page.get_by_role("link", name="Your profile").click()
+    click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
     assert [
@@ -66,8 +82,7 @@ def test_local_authentication_backend_authenticates_existing_user(
 
     assert page.url == f"{live_server.url}/transfer/"
 
-    page.get_by_text("foobar").click()
-    page.get_by_role("link", name="Your profile").click()
+    click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
     assert [
@@ -147,8 +162,7 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
     page.get_by_role("button", name="Sign In").click()
 
     assert page.url == f"{live_server.url}/transfer/"
-    page.get_by_text("supportadmin@example.com").click()
-    page.get_by_role("link", name="Your profile").click()
+    click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
 
@@ -172,8 +186,7 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
 
     assert page.url == f"{live_server.url}/transfer/"
 
-    page.get_by_text("supportdefault@example.com").click()
-    page.get_by_role("link", name="Your profile").click()
+    click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
     assert [
@@ -211,8 +224,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_admin_role(
     assert page.url == f"{live_server.url}/transfer/"
 
     # Logging out redirects the user to the login url.
-    page.get_by_text("supportadmin@example.com").click()
-    page.get_by_role("button", name="Log out").click()
+    click_logout_from_user_menu(page)
     assert page.url == f"{live_server.url}{reverse('accounts:login')}"
 
     # Logging in through the OIDC provider requires to authenticate again.
@@ -244,8 +256,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_default_role(
     assert page.url == f"{live_server.url}/transfer/"
 
     # Logging out redirects the user to the login url.
-    page.get_by_text("supportdefault@example.com").click()
-    page.get_by_role("button", name="Log out").click()
+    click_logout_from_user_menu(page)
     assert page.url == f"{live_server.url}{reverse('accounts:login')}"
 
     # Logging in through the OIDC provider requires to authenticate again.
