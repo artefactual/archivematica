@@ -4,12 +4,14 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd ${__dir}
 
-docker compose build archivematica-dashboard
+if [ -z "${SKIP_DOCKER_BUILD}" ]; then
+    docker compose build archivematica-dashboard
 
-status=$?
+    status=$?
 
-if [ $status -ne 0 ]; then
-    exit $status
+    if [ $status -ne 0 ]; then
+        exit $status
+    fi
 fi
 
 docker compose run --rm archivematica-dashboard

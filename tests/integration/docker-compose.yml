@@ -22,6 +22,7 @@ services:
       start_period: 15s
 
   archivematica-dashboard:
+    image: "archivematica-dashboard-integration-tests:latest"
     build:
       context: "../../"
       dockerfile: "hack/Dockerfile"
