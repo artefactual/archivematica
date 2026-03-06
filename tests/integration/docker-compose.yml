@@ -85,6 +85,8 @@ services:
       OIDC_ACCESS_ATTRIBUTE_MAP_SECONDARY: >
         {"given_name": "first_name", "family_name": "last_name", "realm_access": "realm_access"}
       OIDC_RP_SIGN_ALGO: "RS256"
+      # /src is bind-mounted, so point Django staticfiles to the image-owned dist copy.
+      FRONTEND_DIST_DIR: "/opt/am-dashboard-dist"
     volumes:
       - "../../:/src"
     depends_on:
