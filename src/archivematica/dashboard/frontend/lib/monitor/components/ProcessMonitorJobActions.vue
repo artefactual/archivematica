@@ -3,7 +3,10 @@ import {
   getIngestNormalizationReportUrl,
   getIngestUploadAsUrl,
 } from '@/shared/http'
-import { icons } from '@/shared/assets/icons'
+import {
+  SilkCogIcon,
+  SilkTableEditIcon,
+} from '@/shared/icons'
 import type { ProcessingJob } from '@/shared/http/processing'
 import { resolveIngestInlineActions } from '@/shared/workflow'
 import { computed } from 'vue'
@@ -61,8 +64,6 @@ const onJobChoiceChange = (event: Event): void => {
   emit('execute-job-choice', { job: props.job, choice, unitUuid: props.unitUuid })
 }
 
-const iconCogBackground = `url("${icons.cog}")`
-const iconTableEditBackground = `url("${icons.tableEdit}")`
 </script>
 
 <template>
@@ -75,6 +76,12 @@ const iconTableEditBackground = `url("${icons.tableEdit}")`
       :title="t('monitor.tasks')"
       @click.stop.prevent="emit('show-tasks', job.uuid)"
     >
+      <SilkCogIcon
+        class="monitor-job-action-icon"
+        aria-hidden="true"
+        size="16"
+        alt=""
+      />
       <span>{{ t('monitor.tasks') }}</span>
     </a>
 
@@ -89,6 +96,12 @@ const iconTableEditBackground = `url("${icons.tableEdit}")`
       rel="noopener"
       @click.stop
     >
+      <SilkTableEditIcon
+        class="monitor-job-action-icon"
+        aria-hidden="true"
+        size="16"
+        alt=""
+      />
       <span>{{ inlineAction.title }}</span>
     </a>
 
@@ -116,14 +129,18 @@ const iconTableEditBackground = `url("${icons.tableEdit}")`
 
 <style scoped>
 .job-detail-actions > a {
-  display: block;
   float: left;
+  display: flex;
+  align-items: center;
   width: 16px;
   height: 16px;
   margin-left: 4px;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center left;
+  text-decoration: none;
+}
+
+.job-detail-actions > a:hover,
+.job-detail-actions > a:focus {
+  text-decoration: none;
 }
 
 .job-detail-actions > a > span {
@@ -140,15 +157,7 @@ const iconTableEditBackground = `url("${icons.tableEdit}")`
   border: 1px solid #999;
 }
 
-.job-detail-actions > .btn_show_tasks {
-  background-image: v-bind(iconCogBackground);
-}
-
-.job-detail-actions > .btn_normalization_report {
-  background-image: v-bind(iconTableEditBackground);
-}
-
-.job-detail-actions > .btn_as_upload {
-  background-image: v-bind(iconTableEditBackground);
+.monitor-job-action-icon {
+  display: block;
 }
 </style>

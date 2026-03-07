@@ -27,7 +27,8 @@ describe('HelpTooltip', () => {
 
     const trigger = wrapper.find('.help-tooltip-trigger')
     expect(trigger.exists()).toBe(true)
-    expect(trigger.classes()).toContain('fa-question-circle')
+    expect(trigger.element.tagName).toBe('IMG')
+    expect(trigger.attributes('src')).toContain('image/svg+xml')
     expect(trigger.attributes('aria-label')).toBe('Help')
   })
 

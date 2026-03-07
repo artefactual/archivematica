@@ -59,21 +59,21 @@ type MonitorStatusName = keyof typeof STATUS_CODE_BY_NAME
 // Union of numeric status code values.
 type MonitorStatusCode = (typeof STATUS_CODE_BY_NAME)[MonitorStatusName]
 
-// Icon filenames used by monitor status rendering.
-type StatusIconFile
-  = | 'accept.png'
-    | 'arrow_refresh.png'
-    | 'bell.png'
-    | 'cancel.png'
+// Monitor status icons used by row status rendering.
+type StatusIconName
+  = | 'accept'
+    | 'arrow-refresh'
+    | 'bell'
+    | 'cancel'
 
 // Status-to-icon lookup used by monitor row icon rendering.
-const STATUS_ICON_BY_CODE: Readonly<Record<MonitorStatusCode, StatusIconFile>> = {
-  [STATUS_CODE_BY_NAME.STATUS_UNKNOWN]: 'bell.png',
-  [STATUS_CODE_BY_NAME.STATUS_AWAITING_DECISION]: 'bell.png',
-  [STATUS_CODE_BY_NAME.STATUS_COMPLETED_SUCCESSFULLY]: 'accept.png',
-  [STATUS_CODE_BY_NAME.STATUS_EXECUTING_COMMANDS]: 'arrow_refresh.png',
-  [STATUS_CODE_BY_NAME.STATUS_FAILED]: 'cancel.png',
-  [STATUS_CODE_BY_NAME.STATUS_REJECTED]: 'cancel.png',
+const STATUS_ICON_BY_CODE: Readonly<Record<MonitorStatusCode, StatusIconName>> = {
+  [STATUS_CODE_BY_NAME.STATUS_UNKNOWN]: 'bell',
+  [STATUS_CODE_BY_NAME.STATUS_AWAITING_DECISION]: 'bell',
+  [STATUS_CODE_BY_NAME.STATUS_COMPLETED_SUCCESSFULLY]: 'accept',
+  [STATUS_CODE_BY_NAME.STATUS_EXECUTING_COMMANDS]: 'arrow-refresh',
+  [STATUS_CODE_BY_NAME.STATUS_FAILED]: 'cancel',
+  [STATUS_CODE_BY_NAME.STATUS_REJECTED]: 'cancel',
 }
 
 // Status-to-background-color lookup used by job-row rendering.
@@ -174,12 +174,12 @@ const getStatusColorForJob = (probe: StatusProbe): string =>
   getStatusColorForCode(resolveEffectiveStatus(probe))
 
 // Resolves an icon filename from a raw status code.
-const getStatusIconForCode = (statusCode: number): StatusIconFile =>
+const getStatusIconForCode = (statusCode: number): StatusIconName =>
   STATUS_ICON_BY_CODE[statusCode as MonitorStatusCode]
   ?? STATUS_ICON_BY_CODE[STATUS_CODE_BY_NAME.STATUS_COMPLETED_SUCCESSFULLY]
 
 // Resolves an icon filename from a job probe.
-const getStatusIconForJob = (probe: StatusProbe): StatusIconFile =>
+const getStatusIconForJob = (probe: StatusProbe): StatusIconName =>
   getStatusIconForCode(resolveEffectiveStatus(probe))
 
 // Job type treated as the ingest-start marker in the start-time column.

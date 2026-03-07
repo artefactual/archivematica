@@ -9,6 +9,7 @@ import {
 } from 'reka-ui'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { SilkInformationIcon } from '@/shared/icons'
 
 defineProps<{
   content: string
@@ -34,19 +35,23 @@ const position = computed(() => ({
       ...anchor.value,
     } as DOMRect),
 }))
+
+const updateAnchorPosition = (ev: PointerEvent) => {
+  anchor.value.x = ev.clientX
+  anchor.value.y = ev.clientY
+}
 </script>
 
 <template>
   <TooltipProvider>
-    <i
-      class="help-tooltip-trigger fa fa-question-circle"
+    <SilkInformationIcon
+      class="help-tooltip-trigger"
       :aria-label="t('misc.help')"
+      alt=""
+      size="16"
       @pointerenter="open = true"
       @pointerleave="open = false"
-      @pointermove="(ev) => {
-        anchor.x = ev.clientX
-        anchor.y = ev.clientY
-      }"
+      @pointermove="updateAnchorPosition"
     />
     <TooltipRoot :open="open">
       <TooltipTrigger
@@ -70,6 +75,8 @@ const position = computed(() => ({
 
 <style>
 .help-tooltip-trigger {
+  width: 16px;
+  height: 16px;
   cursor: help;
 }
 
