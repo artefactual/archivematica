@@ -19,7 +19,7 @@ import {
   resolveIngestChoiceBehavior,
   STATUS_CODE_BY_NAME,
 } from '@/shared/workflow'
-import { icons } from '@/shared/assets/icons'
+import { SilkDeleteIcon } from '@/shared/icons'
 import ProcessMonitorConfirmDialog from './ProcessMonitorConfirmDialog.vue'
 import ProcessMonitorUploadTargetDialog from './ProcessMonitorUploadTargetDialog.vue'
 import ProcessMonitorUnit from './ProcessMonitorUnit.vue'
@@ -579,7 +579,6 @@ const headerLabels = computed(() => {
 })
 
 const removeAllTitle = computed(() => t('monitor.removeAllCompleted'))
-const iconDeleteBackground = `url("${icons.delete}")`
 </script>
 
 <template>
@@ -603,7 +602,15 @@ const iconDeleteBackground = `url("${icons.delete}")`
           href="#"
           :title="removeAllTitle"
           @click.prevent="requestRemoveAllUnits()"
-        ><span aria-hidden="true">&nbsp;</span></a>
+        >
+          <SilkDeleteIcon
+            class="monitor-header-action-icon"
+            aria-hidden="true"
+            size="16"
+            alt=""
+          />
+          <span aria-hidden="true">&nbsp;</span>
+        </a>
       </div>
     </div>
     <div id="sip-body">
@@ -692,8 +699,17 @@ const iconDeleteBackground = `url("${icons.delete}")`
 }
 
 .monitor-header-actions > .monitor-remove-all {
-  background-image: v-bind(iconDeleteBackground);
-  background-repeat: no-repeat;
-  background-position: center left;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.monitor-header-actions > .monitor-remove-all:hover,
+.monitor-header-actions > .monitor-remove-all:focus {
+  text-decoration: none;
+}
+
+.monitor-header-action-icon {
+  display: block;
 }
 </style>

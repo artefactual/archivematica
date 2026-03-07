@@ -1,0 +1,8 @@
+These SVG files are derived from the FamFamFam Silk icon set by Mark James:
+https://github.com/markjames/famfamfam-silk-icons/
+
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Archivematica vendors a subset of these icons and may rename, relocate, or
+otherwise adapt individual files for use in the dashboard frontend.

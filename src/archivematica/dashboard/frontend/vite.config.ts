@@ -9,6 +9,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 // Define manual chunks for better control over code splitting.
 const CHUNK_ROUTES = [
   {
+    name: 'icons',
+    match: [
+      'lib/shared/icons/',
+    ],
+  },
+  {
     name: 'tanstack-table',
     match: [
       'node_modules/@tanstack/table-core/',
@@ -27,13 +33,6 @@ const CHUNK_ROUTES = [
   {
     name: 'treeview',
     match: ['node_modules/reka-ui/', 'lib/shared/components/Tree'],
-  },
-  {
-    name: 'tanstack-table',
-    match: [
-      'node_modules/@tanstack/table-core/',
-      'node_modules/@tanstack/vue-table/',
-    ],
   },
 ] as const
 

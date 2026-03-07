@@ -556,7 +556,7 @@ describe('ProcessMonitor', () => {
     })
     expect(wrapper.find('.job-detail-actions select').exists()).toBe(false)
     expect(wrapper.find('.sip').classes()).toContain('sip-selected')
-    expect(wrapper.find('.sip-detail-icon-status img').attributes('src')).toContain('arrow_refresh.png')
+    expect(wrapper.find('.sip-detail-icon-status .monitor-status-icon-arrow-refresh').exists()).toBe(true)
     wrapper.unmount()
   })
 

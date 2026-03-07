@@ -5,7 +5,15 @@ import {
   getStatusIconForJob,
   isIngestStartTimeMarkerJob,
 } from '@/shared/workflow'
-import { icons } from '@/shared/assets/icons'
+import {
+  SilkAcceptIcon,
+  SilkArrowRefreshIcon,
+  SilkBellIcon,
+  SilkDeleteIcon,
+  SilkCancelIcon,
+  SilkTableEditIcon,
+  SilkZoomIcon,
+} from '@/shared/icons'
 import ProcessMonitorGroup from './ProcessMonitorGroup.vue'
 import { useI18n } from 'vue-i18n'
 
@@ -37,22 +45,23 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const statusIconByFilename = {
-  'accept.png': icons.accept,
-  'arrow_refresh.png': icons.arrowRefresh,
-  'bell.png': icons.bell,
-  'cancel.png': icons.cancel,
+const statusIconByName = {
+  accept: SilkAcceptIcon,
+  'arrow-refresh': SilkArrowRefreshIcon,
+  bell: SilkBellIcon,
+  cancel: SilkCancelIcon,
 } as const
 
-const getStatusIcon = (job: ProcessingJob | undefined): string => {
-  if (!job) return statusIconByFilename['accept.png']
-  const file = getStatusIconForJob({
+const getStatusIconName = (job: ProcessingJob | undefined): keyof typeof statusIconByName => {
+  if (!job) return 'accept'
+  const iconName = getStatusIconForJob({
     currentstep: job.currentstep,
     jobType: job.type,
     microserviceGroup: job.microservicegroup,
   })
-  const knownStatusIcon = statusIconByFilename[file as keyof typeof statusIconByFilename]
-  return knownStatusIcon ?? `/media/images/${file}`
+  return iconName in statusIconByName
+    ? iconName as keyof typeof statusIconByName
+    : 'accept'
 }
 
 const getIngestStartTime = (unit: ProcessingUnit): string => {
@@ -64,9 +73,6 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
   return formatDateTime(startJob.timestamp)
 }
 
-const iconZoomBackground = `url("${icons.zoom}")`
-const iconTableEditBackground = `url("${icons.tableEdit}")`
-const iconDeleteBackground = `url("${icons.delete}")`
 </script>
 
 <template>
@@ -82,11 +88,16 @@ const iconDeleteBackground = `url("${icons.delete}")`
       class="sip-row"
     >
       <div class="sip-detail-icon-status">
-        <img
-          :src="getStatusIcon(unit.jobs[0])"
-          alt=""
+        <component
+          :is="statusIconByName[getStatusIconName(unit.jobs[0])]"
+          :class="[
+            'monitor-status-icon',
+            `monitor-status-icon-${getStatusIconName(unit.jobs[0])}`,
+          ]"
           aria-hidden="true"
-        >
+          size="16"
+          alt=""
+        />
       </div>
       <div
         class="sip-detail-directory"
@@ -113,13 +124,30 @@ const iconDeleteBackground = `url("${icons.delete}")`
           href="#"
           :title="t('monitor.metadata')"
           @click.stop.prevent="emit('open-panel', unit.uuid)"
-        ><span>{{ t('monitor.metadata') }}</span></a>
+        >
+          <component
+            :is="isExpanded ? SilkTableEditIcon : SilkZoomIcon"
+            class="monitor-action-icon"
+            aria-hidden="true"
+            size="16"
+            alt=""
+          />
+          <span>{{ t('monitor.metadata') }}</span>
+        </a>
         <a
           class="btn_remove_sip"
           href="#"
           :title="t('monitor.remove')"
           @click.stop.prevent="emit('remove-unit', unit)"
-        ><span>{{ t('monitor.remove') }}</span></a>
+        >
+          <SilkDeleteIcon
+            class="monitor-action-icon"
+            aria-hidden="true"
+            size="16"
+            alt=""
+          />
+          <span>{{ t('monitor.remove') }}</span>
+        </a>
       </div>
     </div>
     <Transition name="sip-jobs-slide">
@@ -234,28 +262,25 @@ const iconDeleteBackground = `url("${icons.delete}")`
 .sip-detail-actions > a {
   visibility: hidden;
   float: left;
+  display: flex;
+  align-items: center;
   height: 26px;
   width: 16px;
   margin-right: 4px;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center left;
+  text-decoration: none;
+}
+
+.sip-detail-actions > a:hover,
+.sip-detail-actions > a:focus {
+  text-decoration: none;
 }
 
 .sip-detail-actions > a > span {
   display: none;
 }
 
-.btn_show_metadata {
-  background-image: v-bind(iconZoomBackground);
-}
-
-.sip-selected .btn_show_metadata {
-  background-image: v-bind(iconTableEditBackground);
-}
-
-.btn_remove_sip {
-  background-image: v-bind(iconDeleteBackground);
+.monitor-action-icon {
+  display: block;
 }
 
 .sip-removing .sip-detail-actions > a,
