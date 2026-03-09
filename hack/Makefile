@@ -100,7 +100,7 @@ build-dashboard:  # Build Compose services.
 		--build-arg USER_ID=$(CALLER_UID) \
 		--build-arg GROUP_ID=$(CALLER_GID)
 
-bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-dashboard-frontend  ## Full bootstrap.
+bootstrap: bootstrap-storage-service bootstrap-dashboard-db bootstrap-frontend  ## Full bootstrap.
 
 bootstrap-storage-service:  ## Bootstrap Storage Service (new database).
 	$(call create_db,SS)
@@ -197,6 +197,26 @@ bootstrap-dashboard-frontend:  ## Build front-end assets.
 		--entrypoint npm \
 			archivematica-dashboard-vue-builder \
 				clean-install
+
+bootstrap-storage-service-frontend:  ## Build Storage Service front-end assets.
+	docker build \
+		-t archivematica-storage-service-frontend-builder \
+		-f $(CURDIR)/submodules/archivematica-storage-service/Dockerfile \
+		--build-arg TARGET=archivematica-storage-service-frontend-builder \
+		--build-arg USER_ID=$(CALLER_UID) \
+		--build-arg GROUP_ID=$(CALLER_GID) \
+			$(CURDIR)/submodules/archivematica-storage-service
+	docker run \
+		-e HOME=/tmp/npm-config \
+		--rm \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(CURDIR)/submodules/archivematica-storage-service/src/archivematica/storage_service:/src/src/archivematica/storage_service" \
+		--volume "archivematica_storage_service_frontend_node_modules:/src/src/archivematica/storage_service/frontend/node_modules" \
+		--entrypoint npm \
+			archivematica-storage-service-frontend-builder \
+				clean-install
+
+bootstrap-frontend: bootstrap-dashboard-frontend bootstrap-storage-service-frontend  ## Build all front-end assets.
 
 restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, Dashboard and Storage Service.
 	docker compose restart --no-deps archivematica-mcp-server
