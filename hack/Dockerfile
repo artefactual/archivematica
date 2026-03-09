@@ -297,7 +297,7 @@ RUN set -ex \
 	&& python3 -m playwright install firefox
 
 # Copy frontend assets out of where /src is bind-mounted during tests.
-COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-vue-builder --link /src/src/archivematica/dashboard/vue/dist /opt/am-dashboard-dist
+COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/frontend/dist /opt/am-dashboard-dist
 
 # -----------------------------------------------------------------------------
 

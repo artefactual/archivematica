@@ -19,4 +19,4 @@
 **/*.py[cod]
 **/.mypy_cache
 **/.ruff_cache
-src/archivematica/dashboard/vue/dist
+src/archivematica/dashboard/frontend/dist
