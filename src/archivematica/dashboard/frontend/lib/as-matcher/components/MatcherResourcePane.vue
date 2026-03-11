@@ -125,9 +125,19 @@ const resourceFilterModel = computed({
             <td>
               <span
                 class="as-matcher-resource-title"
-                :style="{ paddingLeft: `${row.depth * 1.15}rem` }"
                 :title="row.title"
               >
+                <span
+                  v-if="row.depth"
+                  class="as-matcher-resource-indent"
+                  aria-hidden="true"
+                >
+                  <span
+                    v-for="level in row.depth"
+                    :key="`${row.id}-indent-${level}`"
+                    class="as-matcher-resource-indent-step"
+                  />
+                </span>
                 <span
                   v-if="row.depth"
                   class="as-matcher-resource-branch"

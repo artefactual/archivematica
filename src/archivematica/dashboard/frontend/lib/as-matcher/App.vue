@@ -852,6 +852,16 @@ initializePairs(props.initialMatches)
   gap: 5px;
 }
 
+.as-matcher-resource-indent {
+  display: inline-flex;
+  gap: 0;
+}
+
+.as-matcher-resource-indent-step {
+  flex: 0 0 1.15rem;
+  width: 1.15rem;
+}
+
 .as-matcher-resource-branch {
   color: #777;
   font-size: 11px;

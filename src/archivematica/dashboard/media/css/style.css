@@ -580,6 +580,30 @@ label.required-field:after {
   gap: 12px;
 }
 
+.am-actions-indented {
+  padding-left: 1em;
+}
+
+.am-float-right {
+  float: right;
+}
+
+.am-api-allowlist-form {
+  width: 500px;
+  height: 300px;
+}
+
+.am-api-allowlist-textarea {
+  margin-bottom: 1em;
+}
+
+.am-dashboard-uuid {
+  margin-top: 10px;
+  padding: 5px 15px;
+  float: right;
+  background-color: #eee;
+}
+
 .paging-jump-label {
   margin-bottom: 0;
 }

@@ -107,7 +107,7 @@
     {% blocktrans with start_index=page.start_index end_index=page.end_index total_items=page.total_items %}
       Showing {{ start_index }}-{{ end_index }} of {{ total_items }}
     {% endblocktrans %}
-    <div style='float:right'>
+    <div class="am-float-right">
     {% if page.has_previous %}
       <a href="{% url 'ingest:ingest_normalization_report_page' uuid page.previous %}" class="btn btn-default">{% trans "Previous" %}</a>
       {% if page.has_next %}
