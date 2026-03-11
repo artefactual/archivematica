@@ -1,0 +1,13 @@
+---
+
+services:
+  archivematica-dashboard:
+    environment:
+      CSP_SETTINGS_FILE: "/src/hack/etc/archivematica/csp-report-only.py"
+      CSP_REPORT_OUTPUT_DIR: "${CSP_REPORT_OUTPUT_DIR:-/src/hack/output/csp-reports/raw}"
+      CSP_REPORT_URI: "${CSP_REPORT_URI:-http://nginx/api/csp-report/}"
+
+  archivematica-storage-service:
+    environment:
+      CSP_SETTINGS_FILE: "/src/hack/etc/archivematica/csp-report-only.py"
+      CSP_REPORT_URI: "${CSP_REPORT_URI:-http://nginx/api/csp-report/}"
