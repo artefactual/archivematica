@@ -15,15 +15,11 @@
     {% block extra_css %}{% endblock %}
     <script src="{% url 'main:javascript-catalog' %}" type="text/javascript"></script>
     {% block js %}{% endblock %}
-    <script type="text/javascript">
-      window.DashboardConfig = {
-        'currentLanguage': '{{ LANGUAGE_CODE|standardize_lang_code }}'
-      };
-    </script>
   </head>
   <body
     id="page-{% block page_id %}default{% endblock %}"
     data-features="dropdown {% block data_features %}{% endblock %}"
+    data-current-language="{{ LANGUAGE_CODE|standardize_lang_code }}"
   >
 
     {% block header %}

@@ -44,15 +44,24 @@ const i18n = createI18n({
   silentFallbackWarn: true,
 })
 
-// Dynamically set the locale using `window.DashboardConfig.currentLanguage`.
-// The expected format is POSIX/CLDR (e.g., "pt_BR")
-let initialLocale: AvailableLocale = DEFAULT_LOCALE
-if (window.DashboardConfig?.currentLanguage) {
-  const candidate = posixToBcp47Locale(window.DashboardConfig.currentLanguage)
-  if ((AVAILABLE_LOCALES as readonly string[]).includes(candidate)) {
-    initialLocale = candidate as AvailableLocale
+function getInitialLocale(): AvailableLocale {
+  const language = document.body?.dataset.currentLanguage
+    || document.documentElement.dataset.currentLanguage
+  if (!language) {
+    return DEFAULT_LOCALE
   }
+
+  const candidate = posixToBcp47Locale(language)
+  if ((AVAILABLE_LOCALES as readonly string[]).includes(candidate)) {
+    return candidate as AvailableLocale
+  }
+
+  return DEFAULT_LOCALE
 }
+
+// Initialize the i18n instance from a DOM data attribute.
+// Expected format is POSIX/CLDR (e.g., "pt_BR") converted to BCP 47.
+const initialLocale: AvailableLocale = getInitialLocale()
 
 async function initI18n(): Promise<void> {
   try {
