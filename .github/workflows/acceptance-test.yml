@@ -43,9 +43,12 @@ jobs:
           make -C hack/ build
         env:
           PYTHON_VERSION: "3.10"
-      - name: "Start services"
+      - name: "Start services with CSP override"
         run: |
-          docker compose up -d
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.csp-test.yml \
+            up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
         working-directory: ./hack
@@ -60,10 +63,46 @@ jobs:
           docker builder prune --all --force
           docker image prune --all --force
         working-directory: ./hack
-      - name: "Run AMAUAT tag"
+      - name: "Run AMAUAT tag with CSP override"
         id: "amauat-run"
         run: |
-          make -C hack/ test-at-behave TAGS="${{ matrix.tag }}" BROWSER=${{ matrix.browser }}
+          TAGS='${{ matrix.tag }}'
+          TAG_ARGS=()
+
+          for tag in $TAGS; do
+            TAG_ARGS+=(--tags="$tag")
+          done
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.csp-test.yml \
+            -f docker-compose.acceptance-tests.yml \
+            build \
+            --build-arg USER_ID="$(id -u)" \
+            --build-arg GROUP_ID="$(id -g)" \
+            archivematica-acceptance-tests
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.csp-test.yml \
+            -f docker-compose.acceptance-tests.yml \
+            run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
+              --no-capture --no-capture-stderr --no-logcapture \
+              "${TAG_ARGS[@]}" --no-skipped -v --stop \
+              -D driver_name=${{ matrix.browser }} \
+              -D ssh_accessible=no \
+              -D am_url=http://nginx/ \
+              -D am_username=test \
+              -D am_password=test \
+              -D am_api_key=test \
+              -D am_version=1.8 \
+              -D ss_url=http://nginx:8000/ \
+              -D ss_username=test \
+              -D ss_password=test \
+              -D ss_api_key=test \
+              -D transfer_source_path=archivematica/archivematica-sampledata/TestTransfers/acceptance-tests \
+              -D home=archivematica
+        working-directory: ./hack
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
         run: |
