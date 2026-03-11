@@ -21,7 +21,10 @@ import re
 import shutil
 import uuid
 from collections.abc import Mapping
+from datetime import datetime
+from datetime import timezone
 from email.message import EmailMessage
+from pathlib import Path
 
 import django.http
 from django.conf import settings as django_settings
@@ -129,6 +132,56 @@ def _error_response(message, status_code=400):
 
 class HttpResponseNotImplemented(django.http.HttpResponse):
     status_code = 501
+
+
+def _get_csp_report_output_dir() -> Path | None:
+    output_dir = os.environ.get("CSP_REPORT_OUTPUT_DIR", "")
+    if not output_dir:
+        return None
+    return Path(output_dir)
+
+
+def _store_csp_report(request: django.http.HttpRequest) -> Path | None:
+    output_dir = _get_csp_report_output_dir()
+    if output_dir is None:
+        LOGGER.warning("Ignoring CSP report because CSP_REPORT_OUTPUT_DIR is unset")
+        return None
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
+    destination = output_dir / f"{timestamp}-{uuid.uuid4().hex}.json"
+    raw_body = request.body.decode("utf-8", errors="replace")
+
+    payload: dict[str, object] = {
+        "received_at": timestamp,
+        "path": request.path,
+        "client_address": request.META.get("REMOTE_ADDR", ""),
+        "headers": dict(request.headers),
+        "raw_body": raw_body,
+    }
+    try:
+        payload["parsed_body"] = json.loads(raw_body)
+    except json.JSONDecodeError:
+        payload["parsed_body"] = None
+
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True))
+    return destination
+
+
+@csrf_exempt
+def csp_report(request: django.http.HttpRequest) -> django.http.HttpResponse:
+    if request.method != "POST":
+        return django.http.HttpResponseNotAllowed(["POST"])
+
+    try:
+        destination = _store_csp_report(request)
+    except OSError:
+        LOGGER.exception("Failed to persist CSP report")
+        return django.http.HttpResponse(status=204)
+
+    if destination is not None:
+        LOGGER.info("Stored CSP report at %s", destination)
+    return django.http.HttpResponse(status=204)
 
 
 def allowed_by_allowlist(ip_address):

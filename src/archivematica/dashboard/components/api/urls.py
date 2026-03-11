@@ -22,6 +22,7 @@ from archivematica.dashboard.components.api import views
 
 app_name = "api"
 urlpatterns = [
+    path("csp-report/", views.csp_report, name="csp_report"),
     re_path(r"transfer/approve", views.approve_transfer, name="approve_transfer"),
     re_path(
         r"transfer/unapproved", views.unapproved_transfers, name="unapproved_transfers"
