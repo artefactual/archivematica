@@ -1,0 +1,10 @@
+---
+
+services:
+  archivematica-dashboard:
+    environment:
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED: "true"
+
+  archivematica-storage-service:
+    environment:
+      SS_CSP_ENABLED: "true"
