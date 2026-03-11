@@ -38,7 +38,7 @@ class RevisionLinkNode(template.Node):
             kwargs={"entity_name": revision_type, "uuid": object_uuid},
         )
         return format_html(
-            '<div class="well well-sm" style="margin-bottom: 12px;"><a class="btn btn-default btn-xs" href="{}">{}</a></div>',
+            '<div class="well well-sm revisions_link"><a class="btn btn-default btn-xs" href="{}">{}</a></div>',
             url,
             _("Revision history"),
         )

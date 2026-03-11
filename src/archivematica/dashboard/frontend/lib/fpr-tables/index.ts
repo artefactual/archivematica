@@ -8,6 +8,11 @@ type FprTableRoot = HTMLElement & {
   }
 }
 
+type FormTogglePair = {
+  formId: string
+  selectId: string
+}
+
 const parsePayload = (scriptId: string): unknown => {
   const script = document.getElementById(scriptId)
   if (!script?.textContent) {
@@ -34,9 +39,49 @@ const mountFprTables = () => {
   })
 }
 
+const toggleExtraForm = (selectEl: HTMLSelectElement, formEl: HTMLElement): void => {
+  if (selectEl.value === 'new') {
+    formEl.style.display = ''
+    if (window.getComputedStyle(formEl).display === 'none') {
+      formEl.style.display = 'block'
+    }
+    return
+  }
+
+  formEl.style.display = 'none'
+}
+
+const initFprFormToggle = (): void => {
+  const toggles: FormTogglePair[] = [
+    {
+      formId: 'fprule_command_form',
+      selectId: 'id_f-command',
+    },
+    {
+      formId: 'format_group_form',
+      selectId: 'id_f-group',
+    },
+  ]
+
+  toggles.forEach(({ formId, selectId }) => {
+    const selectEl = document.getElementById(selectId)
+    const formEl = document.getElementById(formId)
+    if (!(selectEl instanceof HTMLSelectElement) || !(formEl instanceof HTMLElement)) {
+      return
+    }
+
+    selectEl.addEventListener('change', () => {
+      toggleExtraForm(selectEl, formEl)
+    })
+
+    toggleExtraForm(selectEl, formEl)
+  })
+}
+
 async function bootstrap() {
   await initI18n()
   mountFprTables()
+  initFprFormToggle()
 }
 
 bootstrap().catch((error) => {

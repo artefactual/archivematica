@@ -475,6 +475,7 @@ textarea.command {
 }
 
 .revisions_link {
+  margin-bottom: 12px;
   float: right;
   border: 1px solid #666;
   border-radius: 15px;
@@ -547,4 +548,43 @@ label.required-field:after {
 .am-tabs-pane .errorlist li {
   list-style: none;
   color: red;
+}
+
+.results-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.results-pager__summary {
+  flex: 1 1 240px;
+  margin: 0;
+  text-align: left;
+}
+
+.results-pager__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.results-pager__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.paging-jump-label {
+  margin-bottom: 0;
+}
+
+.paging-jump {
+  width: 40px;
+  margin-bottom: 0;
 }

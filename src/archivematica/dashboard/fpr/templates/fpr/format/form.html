@@ -5,15 +5,6 @@
 {% block title %}{{ block.super }} - {{ title }}{% endblock title %}
 {% block page_title %}{{ title }}{% endblock page_title %}
 
-{% block extra_css %}
-{{ block.super }}
-<style type="text/css">
-#format_group_form {
-  margin-left: 2em;
-}
-</style>
-{% endblock extra_css %}
-
 {% block breadcrumbs %}
 {{ block.super }}
 <li><a href="{% url 'fpr:format_list' %}">{% trans "Formats" %}</a></li>
@@ -34,7 +25,7 @@
           {{ form.group.errors }}
           {{ form.group.label_tag }} {{ form.group }}
         </p>
-        <div id='format_group_form'>
+        <div id='format_group_form' class="format-group-form">
           {{ format_group_form|as_bootstrap }}
         </div>
         <p>
@@ -46,37 +37,3 @@
     </div>
 
 {% endblock app_content %}
-
-{% block extra_js %}
-<script type="text/javascript">
-
-function toggleExtraForm(selectElement, formElement) {
-  if (selectElement.value === 'new') {
-    formElement.style.display = '';
-    if (window.getComputedStyle(formElement).display === 'none') {
-      formElement.style.display = 'block';
-    }
-  } else {
-    formElement.style.display = 'none';
-  }
-}
-
-function initFormToggle() {
-  var groupSelect = document.getElementById('id_f-group');
-  var groupForm = document.getElementById('format_group_form');
-
-  if (!groupSelect || !groupForm) {
-    return;
-  }
-
-  groupSelect.addEventListener('change', function () {
-    toggleExtraForm(groupSelect, groupForm);
-  });
-
-  toggleExtraForm(groupSelect, groupForm);
-}
-
-initFormToggle();
-
-</script>
-{% endblock extra_js %}

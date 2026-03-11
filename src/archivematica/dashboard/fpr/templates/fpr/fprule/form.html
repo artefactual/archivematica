@@ -44,37 +44,3 @@
     </div>
 
 {% endblock app_content %}
-
-{% block extra_js %}
-<script type="text/javascript">
-
-function toggleExtraForm(selectElement, formElement) {
-  if (selectElement.value === 'new') {
-    formElement.style.display = '';
-    if (window.getComputedStyle(formElement).display === 'none') {
-      formElement.style.display = 'block';
-    }
-  } else {
-    formElement.style.display = 'none';
-  }
-}
-
-function initFormToggle() {
-  var commandSelect = document.getElementById('id_f-command');
-  var commandForm = document.getElementById('fprule_command_form');
-
-  if (!commandSelect || !commandForm) {
-    return;
-  }
-
-  commandSelect.addEventListener('change', function () {
-    toggleExtraForm(commandSelect, commandForm);
-  });
-
-  toggleExtraForm(commandSelect, commandForm);
-}
-
-initFormToggle();
-
-</script>
-{% endblock %}

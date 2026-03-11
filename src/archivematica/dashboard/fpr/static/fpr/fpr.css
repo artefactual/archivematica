@@ -87,6 +87,10 @@
   margin: 4px 0 0;
 }
 
+.fpr-layout .fpr-main .format-group-form {
+  margin-left: 2em;
+}
+
 @media (max-width: 767px) {
   .fpr-layout .fpr-main .format dl dt,
   .fpr-layout .fpr-main .config dl dt {
