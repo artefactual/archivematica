@@ -119,26 +119,10 @@ jobs:
             --json-out hack/output/csp-reports/summary.json
       - name: "Upload CSP reports"
         if: "${{ always() }}"
-        id: "upload-csp-reports"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
           name: "csp-reports-${{ matrix.tag }}-${{ matrix.browser }}"
           path: "./hack/output/csp-reports"
-      - name: "Publish CSP report summary"
-        if: "${{ always() }}"
-        run: |
-          {
-            echo "## CSP Report Artifact"
-            echo
-            echo "- Artifact name: \`csp-reports-${{ matrix.tag }}-${{ matrix.browser }}\`"
-            if [ -n "${{ steps.upload-csp-reports.outputs.artifact-url }}" ]; then
-              echo "- Download: [csp-reports-${{ matrix.tag }}-${{ matrix.browser }}](${{ steps.upload-csp-reports.outputs.artifact-url }})"
-            else
-              echo "- Download: available in the workflow artifacts list."
-            fi
-            echo
-            cat hack/output/csp-reports/SUMMARY.md
-          } >> "$GITHUB_STEP_SUMMARY"
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
         run: |
@@ -154,3 +138,66 @@ jobs:
         with:
           name: "docker-logs-${{ matrix.tag }}-${{ matrix.browser }}"
           path: "./hack/docker-logs"
+
+  csp-report-summary:
+    if: "${{ always() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT')) }}"
+    name: "Consolidate CSP reports"
+    runs-on: "ubuntu-24.04"
+    needs:
+      - test
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
+      - name: "Download per-tag CSP report artifacts"
+        uses: "actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3" # v8.0.0
+        with:
+          pattern: "csp-reports-*"
+          path: "/tmp/csp-report-artifacts"
+      - name: "Prepare consolidated CSP report artifacts directory"
+        run: |
+          rm -rf hack/output/csp-reports-consolidated
+          mkdir -p hack/output/csp-reports-consolidated/raw
+      - name: "Combine per-tag CSP report artifacts"
+        run: |
+          python3 - <<'PY'
+          import shutil
+          from pathlib import Path
+
+          source_root = Path("/tmp/csp-report-artifacts")
+          destination_root = Path("hack/output/csp-reports-consolidated/raw")
+          combined_count = 0
+
+          for report_file in sorted(source_root.glob("csp-reports-*/raw/*.json")):
+              artifact_name = report_file.parent.parent.name
+              destination = destination_root / f"{artifact_name}--{report_file.name}"
+              shutil.copy2(report_file, destination)
+              combined_count += 1
+
+          print(f"Combined {combined_count} raw CSP report files.")
+          PY
+      - name: "Summarize consolidated CSP reports"
+        run: |
+          python3 hack/helpers/summarize_csp_reports.py \
+            --input-dir hack/output/csp-reports-consolidated \
+            --markdown-out hack/output/csp-reports-consolidated/SUMMARY.md \
+            --json-out hack/output/csp-reports-consolidated/summary.json
+      - name: "Upload consolidated CSP reports"
+        id: "upload-consolidated-csp-reports"
+        uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
+        with:
+          name: "csp-report-summary-consolidated"
+          path: "./hack/output/csp-reports-consolidated"
+      - name: "Publish consolidated CSP report summary"
+        run: |
+          {
+            echo "## Consolidated CSP Report Artifact"
+            echo
+            echo "- Artifact name: \`csp-report-summary-consolidated\`"
+            if [ -n "${{ steps.upload-consolidated-csp-reports.outputs.artifact-url }}" ]; then
+              echo "- Download: [csp-report-summary-consolidated](${{ steps.upload-consolidated-csp-reports.outputs.artifact-url }})"
+            else
+              echo "- Download: available in the workflow artifacts list."
+            fi
+            echo
+            cat hack/output/csp-reports-consolidated/SUMMARY.md
+          } >> "$GITHUB_STEP_SUMMARY"
