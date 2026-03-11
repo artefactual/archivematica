@@ -399,6 +399,7 @@ textarea.command {
 }
 
 #forgot-password {
+  display: none;
   float: left;
   line-height: 28px;
 }
