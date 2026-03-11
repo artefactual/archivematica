@@ -31,6 +31,10 @@ jobs:
         uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
         with:
           submodules: true
+      - name: "Prepare CSP report artifacts directory"
+        run: |
+          rm -rf hack/output/csp-reports
+          mkdir -p hack/output/csp-reports/raw
       - name: "Create external volumes"
         run: |
           make -C hack/ create-volumes
@@ -48,6 +52,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
+            -f docker-compose.csp-reports.yml \
             up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
@@ -76,6 +81,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
+            -f docker-compose.csp-reports.yml \
             -f docker-compose.acceptance-tests.yml \
             build \
             --build-arg USER_ID="$(id -u)" \
@@ -85,6 +91,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
+            -f docker-compose.csp-reports.yml \
             -f docker-compose.acceptance-tests.yml \
             run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
               --no-capture --no-capture-stderr --no-logcapture \
@@ -103,6 +110,35 @@ jobs:
               -D transfer_source_path=archivematica/archivematica-sampledata/TestTransfers/acceptance-tests \
               -D home=archivematica
         working-directory: ./hack
+      - name: "Summarize CSP reports"
+        if: "${{ always() }}"
+        run: |
+          python3 hack/helpers/summarize_csp_reports.py \
+            --input-dir hack/output/csp-reports \
+            --markdown-out hack/output/csp-reports/SUMMARY.md \
+            --json-out hack/output/csp-reports/summary.json
+      - name: "Upload CSP reports"
+        if: "${{ always() }}"
+        id: "upload-csp-reports"
+        uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
+        with:
+          name: "csp-reports-${{ matrix.tag }}-${{ matrix.browser }}"
+          path: "./hack/output/csp-reports"
+      - name: "Publish CSP report summary"
+        if: "${{ always() }}"
+        run: |
+          {
+            echo "## CSP Report Artifact"
+            echo
+            echo "- Artifact name: \`csp-reports-${{ matrix.tag }}-${{ matrix.browser }}\`"
+            if [ -n "${{ steps.upload-csp-reports.outputs.artifact-url }}" ]; then
+              echo "- Download: [csp-reports-${{ matrix.tag }}-${{ matrix.browser }}](${{ steps.upload-csp-reports.outputs.artifact-url }})"
+            else
+              echo "- Download: available in the workflow artifacts list."
+            fi
+            echo
+            cat hack/output/csp-reports/SUMMARY.md
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
         run: |
