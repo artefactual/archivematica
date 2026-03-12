@@ -408,3 +408,41 @@ jobs:
             echo
             cat hack/output/csp-reports-consolidated/SUMMARY.md
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: "Fail on consolidated CSP reports"
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("hack/output/csp-reports-consolidated")
+          failures = []
+
+          for mode in ("nonce-report-only", "nonce-enforced"):
+              summary_path = root / mode / "summary.json"
+              if not summary_path.exists():
+                  continue
+
+              summary = json.loads(summary_path.read_text())
+              violation_count = int(summary["overall"]["violation_entry_count"])
+              parse_failure_count = int(summary["parse_failure_count"])
+
+              if violation_count or parse_failure_count:
+                  failures.append(
+                      (
+                          mode,
+                          violation_count,
+                          parse_failure_count,
+                      )
+                  )
+
+          if failures:
+              for mode, violation_count, parse_failure_count in failures:
+                  print(
+                      "CSP report gate failed for"
+                      f" {mode}: violations={violation_count},"
+                      f" unparsed_payloads={parse_failure_count}"
+                  )
+              raise SystemExit(1)
+
+          print("CSP report gate passed with zero violations and unparsed payloads.")
+          PY
