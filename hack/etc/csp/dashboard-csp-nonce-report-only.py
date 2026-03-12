@@ -23,6 +23,7 @@ CONTENT_SECURITY_POLICY_REPORT_ONLY = {
         "base-uri": [SELF],
         "form-action": [SELF],
         "frame-ancestors": [NONE],
+        "require-trusted-types-for": ["'script'"],
         "report-uri": REPORT_URI,
     }
 }

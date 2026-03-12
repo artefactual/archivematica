@@ -225,6 +225,89 @@ jobs:
           name: "docker-logs__nonce-report-only__storage-service-trusted-types__Chromium"
           path: "./hack/docker-logs"
 
+  dashboard-trusted-types-smoke:
+    if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT') }}"
+    name: "Dashboard Trusted Types smoke on Chromium (nonce-report-only)"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
+        with:
+          submodules: true
+      - name: "Set up Node JS"
+        uses: "actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f" # v6.3.0
+        with:
+          node-version: "24"
+      - name: "Prepare CSP report artifacts directory"
+        run: |
+          rm -rf hack/output/csp-reports
+          mkdir -p hack/output/csp-reports/raw
+      - name: "Create external volumes"
+        run: |
+          make -C hack/ create-volumes
+      - name: "Start MySQL"
+        run: |
+          docker compose up -d mysql
+        working-directory: ./hack
+      - name: "Build images"
+        run: |
+          make -C hack/ build
+        env:
+          PYTHON_VERSION: "3.10"
+      - name: "Start services with nonce-report-only CSP override"
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.csp-test.yml \
+            -f docker-compose.csp-nonce-report-only.yml \
+            up -d
+        env:
+          ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
+        working-directory: ./hack
+      - name: "Bootstrap services"
+        run: |
+          make -C hack/ bootstrap
+      - name: "Restart services"
+        run: |
+          make -C hack/ restart-am-services
+      - name: "Install Chromium for Dashboard Trusted Types smoke"
+        run: |
+          rm -rf /tmp/playwright-smoke
+          npm install --prefix /tmp/playwright-smoke playwright
+          /tmp/playwright-smoke/node_modules/.bin/playwright install --with-deps chromium
+      - name: "Run Dashboard Trusted Types smoke"
+        id: "dashboard-trusted-types-smoke"
+        run: |
+          NODE_PATH=/tmp/playwright-smoke/node_modules \
+            node hack/helpers/dashboard_trusted_types_smoke.cjs
+      - name: "Summarize CSP reports"
+        if: "${{ always() }}"
+        run: |
+          python3 hack/helpers/summarize_csp_reports.py \
+            --input-dir hack/output/csp-reports \
+            --markdown-out hack/output/csp-reports/SUMMARY.md \
+            --json-out hack/output/csp-reports/summary.json
+      - name: "Upload CSP reports"
+        if: "${{ always() }}"
+        uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
+        with:
+          name: "csp-reports__nonce-report-only__dashboard-trusted-types__Chromium"
+          path: "./hack/output/csp-reports"
+      - name: "Save docker logs on failure"
+        if: "${{ (failure() && steps.dashboard-trusted-types-smoke.outcome == 'failure') || (cancelled() && steps.dashboard-trusted-types-smoke.outcome == 'cancelled') }}"
+        run: |
+          mkdir docker-logs
+          docker compose logs --no-log-prefix --no-color archivematica-dashboard > docker-logs/dashboard.log
+          docker compose logs --no-log-prefix --no-color archivematica-storage-service > docker-logs/storage-service.log
+          docker compose logs --no-log-prefix --no-color nginx > docker-logs/nginx.log
+        working-directory: ./hack
+      - name: "Upload docker logs on failure"
+        if: "${{ (failure() && steps.dashboard-trusted-types-smoke.outcome == 'failure') || (cancelled() && steps.dashboard-trusted-types-smoke.outcome == 'cancelled') }}"
+        uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
+        with:
+          name: "docker-logs__nonce-report-only__dashboard-trusted-types__Chromium"
+          path: "./hack/docker-logs"
+
   csp-report-summary:
     if: "${{ always() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT')) }}"
     name: "Consolidate CSP reports"
@@ -232,6 +315,7 @@ jobs:
     needs:
       - test
       - trusted-types-smoke
+      - dashboard-trusted-types-smoke
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
