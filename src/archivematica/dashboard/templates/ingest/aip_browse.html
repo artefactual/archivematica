@@ -8,7 +8,7 @@
 {% block page_id %}aip{% endblock %}
 
 {% block js %}
-  <script type="module" src="{% static 'frontend/aip-browser.js' %}"></script>
+  <script nonce="{{ CSP_NONCE }}" type="module" src="{% static 'frontend/aip-browser.js' %}"></script>
 {% endblock %}
 
 {% block topbar %}

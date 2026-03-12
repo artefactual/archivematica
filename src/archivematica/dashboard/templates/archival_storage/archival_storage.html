@@ -8,7 +8,7 @@
 {% block page_id %}archival-storage{% endblock %}
 
 {% block js %}
-  <script type="module" src="{% static 'frontend/archival-storage.js' %}"></script>
+  <script nonce="{{ CSP_NONCE }}" type="module" src="{% static 'frontend/archival-storage.js' %}"></script>
 {% endblock %}
 
 {% block content %}

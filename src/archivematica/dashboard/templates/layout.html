@@ -13,7 +13,7 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'frontend/frontend.css' %}" rel="stylesheet" type="text/css" />
     {% block extra_css %}{% endblock %}
-    <script src="{% url 'main:javascript-catalog' %}" type="text/javascript"></script>
+    <script nonce="{{ CSP_NONCE }}" src="{% url 'main:javascript-catalog' %}" type="text/javascript"></script>
     {% block js %}{% endblock %}
   </head>
   <body
@@ -94,10 +94,10 @@
 
     {% endblock %}
 
-    <script type="module" src="{% static 'frontend/core.js' %}"></script>
+    <script nonce="{{ CSP_NONCE }}" type="module" src="{% static 'frontend/core.js' %}"></script>
     {% block extra_js %}{% endblock extra_js %}
     {% if user.is_authenticated %}
-      <script type="module" src="{% static 'frontend/topbar.js' %}"></script>
+      <script nonce="{{ CSP_NONCE }}" type="module" src="{% static 'frontend/topbar.js' %}"></script>
     {% endif %}
   </body>
 </html>

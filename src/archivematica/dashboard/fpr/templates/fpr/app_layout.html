@@ -30,5 +30,5 @@
 
 {% block extra_js %}
   {{ block.super }}
-  <script type="module" src="{% static 'frontend/fpr-tables.js' %}"></script>
+  <script nonce="{{ CSP_NONCE }}" type="module" src="{% static 'frontend/fpr-tables.js' %}"></script>
 {% endblock extra_js %}
