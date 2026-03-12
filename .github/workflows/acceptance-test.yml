@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT') }}"
-    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }}"
+    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }} (${{ matrix.csp_profile }})"
     runs-on: "ubuntu-24.04"
     strategy:
       fail-fast: false
@@ -26,6 +26,9 @@ jobs:
           - "uuids-dirs"
         browser:
           - "Firefox"
+        csp_profile:
+          - "enforced"
+          - "nonce-report-only"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
@@ -47,12 +50,12 @@ jobs:
           make -C hack/ build
         env:
           PYTHON_VERSION: "3.10"
-      - name: "Start services with enforced CSP override"
+      - name: "Start services with ${{ matrix.csp_profile }} CSP override"
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f docker-compose.csp-reports.yml \
+            -f ${{ matrix.csp_profile == 'enforced' && 'docker-compose.csp-reports.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
             up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
@@ -68,7 +71,7 @@ jobs:
           docker builder prune --all --force
           docker image prune --all --force
         working-directory: ./hack
-      - name: "Run AMAUAT tag with enforced CSP override"
+      - name: "Run AMAUAT tag with ${{ matrix.csp_profile }} CSP override"
         id: "amauat-run"
         run: |
           TAGS='${{ matrix.tag }}'
@@ -81,7 +84,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f docker-compose.csp-reports.yml \
+            -f ${{ matrix.csp_profile == 'enforced' && 'docker-compose.csp-reports.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
             -f docker-compose.acceptance-tests.yml \
             build \
             --build-arg USER_ID="$(id -u)" \
@@ -91,7 +94,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f docker-compose.csp-reports.yml \
+            -f ${{ matrix.csp_profile == 'enforced' && 'docker-compose.csp-reports.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
             -f docker-compose.acceptance-tests.yml \
             run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
               --no-capture --no-capture-stderr --no-logcapture \
@@ -121,7 +124,7 @@ jobs:
         if: "${{ always() }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "csp-reports-${{ matrix.tag }}-${{ matrix.browser }}"
+          name: "csp-reports__${{ matrix.csp_profile }}__${{ matrix.tag }}__${{ matrix.browser }}"
           path: "./hack/output/csp-reports"
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
@@ -136,7 +139,7 @@ jobs:
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "docker-logs-${{ matrix.tag }}-${{ matrix.browser }}"
+          name: "docker-logs__${{ matrix.csp_profile }}__${{ matrix.tag }}__${{ matrix.browser }}"
           path: "./hack/docker-logs"
 
   csp-report-summary:
@@ -151,12 +154,12 @@ jobs:
       - name: "Download per-tag CSP report artifacts"
         uses: "actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3" # v8.0.0
         with:
-          pattern: "csp-reports-*"
+          pattern: "csp-reports__*"
           path: "/tmp/csp-report-artifacts"
       - name: "Prepare consolidated CSP report artifacts directory"
         run: |
           rm -rf hack/output/csp-reports-consolidated
-          mkdir -p hack/output/csp-reports-consolidated/raw
+          mkdir -p hack/output/csp-reports-consolidated
       - name: "Combine per-tag CSP report artifacts"
         run: |
           python3 - <<'PY'
@@ -164,23 +167,59 @@ jobs:
           from pathlib import Path
 
           source_root = Path("/tmp/csp-report-artifacts")
-          destination_root = Path("hack/output/csp-reports-consolidated/raw")
-          combined_count = 0
+          destination_root = Path("hack/output/csp-reports-consolidated")
+          combined_count = {
+              "enforced": 0,
+              "nonce-report-only": 0,
+          }
 
-          for report_file in sorted(source_root.glob("csp-reports-*/raw/*.json")):
+          for mode in combined_count:
+              (destination_root / mode / "raw").mkdir(parents=True, exist_ok=True)
+
+          for report_file in sorted(source_root.glob("csp-reports__*/raw/*.json")):
               artifact_name = report_file.parent.parent.name
-              destination = destination_root / f"{artifact_name}--{report_file.name}"
+              _, mode, _tag, _browser = artifact_name.split("__", 3)
+              mode_destination_root = destination_root / mode / "raw"
+              destination = mode_destination_root / f"{artifact_name}--{report_file.name}"
               shutil.copy2(report_file, destination)
-              combined_count += 1
+              combined_count[mode] = combined_count.get(mode, 0) + 1
 
-          print(f"Combined {combined_count} raw CSP report files.")
+          for mode, count in sorted(combined_count.items()):
+              print(f"Combined {count} raw CSP report files for {mode}.")
           PY
       - name: "Summarize consolidated CSP reports"
         run: |
-          python3 hack/helpers/summarize_csp_reports.py \
-            --input-dir hack/output/csp-reports-consolidated \
-            --markdown-out hack/output/csp-reports-consolidated/SUMMARY.md \
-            --json-out hack/output/csp-reports-consolidated/summary.json
+          for mode_dir in hack/output/csp-reports-consolidated/*; do
+            if [ ! -d "$mode_dir/raw" ]; then
+              continue
+            fi
+            python3 hack/helpers/summarize_csp_reports.py \
+              --input-dir "$mode_dir" \
+              --markdown-out "$mode_dir/SUMMARY.md" \
+              --json-out "$mode_dir/summary.json"
+          done
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          root = Path("hack/output/csp-reports-consolidated")
+          mode_titles = {
+              "enforced": "Enforced CSP",
+              "nonce-report-only": "Nonce Report-Only CSP",
+          }
+          lines = []
+
+          for mode in ("enforced", "nonce-report-only"):
+              summary_path = root / mode / "SUMMARY.md"
+              if not summary_path.exists():
+                  continue
+              lines.append(f"## {mode_titles.get(mode, mode)}")
+              lines.append("")
+              lines.append(summary_path.read_text().rstrip())
+              lines.append("")
+
+          (root / "SUMMARY.md").write_text("\n".join(lines).rstrip() + "\n")
+          PY
       - name: "Upload consolidated CSP reports"
         id: "upload-consolidated-csp-reports"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
