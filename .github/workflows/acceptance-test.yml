@@ -47,7 +47,7 @@ jobs:
           make -C hack/ build
         env:
           PYTHON_VERSION: "3.10"
-      - name: "Start services with CSP override"
+      - name: "Start services with enforced CSP override"
         run: |
           docker compose \
             -f docker-compose.yml \
@@ -68,7 +68,7 @@ jobs:
           docker builder prune --all --force
           docker image prune --all --force
         working-directory: ./hack
-      - name: "Run AMAUAT tag with CSP override"
+      - name: "Run AMAUAT tag with enforced CSP override"
         id: "amauat-run"
         run: |
           TAGS='${{ matrix.tag }}'
