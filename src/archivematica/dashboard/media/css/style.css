@@ -277,6 +277,16 @@ td.error {
   background-color: #f2d8d8;
 }
 
+.failure-report-content .failure-report-table {
+  border: 1px solid #000000;
+  border-collapse: collapse;
+}
+
+.failure-report-content .failure-report-section-header {
+  background-color: #aaa;
+  font-weight: bold;
+}
+
 /*
  * Forms
  */

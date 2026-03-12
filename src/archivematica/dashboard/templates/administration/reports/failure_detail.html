@@ -23,7 +23,9 @@
 
       <br/>
 
-      {{ report.content|safe }}
+      <div class="failure-report-content">
+        {{ report_content }}
+      </div>
 
       <div>
         <form action="{% url 'administration:failure_report_delete' report_id %}" method='POST'>

@@ -19,6 +19,7 @@ import logging
 import os
 import shutil
 import subprocess
+from typing import Any
 
 from django.conf import settings as django_settings
 from django.contrib import messages
@@ -30,7 +31,11 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.urls import reverse
+from django.utils.safestring import SafeString
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from lxml import etree
+from lxml import html as lxml_html
 
 import archivematica.archivematicaCommon.storageService as storage_service
 import archivematica.dashboard.components.administration.views_processing as processing_views
@@ -59,10 +64,76 @@ def administration(request):
     return redirect("administration:processing")
 
 
+def _parse_inline_style(style: str) -> dict[str, str]:
+    declarations = {}
+    for declaration in style.split(";"):
+        if ":" not in declaration:
+            continue
+        name, value = declaration.split(":", 1)
+        declarations[name.strip().lower()] = value.strip().lower()
+    return declarations
+
+
+def _append_css_class(element: Any, class_name: str) -> None:
+    classes = element.attrib.get("class", "").split()
+    if class_name not in classes:
+        classes.append(class_name)
+        element.attrib["class"] = " ".join(classes)
+
+
+def _failure_report_style_class(style: str) -> str | None:
+    declarations = _parse_inline_style(style)
+    if declarations == {
+        "border": "1px solid #000000",
+        "border-collapse": "collapse",
+    }:
+        return "failure-report-table"
+    if declarations == {
+        "background-color": "#aaa",
+        "font-weight": "bold",
+    }:
+        return "failure-report-section-header"
+    return None
+
+
+def _sanitize_failure_report_content(content: str) -> SafeString:
+    try:
+        root = lxml_html.fromstring(content)
+    except (etree.ParserError, ValueError):
+        return mark_safe(content)
+
+    for element in root.iter():
+        style = element.attrib.pop("style", None)
+        if style is None:
+            continue
+        css_class = _failure_report_style_class(style)
+        if css_class is not None:
+            _append_css_class(element, css_class)
+
+    if root.tag.lower() == "html":
+        body = root.find("body")
+        if body is not None:
+            sanitized = "".join(
+                lxml_html.tostring(child, encoding="unicode") for child in body
+            )
+            return mark_safe(sanitized)
+
+    return mark_safe(lxml_html.tostring(root, encoding="unicode"))
+
+
 def failure_report(request, report_id=None):
     if report_id is not None:
         report = models.Report.objects.get(pk=report_id)
-        return render(request, "administration/reports/failure_detail.html", locals())
+        report_content = _sanitize_failure_report_content(report.content)
+        return render(
+            request,
+            "administration/reports/failure_detail.html",
+            {
+                "report": report,
+                "report_content": report_content,
+                "report_id": report_id,
+            },
+        )
     else:
         current_page_number = request.GET.get("page", "1")
         items_per_page = 10
