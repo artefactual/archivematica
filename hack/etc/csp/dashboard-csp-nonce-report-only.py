@@ -14,7 +14,7 @@ REPORT_URI = os.environ.get(
 CONTENT_SECURITY_POLICY_REPORT_ONLY = {
     "DIRECTIVES": {
         "default-src": [NONE],
-        "script-src": [NONCE, STRICT_DYNAMIC, SELF, REPORT_SAMPLE],
+        "script-src": [NONCE, STRICT_DYNAMIC, REPORT_SAMPLE],
         "style-src": [SELF],
         "img-src": [SELF, "data:"],
         "font-src": [SELF, "data:"],
