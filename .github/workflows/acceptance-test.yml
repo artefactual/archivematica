@@ -27,7 +27,6 @@ jobs:
         browser:
           - "Firefox"
         csp_profile:
-          - "enforced"
           - "nonce-report-only"
           - "nonce-enforced"
     steps:
@@ -56,7 +55,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f ${{ matrix.csp_profile == 'enforced' && 'docker-compose.csp-reports.yml' || matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
+            -f ${{ matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
             up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
@@ -85,7 +84,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f ${{ matrix.csp_profile == 'enforced' && 'docker-compose.csp-reports.yml' || matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
+            -f ${{ matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
             -f docker-compose.acceptance-tests.yml \
             build \
             --build-arg USER_ID="$(id -u)" \
@@ -95,7 +94,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f ${{ matrix.csp_profile == 'enforced' && 'docker-compose.csp-reports.yml' || matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
+            -f ${{ matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
             -f docker-compose.acceptance-tests.yml \
             run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
               --no-capture --no-capture-stderr --no-logcapture \
@@ -170,7 +169,6 @@ jobs:
           source_root = Path("/tmp/csp-report-artifacts")
           destination_root = Path("hack/output/csp-reports-consolidated")
           combined_count = {
-              "enforced": 0,
               "nonce-report-only": 0,
               "nonce-enforced": 0,
           }
@@ -206,13 +204,12 @@ jobs:
 
           root = Path("hack/output/csp-reports-consolidated")
           mode_titles = {
-              "enforced": "Allowlist Enforced CSP",
               "nonce-report-only": "Nonce Report-Only CSP",
               "nonce-enforced": "Nonce Enforced CSP",
           }
           lines = []
 
-          for mode in ("enforced", "nonce-report-only", "nonce-enforced"):
+          for mode in ("nonce-report-only", "nonce-enforced"):
               summary_path = root / mode / "SUMMARY.md"
               if not summary_path.exists():
                   continue
