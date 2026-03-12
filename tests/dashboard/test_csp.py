@@ -22,6 +22,7 @@ def test_build_content_security_policy_uses_nonce_enforced_defaults():
             "base-uri": [SELF],
             "form-action": [SELF],
             "frame-ancestors": [NONE],
+            "require-trusted-types-for": ["'script'"],
         }
     }
 
@@ -39,6 +40,7 @@ def test_build_content_security_policy_adds_report_uri():
             "base-uri": [SELF],
             "form-action": [SELF],
             "frame-ancestors": [NONE],
+            "require-trusted-types-for": ["'script'"],
             "report-uri": "https://example.com/csp-report/",
         }
     }

@@ -1,0 +1,107 @@
+{
+  "baseUrl": "http://127.0.0.1:62080",
+  "login": {
+    "path": "/administration/accounts/login/?next=/transfer/",
+    "usernameSelector": "input[name=\"username\"]",
+    "passwordSelector": "input[name=\"password\"]",
+    "submitSelector": "button[type=\"submit\"]",
+    "successPath": "/transfer/"
+  },
+  "allowedConsoleErrors": [
+    "favicon.ico",
+    "/archival-storage/load_state/aips/"
+  ],
+  "routes": [
+    {
+      "id": "login",
+      "path": "/administration/accounts/login/?next=/transfer/",
+      "requiresAuth": false,
+      "assertAnySelectors": [
+        "input[name=\"username\"]",
+        "button[type=\"submit\"]"
+      ]
+    },
+    {
+      "id": "transfer",
+      "path": "/transfer/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "#transfer-browser",
+        "#transfer-monitor"
+      ]
+    },
+    {
+      "id": "archival-storage",
+      "path": "/archival-storage/",
+      "requiresAuth": true,
+      "assertAnySelectors": [
+        "#archival-storage-app",
+        ".es-indexing-disabled"
+      ],
+      "postNavigationWaitMs": 1500
+    },
+    {
+      "id": "administration-processing",
+      "path": "/administration/processing/",
+      "requiresAuth": true,
+      "assertAnySelectors": [
+        "a[href$=\"/administration/processing/add/\"]",
+        "table.table"
+      ]
+    },
+    {
+      "id": "fpr-rule-list",
+      "path": "/fpr/fprule/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "[data-fpr-table-root][data-fpr-table-script-id=\"fpr-fprule-list-payload\"]",
+        "#fpr-fprule-list-payload"
+      ]
+    },
+    {
+      "id": "fpr-rule-create",
+      "path": "/fpr/fprule/create/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "#id_f-command",
+        "#fprule_command_form"
+      ]
+    },
+    {
+      "id": "fpr-fpcommand-list",
+      "path": "/fpr/fpcommand/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "[data-fpr-table-root][data-fpr-table-script-id=\"fpr-fpcommand-list-payload\"]",
+        "#fpr-fpcommand-list-payload"
+      ]
+    },
+    {
+      "id": "fpr-fpcommand-create",
+      "path": "/fpr/fpcommand/create/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "form[action=\"/fpr/fpcommand/create/\"]",
+        "textarea[name=\"command\"]"
+      ]
+    },
+    {
+      "id": "fpr-format-list",
+      "path": "/fpr/format/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "[data-fpr-table-root][data-fpr-table-script-id=\"fpr-format-list-payload\"]",
+        "#fpr-format-list-payload"
+      ]
+    },
+    {
+      "id": "fpr-format-create",
+      "path": "/fpr/format/create/",
+      "requiresAuth": true,
+      "assertAllSelectors": [
+        "#format_form",
+        "#format_group_form"
+      ]
+    }
+  ]
+}
