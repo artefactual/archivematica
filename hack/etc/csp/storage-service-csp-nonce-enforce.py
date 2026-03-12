@@ -23,6 +23,8 @@ CONTENT_SECURITY_POLICY = {
         "base-uri": [SELF],
         "form-action": [SELF],
         "frame-ancestors": [NONE],
+        "require-trusted-types-for": ["'script'"],
+        "trusted-types": ["am-storage-service", "dompurify", "vue"],
         "report-uri": REPORT_URI,
     }
 }

@@ -57,6 +57,16 @@ const allowedConsoleErrors = ['favicon.ico']
     assert.ok(headers.csp, 'Expected enforced CSP header on Storage Service page')
     assert.ok(headers.cspReportOnly, 'Expected report-only CSP header on Storage Service page')
     assert.match(
+      headers.csp,
+      /require-trusted-types-for 'script'/,
+      'Expected Trusted Types enforced directive',
+    )
+    assert.match(
+      headers.csp,
+      /trusted-types\b.*\bam-storage-service\b/,
+      'Expected Storage Service Trusted Types policy name in enforced header',
+    )
+    assert.match(
       headers.cspReportOnly,
       /require-trusted-types-for 'script'/,
       'Expected Trusted Types report-only directive',
