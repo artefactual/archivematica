@@ -7,6 +7,9 @@ const loginUrl =
   process.env.STORAGE_SERVICE_LOGIN_URL ?? `${baseUrl}/login/?next=/spaces/create/`
 const username = process.env.STORAGE_SERVICE_USERNAME ?? 'test'
 const password = process.env.STORAGE_SERVICE_PASSWORD ?? 'test'
+const expectTrustedTypesInCsp = (process.env.STORAGE_SERVICE_EXPECT_TT_IN_CSP ?? 'true') === 'true'
+const expectTrustedTypesInCspReportOnly =
+  (process.env.STORAGE_SERVICE_EXPECT_TT_IN_CSP_REPORT_ONLY ?? 'false') === 'true'
 
 const allowedConsoleErrors = ['favicon.ico']
 
@@ -55,27 +58,38 @@ const allowedConsoleErrors = ['favicon.ico']
     })
 
     assert.ok(headers.csp, 'Expected enforced CSP header on Storage Service page')
-    assert.ok(headers.cspReportOnly, 'Expected report-only CSP header on Storage Service page')
-    assert.match(
-      headers.csp,
-      /require-trusted-types-for 'script'/,
-      'Expected Trusted Types enforced directive',
+
+    const cspContainsTrustedTypes = headers.csp?.includes("require-trusted-types-for 'script'") === true
+    assert.equal(
+      cspContainsTrustedTypes,
+      expectTrustedTypesInCsp,
+      'Unexpected enforced Trusted Types state on Storage Service page',
     )
-    assert.match(
-      headers.csp,
-      /trusted-types\b.*\bam-storage-service\b/,
-      'Expected Storage Service Trusted Types policy name in enforced header',
+    if (expectTrustedTypesInCsp) {
+      assert.match(
+        headers.csp,
+        /trusted-types\b.*\bam-storage-service\b/,
+        'Expected Storage Service Trusted Types policy name in enforced header',
+      )
+    }
+
+    const cspReportOnlyContainsTrustedTypes =
+      headers.cspReportOnly?.includes("require-trusted-types-for 'script'") === true
+    assert.equal(
+      cspReportOnlyContainsTrustedTypes,
+      expectTrustedTypesInCspReportOnly,
+      'Unexpected report-only Trusted Types state on Storage Service page',
     )
-    assert.match(
-      headers.cspReportOnly,
-      /require-trusted-types-for 'script'/,
-      'Expected Trusted Types report-only directive',
-    )
-    assert.match(
-      headers.cspReportOnly,
-      /trusted-types\b.*\bam-storage-service\b/,
-      'Expected Storage Service Trusted Types policy name in report-only header',
-    )
+    if (expectTrustedTypesInCspReportOnly) {
+      assert.ok(headers.cspReportOnly, 'Expected report-only CSP header on Storage Service page')
+      assert.match(
+        headers.cspReportOnly,
+        /trusted-types\b.*\bam-storage-service\b/,
+        'Expected Storage Service Trusted Types policy name in report-only header',
+      )
+    } else {
+      assert.equal(headers.cspReportOnly, null, 'Did not expect report-only CSP header on Storage Service page')
+    }
 
     const unexpectedConsoleErrors = consoleErrors.filter(
       (message) => !allowedConsoleErrors.some((allowed) => message.includes(allowed)),

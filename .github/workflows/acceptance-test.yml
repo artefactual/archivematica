@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT') }}"
-    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }} (${{ matrix.csp_profile }})"
+    name: "Test ${{ matrix.tag }} on ${{ matrix.browser }} (nonce-enforced)"
     runs-on: "ubuntu-24.04"
     strategy:
       fail-fast: false
@@ -26,9 +26,6 @@ jobs:
           - "uuids-dirs"
         browser:
           - "Firefox"
-        csp_profile:
-          - "nonce-report-only"
-          - "nonce-enforced"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd" # v6.0.2
@@ -50,12 +47,12 @@ jobs:
           make -C hack/ build
         env:
           PYTHON_VERSION: "3.10"
-      - name: "Start services with ${{ matrix.csp_profile }} CSP override"
+      - name: "Start services with nonce-enforced CSP override"
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f ${{ matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
+            -f docker-compose.csp-nonce-enforce.yml \
             up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
@@ -71,7 +68,7 @@ jobs:
           docker builder prune --all --force
           docker image prune --all --force
         working-directory: ./hack
-      - name: "Run AMAUAT tag with ${{ matrix.csp_profile }} CSP override"
+      - name: "Run AMAUAT tag with nonce-enforced CSP override"
         id: "amauat-run"
         run: |
           TAGS='${{ matrix.tag }}'
@@ -84,7 +81,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f ${{ matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
+            -f docker-compose.csp-nonce-enforce.yml \
             -f docker-compose.acceptance-tests.yml \
             build \
             --build-arg USER_ID="$(id -u)" \
@@ -94,7 +91,7 @@ jobs:
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f ${{ matrix.csp_profile == 'nonce-enforced' && 'docker-compose.csp-nonce-enforce.yml' || 'docker-compose.csp-nonce-report-only.yml' }} \
+            -f docker-compose.csp-nonce-enforce.yml \
             -f docker-compose.acceptance-tests.yml \
             run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
               --no-capture --no-capture-stderr --no-logcapture \
@@ -124,7 +121,7 @@ jobs:
         if: "${{ always() }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "csp-reports__${{ matrix.csp_profile }}__${{ matrix.tag }}__${{ matrix.browser }}"
+          name: "csp-reports__nonce-enforced__${{ matrix.tag }}__${{ matrix.browser }}"
           path: "./hack/output/csp-reports"
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
@@ -139,12 +136,12 @@ jobs:
         if: "${{ (failure() && steps.amauat-run.outcome == 'failure') || (cancelled() && steps.amauat-run.outcome == 'cancelled') }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "docker-logs__${{ matrix.csp_profile }}__${{ matrix.tag }}__${{ matrix.browser }}"
+          name: "docker-logs__nonce-enforced__${{ matrix.tag }}__${{ matrix.browser }}"
           path: "./hack/docker-logs"
 
   trusted-types-smoke:
     if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT') }}"
-    name: "Trusted Types smoke on Chromium (nonce-report-only)"
+    name: "Trusted Types smoke on Chromium (nonce-enforced)"
     runs-on: "ubuntu-24.04"
     steps:
       - name: "Check out repository"
@@ -171,12 +168,12 @@ jobs:
           make -C hack/ build
         env:
           PYTHON_VERSION: "3.10"
-      - name: "Start services with nonce-report-only CSP override"
+      - name: "Start services with nonce-enforced CSP override"
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f docker-compose.csp-nonce-report-only.yml \
+            -f docker-compose.csp-nonce-enforce.yml \
             up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
@@ -195,6 +192,8 @@ jobs:
       - name: "Run Storage Service Trusted Types smoke"
         id: "trusted-types-smoke"
         run: |
+          STORAGE_SERVICE_EXPECT_TT_IN_CSP=true \
+          STORAGE_SERVICE_EXPECT_TT_IN_CSP_REPORT_ONLY=false \
           NODE_PATH=/tmp/playwright-smoke/node_modules \
             node hack/helpers/storage_service_trusted_types_smoke.cjs
       - name: "Summarize CSP reports"
@@ -208,7 +207,7 @@ jobs:
         if: "${{ always() }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "csp-reports__nonce-report-only__storage-service-trusted-types__Chromium"
+          name: "csp-reports__nonce-enforced__storage-service-trusted-types__Chromium"
           path: "./hack/output/csp-reports"
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.trusted-types-smoke.outcome == 'failure') || (cancelled() && steps.trusted-types-smoke.outcome == 'cancelled') }}"
@@ -222,12 +221,12 @@ jobs:
         if: "${{ (failure() && steps.trusted-types-smoke.outcome == 'failure') || (cancelled() && steps.trusted-types-smoke.outcome == 'cancelled') }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "docker-logs__nonce-report-only__storage-service-trusted-types__Chromium"
+          name: "docker-logs__nonce-enforced__storage-service-trusted-types__Chromium"
           path: "./hack/docker-logs"
 
   dashboard-trusted-types-smoke:
     if: "${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.label.name == 'AMAUAT') }}"
-    name: "Dashboard Trusted Types smoke on Chromium (nonce-report-only)"
+    name: "Dashboard Trusted Types smoke on Chromium (nonce-enforced)"
     runs-on: "ubuntu-24.04"
     steps:
       - name: "Check out repository"
@@ -254,12 +253,12 @@ jobs:
           make -C hack/ build
         env:
           PYTHON_VERSION: "3.10"
-      - name: "Start services with nonce-report-only CSP override"
+      - name: "Start services with nonce-enforced CSP override"
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.csp-test.yml \
-            -f docker-compose.csp-nonce-report-only.yml \
+            -f docker-compose.csp-nonce-enforce.yml \
             up -d
         env:
           ELASTICSEARCH_DISK_THRESHOLD_ENABLED: "false"
@@ -278,6 +277,8 @@ jobs:
       - name: "Run Dashboard Trusted Types smoke"
         id: "dashboard-trusted-types-smoke"
         run: |
+          DASHBOARD_EXPECT_TT_IN_CSP=true \
+          DASHBOARD_EXPECT_TT_IN_CSP_REPORT_ONLY=false \
           NODE_PATH=/tmp/playwright-smoke/node_modules \
             node hack/helpers/dashboard_trusted_types_smoke.cjs
       - name: "Summarize CSP reports"
@@ -291,7 +292,7 @@ jobs:
         if: "${{ always() }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "csp-reports__nonce-report-only__dashboard-trusted-types__Chromium"
+          name: "csp-reports__nonce-enforced__dashboard-trusted-types__Chromium"
           path: "./hack/output/csp-reports"
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.dashboard-trusted-types-smoke.outcome == 'failure') || (cancelled() && steps.dashboard-trusted-types-smoke.outcome == 'cancelled') }}"
@@ -305,7 +306,7 @@ jobs:
         if: "${{ (failure() && steps.dashboard-trusted-types-smoke.outcome == 'failure') || (cancelled() && steps.dashboard-trusted-types-smoke.outcome == 'cancelled') }}"
         uses: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f" # v7.0.0
         with:
-          name: "docker-logs__nonce-report-only__dashboard-trusted-types__Chromium"
+          name: "docker-logs__nonce-enforced__dashboard-trusted-types__Chromium"
           path: "./hack/docker-logs"
 
   csp-report-summary:
@@ -337,7 +338,6 @@ jobs:
           source_root = Path("/tmp/csp-report-artifacts")
           destination_root = Path("hack/output/csp-reports-consolidated")
           combined_count = {
-              "nonce-report-only": 0,
               "nonce-enforced": 0,
           }
 
@@ -372,12 +372,11 @@ jobs:
 
           root = Path("hack/output/csp-reports-consolidated")
           mode_titles = {
-              "nonce-report-only": "Nonce Report-Only CSP",
               "nonce-enforced": "Nonce Enforced CSP",
           }
           lines = []
 
-          for mode in ("nonce-report-only", "nonce-enforced"):
+          for mode in ("nonce-enforced",):
               summary_path = root / mode / "SUMMARY.md"
               if not summary_path.exists():
                   continue
@@ -417,7 +416,7 @@ jobs:
           root = Path("hack/output/csp-reports-consolidated")
           failures = []
 
-          for mode in ("nonce-report-only", "nonce-enforced"):
+          for mode in ("nonce-enforced",):
               summary_path = root / mode / "summary.json"
               if not summary_path.exists():
                   continue

@@ -12,7 +12,7 @@ const username = process.env.DASHBOARD_USERNAME ?? 'test'
 const password = process.env.DASHBOARD_PASSWORD ?? 'test'
 const expectTrustedTypesInCsp = (process.env.DASHBOARD_EXPECT_TT_IN_CSP ?? 'true') === 'true'
 const expectTrustedTypesInCspReportOnly =
-  (process.env.DASHBOARD_EXPECT_TT_IN_CSP_REPORT_ONLY ?? 'true') === 'true'
+  (process.env.DASHBOARD_EXPECT_TT_IN_CSP_REPORT_ONLY ?? 'false') === 'true'
 const defaultTimeoutMs = Number.parseInt(process.env.DASHBOARD_ROUTE_TIMEOUT_MS ?? '10000', 10)
 
 const allowedConsoleErrors = routeManifest.allowedConsoleErrors ?? []
