@@ -3,15 +3,9 @@
 services:
   archivematica-dashboard:
     environment:
-      CSP_SETTINGS_FILE: "/etc/archivematica/dashboard-csp-enforce.py"
       CSP_REPORT_OUTPUT_DIR: "${CSP_REPORT_OUTPUT_DIR:-/src/hack/output/csp-reports/raw}"
       CSP_REPORT_URI: "${CSP_REPORT_URI:-http://nginx/api/csp-report/}"
-    volumes:
-      - "./etc/csp/dashboard-csp-enforce.py:/etc/archivematica/dashboard-csp-enforce.py:ro"
 
   archivematica-storage-service:
     environment:
-      CSP_SETTINGS_FILE: "/etc/archivematica/storage-service-csp-enforce.py"
       CSP_REPORT_URI: "${CSP_REPORT_URI:-http://nginx/api/csp-report/}"
-    volumes:
-      - "./etc/csp/storage-service-csp-enforce.py:/etc/archivematica/storage-service-csp-enforce.py:ro"
