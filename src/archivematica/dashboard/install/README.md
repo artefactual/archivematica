@@ -319,8 +319,8 @@ variables or in the gunicorn configuration file.
   - **Default:** `10`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED`**:
-  - **Description:** Enables [Content Security Policy] headers. This is enabled
-    by default.
+  - **Description:** Enables enforced [Content Security Policy] headers. This
+    is enabled by default.
   - **Config file example:** `Dashboard.csp_enabled`
   - **Type:** `boolean`
   - **Default:** `True`
@@ -845,7 +845,8 @@ This only has an effect if ``OIDC_USE_PKCE`` is ``True``.
 ### CSP variables
 
 These variables specify the behaviour of the Content Security Policy (CSP)
-headers. CSP is enabled by default. Set
+headers. CSP is enabled by default, and supporting browsers also enforce
+Trusted Types as part of the default policy. Set
 `ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED=false` to opt out temporarily.
 
 - **`CSP_SETTINGS_FILE`**:
