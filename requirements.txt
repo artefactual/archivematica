@@ -114,7 +114,7 @@ pyasn1-modules==0.4.2
     # via python-ldap
 pycparser==3.0
     # via cffi
-pyjwt==2.11.0
+pyjwt==2.12.1
     # via
     #   archivematica (pyproject.toml)
     #   mozilla-django-oidc
@@ -158,6 +158,7 @@ typing-extensions==4.15.0
     #   asgiref
     #   cryptography
     #   elasticsearch
+    #   pyjwt
     #   referencing
 unidecode==1.4.0
     # via archivematica (pyproject.toml)
