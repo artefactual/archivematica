@@ -43,13 +43,17 @@
     {% endif %}
 
     {% if page.paginator.num_pages > 1 %}
-    <script>
-    $(document).ready(function () {
-      $('#paging_jump_to').change(function() {
-        window.location = '?{{ search_params }}&page=' + $(this).val();
+      <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var pagingJumpTo = document.getElementById('paging_jump_to');
+        if (!pagingJumpTo) {
+          return;
+        }
+        pagingJumpTo.addEventListener('change', function () {
+          window.location = '?{{ search_params }}&page=' + this.value;
+        });
       });
-    });
-    </script>
+      </script>
       <span style='margin-left: 2em'>
         {% trans "Jump to" %}&nbsp;&nbsp;<input id='paging_jump_to' style='width: 20px;' />
       </span>

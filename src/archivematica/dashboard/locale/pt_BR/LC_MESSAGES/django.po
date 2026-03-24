@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 09:14+0000\n"
+"POT-Creation-Date: 2026-03-04 06:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: artefactual <translate@artefactual.com>, 2018\n"
 "Language-Team: Portuguese (Brazil) (https://www.transifex.com/artefactual/"
@@ -697,8 +697,8 @@ msgstr "Digite o UUID para confirmar"
 #: fpr/templates/fpr/idrule/detail.html:21
 #: fpr/templates/fpr/idtool/detail.html:18
 #: fpr/templates/fpr/revisions/list.html:23
-#: templates/administration/reports/failures.html:27
-#: templates/archival_storage/view.html:41
+#: templates/administration/reports/failures.html:28
+#: templates/archival_storage/view.html:27
 msgid "UUID"
 msgstr "UUID"
 
@@ -724,7 +724,7 @@ msgstr "Eliminação solicitada"
 
 #: components/archival_storage/views.py:208 templates/accounts/list.html:24
 #: templates/accounts/profile.html:32
-#: templates/administration/reports/failures.html:26
+#: templates/administration/reports/failures.html:27
 msgid "Name"
 msgstr "Nome"
 
@@ -742,7 +742,7 @@ msgstr ""
 
 #: components/archival_storage/views.py:213
 #: templates/administration/usage.html:90
-#: templates/archival_storage/view.html:45
+#: templates/archival_storage/view.html:31
 msgid "Size"
 msgstr "Tamanho"
 
@@ -759,24 +759,24 @@ msgid "Created date (UTC)"
 msgstr "Tempo criado"
 
 #: components/archival_storage/views.py:217
-#: templates/archival_storage/view.html:53
+#: templates/archival_storage/view.html:39
 msgid "Status"
 msgstr "Status"
 
 #: components/archival_storage/views.py:218 main/models.py:1062
-#: templates/administration/reports/failures.html:25
+#: templates/administration/reports/failures.html:26
 #: templates/rights/rights_edit.html:98 templates/rights/rights_edit.html:144
 #: templates/rights/rights_edit.html:188 templates/rights/rights_edit.html:230
 msgid "Type"
 msgstr "Tipo"
 
 #: components/archival_storage/views.py:219
-#: templates/archival_storage/view.html:57
+#: templates/archival_storage/view.html:43
 msgid "Encrypted"
 msgstr "Criptografado"
 
 #: components/archival_storage/views.py:220
-#: templates/archival_storage/view.html:61
+#: templates/archival_storage/view.html:47
 #: templates/ingest/normalization_report.html:28
 msgid "Location"
 msgstr "Localização"
@@ -1490,7 +1490,7 @@ msgstr "Função do documento de identificação de direitos autorais"
 msgid "%(description)s"
 msgstr "%(description)s"
 
-#: fpr/models.py:452 templates/layout.html:61 templates/main/access.html:4
+#: fpr/models.py:452 templates/layout.html:57 templates/main/access.html:4
 #: templates/main/access.html:5
 msgid "Access"
 msgstr "Acesso"
@@ -1661,12 +1661,12 @@ msgstr ""
 #: fpr/templates/fpr/disable.html:27
 #, python-format
 msgid "Disable %(object)s"
-msgstr "Desabilitar %(object)s"
+msgstr "Desativar %(object)s"
 
 #: fpr/templates/fpr/disable.html:29
 #, python-format
 msgid "Enable %(object)s"
-msgstr "Habilitar %(object)s"
+msgstr "Ativar %(object)s"
 
 #: fpr/templates/fpr/disable.html:36
 #: fpr/templates/fpr/format/group/delete.html:20
@@ -1767,10 +1767,10 @@ msgstr ""
 #: fpr/templates/fpr/format/group/delete.html:44
 #: templates/accounts/list.html:42 templates/administration/processing.html:33
 #: templates/administration/reports/failure_detail.html:31
-#: templates/administration/reports/failures.html:39
+#: templates/administration/reports/failures.html:40
 #: templates/administration/term_detail.html:36
-#: templates/archival_storage/view.html:89
-#: templates/archival_storage/view.html:132 templates/main/access.html:25
+#: templates/archival_storage/view.html:75
+#: templates/archival_storage/view.html:118 templates/main/access.html:25
 #: templates/rights/rights_list.html:55 templates/rights/rights_list.html:58
 msgid "Delete"
 msgstr "Excluir"
@@ -1810,7 +1810,7 @@ msgstr "Lista"
 #: fpr/templates/fpr/format/version/detail.html:5
 #, python-format
 msgid "Format version %(description)s"
-msgstr "Versão de formato %(description)s"
+msgstr "Versão do formato %(description)s"
 
 #: fpr/templates/fpr/format/version/detail.html:6
 #, python-format
@@ -1944,7 +1944,7 @@ msgstr ""
 #: fpr/templates/fpr/fprule/detail.html:35
 #, python-format
 msgid "Failure: %(count)s"
-msgstr "Falha: %(count)s"
+msgstr "Falhas: %(count)s"
 
 #: fpr/templates/fpr/fprule/detail.html:36
 #, python-format
@@ -2830,11 +2830,11 @@ msgstr "Próximo"
 msgid "Last"
 msgstr "Último"
 
-#: templates/_pager.html:54
+#: templates/_pager.html:58
 msgid "Jump to"
 msgstr "Pule para"
 
-#: templates/_pager.html:60
+#: templates/_pager.html:64
 #, python-format
 msgid ""
 "\n"
@@ -2942,7 +2942,7 @@ msgstr ""
 #: templates/administration/term_detail.html:5
 #: templates/administration/term_detail.html:6
 #: templates/administration/terms.html:5 templates/administration/terms.html:6
-#: templates/layout.html:62
+#: templates/layout.html:58
 msgid "Administration"
 msgstr "Administração"
 
@@ -3080,7 +3080,7 @@ msgid "Processing configuration"
 msgstr "Configuração de processamento"
 
 #: templates/administration/processing.html:28
-#: templates/archival_storage/view.html:63
+#: templates/archival_storage/view.html:49
 msgid "Download"
 msgstr "Download"
 
@@ -3123,15 +3123,15 @@ msgstr ""
 "          Relatório de falha: %(name)s\n"
 "        "
 
-#: templates/administration/reports/failures.html:18
+#: templates/administration/reports/failures.html:19
 msgid "Failure report"
 msgstr "Relatório de falha:"
 
-#: templates/administration/reports/failures.html:24
+#: templates/administration/reports/failures.html:25
 msgid "Date"
 msgstr "Data"
 
-#: templates/administration/reports/failures.html:56
+#: templates/administration/reports/failures.html:49
 msgid "No reports found."
 msgstr "Não foram encontrados relatórios."
 
@@ -3261,77 +3261,28 @@ msgstr "Sobre Archivematica"
 msgid "Agent code"
 msgstr "Código do agente"
 
-#: templates/archival_storage/_archival_storage_search_form.html:7
-msgid "Show files?"
-msgstr "Mostrar arquivos?"
-
-#: templates/archival_storage/_archival_storage_search_form.html:9
-msgid "Search archival storage"
-msgstr "Pesquisar no armazenamento de arquivo"
-
 #: templates/archival_storage/archival_storage.html:6
-#: templates/archival_storage/archival_storage.html:7
-#: templates/archival_storage/archival_storage.html:31
+#: templates/archival_storage/archival_storage.html:19
 #: templates/archival_storage/view.html:6
 #: templates/archival_storage/view.html:7
-#: templates/archival_storage/view.html:28 templates/layout.html:58
+#: templates/archival_storage/view.html:14 templates/layout.html:54
 msgid "Archival storage"
 msgstr "Armazenamento de arquivo"
 
-#: templates/archival_storage/archival_storage.html:32
+#: templates/archival_storage/archival_storage.html:20
 #: templates/ingest/as/_search_form.html:6
 msgid "Search"
 msgstr "Pesquisa"
 
-#: templates/archival_storage/archival_storage.html:40
+#: templates/archival_storage/archival_storage.html:25
 msgid "Browse archival storage"
 msgstr "Navegue no armazenamento de arquivo"
 
-#: templates/archival_storage/archival_storage.html:43
-#, python-format
-msgid ""
-"\n"
-"            Total size: %(size)s\n"
-"          "
-msgstr ""
-"\n"
-"            Tamanho total: %(size)s MB\n"
-"          "
-
-#: templates/archival_storage/archival_storage.html:49
-#, python-format
-msgid ""
-"\n"
-"              Files indexed: %(count)s\n"
-"            "
-msgstr ""
-"\n"
-"              Arquivos indexados : %(count)s\n"
-"            "
-
-#: templates/archival_storage/archival_storage.html:60
-msgid "Create an AIC from current search results"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:61
-msgid "Create an AIC"
-msgstr "Criar SIP"
-
-#: templates/archival_storage/archival_storage.html:65
-msgid ""
-"Download all results from archival storage as a CSV (Comma-separated-values) "
-"table"
-msgstr ""
-
-#: templates/archival_storage/archival_storage.html:66
-msgid "Download CSV"
-msgstr "Download"
-
-#: templates/archival_storage/archival_storage.html:74
+#: templates/archival_storage/archival_storage.html:35
 msgid "Elasticsearch Indexing Disabled"
 msgstr "Indexação do Elasticsearch Desabilitada"
 
-#: templates/archival_storage/archival_storage.html:75
+#: templates/archival_storage/archival_storage.html:36
 msgid ""
 "Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes "
 "in this Archivematica installation. The archival storage tab is non-"
@@ -3342,57 +3293,57 @@ msgstr ""
 "storage (armazenamento arquivístico) não funciona quando a indexação está "
 "desligada."
 
-#: templates/archival_storage/view.html:35
+#: templates/archival_storage/view.html:21
 msgid "Archival Information Package"
 msgstr "Pacote de informações de arquivo"
 
-#: templates/archival_storage/view.html:49
+#: templates/archival_storage/view.html:35
 msgid "Date stored"
 msgstr "Data armazenada"
 
-#: templates/archival_storage/view.html:68
+#: templates/archival_storage/view.html:54
 msgid "METS file"
 msgstr "Mostrar arquivos?"
 
-#: templates/archival_storage/view.html:70
-#: templates/archival_storage/view.html:76
+#: templates/archival_storage/view.html:56
+#: templates/archival_storage/view.html:62
 msgid "View"
 msgstr "Visualizar"
 
-#: templates/archival_storage/view.html:74
+#: templates/archival_storage/view.html:60
 msgid "Pointer file"
 msgstr "Indicador de arquivo"
 
-#: templates/archival_storage/view.html:82 templates/main/access.html:16
+#: templates/archival_storage/view.html:68 templates/main/access.html:16
 msgid "Actions"
 msgstr "Ações"
 
-#: templates/archival_storage/view.html:87
+#: templates/archival_storage/view.html:73
 msgid "Upload DIP"
 msgstr "Carregar DIP"
 
-#: templates/archival_storage/view.html:88
-#: templates/archival_storage/view.html:117
+#: templates/archival_storage/view.html:74
+#: templates/archival_storage/view.html:103
 msgid "Re-ingest"
 msgstr "Readmissão"
 
-#: templates/archival_storage/view.html:99
+#: templates/archival_storage/view.html:85
 msgid "Metadata-only DIP upload to AtoM"
 msgstr "Carregamento DIP somente de metadados para o AtoM"
 
-#: templates/archival_storage/view.html:103
+#: templates/archival_storage/view.html:89
 msgid "Upload"
 msgstr "Carregar"
 
-#: templates/archival_storage/view.html:113
+#: templates/archival_storage/view.html:99
 msgid "Choose type of re-ingest"
 msgstr "Escolha o tipo de readmissão"
 
-#: templates/archival_storage/view.html:127
+#: templates/archival_storage/view.html:113
 msgid "Are you sure that you want to delete this AIP"
 msgstr "Tem certeza de que deseja excluir este AIP"
 
-#: templates/archival_storage/view.html:128 templates/delete_request.html:8
+#: templates/archival_storage/view.html:114 templates/delete_request.html:8
 msgid ""
 "Choosing to delete this package will send a request to your Archival Storage "
 "administrator. If the administrator approves the request, your package will "
@@ -3429,7 +3380,7 @@ msgstr "AIP"
 #: templates/ingest/metadata_add_files.html:15
 #: templates/ingest/metadata_edit.html:10
 #: templates/ingest/microservices.html:11 templates/ingest/monitor.html:5
-#: templates/ingest/monitor.html:6 templates/layout.html:56
+#: templates/ingest/monitor.html:6 templates/layout.html:52
 #: templates/rights/rights_edit.html:12
 #: templates/rights/rights_grants_edit.html:12
 #: templates/rights/rights_list.html:9
@@ -3535,7 +3486,7 @@ msgstr "Detalhamento do evento de normalização manual"
 msgid "Add metadata files"
 msgstr "Adicionar arquivos de metadados"
 
-#: templates/ingest/normalization_report.html:11 templates/main/tasks.html:36
+#: templates/ingest/normalization_report.html:11 templates/main/tasks.html:38
 msgid "File name"
 msgstr "Nome do arquivo"
 
@@ -3625,7 +3576,7 @@ msgstr ""
 msgid "Archivematica Dashboard"
 msgstr "Painel de controle Archivematica"
 
-#: templates/layout.html:55 templates/rights/rights_edit.html:14
+#: templates/layout.html:51 templates/rights/rights_edit.html:14
 #: templates/rights/rights_grants_edit.html:14
 #: templates/rights/rights_list.html:11 templates/transfer/component.html:10
 #: templates/transfer/detail.html:9 templates/transfer/metadata_edit.html:9
@@ -3634,15 +3585,15 @@ msgstr "Painel de controle Archivematica"
 msgid "Transfer"
 msgstr "Transferir"
 
-#: templates/layout.html:60
+#: templates/layout.html:56
 msgid "Preservation planning"
 msgstr "Plano de preservação"
 
-#: templates/layout.html:70
+#: templates/layout.html:66
 msgid "Your profile"
 msgstr "Seu perfil"
 
-#: templates/layout.html:75
+#: templates/layout.html:71
 msgid "Log out"
 msgstr "Sair"
 
@@ -3658,63 +3609,63 @@ msgstr "Data de upload"
 msgid "Upload status"
 msgstr "Status do upload"
 
-#: templates/main/tasks.html:9
+#: templates/main/tasks.html:11
 #, python-format
 msgid "Transfer %(uuid)s"
 msgstr "Transferir %(uuid)s"
 
-#: templates/main/tasks.html:11
+#: templates/main/tasks.html:13
 #, python-format
 msgid "DIP %(uuid)s"
 msgstr "DIP %(uuid)s"
 
-#: templates/main/tasks.html:13
+#: templates/main/tasks.html:15
 #, python-format
 msgid "SIP %(uuid)s"
 msgstr "SIP %(uuid)s"
 
-#: templates/main/tasks.html:16
+#: templates/main/tasks.html:18
 msgid "Tasks"
 msgstr "Tarefas"
 
-#: templates/main/tasks.html:33
+#: templates/main/tasks.html:35
 msgid "File UUID"
 msgstr "Arquivo UUID"
 
-#: templates/main/tasks.html:34
+#: templates/main/tasks.html:36
 msgid "Not applicable"
 msgstr ""
 
-#: templates/main/tasks.html:39
+#: templates/main/tasks.html:41
 msgid "Client"
 msgstr "Usuário"
 
-#: templates/main/tasks.html:42
+#: templates/main/tasks.html:44
 msgid "Exit code"
 msgstr "Código de saída"
 
-#: templates/main/tasks.html:54
+#: templates/main/tasks.html:56
 msgid "Start time"
 msgstr "Hora inicial"
 
-#: templates/main/tasks.html:57
+#: templates/main/tasks.html:59
 msgid "End time"
 msgstr "Hora final"
 
-#: templates/main/tasks.html:60
+#: templates/main/tasks.html:62
 msgid "Created time"
 msgstr "Tempo criado"
 
-#: templates/main/tasks.html:63
+#: templates/main/tasks.html:65
 msgid "Duration"
 msgstr "Duração"
 
-#: templates/main/tasks.html:64
+#: templates/main/tasks.html:66
 #, python-format
 msgid "%(duration)s seconds(s)"
 msgstr "%(duration)s segundo(s)"
 
-#: templates/main/tasks.html:72
+#: templates/main/tasks.html:74
 #, python-format
 msgid ""
 "\n"
@@ -3725,15 +3676,15 @@ msgstr ""
 "                Módulo %(module)s\n"
 "              "
 
-#: templates/main/tasks.html:83
+#: templates/main/tasks.html:85
 msgid "Standard streams"
 msgstr "Fluxos padrão"
 
-#: templates/main/tasks.html:89
+#: templates/main/tasks.html:91
 msgid "Standard output (stdout)"
 msgstr "Saída padrão (stdout)"
 
-#: templates/main/tasks.html:100
+#: templates/main/tasks.html:102
 msgid "Errors and diagnostics (stderr)"
 msgstr ""
 

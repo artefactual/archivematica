@@ -385,16 +385,21 @@ STATIC_URL = "/media/"
 # Examples: "http://foo.com/static/admin/", "/static/admin/".
 ADMIN_MEDIA_PREFIX = "/media/"
 
+# Allow tests to serve frontend assets from a path not shadowed by bind mounts over /src.
+FRONTEND_DIST_DIR = os.environ.get(
+    "FRONTEND_DIST_DIR", os.path.join(BASE_PATH, "frontend", "dist")
+)
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    ("js", os.path.join(BASE_PATH, "media", "js")),
+    ("js", os.path.join(BASE_PATH, "media", "js")),  # Currently unused.
     ("css", os.path.join(BASE_PATH, "media", "css")),
     ("images", os.path.join(BASE_PATH, "media", "images")),
     ("vendor", os.path.join(BASE_PATH, "media", "vendor")),
-    ("vue", os.path.join(BASE_PATH, "vue", "dist")),
+    ("frontend", FRONTEND_DIST_DIR),
 )
 
 # List of finder classes that know how to find static files in

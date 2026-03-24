@@ -482,24 +482,68 @@ textarea.command {
   background-color: #eee;
 }
 
-/* From Bootstrap 3.x */
-.dataTables_length select,
-.dataTables_filter input {
-  display: inline-block;
-  width: auto;
-  height: 34px;
-  padding: 6px 12px;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #555;
-  background-color: #fff;
-  background-image: none;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-}
-
 label.required-field:after {
   content: '*'
+}
+
+/* route=view_aip */
+
+.aip-details code {
+  background-color: transparent;
+}
+
+.aip-details .uuid {
+  padding-left: 0;
+  font-size: 1.2em;
+}
+
+.aip-details .location-preview {
+  margin-left: 10px;
+}
+
+.aip-details th {
+  vertical-align: middle;
+}
+
+/* A custom pane with tabs based on bs1 tabs, e.g. see archival storage view page */
+
+.am-tabs-pane {
+  margin-bottom: 20px;
+}
+
+.am-tabs-pane legend {
+  padding-bottom: 10px;
+}
+
+.am-tabs-pane .form-stacked {
+  padding: 0 20px 20px;
+}
+
+.am-tabs-pane .tabs {
+  margin-bottom: 0;
+}
+
+.am-tabs-pane .tab-content {
+  padding-top: 20px;
+  border: 1px solid #ddd;
+  border-top-width: 0;
+}
+
+.am-tabs-pane .tab-pane .am-actions {
+  background-color: #f5f5f5;
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-bottom: -20px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+}
+
+.am-tabs-pane .errorlist {
+  margin: 0;
+}
+
+.am-tabs-pane .errorlist li {
+  list-style: none;
+  color: red;
 }

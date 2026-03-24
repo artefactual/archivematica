@@ -28,7 +28,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "npm"
-    directory: "/src/archivematica/dashboard/vue"
+    directory: "/src/archivematica/dashboard/frontend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 1
