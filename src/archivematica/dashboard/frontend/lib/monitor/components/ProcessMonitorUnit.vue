@@ -46,10 +46,10 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const statusIconByName = {
-  accept: SilkAcceptIcon,
+  'accept': SilkAcceptIcon,
   'arrow-refresh': SilkArrowRefreshIcon,
-  bell: SilkBellIcon,
-  cancel: SilkCancelIcon,
+  'bell': SilkBellIcon,
+  'cancel': SilkCancelIcon,
 } as const
 
 const getStatusIconName = (job: ProcessingJob | undefined): keyof typeof statusIconByName => {
