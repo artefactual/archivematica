@@ -298,3 +298,24 @@ class TestParseDataverse(TestCase):
         # Processing should continue on the objects mapping that remains.
         assert mapping is not None
         assert len(mapping) == 1
+
+    def test_zip_path_lookup(self):
+        """When a bundle has been extracted, the file's originallocation in the
+        database uses the .zip package path. Verify that get_db_objects can
+        still find the file when the METS path uses the directory form.
+        """
+        # Change Weather_data.sav's originallocation from the directory path
+        # to the .zip path that extract_contents.py would produce.
+        sav_file = models.File.objects.get(pk="e2834eed-4178-469a-9a4e-c8f1490bb804")
+        sav_file.originallocation = (
+            b"%transferDirectory%objects/Weather_data.zip/Weather_data.sav"
+        )
+        sav_file.save()
+
+        mapping = parse_dataverse.get_db_objects(self.job, self.mets, self.uuid)
+        mets_sav = self.mets.get_file(
+            file_uuid="fb3b1250-5e45-499f-b0b1-0f6a20d77366"
+        )
+        assert mapping is not None
+        assert len(mapping) == 7
+        assert mapping[mets_sav] == sav_file
