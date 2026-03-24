@@ -12,7 +12,7 @@ ammcpc==0.3.0
     # via archivematica (pyproject.toml)
 asgiref==3.11.1
     # via django
-attrs==25.4.0
+attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
@@ -26,7 +26,7 @@ certifi==2026.2.25
     #   requests
 cffi==2.0.0
     # via cryptography
-charset-normalizer==3.4.5
+charset-normalizer==3.4.6
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
@@ -106,7 +106,7 @@ prometheus-client==0.24.1
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
-pyasn1==0.6.2
+pyasn1==0.6.3
     # via
     #   pyasn1-modules
     #   python-ldap
