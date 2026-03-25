@@ -8,12 +8,11 @@ archivematicaCreateMETSMetadataXML.process_xml_metadata()
 from importlib.metadata import version
 from pathlib import Path
 from unittest import mock
+from urllib.error import URLError
 from uuid import uuid4
 
 import metsrw
 import pytest
-import requests
-from lxml.etree import parse
 
 from archivematica.dashboard.main.models import File
 from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML import (
@@ -23,6 +22,8 @@ from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML im
 METADATA_DIR = Path("objects") / "metadata"
 TRANSFER_METADATA_DIR = METADATA_DIR / "transfers" / "transfer_a"
 TRANSFER_SOURCE_METADATA_CSV = TRANSFER_METADATA_DIR / "source-metadata.csv"
+DUMMY_EXTERNAL_SCHEMA_URI = "http://foo.com/my.xsd"
+DUMMY_SCHEMA_NAMESPACE = "http://foo.com/1.0"
 VALID_XML = '<?xml version="1.0" encoding="UTF-8"?><foo><bar/></foo>'
 INVALID_XML = '<?xml version="1.0" encoding="UTF-8"?><foo/>'
 SCHEMAS = {
@@ -49,9 +50,9 @@ SCHEMAS = {
 </element>
 """,
 }
-IMPORTED_SCHEMA = """<?xml version="1.0" encoding="UTF-8"?>
+IMPORTED_SCHEMA = f"""<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="http://foo.com/1.0" targetNamespace="http://foo.com/1.0">
+           xmlns="{DUMMY_SCHEMA_NAMESPACE}" targetNamespace="{DUMMY_SCHEMA_NAMESPACE}">
 </xs:schema>"""
 
 
@@ -156,45 +157,21 @@ def requests_get():
 
 
 @pytest.fixture
-def requests_get_error():
-    # Simulate an error retrieving an imported schema.
+def urllib_request_urlopen_error():
+    # Simulate an error retrieving an external schema.
     with mock.patch(
-        "requests.get",
-        side_effect=requests.RequestException("error"),
+        "archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML.urlopen",
+        side_effect=URLError("mock URL error"),
     ) as result:
         yield result
 
 
 @pytest.fixture
-def etree_parse():
-    # Mocked etree.parse used in the resolver tests that returns None before the first
-    # XMLSchema call, which triggers an etree.XMLSchemaParseError exception
-    # and forces reparsing the validation schema with a custom etree.Resolver.
-    class mock_parse:
-        def __init__(self, *args, **kwargs):
-            self.call_count = 0
-
-        def __call__(self, *args, **kwargs):
-            self.call_count += 1
-            # Parse is called first with the metadata XML file
-            # and then with the XML validation schema.
-            if self.call_count == 2:
-                return
-            return parse(*args, **kwargs)
-
-    with mock.patch(
-        "archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML.etree.parse",
-        mock_parse(),
-    ):
-        yield
-
-
-@pytest.fixture
 def schema_with_remote_import(tmp_path):
     # Create a schema that imports a remote schema.
-    schema = """<?xml version="1.0" encoding="UTF-8"?>
+    schema = f"""<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import namespace="http://foo.com/1.0" schemaLocation="http://foo.com/my.xsd" />
+  <xs:import namespace="{DUMMY_SCHEMA_NAMESPACE}" schemaLocation="{DUMMY_EXTERNAL_SCHEMA_URI}" />
   <xs:element name="foo">
     <xs:complexType>
       <xs:sequence>
@@ -598,7 +575,6 @@ def test_resolver(
     make_mock_mets,
     sip,
     sip_directory_path,
-    etree_parse,
     requests_get,
     schema_with_remote_import,
 ):
@@ -618,22 +594,20 @@ def test_resolver(
         xml_validation,
     )
     assert not errors
-    requests_get.assert_called_once_with("http://foo.com/my.xsd")
+    requests_get.assert_called_once_with(DUMMY_EXTERNAL_SCHEMA_URI, timeout=10)
 
 
 @pytest.mark.django_db
-def test_resolver_with_requests_error(
+def test_resolver_with_urlopen_error(
     settings,
     make_metadata_file,
     make_mock_mets,
     sip,
     sip_directory_path,
-    etree_parse,
-    requests_get_error,
-    schema_with_remote_import,
+    urllib_request_urlopen_error,
 ):
     settings.METADATA_XML_VALIDATION_ENABLED = True
-    xml_validation = {"foo": str(schema_with_remote_import)}
+    xml_validation = {"foo": DUMMY_EXTERNAL_SCHEMA_URI}
     source_metadata_csv_contents = "filename,metadata,type\nobjects,valid.xml,mdtype"
     metadata_csv_path = sip_directory_path / TRANSFER_SOURCE_METADATA_CSV
     metadata_csv_path.write_text(source_metadata_csv_contents)
@@ -647,7 +621,10 @@ def test_resolver_with_requests_error(
         "sip_type",
         xml_validation,
     )
-    assert not errors
+    assert len(errors) == 2
+    assert "Could not open schema file" in errors[0]
+    assert "mock URL error" in str(errors[1])
+    urllib_request_urlopen_error.assert_called_once_with("http://foo.com/my.xsd")
 
 
 @pytest.mark.django_db
@@ -657,7 +634,6 @@ def test_resolver_with_local_import(
     make_mock_mets,
     sip,
     sip_directory_path,
-    etree_parse,
     requests_get,
     schema_with_local_import,
 ):
