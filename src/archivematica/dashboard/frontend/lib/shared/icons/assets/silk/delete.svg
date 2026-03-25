@@ -1,0 +1,22 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_81_4049)">
+<circle cx="8" cy="8" r="6.5" fill="url(#paint0_radial_81_4049)"/>
+<circle cx="8" cy="8" r="6.5" stroke="url(#paint1_linear_81_4049)"/>
+<circle cx="8" cy="8" r="6.5" stroke="#8E2F00" stroke-opacity="0.2"/>
+<circle cx="8" cy="8" r="5.5" stroke="white" stroke-opacity="0.66"/>
+<rect x="5" y="7" width="6" height="2" fill="white"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_81_4049" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(13 13) rotate(-135) scale(14.1421)">
+<stop offset="0.330063" stop-color="#E15D52"/>
+<stop offset="1" stop-color="#F58263"/>
+</radialGradient>
+<linearGradient id="paint1_linear_81_4049" x1="13" y1="13" x2="3" y2="3" gradientUnits="userSpaceOnUse">
+<stop stop-color="#BF4228"/>
+<stop offset="1" stop-color="#F78066"/>
+</linearGradient>
+<clipPath id="clip0_81_4049">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>

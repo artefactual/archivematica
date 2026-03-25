@@ -7,7 +7,7 @@
 {% block page_id %}ingest{% endblock %}
 
 {% block js %}
-  <script type="module" src="{% static 'vue/monitor.js' %}"></script>
+  <script type="module" src="{% static 'frontend/monitor.js' %}"></script>
   {{ config|json_script:"ingest-monitor-config" }}
 {% endblock %}
 

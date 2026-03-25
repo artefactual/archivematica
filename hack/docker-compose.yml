@@ -10,6 +10,7 @@ volumes:
   elasticsearch_data:
   archivematica_storage_service_staging_data:
   archivematica_dashboard_frontend_node_modules:
+  archivematica_storage_service_frontend_node_modules:
 
   # External named volumes.
   # These are intended to be accessible beyond the docker host (e.g. via NFS).
@@ -28,7 +29,7 @@ volumes:
 services:
 
   mysql:
-    image: "percona/percona-server:8.4.7-7"
+    image: "percona/percona-server:8.4.8-8"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "12345"
@@ -44,7 +45,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.12"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.13"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -81,7 +82,7 @@ services:
       - "127.0.0.1:62004:4730"
 
   clamavd:
-    image: "clamav/clamav-debian:1.5.1-30"
+    image: "clamav/clamav-debian:1.5.2-34"
     user: "clamav"
     entrypoint: "/init-unprivileged"
     environment:
@@ -94,7 +95,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:1.29.5"
+    image: "nginx:1.29.6"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
@@ -199,7 +200,7 @@ services:
       ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
     volumes:
       - "../:/src"
-      - "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/vue/node_modules"
+      - "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/frontend/node_modules"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
     depends_on:
       elasticsearch:
@@ -233,6 +234,7 @@ services:
     volumes:
       - "./submodules/archivematica-storage-service/:/src/"
       - "./submodules/archivematica-sampledata/:/home/archivematica/archivematica-sampledata/:ro"
+      - "archivematica_storage_service_frontend_node_modules:/src/src/archivematica/storage_service/frontend/node_modules"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
       - "archivematica_storage_service_staging_data:/var/archivematica/storage_service:rw"
       - "archivematica_storage_service_location_data:/home:rw"

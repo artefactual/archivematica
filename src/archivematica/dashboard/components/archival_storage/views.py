@@ -878,7 +878,7 @@ def view_aip(request, uuid):
                     request, response.get("message", _("Deletion request submitted."))
                 )
                 search_service = setup_search_service_from_conf(settings)
-                search_service.mark_aip_for_deletion(uuid)
+                search_service.mark_aip_for_deletion(uuid, refresh=True)
             return redirect("archival_storage:archival_storage_index")
 
     context = {

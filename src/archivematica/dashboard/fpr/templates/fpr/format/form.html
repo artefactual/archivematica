@@ -48,23 +48,35 @@
 {% endblock app_content %}
 
 {% block extra_js %}
-{{ block.super }}
 <script type="text/javascript">
 
-function display_extra_form() {
-  val = $("#id_f-group option:selected").val();
-  if (val == 'new') {
-    $('#format_group_form').show();
+function toggleExtraForm(selectElement, formElement) {
+  if (selectElement.value === 'new') {
+    formElement.style.display = '';
+    if (window.getComputedStyle(formElement).display === 'none') {
+      formElement.style.display = 'block';
+    }
   } else {
-    $('#format_group_form').hide();
+    formElement.style.display = 'none';
   }
 }
 
-$(document).ready(function () {
-  display_extra_form();
-  $("#id_f-group").change(function () {display_extra_form();});
+function initFormToggle() {
+  var groupSelect = document.getElementById('id_f-group');
+  var groupForm = document.getElementById('format_group_form');
 
-});
+  if (!groupSelect || !groupForm) {
+    return;
+  }
+
+  groupSelect.addEventListener('change', function () {
+    toggleExtraForm(groupSelect, groupForm);
+  });
+
+  toggleExtraForm(groupSelect, groupForm);
+}
+
+initFormToggle();
 
 </script>
 {% endblock extra_js %}

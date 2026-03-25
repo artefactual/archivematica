@@ -4,7 +4,7 @@ name: am-integration
 services:
 
   mysql:
-    image: "percona/percona-server:8.4.7-7"
+    image: "percona/percona-server:8.4.8-8"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "root"
@@ -22,6 +22,7 @@ services:
       start_period: 15s
 
   archivematica-dashboard:
+    image: "archivematica-dashboard-integration-tests:latest"
     build:
       context: "../../"
       dockerfile: "hack/Dockerfile"
@@ -85,6 +86,8 @@ services:
       OIDC_ACCESS_ATTRIBUTE_MAP_SECONDARY: >
         {"given_name": "first_name", "family_name": "last_name", "realm_access": "realm_access"}
       OIDC_RP_SIGN_ALGO: "RS256"
+      # /src is bind-mounted, so point Django staticfiles to the image-owned dist copy.
+      FRONTEND_DIST_DIR: "/opt/am-dashboard-dist"
     volumes:
       - "../../:/src"
     depends_on:
@@ -95,7 +98,7 @@ services:
       - "keycloak"
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:26.5.4-0"
+    image: "quay.io/keycloak/keycloak:26.5.6-0"
     command: ["start-dev", "--import-realm"]
     restart: "unless-stopped"
     environment:
