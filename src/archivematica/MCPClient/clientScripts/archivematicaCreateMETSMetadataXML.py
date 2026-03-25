@@ -23,6 +23,7 @@ from importlib.metadata import version
 from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
+from urllib.error import URLError
 
 import requests
 from django.core.exceptions import ValidationError
@@ -244,6 +245,10 @@ def _validate_xml(tree, schema_uri, xml_validation):
                 return False, [f"Unknown XML validation schema type: {schema_type}"]
     except etree.LxmlError as err:
         return False, [f"Could not parse schema file: {schema_uri}", err]
+    except URLError as err:
+        return False, [f"Could not open schema file: {schema_uri}", err]
+    except Exception as err:
+        return False, [f"Unexpected error working with schema file: {schema_uri}", err]
     if not schema.validate(tree):
         return False, schema.error_log
     return True, []
