@@ -10,7 +10,7 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
     container:
-      image: aquasec/trivy:latest
+      image: aquasec/trivy@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c # v0.69.3
       options: --entrypoint ""
     steps:
       - name: Checkout code
