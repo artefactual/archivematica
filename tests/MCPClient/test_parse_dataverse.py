@@ -313,9 +313,7 @@ class TestParseDataverse(TestCase):
         sav_file.save()
 
         mapping = parse_dataverse.get_db_objects(self.job, self.mets, self.uuid)
-        mets_sav = self.mets.get_file(
-            file_uuid="fb3b1250-5e45-499f-b0b1-0f6a20d77366"
-        )
+        mets_sav = self.mets.get_file(file_uuid="fb3b1250-5e45-499f-b0b1-0f6a20d77366")
         assert mapping is not None
         assert len(mapping) == 7
         assert mapping[mets_sav] == sav_file

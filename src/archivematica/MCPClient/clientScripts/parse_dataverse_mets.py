@@ -104,9 +104,7 @@ def get_db_objects(job, mets, transfer_uuid):
                         file_entry.originallocation,
                     )
                 except (File.DoesNotExist, ValidationError):
-                    logger.debug(
-                        "Could not find file using .zip path: %s", zip_path
-                    )
+                    logger.debug("Could not find file using .zip path: %s", zip_path)
                 except File.MultipleObjectsReturned as err:
                     logger.info(
                         "Multiple entries for `%s` found. Exception: %s",
