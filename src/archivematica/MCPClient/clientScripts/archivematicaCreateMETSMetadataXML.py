@@ -21,9 +21,9 @@
 import csv
 from importlib.metadata import version
 from pathlib import Path
+from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import urlopen
-from urllib.error import URLError
 
 import requests
 from django.core.exceptions import ValidationError
