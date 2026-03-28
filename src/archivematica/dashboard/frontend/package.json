@@ -19,7 +19,7 @@
     "@vueuse/core": "^14.2.1",
     "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
     "reka-ui": "^2.9.2",
-    "vue": "^3.5.30",
+    "vue": "^3.5.31",
     "vue-i18n": "^11.3.0"
   },
   "devDependencies": {
@@ -39,8 +39,8 @@
     "jsdom": "^29.0.1",
     "npm-run-all2": "^8.0.4",
     "typescript": "~6.0.2",
-    "vite": "^8.0.2",
-    "vitest": "^4.1.1",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2",
     "vue-tsc": "^3.2.6"
   },
   "overrides": {
