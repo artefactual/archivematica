@@ -105,9 +105,12 @@ def test_purge_command_removes_search_documents(
     mock_search_service,
     search_enabled,
     old_transfer,
+    old_sip,
 ):
     call_command("purge_transient_processing_data")
 
+    mock_search_service.delete_aip.assert_called_once_with(str(old_sip.pk))
+    mock_search_service.delete_aip_files.assert_called_once_with(str(old_sip.pk))
     mock_search_service.delete_transfer.assert_called_once_with(str(old_transfer.pk))
     mock_search_service.delete_transfer_files.assert_called_once_with(
         {str(old_transfer.pk)}

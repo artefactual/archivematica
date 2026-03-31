@@ -144,8 +144,8 @@ class Command(DashboardCommand):
                 ):
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
-                    search_service.delete_aip(package_id)
-                    search_service.delete_aip_files(package_id)
+                    search_service.delete_aip(str(package_id))
+                    search_service.delete_aip_files(str(package_id))
             except Exception as err:
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.print_exc())
