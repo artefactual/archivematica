@@ -107,8 +107,8 @@ def test_purge_command_removes_search_documents(
 ):
     call_command("purge_transient_processing_data")
 
-    mock_search_service.delete_aip.assert_called_once_with(old_sip.pk)
-    mock_search_service.delete_aip_files.assert_called_once_with(old_sip.pk)
+    mock_search_service.delete_aip.assert_called_once_with(str(old_sip.pk))
+    mock_search_service.delete_aip_files.assert_called_once_with(str(old_sip.pk))
 
 
 @pytest.mark.django_db
