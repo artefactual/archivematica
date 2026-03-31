@@ -292,6 +292,13 @@ variables or in the gunicorn configuration file.
   - **Type:** `boolean`
   - **Default:** `false`
 
+- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTO_CREATE_USER`**:
+  - **Description:** enables automatic local user creation for successful OIDC
+    logins when no matching Dashboard user already exists.
+  - **Config file example:** `Dashboard.oidc_auto_create_user`
+  - **Type:** `boolean`
+  - **Default:** `true`
+
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_STORAGE_SERVICE_CLIENT_TIMEOUT`**:
   - **Description:** configures the Storage Service client to stop waiting for a
     response after a given number of seconds.
@@ -751,6 +758,9 @@ These variables specify the behaviour of CAS authentication. Only applicable if
 These variables specify the behaviour of OpenID Connect (OIDC) authentication.
 Only applicable if `ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTHENTICATION` is
 set.
+
+Automatic local user creation for OIDC logins is controlled by
+`ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTO_CREATE_USER`.
 
 - **`OIDC_RP_CLIENT_ID`**:
   - **Description:** OIDC client ID
