@@ -26,11 +26,11 @@ certifi==2026.2.25
     #   requests
 cffi==2.0.0
     # via cryptography
-charset-normalizer==3.4.6
+charset-normalizer==3.4.7
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
-cryptography==46.0.5
+cryptography==46.0.6
     # via mozilla-django-oidc
 django==5.2.12
     # via
@@ -66,7 +66,7 @@ gevent==25.9.1
     # via archivematica (pyproject.toml)
 greenlet==3.3.2
     # via gevent
-gunicorn==25.1.0
+gunicorn==25.3.0
     # via archivematica (pyproject.toml)
 idna==3.11
     # via requests
@@ -96,7 +96,7 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via archivematica (pyproject.toml)
-orjson==3.11.7
+orjson==3.11.8
     # via archivematica (pyproject.toml)
 packaging==26.0
     # via
@@ -135,7 +135,7 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.5
+requests==2.33.1
     # via
     #   agentarchives
     #   amclient
