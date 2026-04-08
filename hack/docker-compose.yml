@@ -45,7 +45,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.13"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.14"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -95,7 +95,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:1.29.7"
+    image: "nginx:1.29.8"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
