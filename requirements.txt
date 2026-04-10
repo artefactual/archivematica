@@ -30,9 +30,9 @@ charset-normalizer==3.4.7
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
-cryptography==46.0.6
+cryptography==46.0.7
     # via mozilla-django-oidc
-django==5.2.12
+django==5.2.13
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -62,9 +62,9 @@ elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
-gevent==25.9.1
+gevent==26.4.0
     # via archivematica (pyproject.toml)
-greenlet==3.3.2
+greenlet==3.4.0
     # via gevent
 gunicorn==25.3.0
     # via archivematica (pyproject.toml)
@@ -80,7 +80,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
-lxml==6.0.2
+lxml==6.0.3
     # via
     #   ammcpc
     #   archivematica (pyproject.toml)
@@ -102,7 +102,7 @@ packaging==26.0
     # via
     #   django-csp
     #   gunicorn
-prometheus-client==0.24.1
+prometheus-client==0.25.0
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
@@ -171,5 +171,5 @@ whitenoise==6.12.0
     # via archivematica (pyproject.toml)
 zope-event==6.1
     # via gevent
-zope-interface==8.2
+zope-interface==8.3
     # via gevent
