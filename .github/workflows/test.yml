@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "requirements_hash=${{ hashFiles('requirements*.txt', 'requirements*.in', 'pyproject.toml') }}" >> $GITHUB_OUTPUT
       - name: "Build base layers"
-        uses: "docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294" # v7.0.0
+        uses: "docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f" # v7.1.0
         with:
           context: .
           file: ./hack/Dockerfile
@@ -103,7 +103,7 @@ jobs:
           driver-opts: |
             network=host
       - name: "Build archivematica-tests image"
-        uses: "docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294" # v7.0.0
+        uses: "docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f" # v7.1.0
         with:
           context: .
           file: ./hack/Dockerfile
