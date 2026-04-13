@@ -11,6 +11,7 @@ import gearman
 from django.conf import settings
 from gearman.job import GearmanJob
 
+from archivematica.archivematicaCommon.archivematicaFunctions import escape
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.MCPClient.client import metrics
 from archivematica.MCPClient.client.job import Job
@@ -51,7 +52,7 @@ JobResults = dict[str, JobData]
 logger = logging.getLogger("archivematica.mcp.client.gearman")
 
 
-class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
+class MCPGearmanWorker(gearman.GearmanWorker):
     data_encoder = JSONDataEncoder
 
     def __init__(
@@ -79,7 +80,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
 
     @staticmethod
     def _format_job_results(jobs: list[Job]) -> JobResults:
-        results = {}
+        results: JobResults = {}
 
         for job in jobs:
             results[job.uuid] = {
@@ -110,13 +111,13 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
             created_date = datetime.fromisoformat(
                 str(task_data["createdDate"])
             ).isoformat(" ")
-            arguments = replace_task_arguments(
+            arguments_s = replace_task_arguments(
                 str(task_data["arguments"]),
                 task_uuid,
                 created_date,
             )
-            arguments = parse_command_line(arguments)
-            wants_output = task_data.get("wants_output", True)
+            arguments = parse_command_line(arguments_s)
+            wants_output = False if task_data.get("wants_output") is False else True
 
             job = Job(task_name, task_uuid, arguments, capture_output=wants_output)
             jobs.append(job)
@@ -132,7 +133,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         job_module = self.job_modules[task_name]
         logger.debug(
             "Gearman job request %s received for %s",
-            gearman_job.unique.decode(),
+            escape(gearman_job.unique),
             task_name,
         )
 
@@ -148,7 +149,8 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
     def on_job_exception(
         self,
         current_job: GearmanJob,
-        exc_info: tuple[type[BaseException], BaseException, TracebackType],
+        exc_info: tuple[type[BaseException], BaseException, TracebackType | None]
+        | tuple[None, None, None],
     ) -> bool:
         logger.error(
             "An unhandled exception occurred processing a Gearman job",

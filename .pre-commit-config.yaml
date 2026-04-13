@@ -49,10 +49,46 @@ repos:
   rev: v1.20.0
   hooks:
   - id: mypy
+    # Override upstream args to omit --ignore-missing-imports on purpose.
+    args: ["--scripts-are-modules"]
+    # Let mypy own target selection so hook and standalone runs use the same files.
+    pass_filenames: false
     additional_dependencies:
-    - types-requests
-    - types-python-dateutil
+    # Most of these dependencies are necessary because django-stubs initializes
+    # Django's runtime to extract information about the models.
+    - agentarchives
+    - amclient
+    - bagit
+    - clamav-client
+    - django-auth-ldap
+    - django-autoslug
+    - django-cas-ng
+    - django-csp
+    - django-forms-bootstrap
+    - django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
+    - django-stubs-ext
+    - django-stubs[compatible-mypy]
+    - django-tastypie
+    - elasticsearch>=8.0.0,<9.0.0
+    - gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
+    - inotify-simple
+    - jsonfield
+    - lazy-paged-sequence
+    - metsrw
+    - mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
+    - mozilla-django-oidc
+    - orjson
+    - playwright
+    - prometheus-client
+    - pyjwt
     - pytest
+    - pytest-django
+    - types-gunicorn
+    - types-jsonschema
+    - types-lxml
+    - types-python-dateutil
+    - types-requests
+    - unidecode
 - repo: https://github.com/tcort/markdown-link-check
   rev: v3.14.2
   hooks:

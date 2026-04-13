@@ -100,7 +100,7 @@ def sip_dublincore(sip: SIP) -> DublinCore:
 
     return DublinCore.objects.create(
         metadataappliestotype_id=MetadataAppliesToType.SIP_TYPE,
-        metadataappliestoidentifier=sip.pk,
+        metadataappliestoidentifier=str(sip.pk),
         title="Hello World Contents",
         is_part_of="23456",
         identifier="12345",
@@ -391,7 +391,9 @@ def test_bag_metadata_is_recorded_in_a_amdsec(
 
 
 @pytest.fixture()
-def transfer_metadata_xml_path(sip: SIP, sip_directory_path: pathlib.Path) -> File:
+def transfer_metadata_xml_path(
+    sip: SIP, sip_directory_path: pathlib.Path
+) -> pathlib.Path:
     metadata_dir_path = sip_directory_path / "objects" / "metadata" / "transfers"
     metadata_dir_path.mkdir(parents=True)
 
@@ -445,7 +447,9 @@ def test_transfer_metadata_xml_is_recorded_in_a_amdsec(
 
 
 @pytest.fixture()
-def source_metadata_xml_path(sip: SIP, sip_directory_path: pathlib.Path) -> File:
+def source_metadata_xml_path(
+    sip: SIP, sip_directory_path: pathlib.Path
+) -> pathlib.Path:
     metadata_dir_path = (
         sip_directory_path / "objects" / "metadata" / "transfers" / "sourceMD"
     )

@@ -110,7 +110,9 @@ class Command:
 
 
 class CommandLinker:
-    def __init__(self, job, fprule, command, replacement_dict, opts, on_success):
+    def __init__(
+        self, job, fprule, command, replacement_dict, opts, on_success
+    ) -> None:
         self.fprule = fprule
         self.command = command
         self.replacement_dict = replacement_dict
@@ -125,7 +127,7 @@ class CommandLinker:
             f"[Command Linker] FPRule: {self.fprule.uuid} Command: {self.commandObject}"
         )
 
-    def execute(self):
+    def execute(self) -> int:
         """Execute the command, and track the success statistics.
 
         Returns 0 on success, non-0 on failure."""

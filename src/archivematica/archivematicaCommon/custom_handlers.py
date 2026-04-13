@@ -2,6 +2,7 @@ import logging.config
 import logging.handlers
 import os
 import sys
+from logging import Logger
 
 
 class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
@@ -34,7 +35,7 @@ SCRIPT_FILE_FORMAT = f"{os.path.basename(sys.argv[0])}: %(levelname)-8s  %(ascti
 
 def get_script_logger(
     name, formatter=SCRIPT_FILE_FORMAT, root="archivematica", level=logging.INFO
-):
+) -> Logger:
     logging_config = {
         "version": 1,
         "disable_existing_loggers": False,

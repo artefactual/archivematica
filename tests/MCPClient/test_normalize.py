@@ -15,6 +15,12 @@ from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import normalize
 
 
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    assert isinstance(value, bytes)
+
+    return value.decode()
+
+
 @pytest.mark.django_db
 def test_thumbnail_mode_disables_thumbnail_generation() -> None:
     job = mock.Mock(
@@ -89,7 +95,7 @@ def test_normalization_skips_file_if_group_use_does_not_match(
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
         file_uuid=str(sip_file.uuid),
-        file_path=sip_file.currentlocation.decode(),
+        file_path=_decode_binary_path(sip_file.currentlocation),
         normalize_file_grp_use="access",
     )
 
@@ -97,9 +103,11 @@ def test_normalization_skips_file_if_group_use_does_not_match(
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
         mock.call(
-            pathlib.Path(sip_file.currentlocation.decode()).name,
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
+        mock.call(
+            pathlib.Path(_decode_binary_path(sip_file.currentlocation)).name,
             "is file group usage",
             sip_file.filegrpuse,
             "instead of ",
@@ -133,11 +141,13 @@ def normalization_csv(
     )
     manual_normalization_directory.mkdir(parents=True)
 
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode()).name
+    original_file_path = pathlib.Path(
+        _decode_binary_path(sip_file.currentlocation)
+    ).name
     preservation_file_path = str(
-        pathlib.Path(manual_preservation_file.originallocation.decode()).relative_to(
-            "%SIPDirectory%objects"
-        )
+        pathlib.Path(
+            _decode_binary_path(manual_preservation_file.originallocation)
+        ).relative_to("%SIPDirectory%objects")
     )
 
     result = manual_normalization_directory / "normalization.csv"
@@ -162,11 +172,11 @@ def test_manual_normalization_creates_event_and_derivation(
     sip_file: models.File,
     manual_preservation_file: models.File,
 ) -> None:
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    original_file_path = pathlib.Path(_decode_binary_path(sip_file.currentlocation))
     preservation_file_path = str(
-        pathlib.Path(manual_preservation_file.originallocation.decode()).relative_to(
-            "%SIPDirectory%objects"
-        )
+        pathlib.Path(
+            _decode_binary_path(manual_preservation_file.originallocation)
+        ).relative_to("%SIPDirectory%objects")
     )
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
@@ -182,7 +192,9 @@ def test_manual_normalization_creates_event_and_derivation(
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
+        mock.call(
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
         mock.call(
             "Filename",
             original_file_path.name,
@@ -193,7 +205,7 @@ def test_manual_normalization_creates_event_and_derivation(
         mock.call(
             original_file_path.name,
             "was already manually normalized into",
-            manual_preservation_file.currentlocation.decode(),
+            _decode_binary_path(manual_preservation_file.currentlocation),
         ),
     ]
 
@@ -239,7 +251,7 @@ def test_manual_normalization_fails_with_invalid_normalization_csv(
     sip_file: models.File,
     manual_preservation_file: models.File,
 ) -> None:
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    original_file_path = pathlib.Path(_decode_binary_path(sip_file.currentlocation))
     job = mock.Mock(spec=Job)
     opts = mock.Mock(
         file_uuid=str(sip_file.uuid),
@@ -254,15 +266,17 @@ def test_manual_normalization_fails_with_invalid_normalization_csv(
 
     assert result == normalize.NO_RULE_FOUND
     assert job.print_error.mock_calls == [
-        mock.call("Error reading", str(invalid_normalization_csv), " on line", 3),
+        mock.call("Error reading", str(invalid_normalization_csv), " on line", "3"),
         # This is an exception encoded as a string.
         mock.call(mock.ANY),
     ]
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
+        mock.call(
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
         mock.call(
             "Not normalizing",
-            pathlib.Path(sip_file.currentlocation.decode()).name,
+            pathlib.Path(_decode_binary_path(sip_file.currentlocation)).name,
             " - No rule or default rule found to normalize for",
             "preservation",
         ),
@@ -282,9 +296,9 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
     sip_file: models.File,
     manual_preservation_file: models.File,
 ) -> None:
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    original_file_path = pathlib.Path(_decode_binary_path(sip_file.currentlocation))
     preservation_file_path_with_no_extension = str(
-        pathlib.Path(manual_preservation_file.originallocation.decode())
+        pathlib.Path(_decode_binary_path(manual_preservation_file.originallocation))
     ).rsplit(".", 1)[0]
 
     job = mock.Mock(spec=Job)
@@ -302,7 +316,9 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
     assert result == normalize.SUCCESS
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
+        mock.call(
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -311,7 +327,7 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
         mock.call(
             original_file_path.name,
             "was already manually normalized into",
-            manual_preservation_file.currentlocation.decode(),
+            _decode_binary_path(manual_preservation_file.currentlocation),
         ),
     ]
 
@@ -332,9 +348,9 @@ def test_manual_normalization_matches_from_multiple_filenames(
     manual_preservation_file: models.File,
     secondary_manual_preservation_file: models.File,
 ) -> None:
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    original_file_path = pathlib.Path(_decode_binary_path(sip_file.currentlocation))
     preservation_file_path = pathlib.Path(
-        manual_preservation_file.originallocation.decode()
+        _decode_binary_path(manual_preservation_file.originallocation)
     )
     preservation_file_path_with_no_extension = str(preservation_file_path).rsplit(
         ".", 1
@@ -355,7 +371,9 @@ def test_manual_normalization_matches_from_multiple_filenames(
     assert result == normalize.SUCCESS
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
+        mock.call(
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -368,7 +386,7 @@ def test_manual_normalization_matches_from_multiple_filenames(
         mock.call(
             original_file_path.name,
             "was already manually normalized into",
-            manual_preservation_file.currentlocation.decode(),
+            _decode_binary_path(manual_preservation_file.currentlocation),
         ),
     ]
 
@@ -396,7 +414,7 @@ def test_normalization_falls_back_to_default_rule(
     fpcommand: fprmodels.FPCommand,
     default_preservation_rule: fprmodels.FPRule,
 ) -> None:
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    original_file_path = pathlib.Path(_decode_binary_path(sip_file.currentlocation))
     expected_manually_normalized_file_path = (
         original_file_path.parent
         / "manualNormalization"
@@ -420,7 +438,9 @@ def test_normalization_falls_back_to_default_rule(
     command_linker.assert_called_once()
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
+        mock.call(
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -458,7 +478,7 @@ def test_normalization_finds_rule_by_file_format_version(
     sip_file_format_version: models.FileFormatVersion,
     fprule_preservation: fprmodels.FPRule,
 ) -> None:
-    original_file_path = pathlib.Path(sip_file.currentlocation.decode())
+    original_file_path = pathlib.Path(_decode_binary_path(sip_file.currentlocation))
     expected_manually_normalized_file_path = (
         original_file_path.parent
         / "manualNormalization"
@@ -482,7 +502,9 @@ def test_normalization_finds_rule_by_file_format_version(
     command_linker.assert_called_once()
     assert job.print_error.mock_calls == []
     assert job.print_output.mock_calls == [
-        mock.call("File found:", sip_file.uuid, sip_file.currentlocation.decode()),
+        mock.call(
+            "File found:", sip_file.uuid, _decode_binary_path(sip_file.currentlocation)
+        ),
         mock.call(
             "Checking for a manually normalized file by trying to get the"
             f" unique file that matches SIP UUID {sip.uuid} and whose currentlocation"
@@ -572,6 +594,7 @@ def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory
     shared_directory_path: pathlib.Path,
 ) -> None:
     expected_thumbnail_content = b"thumbnail image content"
+    assert fpcommand_thumbnail.output_location is not None
     expected_thumbnail_suffix = pathlib.Path(fpcommand_thumbnail.output_location).suffix
 
     def execute_or_run_side_effect(
@@ -698,6 +721,7 @@ def test_normalization_fallbacks_to_default_thumbnail_rule_if_initial_command_fa
     settings: pytest_django.fixtures.SettingsWrapper,
 ) -> None:
     expected_thumbnail_content = b"thumbnail image content"
+    assert fprule_default_thumbnail.command.output_location is not None
     expected_thumbnail_path = (
         sip_directory_path / "thumbnails" / str(sip_file.uuid)
     ).with_suffix(pathlib.Path(fprule_default_thumbnail.command.output_location).suffix)
@@ -871,7 +895,7 @@ def test_normalization_fails_if_fallback_default_rule_does_not_exist(
     job.set_status.assert_called_once_with(normalize.RULE_FAILED)
     job.print_output.assert_any_call(
         "Not retrying normalizing for",
-        pathlib.Path(sip_file.currentlocation.decode()).name,
+        pathlib.Path(_decode_binary_path(sip_file.currentlocation)).name,
         " - No default rule found to normalize for",
         "access",
     )

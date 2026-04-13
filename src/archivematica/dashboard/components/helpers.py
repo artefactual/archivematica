@@ -168,7 +168,7 @@ def get_metadata_type_id_by_description(description):
     return models.MetadataAppliesToType.objects.get(description=description)
 
 
-def get_setting(setting, default=""):
+def get_setting(setting, default="") -> object:
     try:
         setting = models.DashboardSetting.objects.get(name=setting)
         return setting.value
@@ -184,7 +184,7 @@ def get_boolean_setting(setting, default=""):
         return bool(setting)
 
 
-def set_setting(setting, value=""):
+def set_setting(setting, value="") -> None:
     try:
         setting_data = models.DashboardSetting.objects.get(name=setting)
     except Exception:

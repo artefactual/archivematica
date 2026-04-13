@@ -1,7 +1,7 @@
 from archivematica.archivematicaCommon import dicts
 
 
-def setup_dicts(settings):
+def setup_dicts(settings) -> None:
     dicts.setup(
         shared_directory=settings.SHARED_DIRECTORY,
         processing_directory=settings.PROCESSING_DIRECTORY,

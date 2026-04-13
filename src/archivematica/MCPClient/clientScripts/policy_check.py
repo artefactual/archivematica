@@ -13,7 +13,9 @@ Arguments::
 
 import json
 import os
+import uuid
 from typing import Optional
+from typing import cast
 
 import django
 
@@ -24,6 +26,7 @@ django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import QuerySet
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon.dicts import replace_string_values
@@ -104,6 +107,8 @@ class PolicyChecker:
         """
         if not self.is_manually_normalized_access_derivative:
             try:
+                if self.file_uuid is None:
+                    raise ValidationError("No file UUID")
                 self.file_model = File.objects.get(uuid=self.file_uuid)
             except (File.DoesNotExist, ValidationError):
                 self.job.pyprint(
@@ -172,11 +177,14 @@ class PolicyChecker:
         # normalize.py client script).
         event_type = None if for_access else "normalization"
         try:
+            if self.file_uuid is None:
+                raise ValidationError("No file UUID")
             Derivation.objects.get(
-                derived_file__uuid=self.file_uuid, event__event_type=event_type
+                derived_file_id=uuid.UUID(self.file_uuid),
+                event__event_type=event_type,
             )
             return True
-        except (Derivation.DoesNotExist, ValidationError):
+        except (Derivation.DoesNotExist, ValidationError, ValueError):
             return False
 
     def _get_policies_dir(self) -> str:
@@ -206,7 +214,9 @@ class PolicyChecker:
             return True
         return False
 
-    def _get_manually_normalized_access_derivative_file_uuid(self) -> Optional[File]:
+    def _get_manually_normalized_access_derivative_file_uuid(
+        self,
+    ) -> Optional[uuid.UUID]:
         """If the file-to-be-policy-checked is a manually normalized access
         derivative it will have no file UUID in the database. We therefore have
         to retrieve the UUID of the original file that was format-identified,
@@ -219,18 +229,19 @@ class PolicyChecker:
         manually_normalized_file_name = os.path.basename(self.file_path)[37:]
         manually_normalized_file_path = f"%transferDirectory%objects/manualNormalization/access/{manually_normalized_file_name}"
         try:
-            return File.objects.get(
+            result = File.objects.get(
                 originallocation=manually_normalized_file_path.encode(),
                 sip_id=self.sip_uuid,
             ).uuid
+            return result
         except (File.DoesNotExist, File.MultipleObjectsReturned, ValidationError):
             return None
 
-    def _get_rules(self) -> FPRule:
+    def _get_rules(self) -> QuerySet[FPRule]:
         """Return the FPR rules with purpose ``self.purpose`` and that apply to
         the type/format of file given as input.
         """
-        file_uuid = self.file_uuid
+        file_uuid: str | uuid.UUID | None = self.file_uuid
         if self.is_manually_normalized_access_derivative:
             file_uuid = self._get_manually_normalized_access_derivative_file_uuid()
         try:
@@ -280,10 +291,12 @@ class PolicyChecker:
                 stderr,
             )
             return "failed"
-        event_detail = (
-            f'program="{rule.command.tool.description}";'
-            f' version="{rule.command.tool.version}"'
-        )
+        event_detail = ""
+        if rule.command.tool is not None:
+            event_detail = (
+                f'program="{rule.command.tool.description}";'
+                f' version="{rule.command.tool.version}"'
+            )
         if output.get("eventOutcomeInformation") != "pass":
             self.job.print_error(
                 "Command {descr} returned a non-pass outcome "
@@ -378,7 +391,7 @@ class PolicyChecker:
         """
         if self._sip_logs_dir:
             return self._sip_logs_dir
-        model_cls = SIP
+        model_cls: type[SIP] | type[Transfer] = SIP
         unit_type = "SIP"
         if self.file_type == "original":
             model_cls = Transfer
@@ -397,17 +410,23 @@ class PolicyChecker:
             return None
         else:
             if unit_type == "Transfer":
+                unit_model = cast(Transfer, unit_model)
                 sip_path = unit_model.currentlocation.replace(
                     "%sharedPath%", self.shared_path, 1
                 )
             else:
-                sip_path = unit_model.currentpath.replace(
-                    "%sharedPath%", self.shared_path, 1
-                )
-            logs_dir = os.path.join(sip_path, "logs")
-            if os.path.isdir(logs_dir):
-                self._sip_logs_dir = logs_dir
-                return logs_dir
+                unit_model = cast(SIP, unit_model)
+                if unit_model.currentpath is not None:
+                    sip_path = unit_model.currentpath.replace(
+                        "%sharedPath%", self.shared_path, 1
+                    )
+                else:
+                    sip_path = None
+            if sip_path is not None:
+                logs_dir = os.path.join(sip_path, "logs")
+                if os.path.isdir(logs_dir):
+                    self._sip_logs_dir = logs_dir
+                    return logs_dir
             self.job.print_error(
                 f"Warning: unable to find a logs/ directory in the {unit_type}"
                 f" with UUID {self.sip_uuid}"
@@ -431,13 +450,19 @@ class PolicyChecker:
             )
             return None
         else:
-            sip_path = sip_model.currentpath.replace(
-                "%sharedPath%", self.shared_path, 1
-            )
-            subm_doc_dir = os.path.join(sip_path, "metadata", "submissionDocumentation")
-            if os.path.isdir(subm_doc_dir):
-                self._sip_subm_doc_dir = subm_doc_dir
-                return subm_doc_dir
+            if sip_model.currentpath is not None:
+                sip_path = sip_model.currentpath.replace(
+                    "%sharedPath%", self.shared_path, 1
+                )
+            else:
+                sip_path = None
+            if sip_path is not None:
+                subm_doc_dir = os.path.join(
+                    sip_path, "metadata", "submissionDocumentation"
+                )
+                if os.path.isdir(subm_doc_dir):
+                    self._sip_subm_doc_dir = subm_doc_dir
+                    return subm_doc_dir
             self.job.print_error(
                 "Warning: unable to find a metadata/submissionDocumentation/"
                 f" directory in the SIP with UUID {self.sip_uuid}"

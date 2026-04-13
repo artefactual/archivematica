@@ -8,13 +8,17 @@ from archivematica.MCPClient.client.job import Job
 logger = logging.getLogger("archivematica.mcp.client.worker")
 
 
-@auto_close_old_connections()  # type: ignore
-def run_task(task_name: str, job_module: ModuleType, jobs: list[Job]) -> None:
+@auto_close_old_connections()
+def run_task(task_name: str, job_module: ModuleType | None, jobs: list[Job]) -> None:
     """Do actual processing of the jobs given."""
     logger.info("\n\n*** RUNNING TASK: %s***", task_name)
     Job.bulk_set_start_times(jobs)
 
     try:
+        if job_module is None:
+            raise RuntimeError(
+                f"Cannot process task '{task_name}': no job module is registered for this task."
+            )
         job_module.call(jobs)
     except Exception as err:
         logger.exception("*** TASK FAILED: %s***", task_name)

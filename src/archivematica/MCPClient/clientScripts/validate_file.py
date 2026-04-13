@@ -18,6 +18,7 @@ Arguments:
 import json
 import os
 import sys
+import uuid
 from dataclasses import dataclass
 from pprint import pformat
 from typing import Any
@@ -30,6 +31,7 @@ django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import QuerySet
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
@@ -164,7 +166,7 @@ class Validator:
 
         return SUCCESS_CODE
 
-    def _get_rules(self) -> FPRule:
+    def _get_rules(self) -> QuerySet[FPRule]:
         """Return all FPR rules that apply to files of this type."""
         try:
             fmt = FormatVersion.active.get(fileformatversion__file_uuid=self.file_uuid)
@@ -211,10 +213,12 @@ class Validator:
             return "failed"
         # Parse output and generate an Event
         validation_result = ValidationResult.from_stdout(stdout)
-        event_detail = (
-            f'program="{rule.command.tool.description}";'
-            f' version="{rule.command.tool.version}"'
-        )
+        event_detail = ""
+        if rule.command.tool is not None:
+            event_detail = (
+                f'program="{rule.command.tool.description}";'
+                f' version="{rule.command.tool.version}"'
+            )
         # If the FPR command has not errored but the actual validation
         # determined that the file is not valid, then we want to both create a
         # validation event in the db and set ``failed`` to ``True`` because we
@@ -272,10 +276,11 @@ class Validator:
         """
         try:
             Derivation.objects.get(
-                derived_file__uuid=self.file_uuid, event__event_type="normalization"
+                derived_file_id=uuid.UUID(self.file_uuid),
+                event__event_type="normalization",
             )
             return True
-        except (Derivation.DoesNotExist, ValidationError):
+        except (Derivation.DoesNotExist, ValidationError, ValueError):
             return False
 
     def _file_is_access_derivative(self) -> bool:
@@ -287,10 +292,10 @@ class Validator:
             if file_model.filegrpuse == "access":
                 try:
                     Derivation.objects.get(
-                        derived_file__uuid=self.file_uuid, event__isnull=True
+                        derived_file_id=uuid.UUID(self.file_uuid), event__isnull=True
                     )
                     return True
-                except (Derivation.DoesNotExist, ValidationError):
+                except (Derivation.DoesNotExist, ValidationError, ValueError):
                     return False
             else:
                 return False
@@ -319,13 +324,17 @@ class Validator:
             )
             return None
         else:
-            sip_path = sip_model.currentpath.replace(
-                "%sharedPath%", self.shared_path, 1
-            )
-            logs_dir = os.path.join(sip_path, "logs")
-            if os.path.isdir(logs_dir):
-                self._sip_logs_dir = logs_dir
-                return logs_dir
+            if sip_model.currentpath is not None:
+                sip_path = sip_model.currentpath.replace(
+                    "%sharedPath%", self.shared_path, 1
+                )
+            else:
+                sip_path = None
+            if sip_path is not None:
+                logs_dir = os.path.join(sip_path, "logs")
+                if os.path.isdir(logs_dir):
+                    self._sip_logs_dir = logs_dir
+                    return logs_dir
             self.job.print_error(
                 "Warning: unable to find a logs/ directory in the SIP"
                 f" with UUID {self.sip_uuid}"

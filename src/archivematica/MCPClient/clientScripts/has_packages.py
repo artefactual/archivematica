@@ -33,20 +33,34 @@ def already_extracted(f: File) -> bool:
     """
     Returns True if this package has already been extracted, False otherwise.
     """
+    current_location_s = _decode_binary_path(f.currentlocation)
+    if not current_location_s:
+        raise ValueError(f"File {f.uuid} has no currentlocation value")
+
     # Look for files in a directory that starts with the package name
     files = File.objects.filter(
         transfer=f.transfer,
-        currentlocation__startswith=f.currentlocation.decode(),
+        currentlocation__startswith=current_location_s,
         removedtime__isnull=True,
     ).exclude(uuid=f.uuid)
     # Check for unpacking events that reference the package
     if Event.objects.filter(
         file_uuid__in=files,
         event_type="unpacking",
-        event_detail__contains=f.currentlocation.decode(),
+        event_detail__contains=current_location_s,
     ).exists():
         return True
     return False
+
+
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    if value is None:
+        return ""
+
+    if isinstance(value, memoryview):
+        value = value.tobytes()
+
+    return value.decode()
 
 
 def main(job: Job, sip_uuid: str) -> int:
@@ -54,7 +68,7 @@ def main(job: Job, sip_uuid: str) -> int:
     for f in transfer.file_set.filter(removedtime__isnull=True).iterator():
         if is_extractable(f) and not already_extracted(f):
             job.pyprint(
-                f.currentlocation.decode(),
+                _decode_binary_path(f.currentlocation),
                 "is extractable and has not yet been extracted.",
             )
             return 0

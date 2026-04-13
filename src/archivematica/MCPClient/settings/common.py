@@ -24,11 +24,14 @@ import os
 from io import StringIO
 from pathlib import Path
 
+import django_stubs_ext
 from django.core.exceptions import ImproperlyConfigured
 
 from archivematica.archivematicaCommon import email_settings
 from archivematica.archivematicaCommon.appconfig import Config
 from archivematica.archivematicaCommon.appconfig import process_search_enabled
+
+django_stubs_ext.monkeypatch()
 
 
 def _get_settings_from_file(path):

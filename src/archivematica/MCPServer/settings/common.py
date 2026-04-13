@@ -21,12 +21,17 @@ import multiprocessing
 import os
 from io import StringIO
 
+import django_stubs_ext
+
 from archivematica.archivematicaCommon import email_settings
 from archivematica.archivematicaCommon.appconfig import Config
 from archivematica.archivematicaCommon.appconfig import process_search_enabled
 from archivematica.archivematicaCommon.appconfig import (
     process_watched_directory_interval,
 )
+
+django_stubs_ext.monkeypatch()
+
 
 CONFIG_MAPPING = {
     # [MCPServer]

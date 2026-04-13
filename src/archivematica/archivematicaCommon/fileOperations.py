@@ -51,7 +51,7 @@ def updateSizeAndChecksum(
     checksum=None,
     checksumType=None,
     add_event=True,
-):
+) -> None:
     """
     Update a File with its size, checksum and checksum type. These are
     parameters that can be either generated or provided via keywords.
@@ -135,7 +135,7 @@ def addFileToSIP(
     date,
     sourceType="ingestion",
     use="original",
-):
+) -> None:
     insertIntoFiles(fileUUID, filePathRelativeToSIP, date, sipUUID=sipUUID, use=use)
     insertIntoEvents(
         fileUUID=fileUUID,

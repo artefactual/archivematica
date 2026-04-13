@@ -132,7 +132,7 @@ def insertIntoEvents(
     eventOutcome="",
     eventOutcomeDetailNote="",
     agents=None,
-):
+) -> Event:
     """Creates a new entry in the Events table using the supplied arguments.
 
     :param str fileUUID: The UUID of the file with which this event is
@@ -175,7 +175,9 @@ def insertIntoEvents(
     return event
 
 
-def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None):
+def insertIntoDerivations(
+    sourceFileUUID, derivedFileUUID, relatedEventUUID=None
+) -> None:
     """Creates a new entry in the Derivations table using the supplied
     arguments. The two files in this relationship should already exist in the
     Files table.
@@ -196,7 +198,7 @@ def insertIntoDerivations(sourceFileUUID, derivedFileUUID, relatedEventUUID=None
     )
 
 
-def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID=""):
+def insertIntoFPCommandOutput(fileUUID="", fitsXMLString="", ruleUUID="") -> None:
     """
     Creates a new entry in the FPCommandOutput table using the supplied argument.
     This is typically used to store output of file characterization.

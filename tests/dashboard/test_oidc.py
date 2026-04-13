@@ -48,6 +48,7 @@ def test_create_user(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -84,6 +85,7 @@ def test_create_user_set_admin_from_claim(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -120,6 +122,7 @@ def test_create_user_role_from_claims(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -156,6 +159,7 @@ def test_create_user_role_from_claims_reverese_token_role_order(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -188,6 +192,7 @@ def test_create_user_set_admin_from_alternate_token_value(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -239,6 +244,7 @@ def test_create_user_set_admin_from_alt_claim_path(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -270,6 +276,7 @@ def test_create_user_admin_from_claims_simple_role(
         }
     )
 
+    assert user is not None
     user.refresh_from_db()
     assert user.first_name == "Test"
     assert user.last_name == "User"
@@ -289,7 +296,7 @@ def test_get_userinfo(settings: pytest_django.fixtures.SettingsWrapper) -> None:
     backend = CustomOIDCBackend()
 
     info = backend.get_userinfo(
-        access_token=access_token, id_token=id_token, verified_id=None
+        access_token=access_token, id_token=id_token, verified_id={}
     )
 
     assert info["email"] == "test@example.com"

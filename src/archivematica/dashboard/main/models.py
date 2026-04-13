@@ -18,11 +18,15 @@
 # Needs some cleanups, make sure each model has its primary_key=True
 # Feel free to rename the models, but don't rename db_table values or field names.
 # stdlib, alphabetical by import source
+from __future__ import annotations
+
 import itertools
 import logging
 import os
 import re
 import uuid
+from typing import Any
+from typing import TypeVar
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -51,7 +55,7 @@ METADATA_STATUS = (
 # CUSTOM FIELDS
 
 
-class UUIDField(models.UUIDField):
+class UUIDField(models.UUIDField[str | uuid.UUID, uuid.UUID]):
     """Customize Django's UUIDField default behaviour.
 
     This subclass maintains backward compatibility with django-extension's
@@ -62,14 +66,19 @@ class UUIDField(models.UUIDField):
     VARCHAR(36) columns instead.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs["max_length"] = 36
         models.Field.__init__(self, *args, **kwargs)
 
-    def db_type(self, connection):
+    def db_type(self, connection: Any) -> str:
         return "varchar(%s)" % self.max_length
 
-    def get_db_prep_value(self, value, connection, prepared=False):
+    def get_db_prep_value(
+        self,
+        value: str | uuid.UUID | None,
+        connection: Any,
+        prepared: bool = False,
+    ) -> uuid.UUID | str | None:
         if value is None:
             return None
         if not isinstance(value, uuid.UUID):
@@ -388,7 +397,10 @@ class Derivation(models.Model):
         )
 
 
-class PackageManager(models.Manager):
+_PackageT = TypeVar("_PackageT", bound=models.Model)
+
+
+class PackageManager(models.Manager[_PackageT]):
     def done(self, completed_before=None, include_failed=True, include_unknown=False):
         statuses = [PACKAGE_STATUS_DONE, PACKAGE_STATUS_COMPLETED_SUCCESSFULLY]
         if include_failed:
@@ -448,7 +460,7 @@ class SIP(models.Model):
     )
     completed_at = models.DateTimeField(null=True)
 
-    objects = PackageManager()
+    objects: PackageManager[SIP] = PackageManager()
 
     class Meta:
         db_table = "SIPs"
@@ -543,14 +555,14 @@ class Transfer(models.Model):
     )
     completed_at = models.DateTimeField(null=True)
 
-    objects = PackageManager()
+    objects: PackageManager[Transfer] = PackageManager()
 
     ARCHIVEMATICA_AIP = "Archivematica AIP"
 
     class Meta:
         db_table = "Transfers"
 
-    def update_active_agent(self, user_id):
+    def update_active_agent(self, user_id) -> None:
         UnitVariable.objects.update_active_agent("Transfer", self.uuid, user_id)
 
     @property

@@ -4,7 +4,6 @@ import dataclasses
 import multiprocessing
 import os
 import uuid
-from collections.abc import Sequence
 from typing import Optional
 
 import django
@@ -14,6 +13,7 @@ django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import QuerySet
 from django.utils import timezone
 
 from archivematica.archivematicaCommon import databaseFunctions
@@ -44,9 +44,11 @@ def insert_transcription_event(
     outcome = "transcribed" if status == 0 else "not transcribed"
 
     tool = rule.command.tool
-    event_detail = 'program={}; version={}; command="{}"'.format(
-        tool.description, tool.version, rule.command.command.replace('"', r"\"")
-    )
+    event_detail = ""
+    if tool is not None:
+        event_detail = 'program={}; version={}; command="{}"'.format(
+            tool.description, tool.version, rule.command.command.replace('"', r"\"")
+        )
 
     event_uuid = str(uuid.uuid4())
 
@@ -93,18 +95,18 @@ def insert_file_into_database(
     )
 
 
-def fetch_rules_for(file_: File) -> Sequence[FPRule]:
+def fetch_rules_for(file_: File) -> QuerySet[FPRule]:
     try:
         format = FileFormatVersion.objects.get(file_uuid=file_)
-        result: Sequence[FPRule] = FPRule.active.filter(
+        result = FPRule.active.filter(
             format=format.format_version, purpose="transcription"
         )
         return result
     except (FileFormatVersion.DoesNotExist, ValidationError):
-        return []
+        return FPRule.objects.none()
 
 
-def fetch_rules_for_derivatives(file_: File) -> tuple[Optional[File], Sequence[FPRule]]:
+def fetch_rules_for_derivatives(file_: File) -> tuple[Optional[File], QuerySet[FPRule]]:
     derivs = Derivation.objects.filter(source_file=file_)
     for deriv in derivs:
         derived_file = deriv.derived_file
@@ -116,7 +118,7 @@ def fetch_rules_for_derivatives(file_: File) -> tuple[Optional[File], Sequence[F
         if rules:
             return (derived_file, rules)
 
-    return None, []
+    return None, FPRule.objects.none()
 
 
 def main(job: Job, task_uuid: uuid.UUID, file_uuid: uuid.UUID) -> int:
@@ -139,19 +141,20 @@ def main(job: Job, task_uuid: uuid.UUID, file_uuid: uuid.UUID) -> int:
 
     rules = fetch_rules_for(file_)
     if not rules:
-        file_, rules = fetch_rules_for_derivatives(file_)
-
-    if not rules:
-        job.print_error(
-            f"No rules found for file {file_uuid} and its derivatives; not transcribing"
-        )
-        return 0
-    else:
-        if file_.filegrpuse == "original":
-            noun = "original"
+        f, rules = fetch_rules_for_derivatives(file_)
+        if not rules or f is None:
+            job.print_error(
+                f"No rules found for file {file_uuid} and its derivatives; not transcribing"
+            )
+            return 0
         else:
-            noun = file_.filegrpuse + " derivative"
-        job.print_error(f"Transcribing {noun} {file_.uuid}")
+            file_ = f
+
+    if file_.filegrpuse == "original":
+        noun = "original"
+    else:
+        noun = file_.filegrpuse + " derivative"
+    job.print_error(f"Transcribing {noun} {file_.uuid}")
 
     rd = ReplacementDict.frommodel(file_=file_, type_="file")
 
