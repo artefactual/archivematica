@@ -280,7 +280,7 @@ def getDirDmdSec(dir_mdl, relativeDirectoryPath):
     return ret
 
 
-def createDMDIDsFromCSVMetadata(job, path, state):
+def createDMDIDsFromCSVMetadata(job, path, state) -> str:
     """
     Creates dmdSecs with metadata associated with path from the metadata.csv
 
@@ -1647,7 +1647,7 @@ def main(
     sipUUID,
     includeAmdSec,
     createNormativeStructmap,
-):
+) -> None:
     state = MetsState()  # TODO: this needs to go.
 
     # If reingesting, do not create a new METS, just modify existing one.

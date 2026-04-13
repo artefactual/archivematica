@@ -53,6 +53,8 @@ django==5.2.13
     #   django-cas-ng
     #   django-csp
     #   django-prometheus
+    #   django-stubs
+    #   django-stubs-ext
     #   mozilla-django-oidc
 django-auth-ldap==5.3.0
     # via archivematica (pyproject.toml)
@@ -68,6 +70,12 @@ django-prometheus==2.4.1
     # via archivematica (pyproject.toml)
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via archivematica (pyproject.toml)
+django-stubs[compatible-mypy]==6.0.2
+    # via archivematica (pyproject.toml)
+django-stubs-ext==6.0.2
+    # via
+    #   archivematica (pyproject.toml)
+    #   django-stubs
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
 elastic-transport==8.17.1
@@ -107,6 +115,8 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
+librt==0.9.0
+    # via mypy
 lxml==6.0.3
     # via
     #   ammcpc
@@ -119,6 +129,10 @@ mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via archivematica (pyproject.toml)
 mozilla-django-oidc==5.0.2
     # via archivematica (pyproject.toml)
+mypy==1.20.0
+    # via django-stubs
+mypy-extensions==1.1.0
+    # via mypy
 mysqlclient==2.2.8
     # via agentarchives
 olefile==0.47
@@ -136,6 +150,8 @@ packaging==26.0
     #   pytest
     #   tox
     #   wheel
+pathspec==1.0.4
+    # via mypy
 pip-tools==7.5.3
     # via archivematica (pyproject.toml)
 platformdirs==4.9.6
@@ -245,6 +261,8 @@ tomli==2.4.1
     # via
     #   build
     #   coverage
+    #   django-stubs
+    #   mypy
     #   pip-tools
     #   pyproject-api
     #   pytest
@@ -253,12 +271,17 @@ tomli-w==1.2.0
     # via tox
 tox==4.52.1
     # via archivematica (pyproject.toml)
+types-pyyaml==6.0.12.20260408
+    # via django-stubs
 typing-extensions==4.15.0
     # via
     #   asgiref
     #   cryptography
+    #   django-stubs
+    #   django-stubs-ext
     #   elasticsearch
     #   exceptiongroup
+    #   mypy
     #   pyee
     #   pyjwt
     #   referencing

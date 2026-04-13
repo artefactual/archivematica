@@ -188,6 +188,11 @@ jobs:
           cache: "pip"
           cache-dependency-path: |
             requirements-dev.txt
+      - name: "Install OS packages"
+        run: |
+          sudo apt-get --quiet update
+          sudo apt-get install --quiet --yes build-essential \
+            libmysqlclient-dev libsasl2-dev libldap2-dev libssl-dev
       - name: "Install tox"
         run: |
           python -m pip install --upgrade pip

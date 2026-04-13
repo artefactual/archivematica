@@ -20,12 +20,15 @@ import os
 from io import StringIO
 from typing import Any
 
+import django_stubs_ext
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 from archivematica.archivematicaCommon import email_settings
 from archivematica.archivematicaCommon.appconfig import Config
 from archivematica.archivematicaCommon.appconfig import process_search_enabled
+
+django_stubs_ext.monkeypatch()
 
 
 def _get_settings_from_file(path):

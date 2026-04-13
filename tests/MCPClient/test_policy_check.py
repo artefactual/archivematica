@@ -11,6 +11,12 @@ from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import policy_check
 
 
+def _decode_path(value: bytes | memoryview | None) -> str:
+    assert isinstance(value, bytes)
+
+    return value.decode()
+
+
 @pytest.fixture()
 def sip(sip: models.SIP) -> models.SIP:
     # ReplacementDict expands SIP paths based on the shared directory.
@@ -27,7 +33,7 @@ def preservation_file(preservation_file: models.File) -> models.File:
 
 
 @pytest.fixture
-def event(sip_file: models.SIP) -> models.Event:
+def event(sip_file: models.File) -> models.Event:
     return models.Event.objects.create(file_uuid=sip_file, event_type="normalization")
 
 
@@ -94,7 +100,7 @@ def test_policy_checker_succeeds_if_rules_exist(
     job = mock.Mock(
         args=[
             "policy_check",
-            sip_file.currentlocation.decode(),
+            _decode_path(sip_file.currentlocation),
             str(sip_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -114,6 +120,7 @@ def test_policy_checker_succeeds_if_rules_exist(
     policy_check.call([job])
 
     job.set_status.assert_called_once_with(policy_check.SUCCESS_CODE)
+    assert fprule_policy_check.command.tool is not None
     assert (
         models.Event.objects.filter(
             file_uuid_id=sip_file.uuid,
@@ -133,7 +140,7 @@ def test_policy_checker_succeeds_if_rules_exist(
             f"Command {fprule_policy_check.command.description} completed with output {expected_stdout}"
         ),
         mock.call(
-            f"Creating policy checking event for {sip_file.currentlocation.decode()} ({sip_file.uuid})"
+            f"Creating policy checking event for {_decode_path(sip_file.currentlocation)} ({sip_file.uuid})"
         ),
     ]
 
@@ -161,7 +168,7 @@ def test_policy_checker_warns_if_rules_do_not_exist(
     job = mock.Mock(
         args=[
             "policy_check",
-            sip_file.currentlocation.decode(),
+            _decode_path(sip_file.currentlocation),
             str(sip_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -238,7 +245,7 @@ def test_policy_checker_fails_if_rule_command_fails(
     job = mock.Mock(
         args=[
             "policy_check",
-            sip_file.currentlocation.decode(),
+            _decode_path(sip_file.currentlocation),
             str(sip_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -290,7 +297,7 @@ def test_policy_checker_fails_if_event_outcome_information_in_output_is_not_pass
     job = mock.Mock(
         args=[
             "policy_check",
-            sip_file.currentlocation.decode(),
+            _decode_path(sip_file.currentlocation),
             str(sip_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -327,7 +334,7 @@ def test_policy_checker_verifies_file_type_is_preservation(
     job = mock.Mock(
         args=[
             "policy_check",
-            preservation_file.currentlocation.decode(),
+            _decode_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -350,7 +357,7 @@ def test_policy_checker_verifies_file_type_is_preservation(
             f"Command {fprule_policy_check.command.description} completed with output {expected_stdout}"
         ),
         mock.call(
-            f"Creating policy checking event for {preservation_file.currentlocation.decode()} ({preservation_file.uuid})"
+            f"Creating policy checking event for {_decode_path(preservation_file.currentlocation)} ({preservation_file.uuid})"
         ),
     ]
 
@@ -379,7 +386,7 @@ def test_policy_checker_fails_if_file_is_not_preservation_derivative(
     job = mock.Mock(
         args=[
             "policy_check",
-            preservation_file.currentlocation.decode(),
+            _decode_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -415,7 +422,7 @@ def test_policy_checker_verifies_file_type_is_access(
     job = mock.Mock(
         args=[
             "policy_check",
-            access_file.currentlocation.decode(),
+            _decode_path(access_file.currentlocation),
             str(access_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -438,7 +445,7 @@ def test_policy_checker_verifies_file_type_is_access(
             f"Command {fprule_policy_check.command.description} completed with output {expected_stdout}"
         ),
         mock.call(
-            f"Creating policy checking event for {access_file.currentlocation.decode()} ({access_file.uuid})"
+            f"Creating policy checking event for {_decode_path(access_file.currentlocation)} ({access_file.uuid})"
         ),
     ]
 
@@ -458,7 +465,7 @@ def test_policy_checker_fails_if_file_is_not_access_derivative(
     job = mock.Mock(
         args=[
             "policy_check",
-            access_file.currentlocation.decode(),
+            _decode_path(access_file.currentlocation),
             str(access_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -520,7 +527,7 @@ def test_policy_checker_saves_policy_check_result_into_logs_directory(
     job = mock.Mock(
         args=[
             "policy_check",
-            preservation_file.currentlocation.decode(),
+            _decode_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -538,7 +545,7 @@ def test_policy_checker_saves_policy_check_result_into_logs_directory(
         log_directory
         / "policyChecks"
         / policy_file_name
-        / f"{pathlib.Path(preservation_file.currentlocation.decode()).name}.xml"
+        / f"{pathlib.Path(_decode_path(preservation_file.currentlocation)).name}.xml"
     )
     assert log_file.exists()
     assert log_file.read_text() == stdout
@@ -579,7 +586,7 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
     job = mock.Mock(
         args=[
             "policy_check",
-            sip_file.currentlocation.decode(),
+            _decode_path(sip_file.currentlocation),
             str(sip_file.uuid),
             str(sip.uuid),
             str(shared_directory_path),
@@ -615,7 +622,7 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
     )
 
     execute_or_run.return_value = (0, expected_stdout, "")
-    sip_file_name = pathlib.Path(sip_file.currentlocation.decode()).name
+    sip_file_name = pathlib.Path(_decode_path(sip_file.currentlocation)).name
     manually_access_derivative_file = models.File.objects.create(
         transfer=transfer,
         sip=sip,

@@ -30,6 +30,7 @@ dependencies = [
   "django-csp",
   "django-forms-bootstrap",
   "django-prometheus",
+  "django-stubs-ext",
   "django-tastypie",
   "elasticsearch>=8.0.0,<9.0.0",
   "gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797",
@@ -60,6 +61,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "coverage[toml]",
+  "django-stubs[compatible-mypy]",
   "mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1",
   "pip-tools",
   "playwright",
@@ -138,22 +140,37 @@ ignore = [
 force-single-line = true
 
 [tool.mypy]
+strict = true
 explicit_package_bases = true
-warn_redundant_casts = true
-warn_unused_configs = true
+files = ["src", "tests"]
+exclude = [
+    '^src/archivematica/dashboard/fpr/migrations-data/.*\.py$',
+]
+mypy_path = [
+  "$MYPY_CONFIG_FILE_DIR/src",
+  "$MYPY_CONFIG_FILE_DIR/typings",
+]
+plugins = ["mypy_django_plugin.main"]
 
 [[tool.mypy.overrides]]
 module = [
-    "src.archivematica.archivematicaCommon.executeOrRunSubProcess",
-    "src.archivematica.MCPClient.client.*",
-    "src.archivematica.MCPClient.clientScripts.characterize_file",
-    "src.archivematica.MCPClient.clientScripts.has_packages",
-    "src.archivematica.MCPClient.clientScripts.identify_file_format",
-    "src.archivematica.MCPClient.clientScripts.normalize",
-    "src.archivematica.MCPClient.clientScripts.policy_check",
-    "src.archivematica.MCPClient.clientScripts.transcribe_file",
-    "src.archivematica.MCPClient.clientScripts.validate_file",
-    "src.archivematica.search.service",
+    "archivematica.*",
+    "tests.*",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "archivematica.archivematicaCommon.executeOrRunSubProcess",
+    "archivematica.MCPClient.client.*",
+    "archivematica.MCPClient.clientScripts.characterize_file",
+    "archivematica.MCPClient.clientScripts.has_packages",
+    "archivematica.MCPClient.clientScripts.identify_file_format",
+    "archivematica.MCPClient.clientScripts.normalize",
+    "archivematica.MCPClient.clientScripts.policy_check",
+    "archivematica.MCPClient.clientScripts.transcribe_file",
+    "archivematica.MCPClient.clientScripts.validate_file",
+    "archivematica.search.service",
     "tests.archivematicaCommon.test_execute_functions",
     "tests.conftest",
     "tests.dashboard.components.accounts.test_views",
@@ -175,17 +192,10 @@ module = [
     "tests.MCPClient.test_validate_file",
     "tests.search.test_service",
 ]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_decorators = true
-disallow_untyped_defs = true
-no_implicit_reexport = true
-strict_equality = true
-warn_return_any = true
-warn_unused_ignores = true
+ignore_errors = false
+
+[tool.django-stubs]
+django_settings_module = "archivematica.settings.testmysql"
 
 [tool.tox]
 legacy_tox_ini = """

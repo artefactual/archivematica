@@ -8,6 +8,9 @@ from urllib.parse import urlparse
 import pytest
 import pytest_django
 from django.contrib.auth.models import User
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.http import HttpRequest
+from django.http import HttpResponse
 from django.test import Client
 from django.test import RequestFactory
 from django.urls import reverse
@@ -16,9 +19,14 @@ from tastypie.models import ApiKey
 from archivematica.dashboard.components.accounts.views import get_oidc_logout_url
 
 
+def attach_session(request: HttpRequest) -> None:
+    middleware = SessionMiddleware(lambda _request: HttpResponse())
+    middleware.process_request(request)
+
+
 def test_get_oidc_logout_url_fails_if_token_is_not_set(rf: RequestFactory) -> None:
     request = rf.get("/")
-    request.session = {}
+    attach_session(request)
 
     with pytest.raises(ValueError, match="ID token not found in session."):
         get_oidc_logout_url(request)
@@ -28,7 +36,8 @@ def test_get_oidc_logout_url_fails_if_logout_endpoint_is_not_set(
     rf: RequestFactory,
 ) -> None:
     request = rf.get("/")
-    request.session = {"oidc_id_token": "mytoken"}
+    attach_session(request)
+    request.session["oidc_id_token"] = "mytoken"
 
     with pytest.raises(
         ValueError, match="OIDC logout endpoint not configured for provider."
@@ -42,7 +51,8 @@ def test_get_oidc_logout_url_returns_logout_url(
     settings.OIDC_OP_LOGOUT_ENDPOINT = "http://example.com/logout"
     token = "mytoken"
     request = rf.get("/")
-    request.session = {"oidc_id_token": token}
+    attach_session(request)
+    request.session["oidc_id_token"] = token
 
     result = get_oidc_logout_url(request)
 

@@ -23,6 +23,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -285,7 +286,7 @@ class CustomOIDCLogoutView(OIDCLogoutView):
             return logout_then_login(request)
 
 
-def get_oidc_logout_url(request):
+def get_oidc_logout_url(request: HttpRequest) -> str:
     """
     Constructs the OIDC logout URL used in OIDCLogoutView.
     """

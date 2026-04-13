@@ -10,8 +10,6 @@ import logging
 import sys
 import traceback
 from collections.abc import Generator
-from collections.abc import Iterable
-from collections.abc import Mapping
 from contextlib import contextmanager
 from logging.handlers import BufferingHandler
 from typing import Any
@@ -129,13 +127,13 @@ class Job:
     def write_error(self, s: str) -> None:
         self.error += s
 
-    def print_output(self, *args: Iterable[Any]) -> None:
+    def print_output(self, *args: object) -> None:
         self.write_output(" ".join([str(x) for x in args]) + "\n")
 
-    def print_error(self, *args: Iterable[Any]) -> None:
+    def print_error(self, *args: object) -> None:
         self.write_error(" ".join([str(x) for x in args]) + "\n")
 
-    def pyprint(self, *objects: Iterable[Any], **kwargs: Mapping[str, Any]) -> None:
+    def pyprint(self, *objects: object, **kwargs: Any) -> None:
         output_type = kwargs.get("file", sys.stdout)
         sep = kwargs.get("sep", " ")
         end = kwargs.get("end", "\n")

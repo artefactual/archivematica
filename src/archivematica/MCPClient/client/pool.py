@@ -162,7 +162,9 @@ class WorkerPool:
     ) -> dict[str, int]:
         workers_required = {}
         for client_script, module in job_modules.items():
-            concurrency = loader.get_module_concurrency(module)
+            concurrency = (
+                loader.get_module_concurrency(module) if module is not None else 1
+            )
             workers_required[client_script] = concurrency
 
         return workers_required

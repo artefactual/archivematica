@@ -3,6 +3,7 @@ import pathlib
 
 import pytest
 import pytest_django
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from archivematica.dashboard.fpr import models as fprmodels
@@ -30,8 +31,8 @@ def mcp_job() -> Job:
 
 
 @pytest.fixture()
-def user() -> models.User:
-    return models.User.objects.create(
+def user() -> User:
+    return User.objects.create(
         id=1,
         username="kmindelan",
         first_name="Keladry",
@@ -54,7 +55,7 @@ def task(job: models.Job) -> models.Task:
 
 
 @pytest.fixture
-def transfer(user: models.User) -> models.Transfer:
+def transfer(user: User) -> models.Transfer:
     result = models.Transfer.objects.create(
         currentlocation=r"%transferDirectory%",
         access_system_id="atom-description-id",

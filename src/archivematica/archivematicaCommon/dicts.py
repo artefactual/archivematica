@@ -14,6 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+
 import os
 import re
 import uuid
@@ -30,7 +32,7 @@ def setup(shared_directory, processing_directory, watch_directory, rejected_dire
     config["rejected_directory"] = rejected_directory
 
 
-def replace_string_values(string, **kwargs):
+def replace_string_values(string, **kwargs) -> str:
     """
     Replace standard Archivematica variables in a string given data from
     the database to use to populate them.
@@ -45,7 +47,9 @@ def replace_string_values(string, **kwargs):
 
 class ReplacementDict(dict):
     @staticmethod
-    def frommodel(type_="file", sip=None, file_=None, expand_path=True):
+    def frommodel(
+        type_="file", sip=None, file_=None, expand_path=True
+    ) -> ReplacementDict:
         """
         Creates a new ReplacementDict option with the standard variables
         populated based on values taken from the models passed in.
@@ -161,7 +165,7 @@ class ReplacementDict(dict):
 
         return rd
 
-    def replace(self, *strings):
+    def replace(self, *strings) -> list[str]:
         """
         Iterates over a set of strings. Any keys in self found within
         the string will be replaced with their respective values.
@@ -193,7 +197,7 @@ class ReplacementDict(dict):
             ret.append(orig)
         return ret
 
-    def to_gnu_options(self):
+    def to_gnu_options(self) -> list[str]:
         """
         Returns the replacement dict's values as an array of GNU-style
         long options. This is primarily useful for passing options to

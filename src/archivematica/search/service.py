@@ -306,18 +306,9 @@ class TermsQuery(TypedDict):
     terms: dict[str, list[str]]
 
 
-class DeleteByQueryBody(TypedDict):
-    query: Union[TermQuery, TermsQuery]
-
-
 class ScriptDict(TypedDict):
     source: str
     params: dict[str, Union[str, bool, list[str]]]
-
-
-class UpdateByQueryBody(TypedDict):
-    script: ScriptDict
-    query: TermQuery
 
 
 class ElasticsearchSearchService(SearchService):
@@ -362,7 +353,7 @@ class ElasticsearchSearchService(SearchService):
         if not value:
             return
 
-        query: DeleteByQueryBody
+        query: dict[str, Any]
         if isinstance(value, str):
             query = {"query": {"term": {field: self._escape_slashes(value)}}}
         else:
@@ -401,7 +392,7 @@ class ElasticsearchSearchService(SearchService):
         query_value: str,
         update_field: str,
         update_value: Union[str, bool, list[str]],
-    ) -> UpdateByQueryBody:
+    ) -> dict[str, Any]:
         """Build an update_by_query body for Elasticsearch.
 
         :param str query_field: Field to query on
@@ -931,23 +922,18 @@ class ElasticsearchSearchService(SearchService):
         :param int wait_between_tries: Seconds to wait between health checks
         :param int max_tries: Maximum number of tries before giving up
         """
-        health: dict[str, Any] = {}
-        health["status"] = None
+        status: Optional[str] = None
         tries = 0
 
-        while (
-            health["status"] != "yellow"
-            and health["status"] != "green"
-            and tries < max_tries
-        ):
+        while status != "yellow" and status != "green" and tries < max_tries:
             tries = tries + 1
 
             try:
-                health = self.client.cluster.health()
+                status = self.client.cluster.health()["status"]
             except Exception:
-                health["status"] = None
+                status = None
 
-            if health["status"] != "yellow" and health["status"] != "green":
+            if status != "yellow" and status != "green":
                 time.sleep(wait_between_tries)
 
     def _try_to_index(
@@ -994,6 +980,9 @@ class ElasticsearchSearchService(SearchService):
         success, errors = bulk(
             self.client, generator, chunk_size=chunk_size, stats_only=False
         )
+        if isinstance(errors, int):
+            errors = []
+
         return success, errors
 
     def _index_aip_files(
@@ -1130,7 +1119,12 @@ def _create_elasticsearch_client(
     :param timeout: Connection timeout in seconds
     :return: Configured Elasticsearch client
     """
-    return Elasticsearch(**{"hosts": hosts, "request_timeout": timeout})
+    hosts_arg: str | list[str]
+    if isinstance(hosts, tuple):
+        hosts_arg = list(hosts)
+    else:
+        hosts_arg = hosts
+    return Elasticsearch(hosts_arg, request_timeout=timeout)
 
 
 def setup_search_service(

@@ -53,7 +53,7 @@ def test_idcommand_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> No
     resp = admin_client.get(url, {"parent": str(uuid.uuid4())})
     assert resp.context["form"].initial["tool"] is None
 
-    resp = admin_client.get(url, {"parent": tool.uuid})
+    resp = admin_client.get(url, {"parent": str(tool.uuid)})
     assert resp.context["form"].initial["tool"] == tool
 
 
@@ -72,7 +72,7 @@ def test_fpcommand_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> No
     resp = admin_client.get(url, {"parent": str(uuid.uuid4())})
     assert resp.context["form"].initial["tool"] is None
 
-    resp = admin_client.get(url, {"parent": tool.uuid})
+    resp = admin_client.get(url, {"parent": str(tool.uuid)})
     assert resp.context["form"].initial["tool"] == tool
 
 
@@ -280,9 +280,7 @@ def test_idrule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     assert "Saved." in resp.content.decode()
     assert (
         models.IDRule.objects.filter(
-            format=format_version.uuid,
-            command=command.uuid,
-            command_output=command_output,
+            format=format_version, command=command, command_output=command_output
         ).count()
         == 1
     )
@@ -322,9 +320,7 @@ def test_fprule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     assert "Saved." in resp.content.decode()
     assert (
         models.FPRule.objects.filter(
-            purpose=purpose,
-            format=format_version.uuid,
-            command=command.uuid,
+            purpose=purpose, format=format_version, command=command
         ).count()
         == 1
     )
@@ -461,9 +457,7 @@ def test_idrule_list_includes_fpr_table_payload(
         def exclude(self, **kwargs: Any) -> _IDRulesQuerySet:
             return _IDRulesQuerySet([idrule])
 
-    from archivematica.dashboard.fpr import views as fpr_views
-
-    monkeypatch.setattr(fpr_views.fprmodels.IDRule, "objects", _IDRuleManager())
+    monkeypatch.setattr(models.IDRule, "objects", _IDRuleManager())
 
     response = admin_client.get(reverse("fpr:idrule_list"))
 

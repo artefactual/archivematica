@@ -55,6 +55,9 @@ def _save_id_preference(file_: File, value: bool) -> None:
     # run during the transfer.
     unit = file_.sip or file_.transfer
 
+    if unit is None or unit.pk is None:
+        return
+
     rd = {"%IDCommand%": str(value)}
 
     UnitVariable.objects.create(
@@ -68,9 +71,11 @@ def write_identification_event(
     format: Optional[str] = None,
     success: bool = True,
 ) -> None:
-    event_detail_text = (
-        f'program="{command.tool.description}"; version="{command.tool.version}"'
-    )
+    event_detail_text = ""
+    if command.tool is not None:
+        event_detail_text = (
+            f'program="{command.tool.description}"; version="{command.tool.version}"'
+        )
     if success:
         event_outcome_text = "Positive"
     else:
@@ -112,14 +117,14 @@ def write_file_id(file_uuid: str, format: FormatVersion, output: str) -> None:
 
     FileID.objects.create(
         file_id=file_uuid,
-        format_name=format.format.description,
+        format_name=format.format.description if format.format is not None else "",
         format_version=version,
         format_registry_name=format_registry,
         format_registry_key=key,
     )
 
 
-def _default_idcommand() -> IDCommand:
+def _default_idcommand() -> IDCommand | None:
     """Retrieve the default ``fpr.IDCommand``.
 
     We only expect to find one command enabled/active.
@@ -141,10 +146,17 @@ def main(
         return ERROR
 
     command_uuid = command.uuid
+    tool = command.tool
+    tool_uuid: str | uuid.UUID
+    if tool is not None:
+        tool_description = tool.description
+        tool_uuid = tool.uuid
+    else:
+        tool_description = tool_uuid = "Unknown"
     job.print_output("IDCommand:", command.description)
     job.print_output("IDCommand UUID:", command.uuid)
-    job.print_output("IDTool:", command.tool.description)
-    job.print_output("IDTool UUID:", command.tool.uuid)
+    job.print_output("IDTool:", tool_description)
+    job.print_output("IDTool UUID:", tool_uuid)
     job.print_output(f"File: ({file_uuid}) {file_path}")
 
     file_ = File.objects.get(uuid=file_uuid)

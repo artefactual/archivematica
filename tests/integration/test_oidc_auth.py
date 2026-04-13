@@ -47,11 +47,9 @@ def test_oidc_backend_creates_local_user(
     click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
-    assert [
-        i.strip()
-        for i in page.locator("dl.dl-horizontal").text_content().splitlines()
-        if i.strip()
-    ] == [
+    details_text = page.locator("dl.dl-horizontal").text_content()
+    assert details_text is not None
+    assert [i.strip() for i in details_text.splitlines() if i.strip()] == [
         "Username",
         "demo@example.com",
         "Name",
@@ -85,11 +83,9 @@ def test_local_authentication_backend_authenticates_existing_user(
     click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
-    assert [
-        i.strip()
-        for i in page.locator("dl.dl-horizontal").text_content().splitlines()
-        if i.strip()
-    ] == [
+    details_text = page.locator("dl.dl-horizontal").text_content()
+    assert details_text is not None
+    assert [i.strip() for i in details_text.splitlines() if i.strip()] == [
         "Username",
         "foobar",
         "Name",
@@ -121,10 +117,9 @@ def test_removing_model_authentication_backend_disables_local_authentication(
     page.get_by_text("Log in", exact=True).click()
 
     assert page.url == f"{live_server.url}{settings.LOGIN_URL}"
-    assert (
-        "Please enter a correct username and password"
-        in page.locator("div.alert").text_content().strip()
-    )
+    error_text = page.locator("div.alert").text_content()
+    assert error_text is not None
+    assert "Please enter a correct username and password" in error_text.strip()
 
 
 @pytest.mark.django_db
@@ -189,11 +184,9 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
     click_profile_from_user_menu(page)
 
     assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
-    assert [
-        i.strip()
-        for i in page.locator("dl.dl-horizontal").text_content().splitlines()
-        if i.strip()
-    ] == [
+    details_text = page.locator("dl.dl-horizontal").text_content()
+    assert details_text is not None
+    assert [i.strip() for i in details_text.splitlines() if i.strip()] == [
         "Username",
         "supportdefault@example.com",
         "Name",

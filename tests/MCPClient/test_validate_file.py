@@ -13,6 +13,12 @@ from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import validate_file
 
 
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    assert isinstance(value, bytes)
+
+    return value.decode()
+
+
 @pytest.fixture
 def sip(sip: models.SIP) -> models.SIP:
     sip.currentpath = r"%sharedPath%"
@@ -25,6 +31,7 @@ def sip(sip: models.SIP) -> models.SIP:
 def sip_logs_directory(
     sip: models.SIP, shared_directory_path: pathlib.Path
 ) -> pathlib.Path:
+    assert sip.currentpath is not None
     result = (
         pathlib.Path(
             sip.currentpath.replace(r"%sharedPath%", str(shared_directory_path))
@@ -85,7 +92,7 @@ def test_job_warns_if_preservation_derivative_sip_does_not_exist(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip_uuid),
             str(settings.SHARED_DIRECTORY),
@@ -131,7 +138,7 @@ def test_job_warns_if_preservation_derivative_sip_logs_directory_does_not_exist(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -181,7 +188,7 @@ def test_job_succeeds_with_passing_validation_outcome(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -201,7 +208,7 @@ def test_job_succeeds_with_passing_validation_outcome(
             f'Command "{fprule_validation.command.description}" was {validation_result}'
         ),
         mock.call(
-            f"Creating {fprule_validation.purpose} event for {preservation_file.currentlocation.decode()} ({preservation_file.uuid})"
+            f"Creating {fprule_validation.purpose} event for {_decode_binary_path(preservation_file.currentlocation)} ({preservation_file.uuid})"
         ),
     ]
 
@@ -209,7 +216,7 @@ def test_job_succeeds_with_passing_validation_outcome(
         type=fprule_validation.command.script_type,
         text=fprule_validation.command.command,
         printing=False,
-        arguments=[preservation_file.currentlocation.decode()],
+        arguments=[_decode_binary_path(preservation_file.currentlocation)],
     )
 
     assert (
@@ -250,7 +257,7 @@ def test_job_saves_command_output_as_preservation_logs(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -266,7 +273,7 @@ def test_job_saves_command_output_as_preservation_logs(
     log_file = (
         sip_logs_directory
         / "implementationChecks"
-        / f"{pathlib.Path(preservation_file.currentlocation.decode()).name}.xml"
+        / f"{pathlib.Path(_decode_binary_path(preservation_file.currentlocation)).name}.xml"
     )
     assert log_file.exists()
     assert log_file.read_text() == stdout
@@ -308,7 +315,7 @@ def test_job_falls_back_to_default_validation_rule(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -333,7 +340,7 @@ def test_job_falls_back_to_default_validation_rule(
         mock.call("Running", fpcommand.description),
         mock.call(f'Command "{fpcommand.description}" was successful'),
         mock.call(
-            f"Creating {fprmodels.FPRule.VALIDATION} event for {preservation_file.currentlocation.decode()} ({preservation_file.uuid})"
+            f"Creating {fprmodels.FPRule.VALIDATION} event for {_decode_binary_path(preservation_file.currentlocation)} ({preservation_file.uuid})"
         ),
     ]
 
@@ -349,7 +356,7 @@ def test_job_skips_validation_if_rules_do_not_exist(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            sip_file.currentlocation.decode(),
+            _decode_binary_path(sip_file.currentlocation),
             str(sip_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -386,7 +393,7 @@ def test_job_skips_validation_if_file_is_not_a_derivative(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -422,7 +429,7 @@ def test_job_fails_if_rule_command_fails(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -463,7 +470,7 @@ def test_job_fails_with_non_passing_validation_outcome(
     job = mock.Mock(
         args=[
             "archivematica.MCPClient.clientScripts.validate_file.py",
-            preservation_file.currentlocation.decode(),
+            _decode_binary_path(preservation_file.currentlocation),
             str(preservation_file.uuid),
             str(sip.uuid),
             str(settings.SHARED_DIRECTORY),
@@ -480,7 +487,7 @@ def test_job_fails_with_non_passing_validation_outcome(
     assert job.print_output.mock_calls == [
         mock.call("Running", fprule_validation.command.description),
         mock.call(
-            f"Creating {fprule_validation.purpose} event for {preservation_file.currentlocation.decode()} ({preservation_file.uuid})"
+            f"Creating {fprule_validation.purpose} event for {_decode_binary_path(preservation_file.currentlocation)} ({preservation_file.uuid})"
         ),
     ]
 

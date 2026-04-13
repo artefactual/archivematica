@@ -13,6 +13,12 @@ from archivematica.MCPClient.clientScripts import transcribe_file
 EXECUTE_OR_RUN_STDOUT = "Hello"
 
 
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    assert isinstance(value, bytes)
+
+    return value.decode()
+
+
 @pytest.fixture()
 def sip(sip: models.SIP) -> models.SIP:
     # ReplacementDict expands SIP paths based on the shared directory.
@@ -25,7 +31,7 @@ def sip(sip: models.SIP) -> models.SIP:
 @pytest.fixture
 def create_sip_file(sip_directory_path: pathlib.Path, sip_file: models.File) -> None:
     file_path = pathlib.Path(
-        sip_file.currentlocation.decode().replace("%SIPDirectory%", "")
+        _decode_binary_path(sip_file.currentlocation).replace("%SIPDirectory%", "")
     )
 
     file_dir = sip_directory_path / file_path.parent
@@ -38,7 +44,7 @@ def create_sip_file(sip_directory_path: pathlib.Path, sip_file: models.File) -> 
 def fpcommand(
     fpcommand: fprmodels.FPCommand, sip_file: models.File
 ) -> fprmodels.FPCommand:
-    fpcommand.output_location = sip_file.currentlocation.decode()
+    fpcommand.output_location = _decode_binary_path(sip_file.currentlocation)
     fpcommand.save()
 
     return fpcommand
@@ -90,7 +96,7 @@ def test_main(
             file_uuid_id=sip_file.uuid,
             event_type="transcription",
             event_outcome="transcribed",
-            event_outcome_detail=sip_file.currentlocation.decode(),
+            event_outcome_detail=_decode_binary_path(sip_file.currentlocation),
         ).count()
         == 1
     )
@@ -171,9 +177,12 @@ def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
     fprule_transcription: fprmodels.FPRule,
     sip_file_format_version: models.FileFormatVersion,
 ) -> None:
-    result = transcribe_file.fetch_rules_for_derivatives(file_=derivation.source_file)
+    file, rules = transcribe_file.fetch_rules_for_derivatives(
+        file_=derivation.source_file
+    )
 
-    assert result == (None, [])
+    assert file is None
+    assert not rules
 
 
 @pytest.mark.django_db
@@ -185,6 +194,7 @@ def test_fetch_rules_for_derivatives(
     derived_file, rules_of_derived_file = transcribe_file.fetch_rules_for_derivatives(
         file_=derivation.source_file
     )
+    assert derived_file is not None
 
     assert list(rules_of_derived_file.values_list("purpose")) == [("transcription",)]
 
@@ -202,7 +212,7 @@ def test_fetch_rules_for_derivatives(
 def disabled_fprule_transcription(
     fprule_transcription: fprmodels.FPRule,
 ) -> fprmodels.FPRule:
-    fprule_transcription.enabled = 0
+    fprule_transcription.enabled = False
     fprule_transcription.save()
 
     return fprule_transcription
@@ -227,7 +237,7 @@ def test_main_if_fprule_is_disabled(
             file_uuid_id=sip_file.uuid,
             event_type="transcription",
             event_outcome="transcribed",
-            event_outcome_detail=sip_file.currentlocation.decode(),
+            event_outcome_detail=_decode_binary_path(sip_file.currentlocation),
         ).count()
         == 0
     )

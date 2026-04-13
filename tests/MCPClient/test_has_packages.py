@@ -9,6 +9,12 @@ from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import has_packages
 
 
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    assert isinstance(value, bytes)
+
+    return value.decode()
+
+
 @pytest.fixture
 def compressed_file(
     transfer: models.Transfer,
@@ -85,13 +91,15 @@ def test_main_detects_file_was_already_extracted_from_unpacking_event(
 ) -> None:
     job = mock.Mock(spec=Job)
     extracted_file = models.File.objects.get(
-        currentlocation__startswith=compressed_file.currentlocation.decode(),
+        currentlocation__startswith=_decode_binary_path(
+            compressed_file.currentlocation
+        ),
         currentlocation__endswith="file.txt",
     )
     models.Event.objects.create(
         file_uuid=extracted_file,
         event_type=event_type,
-        event_detail=f"Unpacked from: {extracted_file.currentlocation} ({compressed_file.uuid})",
+        event_detail=f"Unpacked from: {_decode_binary_path(extracted_file.currentlocation)} ({compressed_file.uuid})",
     )
 
     result = has_packages.main(job, str(transfer.uuid))

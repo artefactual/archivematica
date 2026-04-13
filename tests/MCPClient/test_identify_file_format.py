@@ -9,12 +9,18 @@ from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import identify_file_format
 
 
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    assert isinstance(value, bytes)
+
+    return value.decode()
+
+
 @pytest.fixture
 def sip_file_path(
     sip_directory_path: pathlib.Path, sip_file: models.File
 ) -> pathlib.Path:
     result = sip_directory_path / pathlib.Path(
-        sip_file.currentlocation.decode().replace("%SIPDirectory%", "")
+        _decode_binary_path(sip_file.currentlocation).replace("%SIPDirectory%", "")
     )
     result.parent.mkdir(parents=True)
     result.touch()
@@ -59,6 +65,7 @@ def test_job_skips_format_identification_if_file_has_format_identification_event
     identify_file_format.call([job])
 
     job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
+    assert idcommand.tool is not None
     assert job.print_output.mock_calls == [
         mock.call("IDCommand:", idcommand.description),
         mock.call("IDCommand UUID:", idcommand.uuid),
@@ -119,6 +126,7 @@ def test_job_fails_if_identification_rule_does_not_exist(
     identify_file_format.call([job])
 
     job.set_status.assert_called_once_with(identify_file_format.ERROR)
+    assert idcommand.tool is not None
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -142,7 +150,7 @@ def test_job_fails_if_multiple_identification_rules_exist(
     sip_file: models.File,
     idcommand: fprmodels.IDCommand,
     idrule: fprmodels.IDRule,
-    format_version: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
 ) -> None:
     command_output = ".mp3"
     execute_or_run.return_value = (0, command_output, "")
@@ -160,6 +168,7 @@ def test_job_fails_if_multiple_identification_rules_exist(
     identify_file_format.call([job])
 
     job.set_status.assert_called_once_with(identify_file_format.ERROR)
+    assert idcommand.tool is not None
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -189,6 +198,7 @@ def test_job_fails_if_format_version_does_not_exist(
     identify_file_format.call([job])
 
     job.set_status.assert_called_once_with(identify_file_format.ERROR)
+    assert idcommand.tool is not None
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -253,6 +263,7 @@ def test_job_adds_file_format_version(
         ).count()
         == 1
     )
+    assert idcommand.tool is not None
     assert job.print_output.mock_calls == [
         mock.call("IDCommand:", idcommand.description),
         mock.call("IDCommand UUID:", idcommand.uuid),
@@ -300,7 +311,7 @@ def test_job_adds_successful_format_identification_data(
     job: mock.Mock,
     sip_file: models.File,
     idcommand: fprmodels.IDCommand,
-    format_version: fprmodels.Format,
+    format_version: fprmodels.FormatVersion,
 ) -> None:
     command_output = "fmt/111"
     execute_or_run.return_value = (0, command_output, "")
@@ -312,6 +323,7 @@ def test_job_adds_successful_format_identification_data(
     identify_file_format.call([job])
 
     job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
+    assert idcommand.tool is not None
     assert (
         models.Event.objects.filter(
             file_uuid=sip_file.uuid,
@@ -322,6 +334,7 @@ def test_job_adds_successful_format_identification_data(
         ).count()
         == 1
     )
+    assert format_version.format is not None
     assert (
         models.FileID.objects.filter(
             file=sip_file,

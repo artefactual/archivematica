@@ -5,6 +5,8 @@ Describes the data model for the FPR
 
 """
 
+from __future__ import annotations
+
 import logging
 import uuid as uuid
 
@@ -51,7 +53,7 @@ class VersionedModel(models.Model):
     enabled = models.BooleanField(_("enabled"), default=True)
     lastmodified = models.DateTimeField(_("last modified"), auto_now_add=True)
 
-    def save(self, replacing=None, *args, **kwargs):
+    def save(self, replacing=None, *args, **kwargs) -> None:
         if replacing:
             self.replaces = replacing
             # Force it to create a new row
@@ -155,7 +157,7 @@ class Format(models.Model):
     )
     slug = AutoSlugField(_("slug"), populate_from="description", unique=True)
 
-    objects = FormatManager()
+    objects: models.Manager[Format] = FormatManager()
 
     class Meta:
         verbose_name = _("Format")
@@ -306,7 +308,7 @@ class IDCommand(VersionedModel, models.Model):
             "command": self.description,
         }
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         """Override save() to ensure that only one command is enabled."""
         if self.enabled:
             try:

@@ -164,7 +164,7 @@ def escapeForCommand(string):
     return ret
 
 
-def escape(string):
+def escape(string: str | bytes) -> str:
     """Replace non-unicode characters with a replacement character. Use this
     primarily for arbitrary strings (e.g. filenames, paths) that might not
     be valid unicode to begin with.

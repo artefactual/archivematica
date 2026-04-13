@@ -92,6 +92,16 @@ def get_replacement_dict(job: Job, opts: NormalizeArgs) -> Optional[ReplacementD
     return replacement_dict
 
 
+def _decode_binary_path(value: bytes | memoryview | None) -> str:
+    if value is None:
+        return ""
+
+    if isinstance(value, memoryview):
+        value = value.tobytes()
+
+    return value.decode()
+
+
 def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
     """Checks for manually normalized file, returns that path or None.
 
@@ -109,10 +119,12 @@ def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
     )
     # Get original name of target file, to handle filename changes.
     file_ = File.objects.get(uuid=opts.file_uuid)
-    bname = (
-        file_.originallocation.decode()
-        .replace("%transferDirectory%objects/", "", 1)
-        .replace("%SIPDirectory%objects/", "", 1)
+    original_location = _decode_binary_path(file_.originallocation)
+    if not original_location:
+        return None
+
+    bname = original_location.replace("%transferDirectory%objects/", "", 1).replace(
+        "%SIPDirectory%objects/", "", 1
     )
     if os.path.isfile(normalization_csv):
         found = False
@@ -138,7 +150,7 @@ def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
                         break
             except (ValueError, csv.Error):
                 job.print_error(
-                    "Error reading", normalization_csv, " on line", reader.line_num
+                    "Error reading", normalization_csv, " on line", str(reader.line_num)
                 )
                 job.print_error(traceback.format_exc())
                 return None
@@ -162,7 +174,7 @@ def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
             job.print_output("Looking for", filename, "in database")
             # FIXME: SQL uses removedtime=0. Convince Django to express this
             return File.objects.get(
-                sip=opts.sip_uuid, originallocation__iendswith=filename
+                sip_id=opts.sip_uuid, originallocation__iendswith=filename
             )  # removedtime = 0
 
     # Assume that any access/preservation file found with the right
@@ -191,7 +203,7 @@ def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
         f" value starts with this path: {path}."
     )
     matches = File.objects.filter(  # removedtime = 0
-        sip=opts.sip_uuid, currentlocation__startswith=path
+        sip_id=opts.sip_uuid, currentlocation__startswith=path
     )
     if not matches:
         # No file with the correct path found, assume not manually normalized
@@ -204,8 +216,10 @@ def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
         job.print_output(
             f"Multiple files matching path {path} found. Returning the shortest one."
         )
-        ret = sorted(matches, key=lambda f: f.currentlocation.decode())[0]
-        job.print_output(f"Returning file at {ret.currentlocation.decode()}")
+        ret = sorted(matches, key=lambda f: _decode_binary_path(f.currentlocation))[0]
+        job.print_output(
+            f"Returning file at {_decode_binary_path(ret.currentlocation)}"
+        )
         return ret
     return matches[0]
 
@@ -353,7 +367,9 @@ def insert_derivation_event(
 
 
 def get_default_rule(purpose: str) -> FPRule:
-    return FPRule.active.get(purpose="default_" + purpose)
+    result: FPRule = FPRule.active.get(purpose="default_" + purpose)
+
+    return result
 
 
 def main(job: Job, opts: NormalizeArgs) -> int:
@@ -368,16 +384,15 @@ def main(job: Job, opts: NormalizeArgs) -> int:
     except (File.DoesNotExist, ValidationError):
         job.print_error("File with uuid", opts.file_uuid, "does not exist in database.")
         return NO_RULE_FOUND
-    job.print_output("File found:", file_.uuid, file_.currentlocation.decode())
+    job.print_output(
+        "File found:", file_.uuid, _decode_binary_path(file_.currentlocation)
+    )
 
     # Unless normalization file group use is submissionDocumentation, skip the
     # submissionDocumentation directory
-    if (
-        opts.normalize_file_grp_use != "submissionDocumentation"
-        and file_.currentlocation.decode().startswith(
-            "%SIPDirectory%objects/submissionDocumentation"
-        )
-    ):
+    if opts.normalize_file_grp_use != "submissionDocumentation" and _decode_binary_path(
+        file_.currentlocation
+    ).startswith("%SIPDirectory%objects/submissionDocumentation"):
         job.print_output(
             "File",
             os.path.basename(opts.file_path),
@@ -428,13 +443,13 @@ def main(job: Job, opts: NormalizeArgs) -> int:
         job.print_output(
             os.path.basename(opts.file_path),
             "was already manually normalized into",
-            manually_normalized_file.currentlocation.decode(),
+            _decode_binary_path(manually_normalized_file.currentlocation),
         )
         if "preservation" in opts.purpose:
             # Add derivation link and associated event
             insert_derivation_event(
                 original_uuid=opts.file_uuid,
-                output_uuid=manually_normalized_file.uuid,
+                output_uuid=str(manually_normalized_file.uuid),
                 derivation_uuid=str(uuid.uuid4()),
                 event_detail_output="manual normalization",
                 outcome_detail_note=None,
@@ -443,8 +458,10 @@ def main(job: Job, opts: NormalizeArgs) -> int:
 
     do_fallback = False
     try:
-        file_format_version = FileFormatVersion.objects.get(file_uuid=opts.file_uuid)
-    except (FileFormatVersion.DoesNotExist, ValidationError):
+        file_format_version = FileFormatVersion.objects.get(
+            file_uuid_id=uuid.UUID(opts.file_uuid)
+        )
+    except (FileFormatVersion.DoesNotExist, ValidationError, ValueError):
         file_format_version = None
 
     # Look up the normalization command in the FPR
@@ -469,7 +486,7 @@ def main(job: Job, opts: NormalizeArgs) -> int:
         try:
             rule = get_default_rule(opts.purpose)
             job.print_output(
-                os.path.basename(file_.currentlocation.decode()),
+                os.path.basename(_decode_binary_path(file_.currentlocation)),
                 "not identified or without rule",
                 "- Falling back to default",
                 opts.purpose,
@@ -478,7 +495,7 @@ def main(job: Job, opts: NormalizeArgs) -> int:
         except FPRule.DoesNotExist:
             job.print_output(
                 "Not normalizing",
-                os.path.basename(file_.currentlocation.decode()),
+                os.path.basename(_decode_binary_path(file_.currentlocation)),
                 " - No rule or default rule found to normalize for",
                 opts.purpose,
             )
@@ -522,14 +539,14 @@ def main(job: Job, opts: NormalizeArgs) -> int:
         except FPRule.DoesNotExist:
             job.print_output(
                 "Not retrying normalizing for",
-                os.path.basename(file_.currentlocation.decode()),
+                os.path.basename(_decode_binary_path(file_.currentlocation)),
                 " - No default rule found to normalize for",
                 opts.purpose,
             )
             fallback_rule = None
         # Don't re-run the same command
         if fallback_rule and fallback_rule.command != command:
-            job.print_output("Fallback Format Policy Rule:", fallback_rule)
+            job.print_output("Fallback Format Policy Rule:", str(fallback_rule))
             command = fallback_rule.command
             job.print_output("Fallback Format Policy Command", command.description)
 
