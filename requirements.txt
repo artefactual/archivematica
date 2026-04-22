@@ -20,7 +20,7 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-certifi==2026.2.25
+certifi==2026.4.22
     # via
     #   elastic-transport
     #   requests
@@ -55,7 +55,7 @@ django-prometheus==2.4.1
     # via archivematica (pyproject.toml)
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via archivematica (pyproject.toml)
-django-stubs-ext==6.0.2
+django-stubs-ext==6.0.3
     # via archivematica (pyproject.toml)
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
@@ -71,9 +71,9 @@ greenlet==3.4.0
     # via gevent
 gunicorn==25.3.0
     # via archivematica (pyproject.toml)
-idna==3.11
+idna==3.13
     # via requests
-importlib-resources==6.5.2
+importlib-resources==7.1.0
     # via opf-fido
 inotify-simple==2.0.1
     # via archivematica (pyproject.toml)
@@ -83,7 +83,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
-lxml==6.0.3
+lxml==6.1.0
     # via
     #   ammcpc
     #   archivematica (pyproject.toml)
@@ -101,7 +101,7 @@ opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe
     # via archivematica (pyproject.toml)
 orjson==3.11.8
     # via archivematica (pyproject.toml)
-packaging==26.0
+packaging==26.1
     # via
     #   django-csp
     #   gunicorn
