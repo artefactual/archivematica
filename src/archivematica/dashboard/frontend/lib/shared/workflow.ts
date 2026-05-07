@@ -169,9 +169,9 @@ const getStatusColorForCode = (statusCode: number): string =>
   STATUS_COLOR_BY_CODE[statusCode as MonitorStatusCode]
   ?? STATUS_COLOR_BY_CODE[STATUS_CODE_BY_NAME.STATUS_UNKNOWN]
 
-// Resolves a job-row background color from a job probe.
+// Resolves a job-row background color from the job's own status.
 const getStatusColorForJob = (probe: StatusProbe): string =>
-  getStatusColorForCode(resolveEffectiveStatus(probe))
+  getStatusColorForCode(probe.currentstep)
 
 // Resolves an icon filename from a raw status code.
 const getStatusIconForCode = (statusCode: number): StatusIconName =>

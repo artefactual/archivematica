@@ -287,6 +287,51 @@ describe('ProcessMonitor', () => {
     wrapper.unmount()
   })
 
+  it('keeps completed failed-transfer report jobs styled as successful', async () => {
+    const config: MonitorConfig = {
+      ...defaultConfig,
+      job_statuses: {
+        2: 'Completed successfully',
+      },
+    }
+
+    vi.mocked(getTransferStatuses).mockResolvedValueOnce({
+      objects: [{
+        uuid: 't-1',
+        directory: 'test-virus',
+        timestamp: 1,
+        jobs: [{
+          uuid: 'j-email-fail-report',
+          type: 'Email fail report',
+          microservicegroup: 'Failed transfer',
+          currentstep: 2,
+          timestamp: 1,
+          produces_tasks: true,
+        }],
+      }],
+      mcp: true,
+    })
+
+    const wrapper = mount(ProcessMonitor, {
+      props: { unitType: 'Transfer', config },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    await flushPromises()
+    await wrapper.find('.microservice-group').trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const job = wrapper.find('.job')
+    expect(job.exists()).toBe(true)
+    expect(job.text()).toContain('Email fail report')
+    expect(job.text()).toContain('Completed successfully')
+    expect(job.classes()).toContain('job-status-success')
+    expect(job.classes()).not.toContain('job-status-failed')
+    wrapper.unmount()
+  })
+
   it('sorts units and jobs by timestamp descending', async () => {
     vi.mocked(getTransferStatuses).mockResolvedValueOnce({
       objects: [
