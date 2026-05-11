@@ -30,9 +30,9 @@ charset-normalizer==3.4.7
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
-cryptography==46.0.7
+cryptography==48.0.0
     # via mozilla-django-oidc
-django==5.2.13
+django==5.2.14
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -45,7 +45,7 @@ django-auth-ldap==5.3.0
     # via archivematica (pyproject.toml)
 django-autoslug==1.9.9
     # via archivematica (pyproject.toml)
-django-cas-ng==5.1.0
+django-cas-ng==5.1.1
     # via archivematica (pyproject.toml)
 django-csp==4.0
     # via archivematica (pyproject.toml)
@@ -55,7 +55,7 @@ django-prometheus==2.4.1
     # via archivematica (pyproject.toml)
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via archivematica (pyproject.toml)
-django-stubs-ext==6.0.3
+django-stubs-ext==6.0.4
     # via archivematica (pyproject.toml)
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
@@ -67,11 +67,11 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via archivematica (pyproject.toml)
 gevent==26.4.0
     # via archivematica (pyproject.toml)
-greenlet==3.4.0
+greenlet==3.5.0
     # via gevent
-gunicorn==25.3.0
+gunicorn==26.0.0
     # via archivematica (pyproject.toml)
-idna==3.13
+idna==3.14
     # via requests
 importlib-resources==7.1.0
     # via opf-fido
@@ -99,9 +99,9 @@ olefile==0.47
     # via opf-fido
 opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
     # via archivematica (pyproject.toml)
-orjson==3.11.8
+orjson==3.11.9
     # via archivematica (pyproject.toml)
-packaging==26.1
+packaging==26.2
     # via
     #   django-csp
     #   gunicorn
@@ -121,7 +121,7 @@ pyjwt==2.12.1
     # via
     #   archivematica (pyproject.toml)
     #   mozilla-django-oidc
-python-cas==1.7.1
+python-cas==1.7.2
     # via django-cas-ng
 python-dateutil==2.9.0.post0
     # via
@@ -138,7 +138,7 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.33.1
+requests==2.34.0
     # via
     #   agentarchives
     #   amclient
@@ -166,14 +166,14 @@ typing-extensions==4.15.0
     #   referencing
 unidecode==1.4.0
     # via archivematica (pyproject.toml)
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   amclient
     #   elastic-transport
     #   requests
 whitenoise==6.12.0
     # via archivematica (pyproject.toml)
-zope-event==6.1
+zope-event==6.2
     # via gevent
-zope-interface==8.3
+zope-interface==8.4
     # via gevent
