@@ -424,6 +424,45 @@ def test_unmark_transfer_for_deletion_updates_transfer_and_files(
     assert mock_transport.mock_calls == expected_calls
 
 
+def test_update_aip_fields_updates_document_by_id(
+    es_search_service: ElasticsearchSearchService,
+    mock_transport: mock.Mock,
+) -> None:
+    mock_transport.return_value = _mock_es_response({"result": "updated"})
+
+    es_search_service.update_aip_fields(
+        "document-id",
+        {
+            "filePath": "/mnt/target/tree/a/example.7z",
+            "location": "Target AIP Store",
+        },
+    )
+
+    expected_calls = [
+        _make_es_call(
+            "POST",
+            "/aips/_update/document-id?refresh=false",
+            params={},
+            body={
+                "doc": {
+                    "filePath": "/mnt/target/tree/a/example.7z",
+                    "location": "Target AIP Store",
+                }
+            },
+        ),
+    ]
+    assert mock_transport.mock_calls == expected_calls
+
+
+def test_update_aip_fields_does_nothing_when_fields_empty(
+    es_search_service: ElasticsearchSearchService,
+    mock_transport: mock.Mock,
+) -> None:
+    es_search_service.update_aip_fields("document-id", {})
+
+    assert mock_transport.mock_calls == []
+
+
 def test_mark_aip_for_deletion_updates_aip_and_files(
     es_search_service: ElasticsearchSearchService,
     mock_transport: mock.Mock,

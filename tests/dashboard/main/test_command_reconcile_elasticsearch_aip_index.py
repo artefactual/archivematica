@@ -7,6 +7,7 @@ import archivematica.search.constants
 from archivematica.dashboard.main.management.commands import (
     reconcile_elasticsearch_aip_index,
 )
+from archivematica.search.service import SearchService
 
 
 def package(**overrides):
@@ -180,7 +181,7 @@ def test_packages_to_reconcile_can_use_aip_store_location():
 
 def test_command_dry_run_does_not_update(settings, capsys):
     settings.SEARCH_ENABLED = [archivematica.search.constants.AIPS_INDEX]
-    search_service = mock.Mock()
+    search_service = mock.Mock(spec=SearchService)
     search_service.get_aip_data.return_value = {
         "_id": "document-id",
         "_source": {
@@ -215,14 +216,14 @@ def test_command_dry_run_does_not_update(settings, capsys):
                     "2faa61dc-ed33-49f4-8b36-954f203bab4a",
                 )
 
-    search_service.client.update.assert_not_called()
+    search_service.update_aip_fields.assert_not_called()
     captured = capsys.readouterr()
     assert "would update Elasticsearch fields: filePath, location" in captured.out
 
 
 def test_command_updates_changed_fields(settings):
     settings.SEARCH_ENABLED = [archivematica.search.constants.AIPS_INDEX]
-    search_service = mock.Mock()
+    search_service = mock.Mock(spec=SearchService)
     search_service.get_aip_data.return_value = {
         "_id": "document-id",
         "_source": {
@@ -256,10 +257,9 @@ def test_command_updates_changed_fields(settings):
                     "2faa61dc-ed33-49f4-8b36-954f203bab4a",
                 )
 
-    search_service.client.update.assert_called_once_with(
-        index=archivematica.search.constants.AIPS_INDEX,
-        id="document-id",
-        doc={
+    search_service.update_aip_fields.assert_called_once_with(
+        "document-id",
+        {
             "filePath": "/mnt/target/tree/a/example.7z",
             "location": "Target AIP Store",
         },

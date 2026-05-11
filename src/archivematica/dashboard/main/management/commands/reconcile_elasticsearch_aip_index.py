@@ -275,10 +275,9 @@ class Command(DashboardCommand):
             )
 
         if changes:
-            search_service.client.update(
-                index=archivematica.search.constants.AIPS_INDEX,
-                id=aip["_id"],
-                doc={field: new for field, (_, new) in changes.items()},
+            search_service.update_aip_fields(
+                aip["_id"],
+                {field: new for field, (_, new) in changes.items()},
                 refresh=refresh,
             )
         return ReconciliationResult(

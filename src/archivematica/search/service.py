@@ -214,6 +214,18 @@ class SearchService(ABC):
         pass
 
     @abstractmethod
+    def update_aip_fields(
+        self, document_id: str, fields: dict[str, Any], refresh: bool = False
+    ) -> None:
+        """Update fields in a single AIP document by document ID.
+
+        :param str document_id: AIP Elasticsearch document ID
+        :param dict[str, Any] fields: Field values to update
+        :param bool refresh: Whether to refresh the AIPs index immediately
+        """
+        pass
+
+    @abstractmethod
     def get_aip_data(
         self, uuid: str, fields: Optional[list[str]] = None
     ) -> dict[str, Any]:
@@ -940,6 +952,25 @@ class ElasticsearchSearchService(SearchService):
         :return: Update operation results
         """
         return dict(self.client.update_by_query(index=index))
+
+    def update_aip_fields(
+        self, document_id: str, fields: dict[str, Any], refresh: bool = False
+    ) -> None:
+        """Update fields in a single AIP document by Elasticsearch document ID.
+
+        :param str document_id: AIP Elasticsearch document ID
+        :param dict[str, Any] fields: Field values to update
+        :param bool refresh: Whether to refresh the AIPs index immediately
+        """
+        if not fields:
+            return
+
+        self.client.update(
+            index=self.aips_index,
+            id=document_id,
+            doc=fields,
+            refresh=refresh,
+        )
 
     def _search_by_term(
         self,
