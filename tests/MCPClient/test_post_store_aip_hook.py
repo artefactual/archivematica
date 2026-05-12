@@ -191,6 +191,7 @@ def test_call_updates_storage_service_content(
             mock.call(
                 "GET",
                 f"{storage_service_url}/api/v2/file/{sip.uuid}/send_callback/post_store/",
+                params=None,
                 allow_redirects=True,
             ),
         ],
