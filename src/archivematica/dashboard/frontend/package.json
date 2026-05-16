@@ -25,23 +25,23 @@
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tsconfig/node24": "^24.0.4",
-    "@types/jsdom": "^28.0.2",
-    "@types/node": "^25.7.0",
-    "@vitejs/plugin-vue": "^6.0.6",
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^25.8.0",
+    "@vitejs/plugin-vue": "^6.0.7",
     "@vitest/eslint-plugin": "^1.6.17",
     "@vue/eslint-config-typescript": "^14.7.0",
     "@vue/test-utils": "^2.4.10",
     "@vue/tsconfig": "^0.9.1",
-    "eslint": "^10.3.0",
+    "eslint": "^10.4.0",
     "eslint-plugin-vue": "~10.9.1",
     "glob": "^13.0.6",
     "jiti": "^2.7.0",
     "jsdom": "^29.1.1",
     "npm-run-all2": "^8.0.4",
     "typescript": "~6.0.3",
-    "vite": "^8.0.12",
+    "vite": "^8.0.13",
     "vitest": "^4.1.6",
-    "vue-tsc": "^3.2.8"
+    "vue-tsc": "^3.2.9"
   },
   "overrides": {
     "editorconfig": {
