@@ -20,7 +20,7 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-certifi==2026.4.22
+certifi==2026.5.20
     # via
     #   elastic-transport
     #   requests
@@ -65,13 +65,13 @@ elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
-gevent==26.4.0
+gevent==26.5.0
     # via archivematica (pyproject.toml)
-greenlet==3.5.0
+greenlet==3.5.1
     # via gevent
 gunicorn==26.0.0
     # via archivematica (pyproject.toml)
-idna==3.14
+idna==3.15
     # via requests
 importlib-resources==7.1.0
     # via opf-fido
@@ -83,7 +83,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
-lxml==6.1.0
+lxml==6.1.1
     # via
     #   ammcpc
     #   archivematica (pyproject.toml)
@@ -128,7 +128,7 @@ python-dateutil==2.9.0.post0
     #   archivematica (pyproject.toml)
     #   django-tastypie
     #   elasticsearch
-python-ldap==3.4.5
+python-ldap==3.4.7
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -138,7 +138,7 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.34.0
+requests==2.34.2
     # via
     #   agentarchives
     #   amclient
