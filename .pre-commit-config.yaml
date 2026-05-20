@@ -10,7 +10,7 @@ repos:
         src/archivematica/(MCPClient|MCPServer|dashboard)/install/.*\.json
       )
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.12
+  rev: v0.15.13
   hooks:
   - id: ruff
     args: [--fix, --exit-non-zero-on-fix]
@@ -46,7 +46,7 @@ repos:
   hooks:
     - id: validate-cff
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v2.0.0
+  rev: v2.1.0
   hooks:
   - id: mypy
     # Override upstream args to omit --ignore-missing-imports on purpose.
@@ -67,7 +67,7 @@ repos:
     - django-forms-bootstrap
     - django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     - django-stubs-ext
-    - django-stubs[compatible-mypy]
+    - "django-stubs>=6,<7"
     - django-tastypie
     - elasticsearch>=8.0.0,<9.0.0
     - gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
