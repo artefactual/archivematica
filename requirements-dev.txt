@@ -12,7 +12,7 @@ ammcpc==0.3.0
     # via archivematica (pyproject.toml)
 asgiref==3.11.1
     # via django
-ast-serialize==0.3.0
+ast-serialize==0.5.0
     # via mypy
 attrs==26.1.0
     # via
@@ -24,9 +24,9 @@ brotli==1.2.0
     # via archivematica (pyproject.toml)
 build==1.5.0
     # via pip-tools
-cachetools==7.1.1
+cachetools==7.1.3
     # via tox
-certifi==2026.4.22
+certifi==2026.5.20
     # via
     #   elastic-transport
     #   requests
@@ -36,7 +36,7 @@ charset-normalizer==3.4.7
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
-click==8.3.3
+click==8.4.0
     # via pip-tools
 colorama==0.4.6
     # via tox
@@ -95,15 +95,15 @@ funcparserlib==2.0.0a0
     # via mockldap
 gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
     # via archivematica (pyproject.toml)
-gevent==26.4.0
+gevent==26.5.0
     # via archivematica (pyproject.toml)
-greenlet==3.5.0
+greenlet==3.5.1
     # via
     #   gevent
     #   playwright
 gunicorn==26.0.0
     # via archivematica (pyproject.toml)
-idna==3.14
+idna==3.15
     # via requests
 importlib-resources==7.1.0
     # via opf-fido
@@ -119,7 +119,7 @@ lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
 librt==0.11.0
     # via mypy
-lxml==6.1.0
+lxml==6.1.1
     # via
     #   ammcpc
     #   archivematica (pyproject.toml)
@@ -161,7 +161,7 @@ platformdirs==4.9.6
     #   python-discovery
     #   tox
     #   virtualenv
-playwright==1.59.0
+playwright==1.60.0
     # via
     #   archivematica (pyproject.toml)
     #   pytest-playwright
@@ -210,7 +210,7 @@ pytest-cov==7.1.0
     # via archivematica (pyproject.toml)
 pytest-django==4.12.0
     # via archivematica (pyproject.toml)
-pytest-playwright==0.7.2
+pytest-playwright==0.8.0
     # via archivematica (pyproject.toml)
 pytest-randomly==4.1.0
     # via archivematica (pyproject.toml)
@@ -221,11 +221,11 @@ python-dateutil==2.9.0.post0
     #   archivematica (pyproject.toml)
     #   django-tastypie
     #   elasticsearch
-python-discovery==1.3.0
+python-discovery==1.3.1
     # via
     #   tox
     #   virtualenv
-python-ldap==3.4.5
+python-ldap==3.4.7
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -238,7 +238,7 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.34.0
+requests==2.34.2
     # via
     #   agentarchives
     #   amclient
@@ -271,9 +271,9 @@ tomli==2.4.1
     #   tox
 tomli-w==1.2.0
     # via tox
-tox==4.53.1
+tox==4.54.0
     # via archivematica (pyproject.toml)
-types-pyyaml==6.0.12.20260510
+types-pyyaml==6.0.12.20260518
     # via django-stubs
 typing-extensions==4.15.0
     # via
@@ -296,7 +296,7 @@ urllib3==2.7.0
     #   amclient
     #   elastic-transport
     #   requests
-virtualenv==21.3.1
+virtualenv==21.3.3
     # via tox
 wheel==0.47.0
     # via pip-tools
