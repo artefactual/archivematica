@@ -15,26 +15,38 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import annotations
+
 import csv
 import os
+from collections.abc import Iterable
 
 import django
 
 django.setup()
+from django.db import models as django_models
 from django.db import transaction
 
 from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
+
+RightsRow = dict[str, str | None]
+RightsRows = list[tuple[int, RightsRow]]
 
 
 class RightsRowException(Exception):
-    def __init__(self, message, reader):
+    def __init__(self, message: str, reader: RightCsvReader) -> None:
         message = f"[Row {reader.rows_processed + 1}] {message}"
         super().__init__(message)
 
 
+class MissingTransferFilesException(Exception):
+    """Raised when rights.csv references files missing from the transfer."""
+
+
 class RightCsvReader:
-    metadata_applies_to_type = None
-    current_row = None
+    metadata_applies_to_type: models.MetadataAppliesToType | None = None
+    current_row: RightsRow | None = None
     rows_processed = 0
 
     required_column_names = ["file"]
@@ -61,15 +73,19 @@ class RightCsvReader:
 
     allowed_column_names = optional_column_names + required_column_names
 
-    def __init__(self, job, transfer_uuid, rights_csv_filepath):
+    def __init__(self, job: Job, transfer_uuid: str, rights_csv_filepath: str) -> None:
         """Initialize parser."""
         # self.allowed_column_names = self.optional_column_names + self.required_column_names
         self.transfer_uuid = transfer_uuid
         self.rights_csv_filepath = rights_csv_filepath
         self.job = job
-        self.object_basis_act_usage = {}
+        self.object_basis_act_usage: dict[str, dict[str, dict[str | None, bool]]] = {}
+        self.current_row = None
+        self.rows_processed = 0
+        self.has_act = False
+        self.transfer_files_by_path: dict[bytes, models.File] = {}
 
-    def parse(self):
+    def parse(self) -> int:
         """Read and parse rights CSV file."""
         # Cache metadata applies to type
         self.metadata_applies_to_type = models.MetadataAppliesToType.objects.filter(
@@ -79,12 +95,65 @@ class RightCsvReader:
         # Use universal newline mode to support unusual newlines, like \r
         with open(self.rights_csv_filepath) as f:
             reader = csv.DictReader(f)
-            for row in reader:
-                self.parse_row(row)
+            rows: RightsRows = list(enumerate(reader, start=2))
+
+        if rows:
+            self.validate_columns(rows[0][1])
+            self.validate_transfer_files(rows)
+
+        for _, row in rows:
+            self.parse_row(row)
 
         return self.rows_processed
 
-    def parse_row(self, row):
+    def validate_transfer_files(self, rows: RightsRows) -> None:
+        """Check that all files listed in rights.csv exist in the transfer."""
+        path_rows: list[tuple[int, bytes]] = []
+        missing_paths: list[str] = []
+
+        for row_number, row in rows:
+            raw_filepath = row.get("file")
+            if raw_filepath is None:
+                continue
+
+            filepath = raw_filepath.strip()
+            if not filepath:
+                continue
+
+            path = self.transfer_path(filepath)
+            path_rows.append((row_number, path))
+
+        paths = {path for _, path in path_rows}
+        self.transfer_files_by_path = {
+            bytes(file_.originallocation): file_
+            for file_ in models.File.objects.filter(
+                originallocation__in=paths,
+                transfer_id=self.transfer_uuid,
+            )
+        }
+
+        for row_number, path in path_rows:
+            if path not in self.transfer_files_by_path:
+                missing_paths.append(f"[Row {row_number}] {path.decode()}")
+
+        if not missing_paths:
+            return
+
+        raise MissingTransferFilesException(
+            "Files listed in rights.csv were not found in the transfer "
+            f"(transfer UUID: {self.transfer_uuid}):\n" + "\n".join(missing_paths)
+        )
+
+    def transfer_path(self, filepath: str) -> bytes:
+        return f"%transferDirectory%{filepath}".encode()
+
+    def required_column_value(self, column_name: str) -> str:
+        value = self.column_value(column_name)
+        if value is None:
+            raise RightsRowException(f"Missing required value: {column_name}", self)
+        return value
+
+    def parse_row(self, row: RightsRow) -> None:
         """Parse a row of a CSV file and create rights records in database."""
         if self.current_row is None:
             self.validate_columns(row)
@@ -112,7 +181,7 @@ class RightCsvReader:
         if filepath not in self.object_basis_act_usage:
             self.object_basis_act_usage[filepath] = {}
 
-        basis = self.column_value("basis").lower().capitalize()
+        basis = self.required_column_value("basis").lower().capitalize()
 
         if basis not in self.object_basis_act_usage[filepath]:
             self.object_basis_act_usage[filepath][basis] = {}
@@ -136,7 +205,7 @@ class RightCsvReader:
 
         self.rows_processed += 1
 
-    def store_row(self):
+    def store_row(self) -> None:
         """Create rights records in database using row data."""
         rights_statement = self.generate_rights_statement()
 
@@ -155,31 +224,37 @@ class RightCsvReader:
         if self.has_act:
             self.store_grant_info(rights_statement)
 
-    def generate_rights_statement(self):
+    def generate_rights_statement(self) -> models.RightsStatement:
         """Generate rights statement."""
-        basis = self.column_value("basis").lower().capitalize()
+        basis = self.required_column_value("basis").lower().capitalize()
 
         if basis not in dict(models.RightsStatement.RIGHTS_BASIS_CHOICES):
             raise RightsRowException(f"Invalid basis: {basis}", self)
 
         # Get file data
-        filepath = self.column_value("file")
-        transfer_file = models.File.objects.get(
-            originallocation=("%transferDirectory%" + filepath).encode(),
-            transfer_id=self.transfer_uuid,
-        )
+        filepath = self.required_column_value("file")
+        path = self.transfer_path(filepath)
+        transfer_file = self.transfer_files_by_path.get(path)
+        if transfer_file is None:
+            transfer_file = models.File.objects.get(
+                originallocation=path,
+                transfer_id=self.transfer_uuid,
+            )
 
         # Create rights statement
         rights_statement = models.RightsStatement()
+        if self.metadata_applies_to_type is None:
+            raise RuntimeError("Unable to find File metadata applies to type")
+
         rights_statement.metadataappliestotype = self.metadata_applies_to_type
-        rights_statement.metadataappliestoidentifier = transfer_file.uuid
+        rights_statement.metadataappliestoidentifier = str(transfer_file.uuid)
         rights_statement.rightsbasis = basis
         rights_statement.status = "ORIGINAL"
         rights_statement.save()
 
         return rights_statement
 
-    def validate_columns(self, row):
+    def validate_columns(self, row: RightsRow) -> None:
         """Check for invalid/missing columns."""
         for column_name in row.keys():
             if column_name not in self.allowed_column_names:
@@ -191,23 +266,31 @@ class RightCsvReader:
                     f"Missing required column: {column_name}", self
                 )
 
-    def column_value(self, column_name):
+    def column_value(self, column_name: str) -> str | None:
         """Return value of a row column by it's name in the header, None if missing/blank."""
-        if column_name in self.current_row:
-            value = self.current_row.get(column_name, "").strip()
-            return value if value else None
+        if self.current_row is None:
+            return None
+
+        value = self.current_row.get(column_name)
+        if value is None:
+            return None
+
+        value = value.strip()
+        return value if value else None
 
     def set_model_instance_attribute_to_row_column_if_set(
-        self, model_instance, attribute, column_name
-    ):
+        self, model_instance: django_models.Model, attribute: str, column_name: str
+    ) -> None:
         """Check if a column has a value and, if so, set a model instance's attribute to that value."""
         value = self.column_value(column_name)
         if value is not None:
             setattr(model_instance, attribute, value)
 
     def set_model_instance_attributes_to_row_columns_if_set(
-        self, model_instance, attribute_to_column_map
-    ):
+        self,
+        model_instance: django_models.Model,
+        attribute_to_column_map: dict[str, str],
+    ) -> None:
         """Using a dict that maps model attributes to column names, set a model instance's attributes."""
         for attribute, column_name in attribute_to_column_map.items():
             self.set_model_instance_attribute_to_row_column_if_set(
@@ -216,13 +299,13 @@ class RightCsvReader:
 
     def store_doc_id(
         self,
-        model,
-        parent_instance,
-        parent_property,
-        type_property,
-        value_property,
-        role_property,
-    ):
+        model: type[django_models.Model],
+        parent_instance: django_models.Model,
+        parent_property: str,
+        type_property: str,
+        value_property: str,
+        role_property: str,
+    ) -> None:
         """Optionally store documentation identifier info."""
         id_type = self.column_value("doc_id_type")
         id_value = self.column_value("doc_id_value")
@@ -231,7 +314,8 @@ class RightCsvReader:
         if id_type or id_value or id_role:
             doc_id = model()
             setattr(doc_id, parent_property, parent_instance)
-            doc_id.rightscopyright = parent_instance
+            copyright_parent_property = "rightscopyright"
+            setattr(doc_id, copyright_parent_property, parent_instance)
             self.set_model_instance_attribute_to_row_column_if_set(
                 doc_id, type_property, "doc_id_type"
             )
@@ -243,7 +327,7 @@ class RightCsvReader:
             )
             doc_id.save()
 
-    def store_copyright_info(self, rights_statement):
+    def store_copyright_info(self, rights_statement: models.RightsStatement) -> None:
         """Store copyright-specific column values in the database."""
         copyright_info = models.RightsStatementCopyright()
         copyright_info.rightsstatement = rights_statement
@@ -260,7 +344,7 @@ class RightCsvReader:
         )
 
         end_date = self.column_value("end_date")
-        if end_date and end_date.lower == "open":
+        if end_date and end_date.lower() == "open":
             copyright_info.copyrightenddateopen = True
         elif end_date:
             copyright_info.copyrightapplicableenddate = end_date
@@ -278,18 +362,24 @@ class RightCsvReader:
         )
 
         # Optionally store note
-        if self.column_value("note"):
+        note_value = self.column_value("note")
+        if note_value:
             note = models.RightsStatementCopyrightNote()
             note.rightscopyright = copyright_info
-            note.copyrightnote = self.column_value("note")
+            note.copyrightnote = note_value
             note.save()
 
-    def store_license_info(self, rights_statement):
+    def store_license_info(self, rights_statement: models.RightsStatement) -> None:
         """Store licensing-specific column values in the database."""
         license_info = models.RightsStatementLicense()
         license_info.rightsstatement = rights_statement
-        license_info.licenseterms = self.column_value("terms")
-        license_info.licenseapplicablestartdate = self.column_value("start_date")
+        self.set_model_instance_attributes_to_row_columns_if_set(
+            license_info,
+            {
+                "licenseterms": "terms",
+                "licenseapplicablestartdate": "start_date",
+            },
+        )
 
         end_date = self.column_value("end_date")
         if end_date and end_date.lower() == "open":
@@ -310,20 +400,26 @@ class RightCsvReader:
         )
 
         # Optionally store note
-        if self.column_value("note"):
+        note_value = self.column_value("note")
+        if note_value:
             note = models.RightsStatementLicenseNote()
             note.rightsstatementlicense = license_info
-            note.licensenote = self.column_value("note")
+            note.licensenote = note_value
             note.save()
 
-    def store_statute_info(self, rights_statement):
+    def store_statute_info(self, rights_statement: models.RightsStatement) -> None:
         """Store statute-specific column values in the database."""
         statute_info = models.RightsStatementStatuteInformation()
         statute_info.rightsstatement = rights_statement
-        statute_info.statutejurisdiction = self.column_value("jurisdiction")
-        statute_info.statutecitation = self.column_value("citation")
-        statute_info.statutedeterminationdate = self.column_value("determination_date")
-        statute_info.statuteapplicablestartdate = self.column_value("start_date")
+        self.set_model_instance_attributes_to_row_columns_if_set(
+            statute_info,
+            {
+                "statutejurisdiction": "jurisdiction",
+                "statutecitation": "citation",
+                "statutedeterminationdate": "determination_date",
+                "statuteapplicablestartdate": "start_date",
+            },
+        )
 
         end_date = self.column_value("end_date")
         if end_date and end_date.lower() == "open":
@@ -344,18 +440,23 @@ class RightCsvReader:
         )
 
         # Optionally store note
-        if self.column_value("note"):
+        note_value = self.column_value("note")
+        if note_value:
             note = models.RightsStatementStatuteInformationNote()
             note.rightsstatementstatute = statute_info
-            note.statutenote = self.column_value("note")
+            note.statutenote = note_value
             note.save()
 
-    def store_other_info(self, rights_statement):
+    def store_other_info(self, rights_statement: models.RightsStatement) -> None:
         """Store "other" basis column values in the database."""
         other_info = models.RightsStatementOtherRightsInformation()
         other_info.rightsstatement = rights_statement
-        other_info.otherrightsbasis = self.column_value("basis").lower().capitalize()
-        other_info.otherrightsapplicablestartdate = self.column_value("start_date")
+        other_info.otherrightsbasis = (
+            self.required_column_value("basis").lower().capitalize()
+        )
+        self.set_model_instance_attribute_to_row_column_if_set(
+            other_info, "otherrightsapplicablestartdate", "start_date"
+        )
 
         end_date = self.column_value("end_date")
         if end_date and end_date.lower() == "open":
@@ -376,18 +477,21 @@ class RightCsvReader:
         )
 
         # Optionally store note
-        if self.column_value("note"):
+        note_value = self.column_value("note")
+        if note_value:
             note = models.RightsStatementOtherRightsInformationNote()
             note.rightsstatementotherrights = other_info
-            note.otherrightsnote = self.column_value("note")
+            note.otherrightsnote = note_value
             note.save()
 
-    def store_grant_info(self, rights_statement):
+    def store_grant_info(self, rights_statement: models.RightsStatement) -> None:
         """Store grant information in the database."""
         grant_info = models.RightsStatementRightsGranted()
         grant_info.rightsstatement = rights_statement
-        grant_info.act = self.column_value("grant_act")
-        grant_info.startdate = self.column_value("grant_start_date")
+        grant_info.act = self.required_column_value("grant_act")
+        self.set_model_instance_attribute_to_row_column_if_set(
+            grant_info, "startdate", "grant_start_date"
+        )
 
         end_date = self.column_value("grant_end_date")
         if end_date and end_date.lower() == "open":
@@ -398,21 +502,23 @@ class RightCsvReader:
         grant_info.save()
 
         # Optionally store restriction
-        if self.column_value("grant_restriction"):
+        grant_restriction = self.column_value("grant_restriction")
+        if grant_restriction:
             restriction = models.RightsStatementRightsGrantedRestriction()
             restriction.rightsgranted = grant_info
-            restriction.restriction = self.column_value("grant_restriction")
+            restriction.restriction = grant_restriction
             restriction.save()
 
         # Optionally store note
-        if self.column_value("grant_note"):
+        grant_note = self.column_value("grant_note")
+        if grant_note:
             note = models.RightsStatementRightsGrantedNote()
             note.rightsgranted = grant_info
-            note.rightsgrantednote = self.column_value("grant_note")
+            note.rightsgrantednote = grant_note
             note.save()
 
 
-def call(jobs):
+def call(jobs: Iterable[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
@@ -425,7 +531,7 @@ def call(jobs):
                         parser = RightCsvReader(job, transfer_uuid, rights_csv_filepath)
                         rows_processed = parser.parse()
                         job.pyprint("Processed rows:", rows_processed)
-                    except RightsRowException as err:
+                    except (RightsRowException, MissingTransferFilesException) as err:
                         job.print_error(repr(err))
                         job.set_status(1)
                 else:
