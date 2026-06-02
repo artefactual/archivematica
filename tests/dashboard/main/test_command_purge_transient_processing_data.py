@@ -75,6 +75,64 @@ def test_purge_command_keeps_package_with_failed_status(search_disabled, old_tra
 
 
 @pytest.mark.django_db
+def test_purge_command_keeps_done_transfer_with_failed_job(
+    search_disabled, old_transfer
+):
+    models.Job.objects.create(
+        jobuuid=uuid.uuid4(),
+        jobtype="Move to the failed directory",
+        createdtime=timezone.now(),
+        directory=r"%sharedPath%currentlyProcessing/test-transfer/",
+        sipuuid=old_transfer.pk,
+        unittype="unitTransfer",
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        microservicegroup="Failed transfer",
+    )
+
+    call_command("purge_transient_processing_data", "--keep-failed")
+
+    assert models.Transfer.objects.filter(pk=old_transfer.pk).count() == 1
+
+
+@pytest.mark.django_db
+def test_purge_command_keeps_done_transfer_with_failed_compliance_job(
+    search_disabled, old_transfer
+):
+    models.Job.objects.create(
+        jobuuid=uuid.uuid4(),
+        jobtype="Verify transfer compliance",
+        createdtime=timezone.now(),
+        directory=r"%sharedPath%currentlyProcessing/test-transfer/",
+        sipuuid=old_transfer.pk,
+        unittype="unitTransfer",
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        microservicegroup="Failed transfer compliance",
+    )
+
+    call_command("purge_transient_processing_data", "--keep-failed")
+
+    assert models.Transfer.objects.filter(pk=old_transfer.pk).count() == 1
+
+
+@pytest.mark.django_db
+def test_purge_command_keeps_done_sip_with_failed_job(search_disabled, old_sip):
+    models.Job.objects.create(
+        jobuuid=uuid.uuid4(),
+        jobtype="Move to the failed directory",
+        createdtime=timezone.now(),
+        directory=r"%sharedPath%currentlyProcessing/test-sip/",
+        sipuuid=old_sip.pk,
+        unittype="unitSIP",
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        microservicegroup="Failed SIP",
+    )
+
+    call_command("purge_transient_processing_data", "--keep-failed")
+
+    assert models.SIP.objects.filter(pk=old_sip.pk).count() == 1
+
+
+@pytest.mark.django_db
 def test_purge_command_skips_recent_packages(search_disabled, transfer):
     call_command("purge_transient_processing_data", "--age", "0 06:00:00")
 

@@ -44,6 +44,7 @@ import traceback
 
 from django.conf import settings as django_settings
 from django.core.management.base import CommandError
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 
@@ -56,6 +57,19 @@ from archivematica.search.service import setup_search_service_from_conf
 
 class Command(DashboardCommand):
     help = __doc__
+
+    @staticmethod
+    def _failed_package_ids(unit_type, failure_groups):
+        return list(
+            models.Job.objects.filter(unittype=unit_type)
+            .filter(
+                Q(currentstep=models.Job.STATUS_FAILED)
+                | Q(microservicegroup__in=failure_groups)
+                | Q(jobtype__icontains="fail")
+            )
+            .values_list("sipuuid", flat=True)
+            .distinct()
+        )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -137,6 +151,15 @@ class Command(DashboardCommand):
                 raise CommandError("Age could not be parsed.")
             kwargs["completed_before"] = timezone.now() - duration
 
+        failed_sip_ids = None
+        failed_transfer_ids = None
+        if options["keep_failed"]:
+            failed_sip_ids = self._failed_package_ids("unitSIP", {"Failed SIP"})
+            failed_transfer_ids = self._failed_package_ids(
+                "unitTransfer",
+                {"Failed transfer", "Failed transfer compliance"},
+            )
+
         selected_transfer_ids = None
         if options["hidden_transfers_only"]:
             hidden_sips = models.SIP.objects.done(**kwargs).filter(hidden=True)
@@ -160,11 +183,19 @@ class Command(DashboardCommand):
                 for transfer_id in linked_transfer_ids
                 if transfer_id not in selected_transfer_ids
             )
+            if failed_transfer_ids is not None:
+                selected_transfer_ids = [
+                    transfer_id
+                    for transfer_id in selected_transfer_ids
+                    if transfer_id not in failed_transfer_ids
+                ]
             if batch_limit is not None:
                 selected_transfer_ids = selected_transfer_ids[:batch_limit]
 
         self.info("Purging SIPs...")
         sips = models.SIP.objects.done(**kwargs)
+        if failed_sip_ids is not None:
+            sips = sips.exclude(pk__in=failed_sip_ids)
         if options["hidden_transfers_only"]:
             sips = sips.filter(hidden=True)
         sips = sips.order_by("pk")
@@ -215,6 +246,8 @@ class Command(DashboardCommand):
             transfers = transfers.order_by("pk")
         else:
             transfers = models.Transfer.objects.done(**kwargs).order_by("pk")
+            if failed_transfer_ids is not None:
+                transfers = transfers.exclude(pk__in=failed_transfer_ids)
             batch_limit = options["batch_size"] or None
             if batch_limit is not None:
                 transfers = transfers[:batch_limit]
