@@ -62,6 +62,7 @@ class QueueLike(Protocol[T]):
 
 LogQueue = QueueLike[logging.LogRecord]
 WorkerReadyQueue = QueueLike["WorkerReadyMessage"]
+MetricQueue = QueueLike[metrics.MetricEvent]
 
 # Use forkserver so workers are not forked directly from the long-lived parent.
 # The parent has threads for logging, metrics, and pool maintenance; forking a
@@ -75,6 +76,8 @@ MP_CONTEXT = multiprocessing.get_context("forkserver")
 #     (
 #         (
 #             "<multiprocessing.queues.Queue object at 0x7609ba4badf0>",
+#             "<multiprocessing.queues.Queue object at 0x7609ba4baf00>",
+#             "<multiprocessing.queues.Queue object at 0x7609ba4bb010>",
 #             [
 #                 "archivematicaclamscan_v0.0",
 #                 "examinecontents_v0.0",
@@ -91,7 +94,10 @@ MP_CONTEXT = multiprocessing.get_context("forkserver")
 #     ...
 # ]
 WorkerInitArgs = List[
-    Tuple[Tuple[LogQueue, WorkerReadyQueue, List[str], int], Dict[str, Event]]
+    Tuple[
+        Tuple[LogQueue, WorkerReadyQueue, MetricQueue, List[str], int],
+        Dict[str, Event],
+    ]
 ]
 
 logger = logging.getLogger("archivematica.mcp.client.worker")
@@ -133,6 +139,7 @@ def _register_traceback_dump_handler() -> None:
 def run_gearman_worker(
     log_queue: LogQueue,
     readiness_queue: WorkerReadyQueue,
+    metrics_queue: MetricQueue,
     client_scripts: List[str],
     worker_index: int,
     shutdown_event: Optional[Event] = None,
@@ -161,6 +168,7 @@ def run_gearman_worker(
     logger.setLevel(logging.DEBUG)
     queue_handler = logging.handlers.QueueHandler(log_queue)
     logger.addHandler(queue_handler)
+    metrics.configure_event_queue(metrics_queue)
 
     gearman_hosts = [settings.GEARMAN_SERVER]
 
@@ -197,6 +205,7 @@ class WorkerPool:
     def __init__(self) -> None:
         self.log_queue: LogQueue = MP_CONTEXT.Queue()
         self.worker_readiness_queue: WorkerReadyQueue = MP_CONTEXT.Queue()
+        self.metrics_queue: MetricQueue = MP_CONTEXT.Queue()
         self.shutdown_event = MP_CONTEXT.Event()
         self.workers: List[multiprocessing.Process] = []
 
@@ -219,8 +228,12 @@ class WorkerPool:
 
         self.pool_maintainance_thread: Optional[threading.Thread] = None
         self.logging_listener: Optional[logging.handlers.QueueListener] = None
+        self.metrics_listener: Optional[metrics.EventListener] = None
 
     def start(self) -> None:
+        self.metrics_listener = metrics.EventListener(self.metrics_queue)
+        self.metrics_listener.start()
+
         self.logging_listener = logging.handlers.QueueListener(
             self.log_queue,
             *logger.handlers,
@@ -256,6 +269,9 @@ class WorkerPool:
         if self.logging_listener is not None:
             self.logging_listener.stop()
 
+        if self.metrics_listener is not None:
+            self.metrics_listener.stop()
+
     def _get_script_workers_required(
         self, job_modules: Dict[str, Optional[ModuleType]]
     ) -> Dict[str, int]:
@@ -286,6 +302,7 @@ class WorkerPool:
                 (
                     self.log_queue,
                     self.worker_readiness_queue,
+                    self.metrics_queue,
                     worker_init_scripts,
                     index,
                 ),
