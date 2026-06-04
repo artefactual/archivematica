@@ -4,6 +4,7 @@ import multiprocessing
 from datetime import datetime
 from multiprocessing.synchronize import Event
 from types import TracebackType
+from typing import Callable
 from typing import Optional
 from typing import Union
 
@@ -52,6 +53,14 @@ logger = logging.getLogger("archivematica.mcp.client.gearman")
 
 
 class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
+    """Gearman worker used by MCPClient child processes.
+
+    Task registration in python-gearman is mostly local until ``work()`` opens
+    a server connection and flushes the initial client ID and CAN_DO commands.
+    The optional readiness callback lets the process pool observe that stronger
+    boundary instead of treating object construction as worker readiness.
+    """
+
     data_encoder = JSONDataEncoder
 
     def __init__(
@@ -60,6 +69,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         client_scripts: list[str],
         shutdown_event: Optional[Event] = None,
         max_jobs_to_process: Optional[int] = None,
+        readiness_callback: Optional[Callable[[], None]] = None,
     ) -> None:
         super().__init__(hosts)
 
@@ -68,6 +78,8 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         self.jobs_processed_count = 0
         self.max_jobs_to_process = max_jobs_to_process
         self.shutdown_event = shutdown_event
+        self.readiness_callback = readiness_callback
+        self.ready_reported = False
 
         self.set_client_id(self.client_id.encode("ascii"))
 
@@ -76,6 +88,32 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
             self.register_task(client_script.encode(), task_handler)
 
         logger.debug("Worker %s registered tasks: %s", self.client_id, client_scripts)
+
+    def _report_ready_if_connections_flushed(self) -> None:
+        """Report readiness after Gearman startup commands have been flushed.
+
+        ``register_task`` records abilities locally when no server connection
+        exists. During ``work()``, python-gearman establishes connections,
+        writes SET_CLIENT_ID, RESET_ABILITIES, CAN_DO, and PRE_SLEEP commands,
+        and then polls until the outgoing buffers are empty. Only then do we
+        tell the parent that this process is ready for its worker slot.
+        """
+        if self.ready_reported or self.readiness_callback is None:
+            return
+
+        connected = [
+            connection
+            for connection in getattr(self, "connection_list", [])
+            if connection.connected
+        ]
+        if not connected:
+            return
+
+        if any(connection.writable() for connection in connected):
+            return
+
+        self.ready_reported = True
+        self.readiness_callback()
 
     @staticmethod
     def _format_job_results(jobs: list[Job]) -> JobResults:
@@ -158,10 +196,11 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
         return bool(super().on_job_exception(current_job, exc_info))
 
     def after_poll(self, any_activity: bool) -> bool:
-        """Hook for worker exit after a poll.
+        """Hook for worker readiness and exit after a poll.
 
         We exit if the shutdown event has been set, or if `max_jobs_to_process`
-        jobs have been completed.
+        jobs have been completed. Readiness is reported only after those exit
+        checks, so a worker that is about to stop is not marked ready.
         """
         if self.shutdown_event and self.shutdown_event.is_set():
             logger.info("Gearman Worker exited due to shutdown")
@@ -176,5 +215,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
                 self.jobs_processed_count,
             )
             return False
+
+        self._report_ready_if_connections_flushed()
 
         return True
