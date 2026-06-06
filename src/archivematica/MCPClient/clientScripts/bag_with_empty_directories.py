@@ -77,6 +77,11 @@ def bag_with_empty_directories(job, destination, sip_directory, sip_uuid, algori
             shutil.copytree(item, dst)
     make_bag(
         destination,
+        # BagIt creates a multiprocessing pool when processes > 1. In
+        # MCPClient, workers may recycle immediately after this task; if a
+        # BagIt child exits during that handoff it can be adopted by the
+        # long-lived MCPClient parent and remain as a zombie. Zombies do not
+        # hold RSS, but enough of them can exhaust process-table/PID capacity.
         processes=multiprocessing.cpu_count(),
         bag_info={"External-Identifier": sip_uuid},
         checksums=[algorithm],
