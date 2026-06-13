@@ -63,6 +63,29 @@ job_queue_length_gauge = Gauge(
 package_queue_length_gauge = Gauge(
     "mcpserver_package_queue_length", "Number of queued packages", ["package_type"]
 )
+transfer_start_active_gauge = Gauge(
+    "mcpserver_transfer_start_active_tasks",
+    "Number of transfer start tasks currently retrieving content from transfer sources",
+)
+transfer_start_queued_gauge = Gauge(
+    "mcpserver_transfer_start_queued_tasks",
+    "Number of transfer start tasks queued before retrieving content from transfer sources",
+)
+transfer_start_max_workers_gauge = Gauge(
+    "mcpserver_transfer_start_max_workers",
+    "Maximum number of transfer start tasks that may run concurrently",
+)
+transfer_start_counter = Counter(
+    "mcpserver_transfer_start_total",
+    "Number of transfer start tasks, labeled by outcome",
+    ["status"],
+)
+transfer_start_duration_histogram = Histogram(
+    "mcpserver_transfer_start_duration_seconds",
+    "Duration of transfer start tasks in seconds, labeled by outcome",
+    ["status"],
+    buckets=TASK_DURATION_BUCKETS,
+)
 
 PACKAGE_TYPES = ("Transfer", "SIP", "DIP")
 
@@ -105,6 +128,36 @@ def start_prometheus_server():
     return start_http_server(
         settings.PROMETHEUS_BIND_PORT, addr=settings.PROMETHEUS_BIND_ADDRESS
     )
+
+
+@skip_if_prometheus_disabled
+def configure_transfer_start_executor(max_workers):
+    transfer_start_max_workers_gauge.set(max_workers)
+    transfer_start_active_gauge.set(0)
+    transfer_start_queued_gauge.set(0)
+    for status in ("submitted", "succeeded", "failed"):
+        transfer_start_counter.labels(status=status)
+    for status in ("succeeded", "failed"):
+        transfer_start_duration_histogram.labels(status=status)
+
+
+@skip_if_prometheus_disabled
+def transfer_start_submitted():
+    transfer_start_queued_gauge.inc()
+    transfer_start_counter.labels(status="submitted").inc()
+
+
+@skip_if_prometheus_disabled
+def transfer_start_running():
+    transfer_start_queued_gauge.dec()
+    transfer_start_active_gauge.inc()
+
+
+@skip_if_prometheus_disabled
+def transfer_start_finished(status, duration):
+    transfer_start_active_gauge.dec()
+    transfer_start_counter.labels(status=status).inc()
+    transfer_start_duration_histogram.labels(status=status).observe(duration)
 
 
 @skip_if_prometheus_disabled

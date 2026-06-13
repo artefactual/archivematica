@@ -400,6 +400,43 @@ def test_package_statuses(tmp_path, package_class, model_class):
     assert model_class.objects.get(pk=package_id).status == models.PACKAGE_STATUS_FAILED
 
 
+@pytest.mark.parametrize(
+    "currentstep,error",
+    [
+        (
+            models.Job.STATUS_UNKNOWN,
+            "MCPServer restarted before transfer retrieval started",
+        ),
+        (
+            models.Job.STATUS_EXECUTING_COMMANDS,
+            "MCPServer restarted before transfer retrieval completed",
+        ),
+    ],
+)
+@pytest.mark.django_db(transaction=True)
+def test_cleanup_old_db_entries_fails_stale_transfer_retrieval_job(currentstep, error):
+    transfer = models.Transfer.objects.create(status=models.PACKAGE_STATUS_PROCESSING)
+    retrieval_job = models.Job.objects.create(
+        createdtime="2026-06-12T00:00:00Z",
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        currentstep=currentstep,
+        microservicegroup="Transfer retrieval",
+        jobtype="Retrieve contents from transfer source",
+        microservicechainlink=None,
+    )
+
+    Package.cleanup_old_db_entries()
+
+    transfer.refresh_from_db()
+    retrieval_job.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert retrieval_job.currentstep == models.Job.STATUS_FAILED
+    assert retrieval_job.microservicegroup == "Transfer retrieval failed"
+    assert retrieval_job.jobtype == (f"Retrieve contents from transfer source: {error}")
+
+
 @pytest.mark.django_db(transaction=True)
 def test_create_package(tmp_path, admin_user, settings):
     package_queue = mock.Mock(spec=PackageQueue)
@@ -431,6 +468,14 @@ def test_create_package(tmp_path, admin_user, settings):
 
     # Verify a transfer was added.
     assert models.Transfer.objects.count() == 1
+    transfer = models.Transfer.objects.get()
+    assert transfer.status == models.PACKAGE_STATUS_PROCESSING
+
+    retrieval_job = models.Job.objects.get(sipuuid=transfer.pk)
+    assert retrieval_job.unittype == "unitTransfer"
+    assert retrieval_job.currentstep == models.Job.STATUS_UNKNOWN
+    assert retrieval_job.microservicechainlink is None
+    assert retrieval_job.jobtype == "Retrieve contents from transfer source"
 
 
 def test_capture_transfer_failure_propagates_transfer_does_not_exist():
@@ -451,14 +496,44 @@ def test_capture_transfer_failure_propagates_validation_error():
         fn()
 
 
-def test_capture_transfer_failure_logs_other_exceptions():
+def test_capture_transfer_failure_logs_and_propagates_other_exceptions():
     @_capture_transfer_failure
     def fn():
         raise RuntimeError("something went wrong")
 
     with mock.patch("archivematica.MCPServer.server.packages.logger") as mock_logger:
-        fn()
+        with pytest.raises(RuntimeError):
+            fn()
 
     mock_logger.exception.assert_called_once_with(
         "Exception occurred during transfer processing"
     )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_capture_transfer_failure_marks_retrieval_job_and_transfer_failed():
+    transfer = models.Transfer.objects.create(status=models.PACKAGE_STATUS_PROCESSING)
+    job = models.Job.objects.create(
+        createdtime="2026-06-12T00:00:00Z",
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
+        microservicegroup="Transfer retrieval",
+        jobtype="Retrieve contents from transfer source",
+        microservicechainlink=None,
+    )
+
+    @_capture_transfer_failure
+    def fn(transfer, name, path, tmpdir, starting_point, retrieval_job_id):
+        raise RuntimeError("something went wrong")
+
+    with pytest.raises(RuntimeError):
+        fn(transfer, "name", "path", "tmpdir", None, job.pk)
+
+    transfer.refresh_from_db()
+    job.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert job.currentstep == models.Job.STATUS_FAILED
+    assert job.microservicegroup == "Transfer retrieval failed"
+    assert job.jobtype == "Retrieve contents from transfer source: something went wrong"

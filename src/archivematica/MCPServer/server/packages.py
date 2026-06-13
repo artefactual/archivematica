@@ -25,6 +25,13 @@ from archivematica.MCPServer.server.utils import uuid_from_path
 
 logger = logging.getLogger("archivematica.mcp.server.packages")
 
+TRANSFER_RETRIEVAL_JOB_TYPE = "Retrieve contents from transfer source"
+TRANSFER_RETRIEVAL_MICROSERVICE_GROUP = "Transfer retrieval"
+TRANSFER_RETRIEVAL_FAILED_GROUP = "Transfer retrieval failed"
+
+# Keep failure messages within Jobs.jobType's existing schema limit.
+JOB_TYPE_MAX_LENGTH = 250
+
 
 StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link")
 
@@ -249,7 +256,9 @@ def _copy_from_transfer_sources(paths, relative_destination):
     message = []
     for item in files.values():
         reply, error = storage_service.copy_files(
-            item["location"], processing_location, item["files"]
+            item["location"],
+            processing_location,
+            item["files"],
         )
         if reply is None:
             message.append(str(error))
@@ -290,6 +299,56 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
             _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
         )
         transfer.save()
+
+
+@auto_close_old_connections()
+def _create_transfer_retrieval_job(transfer, directory):
+    return models.Job.objects.create(
+        createdtime=timezone.now(),
+        directory=directory,
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        currentstep=models.Job.STATUS_UNKNOWN,
+        microservicegroup=TRANSFER_RETRIEVAL_MICROSERVICE_GROUP,
+        jobtype=TRANSFER_RETRIEVAL_JOB_TYPE,
+        microservicechainlink=None,
+    )
+
+
+@auto_close_old_connections()
+def _mark_transfer_retrieval_started(transfer, retrieval_job_id, directory):
+    transfer.status = models.PACKAGE_STATUS_PROCESSING
+    transfer.save(update_fields=["status"])
+    models.Job.objects.filter(jobuuid=retrieval_job_id).update(
+        currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
+        directory=directory,
+        microservicegroup=TRANSFER_RETRIEVAL_MICROSERVICE_GROUP,
+    )
+
+
+@auto_close_old_connections()
+def _mark_transfer_retrieval_completed(retrieval_job_id):
+    models.Job.objects.filter(jobuuid=retrieval_job_id).update(
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        microservicegroup=TRANSFER_RETRIEVAL_MICROSERVICE_GROUP,
+    )
+
+
+def _transfer_retrieval_failure_job_type(error):
+    job_type = f"{TRANSFER_RETRIEVAL_JOB_TYPE}: {error}"
+    return job_type[:JOB_TYPE_MAX_LENGTH]
+
+
+@auto_close_old_connections()
+def _mark_transfer_retrieval_failed(transfer, retrieval_job_id, error):
+    transfer.status = models.PACKAGE_STATUS_FAILED
+    transfer.completed_at = timezone.now()
+    transfer.save(update_fields=["status", "completed_at"])
+    models.Job.objects.filter(jobuuid=retrieval_job_id).update(
+        currentstep=models.Job.STATUS_FAILED,
+        microservicegroup=TRANSFER_RETRIEVAL_FAILED_GROUP,
+        jobtype=_transfer_retrieval_failure_job_type(error),
+    )
 
 
 @auto_close_old_connections()
@@ -342,6 +401,8 @@ def create_package(
         except (models.TransferMetadataSet.DoesNotExist, ValidationError):
             pass
     transfer = models.Transfer.objects.create(**kwargs)
+    transfer.status = models.PACKAGE_STATUS_PROCESSING
+    transfer.save(update_fields=["status"])
     if not processing_configuration_file_exists(processing_config):
         processing_config = "default"
     transfer.set_processing_configuration(processing_config)
@@ -354,12 +415,23 @@ def create_package(
     logger.debug(
         "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
     )
-    params = (transfer, name, path, tmpdir, starting_point)
+    retrieval_job = _create_transfer_retrieval_job(transfer, path)
+    params = (transfer, name, path, tmpdir, starting_point, retrieval_job.pk)
     if auto_approve:
         params = params + (workflow, package_queue)
-        result = executor.submit(_start_package_transfer_with_auto_approval, *params)
+        try:
+            result = executor.submit(
+                _start_package_transfer_with_auto_approval, *params
+            )
+        except Exception as err:
+            _mark_transfer_retrieval_failed(transfer, retrieval_job.pk, err)
+            raise
     else:
-        result = executor.submit(_start_package_transfer, *params)
+        try:
+            result = executor.submit(_start_package_transfer, *params)
+        except Exception as err:
+            _mark_transfer_retrieval_failed(transfer, retrieval_job.pk, err)
+            raise
 
     result.add_done_callback(lambda f: os.chmod(tmpdir, 0o770))
 
@@ -379,6 +451,13 @@ def _capture_transfer_failure(fn):
                 raise
             else:
                 logger.exception("Exception occurred during transfer processing")
+                transfer = args[0] if args else None
+                retrieval_job_id = None
+                if len(args) >= 6:
+                    retrieval_job_id = args[5]
+                if isinstance(transfer, models.Transfer) and retrieval_job_id:
+                    _mark_transfer_retrieval_failed(transfer, retrieval_job_id, err)
+                raise
 
     return wrap
 
@@ -400,7 +479,14 @@ def _determine_transfer_paths(name, path, tmpdir):
 
 @_capture_transfer_failure
 def _start_package_transfer_with_auto_approval(
-    transfer, name, path, tmpdir, starting_point, workflow, package_queue
+    transfer,
+    name,
+    path,
+    tmpdir,
+    starting_point,
+    retrieval_job_id,
+    workflow,
+    package_queue,
 ):
     """Start a new transfer the new way.
 
@@ -409,6 +495,7 @@ def _start_package_transfer_with_auto_approval(
     the transfer because we go directly into the next chain link.
     """
     transfer_rel, filepath, path = _determine_transfer_paths(name, path, tmpdir)
+    _mark_transfer_retrieval_started(transfer, retrieval_job_id, filepath)
     logger.debug(
         "Package %s: determined vars transfer_rel=%s, filepath=%s, path=%s",
         transfer.pk,
@@ -429,6 +516,7 @@ def _start_package_transfer_with_auto_approval(
     _move_to_internal_shared_dir(
         filepath, _get_setting("PROCESSING_DIRECTORY"), transfer
     )
+    _mark_transfer_retrieval_completed(retrieval_job_id)
 
     logger.debug("Package %s: starting workflow processing", transfer.pk)
     unit = Transfer(path, transfer.pk)
@@ -442,7 +530,9 @@ def _start_package_transfer_with_auto_approval(
 
 
 @_capture_transfer_failure
-def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
+def _start_package_transfer(
+    transfer, name, path, tmpdir, starting_point, retrieval_job_id
+):
     """Start a new transfer the old way.
 
     This means copying the transfer into one of the standard watched dirs.
@@ -451,6 +541,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
     observer.
     """
     transfer_rel, filepath, path = _determine_transfer_paths(name, path, tmpdir)
+    _mark_transfer_retrieval_started(transfer, retrieval_job_id, filepath)
     logger.debug(
         "Package %s: determined vars transfer_rel=%s, filepath=%s, path=%s",
         transfer.pk,
@@ -474,6 +565,7 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
         starting_point.watched_dir,
     )
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
+    _mark_transfer_retrieval_completed(retrieval_job_id)
 
 
 class LocationPath:
@@ -552,7 +644,32 @@ class Package(metaclass=abc.ABCMeta):
         """
         completed_at = timezone.now()
         statuses = (models.PACKAGE_STATUS_UNKNOWN, models.PACKAGE_STATUS_PROCESSING)
-        models.Transfer.objects.filter(status__in=statuses).update(
+        stale_transfers = models.Transfer.objects.filter(status__in=statuses)
+        stale_transfer_retrieval_jobs = models.Job.objects.filter(
+            sipuuid__in=stale_transfers.values("uuid"),
+            unittype="unitTransfer",
+            microservicegroup=TRANSFER_RETRIEVAL_MICROSERVICE_GROUP,
+            jobtype=TRANSFER_RETRIEVAL_JOB_TYPE,
+        )
+        stale_transfer_retrieval_jobs.filter(
+            currentstep=models.Job.STATUS_UNKNOWN,
+        ).update(
+            currentstep=models.Job.STATUS_FAILED,
+            microservicegroup=TRANSFER_RETRIEVAL_FAILED_GROUP,
+            jobtype=_transfer_retrieval_failure_job_type(
+                "MCPServer restarted before transfer retrieval started"
+            ),
+        )
+        stale_transfer_retrieval_jobs.filter(
+            currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
+        ).update(
+            currentstep=models.Job.STATUS_FAILED,
+            microservicegroup=TRANSFER_RETRIEVAL_FAILED_GROUP,
+            jobtype=_transfer_retrieval_failure_job_type(
+                "MCPServer restarted before transfer retrieval completed"
+            ),
+        )
+        stale_transfers.update(
             status=models.PACKAGE_STATUS_FAILED,
             completed_at=completed_at,
         )

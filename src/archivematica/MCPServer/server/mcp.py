@@ -27,6 +27,7 @@ import logging
 import os
 import signal
 import threading
+import time
 
 import django
 
@@ -34,6 +35,7 @@ django.setup()
 
 from django.conf import settings
 
+from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
 from archivematica.MCPServer.server import metrics
 from archivematica.MCPServer.server import rpc_server
 from archivematica.MCPServer.server import shared_dirs
@@ -49,6 +51,47 @@ from archivematica.MCPServer.server.watch_dirs import watch_directories
 from archivematica.MCPServer.server.workflow import load_workflow
 
 logger = logging.getLogger("archivematica.mcp.server")
+
+# Transfer retrieval happens before the workflow starts and can spend a long
+# time waiting on Storage Service. Run one retrieval at a time so API bursts do
+# not start many expensive copies at once.
+TRANSFER_START_WORKER_THREADS = 1
+
+
+class TransferStartExecutor:
+    """Executor for pre-workflow transfer startup work.
+
+    This keeps long Storage Service retrievals out of the main workflow worker
+    pool while preserving the existing unbounded submission behavior.
+    """
+
+    def __init__(self, max_workers):
+        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)
+
+    def submit(self, fn, *args, **kwargs):
+        metrics.transfer_start_submitted()
+
+        def run():
+            with auto_close_old_connections():
+                metrics.transfer_start_running()
+                started = time.monotonic()
+                try:
+                    result = fn(*args, **kwargs)
+                except Exception:
+                    metrics.transfer_start_finished(
+                        "failed", time.monotonic() - started
+                    )
+                    raise
+                else:
+                    metrics.transfer_start_finished(
+                        "succeeded", time.monotonic() - started
+                    )
+                    return result
+
+        return self._executor.submit(run)
+
+    def shutdown(self, wait=True):
+        self._executor.shutdown(wait=wait)
 
 
 def watched_dir_handler(package_queue, path, watched_dir):
@@ -89,6 +132,9 @@ def main(shutdown_event=None):
         # default concurrent packages limit.
         max_workers=settings.WORKER_THREADS
     )
+    transfer_start_executor = TransferStartExecutor(
+        TRANSFER_START_WORKER_THREADS,
+    )
 
     def signal_handler(signal, frame):
         """Used to handle the stop/kill command signals (SIGINT, SIGKILL)"""
@@ -96,6 +142,7 @@ def main(shutdown_event=None):
 
         shutdown_event.set()
         executor.shutdown(wait=False)
+        transfer_start_executor.shutdown(wait=False)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -111,6 +158,7 @@ def main(shutdown_event=None):
     logger.debug("Cleaned up old db entries.")
 
     metrics.init_labels(workflow)
+    metrics.configure_transfer_start_executor(TRANSFER_START_WORKER_THREADS)
     metrics.start_prometheus_server()
 
     package_queue = PackageQueue(executor, shutdown_event, debug=settings.DEBUG)
@@ -119,7 +167,7 @@ def main(shutdown_event=None):
     for x in range(settings.RPC_THREADS):
         rpc_thread = threading.Thread(
             target=rpc_server.start,
-            args=(workflow, shutdown_event, package_queue, executor),
+            args=(workflow, shutdown_event, package_queue, transfer_start_executor),
             name=f"RPCServer-{x}",
         )
         rpc_thread.start()
@@ -140,6 +188,7 @@ def main(shutdown_event=None):
     watch_dir_thread.join(1.0)
     for thread in rpc_threads:
         thread.join(0.1)
+    transfer_start_executor.shutdown(wait=False)
     logger.debug("RPC threads stopped.")
 
     logger.info("MCP server shut down complete.")
