@@ -18,30 +18,30 @@
     "@tanstack/vue-table": "^8.21.3",
     "@vueuse/core": "^14.3.0",
     "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
-    "reka-ui": "^2.9.7",
-    "vue": "^3.5.34",
-    "vue-i18n": "^11.4.4"
+    "reka-ui": "^2.9.10",
+    "vue": "^3.5.38",
+    "vue-i18n": "^11.4.5"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tsconfig/node24": "^24.0.4",
     "@types/jsdom": "^28.0.3",
-    "@types/node": "^25.9.1",
+    "@types/node": "^25.9.3",
     "@vitejs/plugin-vue": "^6.0.7",
-    "@vitest/eslint-plugin": "^1.6.17",
-    "@vue/eslint-config-typescript": "^14.7.0",
-    "@vue/test-utils": "^2.4.10",
+    "@vitest/eslint-plugin": "^1.6.20",
+    "@vue/eslint-config-typescript": "^14.8.0",
+    "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
-    "eslint": "^10.4.0",
-    "eslint-plugin-vue": "~10.9.1",
+    "eslint": "^10.5.0",
+    "eslint-plugin-vue": "~10.9.2",
     "glob": "^13.0.6",
     "jiti": "^2.7.0",
     "jsdom": "^29.1.1",
-    "npm-run-all2": "^9.0.0",
+    "npm-run-all2": "^9.0.2",
     "typescript": "~6.0.3",
-    "vite": "^8.0.13",
-    "vitest": "^4.1.7",
-    "vue-tsc": "^3.3.1"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8",
+    "vue-tsc": "^3.3.5"
   },
   "overrides": {
     "editorconfig": {
