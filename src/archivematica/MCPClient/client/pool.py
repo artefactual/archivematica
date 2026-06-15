@@ -23,6 +23,7 @@ from types import ModuleType
 from typing import Optional
 from typing import Protocol
 from typing import TypeVar
+from typing import cast
 
 import django
 
@@ -46,6 +47,12 @@ class QueueLike(Protocol[T]):
 
 LogQueue = QueueLike[logging.LogRecord]
 MetricQueue = QueueLike[metrics.MetricEvent]
+
+# Use forkserver so workers are not forked directly from the long-lived parent.
+# The parent has threads for logging, metrics, and pool maintenance; forking a
+# process with active threads and inherited locks is fragile. Forkserver still
+# gives us process isolation while starting children from a simpler process.
+MP_CONTEXT = multiprocessing.get_context("forkserver")
 
 # This is how the return value of the `_get_worker_init_args` method looks
 # below:
@@ -109,9 +116,9 @@ class WorkerPool:
     WORKER_RESTART_DELAY = 1.0
 
     def __init__(self) -> None:
-        self.log_queue: LogQueue = multiprocessing.Queue()
-        self.metrics_queue: MetricQueue = multiprocessing.Queue()
-        self.shutdown_event = multiprocessing.Event()
+        self.log_queue: LogQueue = MP_CONTEXT.Queue()
+        self.metrics_queue: MetricQueue = MP_CONTEXT.Queue()
+        self.shutdown_event = MP_CONTEXT.Event()
         self.workers: list[multiprocessing.Process] = []
         self.job_modules = loader.load_job_modules(settings.CLIENT_MODULES_FILE)
         self.worker_function = run_gearman_worker
@@ -229,11 +236,14 @@ class WorkerPool:
     def _start_worker(self, index: int) -> multiprocessing.Process:
         """Start the new worker in a separate process."""
         worker_args, worker_kwargs = self._worker_init_args[index]
-        worker = multiprocessing.Process(
-            name=f"MCPClientWorker-{index}",
-            target=self.worker_function,
-            args=worker_args,
-            kwargs=worker_kwargs,
+        worker = cast(
+            multiprocessing.Process,
+            MP_CONTEXT.Process(
+                name=f"MCPClientWorker-{index}",
+                target=self.worker_function,
+                args=worker_args,
+                kwargs=worker_kwargs,
+            ),
         )
         worker.daemon = False
         worker.start()
