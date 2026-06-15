@@ -222,6 +222,50 @@ def test_get_unit_status_processing(jobs_processing, transfer):
 
 
 @pytest.mark.django_db
+def test_get_unit_status_failed_currentstep_without_failed_group_stays_processing(
+    transfer,
+):
+    Job.objects.create(
+        sipuuid=transfer.uuid,
+        unittype="unitTransfer",
+        currentstep=Job.STATUS_FAILED,
+        createdtime="2026-06-12T00:00:00Z",
+        microservicegroup="Create SIP from Transfer",
+        jobtype="Check transfer directory for objects",
+    )
+
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+
+    assert status["status"] == "PROCESSING"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert completed == []
+
+
+@pytest.mark.django_db
+def test_get_unit_status_retrieval_failure_job_reports_failed(transfer):
+    Job.objects.create(
+        sipuuid=transfer.uuid,
+        unittype="unitTransfer",
+        currentstep=Job.STATUS_FAILED,
+        createdtime="2026-06-12T00:00:00Z",
+        microservicegroup="Transfer retrieval failed",
+        jobtype="Retrieve contents from transfer source: something went wrong",
+    )
+
+    status = views.get_unit_status(transfer.uuid, "unitTransfer")
+
+    assert status["status"] == "FAILED"
+
+    completed = helpers.completed_units_efficient(
+        unit_type="transfer", include_failed=True
+    )
+    assert completed == [str(transfer.uuid)]
+
+
+@pytest.mark.django_db
 def test_get_unit_status_user_input(jobs_processing, jobs_user_input, transfer):
     """It should return USER_INPUT."""
     status = views.get_unit_status(transfer.uuid, "unitTransfer")

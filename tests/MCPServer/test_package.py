@@ -10,6 +10,7 @@ from server.packages import DIP
 from server.packages import SIP
 from server.packages import Package
 from server.packages import Transfer
+from server.packages import _capture_transfer_failure
 from server.packages import _determine_transfer_paths
 from server.packages import _move_to_internal_shared_dir
 from server.packages import _pad_destination_filepath_if_it_already_exists
@@ -427,3 +428,109 @@ def test_create_package(tmp_path, admin_user, settings):
 
     # Verify a transfer was added.
     assert models.Transfer.objects.count() == 1
+    transfer = models.Transfer.objects.get()
+    assert transfer.status == models.PACKAGE_STATUS_PROCESSING
+
+    retrieval_job = models.Job.objects.get(sipuuid=transfer.pk)
+    assert retrieval_job.unittype == "unitTransfer"
+    assert retrieval_job.currentstep == models.Job.STATUS_UNKNOWN
+    assert retrieval_job.microservicechainlink is None
+    assert retrieval_job.jobtype == "Retrieve contents from transfer source"
+
+
+@pytest.mark.parametrize(
+    "currentstep,error",
+    [
+        (
+            models.Job.STATUS_UNKNOWN,
+            "MCPServer restarted before transfer retrieval started",
+        ),
+        (
+            models.Job.STATUS_EXECUTING_COMMANDS,
+            "MCPServer restarted before transfer retrieval completed",
+        ),
+    ],
+)
+@pytest.mark.django_db(transaction=True)
+def test_cleanup_old_db_entries_fails_stale_transfer_retrieval_job(currentstep, error):
+    transfer = models.Transfer.objects.create(status=models.PACKAGE_STATUS_PROCESSING)
+    retrieval_job = models.Job.objects.create(
+        createdtime="2026-06-12T00:00:00Z",
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        currentstep=currentstep,
+        microservicegroup="Transfer retrieval",
+        jobtype="Retrieve contents from transfer source",
+        microservicechainlink=None,
+    )
+
+    Package.cleanup_old_db_entries()
+
+    transfer.refresh_from_db()
+    retrieval_job.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert retrieval_job.currentstep == models.Job.STATUS_FAILED
+    assert retrieval_job.microservicegroup == "Transfer retrieval failed"
+    assert retrieval_job.jobtype == (f"Retrieve contents from transfer source: {error}")
+
+
+def test_capture_transfer_failure_propagates_transfer_does_not_exist():
+    @_capture_transfer_failure
+    def fn():
+        raise models.Transfer.DoesNotExist
+
+    with pytest.raises(models.Transfer.DoesNotExist):
+        fn()
+
+
+def test_capture_transfer_failure_propagates_validation_error():
+    @_capture_transfer_failure
+    def fn():
+        raise ValidationError("Bad value.")
+
+    with pytest.raises(ValidationError):
+        fn()
+
+
+def test_capture_transfer_failure_logs_and_propagates_other_exceptions():
+    @_capture_transfer_failure
+    def fn():
+        raise RuntimeError("something went wrong")
+
+    with mock.patch("server.packages.logger") as mock_logger:
+        with pytest.raises(RuntimeError):
+            fn()
+
+    mock_logger.exception.assert_called_once_with(
+        "Exception occurred during transfer processing"
+    )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_capture_transfer_failure_marks_retrieval_job_and_transfer_failed():
+    transfer = models.Transfer.objects.create(status=models.PACKAGE_STATUS_PROCESSING)
+    job = models.Job.objects.create(
+        createdtime="2026-06-12T00:00:00Z",
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
+        microservicegroup="Transfer retrieval",
+        jobtype="Retrieve contents from transfer source",
+        microservicechainlink=None,
+    )
+
+    @_capture_transfer_failure
+    def fn(transfer, name, path, tmpdir, starting_point, retrieval_job_id):
+        raise RuntimeError("something went wrong")
+
+    with pytest.raises(RuntimeError):
+        fn(transfer, "name", "path", "tmpdir", None, job.pk)
+
+    transfer.refresh_from_db()
+    job.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert job.currentstep == models.Job.STATUS_FAILED
+    assert job.microservicegroup == "Transfer retrieval failed"
+    assert job.jobtype == "Retrieve contents from transfer source: something went wrong"

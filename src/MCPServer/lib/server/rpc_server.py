@@ -2,6 +2,12 @@
 
 We have plans to replace this server with gRPC.
 
+Most handlers serialize persisted database state directly. The
+`getUnitsStatuses` handler has one response-only compatibility shim for
+pre-workflow transfer retrieval: when retrieval has completed but no normal
+workflow job has been persisted yet, it presents the active transfer as still
+executing through the synthetic retrieval job.
+
 TODO(sevein): methods with `raise_exc` enabled should be updated so they don't
 need it, but it needs to be tested further. The main thing to check is whether
 the client is ready to handle application-level exceptions.
@@ -28,11 +34,60 @@ from main.models import SIP
 from main.models import Job
 from main.models import Transfer
 
+from server.packages import TRANSFER_RETRIEVAL_FAILED_GROUP
+from server.packages import TRANSFER_RETRIEVAL_JOB_TYPE
+from server.packages import TRANSFER_RETRIEVAL_MICROSERVICE_GROUP
 from server.packages import create_package
 from server.packages import get_approve_transfer_chain_id
 from server.processing_config import get_processing_fields
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
+
+TRANSFER_RETRIEVAL_MICROSERVICE_GROUPS = {
+    TRANSFER_RETRIEVAL_MICROSERVICE_GROUP,
+    TRANSFER_RETRIEVAL_FAILED_GROUP,
+}
+
+
+def _is_transfer_retrieval_job(job):
+    return (
+        job.unittype == "unitTransfer"
+        and job.microservicegroup in TRANSFER_RETRIEVAL_MICROSERVICE_GROUPS
+        and job.jobtype.startswith(TRANSFER_RETRIEVAL_JOB_TYPE)
+    )
+
+
+def _show_completed_retrieval_as_executing(unit, jobs, has_workflow_job):
+    """Present the pre-workflow handoff window as still in progress.
+
+    The retrieval job is persisted as completed once Storage Service retrieval
+    finishes. The first normal workflow job may then wait only in
+    `PackageQueue` memory until a `CONCURRENT_PACKAGES` slot is available; it
+    is persisted later, when `Job.run()` starts. Until that workflow job exists,
+    clients that derive unit progress from the newest visible job would
+    otherwise show an active transfer as complete.
+
+    Keep this response-only. The persisted retrieval job remains completed so
+    job history stays truthful, while the unit-level status signal remains
+    compatible with clients that already treat executing jobs as in progress.
+    """
+    if has_workflow_job or not unit.active or not jobs:
+        return
+
+    latest_job = jobs[0]
+    is_retrieval_job = (
+        latest_job["microservicegroup"] == TRANSFER_RETRIEVAL_MICROSERVICE_GROUP
+        and latest_job["type"] == TRANSFER_RETRIEVAL_JOB_TYPE
+    )
+    if (
+        latest_job["link_id"] is None
+        and latest_job["currentstep"] == Job.STATUS_COMPLETED_SUCCESSFULLY
+        and is_retrieval_job
+    ):
+        # Retrieval is done, but workflow has not started yet. Present the
+        # active transfer through the existing job status field without
+        # changing the persisted Job row.
+        latest_job["currentstep"] = Job.STATUS_EXECUTING_COMMANDS
 
 
 class RPCServerError(Exception):
@@ -375,7 +430,12 @@ class RPCServer(GearmanWorker):
                 "active": unit.active,
                 "jobs": [],
             }
-            jobs = Job.objects.filter(sipuuid=unit_id).order_by("-createdtime")
+            jobs = list(
+                Job.objects.filter(sipuuid=unit_id).order_by("-createdtime", "-jobuuid")
+            )
+            has_workflow_job = any(
+                job_.microservicechainlink is not None for job_ in jobs
+            )
             if jobs:
                 item["directory"] = jobs[0].get_directory_name()
             # Embed "Access System ID" in status data (used in Upload DIP).
@@ -391,20 +451,30 @@ class RPCServer(GearmanWorker):
                     pass
             # Append jobs
             for job_ in jobs:
+                link = None
                 try:
                     link = self.workflow.get_link(job_.microservicechainlink)
                 except KeyError:
-                    continue
+                    if not _is_transfer_retrieval_job(job_):
+                        continue
                 new_job = {}
                 new_job["uuid"] = str(job_.jobuuid)
-                new_job["link_id"] = str(job_.microservicechainlink)
+                new_job["link_id"] = (
+                    str(job_.microservicechainlink)
+                    if job_.microservicechainlink is not None
+                    else None
+                )
                 new_job["currentstep"] = job_.currentstep
                 new_job["timestamp"] = "%d.%s" % (
                     calendar.timegm(job_.createdtime.timetuple()),
                     str(job_.createdtimedec).split(".")[-1],
                 )
-                new_job["microservicegroup"] = link.get_label("group", lang)
-                new_job["type"] = link.get_label("description", lang)
+                if link is None:
+                    new_job["microservicegroup"] = job_.microservicegroup
+                    new_job["type"] = job_.jobtype
+                else:
+                    new_job["microservicegroup"] = link.get_label("group", lang)
+                    new_job["type"] = link.get_label("description", lang)
                 try:
                     new_job["choices"] = _pull_choices(
                         str(job_.jobuuid), lang, jobs_awaiting_for_approval
@@ -412,6 +482,10 @@ class RPCServer(GearmanWorker):
                 except JobNotWaitingForApprovalError:
                     pass
                 item["jobs"].append(new_job)
+            if model is Transfer:
+                _show_completed_retrieval_as_executing(
+                    unit, item["jobs"], has_workflow_job
+                )
             objects.append(item)
         return objects
 
@@ -439,16 +513,30 @@ class RPCServer(GearmanWorker):
         )
         jobs = []
         for item in microservices:
+            link = None
+            job_obj = None
             try:
                 link = self.workflow.get_link(item.get("microservicechainlink"))
             except KeyError:
-                continue
+                job_obj = jobs_qs.get(jobuuid=item.get("jobuuid"))
+                if not _is_transfer_retrieval_job(job_obj):
+                    continue
+            if link is None:
+                if job_obj is None:
+                    job_obj = jobs_qs.get(jobuuid=item.get("jobuuid"))
+                if not _is_transfer_retrieval_job(job_obj):
+                    continue
+                description = job_obj.jobtype
+                group = job_obj.microservicegroup
+            else:
+                description = link.get_label("description", lang)
+                group = link.get_label("group", lang)
             jobs.append(
                 {
                     "id": item.get("jobuuid"),
-                    "description": link.get_label("description", lang),
+                    "description": description,
                     "status": item.get("currentstep"),
-                    "group": link.get_label("group", lang),
+                    "group": group,
                 }
             )
         return {"name": jobs_qs.get_directory_name(), "jobs": jobs}
