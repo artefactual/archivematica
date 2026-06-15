@@ -136,7 +136,7 @@ class MCPGearmanWorker(gearman.GearmanWorker):  # type: ignore
             task_name,
         )
 
-        with metrics.task_execution_time_histogram.labels(script_name=task_name).time():
+        with metrics.time_task_execution(task_name):
             jobs = self._prepare_jobs(task_name, gearman_job)
             # run task will update jobs in place, by reference
             run_task(task_name, job_module, jobs)
