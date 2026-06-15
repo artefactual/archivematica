@@ -1,44 +1,27 @@
-import atexit
 import os
-import shutil
-import tempfile
 
 
-def configure_prometheus_multiproc_dir() -> str:
-    """Create the Prometheus multi-process directory.
+def configure_prometheus_client() -> None:
+    """Keep MCPClient metrics in the parent-owned scrape contract.
 
-    Ensure that the multi-process directory exists. Use a temporary directory
-    instead when the user did not provide one via the environment string.
-    The environment string is always set for the library to be set up properly.
+    Some client script imports can load prometheus_client before this package is
+    imported. Resetting ValueClass after clearing the environment keeps later
+    MCPClient collectors in normal in-process mode even in that import order.
+    Created-series export is also disabled so normal collectors do not add
+    time series that the previous MultiProcessCollector scrape did not expose.
     """
-    try:
-        prometheus_tmp_dir = os.environ["PROMETHEUS_MULTIPROC_DIR"]
-    except KeyError:
-        pass
-    else:
-        os.makedirs(prometheus_tmp_dir, mode=0o770, exist_ok=True)
-        return prometheus_tmp_dir
+    os.environ.pop("PROMETHEUS_MULTIPROC_DIR", None)
+    os.environ.pop("prometheus_multiproc_dir", None)
+    os.environ["PROMETHEUS_DISABLE_CREATED_SERIES"] = "true"
+    from prometheus_client import disable_created_metrics
+    from prometheus_client import values
 
-    prometheus_tmp_dir = tempfile.mkdtemp(prefix="prometheus-stats")
-    os.environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_tmp_dir
-
-    return prometheus_tmp_dir
+    disable_created_metrics()
+    values.ValueClass = values.get_value_class()
 
 
-def delete_prometheus_multiproc_dir(prometheus_tmp_dir: str) -> None:
-    """The multi-process directory must be wiped between runs."""
-    shutil.rmtree(prometheus_tmp_dir)
-
-
-# Set up the temporary directory that the Prometheus client library will use to
-# store metrics of MCPClient and its child processes.
-#
-# Setting the environment string "prometheus_multiproc_dir" is the only
-# mechanism we have to ensure that the Prometheus client library is in
-# multi-process mode. "prometheus_client.values.ValueClass" will be an instance
-# of "MultiProcessValue".
-#
-# This needs to happen before we import client.metrics. The temporary directory
-# is removed before the application exits.
-prometheus_tmp_dir = configure_prometheus_multiproc_dir()
-atexit.register(delete_prometheus_multiproc_dir, prometheus_tmp_dir)
+# MCPClient owns Prometheus metrics in the parent process. Workers send metric
+# events to the parent over a multiprocessing queue instead of using
+# prometheus_client multiprocess mode, which stores per-worker mmap files that
+# grow without bound when workers are recycled frequently.
+configure_prometheus_client()
