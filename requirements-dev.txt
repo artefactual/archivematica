@@ -24,9 +24,9 @@ brotli==1.2.0
     # via archivematica (pyproject.toml)
 build==1.5.0
     # via pip-tools
-cachetools==7.1.3
+cachetools==7.1.4
     # via tox
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   elastic-transport
     #   requests
@@ -36,19 +36,19 @@ charset-normalizer==3.4.7
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
-click==8.4.0
+click==8.4.1
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.14.0
+coverage[toml]==7.14.1
     # via
     #   archivematica (pyproject.toml)
     #   pytest-cov
-cryptography==48.0.0
+cryptography==49.0.0
     # via mozilla-django-oidc
-distlib==0.4.0
+distlib==0.4.3
     # via virtualenv
-django==5.2.14
+django==5.2.15
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -68,13 +68,13 @@ django-csp==4.0
     # via archivematica (pyproject.toml)
 django-forms-bootstrap==3.1.0
     # via archivematica (pyproject.toml)
-django-prometheus==2.4.1
+django-prometheus==2.5.0
     # via archivematica (pyproject.toml)
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via archivematica (pyproject.toml)
-django-stubs[compatible-mypy]==6.0.4
+django-stubs[compatible-mypy]==6.0.5
     # via archivematica (pyproject.toml)
-django-stubs-ext==6.0.4
+django-stubs-ext==6.0.5
     # via
     #   archivematica (pyproject.toml)
     #   django-stubs
@@ -86,7 +86,7 @@ elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
 exceptiongroup==1.3.1
     # via pytest
-filelock==3.29.0
+filelock==3.29.4
     # via
     #   python-discovery
     #   tox
@@ -97,13 +97,13 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via archivematica (pyproject.toml)
 gevent==26.5.0
     # via archivematica (pyproject.toml)
-greenlet==3.5.1
+greenlet==3.5.2
     # via
     #   gevent
     #   playwright
 gunicorn==26.0.0
     # via archivematica (pyproject.toml)
-idna==3.15
+idna==3.18
     # via requests
 importlib-resources==7.1.0
     # via opf-fido
@@ -131,7 +131,7 @@ mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1
     # via archivematica (pyproject.toml)
 mozilla-django-oidc==5.0.2
     # via archivematica (pyproject.toml)
-mypy==2.0.0
+mypy==2.1.0
     # via django-stubs
 mypy-extensions==1.1.0
     # via mypy
@@ -156,7 +156,7 @@ pathspec==1.1.1
     # via mypy
 pip-tools==7.5.3
     # via archivematica (pyproject.toml)
-platformdirs==4.9.6
+platformdirs==4.10.0
     # via
     #   python-discovery
     #   tox
@@ -186,17 +186,17 @@ pyee==13.0.1
     # via playwright
 pygments==2.20.0
     # via pytest
-pyjwt==2.12.1
+pyjwt==2.13.0
     # via
     #   archivematica (pyproject.toml)
     #   mozilla-django-oidc
-pyproject-api==1.10.0
+pyproject-api==1.10.1
     # via tox
 pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==9.0.3
+pytest==9.1.0
     # via
     #   archivematica (pyproject.toml)
     #   pytest-base-url
@@ -221,7 +221,7 @@ python-dateutil==2.9.0.post0
     #   archivematica (pyproject.toml)
     #   django-tastypie
     #   elasticsearch
-python-discovery==1.3.1
+python-discovery==1.4.2
     # via
     #   tox
     #   virtualenv
@@ -271,7 +271,7 @@ tomli==2.4.1
     #   tox
 tomli-w==1.2.0
     # via tox
-tox==4.54.0
+tox==4.55.1
     # via archivematica (pyproject.toml)
 types-pyyaml==6.0.12.20260518
     # via django-stubs
@@ -296,7 +296,7 @@ urllib3==2.7.0
     #   amclient
     #   elastic-transport
     #   requests
-virtualenv==21.3.3
+virtualenv==21.5.1
     # via tox
 wheel==0.47.0
     # via pip-tools
@@ -304,11 +304,11 @@ whitenoise==6.12.0
     # via archivematica (pyproject.toml)
 zope-event==6.2
     # via gevent
-zope-interface==8.4
+zope-interface==8.5
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==26.1.1
+pip==26.1.2
     # via pip-tools
 setuptools==82.0.1
     # via pip-tools
