@@ -20,7 +20,7 @@ bagit==1.9.0
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   elastic-transport
     #   requests
@@ -30,9 +30,9 @@ charset-normalizer==3.4.7
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
-cryptography==48.0.0
+cryptography==49.0.0
     # via mozilla-django-oidc
-django==5.2.14
+django==5.2.15
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -51,11 +51,11 @@ django-csp==4.0
     # via archivematica (pyproject.toml)
 django-forms-bootstrap==3.1.0
     # via archivematica (pyproject.toml)
-django-prometheus==2.4.1
+django-prometheus==2.5.0
     # via archivematica (pyproject.toml)
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via archivematica (pyproject.toml)
-django-stubs-ext==6.0.4
+django-stubs-ext==6.0.5
     # via archivematica (pyproject.toml)
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
@@ -67,11 +67,11 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via archivematica (pyproject.toml)
 gevent==26.5.0
     # via archivematica (pyproject.toml)
-greenlet==3.5.1
+greenlet==3.5.2
     # via gevent
 gunicorn==26.0.0
     # via archivematica (pyproject.toml)
-idna==3.15
+idna==3.18
     # via requests
 importlib-resources==7.1.0
     # via opf-fido
@@ -117,7 +117,7 @@ pyasn1-modules==0.4.2
     # via python-ldap
 pycparser==3.0
     # via cffi
-pyjwt==2.12.1
+pyjwt==2.13.0
     # via
     #   archivematica (pyproject.toml)
     #   mozilla-django-oidc
@@ -175,5 +175,5 @@ whitenoise==6.12.0
     # via archivematica (pyproject.toml)
 zope-event==6.2
     # via gevent
-zope-interface==8.4
+zope-interface==8.5
     # via gevent
