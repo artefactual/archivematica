@@ -23,7 +23,7 @@ dependencies = [
   "agentarchives",
   "amclient",
   "ammcpc",
-  "bagit",
+  "bagit @ git+https://github.com/LibraryOfCongress/bagit-python.git@4bd2713cedbe1f8e634567c20ef0dded9622011d",
   "brotli",
   "clamav-client",
   "django-autoslug",

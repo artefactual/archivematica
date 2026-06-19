@@ -16,7 +16,7 @@ attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
-bagit==1.9.0
+bagit @ git+https://github.com/LibraryOfCongress/bagit-python.git@4bd2713cedbe1f8e634567c20ef0dded9622011d
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
