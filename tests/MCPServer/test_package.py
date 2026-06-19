@@ -1,11 +1,14 @@
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 import pytest
 from django.core.exceptions import ValidationError
 
+import archivematica.MCPServer.server.packages as packages
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server.packages import DIP
 from archivematica.MCPServer.server.packages import SIP
@@ -263,6 +266,91 @@ def test_reload_file_list(tmp_path):
     # Clean up state and ensure test doesn't interfere with other transfers
     # expected to be in the database, e.g. in test_queues.py.
     models.File.objects.filter(transfer_id=str(transfer_uuid)).delete()
+
+
+def test_package_files_materializes_database_rows_in_batches(monkeypatch):
+    batch_size = 2
+
+    class FakeQuerySet:
+        def __init__(self, file_objs):
+            self.file_objs = list(file_objs)
+
+        def filter(self, **kwargs):
+            assert set(kwargs) == {"uuid__gt"}
+            file_objs = [
+                file_obj
+                for file_obj in self.file_objs
+                if file_obj.uuid > kwargs["uuid__gt"]
+            ]
+            return FakeQuerySet(file_objs)
+
+        def order_by(self, *fields):
+            assert fields == ("uuid",)
+            return FakeQuerySet(
+                sorted(self.file_objs, key=lambda file_obj: file_obj.uuid)
+            )
+
+        def __getitem__(self, index):
+            if isinstance(index, slice):
+                return FakeQuerySet(self.file_objs[index])
+            return self.file_objs[index]
+
+        def __iter__(self):
+            if len(self.file_objs) > batch_size:
+                raise AssertionError(
+                    "Package.files() must materialize bounded database pages"
+                )
+            return iter(self.file_objs)
+
+        def iterator(self):
+            raise AssertionError(
+                "Package.files() must not stream database rows with QuerySet.iterator()"
+            )
+
+        def exists(self):
+            return bool(self.file_objs)
+
+    class FakePackage(Package):
+        FILE_QUERYSET_BATCH_SIZE = 2
+        REPLACEMENT_PATH_STRING = "%transferDirectory%"
+
+        @property
+        def base_queryset(self):
+            return queryset
+
+        def queryset(self):
+            raise NotImplementedError
+
+        def reload(self):
+            raise NotImplementedError
+
+    file_objs = [
+        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000001")),
+        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000002")),
+        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000003")),
+    ]
+    queryset = FakeQuerySet(file_objs)
+
+    monkeypatch.setattr(packages, "auto_close_old_connections", nullcontext)
+    monkeypatch.setattr(packages.os.path, "exists", lambda path: True)
+    monkeypatch.setattr(packages.os, "walk", lambda path: [])
+    monkeypatch.setattr(
+        packages,
+        "get_file_replacement_mapping",
+        lambda file_obj, current_path: {
+            "%inputFile%": f"{current_path}/{file_obj.uuid}",
+            "%fileUUID%": str(file_obj.uuid),
+        },
+    )
+
+    package = FakePackage("/transfer", uuid.uuid4())
+    files = list(package.files())
+
+    assert [file_obj["%fileUUID%"] for file_obj in files] == [
+        str(file_objs[0].uuid),
+        str(file_objs[1].uuid),
+        str(file_objs[2].uuid),
+    ]
 
 
 @pytest.mark.django_db(transaction=True)
