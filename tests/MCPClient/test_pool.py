@@ -21,7 +21,7 @@ class FakeContext:
         self.events: list[object] = []
         self.processes: list[FakeProcess] = []
 
-    def Queue(self) -> object:
+    def Queue(self, **kwargs: Any) -> object:
         queue = object()
         self.queues.append(queue)
         return queue
@@ -52,6 +52,7 @@ def test_worker_pool_uses_forkserver_context_for_shared_primitives(
     worker_pool = pool.WorkerPool()
 
     assert worker_pool.log_queue is fake_context.queues[0]
+    assert worker_pool.metrics_queue is fake_context.queues[1]
     assert worker_pool.shutdown_event is fake_context.events[0]
 
     worker = worker_pool._start_worker(0)
@@ -62,6 +63,7 @@ def test_worker_pool_uses_forkserver_context_for_shared_primitives(
     assert fake_worker.kwargs["target"] is pool.run_gearman_worker
     assert fake_worker.kwargs["args"] == (
         worker_pool.log_queue,
+        worker_pool.metrics_queue,
         ["copy_v0.0"],
     )
     assert fake_worker.kwargs["kwargs"] == {
