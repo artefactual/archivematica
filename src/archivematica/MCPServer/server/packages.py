@@ -531,6 +531,9 @@ def get_file_replacement_mapping(file_obj, unit_directory):
 class Package(metaclass=abc.ABCMeta):
     """A `Package` can be a Transfer, a SIP, or a DIP."""
 
+    # Limit file rows held in memory while avoiding long-lived DB cursors.
+    FILE_QUERYSET_BATCH_SIZE = 1000
+
     def __init__(self, current_path, uuid):
         self._current_path = current_path.replace(
             r"%sharedPath%", _get_setting("SHARED_DIRECTORY")
@@ -641,6 +644,25 @@ class Package(metaclass=abc.ABCMeta):
 
         return mapping
 
+    def _database_file_replacement_mappings(self, queryset):
+        """Yield file mappings without holding a database cursor open."""
+        queryset = queryset.order_by("uuid")
+        last_uuid = None
+
+        while True:
+            with auto_close_old_connections():
+                page_queryset = queryset
+                if last_uuid is not None:
+                    page_queryset = page_queryset.filter(uuid__gt=last_uuid)
+                file_objs = list(page_queryset[: self.FILE_QUERYSET_BATCH_SIZE])
+
+            if not file_objs:
+                break
+
+            for file_obj in file_objs:
+                last_uuid = file_obj.uuid
+                yield get_file_replacement_mapping(file_obj, self.current_path)
+
     def files(self, filter_filename_end=None, filter_subdir=None):
         """Generator that yields all files associated with the package or that
         should be associated with a package.
@@ -660,30 +682,25 @@ class Package(metaclass=abc.ABCMeta):
             if filter_subdir:
                 start_path = start_path + filter_subdir
 
-            files_returned_already = set()
-            if queryset.exists():
-                for file_obj in queryset.iterator():
-                    file_obj_mapped = get_file_replacement_mapping(
-                        file_obj, self.current_path
-                    )
-                    if not os.path.exists(file_obj_mapped.get("%inputFile%")):
-                        continue
-                    files_returned_already.add(file_obj_mapped.get("%inputFile%"))
-                    yield file_obj_mapped
+        files_returned_already = set()
 
-            for basedir, _, files in os.walk(start_path):
-                for file_name in files:
-                    if filter_filename_end and not file_name.endswith(
-                        filter_filename_end
-                    ):
-                        continue
-                    file_path = os.path.join(basedir, file_name)
-                    if file_path not in files_returned_already:
-                        yield {
-                            r"%relativeLocation%": file_path,
-                            r"%fileUUID%": "None",
-                            r"%fileGrpUse%": "",
-                        }
+        for file_obj_mapped in self._database_file_replacement_mappings(queryset):
+            if not os.path.exists(file_obj_mapped.get("%inputFile%")):
+                continue
+            files_returned_already.add(file_obj_mapped.get("%inputFile%"))
+            yield file_obj_mapped
+
+        for basedir, _, files in os.walk(start_path):
+            for file_name in files:
+                if filter_filename_end and not file_name.endswith(filter_filename_end):
+                    continue
+                file_path = os.path.join(basedir, file_name)
+                if file_path not in files_returned_already:
+                    yield {
+                        r"%relativeLocation%": file_path,
+                        r"%fileUUID%": "None",
+                        r"%fileGrpUse%": "",
+                    }
 
     @auto_close_old_connections()
     def set_variable(self, key, value, chain_link_id):
