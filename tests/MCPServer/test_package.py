@@ -17,9 +17,6 @@ from archivematica.MCPServer.server.packages import Transfer
 from archivematica.MCPServer.server.packages import _capture_transfer_failure
 from archivematica.MCPServer.server.packages import _determine_transfer_paths
 from archivematica.MCPServer.server.packages import _move_to_internal_shared_dir
-from archivematica.MCPServer.server.packages import (
-    _pad_destination_filepath_if_it_already_exists,
-)
 from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.queues import PackageQueue
 from archivematica.MCPServer.server.workflow import Workflow
@@ -385,30 +382,6 @@ def test_package_files_with_non_ascii_names(tmp_path):
     assert result[0]["%fileUUID%"] == str(kwargs["uuid"])
     assert result[0]["%currentLocation%"] == current_location.as_posix()
     assert result[0]["%fileGrpUse%"] == kwargs["filegrpuse"]
-
-
-class TestPadDestinationFilePath:
-    def test_zipfile_is_not_padded_if_does_not_exist(self, tmp_path):
-        transfer_path = tmp_path / "transfer.zip"
-        padded_path = _pad_destination_filepath_if_it_already_exists(transfer_path)
-        assert padded_path == transfer_path
-
-    def test_zipfile_is_padded_if_exists(self, tmp_path):
-        transfer_path = tmp_path / "transfer.zip"
-        transfer_path.touch()
-        padded_path = _pad_destination_filepath_if_it_already_exists(transfer_path)
-        assert padded_path == tmp_path / "transfer_1.zip"
-
-    def test_dir_is_not_padded_if_does_not_exist(self, tmp_path):
-        transfer_path = tmp_path / "transfer/"
-        padded_path = _pad_destination_filepath_if_it_already_exists(transfer_path)
-        assert padded_path == transfer_path
-
-    def test_dir_is_padded_if_exists(self, tmp_path):
-        transfer_path = tmp_path / "transfer/"
-        transfer_path.mkdir()
-        padded_path = _pad_destination_filepath_if_it_already_exists(transfer_path)
-        assert padded_path == tmp_path / "transfer_1"
 
 
 @pytest.fixture

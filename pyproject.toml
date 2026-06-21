@@ -161,6 +161,7 @@ ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
+    "archivematica.archivematicaCommon.transfer_source_retrieval",
     "archivematica.archivematicaCommon.executeOrRunSubProcess",
     "archivematica.MCPClient.client.*",
     "archivematica.MCPClient.clientScripts.characterize_file",
