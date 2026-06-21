@@ -85,11 +85,11 @@ class TestAPIv2(TestCase):
         )
         assert resp.status_code == 400
 
-    @mock.patch(
-        "archivematica.dashboard.components.api.views.MCPClient",
-        return_value=MCPClientMock(),
-    )
-    def test_package_create_mcpclient_ok(self, patcher):
+    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+    def test_package_create_mcpclient_ok(self, mcp_client_cls):
+        mcp_client = mcp_client_cls.return_value
+        mcp_client.create_package.return_value = "59402c61-3aba-4af7-966a-996073c0601d"
+
         resp = self.client.post(
             "/api/v2beta/package/",
             json.dumps({"path": self.path}),
@@ -98,6 +98,39 @@ class TestAPIv2(TestCase):
         assert resp.status_code == 202
         assert resp.content.decode() == json.dumps(
             {"id": "59402c61-3aba-4af7-966a-996073c0601d"}
+        )
+        mcp_client.create_package.assert_called_once_with(
+            None,
+            None,
+            None,
+            None,
+            "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg",
+            None,
+            auto_approve=True,
+            wait_until_complete=False,
+        )
+
+    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+    def test_package_create_preserves_auto_approve_false(self, mcp_client_cls):
+        mcp_client = mcp_client_cls.return_value
+        mcp_client.create_package.return_value = "59402c61-3aba-4af7-966a-996073c0601d"
+
+        resp = self.client.post(
+            "/api/v2beta/package/",
+            json.dumps({"path": self.path, "auto_approve": False}),
+            content_type="application/json",
+        )
+
+        assert resp.status_code == 202
+        mcp_client.create_package.assert_called_once_with(
+            None,
+            None,
+            None,
+            None,
+            "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg",
+            None,
+            auto_approve=False,
+            wait_until_complete=False,
         )
 
     @mock.patch(

@@ -39,6 +39,11 @@ logger = logging.getLogger("archivematica.mcp.server.packages")
 
 StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link")
 
+# API-created transfers enter this chain before their type-specific workflow.
+RETRIEVE_TRANSFER_SOURCE_CHAIN_ID = "2e12b4bd-06f1-4362-905f-ef9ce5f7cd5d"
+# The unit variable stores the type-specific link selected after retrieval.
+LINK_AFTER_TRANSFER_SOURCE_RETRIEVAL = "linkAfterTransferSourceRetrieval"
+
 
 def _get_setting(name):
     """Retrieve a Django setting decoded as a unicode string."""
@@ -247,7 +252,8 @@ def create_package(
     transfer.update_active_agent(user_id)
     logger.debug("Transfer object created: %s", transfer.pk)
 
-    # TODO: use tempfile.TemporaryDirectory as a context manager in Py3.
+    # TODO: Clean up this staging directory after successful transfer-source
+    # retrieval. TemporaryDirectory cannot own it because retrieval is asynchronous.
     tmpdir = mkdtemp(dir=os.path.join(_get_setting("SHARED_DIRECTORY"), "tmp"))
     starting_point = PACKAGE_TYPE_STARTING_POINTS.get(type_)
     logger.debug(
@@ -255,6 +261,8 @@ def create_package(
     )
     params = (transfer, name, path, tmpdir, starting_point)
     if auto_approve:
+        transfer.status = models.PACKAGE_STATUS_PROCESSING
+        transfer.save(update_fields=["status"])
         params = params + (workflow, package_queue)
         result = executor.submit(_start_package_transfer_with_auto_approval, *params)
     else:
@@ -265,21 +273,33 @@ def create_package(
     return transfer
 
 
-def _capture_transfer_failure(fn):
-    """Silence errors during transfer/ingest."""
+def _capture_transfer_failure(fn=None, *, mark_transfer_failed=False):
+    """Prevent transfer-start exceptions from escaping the executor."""
 
-    def wrap(*args, **kwargs):
-        try:
-            return fn(*args, **kwargs)
-        except Exception as err:
-            # The main purpose of this decorator is to update the Transfer with
-            # the new state (fail). If the Transfer does not exist we give up.
-            if isinstance(err, (models.Transfer.DoesNotExist, ValidationError)):
-                raise
-            else:
+    def decorator(wrapped):
+        def wrap(*args, **kwargs):
+            try:
+                return wrapped(*args, **kwargs)
+            except Exception as err:
+                if isinstance(err, (models.Transfer.DoesNotExist, ValidationError)):
+                    raise
+
                 logger.exception("Exception occurred during transfer processing")
+                if (
+                    mark_transfer_failed
+                    and args
+                    and isinstance(args[0], models.Transfer)
+                ):
+                    models.Transfer.objects.filter(pk=args[0].pk).update(
+                        status=models.PACKAGE_STATUS_FAILED,
+                        completed_at=timezone.now(),
+                    )
 
-    return wrap
+        return wrap
+
+    if fn is None:
+        return decorator
+    return decorator(fn)
 
 
 def _determine_transfer_paths(
@@ -292,15 +312,15 @@ def _determine_transfer_paths(
     return plan.copy_destination_relative, plan.copied_path, plan.copy_source
 
 
-@_capture_transfer_failure
+@_capture_transfer_failure(mark_transfer_failed=True)
 def _start_package_transfer_with_auto_approval(
     transfer, name, path, tmpdir, starting_point, workflow, package_queue
 ):
-    """Start a new transfer the new way.
+    """Queue retrieval before continuing at the accepted-transfer workflow.
 
-    This method does not rely on the activeTransfer watched directory. It
-    blocks until the process completes. It does not prompt the user to accept
-    the transfer because we go directly into the next chain link.
+    No transfer content exists yet. This bootstrap only persists the planned
+    staging path and queues the API-only retrieval chain; MCPClient performs
+    the Storage Service and filesystem work.
     """
     transfer_rel, filepath, path = _determine_transfer_paths(name, path, tmpdir)
     logger.debug(
@@ -312,25 +332,32 @@ def _start_package_transfer_with_auto_approval(
     )
 
     logger.debug(
-        "Package %s: copying chosen contents from transfer sources (from=%s, to=%s)",
+        "Package %s: scheduling transfer-source retrieval (from=%s, to=%s)",
         transfer.pk,
         path,
         transfer_rel,
     )
-    _copy_from_transfer_sources([path], transfer_rel)
-
-    logger.debug("Package %s: moving package to processing directory", transfer.pk)
-    _move_to_internal_shared_dir(
-        filepath, _get_setting("PROCESSING_DIRECTORY"), transfer
+    transfer.currentlocation = filepath
+    transfer.save(update_fields=["currentlocation"])
+    unit = Transfer(filepath, transfer.pk)
+    unit.mark_as_processing()
+    unit.set_variable(
+        LINK_AFTER_TRANSFER_SOURCE_RETRIEVAL,
+        None,
+        starting_point.link,
     )
-
-    logger.debug("Package %s: starting workflow processing", transfer.pk)
-    unit = Transfer(path, transfer.pk)
     job_chain = JobChain(
         unit,
-        workflow.get_chain(starting_point.chain),
+        workflow.get_chain(RETRIEVE_TRANSFER_SOURCE_CHAIN_ID),
         workflow,
-        starting_link=workflow.get_link(starting_point.link),
+    )
+    job_chain.context.update(
+        {
+            r"%transferSourcePath%": path,
+            r"%transferSourceDestination%": transfer_rel,
+            r"%transferSourceCopiedPath%": filepath,
+            r"%sharedPath%": _get_setting("SHARED_DIRECTORY"),
+        }
     )
     package_queue.schedule_job(next(job_chain))
 

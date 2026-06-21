@@ -11,6 +11,9 @@ from archivematica.MCPServer.server import workflow
 
 ASSETS_DIR = importlib.resources.files("archivematica.MCPServer") / "assets"
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
+# IDs below are durable workflow contracts shared with package bootstrap.
+RETRIEVAL_CLEANUP_LINK_ID = "e781473a-0c10-431f-8ab6-5d7238b2b70b"
+RETRIEVAL_MOVE_FAILED_LINK_ID = "e782473a-0c10-431f-8ab6-5d7238b2b70b"
 
 
 @mock.patch(
@@ -104,6 +107,24 @@ def test_link_browse_methods(wf):
     assert ln.get_status_id(code="0") == workflow._STATUSES["Completed successfully"]
     assert ln.get_next_link(code="1").id == "7d728c39-395f-4892-8193-92f086c0546f"
     assert ln.get_status_id(code="1") == workflow._STATUSES["Failed"]
+
+
+def test_retrieval_failure_links_tolerate_missing_retrieval_path(wf):
+    cleanup = wf.get_link(RETRIEVAL_CLEANUP_LINK_ID)
+    move = wf.get_link(RETRIEVAL_MOVE_FAILED_LINK_ID)
+
+    assert cleanup.config["arguments"].endswith("--allow-missing-path")
+    assert cleanup.get_next_link(code="0") == move
+    assert cleanup.get_next_link(code="1") == move
+    assert move.config["arguments"].endswith("--allow-missing-source")
+
+
+def test_existing_failed_transfer_move_remains_strict(wf):
+    cleanup_failed_transfer = wf.get_link("e780473a-0c10-431f-bab6-5d7238b2b70b")
+    move_failed_transfer = wf.get_link("377f8ebb-7989-4a68-9361-658079ff8138")
+
+    assert "--allow-missing-path" not in cleanup_failed_transfer.config["arguments"]
+    assert "--allow-missing-source" not in move_failed_transfer.config["arguments"]
 
 
 def test_get_schema():

@@ -13,6 +13,83 @@ TASK_PRODUCING_LINK_ID = "002716a1-ae29-4f36-98ab-0d97192669c4"
 
 
 @pytest.mark.django_db
+@mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
+def test_package_create_handler_defaults_to_auto_approve(create_package, wf):
+    transfer_uuid = uuid.uuid4()
+    create_package.return_value.pk = transfer_uuid
+    package_queue = mock.MagicMock()
+    executor = mock.MagicMock()
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    payload = {
+        "name": "TransferName",
+        "type": "standard",
+        "accession": "",
+        "access_system_id": "",
+        "path": "home/username/transfer",
+        "metadata_set_id": "",
+        "user_id": "1",
+    }
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, executor)
+
+    assert server._package_create_handler(None, None, payload) == transfer_uuid
+    create_package.assert_called_once_with(
+        package_queue,
+        executor,
+        "TransferName",
+        "standard",
+        "",
+        "",
+        "home/username/transfer",
+        "",
+        "1",
+        wf,
+        auto_approve=True,
+    )
+
+
+@pytest.mark.django_db
+@mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
+def test_package_create_handler_preserves_auto_approve_false(create_package, wf):
+    transfer_uuid = uuid.uuid4()
+    create_package.return_value.pk = transfer_uuid
+    package_queue = mock.MagicMock()
+    executor = mock.MagicMock()
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    payload = {
+        "name": "TransferName",
+        "type": "standard",
+        "accession": "",
+        "access_system_id": "",
+        "path": "home/username/transfer",
+        "metadata_set_id": "",
+        "user_id": "1",
+        "auto_approve": False,
+        "processing_config": "automated",
+    }
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, executor)
+
+    assert server._package_create_handler(None, None, payload) == transfer_uuid
+    create_package.assert_called_once_with(
+        package_queue,
+        executor,
+        "TransferName",
+        "standard",
+        "",
+        "",
+        "home/username/transfer",
+        "",
+        "1",
+        wf,
+        auto_approve=False,
+        processing_config="automated",
+    )
+
+
+@pytest.mark.django_db
 def test_approve_partial_reingest_handler(wf):
     sip = models.SIP.objects.create(uuid=str(uuid.uuid4()))
     models.Job.objects.create(
