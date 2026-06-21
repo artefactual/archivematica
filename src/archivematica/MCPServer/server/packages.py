@@ -5,7 +5,6 @@ import collections
 import json
 import logging
 import os
-from pathlib import Path
 from tempfile import mkdtemp
 from uuid import UUID
 from uuid import uuid4
@@ -16,6 +15,18 @@ from django.utils import timezone
 
 import archivematica.archivematicaCommon.storageService as storage_service
 from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
+from archivematica.archivematicaCommon.transfer_source_retrieval import (
+    TransferSourceRetrievalError,
+)
+from archivematica.archivematicaCommon.transfer_source_retrieval import (
+    copy_transfer_source_files,
+)
+from archivematica.archivematicaCommon.transfer_source_retrieval import (
+    move_to_internal_shared_dir,
+)
+from archivematica.archivematicaCommon.transfer_source_retrieval import (
+    plan_transfer_source_paths,
+)
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server.jobs import JobChain
 from archivematica.MCPServer.server.processing_config import (
@@ -125,66 +136,6 @@ def get_approve_transfer_chain_id(transfer_type):
     return item.chain
 
 
-def _file_is_an_archive(filepath):
-    filepath = filepath.lower()
-    return (
-        filepath.endswith(".zip")
-        or filepath.endswith(".tgz")
-        or filepath.endswith(".tar.gz")
-    )
-
-
-def _pad_destination_filepath_if_it_already_exists(filepath, original=None, attempt=0):
-    """
-    Return a version of the filepath that does not yet exist, padding with numbers
-    as necessary and reattempting until a non-existent filepath is found
-
-    :param filepath: `Path` or string of the desired destination filepath
-    :param original: `Path` or string of the original filepath (before padding attempts)
-    :param attempt: Number
-
-    :returns: `Path` object, padded as necessary
-    """
-    if original is None:
-        original = filepath
-    filepath = Path(filepath)
-    original = Path(original)
-
-    attempt = attempt + 1
-    if not filepath.exists():
-        return filepath
-    if filepath.is_dir():
-        return _pad_destination_filepath_if_it_already_exists(
-            f"{original.as_posix()}_{attempt}",
-            original,
-            attempt,
-        )
-
-    # need to work out basename
-    basedirectory = original.parent
-    basename = original.name
-
-    # do more complex padding to preserve file extension
-    period_position = basename.index(".")
-    non_extension = basename[0:period_position]
-    extension = basename[period_position:]
-    new_basename = f"{non_extension}_{attempt}{extension}"
-    new_filepath = basedirectory / new_basename
-    return _pad_destination_filepath_if_it_already_exists(
-        new_filepath, original, attempt
-    )
-
-
-def _check_filepath_exists(filepath):
-    if filepath == "":
-        return "No filepath provided."
-    if not os.path.exists(filepath):
-        return f"Filepath {filepath} does not exist."
-    if ".." in filepath:  # check for trickery
-        return "Illegal path."
-    return None
-
-
 _default_location_uuid = None
 
 
@@ -209,55 +160,15 @@ def _copy_from_transfer_sources(paths, relative_destination):
     :param str relative_destination: Path relative to the currently processing
                                      space to move the files to.
     """
-    processing_location = storage_service.get_first_location(purpose="CP")
-    transfer_sources = storage_service.get_location(purpose="TS")
-    files = {ts["uuid"]: {"location": ts, "files": []} for ts in transfer_sources}
-
-    for item in paths:
-        location, path = LocationPath(item).parts()
-        if location is None:
-            location = _default_transfer_source_location_uuid()
-        if location not in files:
-            raise Exception(
-                "Location %(location)s is not associated"
-                " with this pipeline" % {"location": location}
-            )
-
-        # ``path`` will be a UTF-8 bytestring but the replacement pattern path
-        # from ``files`` will be a Unicode object. Therefore, the latter must
-        # be UTF-8 encoded prior. Same reasoning applies to ``destination``
-        # below. This allows transfers to be started on UTF-8-encoded directory
-        # names.
-        source = path.replace(str(files[location]["location"]["path"]), "", 1).lstrip(
-            "/"
-        )
-        # Use the last segment of the path for the destination - basename for a
-        # file, or the last folder if not. Keep the trailing / for folders.
-        last_segment = (
-            os.path.basename(source.rstrip("/")) + "/"
-            if source.endswith("/")
-            else os.path.basename(source)
-        )
-        destination = os.path.join(
-            str(processing_location["path"]),
+    try:
+        copy_transfer_source_files(
+            paths,
             relative_destination,
-            last_segment,
-        ).replace("%sharedPath%", "")
-        files[location]["files"].append({"source": source, "destination": destination})
-        logger.debug("source: %s, destination: %s", source, destination)
-
-    message = []
-    for item in files.values():
-        reply, error = storage_service.copy_files(
-            item["location"], processing_location, item["files"]
+            storage_service,
+            default_location_uuid_factory=_default_transfer_source_location_uuid,
         )
-        if reply is None:
-            message.append(str(error))
-    if message:
-        raise Exception(
-            "The following errors occurred: %(message)s"
-            % {"message": ", ".join(message)}
-        )
+    except TransferSourceRetrievalError as err:
+        raise Exception(str(err))
 
 
 @auto_close_old_connections()
@@ -270,26 +181,14 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     _start_package_transfer), this also matters because Transfer is going
     to look up the object in the database based on the location.
     """
-    error = _check_filepath_exists(filepath)
-    if error:
-        raise Exception(error)
-
-    filepath = Path(filepath)
-    dest = Path(dest)
-
-    # Confine destination to subdir of originals.
-    basename = filepath.name
-    dest = _pad_destination_filepath_if_it_already_exists(dest / basename)
-
     try:
-        filepath.rename(dest)
-    except OSError as e:
-        raise Exception("Error moving from %s to %s (%s)", filepath, dest, e)
-    else:
-        transfer.currentlocation = dest.as_posix().replace(
-            _get_setting("SHARED_DIRECTORY"), r"%sharedPath%", 1
+        result = move_to_internal_shared_dir(
+            filepath, dest, _get_setting("SHARED_DIRECTORY")
         )
-        transfer.save()
+    except TransferSourceRetrievalError as err:
+        raise Exception(str(err))
+    transfer.currentlocation = result.current_location
+    transfer.save()
 
 
 @auto_close_old_connections()
@@ -383,19 +282,14 @@ def _capture_transfer_failure(fn):
     return wrap
 
 
-def _determine_transfer_paths(name, path, tmpdir):
-    if _file_is_an_archive(path):
-        transfer_dir = tmpdir
-        p = LocationPath(path).path
-        filepath = os.path.join(tmpdir, os.path.basename(p))
-    else:
-        path = os.path.join(path, ".")  # Copy contents of dir but not dir
-        transfer_dir = filepath = os.path.join(tmpdir, name)
-    return (
-        transfer_dir.replace(_get_setting("SHARED_DIRECTORY"), "", 1),
-        filepath,
-        path,
+def _determine_transfer_paths(
+    name: str, path: str, tmpdir: str
+) -> tuple[str, str, str]:
+    """Adapt the shared path plan to the legacy tuple used in this module."""
+    plan = plan_transfer_source_paths(
+        name, path, tmpdir, _get_setting("SHARED_DIRECTORY")
     )
+    return plan.copy_destination_relative, plan.copied_path, plan.copy_source
 
 
 @_capture_transfer_failure
@@ -474,27 +368,6 @@ def _start_package_transfer(transfer, name, path, tmpdir, starting_point):
         starting_point.watched_dir,
     )
     _move_to_internal_shared_dir(filepath, starting_point.watched_dir, transfer)
-
-
-class LocationPath:
-    """Path wraps a path that is a pair of two values: UUID and path."""
-
-    uuid, path = None, None
-
-    def __init__(self, path, sep=":"):
-        self.sep = sep
-        parts = path.partition(self.sep)
-        if parts[1] != self.sep:
-            self.path = parts[0]
-        else:
-            self.uuid = parts[0]
-            self.path = parts[2]
-
-    def __repr__(self):
-        return f"{self.__class__} (uuid={self.uuid!r}, sep={self.sep!r}, path={self.path!r})"
-
-    def parts(self):
-        return self.uuid, self.path
 
 
 def get_file_replacement_mapping(file_obj, unit_directory):
