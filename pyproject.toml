@@ -170,6 +170,7 @@ module = [
     "archivematica.MCPClient.clientScripts.identify_file_format",
     "archivematica.MCPClient.clientScripts.normalize",
     "archivematica.MCPClient.clientScripts.policy_check",
+    "archivematica.MCPClient.clientScripts.retrieve_transfer_source",
     "archivematica.MCPClient.clientScripts.transcribe_file",
     "archivematica.MCPClient.clientScripts.validate_file",
     "archivematica.search.service",

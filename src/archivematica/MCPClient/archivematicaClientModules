@@ -57,6 +57,7 @@ restructureforcompliancesip_v0.0 = restructure_for_compliance_sip
 restructureforcompliancemaildir_v0.0 = restructure_for_compliance_maildir
 restructurebagaiptosip_v0.0 = restructure_bag_aip_to_sip
 retrynormalizeremovenormalized_v0.0 = retry_normalize_remove_normalized
+retrievetransfersource_v0.0 = retrieve_transfer_source
 rightsfromcsv_v0.0 = rights_from_csv
 changeobjectnames_v0.0 = change_object_names
 changesipname_v0.0 = change_sip_name
