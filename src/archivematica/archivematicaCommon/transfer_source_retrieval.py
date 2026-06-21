@@ -33,6 +33,8 @@ the transfer:
 * ``move_to_internal_shared_dir()`` moves the copied transfer into an internal
   Archivematica directory, avoiding destination collisions and returning the
   ``%sharedPath%`` form stored in the database.
+* ``retrieve_transfer_source()`` combines the copy and move steps for clients
+  that perform retrieval as one workflow task.
 * The ``TransferSource*`` dataclasses and ``Storage*`` typed dictionaries name
   the values passed between those steps.
 
@@ -330,4 +332,25 @@ def move_to_internal_shared_dir(
         current_location=destination.as_posix().replace(
             shared_directory, "%sharedPath%", 1
         ),
+    )
+
+
+def retrieve_transfer_source(
+    paths: Sequence[str],
+    relative_destination: str,
+    copied_path: StrPath,
+    processing_directory: StrPath,
+    shared_directory: str,
+    storage_service_module: StorageService,
+) -> TransferSourceRetrievalResult:
+    """Materialize a transfer selection and return its final processing path."""
+    copy_transfer_source_files(
+        paths,
+        relative_destination,
+        storage_service_module,
+    )
+    return move_to_internal_shared_dir(
+        copied_path,
+        processing_directory,
+        shared_directory,
     )

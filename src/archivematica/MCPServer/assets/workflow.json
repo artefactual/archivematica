@@ -211,6 +211,18 @@
       },
       "link_id": "18c37bff-fce9-4b40-a50a-022ea0386f1a"
     },
+    "2e12b4bd-06f1-4362-905f-ef9ce5f7cd5d": {
+      "description": {
+        "en": "Retrieve transfer source",
+        "es": "Recuperar origen de transferencia",
+        "fr": "Récupérer la source du transfert",
+        "ja": "転送元を取得",
+        "no": "Hent overføringskilde",
+        "pt_BR": "Recuperar fonte da transferência",
+        "sv": "Hämta överföringskälla"
+      },
+      "link_id": "b3843201-3c52-4124-a7ee-16faaccf24b9"
+    },
     "2eae85d6-da2f-4f1c-8c33-3810b55e23aa": {
       "description": {
         "en": "SIP Creation complete",
@@ -8644,6 +8656,40 @@
         "sv": "Normalisera"
       }
     },
+    "b3843201-3c52-4124-a7ee-16faaccf24b9": {
+      "config": {
+        "@manager": "linkTaskManagerDirectories",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"%SIPUUID%\" \"%transferSourcePath%\" \"%transferSourceDestination%\" \"%transferSourceCopiedPath%\" \"%processingDirectory%\" \"%sharedPath%\"",
+        "execute": "retrieveTransferSource_v0.0"
+      },
+      "description": {
+        "en": "Retrieve transfer source",
+        "es": "Recuperar origen de transferencia",
+        "fr": "Récupérer la source du transfert",
+        "ja": "転送元を取得",
+        "no": "Hent overføringskilde",
+        "pt_BR": "Recuperar fonte da transferência",
+        "sv": "Hämta överföringskälla"
+      },
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully",
+          "link_id": "fe56520e-fc0a-49e9-8964-cfcaec8c0635"
+        }
+      },
+      "fallback_job_status": "Failed",
+      "fallback_link_id": "e780473a-0c10-431f-bab6-5d7238b2b70b",
+      "group": {
+        "en": "Retrieve transfer source",
+        "es": "Recuperar origen de transferencia",
+        "fr": "Récupérer la source du transfert",
+        "ja": "転送元を取得",
+        "no": "Hent overføringskilde",
+        "pt_BR": "Recuperar fonte da transferência",
+        "sv": "Hämta överföringskälla"
+      }
+    },
     "b3d11842-0090-420a-8919-52d7039d50e6": {
       "config": {
         "@manager": "linkTaskManagerDirectories",
@@ -11684,6 +11730,34 @@
         "no": "Døp om med overførings-UUID",
         "pt_BR": "Renomear com transferência UUID",
         "sv": "Byt namn med överförings UUID"
+      }
+    },
+    "fe56520e-fc0a-49e9-8964-cfcaec8c0635": {
+      "config": {
+        "@manager": "linkTaskManagerUnitVariableLinkPull",
+        "@model": "TaskConfigUnitVariableLinkPull",
+        "variable": "linkAfterTransferSourceRetrieval"
+      },
+      "description": {
+        "en": "Continue after transfer source retrieval",
+        "es": "Continuar después de recuperar el origen de transferencia",
+        "fr": "Continuer après la récupération de la source du transfert",
+        "ja": "転送元の取得後に続行",
+        "no": "Fortsett etter henting av overføringskilde",
+        "pt_BR": "Continuar após recuperar a fonte da transferência",
+        "sv": "Fortsätt efter hämtning av överföringskälla"
+      },
+      "exit_codes": {},
+      "fallback_job_status": "Failed",
+      "fallback_link_id": "61c316a6-0a50-4f65-8767-1f44b1eeb6dd",
+      "group": {
+        "en": "Retrieve transfer source",
+        "es": "Recuperar origen de transferencia",
+        "fr": "Récupérer la source du transfert",
+        "ja": "転送元を取得",
+        "no": "Hent overføringskilde",
+        "pt_BR": "Recuperar fonte da transferência",
+        "sv": "Hämta överföringskälla"
       }
     },
     "ff516d0b-2bba-414c-88d4-f3575ebf050a": {
