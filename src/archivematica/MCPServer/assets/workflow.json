@@ -8679,7 +8679,7 @@
         }
       },
       "fallback_job_status": "Failed",
-      "fallback_link_id": "e780473a-0c10-431f-bab6-5d7238b2b70b",
+      "fallback_link_id": "e781473a-0c10-431f-8ab6-5d7238b2b70b",
       "group": {
         "en": "Retrieve transfer source",
         "es": "Recuperar origen de transferencia",
@@ -10702,6 +10702,70 @@
       },
       "fallback_job_status": "Failed",
       "fallback_link_id": "377f8ebb-7989-4a68-9361-658079ff8138",
+      "group": {
+        "en": "Failed transfer",
+        "es": "Transferencia fallida",
+        "fr": "Échec du transfert",
+        "ja": "転送に失敗",
+        "no": "Overføring mislykket",
+        "pt_BR": "Falha na transferência",
+        "sv": "Överföring misslyckad"
+      }
+    },
+    "e781473a-0c10-431f-8ab6-5d7238b2b70b": {
+      "config": {
+        "@manager": "linkTaskManagerDirectories",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"fail\" \"%SIPUUID%\" \"%SIPDirectory%\" --allow-missing-path",
+        "execute": "failedTransferCleanup"
+      },
+      "description": {
+        "en": "Cleanup failed Transfer",
+        "es": "Eliminar transferencia fallida",
+        "fr": "Nettoyer les Transferts qui ont échoués",
+        "ja": "失敗した転送をクリーン",
+        "no": "Rydd opp misslykket overføring",
+        "pt_BR": "Transferência falha de limpeza",
+        "sv": "Rensa misslyckad överföring"
+      },
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully",
+          "link_id": "e782473a-0c10-431f-8ab6-5d7238b2b70b"
+        }
+      },
+      "fallback_job_status": "Failed",
+      "fallback_link_id": "e782473a-0c10-431f-8ab6-5d7238b2b70b",
+      "group": {
+        "en": "Failed transfer",
+        "es": "Transferencia fallida",
+        "fr": "Échec du transfert",
+        "ja": "転送に失敗",
+        "no": "Overføring mislykket",
+        "pt_BR": "Falha na transferência",
+        "sv": "Överföring misslyckad"
+      }
+    },
+    "e782473a-0c10-431f-8ab6-5d7238b2b70b": {
+      "config": {
+        "@manager": "linkTaskManagerDirectories",
+        "@model": "StandardTaskConfig",
+        "arguments": "\"%SIPDirectory%\" \"%sharedPath%failed/.\" \"%SIPUUID%\" \"%sharedPath%\" \"%SIPUUID%\" \"%sharedPath%\" --allow-missing-source",
+        "execute": "moveTransfer_v0.0"
+      },
+      "description": {
+        "en": "Move to the failed directory",
+        "no": "Flytt til den mislykkede mappen",
+        "pt_BR": "Mover para o diretório com falha",
+        "sv": "Flytta till den misslyckade mappen"
+      },
+      "end": true,
+      "exit_codes": {
+        "0": {
+          "job_status": "Completed successfully"
+        }
+      },
+      "fallback_job_status": "Failed",
       "group": {
         "en": "Failed transfer",
         "es": "Transferencia fallida",

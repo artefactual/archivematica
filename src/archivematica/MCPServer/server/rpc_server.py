@@ -258,7 +258,7 @@ class RPCServer(GearmanWorker):
             payload.get("user_id"),
             self.workflow,
         )
-        kwargs = {"auto_approve": payload.get("auto_approve")}
+        kwargs = {"auto_approve": payload.get("auto_approve", True)}
         processing_config = payload.get("processing_config")
         if processing_config is not None:
             kwargs["processing_config"] = processing_config
