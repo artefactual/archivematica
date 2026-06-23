@@ -33,6 +33,7 @@ vi.mock('@/shared/http', async () => {
 import { getTransferStatuses } from '@/shared/http/transfer'
 import { getIngestStatuses } from '@/shared/http/ingest'
 import { executeChoice, getIngestUploadAsUrl, getUploadTarget, setUploadTarget } from '@/shared/http'
+import { PROCESSING_UNIT_STATE } from '@/shared/http/processing'
 import type { MonitorConfig } from '@/monitor/composables'
 
 const i18n = createI18nMock()
@@ -69,6 +70,40 @@ describe('ProcessMonitor', () => {
     expect(getTransferStatuses).toHaveBeenCalledTimes(1)
     expect(getIngestStatuses).not.toHaveBeenCalled()
     expect(wrapper.text()).toContain('Transfer-1')
+  })
+
+  it('shows a waiting icon for jobless transfers waiting to start', async () => {
+    vi.mocked(getTransferStatuses).mockResolvedValueOnce({
+      objects: [{
+        uuid: 't-queued',
+        directory: 'Transfer-queued',
+        timestamp: 0,
+        processing_state: PROCESSING_UNIT_STATE.waitingForProcessing,
+        jobs: [],
+      }],
+      mcp: true,
+    })
+    vi.mocked(getIngestStatuses).mockResolvedValueOnce({ objects: [], mcp: true })
+
+    const wrapper = mount(ProcessMonitor, {
+      props: { unitType: 'Transfer', config: defaultConfig },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+
+    expect(
+      wrapper.find('.sip-detail-icon-status .monitor-status-icon-hourglass').exists(),
+    ).toBe(true)
+    expect(
+      wrapper.find('.sip-detail-icon-status .monitor-status-icon-accept').exists(),
+    ).toBe(false)
+    expect(
+      wrapper.find('.sip-detail-icon-status .monitor-status-icon-arrow-refresh').exists(),
+    ).toBe(false)
   })
 
   it('fetches ingest statuses when unitType is SIP', async () => {

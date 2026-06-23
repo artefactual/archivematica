@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { formatDateTime } from '@/shared/date'
+import { PROCESSING_UNIT_STATE } from '@/shared/http/processing'
 import type { ProcessingJob, ProcessingUnit } from '@/shared/http/processing'
 import {
   getStatusIconForJob,
@@ -11,6 +12,7 @@ import {
   SilkBellIcon,
   SilkDeleteIcon,
   SilkCancelIcon,
+  SilkHourglassIcon,
   SilkTableEditIcon,
   SilkZoomIcon,
 } from '@/shared/icons'
@@ -50,9 +52,14 @@ const statusIconByName = {
   'arrow-refresh': SilkArrowRefreshIcon,
   'bell': SilkBellIcon,
   'cancel': SilkCancelIcon,
+  'hourglass': SilkHourglassIcon,
 } as const
 
-const getStatusIconName = (job: ProcessingJob | undefined): keyof typeof statusIconByName => {
+const getStatusIconName = (unit: ProcessingUnit): keyof typeof statusIconByName => {
+  const job = unit.jobs[0]
+  if (!job && unit.processing_state === PROCESSING_UNIT_STATE.waitingForProcessing) {
+    return 'hourglass'
+  }
   if (!job) return 'accept'
   const iconName = getStatusIconForJob({
     currentstep: job.currentstep,
@@ -89,10 +96,10 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
     >
       <div class="sip-detail-icon-status">
         <component
-          :is="statusIconByName[getStatusIconName(unit.jobs[0])]"
+          :is="statusIconByName[getStatusIconName(unit)]"
           :class="[
             'monitor-status-icon',
-            `monitor-status-icon-${getStatusIconName(unit.jobs[0])}`,
+            `monitor-status-icon-${getStatusIconName(unit)}`,
           ]"
           aria-hidden="true"
           size="16"
