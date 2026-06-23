@@ -47,6 +47,8 @@ from archivematica.dashboard.main import models
 LOGGER = logging.getLogger("archivematica.dashboard")
 SHARED_PATH_TEMPLATE_VAL = "%sharedPath%"
 SHARED_DIRECTORY_ROOT = django_settings.SHARED_DIRECTORY
+# Retrieval failures need special handling before the generic failure chain runs.
+TRANSFER_SOURCE_RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
 UUID_REGEX = re.compile(
     r"^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$",
     re.IGNORECASE,
@@ -188,12 +190,42 @@ def get_unit_status(unit_uuid, unit_type):
         .filter(unittype=unit_type)
         .order_by("-createdtime", "-jobuuid")
     )
-    # tentatively choose the job with the latest created time to be the current/last for the unit
-    job = unit_jobs[0]
+    # Tentatively choose the job with the latest created time to be the
+    # current/last for the unit. API-created transfers can be processing while
+    # their first workflow job is still waiting in PackageQueue.
+    try:
+        job = unit_jobs[0]
+    except IndexError:
+        if unit_type == "unitTransfer":
+            transfer_status = (
+                models.Transfer.objects.filter(uuid=unit_uuid)
+                .values_list("status", flat=True)
+                .first()
+            )
+            if transfer_status == models.PACKAGE_STATUS_PROCESSING:
+                return {
+                    "microservice": "Waiting for processing to start",
+                    "status": "PROCESSING",
+                }
+            if transfer_status == models.PACKAGE_STATUS_FAILED:
+                return {
+                    "microservice": "Failed before processing started",
+                    "status": "FAILED",
+                }
+        raise
 
     ret["microservice"] = job.jobtype
     if job.currentstep == models.Job.STATUS_AWAITING_DECISION:
         ret["status"] = "USER_INPUT"
+    elif (
+        # The failed-transfer cleanup job is scheduled after retrieval returns.
+        # A status poll can observe the failed retrieval job before that cleanup
+        # job exists, so classify the retrieval failure directly.
+        unit_type == "unitTransfer"
+        and job.currentstep == models.Job.STATUS_FAILED
+        and str(job.microservicechainlink) == TRANSFER_SOURCE_RETRIEVAL_LINK_ID
+    ):
+        ret["status"] = "FAILED"
     elif "failed" in job.microservicegroup.lower():
         ret["status"] = "FAILED"
     elif "reject" in job.microservicegroup.lower():
