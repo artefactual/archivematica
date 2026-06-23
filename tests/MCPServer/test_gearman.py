@@ -4,7 +4,9 @@ from unittest import mock
 
 import gearman
 import pytest
+from django.utils import timezone
 
+from archivematica.dashboard.main import models
 from archivematica.MCPServer.server.jobs import Job
 from archivematica.MCPServer.server.tasks import GearmanTaskBackend
 from archivematica.MCPServer.server.tasks import Task
@@ -144,7 +146,12 @@ def test_gearman_task_result_success(bulk_log, mock_client, simple_job, simple_t
 @mock.patch(
     "archivematica.MCPServer.server.tasks.backends.gearman_backend.Task.bulk_log"
 )
-def test_gearman_task_result_error(bulk_log, mock_client, simple_job, simple_task):
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.Task.bulk_mark_failed"
+)
+def test_gearman_task_result_error(
+    bulk_mark_failed, bulk_log, mock_client, simple_job, simple_task
+):
     backend = GearmanTaskBackend()
 
     mock_gearman_job = mock.Mock()
@@ -174,6 +181,37 @@ def test_gearman_task_result_error(bulk_log, mock_client, simple_job, simple_tas
     task_result = results[0]
     assert task_result.exit_code == 1
     assert task_result.done is True
+    bulk_mark_failed.assert_called_once()
+    assert bulk_mark_failed.call_args.args[0] == [simple_task]
+    assert "Gearman task batch" in bulk_mark_failed.call_args.args[1]
+    assert "Error!" in bulk_mark_failed.call_args.args[1]
+
+
+@pytest.mark.django_db(transaction=True)
+def test_bulk_mark_failed_persists_task_failure(simple_task):
+    job = models.Job.objects.create(
+        createdtime=timezone.now(),
+        currentstep=models.Job.STATUS_FAILED,
+    )
+    models.Task.objects.create(
+        taskuuid=str(simple_task.uuid),
+        job=job,
+        createdtime=simple_task.start_timestamp,
+        filename="testfile",
+        execution="retrievetransfersource_v0.0",
+        arguments=simple_task.arguments,
+    )
+
+    Task.bulk_mark_failed([simple_task], "Gearman task batch failed to execute.")
+
+    task = models.Task.objects.get(taskuuid=simple_task.uuid)
+    assert task.exitcode == 1
+    assert task.stderror == "Gearman task batch failed to execute."
+    assert task.endtime is not None
+    assert simple_task.exit_code == 1
+    assert simple_task.stderr == "Gearman task batch failed to execute."
+    assert simple_task.finished_timestamp == task.endtime
+    assert simple_task.done is True
 
 
 @pytest.mark.parametrize(
