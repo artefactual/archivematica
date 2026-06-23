@@ -160,6 +160,61 @@ describe('useProcessingMonitor', () => {
     wrapper.unmount()
   })
 
+  it('sorts incoming units and jobs by descending timestamp', async () => {
+    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
+      options: TransferStatusesIfChangedOptions,
+    ) => Promise<TransferStatusesIfChangedResponse>>
+
+    mockGetTransferStatuses.mockResolvedValue({
+      changed: true,
+      raw: '{"objects":[{"uuid":"older"},{"uuid":"newer"},{"uuid":"middle"}],"mcp":true}',
+      data: {
+        objects: [
+          {
+            uuid: 'older',
+            directory: 'Transfer older',
+            timestamp: 1,
+            jobs: [
+              {
+                uuid: 'job-older',
+                type: 'Older job',
+                microservicegroup: 'Group',
+                currentstep: 0,
+                timestamp: 10,
+                produces_tasks: false,
+              },
+              {
+                uuid: 'job-newer',
+                type: 'Newer job',
+                microservicegroup: 'Group',
+                currentstep: 0,
+                timestamp: 20,
+                produces_tasks: false,
+              },
+            ],
+          },
+          { uuid: 'newer', directory: 'Transfer newer', timestamp: 3, jobs: [] },
+          { uuid: 'middle', directory: 'Transfer middle', timestamp: 2, jobs: [] },
+        ],
+        mcp: true,
+      },
+    })
+
+    const { wrapper, monitor } = await mountMonitor('Transfer')
+
+    expect(monitor.units.value.map((unit: ProcessingUnit) => unit.uuid)).toEqual([
+      'newer',
+      'middle',
+      'older',
+    ])
+    expect(monitor.units.value[2].jobs.map(job => job.uuid)).toEqual([
+      'job-newer',
+      'job-older',
+    ])
+
+    wrapper.unmount()
+  })
+
   it('pauses polling while hidden and resumes when visible', async () => {
     vi.useFakeTimers()
 

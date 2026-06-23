@@ -11,29 +11,94 @@ import calendar
 import configparser
 import inspect
 import logging
+import os
 import re
 import time
 from collections import OrderedDict
+from datetime import timezone as datetime_timezone
 from io import StringIO
 from socket import gethostname
+from typing import Literal
 
 import gearman
 from django.conf import settings as django_settings
 from django.db import connection
+from django.db.models import Exists
+from django.db.models import Min
+from django.db.models import OuterRef
+from django.utils.translation import gettext as _
 from gearman import GearmanWorker
 from lxml import etree
 
 from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
+from archivematica.dashboard.main.models import PACKAGE_STATUS_PROCESSING
 from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import UNIT_VARIABLE_PROCESSING_CONFIGURATION
 from archivematica.dashboard.main.models import Job
 from archivematica.dashboard.main.models import Transfer
+from archivematica.dashboard.main.models import UnitVariable
 from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.packages import get_approve_transfer_chain_id
 from archivematica.MCPServer.server.processing_config import get_processing_fields
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
+
+# Unit-level state exposed by getUnitsStatuses when job rows do not yet exist.
+# Keep this intentionally narrow: today, monitor state still comes from
+# Job.currentstep once jobs have been created. The single current value covers a
+# transfer accepted into processing that is waiting in PackageQueue before its
+# first Job row can be written. A future persisted lifecycle model should widen
+# this type, or replace it with a shared enum, instead of adding free-form
+# labels here.
+ProcessingUnitState = Literal["waiting_for_processing"]
+PROCESSING_STATE_WAITING_FOR_PROCESSING: ProcessingUnitState = "waiting_for_processing"
+
+
+def _transfer_directory_name(transfer: Transfer) -> str:
+    unnamed = _("(Unnamed)")
+    current_location = transfer.currentlocation.rstrip("/")
+    if not current_location:
+        return unnamed
+    return os.path.basename(current_location) or unnamed
+
+
+def _datetime_to_unix_timestamp(value) -> float:
+    """Convert a datetime to the epoch-seconds format used by the monitor.
+
+    This helper exists because getUnitsStatuses combines timestamps from two
+    sources: SQL rows already converted with UNIX_TIMESTAMP and ORM
+    DateTimeField values from UnitVariable. Keeping the ORM conversion here
+    makes that contract explicit and preserves microsecond precision.
+
+    With USE_TZ enabled, Django supplies aware UTC datetimes from the database.
+    Aware values are normalized to UTC before conversion; naive values are
+    treated as UTC to match the existing MySQL/UNIX_TIMESTAMP monitor behavior.
+    """
+    if value.utcoffset() is not None:
+        value = value.astimezone(datetime_timezone.utc)
+    return calendar.timegm(value.timetuple()) + (value.microsecond / 1000000)
+
+
+def _transfer_processing_start_timestamps(transfer_uuids) -> dict[str, float]:
+    """Return processing-start marker timestamps keyed by transfer UUID."""
+    if not transfer_uuids:
+        return {}
+
+    markers = (
+        UnitVariable.objects.filter(
+            unittype="Transfer",
+            unituuid__in=transfer_uuids,
+            variable=UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+        )
+        .values("unituuid")
+        .annotate(createdtime=Min("createdtime"))
+    )
+    return {
+        str(marker["unituuid"]): _datetime_to_unix_timestamp(marker["createdtime"])
+        for marker in markers
+    }
 
 
 class RPCServerError(Exception):
@@ -242,6 +307,12 @@ class RPCServer(GearmanWorker):
     def _package_create_handler(self, worker, job, payload):
         """Create a new package.
 
+        When auto-approving a transfer, create_package delegates to
+        _start_package_transfer_with_auto_approval. That bootstrap records the
+        linkAfterTransferSourceRetrieval UnitVariable before queueing the first
+        job, giving getUnitsStatuses a persisted timestamp while the transfer
+        has no Job rows yet.
+
         [config]
         name = packageCreate
         raise_exc = True
@@ -339,8 +410,17 @@ class RPCServer(GearmanWorker):
 
         It returns a JSON-encoded objects. Its ``objects`` attribute is an
         array of objects, each of which represents a single unit. Each unit
-        has a ``jobs`` attribute shoe value is an array of objects, each of
+        has a ``jobs`` attribute whose value is an array of objects, each of
         which represents a job of the unit.
+
+        For Transfer status responses, processing transfers may briefly have no
+        Job rows because PackageQueue has accepted the transfer but the first
+        job has not run far enough to persist itself yet. Those transfers are
+        included with a unit-level waiting state. API-created transfers persist
+        the processingConfiguration UnitVariable in create_package before being
+        marked as processing. Its createdTime is used as the unit timestamp so
+        the monitor can sort the waiting transfer with other active work instead
+        of treating it as epoch zero.
 
         [config]
         name = getUnitsStatuses
@@ -379,7 +459,34 @@ class RPCServer(GearmanWorker):
                 GROUP BY Jobs.SIPUUID;"""
         with connection.cursor() as cursor:
             cursor.execute(sql, (model_attrs[1],))
-            sipuuids_and_timestamps = cursor.fetchall()
+            sipuuids_and_timestamps = list(cursor.fetchall())
+        if payload["type"] == "Transfer":
+            # TODO: Replace this UnitVariable timestamp workaround with an
+            # explicit package lifecycle timestamp, e.g. Transfer.processing_started_at.
+            # API-created transfers can be processing before PackageQueue has
+            # created their first Job. Until we have that direct field, use the
+            # processingConfiguration UnitVariable, written before the public
+            # processing status change, as the unit timestamp so the monitor can
+            # show them as waiting without sorting active transfers behind old
+            # completed transfers.
+            transfer_jobs = Job.objects.filter(
+                sipuuid=OuterRef("uuid"), unittype=model_attrs[1]
+            )
+            queued_transfer_uuids = list(
+                Transfer.objects.filter(status=PACKAGE_STATUS_PROCESSING, hidden=False)
+                .filter(~Exists(transfer_jobs))
+                .values_list("uuid", flat=True)
+            )
+            queued_timestamps = _transfer_processing_start_timestamps(
+                queued_transfer_uuids
+            )
+            sipuuids_and_timestamps.extend(
+                (
+                    str(transfer_uuid),
+                    queued_timestamps.get(str(transfer_uuid), 0),
+                )
+                for transfer_uuid in queued_transfer_uuids
+            )
         jobs_awaiting_for_approval = self.package_queue.jobs_awaiting_decisions()
         objects = []
         for unit_id, timestamp in sipuuids_and_timestamps:
@@ -396,6 +503,9 @@ class RPCServer(GearmanWorker):
             )
             if jobs:
                 item["directory"] = jobs[0].get_directory_name()
+            elif model is Transfer:
+                item["directory"] = _transfer_directory_name(unit)
+                item["processing_state"] = PROCESSING_STATE_WAITING_FOR_PROCESSING
             # Embed "Access System ID" in status data (used in Upload DIP).
             # `access_system_id` is a property of the Transfer model - the
             # only way we have at the moment to look up the Transfer is by
@@ -436,6 +546,12 @@ class RPCServer(GearmanWorker):
                     pass
                 item["jobs"].append(new_job)
             objects.append(item)
+        # The response combines SQL-derived job timestamps with UnitVariable
+        # timestamps for transfers that are processing but have no Job rows yet.
+        # Sort after both sources have been merged so API clients and the
+        # monitor receive active work newest-first regardless of database row
+        # order from either source.
+        objects.sort(key=lambda item: item["timestamp"], reverse=True)
         return objects
 
     def _unit_status_handler(self, worker, job, payload):
@@ -456,7 +572,11 @@ class RPCServer(GearmanWorker):
             raise UnexpectedPayloadError(f"Missing parameter: {err}")
         jobs_qs = Job.objects.filter(sipuuid=id_)
         if not jobs_qs:
-            raise NotFoundError("Unit not found")
+            if not Transfer.objects.filter(
+                pk=id_, status=PACKAGE_STATUS_PROCESSING
+            ).exists():
+                raise NotFoundError("Unit not found")
+            return {"name": jobs_qs.get_directory_name(), "jobs": []}
         microservices = jobs_qs.values(
             "jobuuid", "currentstep", "microservicechainlink"
         )

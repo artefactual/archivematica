@@ -10,6 +10,7 @@ from django.utils import timezone
 from lxml import etree
 
 from archivematica.dashboard.main import models
+from archivematica.MCPServer.server import rpc_server
 from archivematica.MCPServer.server.jobs import DirectoryClientScriptJob
 from archivematica.MCPServer.server.jobs import FilesClientScriptJob
 from archivematica.MCPServer.server.jobs import GetUnitVarLinkJob
@@ -19,14 +20,19 @@ from archivematica.MCPServer.server.jobs import OutputClientScriptJob
 from archivematica.MCPServer.server.jobs import OutputDecisionJob
 from archivematica.MCPServer.server.jobs import SetUnitVarLinkJob
 from archivematica.MCPServer.server.jobs import UpdateContextDecisionJob
+from archivematica.MCPServer.server.packages import PACKAGE_TYPE_STARTING_POINTS
 from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.tasks import Task
 from archivematica.MCPServer.server.tasks import TaskBackend
 from archivematica.MCPServer.server.workflow import load as load_workflow
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 INTEGRATION_TEST_PATH = os.path.join(FIXTURES_DIR, "workflow-integration-test.json")
 DEFAULT_STORAGE_LOCATION = "/api/v2/location/default/"
+RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
+# A minimal processing configuration used by the pre-existing workflow exercise.
 TEST_PROCESSING_CONFIG = etree.parse(
     StringIO(
         """<processingMCP>
@@ -44,6 +50,8 @@ TEST_PROCESSING_CONFIG = etree.parse(
 
 
 class EchoBackend(TaskBackend):
+    """Return task arguments as successful output for workflow traversal tests."""
+
     def __init__(self):
         self.tasks = {}
 
@@ -62,26 +70,83 @@ class EchoBackend(TaskBackend):
             yield task
 
 
+class ControlledBackend(TaskBackend):
+    """Persist tasks and return deterministic results after an optional pause."""
+
+    def __init__(self, results=None, on_success=None):
+        self.results = results or {}
+        self.on_success = on_success
+        self.tasks = {}
+        self.started = threading.Event()
+        self.release = threading.Event()
+
+    def submit_task(self, job, task):
+        self.tasks.setdefault(job.uuid, []).append(task)
+        Task.bulk_log([task], job)
+        models.Task.objects.filter(taskuuid=task.uuid).update(
+            starttime=task.start_timestamp
+        )
+
+    def wait_for_results(self, job):
+        if job.name == "retrievetransfersource_v0.0":
+            self.started.set()
+            if not self.release.wait(timeout=5):
+                raise TimeoutError("Timed out waiting to release retrieval task")
+
+        exit_code, stderr = self.results.get(job.name, (0, ""))
+        for task in self.tasks[job.uuid]:
+            task.exit_code = exit_code
+            task.stderr = stderr
+            task.finished_timestamp = timezone.now()
+            models.Task.objects.filter(taskuuid=task.uuid).update(
+                exitcode=exit_code,
+                stderror=stderr,
+                endtime=task.finished_timestamp,
+            )
+            if exit_code == 0 and self.on_success is not None:
+                self.on_success(job)
+            yield task
+
+
+def _submit_synchronously(fn, *args, **kwargs):
+    """Emulate Executor.submit while running bootstrap work deterministically."""
+    future = concurrent.futures.Future()
+    try:
+        future.set_result(fn(*args, **kwargs))
+    except BaseException as err:
+        future.set_exception(err)
+    return future
+
+
+def _future_result(future):
+    """Resolve workflow work with a bounded wait so failures cannot hang tests."""
+    return future.result(timeout=5)
+
+
 @pytest.fixture
-def workflow(request):
+def workflow():
     with open(INTEGRATION_TEST_PATH) as workflow_file:
         return load_workflow(workflow_file)
 
 
 @pytest.fixture
-def package_queue(request):
+def package_queue():
+    """Own a one-worker PackageQueue and always release its executor."""
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-    return PackageQueue(executor, threading.Event(), debug=True)
+    try:
+        yield PackageQueue(executor, threading.Event(), debug=True)
+    finally:
+        executor.shutdown(wait=True)
 
 
 @pytest.fixture
-def transfer(request, db):
+def transfer(db):
     transfer_obj = models.Transfer.objects.create(uuid=uuid.uuid4())
     return Transfer("transfer_path", transfer_obj.uuid)
 
 
 @pytest.fixture
-def dummy_file_replacements(request):
+def dummy_file_replacements():
     files = []
     for x in range(3):
         files.append(
@@ -92,6 +157,23 @@ def dummy_file_replacements(request):
         )
 
     return files
+
+
+@pytest.fixture
+def controlled_backend_factory(package_queue):
+    """Build controllable backends and release them before executor teardown."""
+    backends = []
+
+    def make(*args, **kwargs):
+        backend = ControlledBackend(*args, **kwargs)
+        backends.append(backend)
+        return backend
+
+    yield make
+
+    # Release blocked retrievals before the package queue shuts its executor down.
+    for backend in backends:
+        backend.release.set()
 
 
 @pytest.mark.django_db(transaction=True)
@@ -274,3 +356,153 @@ def test_workflow_integration(
 
         # Workflow is over; we're done
         assert package_queue.job_queue.qsize() == 0
+
+
+@pytest.mark.django_db(transaction=True)
+@mock.patch("archivematica.MCPServer.server.jobs.client.get_task_backend")
+def test_transfer_source_retrieval_is_visible_and_continues_workflow(
+    get_task_backend,
+    admin_user,
+    wf,
+    retrieval_directories,
+    package_queue,
+    controlled_backend_factory,
+):
+    """A running retrieval is observable and resumes the type-specific chain."""
+    final_path = retrieval_directories.processing / "TransferName"
+
+    def complete_retrieval(job):
+        final_path.mkdir(exist_ok=True)
+        models.Transfer.objects.filter(uuid=job.package.uuid).update(
+            currentlocation="%sharedPath%currentlyProcessing/TransferName"
+        )
+
+    backend = controlled_backend_factory(on_success=complete_retrieval)
+    get_task_backend.return_value = backend
+    bootstrap_executor = mock.Mock()
+    bootstrap_executor.submit.side_effect = _submit_synchronously
+
+    transfer = create_package(
+        package_queue,
+        bootstrap_executor,
+        "TransferName",
+        "standard",
+        "",
+        "",
+        "source-location:/transfer/source/path",
+        "",
+        admin_user.pk,
+        wf,
+        auto_approve=True,
+    )
+
+    retrieval_future = package_queue.process_one_job(timeout=1)
+    assert backend.started.wait(timeout=1)
+
+    retrieval_job = models.Job.objects.get(sipuuid=transfer.uuid)
+    retrieval_task = models.Task.objects.get(job=retrieval_job)
+    assert str(retrieval_job.microservicechainlink) == RETRIEVAL_LINK_ID
+    assert retrieval_job.currentstep == models.Job.STATUS_EXECUTING_COMMANDS
+    assert retrieval_task.exitcode is None
+
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    server = rpc_server.RPCServer(
+        wf,
+        shutdown_event,
+        package_queue,
+        package_queue.executor,
+    )
+    units = server._units_statuses_handler(
+        None,
+        None,
+        {"type": "Transfer", "lang": "en"},
+    )
+    unit = next(item for item in units if item["uuid"] == transfer.uuid)
+    assert unit["active"] is True
+    assert unit["jobs"][0]["link_id"] == RETRIEVAL_LINK_ID
+    assert unit["jobs"][0]["currentstep"] == models.Job.STATUS_EXECUTING_COMMANDS
+    assert (
+        server._unit_status_handler(
+            None,
+            None,
+            {"id": str(transfer.uuid), "lang": "en"},
+        )["jobs"][0]["description"]
+        == "Retrieve transfer source"
+    )
+
+    backend.release.set()
+    continuation_job = _future_result(retrieval_future)
+    retrieval_job.refresh_from_db()
+    retrieval_task.refresh_from_db()
+    transfer.refresh_from_db()
+    assert retrieval_job.currentstep == models.Job.STATUS_COMPLETED_SUCCESSFULLY
+    assert retrieval_task.exitcode == 0
+    assert transfer.currentlocation == "%sharedPath%currentlyProcessing/TransferName"
+
+    continuation_future = package_queue.process_one_job(timeout=1)
+    next_job = _future_result(continuation_future)
+    assert isinstance(continuation_job, GetUnitVarLinkJob)
+    assert next_job.link.id == PACKAGE_TYPE_STARTING_POINTS["standard"].link
+    assert package_queue.job_queue.qsize() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+@mock.patch("archivematica.MCPServer.server.jobs.client.get_task_backend")
+def test_transfer_source_retrieval_failure_routes_to_failed_transfer(
+    get_task_backend,
+    admin_user,
+    wf,
+    retrieval_directories,
+    package_queue,
+    controlled_backend_factory,
+):
+    """A failed retrieval follows cleanup and never enters normal processing."""
+    backend = controlled_backend_factory(
+        results={
+            "retrievetransfersource_v0.0": (
+                1,
+                "Storage Service copy timed out",
+            )
+        }
+    )
+    backend.release.set()
+    get_task_backend.return_value = backend
+    bootstrap_executor = mock.Mock()
+    bootstrap_executor.submit.side_effect = _submit_synchronously
+
+    transfer = create_package(
+        package_queue,
+        bootstrap_executor,
+        "TransferName",
+        "standard",
+        "",
+        "",
+        "source-location:/transfer/source/path",
+        "",
+        admin_user.pk,
+        wf,
+        auto_approve=True,
+    )
+
+    retrieval_future = package_queue.process_one_job(timeout=1)
+    _future_result(retrieval_future)
+    retrieval_job = models.Job.objects.get(
+        sipuuid=transfer.uuid,
+        microservicechainlink=RETRIEVAL_LINK_ID,
+    )
+    retrieval_task = models.Task.objects.get(job=retrieval_job)
+    assert retrieval_job.currentstep == models.Job.STATUS_FAILED
+    assert retrieval_task.exitcode == 1
+    assert retrieval_task.stderror == "Storage Service copy timed out"
+
+    failed_cleanup_future = package_queue.process_one_job(timeout=1)
+    _future_result(failed_cleanup_future)
+    move_failed_future = package_queue.process_one_job(timeout=1)
+    _future_result(move_failed_future)
+
+    jobs = models.Job.objects.filter(sipuuid=transfer.uuid)
+    assert jobs.filter(microservicegroup="Failed transfer").exists()
+    assert not jobs.filter(
+        microservicechainlink=PACKAGE_TYPE_STARTING_POINTS["standard"].link
+    ).exists()

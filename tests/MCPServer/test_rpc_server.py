@@ -1,5 +1,9 @@
 import threading
 import uuid
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone as datetime_timezone
 from unittest import mock
 
 import pytest
@@ -8,54 +12,69 @@ from django.utils import timezone
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server import rpc_server
 from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
+from archivematica.MCPServer.server.queues import PackageQueue
 
 TASK_PRODUCING_LINK_ID = "002716a1-ae29-4f36-98ab-0d97192669c4"
 
 
-@pytest.mark.django_db
-@mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
-def test_package_create_handler_defaults_to_auto_approve(create_package, wf):
-    transfer_uuid = uuid.uuid4()
-    create_package.return_value.pk = transfer_uuid
-    package_queue = mock.MagicMock()
-    executor = mock.MagicMock()
-    shutdown_event = threading.Event()
-    shutdown_event.set()
-    payload = {
-        "name": "TransferName",
-        "type": "standard",
-        "accession": "",
-        "access_system_id": "",
-        "path": "home/username/transfer",
-        "metadata_set_id": "",
-        "user_id": "1",
-    }
+def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
+    value = datetime(
+        2026,
+        7,
+        1,
+        10,
+        30,
+        15,
+        123456,
+        tzinfo=datetime_timezone.utc,
+    )
 
-    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, executor)
-
-    assert server._package_create_handler(None, None, payload) == transfer_uuid
-    create_package.assert_called_once_with(
-        package_queue,
-        executor,
-        "TransferName",
-        "standard",
-        "",
-        "",
-        "home/username/transfer",
-        "",
-        "1",
-        wf,
-        auto_approve=True,
+    assert rpc_server._datetime_to_unix_timestamp(value) == pytest.approx(
+        value.timestamp()
     )
 
 
 @pytest.mark.django_db
+def test_unit_status_handler_returns_empty_jobs_before_retrieval_starts(wf):
+    transfer = models.Transfer.objects.create(
+        uuid=uuid.uuid4(),
+        currentlocation="/shared/tmp/tmp123/TransferName",
+        status=models.PACKAGE_STATUS_PROCESSING,
+    )
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, executor)
+
+    result = server._unit_status_handler(
+        None,
+        None,
+        {"id": str(transfer.uuid), "lang": "en"},
+    )
+
+    assert result == {"name": "(Unnamed)", "jobs": []}
+
+
+@pytest.mark.parametrize(
+    "payload_overrides,expected_kwargs",
+    [
+        pytest.param({}, {"auto_approve": True}, id="default-auto-approve"),
+        pytest.param(
+            {"auto_approve": False, "processing_config": "automated"},
+            {"auto_approve": False, "processing_config": "automated"},
+            id="explicit-no-auto-approve",
+        ),
+    ],
+)
 @mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
-def test_package_create_handler_preserves_auto_approve_false(create_package, wf):
+def test_package_create_handler_forwards_auto_approve(
+    create_package, wf, payload_overrides, expected_kwargs
+):
     transfer_uuid = uuid.uuid4()
     create_package.return_value.pk = transfer_uuid
-    package_queue = mock.MagicMock()
-    executor = mock.MagicMock()
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
     shutdown_event = threading.Event()
     shutdown_event.set()
     payload = {
@@ -66,9 +85,8 @@ def test_package_create_handler_preserves_auto_approve_false(create_package, wf)
         "path": "home/username/transfer",
         "metadata_set_id": "",
         "user_id": "1",
-        "auto_approve": False,
-        "processing_config": "automated",
     }
+    payload.update(payload_overrides)
 
     server = rpc_server.RPCServer(wf, shutdown_event, package_queue, executor)
 
@@ -84,8 +102,7 @@ def test_package_create_handler_preserves_auto_approve_false(create_package, wf)
         "",
         "1",
         wf,
-        auto_approve=False,
-        processing_config="automated",
+        **expected_kwargs,
     )
 
 
@@ -159,6 +176,170 @@ def test_units_statuses_handler_returns_transfers(wf):
 
     assert len(result) == 1
     assert result[0]["uuid"] == transfer_uuid
+
+
+@pytest.mark.django_db
+def test_units_statuses_handler_returns_processing_transfer_without_jobs(wf):
+    transfer_uuid = str(uuid.uuid4())
+    processing_started_at = timezone.now()
+    models.Transfer.objects.create(
+        uuid=transfer_uuid,
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+        status=models.PACKAGE_STATUS_PROCESSING,
+    )
+    unit_variable = models.UnitVariable.objects.create(
+        unittype="Transfer",
+        unituuid=transfer_uuid,
+        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+    )
+    models.UnitVariable.objects.filter(pk=unit_variable.pk).update(
+        createdtime=processing_started_at
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    result = server._units_statuses_handler(
+        None, wf, {"type": "Transfer", "lang": "en"}
+    )
+
+    assert result == [
+        {
+            "id": transfer_uuid,
+            "uuid": transfer_uuid,
+            "timestamp": pytest.approx(
+                rpc_server._datetime_to_unix_timestamp(processing_started_at)
+            ),
+            "active": True,
+            "jobs": [],
+            "directory": "TransferName",
+            "processing_state": "waiting_for_processing",
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_processing_transfer_timestamp_uses_earliest_processing_config(wf):
+    transfer_uuid = str(uuid.uuid4())
+    processing_started_at = timezone.now()
+    updated_at = processing_started_at + timedelta(seconds=60)
+    models.Transfer.objects.create(
+        uuid=transfer_uuid,
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+        status=models.PACKAGE_STATUS_PROCESSING,
+    )
+    first_marker = models.UnitVariable.objects.create(
+        unittype="Transfer",
+        unituuid=transfer_uuid,
+        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+    )
+    second_marker = models.UnitVariable.objects.create(
+        unittype="Transfer",
+        unituuid=transfer_uuid,
+        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+    )
+    models.UnitVariable.objects.filter(pk=first_marker.pk).update(
+        createdtime=processing_started_at
+    )
+    models.UnitVariable.objects.filter(pk=second_marker.pk).update(
+        createdtime=updated_at
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    result = server._units_statuses_handler(
+        None, wf, {"type": "Transfer", "lang": "en"}
+    )
+
+    assert result[0]["timestamp"] == pytest.approx(
+        rpc_server._datetime_to_unix_timestamp(processing_started_at)
+    )
+
+
+@pytest.mark.django_db
+def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(wf):
+    now = timezone.now()
+    transfer_times = [
+        ("oldest", now - timedelta(seconds=120)),
+        ("newest", now),
+        ("middle", now - timedelta(seconds=60)),
+    ]
+    transfer_uuids = {}
+    for name, createdtime in transfer_times:
+        transfer_uuid = str(uuid.uuid4())
+        transfer_uuids[name] = transfer_uuid
+        models.Transfer.objects.create(
+            uuid=transfer_uuid,
+            currentlocation=f"%sharedPath%tmp/tmp123/{name}",
+            status=models.PACKAGE_STATUS_PROCESSING,
+        )
+        marker = models.UnitVariable.objects.create(
+            unittype="Transfer",
+            unituuid=transfer_uuid,
+            variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+        )
+        models.UnitVariable.objects.filter(pk=marker.pk).update(createdtime=createdtime)
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    result = server._units_statuses_handler(
+        None, wf, {"type": "Transfer", "lang": "en"}
+    )
+
+    assert [item["uuid"] for item in result] == [
+        transfer_uuids["newest"],
+        transfer_uuids["middle"],
+        transfer_uuids["oldest"],
+    ]
+
+
+@pytest.mark.django_db
+def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs(wf):
+    models.Transfer.objects.create(
+        uuid=uuid.uuid4(),
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+        status=models.PACKAGE_STATUS_PROCESSING,
+        hidden=True,
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    result = server._units_statuses_handler(
+        None, wf, {"type": "Transfer", "lang": "en"}
+    )
+
+    assert result == []
+
+
+@pytest.mark.django_db
+def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(wf):
+    models.Transfer.objects.create(
+        uuid=uuid.uuid4(),
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+        status=models.PACKAGE_STATUS_UNKNOWN,
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    result = server._units_statuses_handler(
+        None, wf, {"type": "Transfer", "lang": "en"}
+    )
+
+    assert result == []
 
 
 @pytest.mark.django_db

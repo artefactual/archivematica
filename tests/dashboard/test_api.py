@@ -14,6 +14,8 @@ from archivematica.archivematicaCommon.processing import install_builtin_config
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.api import views
 from archivematica.dashboard.main.models import PACKAGE_STATUS_COMPLETED_SUCCESSFULLY
+from archivematica.dashboard.main.models import PACKAGE_STATUS_FAILED
+from archivematica.dashboard.main.models import PACKAGE_STATUS_PROCESSING
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import File
@@ -74,6 +76,24 @@ def jobs_processing(db, transfer):
             jobtype="Check transfer directory for objects",
         ),
     ]
+
+
+@pytest.fixture
+def retrieval_job(transfer):
+    """Create a retrieval job in the requested lifecycle state."""
+
+    def make(status):
+        return Job.objects.create(
+            sipuuid=transfer.uuid,
+            unittype="unitTransfer",
+            jobtype="Retrieve transfer source",
+            microservicegroup="Retrieve transfer source",
+            microservicechainlink=views.TRANSFER_SOURCE_RETRIEVAL_LINK_ID,
+            currentstep=status,
+            createdtime=make_aware(datetime.datetime(2026, 6, 21)),
+        )
+
+    return make
 
 
 @pytest.fixture
@@ -341,6 +361,70 @@ def test_status(
     assert payload["status"] == "COMPLETE"
     assert payload["type"] == "transfer"
     assert payload["uuid"] == str(transfer.uuid)
+
+
+@pytest.mark.django_db
+def test_status_reports_processing_before_first_retrieval_job_starts(
+    admin_client, dashboard_uuid, transfer
+):
+    """Immediate UUID polling remains useful before PackageQueue starts a job."""
+    transfer.status = PACKAGE_STATUS_PROCESSING
+    transfer.currentlocation = "%sharedPath%tmp/tmp123/TransferName"
+    transfer.save(update_fields=["status", "currentlocation"])
+
+    resp = admin_client.get(reverse("api:transfer_status", args=[transfer.uuid]))
+
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["status"] == "PROCESSING"
+    assert payload["microservice"] == "Waiting for processing to start"
+    assert payload["uuid"] == str(transfer.uuid)
+
+
+@pytest.mark.django_db
+def test_status_remains_processing_after_retrieval_completes(
+    admin_client, dashboard_uuid, transfer, retrieval_job
+):
+    """Retrieval success is not the same as transfer completion."""
+    retrieval_job(Job.STATUS_COMPLETED_SUCCESSFULLY)
+
+    resp = admin_client.get(reverse("api:transfer_status", args=[transfer.uuid]))
+
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["status"] == "PROCESSING"
+    assert payload["microservice"] == "Retrieve transfer source"
+
+
+@pytest.mark.django_db
+def test_status_reports_failed_retrieval(
+    admin_client, dashboard_uuid, transfer, retrieval_job
+):
+    retrieval_job(Job.STATUS_FAILED)
+
+    resp = admin_client.get(reverse("api:transfer_status", args=[transfer.uuid]))
+
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["status"] == "FAILED"
+    assert payload["microservice"] == "Retrieve transfer source"
+
+
+@pytest.mark.django_db
+def test_status_reports_failed_bootstrap_without_jobs(
+    admin_client, dashboard_uuid, transfer
+):
+    """Bootstrap failures are visible even when no workflow job was persisted."""
+    transfer.status = PACKAGE_STATUS_FAILED
+    transfer.completed_at = make_aware(datetime.datetime(2026, 6, 21))
+    transfer.save(update_fields=["status", "completed_at"])
+
+    resp = admin_client.get(reverse("api:transfer_status", args=[transfer.uuid]))
+
+    assert resp.status_code == 200
+    payload = json.loads(resp.content.decode("utf8"))
+    assert payload["status"] == "FAILED"
+    assert payload["microservice"] == "Failed before processing started"
 
 
 @pytest.mark.django_db

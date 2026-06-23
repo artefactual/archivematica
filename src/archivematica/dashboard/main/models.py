@@ -431,6 +431,8 @@ PACKAGE_STATUS_CHOICES = (
     (PACKAGE_STATUS_FAILED, _("Failed")),
 )
 
+UNIT_VARIABLE_PROCESSING_CONFIGURATION = "processingConfiguration"
+
 
 class SIP(models.Model):
     """Information on SIP units."""
@@ -592,7 +594,7 @@ class Transfer(models.Model):
             unit_variable = UnitVariable.objects.get(
                 unittype="Transfer",
                 unituuid=self.uuid,
-                variable="processingConfiguration",
+                variable=UNIT_VARIABLE_PROCESSING_CONFIGURATION,
             )
         except (UnitVariable.DoesNotExist, ValidationError):
             result = None
@@ -1554,7 +1556,10 @@ class UnitVariableManager(models.Manager):
         self, unit_type, unit_uuid, processing_configuration
     ):
         return self.update_variable(
-            unit_type, unit_uuid, "processingConfiguration", processing_configuration
+            unit_type,
+            unit_uuid,
+            UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+            processing_configuration,
         )
 
 
