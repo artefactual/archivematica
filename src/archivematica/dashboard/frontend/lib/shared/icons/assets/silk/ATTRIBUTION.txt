@@ -1,4 +1,7 @@
-These SVG files are derived from the FamFamFam Silk icon set by Mark James:
+These SVG files are copied from Simandara's FamFamFam Silk SVG set:
+https://github.com/Simandara/famfamfam-silk-svg/
+
+That SVG set is derived from the FamFamFam Silk icon set by Mark James:
 https://github.com/markjames/famfamfam-silk-icons/
 
 License: Creative Commons Attribution 4.0 International (CC BY 4.0)
