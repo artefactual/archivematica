@@ -8,9 +8,11 @@ from unittest import mock
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 import archivematica.MCPServer.server.packages as packages
 from archivematica.dashboard.main import models
+from archivematica.MCPServer.server.jobs import Job as WorkflowJob
 from archivematica.MCPServer.server.packages import DIP
 from archivematica.MCPServer.server.packages import PACKAGE_TYPE_STARTING_POINTS
 from archivematica.MCPServer.server.packages import RETRIEVE_TRANSFER_SOURCE_CHAIN_ID
@@ -26,16 +28,11 @@ from archivematica.MCPServer.server.packages import (
 )
 from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.tasks import Task as WorkflowTask
 from archivematica.MCPServer.server.workflow import Workflow
 
-
-def _submit_synchronously(fn, *args, **kwargs):
-    future = Future()
-    try:
-        future.set_result(fn(*args, **kwargs))
-    except BaseException as err:
-        future.set_exception(err)
-    return future
+# Static workflow contract asserted by package bootstrap tests.
+RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
 
 
 @pytest.mark.parametrize(
@@ -512,159 +509,120 @@ def test_create_package(tmp_path, admin_user, settings):
 
 @pytest.mark.django_db(transaction=True)
 def test_create_package_marks_auto_approved_transfer_processing_before_submission(
-    tmp_path, admin_user, settings, wf
+    admin_user, wf, retrieval_directories
 ):
-    shared_directory = tmp_path / "shared"
-    (shared_directory / "tmp").mkdir(parents=True)
-    settings.SHARED_DIRECTORY = str(shared_directory)
+    """The public status changes before background bootstrap is accepted."""
     package_queue = mock.Mock(spec=PackageQueue)
     executor = mock.Mock(spec=ThreadPoolExecutor)
-    executor.submit.return_value = Future()
+
+    def submit(*args):
+        transfer = models.Transfer.objects.get()
+        assert transfer.status == models.PACKAGE_STATUS_PROCESSING
+        return Future()
+
+    executor.submit.side_effect = submit
 
     transfer = create_package(
-        package_queue,
-        executor,
-        "TransferName",
-        "standard",
-        "",
-        "",
-        "source-location:/transfer/source/path",
-        "",
-        admin_user.pk,
-        wf,
+        package_queue=package_queue,
+        executor=executor,
+        name="TransferName",
+        type_="standard",
+        accession="",
+        access_system_id="",
+        path="source-location:/transfer/source/path",
+        metadata_set_id="",
+        user_id=admin_user.pk,
+        workflow=wf,
         auto_approve=True,
     )
 
     transfer.refresh_from_db()
     assert transfer.status == models.PACKAGE_STATUS_PROCESSING
+    submitted = executor.submit.call_args.args
+    assert submitted[0] is _start_package_transfer_with_auto_approval
+    assert submitted[1] == transfer
     package_queue.schedule_job.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    "_transfer_type,starting_point",
-    PACKAGE_TYPE_STARTING_POINTS.items(),
-)
 @pytest.mark.django_db(transaction=True)
-def test_create_package_auto_approved_schedules_retrieval_workflow(
-    _transfer_type, starting_point, tmp_path, admin_user, settings, wf
+def test_create_package_marks_auto_approved_transfer_failed_when_submission_rejected(
+    admin_user, wf, retrieval_directories
 ):
-    shared_dir = tmp_path / "shared"
-    (shared_dir / "tmp").mkdir(parents=True)
-    processing_dir = shared_dir / "currentlyProcessing"
-    processing_dir.mkdir()
-    settings.SHARED_DIRECTORY = str(shared_dir)
-    settings.PROCESSING_DIRECTORY = f"{processing_dir}/"
-    package_queue = PackageQueue(mock.Mock(), debug=True)
+    """A rejected executor handoff leaves an explicit terminal transfer state."""
+    package_queue = mock.Mock(spec=PackageQueue)
     executor = mock.Mock(spec=ThreadPoolExecutor)
-    executor.submit.side_effect = _submit_synchronously
-    source_path = "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/transfer"
-
-    transfer = create_package(
-        package_queue,
-        executor,
-        "TransferName",
-        _transfer_type,
-        "",
-        "",
-        source_path,
-        "",
-        admin_user.pk,
-        wf,
-        auto_approve=True,
+    executor.submit.side_effect = RuntimeError(
+        "cannot schedule new futures after shutdown"
     )
 
-    transfer.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_PROCESSING
-    assert transfer.currentlocation.endswith("/TransferName")
-    unit_variable = models.UnitVariable.objects.get(
-        unittype="Transfer",
-        unituuid=transfer.uuid,
-        variable="linkAfterTransferSourceRetrieval",
-    )
-    assert str(unit_variable.microservicechainlink) == starting_point.link
+    with pytest.raises(RuntimeError, match="cannot schedule new futures"):
+        create_package(
+            package_queue=package_queue,
+            executor=executor,
+            name="TransferName",
+            type_="standard",
+            accession="",
+            access_system_id="",
+            path="source-location:/transfer/source/path",
+            metadata_set_id="",
+            user_id=admin_user.pk,
+            workflow=wf,
+            auto_approve=True,
+        )
 
-    scheduled_job = package_queue.job_queue.get_nowait()
-    assert scheduled_job.package.uuid == transfer.uuid
-    assert scheduled_job.job_chain.chain.id == RETRIEVE_TRANSFER_SOURCE_CHAIN_ID
-    assert scheduled_job.link.id == "b3843201-3c52-4124-a7ee-16faaccf24b9"
-    assert scheduled_job.job_chain.context[r"%transferSourcePath%"] == (
-        f"{source_path}/."
-    )
-    assert scheduled_job.job_chain.context[r"%transferSourceDestination%"].startswith(
-        "/tmp/tmp"
-    )
-    assert scheduled_job.job_chain.context[r"%transferSourceDestination%"].endswith(
-        "/TransferName"
-    )
-    assert (
-        scheduled_job.job_chain.context[r"%transferSourceCopiedPath%"]
-        == transfer.currentlocation
-    )
-    assert scheduled_job.job_chain.context[r"%sharedPath%"] == str(shared_dir)
+    transfer = models.Transfer.objects.get()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert not any(retrieval_directories.staging.iterdir())
+    package_queue.schedule_job.assert_not_called()
 
 
 @pytest.mark.django_db(transaction=True)
 def test_create_package_without_auto_approval_uses_watched_directory_copy(
-    tmp_path, admin_user, settings, wf
+    admin_user, wf, retrieval_directories
 ):
-    shared_dir = tmp_path / "shared"
-    (shared_dir / "tmp").mkdir(parents=True)
-    settings.SHARED_DIRECTORY = str(shared_dir)
-    package_queue = PackageQueue(mock.Mock(), debug=True)
+    """Non-auto-approved packages retain their watched-directory bootstrap."""
+    package_queue = mock.Mock(spec=PackageQueue)
     executor = mock.Mock(spec=ThreadPoolExecutor)
-    executor.submit.side_effect = _submit_synchronously
+    executor.submit.return_value = Future()
     starting_point = PACKAGE_TYPE_STARTING_POINTS["standard"]
 
-    with (
-        mock.patch(
-            "archivematica.MCPServer.server.packages._copy_from_transfer_sources"
-        ) as copy_from_transfer_sources,
-        mock.patch(
-            "archivematica.MCPServer.server.packages._move_to_internal_shared_dir"
-        ) as move_to_internal_shared_dir,
-    ):
-        transfer = create_package(
-            package_queue,
-            executor,
-            "TransferName",
-            "standard",
-            "",
-            "",
-            "home/username/transfer",
-            "",
-            admin_user.pk,
-            wf,
-            auto_approve=False,
-        )
+    transfer = create_package(
+        package_queue=package_queue,
+        executor=executor,
+        name="TransferName",
+        type_="standard",
+        accession="",
+        access_system_id="",
+        path="home/username/transfer",
+        metadata_set_id="",
+        user_id=admin_user.pk,
+        workflow=wf,
+        auto_approve=False,
+    )
 
     assert transfer.status != models.PACKAGE_STATUS_PROCESSING
-    assert package_queue.job_queue.empty()
-    copy_from_transfer_sources.assert_called_once_with(
-        ["home/username/transfer/."],
-        mock.ANY,
-    )
-    move_to_internal_shared_dir.assert_called_once_with(
-        mock.ANY,
-        starting_point.watched_dir,
+    executor.submit.assert_called_once_with(
+        _start_package_transfer,
         transfer,
+        "TransferName",
+        "home/username/transfer",
+        mock.ANY,
+        starting_point,
     )
+    package_queue.schedule_job.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    "_transfer_type,starting_point",
-    PACKAGE_TYPE_STARTING_POINTS.items(),
+    "starting_point",
+    PACKAGE_TYPE_STARTING_POINTS.values(),
+    ids=PACKAGE_TYPE_STARTING_POINTS,
 )
 @pytest.mark.django_db(transaction=True)
 def test_auto_approved_package_schedules_retrieval_workflow(
-    _transfer_type, starting_point, tmp_path, settings, wf
+    starting_point, wf, retrieval_directories
 ):
-    shared_dir = tmp_path / "shared"
-    tmp_dir = shared_dir / "tmp"
-    processing_dir = shared_dir / "currentlyProcessing"
-    tmp_dir.mkdir(parents=True)
-    processing_dir.mkdir()
-    settings.SHARED_DIRECTORY = str(shared_dir)
-    settings.PROCESSING_DIRECTORY = f"{processing_dir}/"
+    """Every supported transfer type records its post-retrieval continuation."""
     transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
     package_queue = mock.Mock(spec=PackageQueue)
     source_path = "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/transfer"
@@ -673,14 +631,16 @@ def test_auto_approved_package_schedules_retrieval_workflow(
         transfer,
         "TransferName",
         source_path,
-        str(tmp_dir / "tmp123"),
+        str(retrieval_directories.staging / "tmp123"),
         starting_point,
         wf,
         package_queue,
     )
 
     transfer.refresh_from_db()
-    expected_copied_path = str(tmp_dir / "tmp123" / "TransferName")
+    expected_copied_path = str(
+        retrieval_directories.staging / "tmp123" / "TransferName"
+    )
     assert transfer.status == models.PACKAGE_STATUS_PROCESSING
     assert transfer.currentlocation == expected_copied_path
     unit_variable = models.UnitVariable.objects.get(
@@ -693,7 +653,7 @@ def test_auto_approved_package_schedules_retrieval_workflow(
 
     scheduled_job = package_queue.schedule_job.call_args.args[0]
     assert scheduled_job.job_chain.chain.id == RETRIEVE_TRANSFER_SOURCE_CHAIN_ID
-    assert scheduled_job.link.id == "b3843201-3c52-4124-a7ee-16faaccf24b9"
+    assert scheduled_job.link.id == RETRIEVAL_LINK_ID
     assert scheduled_job.job_chain.context[r"%transferSourcePath%"] == (
         f"{source_path}/."
     )
@@ -704,18 +664,14 @@ def test_auto_approved_package_schedules_retrieval_workflow(
         scheduled_job.job_chain.context[r"%transferSourceCopiedPath%"]
         == expected_copied_path
     )
-    assert scheduled_job.job_chain.context[r"%sharedPath%"] == str(shared_dir)
+    assert scheduled_job.job_chain.context[r"%sharedPath%"] == str(
+        retrieval_directories.shared
+    )
 
 
 @pytest.mark.django_db(transaction=True)
-def test_auto_approved_package_does_not_copy_before_workflow(tmp_path, settings, wf):
-    shared_dir = tmp_path / "shared"
-    tmp_dir = shared_dir / "tmp"
-    processing_dir = shared_dir / "currentlyProcessing"
-    tmp_dir.mkdir(parents=True)
-    processing_dir.mkdir()
-    settings.SHARED_DIRECTORY = str(shared_dir)
-    settings.PROCESSING_DIRECTORY = f"{processing_dir}/"
+def test_auto_approved_package_does_not_copy_before_workflow(wf, retrieval_directories):
+    """MCPServer only plans retrieval; it performs no Storage Service I/O."""
     transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
     package_queue = mock.Mock(spec=PackageQueue)
 
@@ -731,7 +687,7 @@ def test_auto_approved_package_does_not_copy_before_workflow(tmp_path, settings,
             transfer,
             "TransferName",
             "home/username/transfer",
-            str(tmp_dir / "tmp123"),
+            str(retrieval_directories.staging / "tmp123"),
             PACKAGE_TYPE_STARTING_POINTS["standard"],
             wf,
             package_queue,
@@ -743,12 +699,8 @@ def test_auto_approved_package_does_not_copy_before_workflow(tmp_path, settings,
 
 @pytest.mark.django_db(transaction=True)
 def test_non_auto_approved_package_still_uses_watched_directory_copy(
-    tmp_path, settings
+    retrieval_directories,
 ):
-    shared_dir = tmp_path / "shared"
-    tmp_dir = shared_dir / "tmp"
-    tmp_dir.mkdir(parents=True)
-    settings.SHARED_DIRECTORY = str(shared_dir)
     transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
     starting_point = PACKAGE_TYPE_STARTING_POINTS["standard"]
 
@@ -764,7 +716,7 @@ def test_non_auto_approved_package_still_uses_watched_directory_copy(
             transfer,
             "TransferName",
             "home/username/transfer",
-            str(tmp_dir / "tmp123"),
+            str(retrieval_directories.staging / "tmp123"),
             starting_point,
         )
 
@@ -773,7 +725,7 @@ def test_non_auto_approved_package_still_uses_watched_directory_copy(
         "/tmp/tmp123/TransferName",
     )
     move_to_internal_shared_dir.assert_called_once_with(
-        str(tmp_dir / "tmp123" / "TransferName"),
+        str(retrieval_directories.staging / "tmp123" / "TransferName"),
         starting_point.watched_dir,
         transfer,
     )
@@ -842,3 +794,53 @@ def test_capture_transfer_failure_preserves_old_transfer_status_by_default():
     transfer.refresh_from_db()
     assert transfer.status == models.PACKAGE_STATUS_UNKNOWN
     assert transfer.completed_at is None
+
+
+@pytest.mark.django_db(transaction=True)
+def test_startup_cleanup_fails_queued_transfer_retrieval():
+    transfer = models.Transfer.objects.create(
+        status=models.PACKAGE_STATUS_PROCESSING,
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+    )
+
+    assert not models.Job.objects.filter(sipuuid=transfer.uuid).exists()
+
+    Package.cleanup_old_db_entries()
+
+    transfer.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+
+
+@pytest.mark.django_db(transaction=True)
+def test_startup_cleanup_fails_executing_transfer_retrieval():
+    transfer = models.Transfer.objects.create(
+        status=models.PACKAGE_STATUS_PROCESSING,
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+    )
+    retrieval_job = models.Job.objects.create(
+        sipuuid=transfer.uuid,
+        unittype="unitTransfer",
+        jobtype="Retrieve transfer source",
+        microservicegroup="Retrieve transfer source",
+        microservicechainlink="b3843201-3c52-4124-a7ee-16faaccf24b9",
+        currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
+        createdtime=timezone.now(),
+    )
+    retrieval_task = models.Task.objects.create(
+        job=retrieval_job,
+        createdtime=timezone.now(),
+    )
+
+    Package.cleanup_old_db_entries()
+    WorkflowJob.cleanup_old_db_entries()
+    WorkflowTask.cleanup_old_db_entries()
+
+    transfer.refresh_from_db()
+    retrieval_job.refresh_from_db()
+    retrieval_task.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert retrieval_job.currentstep == models.Job.STATUS_FAILED
+    assert retrieval_task.exitcode == -1
+    assert retrieval_task.stderror == "MCP shut down while processing."
