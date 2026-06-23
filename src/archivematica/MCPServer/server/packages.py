@@ -196,6 +196,14 @@ def _move_to_internal_shared_dir(filepath, dest, transfer):
     transfer.save()
 
 
+def _mark_transfer_failed(transfer: models.Transfer) -> None:
+    """Record a terminal bootstrap failure before a workflow job may exist."""
+    models.Transfer.objects.filter(pk=transfer.pk).update(
+        status=models.PACKAGE_STATUS_FAILED,
+        completed_at=timezone.now(),
+    )
+
+
 @auto_close_old_connections()
 def create_package(
     package_queue,
@@ -264,7 +272,23 @@ def create_package(
         transfer.status = models.PACKAGE_STATUS_PROCESSING
         transfer.save(update_fields=["status"])
         params = params + (workflow, package_queue)
-        result = executor.submit(_start_package_transfer_with_auto_approval, *params)
+        # A returned Future is the handoff boundary: before then, no worker owns
+        # the transfer or its staging directory.
+        try:
+            result = executor.submit(
+                _start_package_transfer_with_auto_approval, *params
+            )
+        except Exception:
+            _mark_transfer_failed(transfer)
+            try:
+                os.rmdir(tmpdir)
+            except OSError:
+                logger.warning(
+                    "Unable to remove unused transfer staging directory %s",
+                    tmpdir,
+                    exc_info=True,
+                )
+            raise
     else:
         result = executor.submit(_start_package_transfer, *params)
 
@@ -290,10 +314,7 @@ def _capture_transfer_failure(fn=None, *, mark_transfer_failed=False):
                     and args
                     and isinstance(args[0], models.Transfer)
                 ):
-                    models.Transfer.objects.filter(pk=args[0].pk).update(
-                        status=models.PACKAGE_STATUS_FAILED,
-                        completed_at=timezone.now(),
-                    )
+                    _mark_transfer_failed(args[0])
 
         return wrap
 
