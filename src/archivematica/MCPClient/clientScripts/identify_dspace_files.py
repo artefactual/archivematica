@@ -26,43 +26,43 @@ from archivematica.archivematicaCommon import namespaces
 django.setup()
 
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client.job import Job
 
 
 def identify_dspace_files(
-    job, mets_file, transfer_dir, transfer_uuid, relative_dir="./"
-):
+    job: Job,
+    mets_file: str,
+    transfer_dir: str,
+    transfer_uuid: str,
+    relative_dir: str = "./",
+) -> None:
     job.print_output(mets_file)
     nsmap = {"m": namespaces.metsNS, "x": namespaces.xlinkNS}
     tree = etree.parse(mets_file)
     root = tree.getroot()
     for item in root.findall("m:fileSec/m:fileGrp", namespaces=nsmap):
         use = item.get("USE")
-        if use in ("TEXT", "LICENSE"):
-            try:
-                filename = item.find("m:file/m:FLocat", namespaces=nsmap).get(
-                    namespaces.xlinkBNS + "href"
-                )
-            except AttributeError:  # Element not found
-                continue
+        if use == "TEXT":
+            db_use = "text/ocr"
+        elif use == "LICENSE":
+            db_use = "license"
+        else:
+            continue
+
+        for location in item.findall("m:file/m:FLocat", namespaces=nsmap):
+            filename = location.get(namespaces.xlinkBNS + "href")
             if filename is None:  # Filename not an attribute
                 continue
             job.write_output(f"File: {filename} Use: {use}\n")
             full_path = os.path.join(relative_dir, filename)
             db_location = full_path.replace(transfer_dir, "%transferDirectory%")
-            if use == "TEXT":
-                db_use = "text/ocr"
-            elif use == "LICENSE":
-                db_use = "license"
-            else:
-                job.write_error("Unexpected usage %s\n" % (use))
-                continue
 
             File.objects.filter(
                 currentlocation=db_location.encode(), transfer_id=transfer_uuid
             ).update(filegrpuse=db_use)
 
 
-def call(jobs):
+def call(jobs: list[Job]) -> None:
     with transaction.atomic():
         for job in jobs:
             with job.JobContext():
