@@ -1,31 +1,35 @@
 import concurrent.futures
 import queue as Queue
 import threading
-import time
 import uuid
 from unittest import mock
 
 import pytest
 
+from archivematica.dashboard.main import models
 from archivematica.MCPServer.server.jobs import DecisionJob
 from archivematica.MCPServer.server.jobs import Job
 from archivematica.MCPServer.server.packages import DIP
 from archivematica.MCPServer.server.packages import SIP
 from archivematica.MCPServer.server.packages import Transfer
+from archivematica.MCPServer.server.queues import FAILED_PACKAGE_TERMINAL_LINK_IDS
 from archivematica.MCPServer.server.queues import PackageQueue
 from archivematica.MCPServer.server.workflow import Link
 
 
 def _process_one_job(queue):
-    """Block the thread for a little while after a job is processed.
+    """Block until a job and its queue callbacks are processed.
 
-    The goal is to let ``PackageQueue`` reach the desired state before we make
-    assertions. Otherwise, these tests may eventually fail although unlikely.
-    A long-term solution could be to not resolve the future until all queues
-    have been updated.
+    ``Future.result()`` waits for ``Job.run()`` to finish, but PackageQueue
+    updates its active/deferred queues in done callbacks. Add a final callback
+    after PackageQueue's callbacks and wait for it so assertions see the queue's
+    post-callback state.
     """
-    queue.process_one_job(timeout=1.0).result()
-    time.sleep(0.05)
+    callback_ran = threading.Event()
+    future = queue.process_one_job(timeout=1.0)
+    future.add_done_callback(lambda _: callback_ran.set())
+    future.result()
+    assert callback_ran.wait(1.0)
 
 
 class MockJob(Job):
@@ -305,3 +309,27 @@ def test_all_scheduled_jobs_are_processed(
     assert test_job2.job_ran.is_set()
     assert package_queue.job_queue.qsize() == 0
     assert package_queue.dip_queue.qsize() == 0
+
+
+@pytest.mark.django_db(transaction=True)
+def test_failed_terminal_link_marks_package_failed(
+    package_queue, tmp_path, workflow_link
+):
+    package_id = uuid.uuid4()
+    models.Transfer.objects.create(
+        uuid=package_id,
+        status=models.PACKAGE_STATUS_PROCESSING,
+    )
+    workflow_link.id = next(iter(FAILED_PACKAGE_TERMINAL_LINK_IDS))
+    workflow_link._src["end"] = True
+    transfer = Transfer(str(tmp_path), package_id)
+    test_job = MockJob(mock.Mock(), workflow_link, transfer)
+
+    package_queue.schedule_job(test_job)
+    _process_one_job(package_queue)
+    test_job.job_ran.wait(1.0)
+
+    transfer_model = models.Transfer.objects.get(pk=package_id)
+    assert transfer_model.status == models.PACKAGE_STATUS_FAILED
+    assert transfer_model.completed_at is not None
+    assert transfer.uuid not in package_queue.active_packages

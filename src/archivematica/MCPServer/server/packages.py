@@ -50,6 +50,14 @@ def _get_setting(name):
     return getattr(settings, name)
 
 
+def _shared_path_location(path):
+    """Return a shared-directory path in the database location form."""
+    shared_directory = _get_setting("SHARED_DIRECTORY")
+    if not shared_directory.endswith(os.sep):
+        shared_directory = f"{shared_directory}{os.sep}"
+    return path.replace(shared_directory, r"%sharedPath%", 1)
+
+
 # Each package type has its corresponding watched directory and its
 # associated chain, e.g. a "standard" transfer triggers the chain with UUID
 # "fffd5342-2337-463f-857a-b2c8c3778c6d". This is stored in the
@@ -358,7 +366,8 @@ def _start_package_transfer_with_auto_approval(
         path,
         transfer_rel,
     )
-    transfer.currentlocation = filepath
+    currentlocation = _shared_path_location(filepath)
+    transfer.currentlocation = currentlocation
     transfer.save(update_fields=["currentlocation"])
     unit = Transfer(filepath, transfer.pk)
     unit.mark_as_processing()
@@ -500,6 +509,10 @@ class Package(metaclass=abc.ABCMeta):
     def mark_as_done(self):
         """Change the status of the package to Done."""
         self.change_status(models.PACKAGE_STATUS_DONE, completed_at=timezone.now())
+
+    def mark_as_failed(self):
+        """Change the status of the package to Failed."""
+        self.change_status(models.PACKAGE_STATUS_FAILED, completed_at=timezone.now())
 
     def mark_as_processing(self):
         """Change the status of the package to Processing."""

@@ -16,6 +16,16 @@ from archivematica.MCPServer.server.packages import SIP
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
 
+FAILED_PACKAGE_TERMINAL_LINK_IDS = frozenset(
+    {
+        # Terminal link for the transfer-source retrieval failure branch. This
+        # path can end before the transfer reaches its normal type-specific
+        # workflow, so PackageQueue must mark it as Failed instead of applying
+        # the historical terminal-link default of Done.
+        "e782473a-0c10-431f-8ab6-5d7238b2b70b",
+    }
+)
+
 
 class PackageQueue:
     """Package queue.
@@ -181,13 +191,13 @@ class PackageQueue:
 
         if job.link.is_terminal:
             package_done_callback = functools.partial(
-                self._package_completed_callback, job.package, job.link.id
+                self._package_completed_callback, job.package, job.link
             )
             result.add_done_callback(package_done_callback)
 
         return result
 
-    def _package_completed_callback(self, package, link_id, future):
+    def _package_completed_callback(self, package, link, future):
         """Marks the package as inactive and schedules a new package.
 
         It is assumed that a package is only complete when a terminal link is
@@ -199,15 +209,35 @@ class PackageQueue:
             logger.warning(
                 "Unexpectedly received another job on package completion. "
                 "Please verify the value of `end` in the workflow. Link %s.",
-                link_id,
+                link.id,
             )
             return
 
-        # TODO: can we be more specific? E.g. failed or completed.
-        package.mark_as_done()
+        if self._link_completes_as_failed(link):
+            package.mark_as_failed()
+        else:
+            package.mark_as_done()
 
         self.deactivate_package(package)
         self.queue_next_job()
+
+    def _link_completes_as_failed(self, link):
+        """Return whether a terminal link should fail the package.
+
+        PackageQueue historically marks every terminal workflow link as Done.
+        Transfer-source retrieval adds a terminal failure path that can be
+        reached before the transfer has entered its normal type-specific
+        workflow, so the package must be marked as Failed when that path ends.
+
+        Use explicit workflow link IDs here instead of inferring behavior from
+        translated group labels such as "Failed transfer". Those labels are
+        display text, not a stable machine-readable contract. Other terminal
+        links can be added to this list as narrow compatibility exceptions, but
+        if this behavior expands beyond a few explicit cases then the workflow
+        schema should declare terminal package status directly, e.g. with a
+        package-status field on terminal links.
+        """
+        return str(link.id) in FAILED_PACKAGE_TERMINAL_LINK_IDS
 
     def _job_completed_callback(self, future):
         """Schedule the next job in the chain.
