@@ -1,6 +1,7 @@
 import concurrent.futures
 import os
 import threading
+import time
 import uuid
 from io import StringIO
 from unittest import mock
@@ -501,8 +502,21 @@ def test_transfer_source_retrieval_failure_routes_to_failed_transfer(
     move_failed_future = package_queue.process_one_job(timeout=1)
     _future_result(move_failed_future)
 
+    deadline = time.time() + 5
+    while time.time() < deadline:
+        transfer.refresh_from_db()
+        if not transfer.active:
+            break
+        time.sleep(0.05)
+
     jobs = models.Job.objects.filter(sipuuid=transfer.uuid)
     assert jobs.filter(microservicegroup="Failed transfer").exists()
     assert not jobs.filter(
         microservicechainlink=PACKAGE_TYPE_STARTING_POINTS["standard"].link
     ).exists()
+    transfer.refresh_from_db()
+    assert transfer.status == models.PACKAGE_STATUS_FAILED
+    assert transfer.completed_at is not None
+    assert transfer.active is False
+    assert transfer.currentlocation.startswith("%sharedPath%tmp/")
+    assert transfer.currentlocation.endswith("/TransferName")

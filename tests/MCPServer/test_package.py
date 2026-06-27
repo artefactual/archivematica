@@ -462,6 +462,10 @@ def test_package_statuses(tmp_path, package_class, model_class):
 
     assert model_class.objects.get(pk=package_id).status == models.PACKAGE_STATUS_DONE
 
+    package.mark_as_failed()
+
+    assert model_class.objects.get(pk=package_id).status == models.PACKAGE_STATUS_FAILED
+
     package.mark_as_processing()
 
     assert (
@@ -642,7 +646,7 @@ def test_auto_approved_package_schedules_retrieval_workflow(
         retrieval_directories.staging / "tmp123" / "TransferName"
     )
     assert transfer.status == models.PACKAGE_STATUS_PROCESSING
-    assert transfer.currentlocation == expected_copied_path
+    assert transfer.currentlocation == "%sharedPath%tmp/tmp123/TransferName"
     unit_variable = models.UnitVariable.objects.get(
         unittype="Transfer",
         unituuid=transfer.uuid,
