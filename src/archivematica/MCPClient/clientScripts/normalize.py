@@ -23,7 +23,9 @@ from django.db import transaction
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.dicts import ReplacementDict
+from archivematica.dashboard.fpr.counters import DeferredFPRuleCounter
 from archivematica.dashboard.fpr.models import FPRule
 from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import File
@@ -37,6 +39,8 @@ SUCCESS = 0
 RULE_FAILED = 1
 NO_RULE_FOUND = 2
 
+logger = get_script_logger("archivematica.mcp.client.normalize")
+
 
 @dataclasses.dataclass
 class NormalizeArgs:
@@ -48,6 +52,33 @@ class NormalizeArgs:
     task_uuid: str
     normalize_file_grp_use: str
     thumbnail_mode: str
+
+
+def execute_rule_with_counter(
+    counter: DeferredFPRuleCounter,
+    rule: FPRule,
+    command_linker: transcoder.CommandLinker,
+) -> int:
+    """Execute a rule and record its actual execution outcome.
+
+    Invoking the rule counts as an attempt. Exceptions and non-zero exit
+    statuses count as failures, while a zero exit status counts as a success.
+    These counters describe command execution, independently of whether later
+    normalization database work is committed.
+    """
+    counter.record_attempt(rule)
+    try:
+        exitstatus = command_linker.execute()
+    except Exception:
+        counter.record_failure(rule)
+        raise
+
+    if exitstatus:
+        counter.record_failure(rule)
+    else:
+        counter.record_success(rule)
+
+    return exitstatus
 
 
 def get_replacement_dict(job: Job, opts: NormalizeArgs) -> Optional[ReplacementDict]:
@@ -372,7 +403,7 @@ def get_default_rule(purpose: str) -> FPRule:
     return result
 
 
-def main(job: Job, opts: NormalizeArgs) -> int:
+def main(job: Job, opts: NormalizeArgs, counter: DeferredFPRuleCounter) -> int:
     """Find and execute normalization commands on input file."""
     # TODO fix for maildir working only on attachments
 
@@ -509,7 +540,7 @@ def main(job: Job, opts: NormalizeArgs) -> int:
     cl = transcoder.CommandLinker(
         job, rule, command, replacement_dict, opts, once_normalized_callback(job)
     )
-    exitstatus = cl.execute()
+    exitstatus = execute_rule_with_counter(counter, rule, cl)
 
     # If the access/thumbnail normalization command has errored AND a
     # derivative was NOT created, then we run the default access/thumbnail
@@ -559,7 +590,7 @@ def main(job: Job, opts: NormalizeArgs) -> int:
                 opts,
                 once_normalized_callback(job),
             )
-            exitstatus = cl.execute()
+            exitstatus = execute_rule_with_counter(counter, fallback_rule, cl)
 
     # Store thumbnails locally for use during AIP searches
     # TODO is this still needed, with the storage service?
@@ -627,23 +658,39 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> NormalizeArgs:
 
 
 def call(jobs: list[Job]) -> None:
+    """Run a batch and persist its command-execution counters afterward.
+
+    FPRule counters describe commands that ran, rather than database changes
+    committed by the batch transaction. A caught per-job database failure can
+    therefore roll back normalization changes while its execution counters are
+    still persisted after the transaction block exits.
+    """
     parser = get_parser()
+    counter = DeferredFPRuleCounter()
 
-    with transaction.atomic():
-        for job in jobs:
-            with job.JobContext():
-                opts = parse_args(parser, job)
+    try:
+        with transaction.atomic():
+            for job in jobs:
+                with job.JobContext():
+                    opts = parse_args(parser, job)
 
-                if (
-                    opts.purpose == "thumbnail"
-                    and opts.thumbnail_mode == "do_not_generate"
-                ):
-                    job.pyprint("Thumbnail generation has been disabled")
-                    job.set_status(SUCCESS)
-                    continue
+                    if (
+                        opts.purpose == "thumbnail"
+                        and opts.thumbnail_mode == "do_not_generate"
+                    ):
+                        job.pyprint("Thumbnail generation has been disabled")
+                        job.set_status(SUCCESS)
+                        continue
 
-                try:
-                    job.set_status(main(job, opts))
-                except Exception as e:
-                    job.print_error(str(e))
-                    job.set_status(1)
+                    try:
+                        job.set_status(main(job, opts, counter))
+                    except Exception as e:
+                        job.print_error(str(e))
+                        job.set_status(1)
+    except Exception:
+        raise
+    else:
+        try:
+            counter.flush()
+        except Exception:
+            logger.exception("Failed to flush FPRule counters")
