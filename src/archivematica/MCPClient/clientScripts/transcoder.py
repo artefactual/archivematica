@@ -15,8 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-from django.db.models import F
-
 from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
 
 
@@ -128,16 +126,8 @@ class CommandLinker:
         )
 
     def execute(self) -> int:
-        """Execute the command, and track the success statistics.
+        """Execute the command.
 
-        Returns 0 on success, non-0 on failure."""
-        # Track success/failure rates of FP Rules
-        # Use Django's F() to prevent race condition updating the counts
-        self.fprule.count_attempts = F("count_attempts") + 1
-        ret = self.commandObject.execute()
-        if ret:
-            self.fprule.count_not_okay = F("count_not_okay") + 1
-        else:
-            self.fprule.count_okay = F("count_okay") + 1
-        self.fprule.save()
-        return ret
+        Returns 0 on success, non-0 on failure.
+        """
+        return self.commandObject.execute()
