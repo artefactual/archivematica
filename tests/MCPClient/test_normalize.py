@@ -10,6 +10,8 @@ import pytest
 import pytest_django
 from django.db import transaction
 
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.dicts import ReplacementDict
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.fpr.counters import DeferredFPRuleCounter
 from archivematica.dashboard.main import models
@@ -29,6 +31,65 @@ def _run_normalize_main(job: Job, opts: normalize.NormalizeArgs) -> int:
     counter.flush()
 
     return result
+
+
+@pytest.mark.django_db
+def test_normalization_command_string_matches_legacy_output(
+    fpcommand: fprmodels.FPCommand,
+    fptool: fprmodels.FPTool,
+) -> None:
+    verification_command = fprmodels.FPCommand.objects.create(
+        command="verify", script_type="bashScript", tool=fptool
+    )
+    fpcommand.command = "normalize"
+    fpcommand.script_type = "bashScript"
+    fpcommand.verification_command = verification_command
+
+    executor = normalize.NormalizationCommandExecutor(
+        mock.Mock(spec=Job), fpcommand, ReplacementDict()
+    )
+
+    assert str(executor) == (
+        f"[COMMAND] {fpcommand}\n"
+        "\tExecuting: normalize\n"
+        f"\tCommand: {executor.verification_command}\n"
+        "\tOutput location: None\n"
+    )
+
+
+@pytest.mark.django_db
+def test_once_normalized_validates_output_format_before_database_writes(
+    tmp_path: pathlib.Path,
+    fpcommand: fprmodels.FPCommand,
+) -> None:
+    output_path = tmp_path / "normalized.tif"
+    output_path.write_bytes(b"normalized file")
+    executor = mock.Mock(
+        output_location=str(output_path),
+        fpcommand=fpcommand,
+        event_detail_command=None,
+        spec=normalize.NormalizationCommandExecutor,
+    )
+
+    with (
+        mock.patch.object(fileOperations, "addFileToSIP") as add_file,
+        mock.patch.object(fileOperations, "updateSizeAndChecksum") as update_checksum,
+        mock.patch.object(normalize, "insert_derivation_event") as insert_derivation,
+        pytest.raises(
+            ValueError,
+            match=f"Normalization command {fpcommand.uuid} has no output format",
+        ),
+    ):
+        normalize.once_normalized(
+            mock.Mock(spec=Job),
+            executor,
+            mock.Mock(spec=normalize.NormalizeArgs),
+            ReplacementDict(),
+        )
+
+    add_file.assert_not_called()
+    update_checksum.assert_not_called()
+    insert_derivation.assert_not_called()
 
 
 @pytest.mark.django_db
@@ -412,7 +473,7 @@ def default_preservation_rule(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.CommandLinker",
+    "archivematica.MCPClient.clientScripts.normalize.NormalizationCommandExecutor",
     return_value=mock.Mock(**{"execute.return_value": 0}),
 )
 def test_normalization_falls_back_to_default_rule(
@@ -474,7 +535,7 @@ def test_normalization_falls_back_to_default_rule(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.CommandLinker",
+    "archivematica.MCPClient.clientScripts.normalize.NormalizationCommandExecutor",
     return_value=mock.Mock(**{"execute.return_value": 0}),
 )
 def test_normalization_finds_rule_by_file_format_version(
@@ -533,7 +594,7 @@ def test_normalization_finds_rule_by_file_format_version(
 @pytest.mark.django_db
 @mock.patch("os.makedirs", side_effect=OSError("error!"))
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.CommandLinker",
+    "archivematica.MCPClient.clientScripts.normalize.NormalizationCommandExecutor",
     return_value=mock.Mock(**{"execute.return_value": 0}),
 )
 def test_normalization_fails_if_thumbnail_directory_cannot_be_created(
@@ -590,7 +651,7 @@ def fprule_thumbnail(fprule_thumbnail: fprmodels.FPRule) -> fprmodels.FPRule:
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.MCPClient.clientScripts.transcoder.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.normalize.executeOrRun")
 def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -686,7 +747,7 @@ def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.MCPClient.clientScripts.transcoder.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.normalize.executeOrRun")
 def test_normalization_aggregates_fprule_counts_across_jobs(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -821,7 +882,7 @@ def test_normalization_keeps_execution_counts_when_batch_transaction_rolls_back(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.executeOrRun",
+    "archivematica.MCPClient.clientScripts.normalize.executeOrRun",
     side_effect=RuntimeError("boom"),
 )
 def test_normalization_records_fprule_failure_when_command_raises(
@@ -891,7 +952,7 @@ def fprule_default_thumbnail(
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.MCPClient.clientScripts.transcoder.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.normalize.executeOrRun")
 def test_normalization_fallbacks_to_default_thumbnail_rule_if_initial_command_fails(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -1044,7 +1105,7 @@ def fpcommand_access(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.executeOrRun",
+    "archivematica.MCPClient.clientScripts.normalize.executeOrRun",
     return_value=(-1, "", "error!"),
 )
 def test_normalization_fails_if_fallback_default_rule_does_not_exist(

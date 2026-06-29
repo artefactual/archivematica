@@ -14,8 +14,6 @@ from typing import Optional
 import django
 from django.utils import timezone
 
-from archivematica.MCPClient.clientScripts import transcoder
-
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
@@ -25,7 +23,9 @@ from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon import fileOperations
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.dicts import ReplacementDict
+from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
 from archivematica.dashboard.fpr.counters import DeferredFPRuleCounter
+from archivematica.dashboard.fpr.models import FPCommand
 from archivematica.dashboard.fpr.models import FPRule
 from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import File
@@ -57,7 +57,7 @@ class NormalizeArgs:
 def execute_rule_with_counter(
     counter: DeferredFPRuleCounter,
     rule: FPRule,
-    command_linker: transcoder.CommandLinker,
+    executor: "NormalizationCommandExecutor",
 ) -> int:
     """Execute a rule and record its actual execution outcome.
 
@@ -68,7 +68,7 @@ def execute_rule_with_counter(
     """
     counter.record_attempt(rule)
     try:
-        exitstatus = command_linker.execute()
+        exitstatus = executor.execute()
     except Exception:
         counter.record_failure(rule)
         raise
@@ -79,6 +79,105 @@ def execute_rule_with_counter(
         counter.record_success(rule)
 
     return exitstatus
+
+
+class NormalizationCommandExecutor:
+    """Execute an FPR normalization command and its follow-up commands."""
+
+    def __init__(
+        self,
+        job: Job,
+        command: FPCommand,
+        replacement_dict: ReplacementDict,
+        on_success: Optional[Callable[..., None]] = None,
+        opts: Optional[NormalizeArgs] = None,
+    ) -> None:
+        self.fpcommand = command
+        self.command = command.command
+        self.type = command.script_type
+        self.output_location = command.output_location
+        self.replacement_dict = replacement_dict
+        self.on_success = on_success
+        self.std_out = ""
+        self.exit_code: Optional[int] = None
+        self.opts = opts
+        self.job = job
+
+        # Add the output location to the replacement dict - for use in
+        # verification and event detail commands.
+        if self.output_location:
+            self.output_location = self.replacement_dict.replace(self.output_location)[
+                0
+            ]
+            self.replacement_dict["%outputLocation%"] = self.output_location
+
+        self.verification_command: Optional[NormalizationCommandExecutor] = None
+        if self.fpcommand.verification_command:
+            self.verification_command = NormalizationCommandExecutor(
+                self.job, self.fpcommand.verification_command, self.replacement_dict
+            )
+
+        self.event_detail_command: Optional[NormalizationCommandExecutor] = None
+        if self.fpcommand.event_detail_command:
+            self.event_detail_command = NormalizationCommandExecutor(
+                self.job, self.fpcommand.event_detail_command, self.replacement_dict
+            )
+
+    def __str__(self) -> str:
+        return (
+            f"[COMMAND] {self.fpcommand}\n"
+            f"\tExecuting: {self.command}\n"
+            f"\tCommand: {self.verification_command}\n"
+            f"\tOutput location: {self.output_location}\n"
+        )
+
+    def execute(self, skip_on_success: bool = False) -> int:
+        """Execute the command and associated follow-up commands.
+
+        Returns 0 if all commands succeeded, non-0 if any failed.
+        """
+        args = []
+        if self.type in ["command", "bashScript"]:
+            self.command = self.replacement_dict.replace(self.command)[0]
+        else:
+            args = self.replacement_dict.to_gnu_options()
+
+        self.job.print_output("Command to execute:", self.command)
+        self.job.print_output("-----")
+        self.job.print_output("Command stdout:")
+        exit_code, self.std_out, std_err = executeOrRun(
+            self.type, self.command, arguments=args, printing=True, capture_output=True
+        )
+        self.exit_code = exit_code
+        self.job.write_output(self.std_out)
+        self.job.write_error(std_err)
+        self.job.print_output("-----")
+        self.job.print_output("Command exit code:", self.exit_code)
+
+        if self.exit_code == 0 and self.verification_command:
+            self.job.print_output(
+                "Running verification command", self.verification_command
+            )
+            self.job.print_output("-----")
+            self.job.print_output("Command stdout:")
+            self.exit_code = self.verification_command.execute(skip_on_success=True)
+            self.job.print_output("-----")
+            self.job.print_output("Verification Command exit code:", self.exit_code)
+
+        if self.exit_code == 0 and self.event_detail_command:
+            self.job.print_output(
+                "Running event detail command", self.event_detail_command
+            )
+            self.event_detail_command.execute(skip_on_success=True)
+
+        if self.exit_code != 0:
+            self.job.print_error("Failed:", self.fpcommand)
+            self.job.print_error("Standard out:", self.std_out)
+            self.job.print_error("Standard error:", std_err)
+        elif not skip_on_success and self.on_success:
+            self.on_success(self, self.opts, self.replacement_dict)
+
+        return self.exit_code
 
 
 def get_replacement_dict(job: Job, opts: NormalizeArgs) -> Optional[ReplacementDict]:
@@ -257,13 +356,13 @@ def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
 
 def once_normalized(
     job: Job,
-    command: transcoder.Command,
+    command: NormalizationCommandExecutor,
     opts: NormalizeArgs,
     replacement_dict: ReplacementDict,
 ) -> None:
     """Updates the database if normalization completed successfully.
 
-    Callback from transcoder.Command
+    Callback from NormalizationCommandExecutor
 
     For preservation files, adds a normalization event, and derivation, as well
     as updating the size and checksum for the new file in the DB.  Adds format
@@ -286,6 +385,17 @@ def once_normalized(
             "Error - output file does not exist [", command.output_location, "]"
         )
         command.exit_code = -2
+
+    if not transcoded_files:
+        return
+
+    # Validate before registering any derivative files, checksums, events, or
+    # derivations so an invalid FPR command cannot leave partial database state.
+    output_format = command.fpcommand.output_format
+    if output_format is None or output_format.format is None:
+        raise ValueError(
+            f"Normalization command {command.fpcommand.uuid} has no output format"
+        )
 
     derivation_event_uuid = str(uuid.uuid4())
     event_detail_output = f'ArchivematicaFPRCommandID="{command.fpcommand.uuid}"'
@@ -346,19 +456,19 @@ def once_normalized(
         # to save identification into the DB
         ffv = FileFormatVersion(
             file_uuid_id=output_file_uuid,
-            format_version=command.fpcommand.output_format,
+            format_version=output_format,
         )
         ffv.save()
 
         FileID.objects.create(
             file_id=output_file_uuid,
-            format_name=command.fpcommand.output_format.format.description,
+            format_name=output_format.format.description,
         )
 
 
 def once_normalized_callback(job: Job) -> Callable[..., None]:
     def wrapper(
-        command: transcoder.Command,
+        command: NormalizationCommandExecutor,
         opts: NormalizeArgs,
         replacement_dict: ReplacementDict,
     ) -> None:
@@ -537,17 +647,20 @@ def main(job: Job, opts: NormalizeArgs, counter: DeferredFPRuleCounter) -> int:
     job.print_output("Format Policy Command", command.description)
 
     replacement_dict = get_replacement_dict(job, opts)
-    cl = transcoder.CommandLinker(
-        job, rule, command, replacement_dict, opts, once_normalized_callback(job)
+    if replacement_dict is None:
+        return RULE_FAILED
+
+    executor = NormalizationCommandExecutor(
+        job, command, replacement_dict, once_normalized_callback(job), opts
     )
-    exitstatus = execute_rule_with_counter(counter, rule, cl)
+    exitstatus = execute_rule_with_counter(counter, rule, executor)
 
     # If the access/thumbnail normalization command has errored AND a
     # derivative was NOT created, then we run the default access/thumbnail
     # rule. Note that we DO need to check if the derivative file exists. Even
     # when a verification command exists for the normalization command, the
-    # transcoder.py::Command.execute method will only run the verification
-    # command if the normalization command returns a 0 exit code.
+    # normalization executor will only run the verification command if the
+    # normalization command returns a 0 exit code.
     # Errored thumbnail normalization also needs to result in default thumbnail
     # normalization; if not, then a transfer with a single file that failed
     # thumbnail normalization will result in a failed SIP at "Prepare DIP: Copy
@@ -555,8 +668,8 @@ def main(job: Job, opts: NormalizeArgs, counter: DeferredFPRuleCounter) -> int:
     if (
         exitstatus != 0
         and opts.purpose in ("access", "thumbnail")
-        and cl.commandObject.output_location
-        and (not os.path.isfile(cl.commandObject.output_location))
+        and executor.output_location
+        and (not os.path.isfile(executor.output_location))
     ):
         # Fall back to default rule
         try:
@@ -582,20 +695,23 @@ def main(job: Job, opts: NormalizeArgs, counter: DeferredFPRuleCounter) -> int:
             job.print_output("Fallback Format Policy Command", command.description)
 
             # Use existing replacement dict
-            cl = transcoder.CommandLinker(
+            executor = NormalizationCommandExecutor(
                 job,
-                fallback_rule,
                 command,
                 replacement_dict,
-                opts,
                 once_normalized_callback(job),
+                opts,
             )
-            exitstatus = execute_rule_with_counter(counter, fallback_rule, cl)
+            exitstatus = execute_rule_with_counter(counter, fallback_rule, executor)
 
     # Store thumbnails locally for use during AIP searches
     # TODO is this still needed, with the storage service?
     if "thumbnail" in opts.purpose:
-        thumbnail_filepath = cl.commandObject.output_location
+        thumbnail_filepath = executor.output_location
+        if thumbnail_filepath is None:
+            job.print_error("Thumbnail normalization did not produce an output path")
+            return RULE_FAILED
+
         thumbnail_storage_dir = os.path.join(
             mcpclient_settings.SHARED_DIRECTORY, "www", "thumbnails", opts.sip_uuid
         )
