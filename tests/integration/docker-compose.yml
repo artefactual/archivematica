@@ -98,7 +98,7 @@ services:
       - "keycloak"
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:26.6.4-0"
+    image: "quay.io/keycloak/keycloak:26.6.4-1"
     command: ["start-dev", "--import-realm"]
     restart: "unless-stopped"
     environment:
