@@ -51,6 +51,7 @@ from archivematica.dashboard.components.archival_storage.atom import (
     upload_dip_metadata_to_atom,
 )
 from archivematica.search.service import AIPNotFoundError
+from archivematica.search.service import SearchService
 from archivematica.search.service import SortSpec
 from archivematica.search.service import setup_search_service_from_conf
 
@@ -722,45 +723,13 @@ def send_thumbnail(request, fileuuid):
     return helpers.send_file(request, thumbnail_path, allow_missing=True)
 
 
-def aips_pending_deletion():
-    aip_uuids = []
-    try:
-        aips = storage_service.get_file_info(
-            status=archivematica.search.constants.STATUS_DELETE_REQUESTED
-        )
-    except Exception as e:
-        # TODO this should be messages.warning, but we need 'request' here
-        logger.warning(
-            f"Error retrieving AIPs pending deletion: is the storage server running?  Error: {e}"
-        )
-    else:
-        for aip in aips:
-            aip_uuids.append(aip["uuid"])
-    return aip_uuids
-
-
-def elasticsearch_query_excluding_aips_pending_deletion(uuid_field_name):
-    # add UUIDs of AIPs pending deletion, if any, to boolean query
-    must_not_haves = []
-
-    for aip_uuid in aips_pending_deletion():
-        must_not_haves.append({"term": {uuid_field_name: aip_uuid}})
-
-    if len(must_not_haves):
-        query = {"query": {"bool": {"must_not": must_not_haves}}}
-    else:
-        query = {"query": {"match_all": {}}}
-
-    return query
-
-
-def aip_file_count(search_service):
-    query = elasticsearch_query_excluding_aips_pending_deletion("AIPUUID")
+def aip_file_count(search_service: SearchService) -> int:
+    query = {"query": {"match_all": {}}}
     return search_service.count_aip_files(query)
 
 
-def total_size_of_aips(search_service):
-    query = elasticsearch_query_excluding_aips_pending_deletion("uuid")
+def total_size_of_aips(search_service: SearchService) -> str:
+    query = {"query": {"match_all": {}}}
     query["_source"] = "size"
     query["aggs"] = {"total": {"sum": {"field": "size"}}}
     results = search_service.search_aips(query, size=0)
