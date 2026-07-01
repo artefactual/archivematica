@@ -29,12 +29,14 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 from django.http import StreamingHttpResponse
+from django.template.defaultfilters import filesizeformat
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.archival_storage import atom
+from archivematica.dashboard.components.archival_storage import views
 from archivematica.search.service import AIPNotFoundError
 from archivematica.search.service import SearchService
 
@@ -269,6 +271,44 @@ def test_search_rejects_unsupported_file_mime(dashboard_uuid, admin_client):
 
     assert response.status_code == 400
     assert response.content == b"Please use ?mimeType=text/csv"
+
+
+def test_aip_file_count_includes_aips_pending_deletion(mock_search_service):
+    mock_search_service.count_aip_files.return_value = 42
+
+    with mock.patch(
+        "archivematica.dashboard.components.archival_storage.views.storage_service.get_file_info"
+    ) as get_file_info:
+        assert views.aip_file_count(mock_search_service) == 42
+
+    mock_search_service.count_aip_files.assert_called_once_with(
+        {"query": {"match_all": {}}}
+    )
+    get_file_info.assert_not_called()
+
+
+def test_total_size_of_aips_includes_aips_pending_deletion(mock_search_service):
+    total_mb = 2.5
+    mock_search_service.search_aips.return_value = {
+        "aggregations": {"total": {"value": total_mb}}
+    }
+
+    with mock.patch(
+        "archivematica.dashboard.components.archival_storage.views.storage_service.get_file_info"
+    ) as get_file_info:
+        assert views.total_size_of_aips(mock_search_service) == filesizeformat(
+            total_mb * (1024 * 1024)
+        )
+
+    mock_search_service.search_aips.assert_called_once_with(
+        {
+            "query": {"match_all": {}},
+            "_source": "size",
+            "aggs": {"total": {"sum": {"field": "size"}}},
+        },
+        size=0,
+    )
+    get_file_info.assert_not_called()
 
 
 @mock.patch(
