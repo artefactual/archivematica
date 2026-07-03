@@ -55,7 +55,7 @@ django-prometheus==2.5.0
     # via archivematica (pyproject.toml)
 django-shibboleth-remoteuser @ git+https://github.com/artefactual-labs/django-shibboleth-remoteuser.git@f08a7864d6130416c352981ccf318fff0fd5be58
     # via archivematica (pyproject.toml)
-django-stubs-ext==6.0.5
+django-stubs-ext==6.0.6
     # via archivematica (pyproject.toml)
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
@@ -67,7 +67,7 @@ gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c
     # via archivematica (pyproject.toml)
 gevent==26.5.0
     # via archivematica (pyproject.toml)
-greenlet==3.5.2
+greenlet==3.5.3
     # via gevent
 gunicorn==26.0.0
     # via archivematica (pyproject.toml)
@@ -89,7 +89,7 @@ lxml==6.1.1
     #   archivematica (pyproject.toml)
     #   metsrw
     #   python-cas
-metsrw==0.6.1
+metsrw==0.7.0
     # via archivematica (pyproject.toml)
 mozilla-django-oidc==5.0.2
     # via archivematica (pyproject.toml)
@@ -156,7 +156,7 @@ six==1.17.0
     #   python-dateutil
 sqlparse==0.5.5
     # via django
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   asgiref
     #   cryptography
