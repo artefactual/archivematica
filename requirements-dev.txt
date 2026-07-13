@@ -22,7 +22,7 @@ bagit @ git+https://github.com/LibraryOfCongress/bagit-python.git@4bd2713cedbe1f
     # via archivematica (pyproject.toml)
 brotli==1.2.0
     # via archivematica (pyproject.toml)
-build==1.5.0
+build==1.5.1
     # via pip-tools
 cachetools==7.1.4
     # via tox
@@ -30,9 +30,9 @@ certifi==2026.6.17
     # via
     #   elastic-transport
     #   requests
-cffi==2.0.0
+cffi==2.1.0
     # via cryptography
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
@@ -40,7 +40,7 @@ click==8.4.2
     # via pip-tools
 colorama==0.4.6
     # via tox
-coverage[toml]==7.15.0
+coverage[toml]==7.15.1
     # via
     #   archivematica (pyproject.toml)
     #   pytest-cov
@@ -48,7 +48,7 @@ cryptography==49.0.0
     # via mozilla-django-oidc
 distlib==0.4.3
     # via virtualenv
-django==5.2.15
+django==5.2.16
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -80,13 +80,13 @@ django-stubs-ext==6.0.6
     #   django-stubs
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
-elastic-transport==8.17.1
+elastic-transport==8.19.0
     # via elasticsearch
 elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
 exceptiongroup==1.3.1
     # via pytest
-filelock==3.29.5
+filelock==3.29.7
     # via
     #   python-discovery
     #   tox
@@ -117,7 +117,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 lazy-paged-sequence==0.3
     # via archivematica (pyproject.toml)
-librt==0.12.0
+librt==0.13.0
     # via mypy
 lxml==6.1.1
     # via
@@ -139,7 +139,7 @@ mysqlclient==2.2.8
     # via agentarchives
 olefile==0.47
     # via opf-fido
-opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
+opf-fido @ git+https://github.com/artefactual-labs/fido.git@3e16f31492d72ae650b25fabc9b9f55a7c4259f2
     # via archivematica (pyproject.toml)
 orjson==3.11.9
     # via archivematica (pyproject.toml)
@@ -174,7 +174,7 @@ prometheus-client==0.25.0
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
-pyasn1==0.6.3
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   python-ldap
@@ -221,7 +221,7 @@ python-dateutil==2.9.0.post0
     #   archivematica (pyproject.toml)
     #   django-tastypie
     #   elasticsearch
-python-discovery==1.4.3
+python-discovery==1.4.4
     # via
     #   tox
     #   virtualenv
@@ -271,7 +271,7 @@ tomli==2.4.1
     #   tox
 tomli-w==1.2.0
     # via tox
-tox==4.56.1
+tox==4.56.4
     # via archivematica (pyproject.toml)
 types-pyyaml==6.0.12.20260518
     # via django-stubs
@@ -296,7 +296,7 @@ urllib3==2.7.0
     #   amclient
     #   elastic-transport
     #   requests
-virtualenv==21.5.1
+virtualenv==21.6.1
     # via tox
 wheel==0.47.0
     # via pip-tools
@@ -310,5 +310,5 @@ zope-interface==8.5
 # The following packages are considered to be unsafe in a requirements file:
 pip==26.1.2
     # via pip-tools
-setuptools==82.0.1
+setuptools==83.0.0
     # via pip-tools

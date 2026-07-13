@@ -24,15 +24,15 @@ certifi==2026.6.17
     # via
     #   elastic-transport
     #   requests
-cffi==2.0.0
+cffi==2.1.0
     # via cryptography
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via requests
 clamav-client==0.7.2
     # via archivematica (pyproject.toml)
 cryptography==49.0.0
     # via mozilla-django-oidc
-django==5.2.15
+django==5.2.16
     # via
     #   archivematica (pyproject.toml)
     #   django-auth-ldap
@@ -59,7 +59,7 @@ django-stubs-ext==6.0.6
     # via archivematica (pyproject.toml)
 django-tastypie==0.15.1
     # via archivematica (pyproject.toml)
-elastic-transport==8.17.1
+elastic-transport==8.19.0
     # via elasticsearch
 elasticsearch==8.19.3
     # via archivematica (pyproject.toml)
@@ -97,7 +97,7 @@ mysqlclient==2.2.8
     # via agentarchives
 olefile==0.47
     # via opf-fido
-opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311
+opf-fido @ git+https://github.com/artefactual-labs/fido.git@3e16f31492d72ae650b25fabc9b9f55a7c4259f2
     # via archivematica (pyproject.toml)
 orjson==3.11.9
     # via archivematica (pyproject.toml)
@@ -109,7 +109,7 @@ prometheus-client==0.25.0
     # via
     #   archivematica (pyproject.toml)
     #   django-prometheus
-pyasn1==0.6.3
+pyasn1==0.6.4
     # via
     #   pyasn1-modules
     #   python-ldap
