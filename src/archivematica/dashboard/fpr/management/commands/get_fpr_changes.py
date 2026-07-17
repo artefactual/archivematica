@@ -101,8 +101,11 @@ class Command(BaseCommand):
         for k, g in groups:
             print(len(list(g)), "new entries for", k)
         # Write to output file
+        output_entries = [
+            {"model": item["model"], "fields": item["fields"]} for item in new_entries
+        ]
         with open(options["output"], "w") as f:
-            json.dump(new_entries, f, indent=4, separators=(",", ": "))
+            json.dump(output_entries, f, indent=4, separators=(",", ": "))
 
 
 def _identity(item: FPRItem) -> tuple[str, str]:

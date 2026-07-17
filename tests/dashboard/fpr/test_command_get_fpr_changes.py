@@ -114,7 +114,9 @@ def test_command_outputs_new_fpr_entries(
         )
         in captured.out
     )
-    assert json.loads(output_path.read_text()) == new_entries
+    assert json.loads(output_path.read_text()) == [
+        {"model": entry["model"], "fields": entry["fields"]} for entry in new_entries
+    ]
 
 
 def test_command_ignores_pk_and_lastmodified_differences(
@@ -278,3 +280,31 @@ def test_command_rejects_new_entries_referencing_a_drifted_uuid(
         f"unchanged records in the old FPR: {new_group_uuid}"
     )
     assert not output_path.exists()
+
+
+def test_command_omits_primary_keys_from_output(tmp_path: pathlib.Path) -> None:
+    new_entry = {
+        "model": "fpr.formatgroup",
+        "pk": 36,
+        "fields": {
+            "uuid": "35f8e190-b66e-4b90-92f1-15844d2211ea",
+            "description": "New format group",
+            "slug": "new-format-group",
+        },
+    }
+    old_json_path = tmp_path / "old.json"
+    new_json_path = tmp_path / "new.json"
+    output_path = tmp_path / "output.json"
+    old_json_path.write_text("[]")
+    new_json_path.write_text(json.dumps([new_entry]))
+
+    call_command(
+        "get_fpr_changes", str(old_json_path), str(new_json_path), str(output_path)
+    )
+
+    assert json.loads(output_path.read_text()) == [
+        {
+            "model": new_entry["model"],
+            "fields": new_entry["fields"],
+        }
+    ]
