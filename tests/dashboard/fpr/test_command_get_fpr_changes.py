@@ -3,9 +3,9 @@ import pathlib
 
 import pytest
 from django.core.management import call_command
+from django.core.management.base import CommandError
 
 
-@pytest.mark.django_db
 def test_command_outputs_new_fpr_entries(
     tmp_path: pathlib.Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -115,3 +115,166 @@ def test_command_outputs_new_fpr_entries(
         in captured.out
     )
     assert json.loads(output_path.read_text()) == new_entries
+
+
+def test_command_ignores_pk_and_lastmodified_differences(
+    tmp_path: pathlib.Path,
+) -> None:
+    old_json = [
+        {
+            "model": "fpr.idcommand",
+            "pk": 22,
+            "fields": {
+                "replaces": "88c747f5-7b6c-4913-8dc2-3957dcd5e6b8",
+                "enabled": True,
+                "lastmodified": "2026-07-13T23:50:32.442Z",
+                "uuid": "4914841c-3555-4519-86e3-5bf622d28351",
+                "tool": "454df69d-5cc0-49fc-93e4-6fbb6ac659e7",
+                "description": "Identify using Siegfried 1.11.2",
+                "config": "PUID",
+                "script": "identify with siegfried",
+                "script_type": "pythonScript",
+            },
+        }
+    ]
+    new_json = [
+        {
+            "model": "fpr.idcommand",
+            "pk": 42,
+            "fields": {
+                "replaces": "88c747f5-7b6c-4913-8dc2-3957dcd5e6b8",
+                "enabled": True,
+                "lastmodified": "2026-07-14T15:03:17.078Z",
+                "uuid": "4914841c-3555-4519-86e3-5bf622d28351",
+                "tool": "454df69d-5cc0-49fc-93e4-6fbb6ac659e7",
+                "description": "Identify using Siegfried 1.11.2",
+                "config": "PUID",
+                "script": "identify with siegfried",
+                "script_type": "pythonScript",
+            },
+        }
+    ]
+
+    old_json_path = tmp_path / "old.json"
+    new_json_path = tmp_path / "new.json"
+    output_path = tmp_path / "output.json"
+    old_json_path.write_text(json.dumps(old_json))
+    new_json_path.write_text(json.dumps(new_json))
+
+    call_command(
+        "get_fpr_changes", str(old_json_path), str(new_json_path), str(output_path)
+    )
+
+    assert json.loads(output_path.read_text()) == []
+
+
+def test_command_ignores_semantically_identical_entries_with_different_uuids(
+    tmp_path: pathlib.Path,
+) -> None:
+    old_json = [
+        {
+            "model": "fpr.fprule",
+            "pk": 872,
+            "fields": {
+                "replaces": None,
+                "enabled": True,
+                "lastmodified": "2026-07-13T23:50:32.719Z",
+                "uuid": "8c128693-56c7-4798-90a8-bd939e86fb95",
+                "purpose": "validation",
+                "command": "09a14b6b-3f4c-49d8-9a62-0c7212aca83c",
+                "format": "6ad6b8e1-0fc5-46ac-8531-28dbf5fe33c4",
+                "count_attempts": 0,
+                "count_okay": 0,
+                "count_not_okay": 0,
+            },
+        }
+    ]
+    new_json = [
+        {
+            "model": "fpr.fprule",
+            "pk": 872,
+            "fields": {
+                "replaces": None,
+                "enabled": True,
+                "lastmodified": "2026-07-14T15:03:17.188Z",
+                "uuid": "6b8af700-b1a1-449a-81b0-2112307a3dae",
+                "purpose": "validation",
+                "command": "09a14b6b-3f4c-49d8-9a62-0c7212aca83c",
+                "format": "6ad6b8e1-0fc5-46ac-8531-28dbf5fe33c4",
+                "count_attempts": 0,
+                "count_okay": 0,
+                "count_not_okay": 0,
+            },
+        }
+    ]
+
+    old_json_path = tmp_path / "old.json"
+    new_json_path = tmp_path / "new.json"
+    output_path = tmp_path / "output.json"
+    old_json_path.write_text(json.dumps(old_json))
+    new_json_path.write_text(json.dumps(new_json))
+
+    call_command(
+        "get_fpr_changes", str(old_json_path), str(new_json_path), str(output_path)
+    )
+
+    assert json.loads(output_path.read_text()) == []
+
+
+def test_command_rejects_new_entries_referencing_a_drifted_uuid(
+    tmp_path: pathlib.Path,
+) -> None:
+    old_group_uuid = "49918a30-5db7-40f0-ac11-b56610365257"
+    new_group_uuid = "27cb2790-d577-4411-9bcc-d78a27da1d01"
+    old_json = [
+        {
+            "model": "fpr.formatgroup",
+            "pk": 35,
+            "fields": {
+                "uuid": old_group_uuid,
+                "description": "Text (Unstructured)",
+                "slug": "text-unstructured",
+            },
+        }
+    ]
+    new_json = [
+        {
+            "model": "fpr.formatgroup",
+            "pk": 35,
+            "fields": {
+                "uuid": new_group_uuid,
+                "description": "Text (Unstructured)",
+                "slug": "text-unstructured",
+            },
+        },
+        {
+            "model": "fpr.format",
+            "pk": 1640,
+            "fields": {
+                "uuid": "86e2094e-8e1c-4c73-8c39-c341cb01a602",
+                "description": "New text format",
+                "group": new_group_uuid,
+                "slug": "new-text-format",
+            },
+        },
+    ]
+
+    old_json_path = tmp_path / "old.json"
+    new_json_path = tmp_path / "new.json"
+    output_path = tmp_path / "output.json"
+    old_json_path.write_text(json.dumps(old_json))
+    new_json_path.write_text(json.dumps(new_json))
+
+    with pytest.raises(CommandError) as exc_info:
+        call_command(
+            "get_fpr_changes",
+            str(old_json_path),
+            str(new_json_path),
+            str(output_path),
+        )
+
+    assert str(exc_info.value) == (
+        "New FPR entries reference UUIDs that identify semantically "
+        f"unchanged records in the old FPR: {new_group_uuid}"
+    )
+    assert not output_path.exists()

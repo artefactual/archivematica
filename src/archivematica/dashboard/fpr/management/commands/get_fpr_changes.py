@@ -1,18 +1,18 @@
+import argparse
 import itertools
 import json
+from typing import Any
 
 from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
 
-
-class frozendict(dict):
-    def __hash__(self):
-        return hash((frozenset(self), frozenset(self.values())))
+FPRItem = dict[str, Any]
 
 
 class Command(BaseCommand):
     help = "Generate updates from FPR dumpdata JSON files"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "old_json", help="Path to a JSON dump of the old/current FPR"
         )
@@ -21,24 +21,56 @@ class Command(BaseCommand):
         )
         parser.add_argument("output", help="Path to output file")
 
-    def handle(self, *args, **options):
+    def handle(self, *args: Any, **options: Any) -> None:
         print(args, options)
         # Load JSON
         with open(options["old_json"]) as f:
-            old_json = json.load(f)
+            old_json: list[FPRItem] = json.load(f)
         with open(options["new_json"]) as f:
-            new_json = json.load(f)
+            new_json: list[FPRItem] = json.load(f)
 
-        # Put JSONs in a set - must freeze to be hashable
-        old_json_set = set()
-        for x in old_json:
-            old_json_set.add(freeze(x))
-        new_json_set = set()
-        for x in new_json:
-            new_json_set.add(freeze(x))
+        old_by_identity = {_identity(item): item for item in old_json}
+        old_by_semantic_content = {
+            _comparison_key(item, ignore_uuid=True): item for item in old_json
+        }
 
-        # Subtract old from new
-        new_entries = new_json_set - old_json_set
+        new_entries = []
+        drifted_items = []
+        drifted_uuids = set()
+        for item in new_json:
+            old_item = old_by_identity.get(_identity(item))
+            if old_item is not None:
+                if _comparison_key(old_item) == _comparison_key(item):
+                    continue
+                new_entries.append(item)
+                continue
+
+            old_item = old_by_semantic_content.get(
+                _comparison_key(item, ignore_uuid=True)
+            )
+            if old_item is not None:
+                old_uuid = old_item["fields"]["uuid"]
+                new_uuid = item["fields"]["uuid"]
+                drifted_items.append((item["model"], old_uuid, new_uuid))
+                drifted_uuids.add(new_uuid)
+                continue
+
+            new_entries.append(item)
+
+        referenced_drifted_uuids = set()
+        for item in new_entries:
+            referenced_drifted_uuids.update(
+                _find_referenced_uuids(item["fields"], drifted_uuids)
+            )
+        if referenced_drifted_uuids:
+            references = ", ".join(sorted(referenced_drifted_uuids))
+            raise CommandError(
+                "New FPR entries reference UUIDs that identify semantically "
+                f"unchanged records in the old FPR: {references}"
+            )
+
+        if drifted_items:
+            print("Semantically unchanged items with different UUIDs", drifted_items)
 
         # Find unversioned but updated items
         # TODO How to handle rows that have been modified in place?
@@ -50,7 +82,7 @@ class Command(BaseCommand):
         )
         old_not_versioned = {
             (x["model"], x["pk"])
-            for x in old_json_set
+            for x in old_json
             if x["model"] in not_versioned_models
         }
         updated_not_versioned = {
@@ -62,7 +94,6 @@ class Command(BaseCommand):
         print("Items that are not versioned and were updated", updated_pks)
 
         # Produce JSON sorted by model & pk
-        new_entries = [unfreeze(x) for x in new_entries]
         new_entries = sorted(new_entries, key=lambda x: (x["model"], x["pk"]))
 
         print(len(new_entries), "new entries total")
@@ -74,12 +105,33 @@ class Command(BaseCommand):
             json.dump(new_entries, f, indent=4, separators=(",", ": "))
 
 
-def freeze(item):
-    item["fields"] = frozendict(item["fields"])
-    return frozendict(item)
+def _identity(item: FPRItem) -> tuple[str, str]:
+    return item["model"], item["fields"]["uuid"]
 
 
-def unfreeze(item):
-    item = dict(item)
-    item["fields"] = dict(item["fields"])
-    return item
+def _comparison_key(item: FPRItem, *, ignore_uuid: bool = False) -> str:
+    fields = dict(item["fields"])
+    fields.pop("lastmodified", None)
+    if ignore_uuid:
+        fields.pop("uuid", None)
+    return json.dumps(
+        {"model": item["model"], "fields": fields},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _find_referenced_uuids(value: Any, candidates: set[str]) -> set[str]:
+    if isinstance(value, dict):
+        referenced = set()
+        for nested_value in value.values():
+            referenced.update(_find_referenced_uuids(nested_value, candidates))
+        return referenced
+    if isinstance(value, list):
+        referenced = set()
+        for nested_value in value:
+            referenced.update(_find_referenced_uuids(nested_value, candidates))
+        return referenced
+    if isinstance(value, str) and value in candidates:
+        return {value}
+    return set()
