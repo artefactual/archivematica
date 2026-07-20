@@ -2,6 +2,7 @@
 
 import abc
 import collections
+import functools
 import json
 import logging
 import os
@@ -306,9 +307,11 @@ def create_package(
 
 
 def _capture_transfer_failure(fn=None, *, mark_transfer_failed=False):
-    """Prevent transfer-start exceptions from escaping the executor."""
+    """Guard transfer-start worker connections and capture their failures."""
 
     def decorator(wrapped):
+        @auto_close_old_connections()
+        @functools.wraps(wrapped)
         def wrap(*args, **kwargs):
             try:
                 return wrapped(*args, **kwargs)
