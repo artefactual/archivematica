@@ -766,7 +766,27 @@ def test_capture_transfer_failure_logs_other_exceptions():
     )
 
 
-@pytest.mark.django_db
+def test_capture_transfer_failure_closes_old_executor_connections():
+    """Transfer workers discard stale thread-local connections before work."""
+    calls = []
+
+    @_capture_transfer_failure
+    def fn():
+        calls.append("called")
+
+    with (
+        mock.patch(
+            "archivematica.archivematicaCommon.dbconns.close_old_connections"
+        ) as close_old_connections,
+        ThreadPoolExecutor(max_workers=1) as executor,
+    ):
+        executor.submit(fn).result(timeout=1)
+
+    close_old_connections.assert_called_once_with()
+    assert calls == ["called"]
+
+
+@pytest.mark.django_db(transaction=True)
 def test_capture_transfer_failure_marks_transfer_failed():
     transfer = models.Transfer.objects.create(
         status=models.PACKAGE_STATUS_PROCESSING,
@@ -783,7 +803,7 @@ def test_capture_transfer_failure_marks_transfer_failed():
     assert transfer.completed_at is not None
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_capture_transfer_failure_preserves_old_transfer_status_by_default():
     transfer = models.Transfer.objects.create(
         status=models.PACKAGE_STATUS_UNKNOWN,
