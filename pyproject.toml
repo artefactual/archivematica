@@ -42,7 +42,7 @@ dependencies = [
   "lxml",
   "metsrw",
   "orjson",
-  "opf-fido @ git+https://github.com/artefactual-labs/fido.git@abc31ecdc93bd9dfefbe6da535341dfc9f03d311",
+  "opf-fido @ git+https://github.com/artefactual-labs/fido.git@3e16f31492d72ae650b25fabc9b9f55a7c4259f2",
   "prometheus_client",
   "python-dateutil",
   "requests",
