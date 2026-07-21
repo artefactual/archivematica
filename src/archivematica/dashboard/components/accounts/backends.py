@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
+from jwt import PyJWKClient
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from shibboleth.backends import ShibbolethRemoteUserBackend
 
@@ -127,15 +128,11 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         self, access_token: str, id_token: str, verified_id: dict[str, Any]
     ) -> dict[str, Any]:
         """
-        Extract user details from JSON web tokens
+        Extract user details from OIDC token claims.
         These map to fields on the user field.
         """
 
-        def decode_token(token):
-            return jwt.decode(token, options={"verify_signature": False})
-
-        access_info = decode_token(access_token)
-        id_info = decode_token(id_token)
+        access_info = self.verify_access_token(access_token, verified_id)
 
         info: dict[str, Any] = {}
 
@@ -144,10 +141,59 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
                 info.setdefault(user_attr, access_info[oidc_attr])
 
         for oidc_attr, user_attr in settings.OIDC_ID_ATTRIBUTE_MAP.items():
-            if oidc_attr in id_info:
-                info.setdefault(user_attr, id_info[oidc_attr])
+            if oidc_attr in verified_id:
+                info.setdefault(user_attr, verified_id[oidc_attr])
 
         return info
+
+    def verify_access_token(
+        self, access_token: str, verified_id: dict[str, Any]
+    ) -> dict[str, Any]:
+        issuer = verified_id.get("iss")
+        if not isinstance(issuer, str) or not issuer:
+            raise jwt.InvalidIssuerError("Verified ID token is missing issuer.")
+
+        signing_key = self.get_access_token_signing_key(access_token)
+        payload = jwt.decode(
+            access_token,
+            signing_key,
+            algorithms=[self.OIDC_RP_SIGN_ALGO],
+            issuer=issuer,
+            options={"verify_aud": False},
+        )
+        self.verify_access_token_audience(payload)
+        return payload
+
+    def get_access_token_signing_key(self, access_token: str) -> Any:
+        if self.OIDC_RP_SIGN_ALGO.startswith("HS"):
+            return self.OIDC_RP_CLIENT_SECRET
+
+        if not self.OIDC_OP_JWKS_ENDPOINT:
+            raise ImproperlyConfigured(
+                "OIDC_OP_JWKS_ENDPOINT must be set to verify access tokens."
+            )
+
+        return (
+            PyJWKClient(self.OIDC_OP_JWKS_ENDPOINT)
+            .get_signing_key_from_jwt(access_token)
+            .key
+        )
+
+    def verify_access_token_audience(self, payload: dict[str, Any]) -> None:
+        audiences = payload.get("aud")
+        if isinstance(audiences, str):
+            audiences = [audiences]
+        if not isinstance(audiences, list):
+            audiences = []
+
+        authorized_party = payload.get("azp")
+        if self.OIDC_RP_CLIENT_ID not in audiences and (
+            not isinstance(authorized_party, str)
+            or authorized_party != self.OIDC_RP_CLIENT_ID
+        ):
+            raise jwt.InvalidAudienceError(
+                "Access token was not issued for this client."
+            )
 
     def create_user(self, user_info: dict[str, Any]) -> Optional[User]:
         role = self.get_user_role(user_info)
