@@ -23,9 +23,10 @@ from archivematica.MCPClient.clientScripts.archivematicaCreateMETSMetadataXML im
 METADATA_DIR = Path("objects") / "metadata"
 TRANSFER_METADATA_DIR = METADATA_DIR / "transfers" / "transfer_a"
 TRANSFER_SOURCE_METADATA_CSV = TRANSFER_METADATA_DIR / "source-metadata.csv"
-VALID_XML = '<?xml version="1.0" encoding="UTF-8"?><foo><bar/></foo>'
-INVALID_XML = '<?xml version="1.0" encoding="UTF-8"?><foo/>'
-SCHEMAS = {
+DUMMY_EXTERNAL_SCHEMA_URI = "http://foo.com/my.xsd"
+DUMMY_SCHEMA_NAMESPACE = "http://foo.com/1.0"
+
+DUMMY_SCHEMAS = {
     "xsd": """<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="foo">
@@ -48,18 +49,21 @@ SCHEMAS = {
   </oneOrMore>
 </element>
 """,
-}
-IMPORTED_SCHEMA = """<?xml version="1.0" encoding="UTF-8"?>
+    "xsd_imported": f"""<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="http://foo.com/1.0" targetNamespace="http://foo.com/1.0">
-</xs:schema>"""
+           xmlns="{DUMMY_SCHEMA_NAMESPACE}" targetNamespace="{DUMMY_SCHEMA_NAMESPACE}">
+</xs:schema>
+""",
+}
 
+VALID_XML = '<?xml version="1.0" encoding="UTF-8"?><foo><bar/></foo>'
+INVALID_XML = '<?xml version="1.0" encoding="UTF-8"?><foo/>'
 
 @pytest.fixture
 def make_schema_file(tmp_path):
     def _make_schema_file(schema_type):
         schema_path = tmp_path / (schema_type + "." + schema_type)
-        schema_path.write_text(SCHEMAS[schema_type])
+        schema_path.write_text(DUMMY_SCHEMAS[schema_type])
         return schema_path
 
     return _make_schema_file
@@ -150,7 +154,7 @@ def requests_get():
     # Return a mock response good enough to be parsed as an XML schema.
     with mock.patch(
         "requests.get",
-        return_value=mock.Mock(text=IMPORTED_SCHEMA),
+        return_value=mock.Mock(text=DUMMY_SCHEMAS["xsd_imported"]),
     ) as result:
         yield result
 
@@ -192,9 +196,9 @@ def etree_parse():
 @pytest.fixture
 def schema_with_remote_import(tmp_path):
     # Create a schema that imports a remote schema.
-    schema = """<?xml version="1.0" encoding="UTF-8"?>
+    schema = f"""<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import namespace="http://foo.com/1.0" schemaLocation="http://foo.com/my.xsd" />
+  <xs:import namespace="{DUMMY_SCHEMA_NAMESPACE}" schemaLocation="{DUMMY_EXTERNAL_SCHEMA_URI}" />
   <xs:element name="foo">
     <xs:complexType>
       <xs:sequence>
@@ -228,7 +232,7 @@ def schema_with_local_import(tmp_path):
     schema_path.write_text(schema)
 
     local_schema = tmp_path / "my.xsd"
-    local_schema.write_text(IMPORTED_SCHEMA)
+    local_schema.write_text(DUMMY_SCHEMAS["xsd_imported"])
 
     return schema_path
 
@@ -618,7 +622,7 @@ def test_resolver(
         xml_validation,
     )
     assert not errors
-    requests_get.assert_called_once_with("http://foo.com/my.xsd")
+    requests_get.assert_called_once_with(DUMMY_EXTERNAL_SCHEMA_URI)
 
 
 @pytest.mark.django_db
