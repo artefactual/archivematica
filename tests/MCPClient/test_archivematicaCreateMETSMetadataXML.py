@@ -768,7 +768,7 @@ def test_resolver(
         xml_validation,
     )
     assert not errors
-    requests_get.assert_called_once_with(DUMMY_EXTERNAL_SCHEMA_URI)
+    requests_get.assert_called_once_with(DUMMY_EXTERNAL_SCHEMA_URI, timeout=10)
 
 
 @pytest.mark.django_db

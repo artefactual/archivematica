@@ -189,7 +189,9 @@ class Resolver(etree.Resolver):
         url_scheme = urlparse(url).scheme
         if url_scheme in ("http", "https"):
             try:
-                response = requests.get(url)
+                # timeout to prevent indefinite hangs, see
+                # https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
+                response = requests.get(url, timeout=10)
             except requests.RequestException:
                 return super().resolve(url, id, context)
             else:
