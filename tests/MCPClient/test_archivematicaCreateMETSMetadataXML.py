@@ -302,7 +302,7 @@ def test_validation(
     objects_fsentry = mock_mets.get_file(label="objects")
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
     if should_pass:
-        # Use ANY to avoid comparision with etree.Element, but confirm element tag.
+        # Use ANY to avoid comparison with etree.Element, but confirm element tag.
         objects_fsentry.add_dmdsec.assert_called_once_with(
             mock.ANY, "OTHER", othermdtype="mdtype", status="original"
         )
@@ -351,7 +351,7 @@ def test_skipped_validation(
     objects_fsentry = mock_mets.get_file(label="objects")
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
     assert not errors
-    # Use ANY to avoid comparision with etree.Element, but confirm element tag.
+    # Use ANY to avoid comparison with etree.Element, but confirm element tag.
     objects_fsentry.add_dmdsec.assert_called_once_with(
         mock.ANY, "OTHER", othermdtype="mdtype", status="original"
     )
@@ -576,7 +576,7 @@ def test_reingest(
     objects_fsentry = mock_mets.get_file(label="objects")
     metadata_fsentry = mock_mets.get_file(file_uuid=str(metadata_file.uuid))
     assert not errors
-    # Use ANY to avoid comparision with etree.Element, but confirm element tag.
+    # Use ANY to avoid comparison with etree.Element, but confirm element tag.
     objects_fsentry.add_dmdsec.assert_called_once_with(
         mock.ANY, "OTHER", othermdtype="mdtype", status="update"
     )
