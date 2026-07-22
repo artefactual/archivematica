@@ -96,7 +96,7 @@ jobs:
       - name: "Generate cache key from requirements"
         id: cache_key
         run: |
-          echo "requirements_hash=${{ hashFiles('requirements*.txt', 'requirements*.in', 'pyproject.toml') }}" >> $GITHUB_OUTPUT
+          echo "requirements_hash=${{ hashFiles('requirements*.*', 'pyproject.toml', 'hack/submodules/**/uv.lock') }}" >> $GITHUB_OUTPUT
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c" # v4.2.0
         with:

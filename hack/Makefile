@@ -251,43 +251,48 @@ upgrade-requirements-am:  ## Run pip-upgrade for Archivematica
 		--entrypoint bash archivematica-mcp-server \
 			-c "make pip-upgrade"
 
-compile-requirements-ss:  ## Run pip-compile for Storage Service
-	docker compose run --workdir /src \
-		-e XDG_CACHE_HOME=/tmp/pip-cache \
-		--rm \
-		--no-deps \
-		--user $(CALLER_UID):$(CALLER_GID) \
-		--entrypoint bash archivematica-storage-service \
-			-c "make pip-compile"
+# Lock resolution needs the Python and Git tools included in this uv image.
+UV_IMAGE ?= ghcr.io/astral-sh/uv:0.11.30-python3.14-trixie@sha256:bf3b8020dab9acd0a9c2cb0ea4ab5c65167f2a1af513c6031f289ac268b3dd4f
 
-upgrade-requirements-ss:  ## Run pip-upgrade for Storage Service
-	docker compose run --workdir /src \
-		-e XDG_CACHE_HOME=/tmp/pip-cache \
+define ss_uv
+	docker run \
 		--rm \
-		--no-deps \
 		--user $(CALLER_UID):$(CALLER_GID) \
-		--entrypoint bash archivematica-storage-service \
-			-c "make pip-upgrade"
-
-define amauat_make
-	docker compose \
-		-f docker-compose.yml \
-		-f docker-compose.acceptance-tests.yml \
-		run \
-			--workdir /src \
-			-e XDG_CACHE_HOME=/tmp/pip-cache \
-			--rm \
-			--no-deps \
-			--user $(CALLER_UID):$(CALLER_GID) \
-			--entrypoint bash archivematica-acceptance-tests \
-				-c "make $(1)"
+		--volume "$(CURDIR)/submodules/archivematica-storage-service:/src" \
+		--workdir /src \
+		-e UV_CACHE_DIR=/tmp/uv-cache \
+		-e UV_PROJECT_ENVIRONMENT=/tmp/uv-project-environment \
+		-e UV_PYTHON=python \
+		-e UV_PYTHON_DOWNLOADS=never \
+		$(UV_IMAGE) \
+			uv $(1)
 endef
 
-compile-requirements-amauat: test-at-build  ## Run pip-compile for AMAUATs
-	$(call amauat_make,pip-compile)
+lock-dependencies-ss:  ## Refresh the Storage Service uv lockfile
+	$(call ss_uv,lock)
 
-upgrade-requirements-amauat: test-at-build  ## Run pip-upgrade for AMAUATs
-	$(call amauat_make,pip-upgrade)
+upgrade-dependencies-ss:  ## Upgrade the Storage Service uv lockfile
+	$(call ss_uv,lock --upgrade)
+
+define amauat_uv
+	docker run \
+		--rm \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(CURDIR)/submodules/archivematica-acceptance-tests:/src" \
+		--workdir /src \
+		-e UV_CACHE_DIR=/tmp/uv-cache \
+		-e UV_PROJECT_ENVIRONMENT=/tmp/uv-project-environment \
+		-e UV_PYTHON=python \
+		-e UV_PYTHON_DOWNLOADS=never \
+		$(UV_IMAGE) \
+			uv $(1)
+endef
+
+compile-requirements-amauat:  ## Refresh the AMAUAT uv lockfile
+	$(call amauat_uv,lock)
+
+upgrade-requirements-amauat:  ## Upgrade the AMAUAT uv lockfile
+	$(call amauat_uv,lock --upgrade)
 
 db:  ## Connect to the MySQL server using the CLI.
 	docker compose exec mysql mysql -hlocalhost -uroot -p12345
