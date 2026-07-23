@@ -21,6 +21,7 @@
 
 # tox working directory
 .tox/
+.venv/
 
 # frontend builds
 src/archivematica/dashboard/static/

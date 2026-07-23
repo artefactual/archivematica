@@ -10,6 +10,7 @@
   - [Elasticsearch container](#elasticsearch-container)
 - [Installation](#installation)
   - [GNU make](#gnu-make)
+- [Python dependency workflows](#python-dependency-workflows)
 - [Upgrading to the latest version of Archivematica](#upgrading-to-the-latest-version-of-archivematica)
 - [Web UIs](#web-uis)
 - [Source code auto-reloading](#source-code-auto-reloading)
@@ -157,7 +158,7 @@ make build
 ```
 
 You may want to rebuild images with this command after updating the
-`Dockerfile` or the Python requirement files, but it's not necessary to rebuild
+`Dockerfile`, `pyproject.toml`, or `uv.lock`, but it's not necessary to rebuild
 the images after changing Python code.
 
 Start the services with:
@@ -193,6 +194,35 @@ the following command:
 ```shell
 make help
 ```
+
+## Python dependency workflows
+
+Install uv using the [uv installation documentation], then synchronize the
+locked project and development dependencies from the repository root:
+
+```shell
+make sync
+```
+
+The root Makefile also provides `sync-runtime`, `lock`, `lock-check`, `upgrade`,
+`lint`, and `check` targets. Declare runtime dependencies in
+`project.dependencies` and development dependencies in
+`dependency-groups.dev` in `pyproject.toml`. The committed `uv.lock` is the
+sole dependency lock; requirements exports are not maintained.
+
+The default interpreter is pinned in `.python-version`. CI overrides it to
+exercise every supported Python version. The Docker build independently pins
+the uv tool image and digest so tool upgrades and dependency upgrades remain
+explicit.
+
+The `hack` Makefile can update the root lock using the pinned uv container:
+
+```shell
+make lock-dependencies-am
+make upgrade-dependencies-am
+```
+
+[uv installation documentation]: https://docs.astral.sh/uv/getting-started/installation/
 
 ## Upgrading to the latest version of Archivematica
 
@@ -342,7 +372,8 @@ The `Makefile` includes many useful targets for testing. List them all with:
 make help | grep test-
 ```
 
-The following targets use [`tox`](https://tox.readthedocs.io) and
+The following targets use [`tox`](https://tox.readthedocs.io),
+[`tox-uv`](https://github.com/tox-dev/tox-uv), and
 [`pytest`](https://docs.pytest.org) to run the tests using MySQL:
 
 ```text
@@ -354,10 +385,11 @@ test-mcp-server            Run MCPServer tests.
 test-storage-service       Run Storage Service tests.
 ```
 
-`tox` sets up separate virtual environments for each target and calls
-`pytest` to run the tests. Their configurations live in the `pyproject.toml`
-file but you can set the [`TOXARGS`][tox-cli] and [`PYTEST_ADDOPTS`][pytest-cli]
-environment variables to pass command line options to each.
+`tox` keeps the existing test orchestration and separate environments for each
+target. `tox-uv` synchronizes those environments from the committed `uv.lock`
+before calling `pytest`. The configurations live in `pyproject.toml`, and you
+can set the [`TOXARGS`][tox-cli] and [`PYTEST_ADDOPTS`][pytest-cli] environment
+variables to pass command-line options to each.
 
 [tox-cli]: https://tox.readthedocs.io/en/latest/config.html#cli
 [pytest-cli]: https://docs.pytest.org/en/stable/example/simple.html#how-to-change-command-line-options-defaults

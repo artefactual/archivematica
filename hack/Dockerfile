@@ -2,18 +2,22 @@ ARG TARGET=archivematica-mcp-server
 ARG UBUNTU_VERSION=24.04
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-ARG PYTHON_VERSION=3.10
 ARG NODE_VERSION=24
-ARG PYENV_DIR=/pyenv
+ARG UV_VERSION=0.11.30
+ARG UV_DIGEST=sha256:93b61e21202b1dab861092748e46bbd6e0e41dd84f59b9174efd2353186e1b47
+ARG PYTHON_INSTALL_DIR=/python
 ARG SELENIUM_DIR=/selenium
 ARG MEDIAAREA_VERSION=1.0-25
 ARG JHOVE_VERSION=1.34.0-1~22.04
+
+# Pin the Docker tool image independently for reproducible builds.
+FROM ghcr.io/astral-sh/uv:${UV_VERSION}@${UV_DIGEST} AS uv
 
 # -----------------------------------------------------------------------------
 
 FROM ubuntu:${UBUNTU_VERSION} AS base-builder
 
-ARG PYENV_DIR=/pyenv
+ARG PYTHON_INSTALL_DIR=/python
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
@@ -23,6 +27,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	set -ex \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
+		build-essential \
 		ca-certificates \
 		curl \
 		git \
@@ -41,46 +46,37 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-ENV PYENV_ROOT=${PYENV_DIR}/data
-ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+ENV PATH=${PYTHON_INSTALL_DIR}/venv/bin:$PATH
 
 # -----------------------------------------------------------------------------
 
-FROM base-builder AS pyenv-builder
+FROM base-builder AS python-builder
 
 ARG PYTHON_VERSION
+ARG PYTHON_INSTALL_DIR=/python
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-	--mount=type=cache,target=/var/lib/apt,sharing=locked \
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV UV_PYTHON_CACHE_DIR=/root/.cache/uv/python
+ENV UV_PYTHON_INSTALL_DIR=${PYTHON_INSTALL_DIR}/managed
+ENV UV_PYTHON_PREFERENCE=only-managed
+ENV UV_PROJECT_ENVIRONMENT=${PYTHON_INSTALL_DIR}/venv
+
+COPY --from=uv --link /uv /usr/local/bin/uv
+
+WORKDIR /src
+
+COPY --link .python-version pyproject.toml uv.lock ./
+
+RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
 	set -ex \
-	&& apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		build-essential \
-		libbz2-dev \
-		libffi-dev \
-		liblzma-dev \
-		libncursesw5-dev \
-		libreadline-dev \
-		libsqlite3-dev \
-		libssl-dev \
-		libxml2-dev \
-		libxmlsec1-dev \
-		tk-dev \
-		xz-utils \
-		zlib1g-dev
-
-RUN set -ex \
-	&& curl --retry 3 -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-	&& pyenv install ${PYTHON_VERSION} \
-	&& pyenv global ${PYTHON_VERSION}
-
-COPY --link requirements-dev.txt /src/requirements-dev.txt
-
-RUN --mount=type=cache,target=/root/.cache/pip,sharing=locked \
-	set -ex \
-	&& pyenv exec python3 -m pip install --upgrade pip setuptools \
-	&& pyenv exec python3 -m pip install --requirement /src/requirements-dev.txt \
-	&& pyenv rehash
+	&& if [ -n "${PYTHON_VERSION}" ]; then \
+		uv python install --no-bin "${PYTHON_VERSION}"; \
+		uv sync --locked --no-install-project --python "${PYTHON_VERSION}"; \
+	else \
+		uv python install --no-bin; \
+		uv sync --locked --no-install-project; \
+	fi
 
 # -----------------------------------------------------------------------------
 
@@ -137,7 +133,7 @@ FROM base-builder AS base
 
 ARG USER_ID
 ARG GROUP_ID
-ARG PYENV_DIR=/pyenv
+ARG PYTHON_INSTALL_DIR=/python
 ARG MEDIAAREA_VERSION
 ARG JHOVE_VERSION
 
@@ -216,7 +212,8 @@ RUN freshclam --quiet
 
 USER archivematica
 
-COPY --chown=${USER_ID}:${GROUP_ID} --from=pyenv-builder --link ${PYENV_DIR} ${PYENV_DIR}
+COPY --chown=${USER_ID}:${GROUP_ID} --from=python-builder --link ${PYTHON_INSTALL_DIR} ${PYTHON_INSTALL_DIR}
+COPY --from=uv --link /uv /usr/local/bin/uv
 COPY --chown=${USER_ID}:${GROUP_ID} --link . /src
 
 ENV PYTHONPATH=/src/src
@@ -227,7 +224,7 @@ FROM base AS archivematica-mcp-client
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.MCPClient.settings.common
 
-ENTRYPOINT ["pyenv", "exec", "python3", "-m", "archivematica.MCPClient.archivematicaClient"]
+ENTRYPOINT ["python", "-m", "archivematica.MCPClient.archivematicaClient"]
 
 # -----------------------------------------------------------------------------
 
@@ -235,7 +232,7 @@ FROM base AS archivematica-mcp-server
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.MCPServer.settings.common
 
-ENTRYPOINT ["pyenv", "exec", "python3", "-m", "archivematica.MCPServer.archivematicaMCP"]
+ENTRYPOINT ["python", "-m", "archivematica.MCPServer.archivematicaMCP"]
 
 # -----------------------------------------------------------------------------
 
@@ -264,14 +261,14 @@ ENV AM_GUNICORN_BIND=0.0.0.0:8000
 ENV FORWARDED_ALLOW_IPS=*
 
 RUN set -ex \
-	&& python3 -m archivematica.dashboard.manage collectstatic --noinput --clear \
-	&& python3 -m archivematica.dashboard.manage compilemessages
+	&& python -m archivematica.dashboard.manage collectstatic --noinput --clear \
+	&& python -m archivematica.dashboard.manage compilemessages
 
 ENV DJANGO_SETTINGS_MODULE=archivematica.dashboard.settings.production
 
 EXPOSE 8000
 
-ENTRYPOINT ["pyenv", "exec", "python3", "-m", "gunicorn", "--config=/src/src/archivematica/dashboard/install/dashboard.gunicorn-config.py", "archivematica.dashboard.wsgi:application"]
+ENTRYPOINT ["python", "-m", "gunicorn", "--config=/src/src/archivematica/dashboard/install/dashboard.gunicorn-config.py", "archivematica.dashboard.wsgi:application"]
 
 # -----------------------------------------------------------------------------
 
@@ -288,13 +285,13 @@ ARG GROUP_ID
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 	--mount=type=cache,target=/var/lib/apt,sharing=locked \
 	set -ex \
-	&& python3 -m playwright install-deps firefox
+	&& python -m playwright install-deps firefox
 
 USER archivematica
 
 RUN set -ex \
 	&& mkdir -p /var/archivematica/.cache/ms-playwright \
-	&& python3 -m playwright install firefox
+	&& python -m playwright install firefox
 
 # Copy frontend assets out of where /src is bind-mounted during tests.
 COPY --chown=${USER_ID}:${GROUP_ID} --from=archivematica-dashboard-frontend-builder --link /src/src/archivematica/dashboard/frontend/dist /opt/am-dashboard-dist
