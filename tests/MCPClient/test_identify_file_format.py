@@ -2,11 +2,18 @@ import pathlib
 from unittest import mock
 
 import pytest
+from django.db import connection
 
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import identify_file_format
+from archivematica.MCPClient.clientScripts.file_identification import (
+    IdentificationRequest,
+)
+from archivematica.MCPClient.clientScripts.file_identification import (
+    IdentificationResult,
+)
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -379,3 +386,80 @@ def test_job_falls_back_to_identification_rule_if_format_version_does_not_exist(
         ).count()
         == 1
     )
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.identify_file_format._create_backend"
+)
+def test_jobs_are_identified_in_one_batch_outside_a_transaction(
+    create_backend: mock.Mock,
+    job: mock.Mock,
+    sip_file_path: pathlib.Path,
+    idcommand: fprmodels.IDCommand,
+) -> None:
+    second_path = sip_file_path.with_name("second-file")
+    second_job = mock.Mock(
+        args=[*job.args],
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+    second_job.args[2] = str(second_path)
+    backend = create_backend.return_value
+    transaction_depth = len(connection.atomic_blocks)
+
+    def identify_many(
+        requests: list[IdentificationRequest],
+    ) -> list[IdentificationResult]:
+        assert len(connection.atomic_blocks) == transaction_depth
+        return [
+            IdentificationResult.failed("First error"),
+            IdentificationResult.failed("Second error"),
+        ]
+
+    backend.identify_many.side_effect = identify_many
+
+    identify_file_format.call([job, second_job])
+
+    backend.identify_many.assert_called_once_with(
+        [
+            IdentificationRequest(path=str(sip_file_path)),
+            IdentificationRequest(path=str(second_path)),
+        ]
+    )
+    job.print_error.assert_called_once_with("First error")
+    second_job.print_error.assert_called_once_with("Second error")
+    job.set_status.assert_called_once_with(identify_file_format.ERROR)
+    second_job.set_status.assert_called_once_with(identify_file_format.ERROR)
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.identify_file_format._create_backend"
+)
+def test_disabled_jobs_are_excluded_from_identification_batch(
+    create_backend: mock.Mock,
+    job: mock.Mock,
+    sip_file_path: pathlib.Path,
+    idcommand: fprmodels.IDCommand,
+) -> None:
+    disabled_job = mock.Mock(
+        args=[*job.args],
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+    disabled_job.args[1] = "False"
+    backend = create_backend.return_value
+    backend.identify_many.return_value = [
+        IdentificationResult.failed("Identification failed")
+    ]
+
+    identify_file_format.call([disabled_job, job])
+
+    backend.identify_many.assert_called_once_with(
+        [IdentificationRequest(path=str(sip_file_path))]
+    )
+    disabled_job.print_output.assert_called_once_with(
+        "Skipping file format identification"
+    )
+    disabled_job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
