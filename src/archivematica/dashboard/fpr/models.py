@@ -290,8 +290,9 @@ class IDCommand(VersionedModel, models.Model):
         LEGACY = "legacy", _("FPR script")
         FIDO = "fido", _("Fido CLI")
         SIEGFRIED = "siegfried", _("Siegfried CLI")
+        PYGFRIED = "pygfried", _("Pygfried")
 
-    BATCH_BACKENDS = (Backend.FIDO, Backend.SIEGFRIED)
+    BATCH_BACKENDS = (Backend.FIDO, Backend.SIEGFRIED, Backend.PYGFRIED)
     SCRIPT_TYPE_CHOICES = (
         ("bashScript", _("Bash script")),
         ("pythonScript", _("Python script")),
@@ -299,6 +300,7 @@ class IDCommand(VersionedModel, models.Model):
         ("as_is", _("No shebang needed")),
         (Backend.FIDO, Backend.FIDO.label),
         (Backend.SIEGFRIED, Backend.SIEGFRIED.label),
+        (Backend.PYGFRIED, Backend.PYGFRIED.label),
     )
     script_type = models.CharField(
         _("execution mode"),

@@ -45,17 +45,19 @@ class TestForms(TestCase):
 
     def test_batch_IDCommandForm_does_not_require_a_script(self):
         tool = IDTool.objects.create()
-        form = IDCommandForm(
-            {
-                "tool": tool.uuid,
-                "description": "Fido batch",
-                "config": "PUID",
-                "script_type": IDCommand.Backend.FIDO,
-                "script": "",
-            }
-        )
+        for backend in IDCommand.BATCH_BACKENDS:
+            with self.subTest(backend=backend):
+                form = IDCommandForm(
+                    {
+                        "tool": tool.uuid,
+                        "description": f"{backend} batch",
+                        "config": "PUID",
+                        "script_type": backend,
+                        "script": "",
+                    }
+                )
 
-        self.assertTrue(form.is_valid())
+                self.assertTrue(form.is_valid())
 
     def test_batch_IDCommandForm_rejects_a_script(self):
         tool = IDTool.objects.create()

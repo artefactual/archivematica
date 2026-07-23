@@ -1,3 +1,4 @@
+import functools
 import importlib.resources
 import json
 import os
@@ -5,6 +6,7 @@ import subprocess
 from collections.abc import Callable
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import Any
 from typing import Protocol
 
 from archivematica.dashboard.fpr.models import IDCommand
@@ -60,6 +62,15 @@ class IdentificationBackend(Protocol):
         self, requests: Sequence[IdentificationRequest]
     ) -> list[IdentificationResult]:
         """Return one ordered identification result per request."""
+
+        ...
+
+
+class PygfriedScanner(Protocol):
+    """Pygfried scanner surface used by the in-process backend."""
+
+    def identify_many(self, paths: Sequence[str], *, workers: int) -> dict[str, Any]:
+        """Return detailed Siegfried-compatible results for each path."""
 
         ...
 
@@ -169,6 +180,51 @@ def _completed_results(
             "Identification backend did not produce a result for every file"
         )
     return [result for result in results if result is not None]
+
+
+def _parse_siegfried_results(
+    paths: Sequence[str],
+    output: dict[str, Any],
+    *,
+    tool_name: str,
+    text_fallback: TextFallback,
+) -> list[IdentificationResult]:
+    """Convert Siegfried-compatible output into ordered results."""
+
+    file_results = output.get("files")
+    if not isinstance(file_results, list) or len(file_results) != len(paths):
+        raise ValueError(f"{tool_name} returned an unexpected number of file results")
+
+    results = []
+    for path, file_result in zip(paths, file_results):
+        if not isinstance(file_result, dict):
+            results.append(
+                IdentificationResult.failed(
+                    f"Error: {tool_name} returned an invalid result for {path}"
+                )
+            )
+            continue
+        if file_result.get("errors"):
+            results.append(
+                IdentificationResult.failed(
+                    f"Error: {tool_name} could not identify {path}: "
+                    f"{file_result['errors']}"
+                )
+            )
+            continue
+
+        matches = file_result.get("matches")
+        identifier = None
+        if isinstance(matches, list) and matches:
+            match = matches[0]
+            if isinstance(match, dict):
+                identifier = match.get("puid") or match.get("id")
+        if identifier and identifier != "UNKNOWN":
+            results.append(IdentificationResult.identified(str(identifier)))
+        else:
+            results.append(_unidentified(path, tool_name, text_fallback))
+
+    return results
 
 
 class FidoCLIIdentificationBackend:
@@ -285,38 +341,65 @@ class SiegfriedCLIIdentificationBackend:
                 )
             return _completed_results(results)
 
-        output = json.loads(process.stdout)
-        file_results = output.get("files")
-        if not isinstance(file_results, list) or len(file_results) != len(paths):
-            raise ValueError("Siegfried returned an unexpected number of file results")
+        batch_results = _parse_siegfried_results(
+            paths,
+            json.loads(process.stdout),
+            tool_name="Siegfried",
+            text_fallback=self.text_fallback,
+        )
+        for request_index, result in zip(indices, batch_results):
+            results[request_index] = result
 
-        for request_index, path, file_result in zip(indices, paths, file_results):
-            if not isinstance(file_result, dict):
-                results[request_index] = IdentificationResult.failed(
-                    f"Error: Siegfried returned an invalid result for {path}"
-                )
-                continue
-            if file_result.get("errors"):
-                results[request_index] = IdentificationResult.failed(
-                    f"Error: Siegfried could not identify {path}: "
-                    f"{file_result['errors']}"
-                )
-                continue
+        return _completed_results(results)
 
-            matches = file_result.get("matches")
-            identifier = None
-            if isinstance(matches, list) and matches:
-                match = matches[0]
-                if isinstance(match, dict):
-                    identifier = match.get("puid") or match.get("id")
-            if identifier and identifier != "UNKNOWN":
-                results[request_index] = IdentificationResult.identified(
-                    str(identifier)
-                )
-            else:
-                results[request_index] = _unidentified(
-                    path, "Siegfried", self.text_fallback
-                )
+
+@functools.cache
+def _load_pygfried_scanner() -> PygfriedScanner:
+    """Import Pygfried and cache an Archivematica-profile scanner."""
+
+    # Keep the Go extension out of MCPClient processes unless this backend is
+    # selected. Reuse the scanner and its loaded signature across batches.
+    from pygfried import Scanner
+
+    return Scanner(profile="archivematica")
+
+
+class PygfriedIdentificationBackend:
+    """Identify a batch in process using Pygfried's Go-side concurrency."""
+
+    def __init__(
+        self,
+        workers: int,
+        scanner: PygfriedScanner | None = None,
+        text_fallback: TextFallback = _text_fallback,
+    ) -> None:
+        """Configure worker count and an optional injectable scanner."""
+
+        self.workers = max(1, workers)
+        self._scanner = scanner
+        self.text_fallback = text_fallback
+
+    def identify_many(
+        self, requests: Sequence[IdentificationRequest]
+    ) -> list[IdentificationResult]:
+        """Identify all regular files with one Pygfried batch call."""
+
+        indices, paths, results = _partition_existing_files(requests)
+        if not paths:
+            return _completed_results(results)
+
+        scanner = (
+            self._scanner if self._scanner is not None else _load_pygfried_scanner()
+        )
+        output = scanner.identify_many(paths, workers=self.workers)
+        batch_results = _parse_siegfried_results(
+            paths,
+            output,
+            tool_name="Pygfried",
+            text_fallback=self.text_fallback,
+        )
+        for request_index, result in zip(indices, batch_results):
+            results[request_index] = result
 
         return _completed_results(results)
 
@@ -335,4 +418,6 @@ def get_identification_backend(
         return FidoCLIIdentificationBackend()
     if command.backend == IDCommand.Backend.SIEGFRIED:
         return SiegfriedCLIIdentificationBackend(workers)
+    if command.backend == IDCommand.Backend.PYGFRIED:
+        return PygfriedIdentificationBackend(workers)
     raise ValueError(f"Unsupported identification backend: {command.backend}")

@@ -272,6 +272,59 @@ def test_siegfried_reports_per_file_errors(
     )
 
 
+def test_pygfried_loads_archivematica_profile_scanner() -> None:
+    scanner = mock.Mock()
+    scanner_type = mock.Mock(return_value=scanner)
+    pygfried = mock.Mock(Scanner=scanner_type)
+    file_identification._load_pygfried_scanner.cache_clear()
+
+    try:
+        with mock.patch.dict("sys.modules", {"pygfried": pygfried}):
+            loaded_scanner = file_identification._load_pygfried_scanner()
+    finally:
+        file_identification._load_pygfried_scanner.cache_clear()
+
+    assert loaded_scanner is scanner
+    scanner_type.assert_called_once_with(profile="archivematica")
+
+
+def test_pygfried_calls_scanner_once_without_a_subprocess(
+    tmp_path: pathlib.Path,
+) -> None:
+    first_path = tmp_path / "first"
+    second_path = tmp_path / "second"
+    first_path.write_bytes(b"\x89PNG\r\n")
+    second_path.touch()
+    scanner = mock.Mock()
+    scanner.identify_many.return_value = {
+        "files": [
+            {"errors": "", "matches": [{"id": "fmt/11"}]},
+            {"errors": "", "matches": [{"id": "fmt/12"}]},
+        ]
+    }
+    backend = file_identification.PygfriedIdentificationBackend(
+        workers=3,
+        scanner=scanner,
+    )
+
+    with mock.patch.object(file_identification.subprocess, "run") as run_command:
+        results = backend.identify_many(
+            [
+                file_identification.IdentificationRequest(str(first_path)),
+                file_identification.IdentificationRequest(str(second_path)),
+            ]
+        )
+
+    assert results == [
+        file_identification.IdentificationResult.identified("fmt/11"),
+        file_identification.IdentificationResult.identified("fmt/12"),
+    ]
+    scanner.identify_many.assert_called_once_with(
+        [str(first_path), str(second_path)], workers=3
+    )
+    run_command.assert_not_called()
+
+
 @pytest.mark.parametrize(
     ("backend_name", "backend_type"),
     [
@@ -282,6 +335,10 @@ def test_siegfried_reports_per_file_errors(
         (
             IDCommand.Backend.SIEGFRIED,
             file_identification.SiegfriedCLIIdentificationBackend,
+        ),
+        (
+            IDCommand.Backend.PYGFRIED,
+            file_identification.PygfriedIdentificationBackend,
         ),
     ],
 )

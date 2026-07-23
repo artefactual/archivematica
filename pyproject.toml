@@ -43,6 +43,7 @@ dependencies = [
   "metsrw",
   "orjson",
   "opf-fido @ git+https://github.com/artefactual-labs/fido.git@3e16f31492d72ae650b25fabc9b9f55a7c4259f2",
+  "pygfried==0.17.0",
   "prometheus_client",
   "python-dateutil",
   "requests",
