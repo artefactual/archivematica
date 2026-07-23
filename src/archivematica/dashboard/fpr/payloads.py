@@ -137,10 +137,13 @@ def idcommand_list_payload(
     is_superuser = request.user.is_superuser
     rows: list[PayloadRow] = []
     for command in idcommands:
+        command_type = command.script_type
+        if command.backend != command.Backend.LEGACY:
+            command_type = command.get_script_type_display()
         row: PayloadRow = {
             "id": str(command.uuid),
             "command": command.description,
-            "type": command.script_type,
+            "type": command_type,
             "tool": str(command.tool) if command.tool else "",
             "toolSlug": command.tool.slug if command.tool else None,
             "mode": command.config,

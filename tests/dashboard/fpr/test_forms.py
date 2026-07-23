@@ -1,12 +1,15 @@
 from django.test import TestCase
 
 from archivematica.dashboard.fpr.forms import FPRuleForm
+from archivematica.dashboard.fpr.forms import IDCommandForm
 from archivematica.dashboard.fpr.forms import IDToolForm
 from archivematica.dashboard.fpr.models import Format
 from archivematica.dashboard.fpr.models import FormatGroup
 from archivematica.dashboard.fpr.models import FormatVersion
 from archivematica.dashboard.fpr.models import FPCommand
 from archivematica.dashboard.fpr.models import FPRule
+from archivematica.dashboard.fpr.models import IDCommand
+from archivematica.dashboard.fpr.models import IDTool
 
 
 class TestForms(TestCase):
@@ -39,6 +42,53 @@ class TestForms(TestCase):
             form.non_field_errors(),
             [f"An identical FP rule already exists. See rule {fprule.uuid}."],
         )
+
+    def test_batch_IDCommandForm_does_not_require_a_script(self):
+        tool = IDTool.objects.create()
+        form = IDCommandForm(
+            {
+                "tool": tool.uuid,
+                "description": "Fido batch",
+                "config": "PUID",
+                "script_type": IDCommand.Backend.FIDO,
+                "script": "",
+            }
+        )
+
+        self.assertTrue(form.is_valid())
+
+    def test_batch_IDCommandForm_rejects_a_script(self):
+        tool = IDTool.objects.create()
+        form = IDCommandForm(
+            {
+                "tool": tool.uuid,
+                "description": "Built-in backend",
+                "config": "PUID",
+                "script_type": IDCommand.Backend.SIEGFRIED,
+                "script": "print('this would be ignored')",
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors["script"],
+            ["Built-in identification backends do not execute FPR scripts."],
+        )
+
+    def test_legacy_IDCommandForm_requires_a_script(self):
+        tool = IDTool.objects.create()
+        form = IDCommandForm(
+            {
+                "tool": tool.uuid,
+                "description": "Custom script",
+                "config": "PUID",
+                "script_type": "pythonScript",
+                "script": "",
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("script", form.errors)
 
     @staticmethod
     def create_fprule():

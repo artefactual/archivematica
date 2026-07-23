@@ -9,6 +9,7 @@ import django
 
 django.setup()
 
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
@@ -32,7 +33,7 @@ from archivematica.MCPClient.clientScripts.file_identification import (
     IdentificationResult,
 )
 from archivematica.MCPClient.clientScripts.file_identification import (
-    ScriptIdentificationBackend,
+    get_identification_backend,
 )
 
 SUCCESS = 0
@@ -153,7 +154,11 @@ def _default_idcommand() -> IDCommand | None:
 def _create_backend(command: IDCommand) -> IdentificationBackend:
     """Build the selected backend using MCPClient configuration."""
 
-    return ScriptIdentificationBackend(command, executeOrRun)
+    return get_identification_backend(
+        command,
+        execute_command=executeOrRun,
+        workers=settings.IDENTIFICATION_WORKERS,
+    )
 
 
 def _prepare_identification(

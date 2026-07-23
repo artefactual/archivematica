@@ -26,10 +26,14 @@
           <dd>{{ idcommand.description }}</dd>
         <dt>{% trans "Mode" %}</dt>
           <dd>{{ idcommand.config }}</dd>
+        <dt>{% trans "Backend" %}</dt>
+          <dd>{{ idcommand.get_backend_display }}</dd>
+        {% if idcommand.backend == "legacy" %}
         <dt>{% trans "Script" %}</dt>
           <dd><pre>{{ idcommand.script }}</pre></dd>
         <dt>{% trans "Script type" %}</dt>
           <dd>{{ idcommand.get_script_type_display }}</dd>
+        {% endif %}
         <dt>{% trans "Enabled" %}</dt>
           <dd>{{ idcommand.enabled|yesno:_('Yes,No') }}</dd>
       </dl>

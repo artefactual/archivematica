@@ -68,9 +68,26 @@ class IDToolForm(forms.ModelForm):
 
 
 class IDCommandForm(forms.ModelForm):
+    def clean(self):
+        """Require a script only for legacy command execution modes."""
+
+        cleaned_data = super().clean()
+        if cleaned_data.get("script_type") not in fprmodels.IDCommand.BATCH_BACKENDS:
+            if not cleaned_data.get("script"):
+                self.add_error(
+                    "script", _("This field is required for the FPR script backend.")
+                )
+        return cleaned_data
+
     class Meta:
         model = fprmodels.IDCommand
-        fields = ("tool", "description", "config", "script_type", "script")
+        fields = (
+            "tool",
+            "description",
+            "config",
+            "script_type",
+            "script",
+        )
 
 
 # ########## ID RULES ############

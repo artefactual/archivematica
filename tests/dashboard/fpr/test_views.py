@@ -502,13 +502,67 @@ def test_idcommand_list_includes_fpr_table_payload(
     dashboard_uuid: uuid.UUID, admin_client: Client
 ) -> None:
     idtool = models.IDTool.objects.create(description="Siegfried", version="1.11.2")
-    models.IDCommand.objects.create(tool=idtool, description="Siegfried command")
+    command = models.IDCommand.objects.create(
+        tool=idtool,
+        description="Siegfried command",
+        script_type=models.IDCommand.Backend.SIEGFRIED,
+    )
 
     response = admin_client.get(reverse("fpr:idcommand_list"))
 
     _assert_fpr_table_payload(
         response, kind="idcommand-list", script_id="fpr-idcommand-list-payload"
     )
+    row = next(
+        row
+        for row in response.context["fpr_table_payload"]["rows"]
+        if row["id"] == str(command.uuid)
+    )
+    assert row["type"] == "Siegfried CLI"
+
+
+@pytest.mark.django_db
+def test_idcommand_detail_hides_scripts_for_builtin_backends(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    command = models.IDCommand.objects.create(
+        tool=models.IDTool.objects.create(
+            description="Siegfried",
+            version="1.11.5",
+        ),
+        description="Siegfried command",
+        script="script that must not be presented",
+        script_type=models.IDCommand.Backend.SIEGFRIED,
+    )
+
+    response = admin_client.get(reverse("fpr:idcommand_detail", args=[command.uuid]))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "Siegfried CLI" in content
+    assert "script that must not be presented" not in content
+    assert "Script type" not in content
+
+
+@pytest.mark.django_db
+def test_idcommand_detail_shows_scripts_for_legacy_backends(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    command = models.IDCommand.objects.create(
+        tool=models.IDTool.objects.create(description="Custom identifier"),
+        description="Custom command",
+        script="print('identify')",
+        script_type="pythonScript",
+    )
+
+    response = admin_client.get(reverse("fpr:idcommand_detail", args=[command.uuid]))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "FPR script" in content
+    assert "print(&#x27;identify&#x27;)" in content
+    assert "Script type" in content
+    assert "Python script" in content
 
 
 @pytest.mark.django_db
