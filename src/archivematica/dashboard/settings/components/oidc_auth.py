@@ -18,6 +18,7 @@ OIDC_OP_TOKEN_ENDPOINT = ""
 OIDC_OP_USER_ENDPOINT = ""
 OIDC_OP_JWKS_ENDPOINT = ""
 OIDC_OP_LOGOUT_ENDPOINT = ""
+OIDC_OP_ISSUER = ""
 
 AZURE_TENANT_ID = os.environ.get("AZURE_TENANT_ID", "")
 if AZURE_TENANT_ID:
@@ -33,6 +34,10 @@ if AZURE_TENANT_ID:
     OIDC_OP_JWKS_ENDPOINT = (
         "https://login.microsoftonline.com/%s/discovery/v2.0/keys" % AZURE_TENANT_ID
     )
+    OIDC_OP_ISSUER = os.environ.get(
+        "OIDC_OP_ISSUER",
+        "https://login.microsoftonline.com/%s/v2.0" % AZURE_TENANT_ID,
+    )
 else:
     OIDC_OP_AUTHORIZATION_ENDPOINT = os.environ.get(
         "OIDC_OP_AUTHORIZATION_ENDPOINT", ""
@@ -41,6 +46,7 @@ else:
     OIDC_OP_USER_ENDPOINT = os.environ.get("OIDC_OP_USER_ENDPOINT", "")
     OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT", "")
     OIDC_OP_LOGOUT_ENDPOINT = os.environ.get("OIDC_OP_LOGOUT_ENDPOINT", "")
+    OIDC_OP_ISSUER = os.environ.get("OIDC_OP_ISSUER", "")
 
 OIDC_OP_SET_ROLES_FROM_CLAIMS = os.environ.get(
     "OIDC_OP_SET_ROLES_FROM_CLAIMS", ""
@@ -94,7 +100,7 @@ def _get_email(email):
 
 OIDC_USERNAME_ALGO = _get_email
 
-# map attributes from access token
+# Map attributes from the UserInfo response.
 try:
     OIDC_ACCESS_ATTRIBUTE_MAP = json.loads(
         os.environ.get("OIDC_ACCESS_ATTRIBUTE_MAP", json.dumps(DEFAULT_OIDC_CLAIMS))

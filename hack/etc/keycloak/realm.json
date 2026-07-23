@@ -55,7 +55,24 @@
         "attributes": {
           "pkce.required": "true",
           "pkce.code.challenge.method": "S256"
-        }
+        },
+        "protocolMappers": [
+          {
+            "name": "realm roles in userinfo",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-realm-role-mapper",
+            "consentRequired": false,
+            "config": {
+              "multivalued": "true",
+              "userinfo.token.claim": "true",
+              "id.token.claim": "false",
+              "access.token.claim": "false",
+              "introspection.token.claim": "false",
+              "claim.name": "realm_access.roles",
+              "jsonType.label": "String"
+            }
+          }
+        ]
       },
       {
         "id": "am-storage-service",
@@ -185,7 +202,24 @@
         "attributes": {
           "pkce.required": "true",
           "pkce.code.challenge.method": "S256"
-        }
+        },
+        "protocolMappers": [
+          {
+            "name": "realm roles in userinfo",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-realm-role-mapper",
+            "consentRequired": false,
+            "config": {
+              "multivalued": "true",
+              "userinfo.token.claim": "true",
+              "id.token.claim": "false",
+              "access.token.claim": "false",
+              "introspection.token.claim": "false",
+              "claim.name": "realm_access.roles",
+              "jsonType.label": "String"
+            }
+          }
+        ]
       },
       {
         "id": "am-storage-service-secondary",

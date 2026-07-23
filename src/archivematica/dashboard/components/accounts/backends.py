@@ -1,10 +1,13 @@
+from collections.abc import Mapping
 from typing import Any
 from typing import Optional
 
 import jwt
+import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest
 from django_auth_ldap.backend import LDAPBackend
 from django_cas_ng.backends import CASBackend
@@ -47,9 +50,13 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
     Provide OpenID Connect authentication
     """
 
+    ID_TOKEN_REQUIRED_CLAIMS = frozenset({"iss", "sub", "aud", "exp", "iat"})
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # Store additional settings as instance attributes.
+        self.OIDC_OP_ISSUER = getattr(settings, "OIDC_OP_ISSUER", "")
+
         self.OIDC_OP_SET_ROLES_FROM_CLAIMS = getattr(
             settings, "OIDC_OP_SET_ROLES_FROM_CLAIMS", False
         )
@@ -80,6 +87,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
             "OIDC_OP_USER_ENDPOINT",
             "OIDC_OP_JWKS_ENDPOINT",
             "OIDC_OP_LOGOUT_ENDPOINT",
+            "OIDC_OP_ISSUER",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS",
             "OIDC_OP_ROLE_CLAIM_PATH",
             "OIDC_ACCESS_ATTRIBUTE_MAP",
@@ -113,6 +121,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         self.OIDC_OP_TOKEN_ENDPOINT = self.get_settings("OIDC_OP_TOKEN_ENDPOINT")
         self.OIDC_OP_USER_ENDPOINT = self.get_settings("OIDC_OP_USER_ENDPOINT")
         self.OIDC_OP_JWKS_ENDPOINT = self.get_settings("OIDC_OP_JWKS_ENDPOINT")
+        self.OIDC_OP_ISSUER = self.get_settings("OIDC_OP_ISSUER")
         self.OIDC_OP_SET_ROLES_FROM_CLAIMS = self.get_settings(
             "OIDC_OP_SET_ROLES_FROM_CLAIMS"
         )
@@ -123,29 +132,107 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
 
         return super().authenticate(request, **kwargs)
 
+    def verify_token(self, token: str, **kwargs: Any) -> dict[str, Any]:
+        """Verify a signed token and validate ID token claims."""
+        try:
+            claims = super().verify_token(token, **kwargs)
+        except (
+            jwt.PyJWTError,
+            requests.RequestException,
+            KeyError,
+            ValueError,
+        ) as exc:
+            raise SuspiciousOperation("OIDC token verification failed.") from exc
+
+        # The parent backend supplies the nonce keyword only when verifying the
+        # ID token. Signed UserInfo responses pass through this method without
+        # it and have different required claims.
+        if "nonce" in kwargs:
+            self.verify_id_token_claims(claims)
+
+        return claims
+
+    def verify_id_token_claims(self, claims: dict[str, Any]) -> None:
+        """Validate claims that bind an ID token to this provider and client."""
+        if not self.OIDC_OP_ISSUER:
+            raise ImproperlyConfigured(
+                "OIDC_OP_ISSUER must be configured to validate ID tokens"
+            )
+
+        missing_claims = self.ID_TOKEN_REQUIRED_CLAIMS.difference(claims)
+        if missing_claims:
+            missing = ", ".join(sorted(missing_claims))
+            raise SuspiciousOperation(
+                f"OIDC ID token is missing required claims: {missing}"
+            )
+
+        if claims["iss"] != self.OIDC_OP_ISSUER:
+            raise SuspiciousOperation("OIDC ID token issuer does not match")
+
+        if not isinstance(claims["sub"], str) or not claims["sub"]:
+            raise SuspiciousOperation("OIDC ID token subject is invalid")
+
+        audience_claim = claims["aud"]
+        if isinstance(audience_claim, str):
+            audiences = [audience_claim]
+        elif isinstance(audience_claim, list) and all(
+            isinstance(audience, str) for audience in audience_claim
+        ):
+            audiences = audience_claim
+        else:
+            raise SuspiciousOperation("OIDC ID token audience is invalid")
+
+        if self.OIDC_RP_CLIENT_ID not in audiences:
+            raise SuspiciousOperation("OIDC ID token audience does not match")
+
+        authorized_party = claims.get("azp")
+        if authorized_party is not None and authorized_party != self.OIDC_RP_CLIENT_ID:
+            raise SuspiciousOperation("OIDC ID token authorized party does not match")
+
+        if len(audiences) > 1 and authorized_party != self.OIDC_RP_CLIENT_ID:
+            raise SuspiciousOperation(
+                "OIDC ID token with multiple audiences has no valid authorized party"
+            )
+
     def get_userinfo(
-        self, access_token: str, id_token: str, verified_id: dict[str, Any]
+        self,
+        access_token: str,
+        id_token: str,
+        verified_id: Mapping[str, object] | None,
     ) -> dict[str, Any]:
-        """
-        Extract user details from JSON web tokens
-        These map to fields on the user field.
-        """
+        """Retrieve trusted user details and map them to user fields."""
+        if verified_id is None:
+            raise SuspiciousOperation("OIDC ID token claims are missing")
 
-        def decode_token(token):
-            return jwt.decode(token, options={"verify_signature": False})
+        try:
+            user_info = super().get_userinfo(access_token, id_token, verified_id)
+        except (jwt.PyJWTError, requests.RequestException, ValueError) as exc:
+            raise SuspiciousOperation("Unable to retrieve OIDC UserInfo") from exc
 
-        access_info = decode_token(access_token)
-        id_info = decode_token(id_token)
+        if not isinstance(user_info, dict):
+            raise SuspiciousOperation("OIDC UserInfo response is not an object")
+
+        id_subject = verified_id.get("sub")
+        userinfo_subject = user_info.get("sub")
+        if (
+            not isinstance(id_subject, str)
+            or not id_subject
+            or not isinstance(userinfo_subject, str)
+            or userinfo_subject != id_subject
+        ):
+            raise SuspiciousOperation(
+                "OIDC UserInfo subject does not match the ID token"
+            )
 
         info: dict[str, Any] = {}
 
         for oidc_attr, user_attr in self.OIDC_ACCESS_ATTRIBUTE_MAP.items():
-            if oidc_attr in access_info:
-                info.setdefault(user_attr, access_info[oidc_attr])
+            if oidc_attr in user_info:
+                info.setdefault(user_attr, user_info[oidc_attr])
 
         for oidc_attr, user_attr in settings.OIDC_ID_ATTRIBUTE_MAP.items():
-            if oidc_attr in id_info:
-                info.setdefault(user_attr, id_info[oidc_attr])
+            if oidc_attr in verified_id:
+                info.setdefault(user_attr, verified_id[oidc_attr])
 
         return info
 

@@ -115,6 +115,7 @@ def test_get_oidc_secondary_providers_ignores_provider_if_client_id_and_secret_a
 ) -> None:
     monkeypatch.setenv("OIDC_RP_CLIENT_ID_FOO", "foo-client-id")
     monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_FOO", "foo-client-secret")
+    monkeypatch.setenv("OIDC_OP_ISSUER_FOO", "https://issuer.example")
     monkeypatch.setenv("OIDC_RP_CLIENT_ID_BAR", "bar-client-id")
     monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_BAZ", "foo-secret")
 
@@ -125,6 +126,7 @@ def test_get_oidc_secondary_providers_ignores_provider_if_client_id_and_secret_a
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
             "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_ISSUER": "https://issuer.example",
             "OIDC_OP_TOKEN_ENDPOINT": "",
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
@@ -156,6 +158,7 @@ def test_get_oidc_secondary_providers_strips_provider_names(
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
             "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_ISSUER": "",
             "OIDC_OP_TOKEN_ENDPOINT": "",
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
@@ -173,6 +176,7 @@ def test_get_oidc_secondary_providers_strips_provider_names(
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
             "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_ISSUER": "",
             "OIDC_OP_TOKEN_ENDPOINT": "",
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
@@ -204,6 +208,7 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
             "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_ISSUER": "",
             "OIDC_OP_TOKEN_ENDPOINT": "",
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
@@ -221,6 +226,7 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
             "OIDC_OP_AUTHORIZATION_ENDPOINT": "",
             "OIDC_OP_JWKS_ENDPOINT": "",
             "OIDC_OP_LOGOUT_ENDPOINT": "",
+            "OIDC_OP_ISSUER": "",
             "OIDC_OP_TOKEN_ENDPOINT": "",
             "OIDC_OP_USER_ENDPOINT": "",
             "OIDC_OP_SET_ROLES_FROM_CLAIMS": False,
