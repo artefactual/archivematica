@@ -233,26 +233,28 @@ restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, D
 	docker compose restart --no-deps archivematica-dashboard
 	docker compose restart --no-deps archivematica-storage-service
 
-compile-requirements-am:  ## Run pip-compile for Archivematica
-	docker compose run --workdir /src \
-		-e XDG_CACHE_HOME=/tmp/pip-cache \
-		--rm \
-		--no-deps \
-		--user $(CALLER_UID):$(CALLER_GID) \
-		--entrypoint bash archivematica-mcp-server \
-			-c "make pip-compile"
-
-upgrade-requirements-am:  ## Run pip-upgrade for Archivematica
-	docker compose run --workdir /src \
-		-e XDG_CACHE_HOME=/tmp/pip-cache \
-		--rm \
-		--no-deps \
-		--user $(CALLER_UID):$(CALLER_GID) \
-		--entrypoint bash archivematica-mcp-server \
-			-c "make pip-upgrade"
-
 # Lock resolution needs the Python and Git tools included in this uv image.
 UV_IMAGE ?= ghcr.io/astral-sh/uv:0.11.30-python3.14-trixie@sha256:bf3b8020dab9acd0a9c2cb0ea4ab5c65167f2a1af513c6031f289ac268b3dd4f
+
+define am_uv
+	docker run \
+		--rm \
+		--user $(CALLER_UID):$(CALLER_GID) \
+		--volume "$(CURDIR)/..:/src" \
+		--workdir /src \
+		-e UV_CACHE_DIR=/tmp/uv-cache \
+		-e UV_PROJECT_ENVIRONMENT=/tmp/uv-project-environment \
+		-e UV_PYTHON=python \
+		-e UV_PYTHON_DOWNLOADS=never \
+		$(UV_IMAGE) \
+			uv $(1)
+endef
+
+lock-dependencies-am:  ## Refresh the Archivematica uv lockfile
+	$(call am_uv,lock)
+
+upgrade-dependencies-am:  ## Upgrade the Archivematica uv lockfile
+	$(call am_uv,lock --upgrade)
 
 define ss_uv
 	docker run \

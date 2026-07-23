@@ -8,8 +8,8 @@ on:
       - "qa/**"
       - "stable/**"
 jobs:
-  cache-pyenv-builder:
-    name: "Cache layers of the pyenv-builder stage"
+  cache-python-builder:
+    name: "Cache layers of the python-builder stage"
     runs-on: "ubuntu-24.04"
     strategy:
       matrix:
@@ -31,16 +31,16 @@ jobs:
         with:
           driver-opts: |
             network=host
-      - name: "Generate cache key from requirements"
+      - name: "Generate cache key from lockfile"
         id: cache_key
         run: |
-          echo "requirements_hash=${{ hashFiles('requirements*.txt', 'requirements*.in', 'pyproject.toml') }}" >> $GITHUB_OUTPUT
+          echo "requirements_hash=${{ hashFiles('.python-version', 'pyproject.toml', 'uv.lock') }}" >> $GITHUB_OUTPUT
       - name: "Build base layers"
         uses: "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a" # v7.3.0
         with:
           context: .
           file: ./hack/Dockerfile
-          target: pyenv-builder
+          target: python-builder
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu-version }}
             PYTHON_VERSION=${{ matrix.python-version }}
@@ -53,7 +53,7 @@ jobs:
             type=gha,scope=archivematica-tests-base-${{ matrix.ubuntu-version }}-${{ matrix.python-version }},mode=max
             type=gha,scope=archivematica-tests-${{ matrix.ubuntu-version }}-${{ matrix.python-version }}-${{ steps.cache_key.outputs.requirements_hash }},mode=max
   test:
-    needs: [cache-pyenv-builder]
+    needs: [cache-python-builder]
     name: "Test ${{ matrix.rule }} on ${{ matrix.python-version }}"
     runs-on: "ubuntu-24.04"
     strategy:
@@ -93,10 +93,10 @@ jobs:
         id: group_id
         run: |
           echo "group_id=$(id -g)" >> $GITHUB_OUTPUT
-      - name: "Generate cache key from requirements"
+      - name: "Generate cache key from lockfiles"
         id: cache_key
         run: |
-          echo "requirements_hash=${{ hashFiles('requirements*.*', 'pyproject.toml', 'hack/submodules/**/uv.lock') }}" >> $GITHUB_OUTPUT
+          echo "requirements_hash=${{ hashFiles('.python-version', 'pyproject.toml', 'uv.lock', 'hack/submodules/**/uv.lock') }}" >> $GITHUB_OUTPUT
       - name: "Set up buildx"
         uses: "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c" # v4.2.0
         with:
@@ -181,22 +181,19 @@ jobs:
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0" # v7.0.0
-      - name: "Set up Python"
-        uses: "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1" # v6.3.0
+      - name: "Set up uv and Python"
+        uses: "astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990" # v8.3.2
         with:
-          python-version: "3.10"
-          cache: "pip"
-          cache-dependency-path: |
-            requirements-dev.txt
+          enable-cache: true
+          cache-python: true
+          cache-dependency-glob: |
+            uv.lock
+          cache-suffix: "linting"
       - name: "Install OS packages"
         run: |
           sudo apt-get --quiet update
           sudo apt-get install --quiet --yes build-essential \
             libmysqlclient-dev libsasl2-dev libldap2-dev libssl-dev
-      - name: "Install tox"
-        run: |
-          python -m pip install --upgrade pip
-          pip install tox
       - name: "Run tox"
         run: |
-          tox -e linting
+          uv run --locked tox -e linting

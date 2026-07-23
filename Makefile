@@ -1,17 +1,28 @@
-.PHONY: pip-compile
-pip-compile:  # Compile pip requirements
-	pip-compile --allow-unsafe --output-file requirements.txt pyproject.toml
-	pip-compile --allow-unsafe --extra dev --output-file requirements-dev.txt pyproject.toml
+UV ?= uv
 
-.PHONY: pip-upgrade
-pip-upgrade:  # Upgrade pip requirements
-	pip-compile --allow-unsafe --upgrade --output-file requirements.txt pyproject.toml
-	pip-compile --allow-unsafe --upgrade --extra dev --output-file requirements-dev.txt pyproject.toml
+.PHONY: lock
+lock:  # Update the lockfile without upgrading locked dependencies
+	$(UV) lock
 
-.PHONY: pip-sync
-pip-sync:  # Sync virtualenv
-	pip-sync requirements.txt
+.PHONY: lock-check
+lock-check:  # Verify that the lockfile is up to date
+	$(UV) lock --check
 
-.PHONY: pip-sync-dev
-pip-sync-dev:  # Sync dev virtualenv
-	pip-sync requirements-dev.txt
+.PHONY: upgrade
+upgrade:  # Upgrade all locked dependencies
+	$(UV) lock --upgrade
+
+.PHONY: sync
+sync:  # Sync the project and development dependencies
+	$(UV) sync --locked
+
+.PHONY: sync-runtime
+sync-runtime:  # Sync only the project and runtime dependencies
+	$(UV) sync --locked --no-dev
+
+.PHONY: lint
+lint:  # Run all pre-commit checks through Compose
+	$(MAKE) -C hack test-linting
+
+.PHONY: check
+check: lock-check lint  # Verify the lockfile and run all checks

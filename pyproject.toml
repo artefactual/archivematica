@@ -58,20 +58,26 @@ dependencies = [
   "pyjwt",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "coverage[toml]",
   "django-stubs[compatible-mypy]",
   "mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1",
-  "pip-tools",
   "playwright",
+  "pre-commit",
   "pytest",
   "pytest-cov",
   "pytest-django",
   "pytest-playwright",
   "pytest-randomly",
   "tox",
+  "tox-uv-bare>=1.35.2",
 ]
+
+[tool.uv]
+# Keep compatibility with newer global uv installations used by deployments.
+# GitHub Actions reads this value automatically via astral-sh/setup-uv.
+required-version = ">=0.11.30"
 
 [project.urls]
 homepage = "https://www.archivematica.org/"
@@ -89,7 +95,7 @@ version = {attr = "archivematica.archivematicaCommon.version.get_full_version"}
 [tool.pytest.ini_options]
 addopts = "--reuse-db -p no:cacheprovider"
 DJANGO_SETTINGS_MODULE="settings.test"
-norecursedirs = ".svn _build tmp* node_modules bower_components share .tox"
+norecursedirs = ".svn _build tmp* node_modules bower_components share .tox .venv"
 
 [tool.coverage.run]
 omit = [
@@ -216,17 +222,20 @@ legacy_tox_ini = """
         archivematica
 
     [testenv]
+    runner = uv-venv-lock-runner
     package = editable
-    deps = -r{toxinidir}/requirements-dev.txt
+    dependency_groups = dev
     commands = py.test {posargs}
     allowlist_externals =
         bash
+        env
         find
     setenv =
         # General
         LOGNAME = user
         DJANGO_SETTINGS_MODULE = {env:DJANGO_SETTINGS_MODULE:settings.test}
         PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:}
+        UV_CACHE_DIR = {temp_dir}/uv-cache
         # Storage Service
         STORAGE_SERVICE_ROOT = {toxinidir}/hack/submodules/archivematica-storage-service
         # TOXENV-specific
@@ -245,7 +254,9 @@ legacy_tox_ini = """
     change_dir = {toxinidir}/tests
 
     [testenv:storage-service]
+    runner = uv-venv-runner
     package = skip
+    dependency_groups =
     deps =
         uv>=0.11.30
     setenv =
@@ -254,7 +265,7 @@ legacy_tox_ini = """
         UV_PROJECT_ENVIRONMENT = {envdir}/storage-service
         UV_PYTHON_DOWNLOADS = never
     commands =
-        uv run \
+        env VIRTUAL_ENV={envdir}/storage-service uv run \
             --project {env:STORAGE_SERVICE_ROOT} \
             --locked \
             --python {envpython} \
@@ -264,11 +275,13 @@ legacy_tox_ini = """
     commands = django-admin makemigrations --check --dry-run
 
     [testenv:migrations-storage-service]
+    runner = uv-venv-runner
     package = skip
+    dependency_groups =
     deps = {[testenv:storage-service]deps}
     setenv = {[testenv:storage-service]setenv}
     commands =
-        uv run \
+        env VIRTUAL_ENV={envdir}/storage-service uv run \
             --project {env:STORAGE_SERVICE_ROOT} \
             --locked \
             --no-dev \
@@ -276,8 +289,6 @@ legacy_tox_ini = """
             django-admin makemigrations --check --dry-run
 
     [testenv:linting]
-    basepython = python3
     package = skip
-    deps = pre-commit
     commands = pre-commit run --all-files --show-diff-on-failure
 """
