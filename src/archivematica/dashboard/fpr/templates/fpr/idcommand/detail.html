@@ -21,7 +21,7 @@
         <dt>{% trans "UUID" %}</dt>
           <dd>{{ idcommand.uuid }}</dd>
         <dt>{% trans "Tool" %}</dt>
-          <dd>{{ idcommand.tool }}></dd>
+          <dd>{{ idcommand.tool }}</dd>
         <dt>{% trans "Description" %}</dt>
           <dd>{{ idcommand.description }}</dd>
         <dt>{% trans "Mode" %}</dt>
@@ -38,11 +38,4 @@
           <dd>{{ idcommand.enabled|yesno:_('Yes,No') }}</dd>
       </dl>
     </div>
-    {% if request.user.is_superuser %}
-      <div class="well well-sm">
-        <a class="btn btn-default btn-sm" href="{% url 'fpr:idcommand_edit' idcommand.uuid %}">{% trans "Replace" %}</a>
-        <a class="btn btn-default btn-sm" href="{% url 'fpr:idcommand_delete' idcommand.uuid %}">{{ idcommand.enabled|yesno:_("Disable,Enable") }}</a>
-      </div>
-    {% endif %}
-
 {% endblock app_content %}

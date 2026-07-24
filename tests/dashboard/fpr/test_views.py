@@ -39,25 +39,6 @@ def _create_format_version(
 
 
 @pytest.mark.django_db
-def test_idcommand_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
-    url = reverse("fpr:idcommand_create")
-    tool = models.IDTool.objects.create(
-        uuid="37f3bd7c-bb24-4899-b7c4-785ff1c764ac",
-        description="Foobar",
-        version="v1.2.3",
-    )
-
-    resp = admin_client.get(url)
-    assert resp.context["form"].initial["tool"] is None
-
-    resp = admin_client.get(url, {"parent": str(uuid.uuid4())})
-    assert resp.context["form"].initial["tool"] is None
-
-    resp = admin_client.get(url, {"parent": str(tool.uuid)})
-    assert resp.context["form"].initial["tool"] == tool
-
-
-@pytest.mark.django_db
 def test_fpcommand_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     url = reverse("fpr:fpcommand_create")
     tool = models.FPTool.objects.create(
@@ -247,46 +228,6 @@ def test_format_edit_updates_format(
 
 
 @pytest.mark.django_db
-def test_idrule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
-    url = reverse("fpr:idrule_create")
-
-    resp = admin_client.get(url)
-
-    assert resp.context["form"].initial == {}
-    assert "Create identification rule" in resp.content.decode()
-
-    format_version = models.FormatVersion.objects.create(
-        format=models.Format.objects.create(
-            group=models.FormatGroup.objects.create(description="Group"),
-            description="Format",
-        ),
-        description="Format version",
-    )
-    command = models.IDCommand.objects.create(
-        tool=models.IDTool.objects.create(description="Tool")
-    )
-    command_output = ".ppt"
-
-    resp = admin_client.post(
-        url,
-        {
-            "format": format_version.uuid,
-            "command": command.uuid,
-            "command_output": command_output,
-        },
-        follow=True,
-    )
-
-    assert "Saved." in resp.content.decode()
-    assert (
-        models.IDRule.objects.filter(
-            format=format_version, command=command, command_output=command_output
-        ).count()
-        == 1
-    )
-
-
-@pytest.mark.django_db
 def test_fprule_create(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
     url = reverse("fpr:fprule_create")
 
@@ -396,29 +337,170 @@ def test_formatgroup_edit_includes_fpr_table_payload_for_group_formats(
 def test_idtool_list_includes_fpr_table_payload(
     dashboard_uuid: uuid.UUID, admin_client: Client
 ) -> None:
-    models.IDTool.objects.create(description="Siegfried", version="1.11.2")
+    idtool = models.IDTool.objects.create(description="Siegfried", version="1.11.2")
+    models.IDCommand.objects.create(tool=idtool, description="Identify with Siegfried")
+    disabled_tool = models.IDTool.objects.create(
+        description="Pygfried", version="0.17.0"
+    )
+    models.IDCommand.objects.create(tool=disabled_tool, enabled=False)
 
     response = admin_client.get(reverse("fpr:idtool_list"))
 
     _assert_fpr_table_payload(
         response, kind="idtool-list", script_id="fpr-idtool-list-payload"
     )
+    payload = response.context["fpr_table_payload"]
+    assert payload["ui"]["create"] is None
+    assert {"key": "enabled"} in payload["columns"]
+    row = next(row for row in payload["rows"] if row["id"] == str(idtool.uuid))
+    assert row["actions"] == [{"key": "view", "style": "default"}]
+    assert row["enabled"]
+    disabled_row = next(
+        row for row in payload["rows"] if row["id"] == str(disabled_tool.uuid)
+    )
+    assert not disabled_row["enabled"]
+    assert "Current identification tool:" not in response.content.decode()
 
 
 @pytest.mark.django_db
-def test_idtool_detail_includes_fpr_table_payload(
+def test_idtool_detail_only_exposes_tool_selection(
     dashboard_uuid: uuid.UUID, admin_client: Client
 ) -> None:
     idtool = models.IDTool.objects.create(description="DROID", version="6.7")
-    models.IDCommand.objects.create(tool=idtool)
+    command = models.IDCommand.objects.create(tool=idtool)
 
     response = admin_client.get(reverse("fpr:idtool_detail", args=[idtool.slug]))
 
-    _assert_fpr_table_payload(
-        response,
-        kind="idtool-detail-commands",
-        script_id="fpr-idtool-detail-commands-payload",
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert response.context["selectable_command"] == command
+    assert response.context["selected"]
+    assert "Implementation details" not in content
+    assert "fpr-idtool-detail-commands-payload" not in content
+
+
+@pytest.mark.django_db
+def test_idtool_select_enables_only_the_selected_tools_command(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    previous_tool = models.IDTool.objects.create(description="Previous")
+    previous_command = models.IDCommand.objects.create(
+        tool=previous_tool,
+        description="Previous command",
+        enabled=True,
     )
+    selected_tool = models.IDTool.objects.create(description="Pygfried")
+    selected_command = models.IDCommand.objects.create(
+        tool=selected_tool,
+        description="Pygfried command",
+        script_type=models.IDCommand.Backend.PYGFRIED,
+        enabled=False,
+    )
+
+    response = admin_client.post(
+        reverse("fpr:idtool_select", args=[selected_tool.slug])
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"] == reverse("fpr:idtool_list")
+    previous_command.refresh_from_db()
+    selected_command.refresh_from_db()
+    assert not previous_command.enabled
+    assert selected_command.enabled
+    assert list(models.IDCommand.active.values_list("pk", flat=True)) == [
+        selected_command.pk
+    ]
+
+
+@pytest.mark.django_db
+def test_idtool_select_prefers_one_built_in_over_a_legacy_revision_head(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    idtool = models.IDTool.objects.create(description="Fido")
+    legacy_command = models.IDCommand.objects.create(
+        tool=idtool,
+        description="Legacy Fido",
+        script_type="pythonScript",
+        enabled=False,
+    )
+    built_in_command = models.IDCommand.objects.create(
+        tool=idtool,
+        description="Built-in Fido",
+        script_type=models.IDCommand.Backend.FIDO,
+        enabled=False,
+    )
+
+    response = admin_client.post(reverse("fpr:idtool_select", args=[idtool.slug]))
+
+    assert response.status_code == 302
+    legacy_command.refresh_from_db()
+    built_in_command.refresh_from_db()
+    assert not legacy_command.enabled
+    assert built_in_command.enabled
+
+
+@pytest.mark.django_db
+def test_idtool_select_refuses_ambiguous_built_in_commands(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    previous_tool = models.IDTool.objects.create(description="Previous")
+    previous_command = models.IDCommand.objects.create(
+        tool=previous_tool,
+        enabled=True,
+    )
+    ambiguous_tool = models.IDTool.objects.create(description="Ambiguous")
+    models.IDCommand.objects.create(
+        tool=ambiguous_tool,
+        script_type=models.IDCommand.Backend.FIDO,
+        enabled=False,
+    )
+    models.IDCommand.objects.create(
+        tool=ambiguous_tool,
+        script_type=models.IDCommand.Backend.SIEGFRIED,
+        enabled=False,
+    )
+
+    response = admin_client.post(
+        reverse("fpr:idtool_select", args=[ambiguous_tool.slug]),
+        follow=True,
+    )
+
+    assert response.status_code == 200
+    assert "does not have one unambiguous current implementation" in (
+        response.content.decode()
+    )
+    previous_command.refresh_from_db()
+    assert previous_command.enabled
+
+
+@pytest.mark.django_db
+def test_identification_configuration_mutation_routes_are_unavailable(
+    dashboard_uuid: uuid.UUID, admin_client: Client
+) -> None:
+    idtool = models.IDTool.objects.create(description="Read-only")
+    command = models.IDCommand.objects.create(tool=idtool)
+    format_version = _create_format_version()
+    rule = models.IDRule.objects.create(
+        command=command,
+        format=format_version,
+        command_output="fmt/1",
+    )
+
+    paths = [
+        "/fpr/idtool/create/",
+        f"/fpr/idtool/{idtool.slug}/edit/",
+        "/fpr/idcommand/create/",
+        f"/fpr/idcommand/{command.uuid}/edit/",
+        f"/fpr/idcommand/{command.uuid}/delete/",
+        f"/fpr/idcommand/{command.uuid}/toggle_enabled/",
+        "/fpr/idrule/create/",
+        f"/fpr/idrule/{rule.uuid}/edit/",
+        f"/fpr/idrule/{rule.uuid}/delete/",
+        f"/fpr/idrule/{rule.uuid}/toggle_enabled/",
+    ]
+
+    for path in paths:
+        assert admin_client.post(path).status_code == 404
 
 
 @pytest.mark.django_db
@@ -465,6 +547,9 @@ def test_idrule_list_includes_fpr_table_payload(
         response, kind="idrule-list", script_id="fpr-idrule-list-payload"
     )
     assert observed_select_related_args == ("format__format__group", "command__tool")
+    payload = response.context["fpr_table_payload"]
+    assert payload["ui"]["create"] is None
+    assert payload["rows"][0]["actions"] == [{"key": "view", "style": "default"}]
 
 
 @pytest.mark.django_db
@@ -519,6 +604,8 @@ def test_idcommand_list_includes_fpr_table_payload(
         if row["id"] == str(command.uuid)
     )
     assert row["type"] == "Siegfried CLI"
+    assert row["actions"] == [{"key": "view", "style": "default"}]
+    assert response.context["fpr_table_payload"]["ui"]["create"] is None
 
 
 @pytest.mark.django_db
@@ -542,6 +629,8 @@ def test_idcommand_detail_hides_scripts_for_builtin_backends(
     assert "Siegfried CLI" in content
     assert "script that must not be presented" not in content
     assert "Script type" not in content
+    assert "<dd>Siegfried&gt;</dd>" not in content
+    assert "<dd>Siegfried></dd>" not in content
 
 
 @pytest.mark.django_db

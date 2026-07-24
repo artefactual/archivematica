@@ -27,7 +27,6 @@ export type FprTableKind
     | 'idrule-list'
     | 'fprule-list'
     | 'format-detail-versions'
-    | 'idtool-detail-commands'
     | 'fptool-detail-commands'
     | 'formatgroup-form-formats'
 
