@@ -776,7 +776,14 @@ set.
   - **Default:** ``
 
 - **`OIDC_OP_USER_ENDPOINT`**:
-  - **Description:** URL of OIDC provider userinfo endpoint
+  - **Description:** URL of OIDC provider UserInfo endpoint
+  - **Type:** `string`
+  - **Default:** ``
+
+- **`OIDC_OP_ISSUER`**:
+  - **Description:** Required expected OIDC issuer identifier. This must
+    exactly match the ID and access token `iss` claims. When `AZURE_TENANT_ID`
+    is set, this defaults to the corresponding tenant-specific v2.0 issuer URL.
   - **Type:** `string`
   - **Default:** ``
 
@@ -806,14 +813,19 @@ set.
   - **Default:** `default`
 
 - **`OIDC_ACCESS_ATTRIBUTE_MAP`**
-  - **Description:** Set OIDC token details to extract. This string should be
-    JSON-decodable.  If `OIDC_OP_SET_ROLES_FROM_CLAIMS` is set to `True` then
-    the entry `"realm_access": "realm_access"` must be included in this setting.
+  - **Description:** Map claims from the verified JWT access token to
+    Archivematica user attributes. This string should be JSON-decodable. If
+    `OIDC_OP_SET_ROLES_FROM_CLAIMS` is set to `True`, the corresponding
+    top-level entry (for example, `"realm_access": "realm_access"`) must be
+    included in this setting. The access token must use the configured signing
+    algorithm and contain `iss`, `sub`, `exp`, `iat`, and a client binding in
+    `azp`, `client_id`, `appid`, or `aud`. Its identity must match the ID token
+    by `sub`, or by the provider object and tenant claims (`oid` and `tid`).
   - **Type:** `string`
   - **Default:** `{"given_name": "first_name", "family_name": "last_name"}`
 
 - **`OIDC_RP_SIGN_ALGO`**:
-  - **Description:** Algorithm used by the ID provider to sign ID tokens
+  - **Description:** Algorithm used by the provider to sign ID and access tokens
   - **Type:** `string`
   - **Default:** `HS256`
 

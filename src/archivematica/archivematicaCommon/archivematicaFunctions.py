@@ -555,6 +555,7 @@ def get_oidc_secondary_providers(
         user_endpoint = os.environ.get(f"OIDC_OP_USER_ENDPOINT_{provider_name}", "")
         jwks_endpoint = os.environ.get(f"OIDC_OP_JWKS_ENDPOINT_{provider_name}", "")
         logout_endpoint = os.environ.get(f"OIDC_OP_LOGOUT_ENDPOINT_{provider_name}", "")
+        issuer = os.environ.get(f"OIDC_OP_ISSUER_{provider_name}", "")
         set_roles_from_claims = os.environ.get(
             f"OIDC_OP_SET_ROLES_FROM_CLAIMS_{provider_name}", ""
         ).lower() in (
@@ -591,6 +592,7 @@ def get_oidc_secondary_providers(
                 "OIDC_OP_USER_ENDPOINT": user_endpoint,
                 "OIDC_OP_JWKS_ENDPOINT": jwks_endpoint,
                 "OIDC_OP_LOGOUT_ENDPOINT": logout_endpoint,
+                "OIDC_OP_ISSUER": issuer,
                 "OIDC_OP_SET_ROLES_FROM_CLAIMS": set_roles_from_claims,
                 "OIDC_OP_ROLE_CLAIM_PATH": role_claim_path,
                 "OIDC_ACCESS_ATTRIBUTE_MAP": access_attribute_map,
