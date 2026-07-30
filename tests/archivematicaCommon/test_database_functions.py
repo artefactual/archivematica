@@ -2,6 +2,7 @@ import pathlib
 import uuid
 
 import pytest
+from django.db import IntegrityError
 from django.test import TestCase
 
 from archivematica.archivematicaCommon import databaseFunctions
@@ -156,6 +157,138 @@ class TestDatabaseFunctions(TestCase):
         ).agents
         assert agents.get(id=2)
         assert agents.get(id=5)
+
+    # insert_events
+
+    def test_insert_events_batches_writes_and_preserves_agents(self) -> None:
+        event_ids = [uuid.uuid4(), uuid.uuid4()]
+        event_inputs = [
+            databaseFunctions.EventInput(
+                file_uuid="88c8f115-80bc-4da4-a1e6-0158f5df13b9",
+                event_id=event_ids[0],
+                event_type="virus check",
+                event_detail="SIP detail",
+                event_outcome="Pass",
+            ),
+            databaseFunctions.EventInput(
+                file_uuid="1f4af873-8d60-4907-a92e-d1889e643524",
+                event_id=event_ids[1],
+                event_type="virus check",
+                event_detail="transfer detail",
+                event_outcome="Fail",
+            ),
+        ]
+
+        with self.assertNumQueries(9):
+            created_events = databaseFunctions.insert_events(event_inputs)
+
+        assert [event.pk for event in created_events] == list(
+            Event.objects.filter(event_id__in=event_ids)
+            .order_by("pk")
+            .values_list("pk", flat=True)
+        )
+        assert [str(event.event_id) for event in created_events] == [
+            str(event_id) for event_id in event_ids
+        ]
+
+        events = {
+            str(event.event_id): event
+            for event in Event.objects.filter(event_id__in=event_ids)
+        }
+        assert events[str(event_ids[0])].event_detail == "SIP detail"
+        assert events[str(event_ids[0])].event_outcome == "Pass"
+        assert set(events[str(event_ids[0])].agents.values_list("pk", flat=True)) == {
+            2,
+            5,
+        }
+        assert events[str(event_ids[1])].event_detail == "transfer detail"
+        assert events[str(event_ids[1])].event_outcome == "Fail"
+        assert set(events[str(event_ids[1])].agents.values_list("pk", flat=True)) == {
+            2,
+            10,
+        }
+
+    def test_insert_events_prefers_sip_agents_and_supports_explicit_agents(
+        self,
+    ) -> None:
+        event_ids = [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]
+
+        databaseFunctions.insert_events(
+            [
+                databaseFunctions.EventInput(
+                    file_uuid="dc569efe-c88f-4be3-94d3-d9eac0c5d410",
+                    event_id=event_ids[0],
+                ),
+                databaseFunctions.EventInput(
+                    file_uuid="d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619",
+                    event_id=event_ids[1],
+                    agent_ids={11},
+                ),
+                databaseFunctions.EventInput(
+                    file_uuid="d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619",
+                    event_id=event_ids[2],
+                    agent_ids=set(),
+                ),
+            ]
+        )
+
+        events = {
+            str(event.event_id): event
+            for event in Event.objects.filter(event_id__in=event_ids)
+        }
+        assert set(events[str(event_ids[0])].agents.values_list("pk", flat=True)) == {
+            2,
+            5,
+        }
+        assert set(events[str(event_ids[1])].agents.values_list("pk", flat=True)) == {
+            11
+        }
+        assert not events[str(event_ids[2])].agents.exists()
+
+    def test_insert_events_generates_defaults(self) -> None:
+        (event,) = databaseFunctions.insert_events(
+            iter(
+                [
+                    databaseFunctions.EventInput(
+                        file_uuid="d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619"
+                    )
+                ]
+            )
+        )
+
+        saved_event = Event.objects.get(pk=event.pk)
+        assert saved_event.event_id is not None
+        assert saved_event.event_datetime is not None
+        assert saved_event.event_type == ""
+        assert saved_event.event_detail == ""
+        assert saved_event.event_outcome == ""
+        assert saved_event.event_outcome_detail == ""
+        assert set(saved_event.agents.values_list("pk", flat=True)) == {2}
+
+    def test_insert_events_is_atomic(self) -> None:
+        event_ids = [uuid.uuid4(), uuid.uuid4()]
+
+        with pytest.raises(IntegrityError):
+            databaseFunctions.insert_events(
+                [
+                    databaseFunctions.EventInput(
+                        file_uuid="d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619",
+                        event_id=event_ids[0],
+                        agent_ids={11},
+                    ),
+                    databaseFunctions.EventInput(
+                        file_uuid="d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619",
+                        event_id=event_ids[1],
+                        agent_ids={999999},
+                    ),
+                ]
+            )
+
+        assert not Event.objects.filter(event_id__in=event_ids).exists()
+
+    def test_insert_events_rejects_invalid_batch_size(self) -> None:
+        with pytest.raises(ValueError, match="batch_size must be greater than zero"):
+            databaseFunctions.insert_events([], batch_size=0)
 
 
 @pytest.fixture
