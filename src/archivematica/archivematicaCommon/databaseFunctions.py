@@ -19,8 +19,13 @@ import logging
 import os
 import sys
 import uuid
+from collections.abc import Collection
+from collections.abc import Iterable
 from dataclasses import dataclass
+from dataclasses import field
+from typing import TypeAlias
 
+from django.db import transaction
 from django.db.models import Min
 from django.db.models import Q
 from django.utils import timezone
@@ -33,8 +38,11 @@ from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FPCommandOutput
 from archivematica.dashboard.main.models import Identifier
 from archivematica.dashboard.main.models import Transfer
+from archivematica.dashboard.main.models import UnitVariable
 
 LOGGER = logging.getLogger("archivematica.common")
+DEFAULT_DATABASE_BATCH_SIZE = 1000
+_UnitKey: TypeAlias = tuple[str, str]
 
 
 def insertIntoFiles(
@@ -121,6 +129,181 @@ def getAMAgentsForFile(fileUUID):
     return Agent.objects.filter(
         Agent.objects.default_agents_query_keywords()
     ).values_list("pk", flat=True)
+
+
+@dataclass(frozen=True)
+class EventInput:
+    """Data needed to create a PREMIS event and its agent relationships.
+
+    When ``agent_ids`` is ``None``, the default and active agents associated
+    with the file are used. An explicit collection, including an empty one, is
+    used unchanged.
+    """
+
+    file_uuid: str | uuid.UUID
+    event_id: str | uuid.UUID = field(default_factory=uuid.uuid4)
+    event_type: str = ""
+    event_datetime: datetime.datetime | str | None = None
+    event_detail: str = ""
+    event_outcome: str = ""
+    event_outcome_detail: str = ""
+    agent_ids: Collection[int] | None = None
+
+
+def _normalize_uuid(value: str | uuid.UUID) -> str:
+    return str(uuid.UUID(str(value)))
+
+
+def _get_agent_ids_by_file(file_uuids: Collection[str]) -> dict[str, set[int]]:
+    """Return default and active agent IDs for existing files."""
+    normalized_file_uuids = set(file_uuids)
+    file_units: dict[str, _UnitKey | None] = {}
+    for file_uuid, sip_uuid, transfer_uuid in File.objects.filter(
+        uuid__in=normalized_file_uuids
+    ).values_list("uuid", "sip_id", "transfer_id"):
+        normalized_file_uuid = str(file_uuid)
+        if sip_uuid is not None:
+            file_units[normalized_file_uuid] = ("SIP", str(sip_uuid))
+        elif transfer_uuid is not None:
+            file_units[normalized_file_uuid] = ("Transfer", str(transfer_uuid))
+        else:
+            file_units[normalized_file_uuid] = None
+
+    for file_uuid in normalized_file_uuids - file_units.keys():
+        LOGGER.warning(
+            "File with UUID %s does not exist in database; unable to fetch Agents",
+            file_uuid,
+        )
+
+    if not file_units:
+        return {}
+
+    unit_keys = {unit_key for unit_key in file_units.values() if unit_key is not None}
+    active_agent_values: dict[_UnitKey, str | None] = {}
+    if unit_keys:
+        sip_uuids = {
+            unit_uuid for unit_type, unit_uuid in unit_keys if unit_type == "SIP"
+        }
+        transfer_uuids = {
+            unit_uuid for unit_type, unit_uuid in unit_keys if unit_type == "Transfer"
+        }
+        unit_query = Q()
+        if sip_uuids:
+            unit_query |= Q(unittype="SIP", unituuid__in=sip_uuids)
+        if transfer_uuids:
+            unit_query |= Q(unittype="Transfer", unituuid__in=transfer_uuids)
+
+        for unit_type, unit_uuid, agent_value in UnitVariable.objects.filter(
+            unit_query, variable="activeAgent"
+        ).values_list("unittype", "unituuid", "variablevalue"):
+            unit_key = (unit_type, str(unit_uuid))
+            if unit_key in active_agent_values:
+                raise UnitVariable.MultipleObjectsReturned(
+                    f"Multiple active agents found for {unit_type} {unit_uuid}"
+                )
+            active_agent_values[unit_key] = agent_value
+
+    default_agent_ids = set(
+        Agent.objects.filter(Agent.objects.default_agents_query_keywords()).values_list(
+            "pk", flat=True
+        )
+    )
+    active_agent_ids = {
+        str(agent_id): agent_id
+        for agent_id in Agent.objects.filter(
+            pk__in=active_agent_values.values()
+        ).values_list("pk", flat=True)
+    }
+
+    result: dict[str, set[int]] = {}
+    for file_uuid, unit_key in file_units.items():
+        agent_ids = set(default_agent_ids)
+        if unit_key is not None:
+            agent_value = active_agent_values.get(unit_key)
+            try:
+                agent_ids.add(active_agent_ids[str(agent_value)])
+            except KeyError:
+                pass
+        result[file_uuid] = agent_ids
+
+    return result
+
+
+# TODO: Adopt this helper in other MCPClient modules that create PREMIS events
+# in batches, starting with verify_checksum and change_object_names.
+def insert_events(
+    events: Iterable[EventInput],
+    *,
+    batch_size: int = DEFAULT_DATABASE_BATCH_SIZE,
+) -> list[Event]:
+    """Atomically create PREMIS events and agent relationships in batches.
+
+    The returned models follow the input order and include their database
+    primary keys.
+    """
+    if batch_size <= 0:
+        raise ValueError("batch_size must be greater than zero")
+
+    event_inputs = list(events)
+    if not event_inputs:
+        return []
+    file_uuids = {
+        _normalize_uuid(event.file_uuid)
+        for event in event_inputs
+        if event.agent_ids is None
+    }
+
+    with transaction.atomic():
+        agent_ids_by_file = _get_agent_ids_by_file(file_uuids)
+        event_agent_ids: dict[str, set[int]] = {}
+        event_models: list[Event] = []
+        for event in event_inputs:
+            event_id = _normalize_uuid(event.event_id)
+            file_uuid = _normalize_uuid(event.file_uuid)
+            event_models.append(
+                Event(
+                    event_id=event_id,
+                    file_uuid_id=file_uuid,
+                    event_type=event.event_type,
+                    event_datetime=event.event_datetime or timezone.now(),
+                    event_detail=event.event_detail,
+                    event_outcome=event.event_outcome,
+                    event_outcome_detail=event.event_outcome_detail,
+                )
+            )
+            if event.agent_ids is None:
+                event_agent_ids[event_id] = agent_ids_by_file.get(file_uuid, set())
+            else:
+                event_agent_ids[event_id] = set(event.agent_ids)
+
+        Event.objects.bulk_create(event_models, batch_size=batch_size)
+
+        event_pks: dict[str, int] = {}
+        for offset in range(0, len(event_models), batch_size):
+            event_ids = [
+                event.event_id for event in event_models[offset : offset + batch_size]
+            ]
+            event_pks.update(
+                {
+                    str(event_id): event_pk
+                    for event_id, event_pk in Event.objects.filter(
+                        event_id__in=event_ids
+                    ).values_list("event_id", "pk")
+                }
+            )
+
+        event_agents = []
+        for event in event_models:
+            event_id = str(event.event_id)
+            event.pk = event_pks[event_id]
+            event_agents.extend(
+                Event.agents.through(event_id=event.pk, agent_id=agent_id)
+                for agent_id in event_agent_ids[event_id]
+            )
+
+        Event.agents.through.objects.bulk_create(event_agents, batch_size=batch_size)
+
+    return event_models
 
 
 def insertIntoEvents(

@@ -30,10 +30,10 @@ django.setup()
 from clamav_client.scanner import Scanner
 from clamav_client.scanner import get_scanner
 from django.conf import settings as mcpclient_settings
-from django.db import transaction
 
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
-from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
+from archivematica.archivematicaCommon.databaseFunctions import EventInput
+from archivematica.archivematicaCommon.databaseFunctions import insert_events
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.MCPClient.client.job import Job
@@ -99,7 +99,7 @@ def queue_event(
     date: str,
     scanner: Scanner | None,
     passed: bool | None,
-    queue: list[dict[str, object]],
+    queue: list[EventInput],
 ) -> None:
     if passed is None or file_uuid == "None":
         return
@@ -113,14 +113,13 @@ def queue_event(
     logger.info("Recording new event for file %s (outcome: %s)", file_uuid, outcome)
 
     queue.append(
-        {
-            "fileUUID": file_uuid,
-            "eventIdentifierUUID": str(uuid.uuid4()),
-            "eventType": "virus check",
-            "eventDateTime": date,
-            "eventDetail": event_detail,
-            "eventOutcome": outcome,
-        }
+        EventInput(
+            file_uuid=file_uuid,
+            event_type="virus check",
+            event_datetime=date,
+            event_detail=event_detail,
+            event_outcome=outcome,
+        )
     )
 
 
@@ -191,7 +190,7 @@ def get_size(
 
 
 def scan_file(
-    event_queue: list[dict[str, object]],
+    event_queue: list[EventInput],
     file_uuid: str | uuid.UUID,
     path: str,
     date: str,
@@ -273,7 +272,7 @@ def scan_file(
 
 def call(jobs: list[Job]) -> None:
     """Process a batch of antivirus jobs."""
-    event_queue: list[dict[str, object]] = []
+    event_queue: list[EventInput] = []
     batch_data = load_file_data(jobs)
 
     # TODO: Scanner.info() caches ClamAV definition metadata, so scanner reuse
@@ -293,6 +292,4 @@ def call(jobs: list[Job]) -> None:
                 )
             )
 
-    with transaction.atomic():
-        for event in event_queue:
-            insertIntoEvents(**event)
+    insert_events(event_queue)

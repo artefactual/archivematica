@@ -12,6 +12,7 @@ from clamav_client.scanner import ClamdScanner
 from clamav_client.scanner import ClamscanScanner
 from clamav_client.scanner import Scanner
 from clamav_client.scanner import ScanResult
+from django.contrib.auth.models import User
 
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
@@ -186,10 +187,10 @@ def test_scan_file(
         assert len(event_queue) == 1
 
         event = event_queue[0]
-        assert event["eventType"] == "virus check"
-        assert event["fileUUID"] == args["file_uuid"]
-        assert event["eventOutcome"] == (
-            "Pass" if setup_kwargs["scanner_passed"] else "Fail"
+        assert event.event_type == "virus check"
+        assert event.file_uuid == args["file_uuid"]
+        assert (
+            event.event_outcome == "Pass" if setup_kwargs["scanner_passed"] else "Fail"
         )
 
 
@@ -253,18 +254,13 @@ def test_get_size_uses_filesystem_for_file_missing_from_batch(
     path_getsize.assert_called_once_with("/path")
 
 
-@mock.patch(
-    "archivematica.MCPClient.clientScripts.antivirus.transaction.atomic",
-    return_value=nullcontext(),
-)
-@mock.patch("archivematica.MCPClient.clientScripts.antivirus.insertIntoEvents")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.insert_events")
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.load_file_data")
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
 def test_call_reuses_scanner_and_batch_data(
     create_scanner: mock.Mock,
     load_file_data: mock.Mock,
-    insert_into_events: mock.Mock,
-    transaction_atomic: mock.Mock,
+    insert_events: mock.Mock,
     settings: pytest_django.fixtures.SettingsWrapper,
 ) -> None:
     file_uuids = [str(uuid.uuid4()), str(uuid.uuid4())]
@@ -294,12 +290,65 @@ def test_call_reuses_scanner_and_batch_data(
     assert scanner.scan.mock_calls == [mock.call(path) for path in paths]
     for job in jobs:
         job.set_status.assert_called_once_with(0)
-    assert insert_into_events.call_count == 2
-    transaction_atomic.assert_called_once_with()
+    (event_queue,) = insert_events.call_args.args
+    assert len(event_queue) == 2
+    assert [event.file_uuid for event in event_queue] == file_uuids
 
 
-@mock.patch("archivematica.MCPClient.clientScripts.antivirus.transaction.atomic")
-@mock.patch("archivematica.MCPClient.clientScripts.antivirus.insertIntoEvents")
+@pytest.mark.django_db
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
+def test_call_preserves_scan_and_event_behavior(
+    create_scanner: mock.Mock,
+    transfer: models.Transfer,
+    transfer_file: models.File,
+    user: User,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    transfer_file.size = 42
+    transfer_file.save(update_fields=["size"])
+    scanned_file = models.File.objects.create(
+        transfer=transfer,
+        originallocation=b"objects/scanned",
+        currentlocation=b"objects/scanned",
+        size=42,
+    )
+    models.Event.objects.create(file_uuid=scanned_file, event_type="virus check")
+    paths = ["/path/scanned", "/path/unscanned"]
+    jobs = [
+        mock.Mock(
+            spec=Job,
+            args=["antivirus", str(file.uuid), path, args["date"]],
+            JobContext=mock.Mock(return_value=nullcontext()),
+        )
+        for file, path in zip([scanned_file, transfer_file], paths)
+    ]
+    scanner = ScannerMock(passed=True)
+    scanner.scan = mock.Mock(wraps=scanner.scan)
+    create_scanner.return_value = scanner
+    settings.CLAMAV_CLIENT_MAX_FILE_SIZE = 42
+    settings.CLAMAV_CLIENT_MAX_SCAN_SIZE = 84
+
+    antivirus_call(jobs)
+
+    scanner.scan.assert_called_once_with(paths[1])
+    create_scanner.assert_called_once_with()
+    for job in jobs:
+        job.set_status.assert_called_once_with(0)
+    assert (
+        models.Event.objects.filter(
+            file_uuid=scanned_file, event_type="virus check"
+        ).count()
+        == 1
+    )
+    event = models.Event.objects.get(file_uuid=transfer_file, event_type="virus check")
+    assert event.event_outcome == "Pass"
+    assert set(event.agents.values_list("pk", flat=True)) == {
+        2,
+        user.userprofile.agent_id,
+    }
+
+
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.insert_events")
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.scan_file")
 @mock.patch(
     "archivematica.MCPClient.clientScripts.antivirus.load_file_data",
@@ -308,8 +357,7 @@ def test_call_reuses_scanner_and_batch_data(
 def test_call_propagates_batch_load_failure(
     load_file_data: mock.Mock,
     scan_file: mock.Mock,
-    insert_into_events: mock.Mock,
-    transaction_atomic: mock.Mock,
+    insert_events: mock.Mock,
 ) -> None:
     job = mock.Mock(
         spec=Job,
@@ -324,5 +372,4 @@ def test_call_propagates_batch_load_failure(
     scan_file.assert_not_called()
     job.JobContext.assert_not_called()
     job.set_status.assert_not_called()
-    insert_into_events.assert_not_called()
-    transaction_atomic.assert_not_called()
+    insert_events.assert_not_called()
