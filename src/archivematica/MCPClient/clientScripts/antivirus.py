@@ -18,19 +18,25 @@
 import multiprocessing
 import os
 import uuid
+from collections.abc import Callable
+from collections.abc import Collection
+from collections.abc import Mapping
+from dataclasses import dataclass
+from functools import cache
 
 import django
 
 django.setup()
+from clamav_client.scanner import Scanner
 from clamav_client.scanner import get_scanner
 from django.conf import settings as mcpclient_settings
-from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client.job import Job
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
 
@@ -39,16 +45,62 @@ def concurrent_instances():
     return multiprocessing.cpu_count()
 
 
-def file_already_scanned(file_uuid):
-    return (
-        file_uuid != "None"
-        and Event.objects.filter(
-            file_uuid_id=file_uuid, event_type="virus check"
-        ).exists()
+def normalize_uuid(value: object) -> str | None:
+    """Return a canonical UUID string, or ``None`` for an invalid value."""
+    if isinstance(value, uuid.UUID):
+        return str(value)
+    try:
+        return str(uuid.UUID(str(value)))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+@dataclass(frozen=True)
+class AntivirusBatchData:
+    """File metadata and virus-check state loaded for an antivirus batch."""
+
+    file_sizes: Mapping[str, int | None]
+    scanned_file_uuids: Collection[str]
+
+
+def load_file_data(
+    jobs: Collection[Job],
+) -> AntivirusBatchData:
+    """Load file sizes and previous virus checks for a job batch."""
+    file_uuids: set[str] = set()
+    for job in jobs:
+        if len(job.args) <= 1:
+            continue
+        file_uuid = normalize_uuid(job.args[1])
+        if file_uuid is not None:
+            file_uuids.add(file_uuid)
+
+    file_sizes = {
+        str(file_uuid): size
+        for file_uuid, size in File.objects.filter(uuid__in=file_uuids).values_list(
+            "uuid", "size"
+        )
+    }
+    scanned_file_uuids = {
+        str(file_uuid)
+        for file_uuid in Event.objects.filter(
+            file_uuid_id__in=file_uuids, event_type="virus check"
+        ).values_list("file_uuid_id", flat=True)
+    }
+
+    return AntivirusBatchData(
+        file_sizes=file_sizes,
+        scanned_file_uuids=scanned_file_uuids,
     )
 
 
-def queue_event(file_uuid, date, scanner, passed, queue):
+def queue_event(
+    file_uuid: str | uuid.UUID,
+    date: str,
+    scanner: Scanner | None,
+    passed: bool | None,
+    queue: list[dict[str, object]],
+) -> None:
     if passed is None or file_uuid == "None":
         return
 
@@ -94,7 +146,7 @@ CONFIG_BUILDERS = {
 }
 
 
-def create_scanner():
+def create_scanner() -> Scanner:
     """Return the ClamAV client configured by the user and found in the
     installation's environment variables. Clamdscanner may perform quicker
     than Clamscanner given a larger number of objects. Return clamdscanner
@@ -116,29 +168,51 @@ def create_scanner():
     return get_scanner(config)
 
 
-def get_size(file_uuid, path):
-    # We're going to see this happening when files are not part of `objects/`.
-    if file_uuid != "None":
+def get_size(
+    file_uuid: str | uuid.UUID,
+    path: str,
+    file_sizes: Mapping[str, int | None],
+) -> int | None:
+    """Return a file size from batch data or the filesystem."""
+    normalized_file_uuid = normalize_uuid(file_uuid)
+
+    if normalized_file_uuid is not None:
         try:
-            return File.objects.get(uuid=file_uuid).size
-        except (File.DoesNotExist, ValidationError):
+            return file_sizes[normalized_file_uuid]
+        except KeyError:
+            # The file is not always represented in the database, such as
+            # files outside of `objects/`.
             pass
-    # Our fallback.
+
     try:
         return os.path.getsize(path)
     except Exception:
         return None
 
 
-def scan_file(event_queue, file_uuid, path, date):
-    if file_already_scanned(file_uuid):
+def scan_file(
+    event_queue: list[dict[str, object]],
+    file_uuid: str | uuid.UUID,
+    path: str,
+    date: str,
+    *,
+    batch_data: AntivirusBatchData,
+    scanner_factory: Callable[[], Scanner] | None = None,
+) -> int:
+    """Scan one file, queue its PREMIS event, and return its workflow status."""
+    normalized_file_uuid = normalize_uuid(file_uuid)
+    if (
+        normalized_file_uuid is not None
+        and normalized_file_uuid in batch_data.scanned_file_uuids
+    ):
         logger.info("Virus scan already performed, not running scan again")
         return 0
 
-    scanner, passed = None, False
+    scanner: Scanner | None = None
+    passed: bool | None = False
 
     try:
-        size = get_size(file_uuid, path)
+        size = get_size(file_uuid, path, batch_data.file_sizes)
         if size is None:
             logger.error("Getting file size returned: %s", size)
             return 1
@@ -166,7 +240,7 @@ def scan_file(event_queue, file_uuid, path, date):
             valid_scan = False
 
         if valid_scan:
-            scanner = create_scanner()
+            scanner = scanner_factory() if scanner_factory else create_scanner()
             info = scanner.info()
             logger.info(
                 "Using scanner %s (%s - %s)",
@@ -197,13 +271,28 @@ def scan_file(event_queue, file_uuid, path, date):
     return 1 if passed is False else 0
 
 
-def call(jobs):
-    event_queue = []
+def call(jobs: list[Job]) -> None:
+    """Process a batch of antivirus jobs."""
+    event_queue: list[dict[str, object]] = []
+    batch_data = load_file_data(jobs)
+
+    # TODO: Scanner.info() caches ClamAV definition metadata, so scanner reuse
+    # can record stale definitions if freshclam reloads them during a batch.
+    @cache
+    def scanner_factory() -> Scanner:
+        return create_scanner()
 
     for job in jobs:
         with job.JobContext(logger=logger):
-            job.set_status(scan_file(event_queue, *job.args[1:]))
+            job.set_status(
+                scan_file(
+                    event_queue,
+                    *job.args[1:],
+                    batch_data=batch_data,
+                    scanner_factory=scanner_factory,
+                )
+            )
 
     with transaction.atomic():
-        for e in event_queue:
-            insertIntoEvents(**e)
+        for event in event_queue:
+            insertIntoEvents(**event)
