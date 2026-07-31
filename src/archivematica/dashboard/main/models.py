@@ -614,6 +614,39 @@ class Transfer(models.Model):
         return self.status == PACKAGE_STATUS_PROCESSING
 
 
+class IdempotencyRecord(models.Model):
+    """Retained result for a keyed API operation."""
+
+    class State(models.TextChoices):
+        PENDING = "pending", "Pending"
+        COMPLETED = "completed", "Completed"
+
+    id = models.AutoField(primary_key=True, db_column="pk")
+    user_id = models.IntegerField(db_column="userID")
+    operation = models.CharField(max_length=100)
+    key_hash = models.CharField(max_length=64, db_column="keyHash")
+    request_fingerprint = models.CharField(
+        max_length=64, db_column="requestFingerprint"
+    )
+    result = models.JSONField()
+    state = models.CharField(
+        max_length=10,
+        choices=State.choices,
+        default=State.PENDING,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_column="createdAt")
+    expires_at = models.DateTimeField(db_column="expiresAt", db_index=True)
+
+    class Meta:
+        db_table = "IdempotencyRecords"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user_id", "operation", "key_hash"),
+                name="idempotency_user_operation_key_uniq",
+            )
+        ]
+
+
 class Identifier(models.Model):
     """Identifiers used by File, Directory SIP models. Used for Handle System
     handles/PIDs and maybe for other types of identifier in the future.

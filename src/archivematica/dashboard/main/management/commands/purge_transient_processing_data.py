@@ -114,6 +114,13 @@ class Command(DashboardCommand):
                 raise CommandError("Age could not be parsed.")
             kwargs["completed_before"] = timezone.now() - duration
 
+        self.info("Purging expired idempotency records...")
+        expired_idempotency_records = models.IdempotencyRecord.objects.filter(
+            expires_at__lte=timezone.now()
+        )
+        if not options["dry_run"]:
+            self.delete_queryset(expired_idempotency_records, options["quiet"])
+
         self.info("Purging SIPs...")
         sips = models.SIP.objects.done(**kwargs)
         for sip in sips:

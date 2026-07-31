@@ -1,7 +1,9 @@
+import threading
 import uuid
 from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
+from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -12,8 +14,11 @@ from django.utils import timezone
 
 import archivematica.MCPServer.server.packages as packages
 from archivematica.dashboard.main import models
+from archivematica.dashboard.main.idempotency import IdempotencyKeyConflictError
+from archivematica.dashboard.main.idempotency import IdempotencyRequestInProgressError
 from archivematica.MCPServer.server.jobs import Job as WorkflowJob
 from archivematica.MCPServer.server.packages import DIP
+from archivematica.MCPServer.server.packages import PACKAGE_CREATE_OPERATION
 from archivematica.MCPServer.server.packages import PACKAGE_TYPE_STARTING_POINTS
 from archivematica.MCPServer.server.packages import RETRIEVE_TRANSFER_SOURCE_CHAIN_ID
 from archivematica.MCPServer.server.packages import SIP
@@ -615,6 +620,247 @@ def test_create_package_without_auto_approval_uses_watched_directory_copy(
         starting_point,
     )
     package_queue.schedule_job.assert_not_called()
+
+
+def _idempotent_package_kwargs(admin_user, wf):
+    return {
+        "name": "TransferName",
+        "type_": "standard",
+        "accession": "accession-1",
+        "access_system_id": "system-1",
+        "path": "source-location:/transfer/source/path",
+        "metadata_set_id": "",
+        "user_id": admin_user.pk,
+        "workflow": wf,
+        "auto_approve": True,
+        "idempotency_key": "transfer-submission-123",
+    }
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_replays_idempotent_submission(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+
+    first_uuid = create_package(package_queue, executor, **kwargs)
+    second_uuid = create_package(package_queue, executor, **kwargs)
+
+    assert second_uuid == first_uuid
+    assert models.Transfer.objects.count() == 1
+    assert models.IdempotencyRecord.objects.count() == 1
+    record = models.IdempotencyRecord.objects.get()
+    assert record.operation == PACKAGE_CREATE_OPERATION
+    assert record.result == {"id": first_uuid}
+    assert record.state == models.IdempotencyRecord.State.COMPLETED
+    assert record.key_hash != kwargs["idempotency_key"]
+    assert len(record.key_hash) == 64
+    executor.submit.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_scopes_idempotency_key_to_user(
+    admin_user, django_user_model, wf, retrieval_directories
+):
+    other_user = django_user_model.objects.create_user(username="other-user")
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+
+    first_uuid = create_package(package_queue, executor, **kwargs)
+    second_uuid = create_package(
+        package_queue,
+        executor,
+        **{**kwargs, "user_id": other_user.pk},
+    )
+
+    assert second_uuid != first_uuid
+    assert models.Transfer.objects.count() == 2
+    assert models.IdempotencyRecord.objects.count() == 2
+    assert executor.submit.call_count == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_rejects_changed_idempotent_submission(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+    create_package(package_queue, executor, **kwargs)
+
+    with pytest.raises(IdempotencyKeyConflictError):
+        create_package(
+            package_queue,
+            executor,
+            **{**kwargs, "path": "source-location:/different/path"},
+        )
+
+    assert models.Transfer.objects.count() == 1
+    assert models.IdempotencyRecord.objects.count() == 1
+    executor.submit.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_reuses_expired_idempotency_key(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+    first_uuid = create_package(package_queue, executor, **kwargs)
+    models.IdempotencyRecord.objects.update(
+        expires_at=timezone.now() - timedelta(seconds=1)
+    )
+
+    second_uuid = create_package(package_queue, executor, **kwargs)
+
+    assert second_uuid != first_uuid
+    assert models.Transfer.objects.count() == 2
+    assert models.IdempotencyRecord.objects.count() == 1
+    assert executor.submit.call_count == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_replays_after_transfer_is_purged(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+    transfer_uuid = create_package(package_queue, executor, **kwargs)
+    models.Transfer.objects.filter(pk=transfer_uuid).delete()
+
+    replayed_uuid = create_package(package_queue, executor, **kwargs)
+
+    assert replayed_uuid == transfer_uuid
+    assert not models.Transfer.objects.exists()
+    assert models.IdempotencyRecord.objects.count() == 1
+    executor.submit.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_replays_when_processing_configuration_disappears(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    config_dir = (
+        retrieval_directories.shared
+        / "sharedMicroServiceTasksConfigs"
+        / "processingMCPConfigs"
+    )
+    config_dir.mkdir(parents=True)
+    config_path = config_dir / "customProcessingMCP.xml"
+    config_path.touch()
+    kwargs = {
+        **_idempotent_package_kwargs(admin_user, wf),
+        "processing_config": "custom",
+    }
+    transfer_uuid = create_package(package_queue, executor, **kwargs)
+    config_path.unlink()
+
+    replayed_uuid = create_package(package_queue, executor, **kwargs)
+
+    assert replayed_uuid == transfer_uuid
+    assert models.Transfer.objects.count() == 1
+    assert models.IdempotencyRecord.objects.count() == 1
+    executor.submit.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_replays_when_metadata_set_is_deleted(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.return_value = Future()
+    metadata_set = models.TransferMetadataSet.objects.create(
+        createdbyuserid=admin_user.pk
+    )
+    kwargs = {
+        **_idempotent_package_kwargs(admin_user, wf),
+        "metadata_set_id": str(metadata_set.pk),
+    }
+    transfer_uuid = create_package(package_queue, executor, **kwargs)
+    metadata_set.delete()
+
+    replayed_uuid = create_package(package_queue, executor, **kwargs)
+
+    assert replayed_uuid == transfer_uuid
+    assert not models.Transfer.objects.exists()
+    assert models.IdempotencyRecord.objects.count() == 1
+    executor.submit.assert_called_once()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_package_releases_keyed_result_when_executor_rejects_handoff(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    executor.submit.side_effect = [
+        RuntimeError("executor unavailable"),
+        Future(),
+    ]
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+
+    with pytest.raises(RuntimeError, match="executor unavailable"):
+        create_package(package_queue, executor, **kwargs)
+
+    failed_transfer = models.Transfer.objects.get()
+    assert failed_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert failed_transfer.completed_at is not None
+    assert not models.IdempotencyRecord.objects.exists()
+
+    retried_uuid = create_package(package_queue, executor, **kwargs)
+
+    assert retried_uuid != str(failed_transfer.pk)
+    assert models.Transfer.objects.count() == 2
+    record = models.IdempotencyRecord.objects.get()
+    assert record.result == {"id": retried_uuid}
+    assert record.state == models.IdempotencyRecord.State.COMPLETED
+    assert executor.submit.call_count == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_concurrent_idempotent_submission_is_not_replayed_before_handoff(
+    admin_user, wf, retrieval_directories
+):
+    package_queue = mock.Mock(spec=PackageQueue)
+    executor = mock.Mock(spec=ThreadPoolExecutor)
+    kwargs = _idempotent_package_kwargs(admin_user, wf)
+    handoff_started = threading.Event()
+    allow_handoff = threading.Event()
+
+    def submit(*args):
+        handoff_started.set()
+        assert allow_handoff.wait(timeout=5)
+        return Future()
+
+    executor.submit.side_effect = submit
+    with ThreadPoolExecutor(max_workers=1) as caller:
+        first = caller.submit(create_package, package_queue, executor, **kwargs)
+        assert handoff_started.wait(timeout=5)
+
+        with pytest.raises(IdempotencyRequestInProgressError):
+            create_package(package_queue, executor, **kwargs)
+
+        allow_handoff.set()
+        transfer_uuid = first.result(timeout=10)
+
+    assert create_package(package_queue, executor, **kwargs) == transfer_uuid
+    assert models.Transfer.objects.count() == 1
+    assert models.IdempotencyRecord.objects.count() == 1
+    executor.submit.assert_called_once()
 
 
 @pytest.mark.parametrize(

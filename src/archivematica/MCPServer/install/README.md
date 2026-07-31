@@ -204,6 +204,13 @@ This is the full list of variables supported by MCPServer:
   - **Type:** `int`
   - **Default:** 4
 
+- **`ARCHIVEMATICA_MCPSERVER_MCPSERVER_IDEMPOTENCY_KEY_RETENTION_DAYS`**:
+  - **Description:** the number of days that MCPServer idempotency keys remain
+    reserved.
+  - **Config file example:** `MCPServer.idempotency_key_retention_days`
+  - **Type:** `int`
+  - **Default:** 90
+
 - **`ARCHIVEMATICA_MCPSERVER_WORKFLOW_FILE`**:
   - **Description:** the path to the user-customised workflow file. If this is
     empty, Archivematica will load the default workflow. This configuration
