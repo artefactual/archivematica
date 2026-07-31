@@ -42,6 +42,8 @@ from archivematica.dashboard.components.filesystem_ajax import (
 )
 from archivematica.dashboard.components.unit import views as unit_views
 from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.contrib.mcp.client import RPCServerError
+from archivematica.dashboard.main import idempotency
 from archivematica.dashboard.main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
@@ -776,7 +778,25 @@ def package(request):
 
 
 def _package_create(request):
-    """Create a package."""
+    """Create a package, optionally making retries idempotent.
+
+    ``Idempotency-Key`` is scoped to the authenticated user. Reusing it with
+    the same request returns the original transfer UUID; reusing it with a
+    different request returns HTTP 422. An identical concurrent request returns
+    HTTP 409 until the original request has handed work to the executor.
+    """
+    idempotency_key = request.headers.get("Idempotency-Key")
+    if idempotency_key is not None and not idempotency.is_valid_key(idempotency_key):
+        return helpers.json_response(
+            {
+                "error": True,
+                "message": (
+                    "Idempotency-Key must contain 1-255 visible ASCII characters "
+                    "without whitespace."
+                ),
+            },
+            400,
+        )
     try:
         payload = json.loads(request.body.decode("utf8"))
         path = archivematicaFunctions.b64decode_string(payload.get("path"))
@@ -799,12 +819,18 @@ def _package_create(request):
     processing_config = payload.get("processing_config")
     if processing_config is not None:
         kwargs["processing_config"] = processing_config
+    if idempotency_key is not None:
+        kwargs["idempotency_key"] = idempotency_key
     try:
         client = MCPClient(request.user)
         id_ = client.create_package(*args, **kwargs)
     except Exception as err:
+        if isinstance(err, RPCServerError) and err.status_code in (409, 422):
+            return helpers.json_response(
+                {"error": True, "message": str(err)}, err.status_code
+            )
         msg = "Package cannot be created"
-        LOGGER.error("%s: %s", msg, err)
+        LOGGER.exception("%s: %s", msg, err)
         return helpers.json_response({"error": True, "message": msg}, 500)
     return helpers.json_response({"id": id_}, 202)
 

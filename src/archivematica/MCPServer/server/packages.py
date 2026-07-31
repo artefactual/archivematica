@@ -6,6 +6,7 @@ import functools
 import json
 import logging
 import os
+from datetime import timedelta
 from tempfile import mkdtemp
 from uuid import UUID
 from uuid import uuid4
@@ -28,6 +29,7 @@ from archivematica.archivematicaCommon.transfer_source_retrieval import (
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
     plan_transfer_source_paths,
 )
+from archivematica.dashboard.main import idempotency
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server.jobs import JobChain
 from archivematica.MCPServer.server.processing_config import (
@@ -44,6 +46,7 @@ StartingPoint = collections.namedtuple("StartingPoint", "watched_dir chain link"
 RETRIEVE_TRANSFER_SOURCE_CHAIN_ID = "2e12b4bd-06f1-4362-905f-ef9ce5f7cd5d"
 # The unit variable stores the type-specific link selected after retrieval.
 LINK_AFTER_TRANSFER_SOURCE_RETRIEVAL = "linkAfterTransferSourceRetrieval"
+PACKAGE_CREATE_OPERATION = "package.create"
 
 
 def _get_setting(name):
@@ -213,6 +216,54 @@ def _mark_transfer_failed(transfer: models.Transfer) -> None:
     )
 
 
+def _submission_fingerprint(
+    *,
+    name,
+    type_,
+    accession,
+    access_system_id,
+    path,
+    metadata_set_id,
+    auto_approve,
+    processing_config,
+):
+    """Return a stable digest of the inputs that define a submission."""
+    return idempotency.fingerprint(
+        {
+            "access_system_id": access_system_id,
+            "accession": accession,
+            "auto_approve": auto_approve,
+            "metadata_set_id": metadata_set_id,
+            "name": name,
+            "path": path,
+            "processing_config": processing_config,
+            "type": type_,
+        }
+    )
+
+
+def _create_transfer(
+    *,
+    accession,
+    access_system_id,
+    metadata_set,
+    processing_config,
+    user_id,
+):
+    kwargs = {"uuid": str(uuid4())}
+    if accession is not None:
+        kwargs["accessionid"] = accession
+    if access_system_id is not None:
+        kwargs["access_system_id"] = access_system_id
+    if metadata_set is not None:
+        kwargs["transfermetadatasetrow"] = metadata_set
+    transfer = models.Transfer.objects.create(**kwargs)
+    transfer.set_processing_configuration(processing_config)
+    transfer.update_active_agent(user_id)
+    logger.debug("Transfer object created: %s", transfer.pk)
+    return transfer
+
+
 @auto_close_old_connections()
 def create_package(
     package_queue,
@@ -227,12 +278,14 @@ def create_package(
     workflow,
     auto_approve=True,
     processing_config=None,
+    idempotency_key=None,
 ):
-    """Launch transfer and return its object immediately.
+    """Launch a transfer and return its accepted identity immediately.
 
     ``auto_approve`` changes significantly the way that the transfer is
     initiated. See ``_start_package_transfer_with_auto_approval`` and
-    ``_start_package_transfer`` for more details.
+    ``_start_package_transfer`` for more details. Unkeyed calls retain the
+    historical ``Transfer`` return value; keyed calls return a stable UUID.
     """
     if not name:
         raise ValueError("No transfer name provided.")
@@ -245,50 +298,98 @@ def create_package(
     if isinstance(auto_approve, bool) is False:
         raise ValueError("Unexpected value in auto_approve parameter")
     try:
-        int(user_id)
+        user_id = int(user_id)
     except (TypeError, ValueError):
         raise ValueError("Unexpected value in user_id parameter")
+    if idempotency_key is not None and not idempotency.is_valid_key(idempotency_key):
+        raise ValueError("Unexpected value in idempotency_key parameter")
 
-    # Create Transfer object.
-    kwargs = {"uuid": str(uuid4())}
-    if accession is not None:
-        kwargs["accessionid"] = accession
-    if access_system_id is not None:
-        kwargs["access_system_id"] = access_system_id
+    submission_fingerprint = None
+    if idempotency_key is not None:
+        submission_fingerprint = _submission_fingerprint(
+            name=name,
+            type_=type_,
+            accession=accession,
+            access_system_id=access_system_id,
+            path=path,
+            metadata_set_id=(
+                str(metadata_set_id) if metadata_set_id is not None else None
+            ),
+            auto_approve=auto_approve,
+            processing_config=processing_config,
+        )
+
+    metadata_set = None
     if metadata_set_id is not None:
         try:
-            kwargs["transfermetadatasetrow"] = models.TransferMetadataSet.objects.get(
-                id=metadata_set_id
-            )
+            metadata_set = models.TransferMetadataSet.objects.get(id=metadata_set_id)
         except (models.TransferMetadataSet.DoesNotExist, ValidationError):
             pass
-    transfer = models.Transfer.objects.create(**kwargs)
     if not processing_configuration_file_exists(processing_config):
         processing_config = "default"
-    transfer.set_processing_configuration(processing_config)
-    transfer.update_active_agent(user_id)
-    logger.debug("Transfer object created: %s", transfer.pk)
+
+    transfer_kwargs = {
+        "accession": accession,
+        "access_system_id": access_system_id,
+        "metadata_set": metadata_set,
+        "processing_config": processing_config,
+        "user_id": user_id,
+    }
+    reservation = None
+    if idempotency_key is None:
+        transfer = _create_transfer(**transfer_kwargs)
+        transfer_uuid = str(transfer.pk)
+    else:
+        reservation = idempotency.reserve_or_replay(
+            user_id=user_id,
+            operation=PACKAGE_CREATE_OPERATION,
+            key=idempotency_key,
+            request_fingerprint=submission_fingerprint,
+            retention=timedelta(days=_get_setting("IDEMPOTENCY_KEY_RETENTION_DAYS")),
+            create_result=lambda: {
+                "id": str(_create_transfer(**transfer_kwargs).pk),
+            },
+        )
+        transfer_uuid = reservation.result["id"]
+        if not reservation.created:
+            logger.info("Replaying transfer submission %s", transfer_uuid)
+            return transfer_uuid
+        transfer = models.Transfer.objects.get(pk=transfer_uuid)
 
     # TODO: Clean up this staging directory after successful transfer-source
     # retrieval. TemporaryDirectory cannot own it because retrieval is asynchronous.
-    tmpdir = mkdtemp(dir=os.path.join(_get_setting("SHARED_DIRECTORY"), "tmp"))
-    starting_point = PACKAGE_TYPE_STARTING_POINTS.get(type_)
-    logger.debug(
-        "Package %s: starting transfer (%s)", transfer.pk, (name, type_, path, tmpdir)
-    )
-    params = (transfer, name, path, tmpdir, starting_point)
-    if auto_approve:
-        transfer.status = models.PACKAGE_STATUS_PROCESSING
-        transfer.save(update_fields=["status"])
-        params = params + (workflow, package_queue)
-        # A returned Future is the handoff boundary: before then, no worker owns
-        # the transfer or its staging directory.
-        try:
+    tmpdir = None
+    try:
+        tmpdir = mkdtemp(dir=os.path.join(_get_setting("SHARED_DIRECTORY"), "tmp"))
+        starting_point = PACKAGE_TYPE_STARTING_POINTS.get(type_)
+        logger.debug(
+            "Package %s: starting transfer (%s)",
+            transfer.pk,
+            (name, type_, path, tmpdir),
+        )
+        params = (transfer, name, path, tmpdir, starting_point)
+        if auto_approve:
+            transfer.status = models.PACKAGE_STATUS_PROCESSING
+            transfer.save(update_fields=["status"])
+            params = params + (workflow, package_queue)
             result = executor.submit(
                 _start_package_transfer_with_auto_approval, *params
             )
-        except Exception:
-            _mark_transfer_failed(transfer)
+        else:
+            result = executor.submit(_start_package_transfer, *params)
+    except Exception:
+        if auto_approve or idempotency_key is not None:
+            if reservation is None:
+                _mark_transfer_failed(transfer)
+            else:
+                try:
+                    _mark_transfer_failed(transfer)
+                except Exception:
+                    logger.exception(
+                        "Unable to mark transfer %s failed after handoff failure",
+                        transfer_uuid,
+                    )
+        if tmpdir is not None:
             try:
                 os.rmdir(tmpdir)
             except OSError:
@@ -297,13 +398,27 @@ def create_package(
                     tmpdir,
                     exc_info=True,
                 )
-            raise
-    else:
-        result = executor.submit(_start_package_transfer, *params)
+        if reservation is not None:
+            try:
+                idempotency.release(reservation)
+            except Exception:
+                logger.exception(
+                    "Unable to release the pending idempotency reservation "
+                    "for transfer %s",
+                    transfer_uuid,
+                )
+            logger.exception(
+                "Transfer %s could not be handed off",
+                transfer_uuid,
+            )
+        raise
 
     result.add_done_callback(lambda f: os.chmod(tmpdir, 0o770))
 
-    return transfer
+    if reservation is None:
+        return transfer
+    idempotency.complete(reservation)
+    return transfer_uuid
 
 
 def _capture_transfer_failure(fn=None, *, mark_transfer_failed=False):

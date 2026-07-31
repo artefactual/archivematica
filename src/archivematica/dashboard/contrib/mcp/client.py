@@ -44,6 +44,9 @@ class RPCServerError(RPCGearmanClientError):
     GENERIC_ERROR_MSG = "The server failed to process the request"
 
     def __init__(self, payload=None):
+        self.payload = payload if isinstance(payload, dict) else {}
+        self.status_code = self.payload.get("status_code")
+        self.code = self.payload.get("code")
         super().__init__(self._process_error(payload))
 
     def _process_error(self, payload):
@@ -178,6 +181,7 @@ class MCPClient:
         auto_approve=True,
         wait_until_complete=False,
         processing_config=None,
+        idempotency_key=None,
     ):
         data = {
             "name": name,
@@ -191,6 +195,8 @@ class MCPClient:
         }
         if processing_config is not None:
             data["processing_config"] = processing_config
+        if idempotency_key is not None:
+            data["idempotency_key"] = idempotency_key
         return self._rpc_sync_call("packageCreate", data)
 
     def approve_transfer_by_path(self, db_transfer_path, transfer_type):

@@ -32,6 +32,8 @@ from lxml import etree
 
 from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
+from archivematica.dashboard.main.idempotency import IdempotencyKeyConflictError
+from archivematica.dashboard.main.idempotency import IdempotencyRequestInProgressError
 from archivematica.dashboard.main.models import PACKAGE_STATUS_PROCESSING
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import UNIT_VARIABLE_PROCESSING_CONFIGURATION
@@ -333,7 +335,28 @@ class RPCServer(GearmanWorker):
         processing_config = payload.get("processing_config")
         if processing_config is not None:
             kwargs["processing_config"] = processing_config
-        return create_package(*args, **kwargs).pk
+        idempotency_key = payload.get("idempotency_key")
+        if idempotency_key is not None:
+            kwargs["idempotency_key"] = idempotency_key
+        try:
+            result = create_package(*args, **kwargs)
+        except IdempotencyRequestInProgressError as err:
+            return {
+                "error": True,
+                "message": str(err),
+                "status_code": 409,
+                "code": "idempotency_key_in_progress",
+            }
+        except IdempotencyKeyConflictError as err:
+            return {
+                "error": True,
+                "message": str(err),
+                "status_code": 422,
+                "code": "idempotency_key_reused",
+            }
+        if isinstance(result, Transfer):
+            return result.pk
+        return result
 
     def _approve_transfer_by_path_handler(self, worker, job, payload):
         """Approve a transfer matched by its path.

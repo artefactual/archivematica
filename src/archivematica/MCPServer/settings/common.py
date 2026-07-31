@@ -95,6 +95,11 @@ CONFIG_MAPPING = {
         "type": "int",
     },
     "rpc_threads": {"section": "MCPServer", "option": "rpc_threads", "type": "int"},
+    "idempotency_key_retention_days": {
+        "section": "MCPServer",
+        "option": "idempotency_key_retention_days",
+        "type": "int",
+    },
     "worker_threads": {
         "section": "MCPServer",
         "option": "worker_threads",
@@ -151,6 +156,7 @@ waitOnAutoApprove = 0
 search_enabled = true
 batch_size = 128
 rpc_threads = 4
+idempotency_key_retention_days = 90
 storage_service_client_timeout = 86400
 storage_service_client_quick_timeout = 5
 prometheus_bind_address =
@@ -279,6 +285,7 @@ CONCURRENT_PACKAGES = config.get(
     "concurrent_packages", default=concurrent_packages_default()
 )
 RPC_THREADS = config.get("rpc_threads")
+IDEMPOTENCY_KEY_RETENTION_DAYS = config.get("idempotency_key_retention_days")
 WORKER_THREADS = config.get("worker_threads", default=multiprocessing.cpu_count() + 1)
 
 STORAGE_SERVICE_CLIENT_TIMEOUT = config.get("storage_service_client_timeout")

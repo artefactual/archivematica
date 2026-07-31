@@ -65,6 +65,14 @@ def test_unit_status_handler_returns_empty_jobs_before_retrieval_starts(wf):
             {"auto_approve": False, "processing_config": "automated"},
             id="explicit-no-auto-approve",
         ),
+        pytest.param(
+            {"idempotency_key": "transfer-submission-123"},
+            {
+                "auto_approve": True,
+                "idempotency_key": "transfer-submission-123",
+            },
+            id="idempotency-key",
+        ),
     ],
 )
 @mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
@@ -72,7 +80,7 @@ def test_package_create_handler_forwards_auto_approve(
     create_package, wf, payload_overrides, expected_kwargs
 ):
     transfer_uuid = uuid.uuid4()
-    create_package.return_value.pk = transfer_uuid
+    create_package.return_value = transfer_uuid
     package_queue = mock.Mock(spec=PackageQueue)
     executor = mock.Mock(spec=ThreadPoolExecutor)
     shutdown_event = threading.Event()
@@ -104,6 +112,68 @@ def test_package_create_handler_forwards_auto_approve(
         wf,
         **expected_kwargs,
     )
+
+
+@mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
+def test_package_create_handler_returns_structured_idempotency_conflict(
+    create_package, wf
+):
+    create_package.side_effect = rpc_server.IdempotencyKeyConflictError(
+        "Idempotency key has already been used with a different request."
+    )
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    server = rpc_server.RPCServer(wf, shutdown_event, mock.Mock(), mock.Mock())
+
+    result = server._package_create_handler(
+        None,
+        None,
+        {
+            "name": "TransferName",
+            "type": "standard",
+            "path": "home/username/transfer",
+            "user_id": "1",
+            "idempotency_key": "transfer-submission-123",
+        },
+    )
+
+    assert result == {
+        "error": True,
+        "message": "Idempotency key has already been used with a different request.",
+        "status_code": 422,
+        "code": "idempotency_key_reused",
+    }
+
+
+@mock.patch("archivematica.MCPServer.server.rpc_server.create_package")
+def test_package_create_handler_returns_structured_in_progress_error(
+    create_package, wf
+):
+    create_package.side_effect = rpc_server.IdempotencyRequestInProgressError(
+        "A request with this idempotency key is still in progress."
+    )
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    server = rpc_server.RPCServer(wf, shutdown_event, mock.Mock(), mock.Mock())
+
+    result = server._package_create_handler(
+        None,
+        None,
+        {
+            "name": "TransferName",
+            "type": "standard",
+            "path": "home/username/transfer",
+            "user_id": "1",
+            "idempotency_key": "transfer-submission-123",
+        },
+    )
+
+    assert result == {
+        "error": True,
+        "message": "A request with this idempotency key is still in progress.",
+        "status_code": 409,
+        "code": "idempotency_key_in_progress",
+    }
 
 
 @pytest.mark.django_db
