@@ -107,8 +107,8 @@ def test_purge_command_removes_search_documents(
 ):
     call_command("purge_transient_processing_data")
 
-    mock_search_service.delete_aip.assert_called_once_with(old_sip.pk)
-    mock_search_service.delete_aip_files.assert_called_once_with(old_sip.pk)
+    mock_search_service.delete_aip.assert_called_once_with(str(old_sip.pk))
+    mock_search_service.delete_aip_files.assert_called_once_with(str(old_sip.pk))
 
 
 @pytest.mark.django_db
@@ -138,6 +138,67 @@ def test_purge_command_skips_active_packages(
     # We've created three packages, but only 1 is in active state.
     assert models.Transfer.objects.all().count() == 1
     assert models.SIP.objects.all().count() == 0
+
+
+@pytest.mark.django_db
+def test_purge_command_hidden_transfers_only_removes_hidden_sips_and_linked_transfers(
+    search_disabled, old_transfer, old_sip
+):
+    old_sip.hidden = True
+    old_sip.save(update_fields=["hidden"])
+    models.File.objects.filter(transfer=old_transfer).update(sip=old_sip)
+
+    hidden_transfer = models.Transfer.objects.create(
+        uuid=uuid.uuid4(),
+        currentlocation=r"%transferDirectory%",
+        status=models.PACKAGE_STATUS_DONE,
+        hidden=True,
+        completed_at=timezone.now() - parse_duration("0 12:00:00"),
+    )
+
+    visible_transfer = models.Transfer.objects.create(
+        uuid=uuid.uuid4(),
+        currentlocation=r"%transferDirectory%",
+        status=models.PACKAGE_STATUS_DONE,
+        completed_at=timezone.now() - parse_duration("0 12:00:00"),
+    )
+
+    call_command("purge_transient_processing_data", "--hidden-transfers-only")
+
+    assert models.SIP.objects.filter(pk=old_sip.pk).count() == 0
+    assert models.Transfer.objects.filter(pk=old_transfer.pk).count() == 0
+    assert models.Transfer.objects.filter(pk=hidden_transfer.pk).count() == 0
+    assert models.Transfer.objects.filter(pk=visible_transfer.pk).count() == 1
+
+
+@pytest.mark.django_db
+def test_purge_command_batch_size_limits_each_package_type(
+    search_disabled, old_transfer, old_sip
+):
+    models.Transfer.objects.create(
+        uuid=uuid.uuid4(),
+        currentlocation=r"%transferDirectory%",
+        status=models.PACKAGE_STATUS_DONE,
+        completed_at=timezone.now() - parse_duration("0 12:00:00"),
+    )
+    models.SIP.objects.create(
+        uuid=uuid.uuid4(),
+        status=models.PACKAGE_STATUS_DONE,
+        completed_at=timezone.now() - parse_duration("0 12:00:00"),
+    )
+
+    call_command("purge_transient_processing_data", "--batch-size", "1")
+
+    assert models.Transfer.objects.count() == 1
+    assert models.SIP.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_purge_command_rejects_negative_batch_size(search_disabled):
+    with pytest.raises(
+        Exception, match="--batch-size must be greater than or equal to 0."
+    ):
+        call_command("purge_transient_processing_data", "--batch-size", "-1")
 
 
 @pytest.mark.django_db
