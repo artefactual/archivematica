@@ -15,6 +15,7 @@ from archivematica.MCPServer.server import metrics
 from archivematica.MCPServer.server.jobs.base import Job
 from archivematica.MCPServer.server.tasks import Task
 from archivematica.MCPServer.server.tasks import get_task_backend
+from archivematica.MCPServer.server.tasks import reset_task_backend
 
 logger = logging.getLogger("archivematica.mcp.server.jobs.client")
 
@@ -118,13 +119,22 @@ class ClientScriptJob(Job, metaclass=abc.ABCMeta):
             self.command_replacements.update(self.job_chain.context)
 
         self.task_backend = get_task_backend()
-        self.submit_tasks()
-        # Block until out of process tasks have completed
-        self.wait_for_task_results()
+        try:
+            self.submit_tasks()
+            # Block until out of process tasks have completed
+            self.wait_for_task_results()
 
-        self.update_status_from_exit_code()
+            self.update_status_from_exit_code()
 
-        return next(self.job_chain, None)
+            return next(self.job_chain, None)
+        except BaseException:
+            try:
+                reset_task_backend()
+            except BaseException:
+                logger.exception(
+                    "Unable to reset task backend after job %s failed", self.uuid
+                )
+            raise
 
     def submit_tasks(self):
         arguments = self.replace_values(self.arguments, self.command_replacements)

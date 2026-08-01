@@ -90,6 +90,12 @@ class Job(metaclass=abc.ABCMeta):
         )
 
     @auto_close_old_connections()
+    def mark_failed(self):
+        return models.Job.objects.filter(jobuuid=self.uuid).update(
+            currentstep=self.STATUS_FAILED
+        )
+
+    @auto_close_old_connections()
     def mark_complete(self):
         logger.debug(
             "%s %s done with exit code %s",

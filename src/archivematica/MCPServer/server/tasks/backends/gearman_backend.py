@@ -78,6 +78,27 @@ class GearmanTaskBackend(TaskBackend):
         self.current_task_batches = {}  # job_uuid: GearmanTaskBatch
         self.pending_gearman_jobs = {}  # job_uuid: List[GearmanTaskBatch]
 
+    def shutdown(self):
+        """Close the client and discard state that cannot be resumed safely."""
+        pending_count = sum(
+            bool(len(batch)) for batch in self.current_task_batches.values()
+        )
+        active_count = sum(
+            not batch.collected
+            for batches in self.pending_gearman_jobs.values()
+            for batch in batches
+        )
+
+        try:
+            self.client.shutdown()
+        finally:
+            if pending_count:
+                metrics.gearman_pending_jobs_gauge.dec(pending_count)
+            if active_count:
+                metrics.gearman_active_jobs_gauge.dec(active_count)
+            self.current_task_batches.clear()
+            self.pending_gearman_jobs.clear()
+
     def submit_task(self, job, task):
         """Submit a `Task` (as part of the `Job` given) for processing.
 

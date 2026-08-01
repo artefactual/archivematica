@@ -7,9 +7,18 @@ import pytest
 from django.utils import timezone
 
 from archivematica.dashboard.main import models
+from archivematica.MCPServer.server import metrics
+from archivematica.MCPServer.server.jobs import DirectoryClientScriptJob
 from archivematica.MCPServer.server.jobs import Job
 from archivematica.MCPServer.server.tasks import GearmanTaskBackend
 from archivematica.MCPServer.server.tasks import Task
+from archivematica.MCPServer.server.tasks import TaskBackend
+from archivematica.MCPServer.server.tasks.backends import backend_local
+from archivematica.MCPServer.server.tasks.backends import get_task_backend
+from archivematica.MCPServer.server.tasks.backends import reset_task_backend
+from archivematica.MCPServer.server.tasks.backends.gearman_backend import (
+    GearmanTaskBatch,
+)
 
 
 class MockJob(Job):
@@ -294,4 +303,113 @@ def test_gearman_multiple_batches(
     assert mock_client.return_value.submit_job.call_count == expected_batch_count
     assert mock_client.return_value.wait_until_any_job_completed.call_count == len(
         job_requests
+    )
+
+
+@mock.patch(
+    "archivematica.MCPServer.server.tasks.backends.gearman_backend.MCPGearmanClient"
+)
+def test_gearman_backend_shutdown_clears_state_and_reconciles_metrics(mock_client):
+    backend = GearmanTaskBackend()
+    unsent_batch = GearmanTaskBatch()
+    unsent_batch.tasks.append(mock.Mock())
+    empty_batch = GearmanTaskBatch()
+    active_batch = GearmanTaskBatch()
+    collected_batch = GearmanTaskBatch()
+    collected_batch.collected = True
+    backend.current_task_batches = {
+        uuid.uuid4(): unsent_batch,
+        uuid.uuid4(): empty_batch,
+    }
+    backend.pending_gearman_jobs = {
+        uuid.uuid4(): [active_batch, collected_batch],
+    }
+
+    with (
+        mock.patch.object(metrics.gearman_pending_jobs_gauge, "dec") as pending_dec,
+        mock.patch.object(metrics.gearman_active_jobs_gauge, "dec") as active_dec,
+    ):
+        backend.shutdown()
+
+    mock_client.return_value.shutdown.assert_called_once_with()
+    pending_dec.assert_called_once_with(1)
+    active_dec.assert_called_once_with(1)
+    assert backend.current_task_batches == {}
+    assert backend.pending_gearman_jobs == {}
+
+
+def test_reset_task_backend_replaces_the_thread_local_backend():
+    first_backend = mock.Mock(spec=TaskBackend)
+    second_backend = mock.Mock(spec=TaskBackend)
+    if hasattr(backend_local, "task_backend"):
+        del backend_local.task_backend
+
+    try:
+        with mock.patch(
+            "archivematica.MCPServer.server.tasks.backends.GearmanTaskBackend",
+            side_effect=(first_backend, second_backend),
+        ):
+            assert get_task_backend() is first_backend
+            assert get_task_backend() is first_backend
+
+            reset_task_backend()
+
+            first_backend.shutdown.assert_called_once_with()
+            assert get_task_backend() is second_backend
+    finally:
+        if hasattr(backend_local, "task_backend"):
+            del backend_local.task_backend
+
+
+def test_reset_task_backend_forgets_backend_when_shutdown_fails():
+    backend = mock.Mock(spec=TaskBackend)
+    backend.shutdown.side_effect = RuntimeError("shutdown failed")
+    backend_local.task_backend = backend
+
+    with pytest.raises(RuntimeError, match="shutdown failed"):
+        reset_task_backend()
+
+    assert not hasattr(backend_local, "task_backend")
+
+
+def test_client_script_job_resets_backend_without_masking_original_error(caplog):
+    package = mock.Mock()
+    package.uuid = uuid.uuid4()
+    package.get_replacement_mapping.return_value = {
+        r"%relativeLocation%": "/tmp/testfile"
+    }
+    link = mock.Mock()
+    link.id = uuid.uuid4()
+    link.get_label.side_effect = lambda name, language: {
+        "description": "A failing client job",
+        "group": "Testing",
+    }[name]
+    link.config = {
+        "arguments": '"%relativeLocation%"',
+        "execute": "test_v0",
+    }
+    job_chain = mock.Mock()
+    job_chain.context = {}
+    job = DirectoryClientScriptJob(job_chain, link, package)
+    backend = mock.Mock(spec=TaskBackend)
+    backend.submit_task.side_effect = KeyError("unknown Gearman job handle")
+
+    with (
+        mock.patch.object(job, "save_to_db"),
+        mock.patch(
+            "archivematica.MCPServer.server.jobs.client.get_task_backend",
+            return_value=backend,
+        ),
+        mock.patch(
+            "archivematica.MCPServer.server.jobs.client.reset_task_backend",
+            side_effect=RuntimeError("reset failed"),
+        ) as reset_backend,
+    ):
+        with pytest.raises(KeyError, match="unknown Gearman job handle"):
+            job.run()
+
+    reset_backend.assert_called_once_with()
+    assert any(
+        record.message.startswith("Unable to reset task backend")
+        for record in caplog.records
     )

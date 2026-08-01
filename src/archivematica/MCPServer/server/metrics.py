@@ -21,6 +21,10 @@ gearman_active_jobs_gauge = Gauge(
 gearman_pending_jobs_gauge = Gauge(
     "mcpserver_gearman_pending_jobs", "Number of gearman jobs pending submission"
 )
+job_exception_counter = Counter(
+    "mcpserver_job_exception_total",
+    "Number of MCPServer jobs that stopped because of an unexpected exception",
+)
 task_counter = Counter(
     "mcpserver_task_total",
     "Number of tasks processed, labeled by task group, task name",

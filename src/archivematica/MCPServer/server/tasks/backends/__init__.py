@@ -26,4 +26,21 @@ def get_task_backend():
     return backend_local.task_backend
 
 
-__all__ = ("GearmanTaskBackend", "TaskBackend", "get_task_backend")
+def reset_task_backend():
+    """Shut down and forget the backend owned by the current thread."""
+    backend = getattr(backend_local, "task_backend", None)
+    if backend is None:
+        return
+
+    try:
+        backend.shutdown()
+    finally:
+        del backend_local.task_backend
+
+
+__all__ = (
+    "GearmanTaskBackend",
+    "TaskBackend",
+    "get_task_backend",
+    "reset_task_backend",
+)

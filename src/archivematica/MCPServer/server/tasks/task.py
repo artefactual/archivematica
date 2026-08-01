@@ -84,6 +84,16 @@ class Task:
             task.done = True
             task.write_output()
 
+    @classmethod
+    @auto_close_old_connections()
+    def mark_unfinished_for_job_failed(cls, job_uuid, message):
+        """Fail unfinished task rows after their MCPServer job stops."""
+        return models.Task.objects.filter(job_id=job_uuid, exitcode=None).update(
+            exitcode=1,
+            stderror=message,
+            endtime=timezone.now(),
+        )
+
     def to_db_model(self, job):
         """Returns an instance of the `Task` Django model."""
         job_uuid = job.uuid
