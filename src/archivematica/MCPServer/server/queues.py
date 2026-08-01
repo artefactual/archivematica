@@ -13,6 +13,7 @@ from archivematica.MCPServer.server import metrics
 from archivematica.MCPServer.server.jobs import DecisionJob
 from archivematica.MCPServer.server.packages import DIP
 from archivematica.MCPServer.server.packages import SIP
+from archivematica.MCPServer.server.tasks import Task
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
 
@@ -24,6 +25,11 @@ FAILED_PACKAGE_TERMINAL_LINK_IDS = frozenset(
         # the historical terminal-link default of Done.
         "e782473a-0c10-431f-8ab6-5d7238b2b70b",
     }
+)
+
+TASK_EXCEPTION_MESSAGE = (
+    "MCPServer stopped tracking this task because job {job_uuid} failed "
+    "unexpectedly; the final task result may be unknown. See MCPServer logs."
 )
 
 
@@ -187,7 +193,8 @@ class PackageQueue:
         metrics.active_jobs_gauge.inc()
 
         result = self.executor.submit(job.run)
-        result.add_done_callback(self._job_completed_callback)
+        job_done_callback = functools.partial(self._job_completed_callback, job)
+        result.add_done_callback(job_done_callback)
 
         if job.link.is_terminal:
             package_done_callback = functools.partial(
@@ -205,6 +212,9 @@ class PackageQueue:
         job in the chain. This function is called by an executor on completion
         of a Job.
         """
+        if future.cancelled() or future.exception() is not None:
+            return
+
         if future.result() is not None:
             logger.warning(
                 "Unexpectedly received another job on package completion. "
@@ -239,7 +249,7 @@ class PackageQueue:
         """
         return str(link.id) in FAILED_PACKAGE_TERMINAL_LINK_IDS
 
-    def _job_completed_callback(self, future):
+    def _job_completed_callback(self, job, future):
         """Schedule the next job in the chain.
 
         Retrieve the next job from the result from the previous job. If there is
@@ -247,6 +257,16 @@ class PackageQueue:
         called by an executor on completion of a Job.
         """
         metrics.active_jobs_gauge.dec()
+
+        if future.cancelled():
+            self._handle_job_failure(job, RuntimeError("Job future was cancelled"))
+            return
+
+        exception = future.exception()
+        if exception is not None:
+            self._handle_job_failure(job, exception)
+            return
+
         next_job = future.result()
 
         if not next_job:
@@ -256,6 +276,44 @@ class PackageQueue:
             self.queue_next_job()
         else:
             self.schedule_job(next_job)
+
+    def _handle_job_failure(self, job, exception):
+        """Record an unexpected job failure and release its package slot."""
+        logger.error(
+            "Unexpected error processing job %s (%s; link %s) for %s package %s",
+            job.uuid,
+            job.description,
+            job.link.id,
+            job.package.__class__.__name__,
+            job.package.uuid,
+            exc_info=(type(exception), exception, exception.__traceback__),
+        )
+
+        failure_actions = (
+            ("increment the job exception counter", metrics.job_exception_counter.inc),
+            ("mark the job as failed", job.mark_failed),
+            (
+                "mark unfinished tasks as failed",
+                functools.partial(
+                    Task.mark_unfinished_for_job_failed,
+                    job.uuid,
+                    TASK_EXCEPTION_MESSAGE.format(job_uuid=job.uuid),
+                ),
+            ),
+            ("mark the package as failed", job.package.mark_as_failed),
+            (
+                "deactivate the package",
+                functools.partial(self.deactivate_package, job.package),
+            ),
+            ("queue the next package", self.queue_next_job),
+        )
+        for description, action in failure_actions:
+            try:
+                action()
+            except Exception:
+                logger.exception(
+                    "Unable to %s after job %s failed", description, job.uuid
+                )
 
     def _put_package_nowait(self, package, job):
         """Queue a package and job for later processing."""

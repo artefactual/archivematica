@@ -22,3 +22,7 @@ class TaskBackend(metaclass=abc.ABCMeta):
         Note that task objects are not necessarily returned in the order
         they were submitted.
         """
+
+    def shutdown(self):
+        """Release resources held by this backend."""
+        return None
