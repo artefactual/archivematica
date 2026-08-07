@@ -40,7 +40,7 @@ def test_command_fails_if_xml_file_does_not_exist(
 def test_command_saves_data_migration_to_file(
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     unknown_format_group: FormatGroup,
     file_by_extension_command: IDCommand,
 ) -> None:
@@ -115,7 +115,7 @@ def test_command_saves_data_migration_to_file(
 def test_command_sets_format_group_from_pronom_classifications(
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     unknown_format_group: FormatGroup,
     file_by_extension_command: IDCommand,
 ) -> None:
@@ -196,7 +196,7 @@ def test_command_sets_format_group_from_pronom_classifications(
 def test_command_sets_unknown_format_group_if_multiple_pronom_classifications_exist(
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     unknown_format_group: FormatGroup,
     file_by_extension_command: IDCommand,
 ) -> None:
@@ -285,7 +285,7 @@ def test_command_sets_unknown_format_group_if_multiple_pronom_classifications_ex
 def test_command_sets_unknown_format_group_if_pronom_classifications_do_not_exist(
     tmp_path: pathlib.Path,
     capsys: pytest.CaptureFixture[str],
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     unknown_format_group: FormatGroup,
     file_by_extension_command: IDCommand,
 ) -> None:

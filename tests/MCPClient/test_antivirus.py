@@ -261,7 +261,7 @@ def test_call_reuses_scanner_and_batch_data(
     create_scanner: mock.Mock,
     load_file_data: mock.Mock,
     insert_events: mock.Mock,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     file_uuids = [str(uuid.uuid4()), str(uuid.uuid4())]
     paths = ["/path/one", "/path/two"]
@@ -302,7 +302,7 @@ def test_call_preserves_scan_and_event_behavior(
     transfer: models.Transfer,
     transfer_file: models.File,
     user: User,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     transfer_file.size = 42
     transfer_file.save(update_fields=["size"])

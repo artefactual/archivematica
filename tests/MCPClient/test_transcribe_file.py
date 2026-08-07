@@ -79,7 +79,7 @@ def test_main(
     task: models.Task,
     fprule_transcription: fprmodels.FPRule,
     sip_file_format_version: models.FileFormatVersion,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     sip_directory_path: pathlib.Path,
     create_sip_file: None,
 ) -> None:

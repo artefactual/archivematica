@@ -266,9 +266,9 @@ def sip_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
 
 @pytest.fixture
 def settings(
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     shared_directory_path: pathlib.Path,
-) -> pytest_django.fixtures.SettingsWrapper:
+) -> pytest_django.Settings:
     settings.SHARED_DIRECTORY = f"{shared_directory_path}/"
     settings.PROCESSING_DIRECTORY = f"{shared_directory_path / 'currentlyProcessing'}/"
 
