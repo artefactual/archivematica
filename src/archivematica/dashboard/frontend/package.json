@@ -17,7 +17,7 @@
   "dependencies": {
     "@tanstack/vue-table": "^8.21.3",
     "@vueuse/core": "^14.3.0",
-    "base64-helpers": "github:artefactual-labs/base64-helpers#v0.1.4",
+    "base64-helpers": "git+https://github.com/artefactual-labs/base64-helpers.git#ed0efad6e2bbe69430dc947a2e32c3c67e458762",
     "reka-ui": "^2.10.1",
     "vue": "^3.5.39",
     "vue-i18n": "^11.4.6"
