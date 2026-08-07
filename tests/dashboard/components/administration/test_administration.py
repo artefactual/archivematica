@@ -208,7 +208,7 @@ def test_general_view_registers_pipeline_in_storage_service(
     admin_user: User,
     admin_user_apikey: ApiKey,
     caplog: pytest.LogCaptureFixture,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     hostname = "myhost"
     node.return_value = hostname

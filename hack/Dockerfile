@@ -114,6 +114,7 @@ ARG GROUP_ID
 
 WORKDIR /src/src/archivematica/dashboard/frontend
 
+COPY --link src/archivematica/dashboard/frontend/.npmrc /src/src/archivematica/dashboard/frontend/.npmrc
 COPY --link src/archivematica/dashboard/frontend/package.json /src/src/archivematica/dashboard/frontend/package.json
 COPY --link src/archivematica/dashboard/frontend/package-lock.json /src/src/archivematica/dashboard/frontend/package-lock.json
 

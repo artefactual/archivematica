@@ -301,7 +301,7 @@ def test_aip_mets_normative_directory_structure(
 )
 def test_xml_validation_fail_on_error(
     process_xml_metadata: mock.Mock,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     mcp_job: Job,
     sip_directory_path: pathlib.Path,
     sip: SIP,

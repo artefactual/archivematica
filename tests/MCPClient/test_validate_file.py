@@ -86,7 +86,7 @@ def test_job_warns_if_preservation_derivative_sip_does_not_exist(
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
     fprule_validation: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     sip_uuid = uuid.uuid4()
     job = mock.Mock(
@@ -133,7 +133,7 @@ def test_job_warns_if_preservation_derivative_sip_logs_directory_does_not_exist(
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
     fprule_validation: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     job = mock.Mock(
         args=[
@@ -173,7 +173,7 @@ def test_job_succeeds_with_passing_validation_outcome(
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
     fprule_validation: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     execute_or_run.return_value = (
         0,
@@ -239,7 +239,7 @@ def test_job_saves_command_output_as_preservation_logs(
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
     fprule_validation: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     sip_logs_directory: pathlib.Path,
 ) -> None:
     stdout = "<root>output</root>"
@@ -299,7 +299,7 @@ def test_job_falls_back_to_default_validation_rule(
     preservation_file: models.File,
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     fpcommand: fprmodels.FPCommand,
     format_version: fprmodels.FormatVersion,
 ) -> None:
@@ -349,7 +349,7 @@ def test_job_falls_back_to_default_validation_rule(
 def test_job_skips_validation_if_rules_do_not_exist(
     sip: models.SIP,
     sip_file: models.File,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     fprmodels.FPRule.objects.filter(purpose=fprmodels.FPRule.VALIDATION)
 
@@ -385,7 +385,7 @@ def test_job_skips_validation_if_file_is_not_a_derivative(
     error: str,
     sip: models.SIP,
     preservation_file: models.File,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     preservation_file.filegrpuse = file_type
     preservation_file.save()
@@ -421,7 +421,7 @@ def test_job_fails_if_rule_command_fails(
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
     fprule_validation: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     exit_status = -1
     stderr = "error!"
@@ -458,7 +458,7 @@ def test_job_fails_with_non_passing_validation_outcome(
     preservation_file_format_version: models.FileFormatVersion,
     preservation_derivation: models.Derivation,
     fprule_validation: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     stdout = json.dumps(
         {

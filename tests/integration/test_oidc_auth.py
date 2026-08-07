@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from playwright.sync_api import Page
 from playwright.sync_api import expect
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django import Settings
 from pytest_django.live_server_helper import LiveServer
 
 if "RUN_INTEGRATION_TESTS" not in os.environ:
@@ -103,7 +103,7 @@ def test_removing_model_authentication_backend_disables_local_authentication(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     user: User,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     disabled_backends = ["django.contrib.auth.backends.ModelBackend"]
     settings.AUTHENTICATION_BACKENDS = [
@@ -128,7 +128,7 @@ def test_setting_login_url_redirects_to_oidc_login_page(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     user: User,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     page.goto(live_server.url)
     assert page.url == f"{live_server.url}{reverse('accounts:login')}"
@@ -145,7 +145,7 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
     page: Page,
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     page.goto(
         f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"
@@ -168,7 +168,7 @@ def test_setting_request_parameter_in_local_login_url_redirects_to_secondary_pro
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     user: User,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     page.goto(
         f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"
@@ -203,7 +203,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_admin_role(
     page: Page,
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     page.goto(
         f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"
@@ -235,7 +235,7 @@ def test_logging_out_logs_out_user_from_secondary_provider_default_role(
     page: Page,
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
-    settings: SettingsWrapper,
+    settings: Settings,
 ) -> None:
     page.goto(
         f"{live_server.url}{reverse('accounts:login')}?{settings.OIDC_PROVIDER_QUERY_PARAM_NAME}=SECONDARY"

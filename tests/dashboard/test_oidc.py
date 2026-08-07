@@ -5,9 +5,7 @@ from archivematica.dashboard.components.accounts.backends import CustomOIDCBacke
 
 
 @pytest.fixture
-def settings(
-    settings: pytest_django.fixtures.SettingsWrapper,
-) -> pytest_django.fixtures.SettingsWrapper:
+def settings(settings: pytest_django.Settings) -> pytest_django.Settings:
     settings.OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"
     settings.OIDC_OP_USER_ENDPOINT = "https://example.com/user"
     settings.OIDC_RP_CLIENT_ID = "rp_client_id"
@@ -30,9 +28,7 @@ def settings(
 
 
 @pytest.mark.django_db
-def test_create_user(
-    settings: pytest_django.fixtures.SettingsWrapper,
-) -> None:
+def test_create_user(settings: pytest_django.Settings) -> None:
     """
     Test that the user is created with the correct attributes and that the API key is generated.
     User will not be superuser because the setting OIDC_OP_SET_ROLES_FROM_CLAIMS is False.
@@ -59,9 +55,7 @@ def test_create_user(
 
 
 @pytest.mark.django_db
-def test_create_user_set_admin_from_claim(
-    settings: pytest_django.fixtures.SettingsWrapper,
-) -> None:
+def test_create_user_set_admin_from_claim(settings: pytest_django.Settings) -> None:
     """
     Test that the user is created with the correct attributes and that the API key is generated.
     User will be superuser because the setting OIDC_OP_SET_ROLES_FROM_CLAIMS is True
@@ -96,9 +90,7 @@ def test_create_user_set_admin_from_claim(
 
 
 @pytest.mark.django_db
-def test_create_user_role_from_claims(
-    settings: pytest_django.fixtures.SettingsWrapper,
-) -> None:
+def test_create_user_role_from_claims(settings: pytest_django.Settings) -> None:
     """
     The role given to a new user is based on token contents.
     In this test, we're ensuring that the highest-permission valid role
@@ -134,7 +126,7 @@ def test_create_user_role_from_claims(
 
 @pytest.mark.django_db
 def test_create_user_role_from_claims_reverese_token_role_order(
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     """
     The role given to a new user is based on token contents.
@@ -171,7 +163,7 @@ def test_create_user_role_from_claims_reverese_token_role_order(
 
 @pytest.mark.django_db
 def test_create_user_set_admin_from_alternate_token_value(
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
@@ -204,7 +196,7 @@ def test_create_user_set_admin_from_alternate_token_value(
 
 @pytest.mark.django_db
 def test_create_user_failure_no_claims_in_token(
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "realm_access.roles"
@@ -224,7 +216,7 @@ def test_create_user_failure_no_claims_in_token(
 
 @pytest.mark.django_db
 def test_create_user_set_admin_from_alt_claim_path(
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "custom_claims.user_roles"
@@ -256,7 +248,7 @@ def test_create_user_set_admin_from_alt_claim_path(
 
 @pytest.mark.django_db
 def test_create_user_admin_from_claims_simple_role(
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.OIDC_OP_SET_ROLES_FROM_CLAIMS = True
     settings.OIDC_OP_ROLE_CLAIM_PATH = "role"
@@ -287,7 +279,7 @@ def test_create_user_admin_from_claims_simple_role(
 
 
 @pytest.mark.django_db
-def test_get_userinfo(settings: pytest_django.fixtures.SettingsWrapper) -> None:
+def test_get_userinfo(settings: pytest_django.Settings) -> None:
     # Encoded at https://www.jsonwebtoken.io/
     # {"email": "test@example.com"}
     id_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJqdGkiOiI1M2QyMzUzMy04NDk0LTQyZWQtYTJiZC03Mzc2MjNmMjUzZjciLCJpYXQiOjE1NzMwMzE4NDQsImV4cCI6MTU3MzAzNTQ0NH0.m3nHgvj_DyVJMcW5eyYuUss1Y0PNzJV2O3bX0b_DCmI"

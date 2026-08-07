@@ -153,7 +153,7 @@ def test_call_updates_storage_service_content(
     sip: models.SIP,
     sip_file: models.File,
     mcp_job: Job,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     transfer_path = pathlib.Path(
         transfer.currentlocation.replace("%sharedPath%", settings.SHARED_DIRECTORY, 1)

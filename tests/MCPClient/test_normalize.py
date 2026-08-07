@@ -589,7 +589,7 @@ def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory
     task: models.Task,
     sip_file_format_version: models.FileFormatVersion,
     fprule_thumbnail: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
     fpcommand_thumbnail: fprmodels.FPCommand,
     shared_directory_path: pathlib.Path,
 ) -> None:
@@ -718,7 +718,7 @@ def test_normalization_fallbacks_to_default_thumbnail_rule_if_initial_command_fa
     fprule_thumbnail: fprmodels.FPRule,
     fpcommand_thumbnail: fprmodels.FPCommand,
     fprule_default_thumbnail: fprmodels.FPRule,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     expected_thumbnail_content = b"thumbnail image content"
     assert fprule_default_thumbnail.command.output_location is not None

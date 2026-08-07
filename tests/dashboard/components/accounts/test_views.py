@@ -46,7 +46,7 @@ def test_get_oidc_logout_url_fails_if_logout_endpoint_is_not_set(
 
 
 def test_get_oidc_logout_url_returns_logout_url(
-    rf: RequestFactory, settings: pytest_django.fixtures.SettingsWrapper
+    rf: RequestFactory, settings: pytest_django.Settings
 ) -> None:
     settings.OIDC_OP_LOGOUT_ENDPOINT = "http://example.com/logout"
     token = "mytoken"
@@ -209,7 +209,7 @@ def test_user_profile_view_allows_users_to_edit_their_profile_fields(
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.ALLOW_USER_EDITS = True
     client.force_login(non_administrative_user)
@@ -238,7 +238,7 @@ def test_user_profile_view_denies_editing_profile_fields_if_setting_disables_it(
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.ALLOW_USER_EDITS = False
     client.force_login(non_administrative_user)
@@ -272,7 +272,7 @@ def test_user_profile_view_regenerates_api_key_if_setting_disables_editing(
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.ALLOW_USER_EDITS = False
     client.force_login(non_administrative_user)
@@ -310,7 +310,7 @@ def test_user_profile_view_does_not_regenerate_api_key_if_not_requested(
     non_administrative_user: User,
     non_administrative_user_apikey: ApiKey,
     client: Client,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     settings.ALLOW_USER_EDITS = False
     client.force_login(non_administrative_user)
@@ -340,7 +340,7 @@ def test_user_successfully_changes_own_password(
     dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     client: Client,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     """Test that a user can successfully change their own password with correct current_password."""
     settings.ALLOW_USER_EDITS = True
@@ -386,7 +386,7 @@ def test_user_fails_to_change_password_with_incorrect_current_password(
     dashboard_uuid: uuid.UUID,
     non_administrative_user: User,
     client: Client,
-    settings: pytest_django.fixtures.SettingsWrapper,
+    settings: pytest_django.Settings,
 ) -> None:
     """Test that a user fails to change their password with incorrect current_password."""
     settings.ALLOW_USER_EDITS = True
