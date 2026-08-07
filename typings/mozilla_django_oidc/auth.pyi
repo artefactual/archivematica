@@ -39,6 +39,12 @@ class OIDCAuthenticationBackend(ModelBackend):
         id_token: str,
         payload: _OIDCClaims | None,
     ) -> dict[str, object]: ...
+    def get_or_create_user(
+        self,
+        access_token: str,
+        id_token: str,
+        payload: _OIDCClaims | None,
+    ) -> User | None: ...
     def authenticate(
         self,
         request: HttpRequest | None,
