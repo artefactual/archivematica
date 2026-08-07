@@ -344,3 +344,4 @@ def test_get_or_create_user_returns_existing_user_when_creation_disabled(
     )
 
     assert user == existing_user
+    assert User.objects.count() == 1
