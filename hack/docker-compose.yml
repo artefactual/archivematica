@@ -45,7 +45,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.19"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.20"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -82,7 +82,7 @@ services:
       - "127.0.0.1:62004:4730"
 
   clamavd:
-    image: "clamav/clamav-debian:1.5.3"
+    image: "clamav/clamav-debian:1.5.4"
     user: "clamav"
     entrypoint: "/init-unprivileged"
     environment:
