@@ -323,7 +323,7 @@ variables or in the gunicorn configuration file.
     the microservice jobs display.
   - **Config file example:** `Dashboard.polling_interval`
   - **Type:** `integer`
-  - **Default:** `10`
+  - **Default:** `5`
 
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSP_ENABLED`**:
   - **Description:** **Experimental** support for [Control Security Policy] headers.
