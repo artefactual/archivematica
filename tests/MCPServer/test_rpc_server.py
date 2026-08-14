@@ -7,6 +7,8 @@ from datetime import timezone as datetime_timezone
 from unittest import mock
 
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from archivematica.dashboard.main import models
@@ -221,6 +223,261 @@ def test_units_statuses_handler_sets_produces_tasks_from_job_class(wf):
     assert len(response) == 1
     assert len(response[0]["jobs"]) == 1
     assert response[0]["jobs"][0]["produces_tasks"] is True
+
+
+@pytest.mark.django_db
+def test_units_summary_handler_includes_dip_jobs(wf):
+    sip_uuid = str(uuid.uuid4())
+    sip = models.SIP.objects.create(uuid=sip_uuid)
+    oldest_at = timezone.now() - timedelta(minutes=2)
+    started_at = timezone.now() - timedelta(minutes=1)
+    latest_at = timezone.now()
+    models.Job.objects.create(
+        sipuuid=sip.pk,
+        unittype="unitSIP",
+        jobtype="Move to processing directory",
+        directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
+        createdtime=oldest_at,
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+    )
+    models.Job.objects.create(
+        sipuuid=sip.pk,
+        unittype="unitSIP",
+        jobtype="Assign file UUIDs to objects",
+        microservicegroup=rpc_server.INGEST_START_TIME_MARKER_GROUP,
+        directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
+        createdtime=started_at,
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+    )
+    latest_job = models.Job.objects.create(
+        sipuuid=sip.pk,
+        unittype="unitDIP",
+        directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
+        createdtime=latest_at,
+        currentstep=models.Job.STATUS_AWAITING_DECISION,
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    link = wf.get_link(TASK_PRODUCING_LINK_ID)
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    response = server._units_summary_handler(None, None, {"type": "SIP", "lang": "en"})
+
+    assert response == [
+        {
+            "uuid": sip_uuid,
+            "directory": "summary",
+            "timestamp": pytest.approx(latest_at.timestamp()),
+            "started_at": pytest.approx(started_at.timestamp()),
+            "active": False,
+            "status": {
+                "currentstep": models.Job.STATUS_AWAITING_DECISION,
+                "type": link.get_label("description", "en"),
+                "microservicegroup": link.get_label("group", "en"),
+            },
+            "has_awaiting_decision": True,
+            "access_system_id": None,
+        }
+    ]
+    assert "jobs" not in response[0]
+    assert response[0]["status"] is not None
+    assert str(latest_job.jobuuid)
+
+
+@pytest.mark.django_db
+def test_units_summary_handler_returns_queued_transfer_without_jobs(wf):
+    transfer_uuid = str(uuid.uuid4())
+    processing_started_at = timezone.now()
+    models.Transfer.objects.create(
+        uuid=transfer_uuid,
+        currentlocation=f"%sharedPath%tmp/{transfer_uuid}/QueuedTransfer",
+        status=models.PACKAGE_STATUS_PROCESSING,
+    )
+    marker = models.UnitVariable.objects.create(
+        unittype="Transfer",
+        unituuid=transfer_uuid,
+        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+    )
+    models.UnitVariable.objects.filter(pk=marker.pk).update(
+        createdtime=processing_started_at
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    response = server._units_summary_handler(
+        None, None, {"type": "Transfer", "lang": "en"}
+    )
+
+    assert response == [
+        {
+            "uuid": transfer_uuid,
+            "directory": "QueuedTransfer",
+            "timestamp": pytest.approx(processing_started_at.timestamp()),
+            "started_at": pytest.approx(processing_started_at.timestamp()),
+            "active": True,
+            "status": None,
+            "has_awaiting_decision": False,
+            "processing_state": "waiting_for_processing",
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_unit_job_groups_handler_aggregates_repeated_jobs(wf):
+    sip_uuid = str(uuid.uuid4())
+    sip = models.SIP.objects.create(uuid=sip_uuid)
+    started_at = timezone.now() - timedelta(minutes=2)
+    jobs = []
+    for job_id, offset, unit_type in (
+        (3, 0, "unitSIP"),
+        (1, 2, "unitSIP"),
+        (2, 2, "unitDIP"),
+    ):
+        jobs.append(
+            models.Job.objects.create(
+                jobuuid=uuid.UUID(int=job_id),
+                sipuuid=sip.pk,
+                unittype=unit_type,
+                microservicechainlink=TASK_PRODUCING_LINK_ID,
+                createdtime=started_at + timedelta(seconds=offset),
+                currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+            )
+        )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    link = wf.get_link(TASK_PRODUCING_LINK_ID)
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    with CaptureQueriesContext(connection) as queries:
+        response = server._unit_job_groups_handler(
+            None,
+            None,
+            {"type": "SIP", "id": sip_uuid, "lang": "en"},
+        )
+
+    # Correct results and query counts cannot catch a representative subquery
+    # evaluated for every input Job. It must not become a third grouping key.
+    (aggregate_sql,) = (
+        query["sql"] for query in queries if " GROUP BY " in query["sql"]
+    )
+    group_by = aggregate_sql.rsplit(" GROUP BY ", 1)[1].split(" ORDER BY ", 1)[0]
+    assert group_by == "1, 2"
+
+    assert response == [
+        {
+            "name": link.get_label("group", "en"),
+            "jobs": [
+                {
+                    "key": (
+                        f"{TASK_PRODUCING_LINK_ID}:"
+                        f"{models.Job.STATUS_COMPLETED_SUCCESSFULLY}"
+                    ),
+                    "link_id": TASK_PRODUCING_LINK_ID,
+                    "currentstep": models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+                    "timestamp": pytest.approx(
+                        (started_at + timedelta(seconds=2)).timestamp()
+                    ),
+                    "first_timestamp": pytest.approx(started_at.timestamp()),
+                    "microservicegroup": link.get_label("group", "en"),
+                    "type": link.get_label("description", "en"),
+                    "count": 3,
+                    "uuid": str(jobs[-1].jobuuid),
+                    "produces_tasks": True,
+                }
+            ],
+        }
+    ]
+
+
+@pytest.mark.django_db
+def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(wf):
+    sip = models.SIP.objects.create(uuid=uuid.uuid4())
+    other_sip = models.SIP.objects.create(uuid=uuid.uuid4())
+    started_at = timezone.now() - timedelta(minutes=2)
+    jobs_by_status = {}
+    for offset, status in enumerate(
+        (models.Job.STATUS_COMPLETED_SUCCESSFULLY, models.Job.STATUS_FAILED)
+    ):
+        jobs_by_status[status] = models.Job.objects.create(
+            sipuuid=sip.pk,
+            unittype="unitSIP",
+            microservicechainlink=TASK_PRODUCING_LINK_ID,
+            createdtime=started_at + timedelta(seconds=offset),
+            currentstep=status,
+        )
+    for unit_id, unit_type in (
+        (other_sip.pk, "unitSIP"),
+        (sip.pk, "unitTransfer"),
+    ):
+        models.Job.objects.create(
+            sipuuid=unit_id,
+            unittype=unit_type,
+            microservicechainlink=TASK_PRODUCING_LINK_ID,
+            createdtime=started_at + timedelta(seconds=2),
+            currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+
+    response = server._unit_job_groups_handler(
+        None,
+        None,
+        {"type": "SIP", "id": str(sip.pk), "lang": "en"},
+    )
+
+    assert len(response) == 1
+    rows = response[0]["jobs"]
+    assert len(rows) == 2
+    assert {row["currentstep"]: (row["uuid"], row["count"]) for row in rows} == {
+        status: (str(job.jobuuid), 1) for status, job in jobs_by_status.items()
+    }
+
+
+@pytest.mark.django_db
+def test_unit_job_groups_handler_includes_dip_decisions(wf):
+    sip_uuid = str(uuid.uuid4())
+    sip = models.SIP.objects.create(uuid=sip_uuid)
+    waiting_job = models.Job.objects.create(
+        sipuuid=sip.pk,
+        unittype="unitDIP",
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
+        createdtime=timezone.now(),
+        currentstep=models.Job.STATUS_AWAITING_DECISION,
+    )
+    choice = mock.Mock()
+    choice.get_choices.return_value = {"approve": {"en": "Approve"}}
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {
+        str(waiting_job.jobuuid): choice
+    }
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    response = server._unit_job_groups_handler(
+        None,
+        None,
+        {"type": "SIP", "id": sip_uuid, "lang": "en"},
+    )
+
+    row = response[0]["jobs"][0]
+    assert row["uuid"] == str(waiting_job.jobuuid)
+    assert row["count"] == 1
+    assert row["choices"] == {"approve": "Approve"}
+    assert row["produces_tasks"] is True
 
 
 @pytest.mark.django_db

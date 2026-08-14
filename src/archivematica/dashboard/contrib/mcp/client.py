@@ -223,6 +223,14 @@ class MCPClient:
     def get_sips_statuses(self):
         return self._get_units_statuses(type_="SIP")
 
+    def get_units_summary(self, type_):
+        data = {"type": type_, "lang": self.lang}
+        return self._rpc_sync_call("getUnitsSummary", data)
+
+    def get_unit_job_groups(self, type_, unit_id):
+        data = {"type": type_, "id": unit_id, "lang": self.lang}
+        return self._rpc_sync_call("getUnitJobGroups", data)
+
     def get_unit_status(self, unit_id):
         data = {"id": unit_id, "lang": self.lang}
         return self._rpc_sync_call("getUnitStatus", data)
