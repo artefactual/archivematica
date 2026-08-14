@@ -89,6 +89,13 @@
         },
         "group": {
           "$ref": "#/definitions/translations"
+        },
+        "package_status": {
+          "enum": [
+            "done",
+            "failed"
+          ],
+          "type": "string"
         }
       },
       "required": [

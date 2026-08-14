@@ -3806,3 +3806,7 @@ msgstr "Visualizar microserviços"
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
 msgstr "Transferir metadados"
+
+#: MCPServer/server/rpc_server.py
+msgid "Failed before processing started"
+msgstr "Falhou antes do início do processamento"

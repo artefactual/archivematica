@@ -31,6 +31,9 @@ ASSETS_DIR = importlib.resources.files("archivematica.MCPServer") / "assets"
 
 DEFAULT_WORKFLOW = ASSETS_DIR / "workflow.json"
 
+TERMINAL_PACKAGE_STATUS_DONE = "done"
+TERMINAL_PACKAGE_STATUS_FAILED = "failed"
+
 
 def _invert_job_statuses():
     """Return an inverted dict of job statuses, i.e. indexed by labels."""
@@ -172,6 +175,20 @@ class Link(BaseLink):
     def is_terminal(self):
         """Check if the link is indicated as a terminal link."""
         return self._src.get("end", False)
+
+    @property
+    def package_status(self):
+        """Return the package status requested by a terminal workflow link.
+
+        A failure branch normally ends with a successful reporting or cleanup
+        Job. Historically, PackageQueue treated that successful terminal Job
+        as a successful package and marked the package as Done. Failure
+        terminal links can declare ``package_status: "failed"`` so the package
+        outcome reflects the earlier processing failure instead of the cleanup
+        outcome. The default remains Done for compatibility with existing and
+        custom workflows that do not declare a package status.
+        """
+        return self._src.get("package_status", TERMINAL_PACKAGE_STATUS_DONE)
 
     def get_next_link(self, code):
         """Return the next link based on the exit code.

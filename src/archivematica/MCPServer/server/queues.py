@@ -14,15 +14,14 @@ from archivematica.MCPServer.server.jobs import DecisionJob
 from archivematica.MCPServer.server.packages import DIP
 from archivematica.MCPServer.server.packages import SIP
 from archivematica.MCPServer.server.tasks import Task
+from archivematica.MCPServer.server.workflow import TERMINAL_PACKAGE_STATUS_FAILED
 
 logger = logging.getLogger("archivematica.mcp.server.queues")
 
 FAILED_PACKAGE_TERMINAL_LINK_IDS = frozenset(
     {
-        # Terminal link for the transfer-source retrieval failure branch. This
-        # path can end before the transfer reaches its normal type-specific
-        # workflow, so PackageQueue must mark it as Failed instead of applying
-        # the historical terminal-link default of Done.
+        # Preserve failure handling for custom workflows copied from releases
+        # before terminal links could declare package_status.
         "e782473a-0c10-431f-8ab6-5d7238b2b70b",
     }
 )
@@ -234,20 +233,15 @@ class PackageQueue:
     def _link_completes_as_failed(self, link):
         """Return whether a terminal link should fail the package.
 
-        PackageQueue historically marks every terminal workflow link as Done.
-        Transfer-source retrieval adds a terminal failure path that can be
-        reached before the transfer has entered its normal type-specific
-        workflow, so the package must be marked as Failed when that path ends.
-
-        Use explicit workflow link IDs here instead of inferring behavior from
-        translated group labels such as "Failed transfer". Those labels are
-        display text, not a stable machine-readable contract. Other terminal
-        links can be added to this list as narrow compatibility exceptions, but
-        if this behavior expands beyond a few explicit cases then the workflow
-        schema should declare terminal package status directly, e.g. with a
-        package-status field on terminal links.
+        Failure terminal links declare their package outcome independently of
+        the final reporting or cleanup Job outcome. Links without a declaration
+        retain the historical Done behavior through ``Link.package_status``,
+        except for the retrieval failure ID used by older custom workflows.
         """
-        return str(link.id) in FAILED_PACKAGE_TERMINAL_LINK_IDS
+        return (
+            link.package_status == TERMINAL_PACKAGE_STATUS_FAILED
+            or str(link.id) in FAILED_PACKAGE_TERMINAL_LINK_IDS
+        )
 
     def _job_completed_callback(self, job, future):
         """Schedule the next job in the chain.

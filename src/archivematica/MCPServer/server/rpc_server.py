@@ -34,6 +34,7 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models.functions import JSONObject
+from django.utils import translation
 from django.utils.translation import gettext as _
 from gearman import GearmanWorker
 from lxml import etree
@@ -42,6 +43,7 @@ from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.dashboard.main.idempotency import IdempotencyKeyConflictError
 from archivematica.dashboard.main.idempotency import IdempotencyRequestInProgressError
+from archivematica.dashboard.main.models import PACKAGE_STATUS_FAILED
 from archivematica.dashboard.main.models import PACKAGE_STATUS_PROCESSING
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import UNIT_VARIABLE_PROCESSING_CONFIGURATION
@@ -52,6 +54,7 @@ from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.packages import get_approve_transfer_chain_id
 from archivematica.MCPServer.server.processing_config import get_processing_fields
+from archivematica.MCPServer.server.workflow import TERMINAL_PACKAGE_STATUS_FAILED
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
 
@@ -504,7 +507,10 @@ class RPCServer(GearmanWorker):
             start_marker_time=Subquery(start_marker_jobs.values("createdtime")[:1]),
         )
         if type_ == "Transfer":
-            units = units.filter(Q(has_jobs=True) | Q(status=PACKAGE_STATUS_PROCESSING))
+            units = units.filter(
+                Q(has_jobs=True)
+                | Q(status__in=(PACKAGE_STATUS_PROCESSING, PACKAGE_STATUS_FAILED))
+            )
         else:
             units = units.filter(has_jobs=True)
 
@@ -545,25 +551,41 @@ class RPCServer(GearmanWorker):
             unit_id = str(unit.uuid)
             latest_job = unit.latest_job
             if latest_job is None:
-                timestamp = processing_start_times.get(unit_id, 0)
+                if unit.status == PACKAGE_STATUS_FAILED and unit.completed_at:
+                    timestamp = _datetime_to_unix_timestamp(unit.completed_at)
+                else:
+                    timestamp = processing_start_times.get(unit_id, 0)
             else:
                 timestamp = float(latest_job["timestamp"])
 
-            started_at = unit.start_marker_time or unit.oldest_job_time
-            if started_at is None:
-                started_timestamp = timestamp
+            if latest_job is None:
+                started_timestamp = processing_start_times.get(unit_id, timestamp)
             else:
-                started_timestamp = _datetime_to_unix_timestamp(started_at)
+                started_at = unit.start_marker_time or unit.oldest_job_time
+                if started_at is None:
+                    started_timestamp = timestamp
+                else:
+                    started_timestamp = _datetime_to_unix_timestamp(started_at)
 
             if latest_job is None:
                 directory = _transfer_directory_name(unit)
-                status = None
+                if unit.status == PACKAGE_STATUS_FAILED:
+                    with translation.override(lang):
+                        failure_type = _("Failed before processing started")
+                    status = {
+                        "currentstep": Job.STATUS_FAILED,
+                        "type": failure_type,
+                        "microservicegroup": "",
+                    }
+                else:
+                    status = None
             else:
                 directory_job = Job(
                     directory=latest_job["directory"],
                     sipuuid=unit.uuid,
                 )
                 directory = str(directory_job.get_directory_name())
+                terminal_package_status = None
                 try:
                     link = self.workflow.get_link(latest_job["link"])
                 except KeyError:
@@ -572,11 +594,20 @@ class RPCServer(GearmanWorker):
                 else:
                     job_type = link.get_label("description", lang)
                     group = link.get_label("group", lang)
+                    terminal_package_status = link.package_status
                 status = {
                     "currentstep": latest_job["status"],
                     "type": job_type,
                     "microservicegroup": group,
                 }
+                # Legacy packages may already be persisted as Done because a
+                # failure branch ended with a successful cleanup Job. Preserve
+                # their declared workflow outcome in monitor summaries too.
+                if (
+                    unit.status == PACKAGE_STATUS_FAILED
+                    or terminal_package_status == TERMINAL_PACKAGE_STATUS_FAILED
+                ):
+                    status["currentstep"] = Job.STATUS_FAILED
 
             item = {
                 "uuid": unit_id,
@@ -588,7 +619,11 @@ class RPCServer(GearmanWorker):
                 "has_awaiting_decision": bool(awaiting_job_uuids.get(unit_id)),
                 "awaiting_job_uuids": awaiting_job_uuids.get(unit_id, []),
             }
-            if type_ == "Transfer" and not unit.has_jobs:
+            if (
+                type_ == "Transfer"
+                and not unit.has_jobs
+                and unit.status == PACKAGE_STATUS_PROCESSING
+            ):
                 item["processing_state"] = PROCESSING_STATE_WAITING_FOR_PROCESSING
             if type_ == "SIP":
                 item["access_system_id"] = access_system_ids.get(unit_id)

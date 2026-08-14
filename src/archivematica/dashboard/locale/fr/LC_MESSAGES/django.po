@@ -3718,3 +3718,7 @@ msgstr "Afficher les microservices"
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
 msgstr "Transférer les métadonnées"
+
+#: MCPServer/server/rpc_server.py
+msgid "Failed before processing started"
+msgstr "Échec avant le début du traitement"
