@@ -3912,7 +3912,8 @@
         "no": "Overføring mislykket",
         "pt_BR": "Falha na transferência",
         "sv": "Överföring misslyckad"
-      }
+      },
+      "package_status": "failed"
     },
     "378ae4fc-7b62-40af-b448-a1ab47ac2c0c": {
       "config": {
@@ -5539,7 +5540,8 @@
         "no": "Inkluder standardoverførings processingMCP.xml",
         "pt_BR": "Incluir transferência padrão processingMCP.xml",
         "sv": "Inkludera standadard överförings processing.xml"
-      }
+      },
+      "package_status": "failed"
     },
     "61c316a6-0a50-4f65-8767-1f44b1eeb6dd": {
       "config": {
@@ -6764,7 +6766,8 @@
         "no": "SIP misslyktes",
         "pt_BR": "SIP falhou",
         "sv": "SIP misslyckades"
-      }
+      },
+      "package_status": "failed"
     },
     "82ee9ad2-2c74-4c7c-853e-e4eaf68fc8b6": {
       "config": {
@@ -7104,7 +7107,8 @@
         "no": "Samsvarskontroll av overføring mislykket",
         "pt_BR": "Falha na transferência da conformidade",
         "sv": "Överföringsföljsamhetskontroll misslyckades"
-      }
+      },
+      "package_status": "failed"
     },
     "8ba83807-2832-4e41-843c-2e55ad10ea0b": {
       "config": {
@@ -10774,7 +10778,8 @@
         "no": "Overføring mislykket",
         "pt_BR": "Falha na transferência",
         "sv": "Överföring misslyckad"
-      }
+      },
+      "package_status": "failed"
     },
     "e950cd98-574b-4e57-9ef8-c2231e1ce451": {
       "config": {
@@ -11058,7 +11063,8 @@
         "no": "Samsvarskontroll mislykket",
         "pt_BR": "Falha na conformidade",
         "sv": "Följsamhetskontroll misslyckades"
-      }
+      },
+      "package_status": "failed"
     },
     "f09847c2-ee51-429a-9478-a860477f6b8d": {
       "config": {

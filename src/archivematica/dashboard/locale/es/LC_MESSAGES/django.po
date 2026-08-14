@@ -3621,3 +3621,7 @@ msgstr ""
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
 msgstr "Metadatos de transferencia"
+
+#: MCPServer/server/rpc_server.py
+msgid "Failed before processing started"
+msgstr "Falló antes de que comenzara el procesamiento"

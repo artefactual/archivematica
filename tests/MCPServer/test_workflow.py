@@ -14,6 +14,15 @@ FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 # IDs below are durable workflow contracts shared with package bootstrap.
 RETRIEVAL_CLEANUP_LINK_ID = "e781473a-0c10-431f-8ab6-5d7238b2b70b"
 RETRIEVAL_MOVE_FAILED_LINK_ID = "e782473a-0c10-431f-8ab6-5d7238b2b70b"
+FAILED_TERMINAL_LINK_IDS = (
+    "377f8ebb-7989-4a68-9361-658079ff8138",
+    "61af079f-46a2-48ff-9b8a-0c78ba3a456d",
+    "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c",
+    "89071669-3bb6-4e03-90a3-3c8b20c7f6fe",
+    RETRIEVAL_MOVE_FAILED_LINK_ID,
+    "f025f58c-d48c-4ba1-8904-a56d2a67b42f",
+)
+SUCCESS_TERMINAL_LINK_ID = "d5a2ef60-a757-483c-a71a-ccbffe6b80da"
 
 
 @mock.patch(
@@ -107,6 +116,21 @@ def test_link_browse_methods(wf):
     assert ln.get_status_id(code="0") == workflow._STATUSES["Completed successfully"]
     assert ln.get_next_link(code="1").id == "7d728c39-395f-4892-8193-92f086c0546f"
     assert ln.get_status_id(code="1") == workflow._STATUSES["Failed"]
+
+
+@pytest.mark.parametrize("link_id", FAILED_TERMINAL_LINK_IDS)
+def test_failure_terminal_links_declare_failed_package_status(wf, link_id):
+    link = wf.get_link(link_id)
+
+    assert link.is_terminal
+    assert link.package_status == workflow.TERMINAL_PACKAGE_STATUS_FAILED
+
+
+def test_terminal_link_package_status_defaults_to_done(wf):
+    link = wf.get_link(SUCCESS_TERMINAL_LINK_ID)
+
+    assert link.is_terminal
+    assert link.package_status == workflow.TERMINAL_PACKAGE_STATUS_DONE
 
 
 def test_retrieval_failure_links_tolerate_missing_retrieval_path(wf):

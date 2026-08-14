@@ -3799,3 +3799,7 @@ msgstr "Vis mikrotjenester"
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
 msgstr "Metadata for overføring"
+
+#: MCPServer/server/rpc_server.py
+msgid "Failed before processing started"
+msgstr "Mislyktes før behandlingen startet"

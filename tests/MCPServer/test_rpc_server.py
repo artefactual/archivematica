@@ -17,6 +17,8 @@ from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 from archivematica.MCPServer.server.queues import PackageQueue
 
 TASK_PRODUCING_LINK_ID = "002716a1-ae29-4f36-98ab-0d97192669c4"
+FAILED_TRANSFER_TERMINAL_LINK_ID = "377f8ebb-7989-4a68-9361-658079ff8138"
+FAILED_SIP_TERMINAL_LINK_ID = "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c"
 
 
 def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
@@ -411,6 +413,112 @@ def test_units_summary_handler_returns_queued_transfer_without_jobs(wf):
             "processing_state": "waiting_for_processing",
         }
     ]
+
+
+@pytest.mark.django_db
+def test_units_summary_handler_returns_failed_transfer_without_jobs(wf):
+    transfer_uuid = str(uuid.uuid4())
+    processing_started_at = timezone.now() - timedelta(minutes=1)
+    completed_at = timezone.now()
+    models.Transfer.objects.create(
+        uuid=transfer_uuid,
+        currentlocation=f"%sharedPath%tmp/{transfer_uuid}/FailedTransfer",
+        status=models.PACKAGE_STATUS_FAILED,
+        completed_at=completed_at,
+    )
+    marker = models.UnitVariable.objects.create(
+        unittype="Transfer",
+        unituuid=transfer_uuid,
+        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+    )
+    models.UnitVariable.objects.filter(pk=marker.pk).update(
+        createdtime=processing_started_at
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    with mock.patch.object(
+        rpc_server,
+        "_",
+        side_effect=lambda message: (
+            f"{rpc_server.translation.get_language()}:{message}"
+        ),
+    ):
+        response = server._units_summary_handler(
+            None, None, {"type": "Transfer", "lang": "es"}
+        )
+
+    assert response == [
+        {
+            "uuid": transfer_uuid,
+            "directory": "FailedTransfer",
+            "timestamp": pytest.approx(completed_at.timestamp()),
+            "started_at": pytest.approx(processing_started_at.timestamp()),
+            "active": False,
+            "status": {
+                "currentstep": models.Job.STATUS_FAILED,
+                "type": "es:Failed before processing started",
+                "microservicegroup": "",
+            },
+            "has_awaiting_decision": False,
+            "awaiting_job_uuids": [],
+        }
+    ]
+
+
+@pytest.mark.parametrize(
+    ("unit_type", "model_class", "job_unit_type", "failure_link_id"),
+    (
+        (
+            "Transfer",
+            models.Transfer,
+            "unitTransfer",
+            FAILED_TRANSFER_TERMINAL_LINK_ID,
+        ),
+        ("SIP", models.SIP, "unitSIP", FAILED_SIP_TERMINAL_LINK_ID),
+    ),
+)
+@pytest.mark.django_db
+def test_units_summary_handler_returns_declared_failure_status(
+    wf, unit_type, model_class, job_unit_type, failure_link_id
+):
+    unit_uuid = str(uuid.uuid4())
+    unit = model_class.objects.create(
+        uuid=unit_uuid,
+        status=models.PACKAGE_STATUS_DONE,
+    )
+    latest_at = timezone.now()
+    models.Job.objects.create(
+        sipuuid=unit.pk,
+        unittype=job_unit_type,
+        directory=f"/shared/failed/{unit_uuid}/FailedPackage/",
+        microservicechainlink=failure_link_id,
+        createdtime=latest_at,
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+    )
+    package_queue = mock.MagicMock()
+    package_queue.jobs_awaiting_decisions.return_value = {}
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    link = wf.get_link(failure_link_id)
+
+    server = rpc_server.RPCServer(wf, shutdown_event, package_queue, None)
+    response = server._units_summary_handler(
+        None, None, {"type": unit_type, "lang": "en"}
+    )
+
+    assert len(response) == 1
+    assert response[0]["uuid"] == unit_uuid
+    assert response[0]["directory"] == "FailedPackage"
+    assert response[0]["timestamp"] == pytest.approx(latest_at.timestamp())
+    assert response[0]["status"] == {
+        "currentstep": models.Job.STATUS_FAILED,
+        "type": link.get_label("description", "en"),
+        "microservicegroup": link.get_label("group", "en"),
+    }
 
 
 @pytest.mark.django_db

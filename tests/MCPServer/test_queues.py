@@ -17,6 +17,7 @@ from archivematica.MCPServer.server.packages import Transfer
 from archivematica.MCPServer.server.queues import FAILED_PACKAGE_TERMINAL_LINK_IDS
 from archivematica.MCPServer.server.queues import TASK_EXCEPTION_MESSAGE
 from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.workflow import TERMINAL_PACKAGE_STATUS_FAILED
 from archivematica.MCPServer.server.workflow import Link
 
 
@@ -349,8 +350,33 @@ def test_failed_terminal_link_marks_package_failed(
         uuid=package_id,
         status=models.PACKAGE_STATUS_PROCESSING,
     )
+    workflow_link._src["end"] = True
+    workflow_link._src["package_status"] = TERMINAL_PACKAGE_STATUS_FAILED
+    transfer = Transfer(str(tmp_path), package_id)
+    test_job = MockJob(mock.Mock(), workflow_link, transfer)
+
+    package_queue.schedule_job(test_job)
+    _process_one_job(package_queue)
+    test_job.job_ran.wait(1.0)
+
+    transfer_model = models.Transfer.objects.get(pk=package_id)
+    assert transfer_model.status == models.PACKAGE_STATUS_FAILED
+    assert transfer_model.completed_at is not None
+    assert transfer.uuid not in package_queue.active_packages
+
+
+@pytest.mark.django_db(transaction=True)
+def test_legacy_failed_terminal_link_marks_package_failed(
+    package_queue, tmp_path, workflow_link
+):
+    package_id = uuid.uuid4()
+    models.Transfer.objects.create(
+        uuid=package_id,
+        status=models.PACKAGE_STATUS_PROCESSING,
+    )
     workflow_link.id = next(iter(FAILED_PACKAGE_TERMINAL_LINK_IDS))
     workflow_link._src["end"] = True
+    workflow_link._src.pop("package_status", None)
     transfer = Transfer(str(tmp_path), package_id)
     test_job = MockJob(mock.Mock(), workflow_link, transfer)
 

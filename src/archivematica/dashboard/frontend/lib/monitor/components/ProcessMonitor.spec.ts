@@ -269,6 +269,43 @@ describe('ProcessMonitor', () => {
     wrapper.unmount()
   })
 
+  it('shows a failed icon while a failed transfer is collapsed', async () => {
+    transferSummariesMock.mockResolvedValueOnce({
+      changed: true,
+      raw: '{"results":[{"uuid":"t-failed"}]}',
+      data: {
+        results: [{
+          uuid: 't-failed',
+          directory: 'Transfer-failed',
+          timestamp: 2,
+          started_at: 1,
+          status: {
+            currentstep: 4,
+            type: 'Move to the failed directory',
+            microservicegroup: 'Failure cleanup',
+          },
+          has_awaiting_decision: false,
+          awaiting_job_uuids: [],
+        }],
+      },
+    })
+
+    const wrapper = mount(ProcessMonitor, {
+      props: { unitType: 'Transfer', config: defaultConfig },
+      global: { plugins: [i18n] },
+    })
+    await flushPromises()
+
+    expect(wrapper.find('.sip').classes()).not.toContain('sip-expanded')
+    expect(getTransferJobGroups).not.toHaveBeenCalled()
+    expect(
+      wrapper.find('.sip-detail-icon-status .monitor-status-icon-cancel').exists(),
+    ).toBe(true)
+    expect(wrapper.get('.monitor-status-label').text()).toBe('Failed')
+
+    wrapper.unmount()
+  })
+
   it('fetches ingest statuses when unitType is SIP', async () => {
     ingestSummariesMock.mockResolvedValueOnce({
       objects: [{ uuid: 's-1', directory: 'SIP-1', timestamp: 1, jobs: [] }],

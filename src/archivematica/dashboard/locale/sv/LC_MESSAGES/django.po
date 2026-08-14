@@ -3762,3 +3762,7 @@ msgstr "Visa micro-servicear"
 #: templates/transfer/detail.html:48
 msgid "Transfer metadata"
 msgstr "Överföringens metadata"
+
+#: MCPServer/server/rpc_server.py
+msgid "Failed before processing started"
+msgstr "Misslyckades innan bearbetningen startade"
