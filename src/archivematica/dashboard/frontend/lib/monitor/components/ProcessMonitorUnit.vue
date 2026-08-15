@@ -98,7 +98,7 @@ const getStatusLabel = (unit: ProcessingUnit): string => {
 }
 
 const getIngestStartTime = (unit: ProcessingUnit): string => {
-  if (typeof unit.started_at === 'number') {
+  if (typeof unit.started_at === 'number' && unit.started_at > 0) {
     return formatDateTime(unit.started_at)
   }
   const jobs = Array.isArray(unit.jobs) ? unit.jobs : []

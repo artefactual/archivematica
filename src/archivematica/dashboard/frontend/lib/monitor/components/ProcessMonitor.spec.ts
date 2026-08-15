@@ -205,7 +205,7 @@ describe('ProcessMonitor', () => {
     expect(wrapper.findComponent(SilkTableEditIcon).exists()).toBe(true)
   })
 
-  it('shows a waiting icon for jobless transfers waiting to start', async () => {
+  it('shows a waiting icon without an epoch start time for jobless transfers', async () => {
     transferSummariesMock.mockResolvedValueOnce({
       changed: true,
       raw: '{"results":[{"uuid":"t-queued"}]}',
@@ -223,7 +223,6 @@ describe('ProcessMonitor', () => {
         }],
       },
     })
-    ingestSummariesMock.mockResolvedValueOnce({ objects: [], mcp: true })
 
     const wrapper = mount(ProcessMonitor, {
       props: { unitType: 'Transfer', config: defaultConfig },
@@ -245,6 +244,7 @@ describe('ProcessMonitor', () => {
       wrapper.find('.sip-detail-icon-status .monitor-status-icon-arrow-refresh').exists(),
     ).toBe(false)
     expect(wrapper.get('.monitor-status-label').text()).toBe('Waiting for processing')
+    expect(wrapper.get('.sip-detail-timestamp').text()).toBe('')
     expect(wrapper.get('.sip').classes()).not.toContain('sip-expandable')
 
     const unitExpander = wrapper.get('.sip-detail-directory')
