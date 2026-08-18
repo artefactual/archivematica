@@ -24,6 +24,7 @@
 - [Cleaning up](#cleaning-up)
 - [Percona tuning](#percona-tuning)
 - [OIDC authentication](#oidc-authentication)
+- [CAS authentication](#cas-authentication)
 - [Instrumentation](#instrumentation)
   - [Running Prometheus and Grafana](#running-prometheus-and-grafana)
   - [Percona Monitoring and Management](#percona-monitoring-and-management)
@@ -527,6 +528,80 @@ Administrative user:
 
 - Username: `admin@example.com`
 - Password: `test`
+
+## CAS authentication
+
+Use the `docker-compose.cas.yml` overlay to start an [Apereo CAS] server and
+enable the Dashboard's and Storage Service's CAS authentication settings. The
+base development environment must be installed and bootstrapped first as
+described in the [Installation](#installation) section:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.cas.yml up -d --build
+```
+
+The first build of the `cas` image takes several minutes: it downloads the
+[Apereo CAS WAR overlay] template pinned to the `CAS_OVERLAY_COMMIT` build
+argument (a commit of the overlay template's `7.3` branch that builds the CAS
+`7.3.8` stable release) and compiles it with the JSON service registry and
+JSON user store modules.
+Subsequent builds are cached. The CAS server configuration is mounted from
+`hack/etc/cas/` at runtime, so editing the properties, the registered services
+in `hack/etc/cas/services/` or the users in `hack/etc/cas/config/users.json`
+only requires restarting the `cas` service.
+
+CAS support in Archivematica uses `django-cas-ng`, whose migrations are only
+applied when CAS is enabled. If the environment was bootstrapped without the
+CAS overlay, apply the migrations once before logging in:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.cas.yml run --rm --no-deps \
+  --entrypoint /src/src/archivematica/dashboard/manage.py \
+  archivematica-dashboard migrate --noinput
+
+docker compose -f docker-compose.yml -f docker-compose.cas.yml run --rm --no-deps \
+  --entrypoint /src/src/archivematica/storage_service/manage.py \
+  archivematica-storage-service migrate --noinput
+```
+
+This overlay is intended for local testing and demonstrations only. The CAS
+login interface is available at <http://cas.localhost:62082/cas/login> and the
+following users are predefined:
+
+All users share the password `test` and are members of the CAS groups
+released through the `memberOf` attribute:
+
+| Username   | CAS groups                | Dashboard role | Storage Service role |
+| ---------- | ------------------------- | -------------- | -------------------- |
+| `demo`     | `users`                   | Regular user   | Reader               |
+| `admin`    | `administrators`, `users` | Superuser      | Administrator        |
+| `manager`  | `managers`, `users`       | Regular user   | Manager              |
+| `reviewer` | `reviewers`, `users`      | Regular user   | Reviewer             |
+
+The overlay maps the CAS groups to roles through the
+`AUTH_CAS_CHECK_ADMIN_ATTRIBUTES` and `AUTH_CAS_*_ATTRIBUTE` settings. The
+Dashboard only supports mapping to its superuser flag; the Storage Service
+also supports the manager and reviewer roles and falls back to the reader
+role when no group matches.
+
+The `cas.localhost` hostname must resolve to the local host in the browser,
+which is the standard behaviour for `*.localhost` names in modern browsers and
+Linux distributions. The overlay also sets it as a Docker network alias so the
+Dashboard and Storage Service containers can use the same CAS URL for ticket
+validation. If `cas.localhost` does not resolve on your host, add the
+following entry to `/etc/hosts`:
+
+```text
+127.0.0.1 cas.localhost
+```
+
+Visiting the Dashboard at <http://127.0.0.1:62080> redirects to the CAS login
+page. After authenticating, open the Storage Service at
+<http://127.0.0.1:62081> in the same browser session to verify CAS single
+sign-on.
+
+[Apereo CAS]: https://apereo.github.io/cas/
+[Apereo CAS WAR overlay]: https://apereo.github.io/cas/7.3.x/installation/WAR-Overlay-Installation.html
 
 ## Instrumentation
 

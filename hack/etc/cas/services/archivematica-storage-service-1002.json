@@ -1,0 +1,12 @@
+{
+  "@class": "org.apereo.cas.services.CasRegisteredService",
+  "serviceId": "^http://(localhost|127\\.0\\.0\\.1):62081/.*",
+  "name": "Archivematica Storage Service (development)",
+  "description": "Local Archivematica Storage Service qa/0.x CAS test service",
+  "id": 1002,
+  "evaluationOrder": 20,
+  "logoutType": "NONE",
+  "attributeReleasePolicy": {
+    "@class": "org.apereo.cas.services.ReturnAllAttributeReleasePolicy"
+  }
+}

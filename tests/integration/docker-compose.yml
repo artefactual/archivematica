@@ -1,6 +1,28 @@
 ---
 name: am-integration
 
+x-dashboard-environment: &dashboard-environment
+  PYTEST_ADDOPTS: ${PYTEST_ADDOPTS:-}
+  RUN_INTEGRATION_TESTS: "true"
+  DJANGO_LIVE_TEST_SERVER_ADDRESS: "archivematica-dashboard:8000"
+  DJANGO_ALLOW_ASYNC_UNSAFE: true
+  FORWARDED_ALLOW_IPS: "*"
+  AM_GUNICORN_ACCESSLOG: "/dev/null"
+  DJANGO_SETTINGS_MODULE: "archivematica.dashboard.settings.testmysql"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "elasticsearch:9200"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED: "1"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_USER: "archivematica"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_PASSWORD: "demo"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_HOST: "mysql"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE: "MCP"
+  ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE: "Lax"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
+  # /src is bind-mounted, so point Django staticfiles to the image-owned dist copy.
+  FRONTEND_DIST_DIR: "/opt/am-dashboard-dist"
+
 services:
 
   mysql:
@@ -37,24 +59,7 @@ services:
     command: ["pytest", "--browser", "firefox", "/src/tests/integration/"]
     hostname: "archivematica-dashboard"
     environment:
-      PYTEST_ADDOPTS: ${PYTEST_ADDOPTS:-}
-      RUN_INTEGRATION_TESTS: "true"
-      DJANGO_LIVE_TEST_SERVER_ADDRESS: "archivematica-dashboard:8000"
-      DJANGO_ALLOW_ASYNC_UNSAFE: true
-      FORWARDED_ALLOW_IPS: "*"
-      AM_GUNICORN_ACCESSLOG: "/dev/null"
-      DJANGO_SETTINGS_MODULE: "archivematica.dashboard.settings.testmysql"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand:4730"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "elasticsearch:9200"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED: "1"
-      ARCHIVEMATICA_DASHBOARD_CLIENT_USER: "archivematica"
-      ARCHIVEMATICA_DASHBOARD_CLIENT_PASSWORD: "demo"
-      ARCHIVEMATICA_DASHBOARD_CLIENT_HOST: "mysql"
-      ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE: "MCP"
-      ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE: "Lax"
-      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
+      <<: *dashboard-environment
       ARCHIVEMATICA_DASHBOARD_OIDC_AUTHENTICATION: "true"
       OIDC_USE_PKCE: "true"
       OIDC_PKCE_CODE_CHALLENGE_METHOD: "S256"
@@ -86,8 +91,6 @@ services:
       OIDC_ACCESS_ATTRIBUTE_MAP_SECONDARY: >
         {"given_name": "first_name", "family_name": "last_name", "realm_access": "realm_access"}
       OIDC_RP_SIGN_ALGO: "RS256"
-      # /src is bind-mounted, so point Django staticfiles to the image-owned dist copy.
-      FRONTEND_DIST_DIR: "/opt/am-dashboard-dist"
     volumes:
       - "../../:/src"
     depends_on:
@@ -96,6 +99,25 @@ services:
     links:
       - "mysql"
       - "keycloak"
+
+  archivematica-dashboard-cas:
+    image: "archivematica-dashboard-integration-tests:latest"
+    entrypoint: ""
+    working_dir: "/src"
+    command: ["pytest", "--browser", "firefox", "/src/tests/integration/test_cas_auth.py"]
+    hostname: "archivematica-dashboard"
+    environment:
+      <<: *dashboard-environment
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CAS_AUTHENTICATION: "true"
+      AUTH_CAS_SERVER_URL: "http://cas:8080/cas/"
+      AUTH_CAS_PROTOCOL_VERSION: "3"
+    volumes:
+      - "../../:/src"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      cas:
+        condition: service_healthy
 
   keycloak:
     image: "quay.io/keycloak/keycloak:26.7.1-0"
@@ -110,3 +132,28 @@ services:
       - 8080:8080
     volumes:
       - "./etc/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro"
+
+  cas:
+    image: "archivematica-cas"
+    build:
+      context: "../../hack/etc/cas"
+      args:
+        # Head of the cas-overlay-template 7.3 branch (CAS 7.3.8).
+        CAS_OVERLAY_COMMIT: "${CAS_OVERLAY_COMMIT:-b244d192d9462068fc24625a75ebe19ed6fc34cd}"
+    volumes:
+      - "./etc/cas/config:/etc/cas/config:ro"
+      - "./etc/cas/services:/etc/cas/services:ro"
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - --max-time
+        - "2"
+        - http://127.0.0.1:8080/cas/login
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s

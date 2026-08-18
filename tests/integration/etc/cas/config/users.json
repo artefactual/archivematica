@@ -1,0 +1,33 @@
+{
+  "@class": "java.util.LinkedHashMap",
+  "demo": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["demo@example.com"]],
+      "memberOf": ["java.util.List", ["users"]]
+    },
+    "status": "OK"
+  },
+  "admin": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["admin@example.com"]],
+      "memberOf": ["java.util.List", ["administrators", "users"]]
+    },
+    "status": "OK"
+  },
+  "sysadmin": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["sysadmin@example.com"]],
+      "memberOf": ["java.util.List", ["administrators"]]
+    },
+    "status": "OK"
+  }
+}

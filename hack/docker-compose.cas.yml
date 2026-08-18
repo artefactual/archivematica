@@ -1,0 +1,79 @@
+---
+services:
+  archivematica-dashboard:
+    environment:
+      # Archivematica Dashboard qa/1.x CAS switch.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CAS_AUTHENTICATION: "true"
+      AUTH_CAS_SERVER_URL: "http://cas.localhost:62082/cas/"
+      AUTH_CAS_PROTOCOL_VERSION: "3"
+
+      # Make users in the administrators CAS group superusers.
+      AUTH_CAS_CHECK_ADMIN_ATTRIBUTES: "true"
+      AUTH_CAS_ADMIN_ATTRIBUTE: "memberOf"
+      AUTH_CAS_ADMIN_ATTRIBUTE_VALUE: "administrators"
+
+      # The development environment uses HTTP.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE: "Lax"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
+    depends_on:
+      cas:
+        condition: service_healthy
+
+  archivematica-storage-service:
+    environment:
+      # Archivematica Storage Service qa/0.x CAS switch.
+      SS_CAS_AUTHENTICATION: "true"
+      AUTH_CAS_SERVER_URL: "http://cas.localhost:62082/cas/"
+      AUTH_CAS_PROTOCOL_VERSION: "3"
+
+      # Map the CAS groups to the Storage Service roles. Users that match
+      # none of the groups get the reader role.
+      AUTH_CAS_CHECK_ADMIN_ATTRIBUTES: "true"
+      AUTH_CAS_ADMIN_ATTRIBUTE: "memberOf"
+      AUTH_CAS_ADMIN_ATTRIBUTE_VALUE: "administrators"
+      AUTH_CAS_MANAGER_ATTRIBUTE: "memberOf"
+      AUTH_CAS_MANAGER_ATTRIBUTE_VALUE: "managers"
+      AUTH_CAS_REVIEWER_ATTRIBUTE: "memberOf"
+      AUTH_CAS_REVIEWER_ATTRIBUTE_VALUE: "reviewers"
+
+      # The development environment uses HTTP.
+      SESSION_COOKIE_SAMESITE: "Lax"
+      SESSION_COOKIE_SECURE: "false"
+      CSRF_COOKIE_SECURE: "false"
+    depends_on:
+      cas:
+        condition: service_healthy
+
+  cas:
+    image: "archivematica-cas"
+    build:
+      context: ./etc/cas
+      args:
+        # Head of the cas-overlay-template 7.3 branch (CAS 7.3.8).
+        CAS_OVERLAY_COMMIT: "${CAS_OVERLAY_COMMIT:-b244d192d9462068fc24625a75ebe19ed6fc34cd}"
+    volumes:
+      - "./etc/cas/config:/etc/cas/config:ro"
+      - "./etc/cas/services:/etc/cas/services:ro"
+    ports:
+      - "127.0.0.1:62082:62082"
+    networks:
+      default:
+        aliases:
+          # This makes AUTH_CAS_SERVER_URL resolvable from the AM containers.
+          # The same hostname is also used by the host browser.
+          - cas.localhost
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - --max-time
+        - "2"
+        - http://127.0.0.1:62082/cas/login
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
