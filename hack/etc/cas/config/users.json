@@ -1,0 +1,43 @@
+{
+  "@class": "java.util.LinkedHashMap",
+  "demo": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["demo@example.com"]],
+      "memberOf": ["java.util.List", ["users"]]
+    },
+    "status": "OK"
+  },
+  "admin": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["admin@example.com"]],
+      "memberOf": ["java.util.List", ["administrators", "users"]]
+    },
+    "status": "OK"
+  },
+  "manager": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["manager@example.com"]],
+      "memberOf": ["java.util.List", ["managers", "users"]]
+    },
+    "status": "OK"
+  },
+  "reviewer": {
+    "@class": "org.apereo.cas.adaptors.generic.CasUserAccount",
+    "password": "test",
+    "attributes": {
+      "@class": "java.util.LinkedHashMap",
+      "mail": ["java.util.List", ["reviewer@example.com"]],
+      "memberOf": ["java.util.List", ["reviewers", "users"]]
+    },
+    "status": "OK"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "@class": "org.apereo.cas.services.CasRegisteredService",
+  "serviceId": "^http://archivematica-dashboard:8000/.*",
+  "name": "Archivematica Dashboard (integration tests)",
+  "description": "Archivematica Dashboard live test server CAS service",
+  "id": 1001,
+  "evaluationOrder": 10,
+  "logoutType": "NONE",
+  "attributeReleasePolicy": {
+    "@class": "org.apereo.cas.services.ReturnAllAttributeReleasePolicy"
+  }
+}
