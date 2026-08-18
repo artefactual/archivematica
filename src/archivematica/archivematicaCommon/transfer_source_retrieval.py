@@ -30,13 +30,15 @@ the transfer:
   grouped ``copy_files()`` payload expected by Storage Service.
 * ``copy_transfer_source_files()`` calls Storage Service and reports copy
   failures as ``TransferSourceRetrievalError``.
-* ``move_to_internal_shared_dir()`` moves the copied transfer into an internal
-  Archivematica directory, avoiding destination collisions and returning the
-  ``%sharedPath%`` form stored in the database.
 * ``retrieve_transfer_source()`` combines the copy and move steps for clients
   that perform retrieval as one workflow task.
 * The ``TransferSource*`` dataclasses and ``Storage*`` typed dictionaries name
   the values passed between those steps.
+
+Destination validation and publication are owned by ``transfer_publication``.
+The publication names imported here preserve the historical import surface for
+existing clients while retrieval remains responsible for source planning,
+copying, and orchestration.
 
 MCPServer uses these helpers to preserve the legacy package-creation path, and
 MCPClient uses the same behavior in the API-created transfer retrieval workflow.
@@ -49,14 +51,38 @@ import os
 from collections.abc import Callable
 from collections.abc import Sequence
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Protocol
 from typing import TypeAlias
 from typing import TypedDict
 
+from archivematica.archivematicaCommon.transfer_publication import (
+    DESTINATION_REFRESH_PREFIX as DESTINATION_REFRESH_PREFIX,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    TransferSourceRetrievalError as TransferSourceRetrievalError,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    TransferSourceRetrievalResult as TransferSourceRetrievalResult,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    check_retrieved_path_exists as check_retrieved_path_exists,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    is_destination_refresh_name as is_destination_refresh_name,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    move_to_internal_shared_dir as move_to_internal_shared_dir,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    pad_destination_path_if_it_already_exists as pad_destination_path_if_it_already_exists,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    validate_destination_name,
+)
+
 # Archive selections are copied as one file; directory selections copy contents.
 ARCHIVE_EXTENSIONS = (".zip", ".tgz", ".tar.gz")
-# Path values accepted by ``Path(...)`` and ``str(...)``.
+# Path values accepted by ``str(...)`` and filesystem APIs.
 StrPath: TypeAlias = str | os.PathLike[str]
 
 
@@ -98,10 +124,6 @@ class StorageService(Protocol):
     ) -> tuple[object | None, object | None]: ...
 
 
-class TransferSourceRetrievalError(Exception):
-    """Raised when transfer-source retrieval cannot complete."""
-
-
 @dataclass(frozen=True)
 class TransferSourcePathPlan:
     """Paths needed to retrieve one transfer-source selection."""
@@ -109,14 +131,6 @@ class TransferSourcePathPlan:
     copy_destination_relative: str
     copied_path: str
     copy_source: str
-
-
-@dataclass(frozen=True)
-class TransferSourceRetrievalResult:
-    """Result of retrieving one transfer-source selection."""
-
-    final_path: str
-    current_location: str
 
 
 class LocationPath:
@@ -159,11 +173,15 @@ def plan_transfer_source_paths(
     if file_is_archive(path):
         transfer_dir = tmpdir
         source_path = LocationPath(path).path
-        copied_path = os.path.join(tmpdir, os.path.basename(source_path))
+        destination_name = os.path.basename(source_path)
+        copied_path = os.path.join(tmpdir, destination_name)
         copy_source = path
     else:
+        destination_name = name
         copy_source = os.path.join(path, ".")  # Copy contents of dir but not dir
         transfer_dir = copied_path = os.path.join(tmpdir, name)
+
+    validate_destination_name(destination_name)
 
     return TransferSourcePathPlan(
         copy_destination_relative=transfer_dir.replace(shared_directory, "", 1),
@@ -263,76 +281,6 @@ def copy_transfer_source_files(
             "The following errors occurred: %(message)s"
             % {"message": ", ".join(errors)}
         )
-
-
-def pad_destination_path_if_it_already_exists(
-    filepath: StrPath, original: StrPath | None = None, attempt: int = 0
-) -> Path:
-    """
-    Return a path that does not yet exist, padding with numbers as necessary.
-    """
-    if original is None:
-        original = filepath
-    filepath = Path(filepath)
-    original = Path(original)
-
-    attempt = attempt + 1
-    if not filepath.exists():
-        return filepath
-    if filepath.is_dir():
-        return pad_destination_path_if_it_already_exists(
-            f"{original.as_posix()}_{attempt}",
-            original,
-            attempt,
-        )
-
-    basedirectory = original.parent
-    basename = original.name
-    period_position = basename.index(".")
-    non_extension = basename[0:period_position]
-    extension = basename[period_position:]
-    new_basename = f"{non_extension}_{attempt}{extension}"
-    new_filepath = basedirectory / new_basename
-    return pad_destination_path_if_it_already_exists(new_filepath, original, attempt)
-
-
-def check_retrieved_path_exists(filepath: StrPath) -> str | None:
-    """Return a validation error for unsafe or unavailable retrieved paths."""
-    filepath = str(filepath)
-    if filepath == "":
-        return "No filepath provided."
-    if not os.path.exists(filepath):
-        return f"Filepath {filepath} does not exist."
-    if ".." in filepath:
-        return "Illegal path."
-    return None
-
-
-def move_to_internal_shared_dir(
-    filepath: StrPath, dest: StrPath, shared_directory: str
-) -> TransferSourceRetrievalResult:
-    """Move retrieved content into an internal Archivematica directory."""
-    error = check_retrieved_path_exists(filepath)
-    if error:
-        raise TransferSourceRetrievalError(error)
-
-    filepath = Path(filepath)
-    dest = Path(dest)
-    destination = pad_destination_path_if_it_already_exists(dest / filepath.name)
-
-    try:
-        filepath.rename(destination)
-    except OSError as err:
-        raise TransferSourceRetrievalError(
-            f"Error moving from {filepath} to {destination}: {err}"
-        ) from err
-
-    return TransferSourceRetrievalResult(
-        final_path=destination.as_posix(),
-        current_location=destination.as_posix().replace(
-            shared_directory, "%sharedPath%", 1
-        ),
-    )
 
 
 def retrieve_transfer_source(

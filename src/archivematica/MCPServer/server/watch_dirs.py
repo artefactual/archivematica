@@ -18,6 +18,10 @@ from django.conf import settings
 from inotify_simple import INotify
 from inotify_simple import flags
 
+from archivematica.archivematicaCommon.transfer_publication import (
+    is_destination_refresh_name,
+)
+
 IS_LINUX = sys.platform.startswith("linux")
 WATCHED_BASE_DIR = os.path.abspath(settings.WATCH_DIRECTORY)
 
@@ -43,6 +47,8 @@ def watch_directories_poll(
         for watched_dir in watched_dirs:
             path = os.path.join(WATCHED_BASE_DIR, watched_dir.path.lstrip("/"))
             for item in os.scandir(path):
+                if is_destination_refresh_name(item.name):
+                    continue
                 if watched_dir.only_dirs and not item.is_dir():
                     continue
                 elif item.path in known_paths:
@@ -91,6 +97,8 @@ def watch_directories_inotify(
 
         # If the directory already has something in it, trigger callbacks
         for item in os.scandir(path):
+            if is_destination_refresh_name(item.name):
+                continue
             if watched_dir.only_dirs and not item.is_dir():
                 continue
             logger.debug(
@@ -104,6 +112,8 @@ def watch_directories_inotify(
         events = inotify.read(timeout=interval * 1000)
         for event in events:
             path, watched_dir = watches[event.wd]
+            if is_destination_refresh_name(event.name):
+                continue
             logger.debug(
                 "Watched dir %s detected activity: %s", watched_dir.path, event.name
             )
