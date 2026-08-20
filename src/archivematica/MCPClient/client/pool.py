@@ -17,7 +17,6 @@ import logging
 import logging.handlers
 import multiprocessing
 import threading
-import time
 from multiprocessing.process import BaseProcess
 from multiprocessing.synchronize import Event
 from types import ModuleType
@@ -32,6 +31,7 @@ django.setup()
 from django import db
 from django.conf import settings
 
+from archivematica.archivematicaCommon.gearman import ShutdownEvent
 from archivematica.MCPClient.client import loader
 from archivematica.MCPClient.client import metrics
 from archivematica.MCPClient.client.gearman import MCPGearmanWorker
@@ -84,7 +84,7 @@ def run_gearman_worker(
     log_queue: LogQueue,
     metrics_queue: MetricQueue,
     client_scripts: list[str],
-    shutdown_event: Optional[Event] = None,
+    shutdown_event: Optional[ShutdownEvent] = None,
 ) -> None:
     """Target function executed by child processes in the pool."""
     # Set up logging, as we're in a new process now.
@@ -101,6 +101,12 @@ def run_gearman_worker(
     # Reject connections of the parent, this process will have its own.
     db.connections.close_all()
 
+    if shutdown_event is None:
+        # Direct callers historically omitted this argument.  Give them the
+        # same indefinite worker behavior while WorkerPool supplies its shared
+        # process event for prompt coordinated shutdown.
+        shutdown_event = threading.Event()
+
     worker = MCPGearmanWorker(
         gearman_hosts,
         client_scripts,
@@ -108,7 +114,7 @@ def run_gearman_worker(
         max_jobs_to_process=max_jobs_to_process,
     )
     logger.debug("Worker process %s starting", process_id)
-    worker.work()
+    worker.work_with_reconnect(shutdown_event, logger)
     logger.debug("Worker process %s exiting", process_id)
 
 
@@ -218,7 +224,7 @@ class WorkerPool:
         """
         while not self.shutdown_event.is_set():
             self._restart_exited_workers()
-            time.sleep(self.WORKER_RESTART_DELAY)
+            self.shutdown_event.wait(self.WORKER_RESTART_DELAY)
 
     def _restart_exited_workers(self) -> bool:
         """Restart any worker processes which have exited due to reaching

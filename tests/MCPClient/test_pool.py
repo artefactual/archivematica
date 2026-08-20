@@ -1,4 +1,5 @@
 from typing import Any
+from unittest import mock
 
 import pytest
 
@@ -69,3 +70,48 @@ def test_worker_pool_uses_forkserver_context_for_shared_primitives(
     assert fake_worker.kwargs["kwargs"] == {
         "shutdown_event": worker_pool.shutdown_event
     }
+
+
+@mock.patch("archivematica.MCPClient.client.pool.MCPGearmanWorker")
+def test_worker_process_reconnects_without_returning_to_pool(gearman_worker):
+    shutdown_event = mock.Mock()
+    log_queue = mock.Mock()
+    metrics_queue = mock.Mock()
+
+    with (
+        mock.patch.object(pool.logging, "getLogger", return_value=mock.Mock()),
+        mock.patch.object(pool.logging.handlers, "QueueHandler"),
+        mock.patch.object(pool.metrics, "configure_event_queue"),
+        mock.patch.object(pool.db.connections, "close_all"),
+        mock.patch.object(pool.settings, "GEARMAN_SERVER", "gearman.service:4730"),
+        mock.patch.object(pool.settings, "MAX_TASKS_PER_CHILD", None),
+    ):
+        pool.run_gearman_worker(
+            log_queue,
+            metrics_queue,
+            ["ability-1"],
+            shutdown_event=shutdown_event,
+        )
+
+    gearman_worker.return_value.work_with_reconnect.assert_called_once_with(
+        shutdown_event, mock.ANY
+    )
+
+
+@mock.patch("archivematica.MCPClient.client.pool.MCPGearmanWorker")
+def test_direct_worker_process_gets_a_local_shutdown_event(gearman_worker):
+    with (
+        mock.patch.object(pool.logging, "getLogger", return_value=mock.Mock()),
+        mock.patch.object(pool.logging.handlers, "QueueHandler"),
+        mock.patch.object(pool.metrics, "configure_event_queue"),
+        mock.patch.object(pool.db.connections, "close_all"),
+        mock.patch.object(pool.settings, "GEARMAN_SERVER", "gearman.service:4730"),
+        mock.patch.object(pool.settings, "MAX_TASKS_PER_CHILD", None),
+    ):
+        pool.run_gearman_worker(mock.Mock(), mock.Mock(), ["ability-1"])
+
+    shutdown_event = gearman_worker.call_args.kwargs["shutdown_event"]
+    assert shutdown_event is not None
+    gearman_worker.return_value.work_with_reconnect.assert_called_once_with(
+        shutdown_event, mock.ANY
+    )

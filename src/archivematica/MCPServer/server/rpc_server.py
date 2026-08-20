@@ -13,24 +13,22 @@ import inspect
 import logging
 import os
 import re
-import time
 from collections import OrderedDict
 from datetime import timezone as datetime_timezone
 from io import StringIO
 from socket import gethostname
 from typing import Literal
 
-import gearman
 from django.conf import settings as django_settings
 from django.db import connection
 from django.db.models import Exists
 from django.db.models import Min
 from django.db.models import OuterRef
 from django.utils.translation import gettext as _
-from gearman import GearmanWorker
 from lxml import etree
 
 from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
+from archivematica.archivematicaCommon.gearman import GearmanWorker
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.dashboard.main.idempotency import IdempotencyKeyConflictError
 from archivematica.dashboard.main.idempotency import IdempotencyRequestInProgressError
@@ -44,6 +42,7 @@ from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.packages import get_approve_transfer_chain_id
 from archivematica.MCPServer.server.processing_config import get_processing_fields
+from archivematica.MCPServer.server.tasks import invalidate_task_backends
 
 logger = logging.getLogger("archivematica.mcp.server.rpc_server")
 
@@ -654,20 +653,8 @@ def _pull_choices(job_id, lang, jobs_awaiting_for_approval):
 def start(workflow, shutdown_event, package_queue, executor):
     worker = RPCServer(workflow, shutdown_event, package_queue, executor)
     logger.debug("Started RPC server.")
-
-    fail_max_sleep = 30
-    fail_sleep_incrementor = 2
-
-    while not shutdown_event.is_set():
-        fail_sleep = 1
-        try:
-            worker.work(poll_timeout=5.0)
-        except gearman.errors.ServerUnavailable as inst:
-            logger.error(
-                "Gearman server is unavailable: %s. Retrying in %d seconds.",
-                inst.args,
-                fail_sleep,
-            )
-            time.sleep(fail_sleep)
-            if fail_sleep < fail_max_sleep:
-                fail_sleep += fail_sleep_incrementor
+    worker.work_with_reconnect(
+        shutdown_event,
+        logger,
+        on_connection_unavailable=invalidate_task_backends,
+    )

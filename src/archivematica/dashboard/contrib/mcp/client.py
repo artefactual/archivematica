@@ -20,6 +20,7 @@ import gearman
 from django.conf import settings
 from django.utils.translation import get_language
 
+from archivematica.archivematicaCommon.gearman import GearmanClient as BaseGearmanClient
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.dashboard.main.models import Job
 
@@ -87,7 +88,7 @@ class NoJobFoundError(RPCGearmanClientError):
         super().__init__(message)
 
 
-class GearmanClient(gearman.GearmanClient):
+class GearmanClient(BaseGearmanClient):
     data_encoder = JSONDataEncoder
 
 
@@ -115,14 +116,16 @@ class MCPClient:
         elif "user_id" not in data:
             data["user_id"] = self.user.id
         client = GearmanClient([self.server])
-        response = client.submit_job(
-            ability.encode(),
-            data,
-            background=False,
-            wait_until_complete=True,
-            poll_timeout=timeout,
-        )
-        client.shutdown()
+        try:
+            response = client.submit_job(
+                ability.encode(),
+                data,
+                background=False,
+                wait_until_complete=True,
+                poll_timeout=timeout,
+            )
+        finally:
+            client.shutdown()
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:
@@ -140,8 +143,10 @@ class MCPClient:
         # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
         # to be added manually here.
         data["user_id"] = self.user.id
-        gm_client.submit_job(b"approveJob", data)
-        gm_client.shutdown()
+        try:
+            gm_client.submit_job(b"approveJob", data)
+        finally:
+            gm_client.shutdown()
         return
 
     def execute_unit(self, unit_id, choice, mscl_id=None):
@@ -161,10 +166,13 @@ class MCPClient:
 
     def list(self):
         gm_client = GearmanClient([self.server])
-        completed_job_request = gm_client.submit_job(
-            b"getJobsAwaitingApproval",
-            {},
-        )
+        try:
+            completed_job_request = gm_client.submit_job(
+                b"getJobsAwaitingApproval",
+                {},
+            )
+        finally:
+            gm_client.shutdown()
         if completed_job_request.state == gearman.JOB_COMPLETE:
             return completed_job_request.result
         elif completed_job_request.state == gearman.JOB_FAILED:

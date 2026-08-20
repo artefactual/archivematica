@@ -70,7 +70,7 @@ repos:
     - "django-stubs>=6,<7"
     - django-tastypie
     - elasticsearch>=8.0.0,<9.0.0
-    - gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@b68efc868c7a494dd6a2d2e820fb098a6da9f797
+    - gearman3 @ git+https://github.com/artefactual-labs/python-gearman.git@f216d89faead4ff5f7f1d51bf767881b2a30bb47
     - inotify-simple
     - jsonfield
     - lazy-paged-sequence

@@ -1,10 +1,15 @@
 import math
+import threading
 import uuid
 from unittest import mock
 
 import gearman
 import pytest
 from django.utils import timezone
+from gearman.errors import ExceededConnectionAttempts
+from gearman.errors import ServerUnavailable
+from gearman.job import GearmanJob
+from gearman.job import GearmanJobRequest
 
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server import metrics
@@ -15,9 +20,13 @@ from archivematica.MCPServer.server.tasks import Task
 from archivematica.MCPServer.server.tasks import TaskBackend
 from archivematica.MCPServer.server.tasks.backends import backend_local
 from archivematica.MCPServer.server.tasks.backends import get_task_backend
+from archivematica.MCPServer.server.tasks.backends import invalidate_task_backends
 from archivematica.MCPServer.server.tasks.backends import reset_task_backend
 from archivematica.MCPServer.server.tasks.backends.gearman_backend import (
     GearmanTaskBatch,
+)
+from archivematica.MCPServer.server.tasks.backends.gearman_backend import (
+    MCPGearmanClient,
 )
 
 
@@ -68,6 +77,52 @@ def format_gearman_response(task_results):
         response["task_results"][task_uuid] = task_data
 
     return response
+
+
+def test_ambiguous_pre_acknowledgement_loss_is_not_replayed():
+    client = MCPGearmanClient([])
+    request = GearmanJobRequest(
+        GearmanJob(
+            connection=mock.Mock(),
+            handle=None,
+            task=b"non-idempotent-task",
+            unique=b"unique-task",
+            data={},
+        ),
+        max_attempts=1,
+    )
+    # This is python-gearman's state after it queued one submission and then
+    # lost the connection before receiving JOB_CREATED.
+    request.connection_attempts = 1
+    request.state = gearman.JOB_UNKNOWN
+
+    with pytest.raises(ExceededConnectionAttempts):
+        client.send_job_request(request)
+
+    assert request.connection_attempts == 1
+
+
+def test_post_acknowledgement_loss_is_not_replayed():
+    client = MCPGearmanClient([])
+    request = GearmanJobRequest(
+        GearmanJob(
+            connection=mock.Mock(),
+            handle=b"H:server:1",
+            task=b"non-idempotent-task",
+            unique=b"unique-task",
+            data={},
+        )
+    )
+    request.state = gearman.JOB_CREATED
+    client.poll_connections_until_stopped = mock.Mock(
+        side_effect=ServerUnavailable("connection lost")
+    )
+    client.send_job_request = mock.Mock()
+
+    with pytest.raises(ServerUnavailable):
+        client.wait_until_jobs_completed([request])
+
+    client.send_job_request.assert_not_called()
 
 
 @mock.patch(
@@ -359,6 +414,41 @@ def test_reset_task_backend_replaces_the_thread_local_backend():
     finally:
         if hasattr(backend_local, "task_backend"):
             del backend_local.task_backend
+
+
+def test_invalidation_replaces_backends_owned_by_all_executor_threads():
+    ready = threading.Barrier(3)
+    invalidated = threading.Barrier(3)
+    results = []
+
+    def use_backend_across_invalidation():
+        first = get_task_backend()
+        ready.wait()
+        invalidated.wait()
+        second = get_task_backend()
+        results.append((first, second))
+
+    with mock.patch(
+        "archivematica.MCPServer.server.tasks.backends.GearmanTaskBackend",
+        side_effect=lambda: mock.Mock(spec=TaskBackend),
+    ):
+        threads = [
+            threading.Thread(target=use_backend_across_invalidation) for _ in range(2)
+        ]
+        for thread in threads:
+            thread.start()
+
+        ready.wait()
+        invalidate_task_backends()
+        invalidated.wait()
+
+        for thread in threads:
+            thread.join(timeout=1)
+
+    assert len(results) == 2
+    for first, second in results:
+        assert first is not second
+        first.shutdown.assert_called_once_with()
 
 
 def test_reset_task_backend_forgets_backend_when_shutdown_fails():

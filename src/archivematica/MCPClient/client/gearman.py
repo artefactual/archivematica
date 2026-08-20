@@ -2,7 +2,6 @@ import functools
 import logging
 import multiprocessing
 from datetime import datetime
-from multiprocessing.synchronize import Event
 from types import TracebackType
 from typing import Optional
 from typing import Union
@@ -12,6 +11,8 @@ from django.conf import settings
 from gearman.job import GearmanJob
 
 from archivematica.archivematicaCommon.archivematicaFunctions import escape
+from archivematica.archivematicaCommon.gearman import GearmanWorker
+from archivematica.archivematicaCommon.gearman import ShutdownEvent
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.MCPClient.client import metrics
 from archivematica.MCPClient.client.job import Job
@@ -52,14 +53,14 @@ JobResults = dict[str, JobData]
 logger = logging.getLogger("archivematica.mcp.client.gearman")
 
 
-class MCPGearmanWorker(gearman.GearmanWorker):
+class MCPGearmanWorker(GearmanWorker):
     data_encoder = JSONDataEncoder
 
     def __init__(
         self,
         hosts: list[str],
         client_scripts: list[str],
-        shutdown_event: Optional[Event] = None,
+        shutdown_event: Optional[ShutdownEvent] = None,
         max_jobs_to_process: Optional[int] = None,
     ) -> None:
         super().__init__(hosts)

@@ -123,7 +123,7 @@ requires-dist = [
     { name = "django-stubs-ext" },
     { name = "django-tastypie" },
     { name = "elasticsearch", specifier = ">=8.0.0,<9.0.0" },
-    { name = "gearman3", git = "https://github.com/artefactual-labs/python-gearman.git?rev=b68efc868c7a494dd6a2d2e820fb098a6da9f797" },
+    { name = "gearman3", git = "https://github.com/artefactual-labs/python-gearman.git?rev=f216d89faead4ff5f7f1d51bf767881b2a30bb47" },
     { name = "gevent" },
     { name = "gunicorn" },
     { name = "inotify-simple" },
@@ -1064,7 +1064,7 @@ wheels = [
 [[package]]
 name = "gearman3"
 version = "0.2.1"
-source = { git = "https://github.com/artefactual-labs/python-gearman.git?rev=b68efc868c7a494dd6a2d2e820fb098a6da9f797#b68efc868c7a494dd6a2d2e820fb098a6da9f797" }
+source = { git = "https://github.com/artefactual-labs/python-gearman.git?rev=f216d89faead4ff5f7f1d51bf767881b2a30bb47#f216d89faead4ff5f7f1d51bf767881b2a30bb47" }
 
 [[package]]
 name = "gevent"

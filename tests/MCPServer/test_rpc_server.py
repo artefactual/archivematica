@@ -17,6 +17,19 @@ from archivematica.MCPServer.server.queues import PackageQueue
 TASK_PRODUCING_LINK_ID = "002716a1-ae29-4f36-98ab-0d97192669c4"
 
 
+@mock.patch("archivematica.MCPServer.server.rpc_server.RPCServer")
+def test_start_runs_rpc_worker_with_in_process_reconnection(rpc_server_class, wf):
+    shutdown_event = threading.Event()
+
+    rpc_server.start(wf, shutdown_event, mock.Mock(), mock.Mock())
+
+    rpc_server_class.return_value.work_with_reconnect.assert_called_once_with(
+        shutdown_event,
+        rpc_server.logger,
+        on_connection_unavailable=rpc_server.invalidate_task_backends,
+    )
+
+
 def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
     value = datetime(
         2026,

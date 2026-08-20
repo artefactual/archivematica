@@ -8,11 +8,11 @@ import logging
 import uuid
 
 from django.conf import settings
-from gearman import GearmanClient
 from gearman.constants import JOB_COMPLETE
 from gearman.constants import JOB_FAILED
 from gearman.constants import JOB_UNKNOWN
 
+from archivematica.archivematicaCommon.gearman import GearmanClient
 from archivematica.archivematicaCommon.gearman_encoder import JSONDataEncoder
 from archivematica.MCPServer.server import metrics
 from archivematica.MCPServer.server.tasks.backends.base import TaskBackend
@@ -70,7 +70,11 @@ class GearmanTaskBackend(TaskBackend):
     # Setting this too large will use more memory; setting it too small will hurt
     # throughput.  So the trick is to set it juuuust right.
     TASK_BATCH_SIZE = settings.BATCH_SIZE
-    MAX_RETRIES = 5
+    # python-gearman cannot distinguish a connection loss before gearmand
+    # accepted a submission from a loss after acceptance but before the
+    # JOB_CREATED response arrived.  Retrying either case can execute
+    # non-idempotent client scripts twice.
+    MAX_RETRIES = 0
 
     def __init__(self):
         self.client = MCPGearmanClient([settings.GEARMAN_SERVER])
