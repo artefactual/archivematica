@@ -10,6 +10,7 @@ django.setup()
 from bagit import Bag
 from bagit import BagError
 from django.conf import settings as mcpclient_settings
+from django.db import close_old_connections
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
@@ -46,13 +47,14 @@ def write_premis_event(
 ):
     """Write the AIP-level "fixity check" PREMIS event."""
     try:
-        databaseFunctions.insertIntoEvents(
-            fileUUID=sip_uuid,
-            eventType="fixity check",
-            eventDetail=f'program="python, bag"; module="hashlib.{checksum_type}()"',
-            eventOutcome=event_outcome,
-            eventOutcomeDetailNote=event_outcome_detail_note,
-        )
+        with transactions.atomic():
+            databaseFunctions.insertIntoEvents(
+                fileUUID=sip_uuid,
+                eventType="fixity check",
+                eventDetail=f'program="python, bag"; module="hashlib.{checksum_type}()"',
+                eventOutcome=event_outcome,
+                eventOutcomeDetailNote=event_outcome_detail_note,
+            )
     except Exception as err:
         job.pyprint(f"Failed to write PREMIS event to database. Error: {err}")
     else:
@@ -198,6 +200,7 @@ def verify_aip(job):
         except Exception as err:
             job.print_error(repr(err))
             job.pyprint(f'Error extracting AIP at "{aip_path}"', file=sys.stderr)
+            close_old_connections()
             return 1
 
     return_code = 0
@@ -209,6 +212,8 @@ def verify_aip(job):
     except BagError as err:
         job.print_error(f"Error validating BagIt package: {err}")
         return_code = 1
+    finally:
+        close_old_connections()
 
     if return_code == 0:
         try:
@@ -234,7 +239,6 @@ def verify_aip(job):
 
 
 def call(jobs):
-    with transactions.atomic():
-        for job in jobs:
-            with job.JobContext():
-                job.set_status(verify_aip(job))
+    for job in jobs:
+        with job.JobContext():
+            job.set_status(verify_aip(job))
