@@ -17,6 +17,7 @@ django.setup()
 
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import close_old_connections
 from lxml import etree
 
 from archivematica.archivematicaCommon.databaseFunctions import (
@@ -28,7 +29,6 @@ from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRu
 from archivematica.dashboard.fpr.models import FormatVersion
 from archivematica.dashboard.fpr.models import FPRule
 from archivematica.dashboard.main.models import FPCommandOutput
-from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
@@ -80,12 +80,15 @@ def main(job: Job, file_uuid: uuid.UUID, sip_uuid: uuid.UUID) -> int:
             args = rd.to_gnu_options()
             command_to_execute = rule.command.command
 
-        exitstatus, stdout, stderr = executeOrRun(
-            rule.command.script_type,
-            command_to_execute,
-            arguments=args,
-            capture_output=True,
-        )
+        try:
+            exitstatus, stdout, stderr = executeOrRun(
+                rule.command.script_type,
+                command_to_execute,
+                arguments=args,
+                capture_output=True,
+            )
+        finally:
+            close_old_connections()
 
         job.write_output(stdout)
         job.write_error(stderr)
@@ -144,8 +147,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> CharacterizeFileArg
 def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
-    with transactions.atomic():
-        for job in jobs:
-            with job.JobContext():
-                args = parse_args(parser, job)
-                job.set_status(main(job, args.file_uuid, args.sip_uuid))
+    for job in jobs:
+        with job.JobContext():
+            args = parse_args(parser, job)
+            job.set_status(main(job, args.file_uuid, args.sip_uuid))
