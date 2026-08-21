@@ -30,6 +30,7 @@ django.setup()
 
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
+from django.db import close_old_connections
 from django.db.models import QuerySet
 
 from archivematica.archivematicaCommon import databaseFunctions
@@ -199,12 +200,15 @@ class Validator:
             command_to_execute = rule.command.command
             args = [self.file_path]
         self.job.print_output("Running", rule.command.description)
-        exitstatus, stdout, stderr = executeOrRun(
-            type=rule.command.script_type,
-            text=command_to_execute,
-            printing=False,
-            arguments=args,
-        )
+        try:
+            exitstatus, stdout, stderr = executeOrRun(
+                type=rule.command.script_type,
+                text=command_to_execute,
+                printing=False,
+                arguments=args,
+            )
+        finally:
+            close_old_connections()
         if exitstatus != 0:
             self.job.print_error(
                 f"Command {rule.command.description} failed with exit status {exitstatus};"
@@ -243,13 +247,14 @@ class Validator:
         self.job.print_output(
             f"Creating {self.purpose} event for {self.file_path} ({self.file_uuid})"
         )
-        databaseFunctions.insertIntoEvents(
-            fileUUID=self.file_uuid,
-            eventType="validation",  # From PREMIS controlled vocab.
-            eventDetail=event_detail,
-            eventOutcome=validation_result.event_outcome_information,
-            eventOutcomeDetailNote=validation_result.event_outcome_detail_note,
-        )
+        with transactions.atomic():
+            databaseFunctions.insertIntoEvents(
+                fileUUID=self.file_uuid,
+                eventType="validation",  # From PREMIS controlled vocab.
+                eventDetail=event_detail,
+                eventOutcome=validation_result.event_outcome_information,
+                eventOutcomeDetailNote=validation_result.event_outcome_detail_note,
+            )
         return result
 
     def _save_stdout_to_logs_dir(self, stdout: Optional[str]) -> None:
@@ -383,14 +388,13 @@ def _get_file_type(argv: list[str]) -> str:
 
 
 def call(jobs: list[Job]) -> None:
-    with transactions.atomic():
-        for job in jobs:
-            with job.JobContext(logger=logger):
-                file_path = job.args[1]
-                file_uuid = job.args[2]
-                sip_uuid = job.args[3]
-                shared_path = _get_shared_path(job.args)
-                file_type = _get_file_type(job.args)
-                job.set_status(
-                    main(job, file_path, file_uuid, sip_uuid, shared_path, file_type)
-                )
+    for job in jobs:
+        with job.JobContext(logger=logger):
+            file_path = job.args[1]
+            file_uuid = job.args[2]
+            sip_uuid = job.args[3]
+            shared_path = _get_shared_path(job.args)
+            file_type = _get_file_type(job.args)
+            job.set_status(
+                main(job, file_path, file_uuid, sip_uuid, shared_path, file_type)
+            )
