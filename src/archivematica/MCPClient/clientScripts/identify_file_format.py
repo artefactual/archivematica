@@ -10,6 +10,7 @@ import django
 
 django.setup()
 
+from django.db import close_old_connections
 from django.utils import timezone
 
 from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
@@ -175,13 +176,16 @@ def main(
     # chain.
     _save_id_preference(file_, enabled_bool)
 
-    exitcode, output, err = executeOrRun(
-        command.script_type,
-        command.script,
-        arguments=[file_path],
-        printing=False,
-        capture_output=True,
-    )
+    try:
+        exitcode, output, err = executeOrRun(
+            command.script_type,
+            command.script,
+            arguments=[file_path],
+            printing=False,
+            capture_output=True,
+        )
+    finally:
+        close_old_connections()
     output = output.strip()
 
     if exitcode != 0:
@@ -190,41 +194,43 @@ def main(
         return ERROR
 
     job.print_output("Command output:", output)
-    # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
-    # go straight to the FormatVersion table to see if there's a matching PUID
-    try:
-        if command.config == "PUID":
-            format_version = FormatVersion.active.get(pronom_id=output)
-        else:
-            rule = IDRule.active.get(command_output=output, command=command)
-            format_version = rule.format
-    except IDRule.DoesNotExist:
-        job.print_error(
-            f'Error: No FPR identification rule for tool output "{output}" found'
-        )
-        write_identification_event(file_uuid, command, success=False)
-        return ERROR
-    except IDRule.MultipleObjectsReturned:
-        job.print_error(
-            f'Error: Multiple FPR identification rules for tool output "{output}" found'
-        )
-        write_identification_event(file_uuid, command, success=False)
-        return ERROR
-    except FormatVersion.DoesNotExist:
-        job.print_error(f"Error: No FPR format record found for PUID {output}")
-        write_identification_event(file_uuid, command, success=False)
-        return ERROR
+    with transactions.atomic():
+        # PUIDs are the same regardless of tool, so PUID-producing tools don't
+        # have "rules" per se - we go straight to the FormatVersion table to
+        # see if there's a matching PUID.
+        try:
+            if command.config == "PUID":
+                format_version = FormatVersion.active.get(pronom_id=output)
+            else:
+                rule = IDRule.active.get(command_output=output, command=command)
+                format_version = rule.format
+        except IDRule.DoesNotExist:
+            job.print_error(
+                f'Error: No FPR identification rule for tool output "{output}" found'
+            )
+            write_identification_event(file_uuid, command, success=False)
+            return ERROR
+        except IDRule.MultipleObjectsReturned:
+            job.print_error(
+                f'Error: Multiple FPR identification rules for tool output "{output}" found'
+            )
+            write_identification_event(file_uuid, command, success=False)
+            return ERROR
+        except FormatVersion.DoesNotExist:
+            job.print_error(f"Error: No FPR format record found for PUID {output}")
+            write_identification_event(file_uuid, command, success=False)
+            return ERROR
 
-    (ffv, created) = FileFormatVersion.objects.get_or_create(
-        file_uuid=file_, defaults={"format_version": format_version}
-    )
-    if not created:  # Update the version if it wasn't created new
-        ffv.format_version = format_version
-        ffv.save()
-    job.print_output(f"{file_path} identified as a {format_version.description}")
+        (ffv, created) = FileFormatVersion.objects.get_or_create(
+            file_uuid=file_, defaults={"format_version": format_version}
+        )
+        if not created:  # Update the version if it wasn't created new
+            ffv.format_version = format_version
+            ffv.save()
+        job.print_output(f"{file_path} identified as a {format_version.description}")
 
-    write_identification_event(file_uuid, command, format=format_version.pronom_id)
-    write_file_id(file_uuid=file_uuid, format=format_version, output=output)
+        write_identification_event(file_uuid, command, format=format_version.pronom_id)
+        write_file_id(file_uuid=file_uuid, format=format_version, output=output)
 
     return SUCCESS
 
@@ -258,16 +264,15 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> IdentifyFileFormatA
 def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
-    with transactions.atomic():
-        for job in jobs:
-            with job.JobContext():
-                args = parse_args(parser, job)
-                job.set_status(
-                    main(
-                        job,
-                        args.idcommand,
-                        args.file_path,
-                        args.file_uuid,
-                        args.disable_reidentify,
-                    )
+    for job in jobs:
+        with job.JobContext():
+            args = parse_args(parser, job)
+            job.set_status(
+                main(
+                    job,
+                    args.idcommand,
+                    args.file_path,
+                    args.file_uuid,
+                    args.disable_reidentify,
                 )
+            )
