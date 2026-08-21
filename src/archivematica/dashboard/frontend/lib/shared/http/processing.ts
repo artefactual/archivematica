@@ -4,8 +4,8 @@ export const PROCESSING_UNIT_STATE = {
   waitingForProcessing: 'waiting_for_processing',
 } as const
 
-export type ProcessingUnitState =
-  typeof PROCESSING_UNIT_STATE[keyof typeof PROCESSING_UNIT_STATE]
+export type ProcessingUnitState
+  = typeof PROCESSING_UNIT_STATE[keyof typeof PROCESSING_UNIT_STATE]
 
 export type ProcessingJob = {
   uuid: string
