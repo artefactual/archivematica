@@ -43,7 +43,8 @@ import argparse
 from functools import wraps
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -138,7 +139,7 @@ def call(jobs):
         "file_uuid", type=str, help="The UUID of the file to bind a PID for."
     )
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

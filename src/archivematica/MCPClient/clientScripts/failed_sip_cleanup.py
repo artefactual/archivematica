@@ -2,7 +2,8 @@
 import argparse
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -30,7 +31,7 @@ def call(jobs):
     parser.add_argument("fail_type", help=f'"{REJECTED}" or "{FAILED}"')
     parser.add_argument("sip_uuid", help="%%SIPUUID%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parser.parse_args(job.args[1:])

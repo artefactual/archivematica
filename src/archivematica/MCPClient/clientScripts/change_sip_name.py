@@ -21,15 +21,14 @@ import sys
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.clientScripts.change_names import change_path
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 # job.args[3] (date) is unused.

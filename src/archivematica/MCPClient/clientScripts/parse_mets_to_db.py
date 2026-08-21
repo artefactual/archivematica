@@ -5,8 +5,9 @@ import os
 import uuid
 
 import django
-from django.db import transaction
 from lxml import etree
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -559,7 +560,7 @@ def call(jobs):
     parser.add_argument("sip_uuid", help="%%SIPUUID%%")
     parser.add_argument("sip_path", help="%%SIPDirectory%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 job.pyprint("METS Reader")

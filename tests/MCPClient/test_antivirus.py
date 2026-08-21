@@ -254,6 +254,10 @@ def test_get_size_uses_filesystem_for_file_missing_from_batch(
     path_getsize.assert_called_once_with("/path")
 
 
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.antivirus.transactions.atomic",
+    return_value=nullcontext(),
+)
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.insert_events")
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.load_file_data")
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
@@ -261,6 +265,7 @@ def test_call_reuses_scanner_and_batch_data(
     create_scanner: mock.Mock,
     load_file_data: mock.Mock,
     insert_events: mock.Mock,
+    atomic: mock.Mock,
     settings: pytest_django.Settings,
 ) -> None:
     file_uuids = [str(uuid.uuid4()), str(uuid.uuid4())]
@@ -290,9 +295,35 @@ def test_call_reuses_scanner_and_batch_data(
     assert scanner.scan.mock_calls == [mock.call(path) for path in paths]
     for job in jobs:
         job.set_status.assert_called_once_with(0)
+    atomic.assert_called_once_with()
     (event_queue,) = insert_events.call_args.args
     assert len(event_queue) == 2
     assert [event.file_uuid for event in event_queue] == file_uuids
+
+
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.transactions.atomic")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.insert_events")
+@mock.patch("archivematica.MCPClient.clientScripts.antivirus.load_file_data")
+def test_call_instruments_event_transaction(
+    load_file_data: mock.Mock,
+    insert_events: mock.Mock,
+    atomic: mock.Mock,
+) -> None:
+    load_file_data.return_value = AntivirusBatchData(
+        file_sizes={}, scanned_file_uuids=set()
+    )
+    calls = mock.Mock()
+    calls.attach_mock(atomic, "atomic")
+    calls.attach_mock(insert_events, "insert_events")
+
+    antivirus_call([])
+
+    assert calls.mock_calls == [
+        mock.call.atomic(),
+        mock.call.atomic().__enter__(),
+        mock.call.insert_events([]),
+        mock.call.atomic().__exit__(None, None, None),
+    ]
 
 
 @pytest.fixture

@@ -18,10 +18,10 @@
 import os
 
 import django
-from django.db import transaction
 from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -63,7 +63,7 @@ def identify_dspace_files(
 
 
 def call(jobs: list[Job]) -> None:
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 mets_file = job.args[1]

@@ -24,7 +24,6 @@ import django
 
 django.setup()
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from metsrw.plugins import premisrw
 
 from archivematica.archivematicaCommon import storageService as storage_service
@@ -35,6 +34,7 @@ from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import UnitVariable
 from archivematica.MCPClient.client import metrics
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.storeAIP")
 
@@ -310,7 +310,7 @@ def call(jobs):
     parser.add_argument("sip_name", type=str, help="%%SIPName%%")
     parser.add_argument("sip_type", type=str, help="%%SIPType%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

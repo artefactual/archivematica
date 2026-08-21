@@ -23,7 +23,6 @@ import django
 
 django.setup()
 from django.core.exceptions import ValidationError
-from django.db import transaction
 
 from archivematica.archivematicaCommon import bag
 from archivematica.archivematicaCommon.archivematicaFunctions import OPTIONAL_FILES
@@ -39,6 +38,7 @@ from archivematica.archivematicaCommon.archivematicaFunctions import (
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.restructureForCompliance")
 
@@ -139,7 +139,7 @@ def restructure_transfer_aip(job, unit_path):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 try:

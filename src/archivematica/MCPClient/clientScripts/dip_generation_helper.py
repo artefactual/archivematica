@@ -12,7 +12,7 @@ from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main import models
 
 django.setup()
-from django.db import transaction
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.moveTransfer")
 
@@ -136,7 +136,7 @@ def call(jobs):
     parser.add_argument("--sipUUID", required=True, help="%%SIPUUID%%")
     parser.add_argument("--sipPath", required=True, help="%%SIPDirectory%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

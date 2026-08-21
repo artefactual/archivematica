@@ -14,7 +14,8 @@ from archivematica.dashboard.main.models import File
 
 django.setup()
 from django.core.exceptions import ValidationError
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -296,7 +297,7 @@ def call(jobs):
 
     parser = get_parser(RESTRICTIONS_CHOICES, EAD_ACTUATE_CHOICES, EAD_SHOW_CHOICES)
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

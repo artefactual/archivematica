@@ -10,13 +10,13 @@ django.setup()
 from bagit import Bag
 from bagit import BagError
 from django.conf import settings as mcpclient_settings
-from django.db import transaction
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon.archivematicaFunctions import get_setting
 from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 
 
 class VerifyChecksumsError(Exception):
@@ -234,7 +234,7 @@ def verify_aip(job):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 job.set_status(verify_aip(job))

@@ -6,9 +6,10 @@ import uuid
 from datetime import datetime
 
 import django
-from django.db import transaction
 from lxml import etree
 from lxml.builder import ElementMaker
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -165,7 +166,7 @@ def call(jobs):
     parser.add_argument("aic_uuid", action="store", type=str, help="%%SIPUUID%%")
     parser.add_argument("aic_dir", action="store", type=str, help="%%SIPDirectory%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parser.parse_args(job.args[1:])

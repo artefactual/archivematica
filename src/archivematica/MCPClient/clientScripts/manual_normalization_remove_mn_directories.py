@@ -22,10 +22,9 @@ import django
 
 django.setup()
 
-from django.db import transaction
-
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 
 
 def recursivelyRemoveEmptyDirectories(job, dir):
@@ -44,7 +43,7 @@ def recursivelyRemoveEmptyDirectories(job, dir):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 SIPDirectory = job.args[1]

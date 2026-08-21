@@ -23,15 +23,14 @@ import django
 from lxml import etree as etree
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon.archivematicaFunctions import get_file_checksum
 from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
+from archivematica.MCPClient.client import transactions
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 # job.args[2] (transferName) is unused.

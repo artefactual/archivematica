@@ -17,7 +17,8 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 # fileOperations requires Django to be set up
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -25,7 +26,7 @@ from archivematica.archivematicaCommon.fileOperations import updateFileGrpUse
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 fileUUID = job.args[1]

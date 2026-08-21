@@ -19,13 +19,12 @@ import django
 
 django.setup()
 
-from django.db import transaction
-
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 metsFileUUID = job.args[1]

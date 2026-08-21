@@ -10,7 +10,6 @@ import django
 
 django.setup()
 
-from django.db import transaction
 from django.utils import timezone
 
 from archivematica.archivematicaCommon.databaseFunctions import insertIntoEvents
@@ -22,6 +21,7 @@ from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FileFormatVersion
 from archivematica.dashboard.main.models import FileID
 from archivematica.dashboard.main.models import UnitVariable
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 
 SUCCESS = 0
@@ -258,7 +258,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> IdentifyFileFormatA
 def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parse_args(parser, job)

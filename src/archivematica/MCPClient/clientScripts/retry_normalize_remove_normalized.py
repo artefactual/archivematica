@@ -25,12 +25,12 @@ import django
 
 django.setup()
 
-from django.db import transaction
 from django.utils import timezone
 
 from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 
 
 def removeDIP(job, SIPDirectory, SIPUUID):
@@ -119,7 +119,7 @@ def call(jobs):
         "-a", "--access", action="store_true", dest="access", default=False
     )
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 (opts, args) = parser.parse_args(job.args[1:])

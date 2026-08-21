@@ -5,7 +5,8 @@ import sys
 
 import django
 from django.db import close_old_connections
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -156,7 +157,7 @@ def call(jobs):
     # compression processes.
     close_old_connections()
 
-    with transaction.atomic():
+    with transactions.atomic():
         for result in state:
             update_unit(result["sip_uuid"], result["location"])
             if "file" in result:

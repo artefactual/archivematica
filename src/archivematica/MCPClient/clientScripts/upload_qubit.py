@@ -33,9 +33,9 @@ django.setup()
 
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
-from django.db import transaction
 
 import archivematica.dashboard.main.models as models
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.upload.qubit")
 
@@ -309,7 +309,7 @@ def call(jobs):
     )
     parser.add_option_group(options)
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 (opts, args) = parser.parse_args(job.args[1:])

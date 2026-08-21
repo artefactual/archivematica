@@ -19,17 +19,16 @@ import django
 
 django.setup()
 
-from django.db import transaction
-
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.client import metrics
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.setTransferType")
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 transferUUID = job.args[1]

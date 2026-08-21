@@ -17,7 +17,6 @@ django.setup()
 
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from lxml import etree
 
 from archivematica.archivematicaCommon.databaseFunctions import (
@@ -29,6 +28,7 @@ from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRu
 from archivematica.dashboard.fpr.models import FormatVersion
 from archivematica.dashboard.fpr.models import FPRule
 from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
@@ -144,7 +144,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> CharacterizeFileArg
 def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parse_args(parser, job)

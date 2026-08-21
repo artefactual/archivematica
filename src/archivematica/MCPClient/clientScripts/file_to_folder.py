@@ -5,9 +5,8 @@ import sys
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 
 
 def main(job, transfer_path, transfer_uuid, shared_path):
@@ -53,7 +52,7 @@ def main(job, transfer_path, transfer_uuid, shared_path):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 transfer_path = job.args[1]

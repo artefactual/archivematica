@@ -25,7 +25,6 @@ import django
 django.setup()
 
 from django.core.exceptions import ValidationError
-from django.db import transaction
 
 from archivematica.archivematicaCommon import archivematicaFunctions
 from archivematica.dashboard.main.models import SIP
@@ -34,10 +33,11 @@ from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Transfer
 from archivematica.dashboard.main.models import UnitVariable
+from archivematica.MCPClient.client import transactions
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 objectsDirectory = job.args[1]
