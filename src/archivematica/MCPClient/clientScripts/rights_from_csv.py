@@ -33,7 +33,10 @@ class RightsRowException(Exception):
 
 
 class RightCsvReader:
-    metadata_applies_to_type = None
+    TRANSFER_TARGET = "objects/"
+
+    file_metadata_applies_to_type = None
+    transfer_metadata_applies_to_type = None
     current_row = None
     rows_processed = 0
 
@@ -71,10 +74,13 @@ class RightCsvReader:
 
     def parse(self):
         """Read and parse rights CSV file."""
-        # Cache metadata applies to type
-        self.metadata_applies_to_type = models.MetadataAppliesToType.objects.filter(
-            description="File"
-        ).first()
+        # Cache metadata applies to types
+        self.file_metadata_applies_to_type = (
+            models.MetadataAppliesToType.objects.filter(description="File").first()
+        )
+        self.transfer_metadata_applies_to_type = (
+            models.MetadataAppliesToType.objects.filter(description="Transfer").first()
+        )
 
         # Use universal newline mode to support unusual newlines, like \r
         with open(self.rights_csv_filepath) as f:
@@ -162,17 +168,23 @@ class RightCsvReader:
         if basis not in dict(models.RightsStatement.RIGHTS_BASIS_CHOICES):
             raise RightsRowException(f"Invalid basis: {basis}", self)
 
-        # Get file data
         filepath = self.column_value("file")
-        transfer_file = models.File.objects.get(
-            originallocation=("%transferDirectory%" + filepath).encode(),
-            transfer_id=self.transfer_uuid,
-        )
+
+        if filepath == self.TRANSFER_TARGET:
+            metadata_applies_to_type = self.transfer_metadata_applies_to_type
+            metadata_applies_to_identifier = self.transfer_uuid
+        else:
+            transfer_file = models.File.objects.get(
+                originallocation=("%transferDirectory%" + filepath).encode(),
+                transfer_id=self.transfer_uuid,
+            )
+            metadata_applies_to_type = self.file_metadata_applies_to_type
+            metadata_applies_to_identifier = transfer_file.uuid
 
         # Create rights statement
         rights_statement = models.RightsStatement()
-        rights_statement.metadataappliestotype = self.metadata_applies_to_type
-        rights_statement.metadataappliestoidentifier = transfer_file.uuid
+        rights_statement.metadataappliestotype = metadata_applies_to_type
+        rights_statement.metadataappliestoidentifier = metadata_applies_to_identifier
         rights_statement.rightsbasis = basis
         rights_statement.status = "ORIGINAL"
         rights_statement.save()

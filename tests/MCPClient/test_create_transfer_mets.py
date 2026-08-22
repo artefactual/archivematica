@@ -161,12 +161,9 @@ def fpcommand_output(db, fprule_characterization, file_obj):
 
 
 @pytest.fixture()
-def basic_rights_statement(db, file_obj):
-    MetadataAppliesToType.objects.get_or_create(
-        pk="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17", description="File"
-    )
+def basic_rights_statement(db, file_obj, metadata_applies_to_types):
     rights = RightsStatement.objects.create(
-        metadataappliestotype_id="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17",
+        metadataappliestotype=metadata_applies_to_types["file"],
         metadataappliestoidentifier=file_obj.uuid,
         rightsstatementidentifiertype="UUID",
         rightsstatementidentifiervalue=str(uuid.uuid4()),
@@ -177,6 +174,20 @@ def basic_rights_statement(db, file_obj):
     rights_granted.restrictions.create(restriction="Allow")
     rights_granted.notes.create(rightsgrantednote="A grant note")
     rights_granted.notes.create(rightsgrantednote="Another grant note")
+
+    return rights
+
+
+@pytest.fixture()
+def transfer_rights_statement(db, transfer, metadata_applies_to_types):
+    rights = RightsStatement.objects.create(
+        metadataappliestotype=metadata_applies_to_types["transfer"],
+        metadataappliestoidentifier=transfer.uuid,
+        rightsstatementidentifiertype="UUID",
+        rightsstatementidentifiervalue=str(uuid.uuid4()),
+        rightsbasis="License",
+    )
+    rights.rightsstatementlicense_set.create(licenseterms="CC-BY")
 
     return rights
 
@@ -578,6 +589,44 @@ def test_transfer_mets_includes_basic_rights(
 
     for index, note in enumerate(grant_notes):
         assert rights_granted_notes[index].text == note.rightsgrantednote
+
+
+@pytest.mark.django_db
+def test_transfer_mets_combines_file_and_transfer_rights(
+    copyright_rights,
+    tmp_path,
+    transfer,
+    file_obj,
+    file_obj2,
+    transfer_rights_statement,
+):
+    mets_path = tmp_path / "METS.xml"
+    write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
+    mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
+    mets_xml = mets_doc.serialize()
+
+    rights_statements = mets_xml.findall(
+        ".//premis:rightsStatement", namespaces=PREMIS_NAMESPACES
+    )
+    assert len(rights_statements) == 3
+
+    rights_by_file = {}
+    for statement in rights_statements:
+        file_uuid = statement.findtext(
+            "premis:linkingObjectIdentifier/premis:linkingObjectIdentifierValue",
+            namespaces=PREMIS_NAMESPACES,
+        )
+        rights_by_file.setdefault(file_uuid, set()).add(
+            statement.findtext("premis:rightsBasis", namespaces=PREMIS_NAMESPACES)
+        )
+
+    assert rights_by_file == {
+        str(file_obj.uuid): {
+            copyright_rights.rightsbasis,
+            transfer_rights_statement.rightsbasis,
+        },
+        str(file_obj2.uuid): {transfer_rights_statement.rightsbasis},
+    }
 
 
 @pytest.mark.django_db
