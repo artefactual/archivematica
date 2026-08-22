@@ -1,5 +1,7 @@
 import os
+import pathlib
 
+import pytest
 from django.test import TestCase
 
 from archivematica.dashboard.main import models
@@ -13,6 +15,20 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 mcp_job = Job("stub", "stub", [])
 
 
+@pytest.fixture(params=["objects/", "objects"])
+def mixed_scope_rights_csv(
+    tmp_path: pathlib.Path, request: pytest.FixtureRequest
+) -> pathlib.Path:
+    result = tmp_path / "rights.csv"
+    result.write_text(
+        "file,basis,terms,note,grant_act,grant_restriction\n"
+        f"{request.param},license,Transfer terms,Transfer note,use,Allow\n"
+        "objects/file.mp3,license,File terms,File note,use,Allow\n"
+    )
+
+    return result
+
+
 class TestRightsImportFromCsvBase(TestCase):
     transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"  # UUID of transfer created by transfer.json
     file_1_uuid = "47813453-6872-442b-9d65-6515be3c5aa1"  # UUID of first file created by files-transfer.json fixture
@@ -21,6 +37,12 @@ class TestRightsImportFromCsvBase(TestCase):
     def get_metadata_applies_to_type_for_file(self):
         """Get MetadataAppliesToType instance that allies to files."""
         return models.MetadataAppliesToType.objects.filter(description="File").first()
+
+    def get_metadata_applies_to_type_for_transfer(self):
+        """Get MetadataAppliesToType instance that applies to transfers."""
+        return models.MetadataAppliesToType.objects.filter(
+            description="Transfer"
+        ).first()
 
 
 class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
@@ -387,6 +409,156 @@ class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
         assert row_8_grant.startdate is None
         assert row_8_grant.enddateopen is False
         assert row_8_grant.enddate is None
+
+
+@pytest.mark.django_db
+def test_mixed_scope_rows_create_independent_rights_statements(
+    mcp_job,
+    metadata_applies_to_types,
+    mixed_scope_rights_csv,
+    transfer,
+    transfer_file,
+):
+    parser = rights_from_csv.RightCsvReader(
+        mcp_job,
+        str(transfer.uuid),
+        str(mixed_scope_rights_csv),
+    )
+
+    assert parser.parse() == 2
+
+    transfer_statement = models.RightsStatement.objects.get(
+        metadataappliestotype=metadata_applies_to_types["transfer"]
+    )
+    file_statement = models.RightsStatement.objects.get(
+        metadataappliestotype=metadata_applies_to_types["file"]
+    )
+
+    assert transfer_statement.metadataappliestoidentifier == str(transfer.uuid)
+    assert file_statement.metadataappliestoidentifier == str(transfer_file.uuid)
+
+    for statement, terms, note in (
+        (transfer_statement, "Transfer terms", "Transfer note"),
+        (file_statement, "File terms", "File note"),
+    ):
+        assert statement.rightsbasis == "License"
+        assert statement.status == "ORIGINAL"
+
+        license_info = statement.rightsstatementlicense_set.get()
+        assert license_info.licenseterms == terms
+        assert license_info.rightsstatementlicensenote_set.get().licensenote == note
+
+        grant = statement.rightsstatementrightsgranted_set.get()
+        assert grant.act == "use"
+        assert grant.restrictions.get().restriction == "Allow"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "first_target,second_target",
+    [("objects", "objects/"), ("objects/", "objects")],
+)
+@pytest.mark.parametrize("grant_act", ["use", ""])
+def test_transfer_target_aliases_share_duplicate_detection(
+    mcp_job,
+    metadata_applies_to_types,
+    transfer,
+    tmp_path,
+    first_target,
+    second_target,
+    grant_act,
+):
+    rights_csv = tmp_path / "rights.csv"
+    rights_csv.write_text(
+        "file,basis,terms,grant_act\n"
+        f"{first_target},license,First terms,{grant_act}\n"
+        f"{second_target},LICENSE,Duplicate terms,{grant_act.upper()}\n"
+    )
+    parser = rights_from_csv.RightCsvReader(mcp_job, str(transfer.uuid), rights_csv)
+
+    assert parser.parse() == 2
+
+    statement = models.RightsStatement.objects.get()
+    assert statement.metadataappliestotype == metadata_applies_to_types["transfer"]
+    assert statement.metadataappliestoidentifier == str(transfer.uuid)
+    assert statement.rightsstatementlicense_set.get().licenseterms == "First terms"
+    assert statement.rightsstatementrightsgranted_set.count() == (1 if grant_act else 0)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "basis,grant_act", [("license", "disseminate"), ("other", "use")]
+)
+def test_transfer_target_aliases_preserve_distinct_basis_act_combinations(
+    mcp_job,
+    metadata_applies_to_types,
+    transfer,
+    tmp_path,
+    basis,
+    grant_act,
+):
+    rights_csv = tmp_path / "rights.csv"
+    rights_csv.write_text(
+        f"file,basis,grant_act\nobjects,license,use\nobjects/,{basis},{grant_act}\n"
+    )
+    parser = rights_from_csv.RightCsvReader(mcp_job, str(transfer.uuid), rights_csv)
+
+    assert parser.parse() == 2
+
+    statements = models.RightsStatement.objects.order_by("pk")
+    assert [
+        (statement.rightsbasis, statement.rightsstatementrightsgranted_set.get().act)
+        for statement in statements
+    ] == [("License", "use"), (basis.capitalize(), grant_act)]
+    for statement in statements:
+        assert statement.metadataappliestotype == metadata_applies_to_types["transfer"]
+        assert statement.metadataappliestoidentifier == str(transfer.uuid)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("filepath", ["objects/typo.txt", "objects/subdir/"])
+def test_unmatched_path_reports_row_and_path(
+    mcp_job,
+    metadata_applies_to_types,
+    transfer,
+    tmp_path,
+    filepath,
+):
+    rights_csv = tmp_path / "rights.csv"
+    rights_csv.write_text(f"file,basis\nobjects/,license\n{filepath},license\n")
+    parser = rights_from_csv.RightCsvReader(mcp_job, str(transfer.uuid), rights_csv)
+
+    with pytest.raises(rights_from_csv.RightsRowException) as exc_info:
+        parser.parse()
+
+    assert str(exc_info.value) == (
+        f"[Row 2] No file matches {filepath!r} in this transfer"
+    )
+    assert parser.rows_processed == 1
+
+
+@pytest.mark.django_db
+def test_unmatched_path_fails_job_without_processing_later_rows(
+    metadata_applies_to_types,
+    transfer,
+    transfer_file,
+    tmp_path,
+):
+    rights_csv = tmp_path / "rights.csv"
+    rights_csv.write_text(
+        "file,basis\nobjects/typo.txt,license\nobjects/file.mp3,license\n"
+    )
+    job = Job("rights_from_csv", "stub", [str(transfer.uuid), str(rights_csv)])
+
+    rights_from_csv.call([job])
+
+    assert job.get_exit_code() == 1
+    assert (
+        "[Row 1] No file matches 'objects/typo.txt' in this transfer"
+        in job.get_stderr()
+    )
+    assert "Traceback" not in job.get_stderr()
+    assert not models.RightsStatement.objects.exists()
 
 
 class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):

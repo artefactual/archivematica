@@ -1,12 +1,14 @@
 import uuid
 
 import pytest
+from django.urls import reverse
 from metsrw.plugins import premisrw
 
 from archivematica.dashboard.components.rights import load
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Transfer
 
 RIGHTS_STATEMENT_IDENTIFIER = (
@@ -369,3 +371,54 @@ def test_load_rights_with_basis_other(
         .otherrightsdocumentationidentifierrole
         == "role"
     )
+
+
+@pytest.mark.django_db
+def test_transfer_rights_editor_explains_transfer_scope(
+    admin_client,
+    dashboard_uuid,
+):
+    transfer_uuid = uuid.uuid4()
+
+    response = admin_client.get(reverse("rights_transfer:add", args=[transfer_uuid]))
+
+    assert response.status_code == 200
+    assert (
+        "Rights added here are stored at transfer scope. Archivematica includes them "
+        "with each original file when generating transfer and AIP METS files, "
+        "alongside any file-specific rights."
+    ) in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_transfer_rights_editor_creates_transfer_scoped_statement(
+    admin_client,
+    dashboard_uuid,
+    metadata_applies_to_types,
+):
+    transfer_uuid = uuid.uuid4()
+    data = {"rightsbasis": "License"}
+    for prefix in (
+        "rightsstatementcopyright_set",
+        "rightsstatementstatuteinformation_set",
+        "rightsstatementlicense_set",
+        "rightsstatementotherrightsinformation_set",
+    ):
+        data.update(
+            {
+                f"{prefix}-TOTAL_FORMS": "0",
+                f"{prefix}-INITIAL_FORMS": "0",
+                f"{prefix}-MIN_NUM_FORMS": "0",
+                f"{prefix}-MAX_NUM_FORMS": "1000",
+            }
+        )
+
+    response = admin_client.post(
+        reverse("rights_transfer:add", args=[transfer_uuid]),
+        data,
+    )
+
+    assert response.status_code == 302
+    statement = RightsStatement.objects.get()
+    assert statement.metadataappliestotype == metadata_applies_to_types["transfer"]
+    assert statement.metadataappliestoidentifier == str(transfer_uuid)

@@ -31,6 +31,22 @@ def mcp_job() -> Job:
 
 
 @pytest.fixture()
+def metadata_applies_to_types(
+    db: None,
+) -> dict[str, models.MetadataAppliesToType]:
+    file_type, _ = models.MetadataAppliesToType.objects.get_or_create(
+        pk=models.MetadataAppliesToType.FILE_TYPE,
+        description="File",
+    )
+    transfer_type, _ = models.MetadataAppliesToType.objects.get_or_create(
+        pk=models.MetadataAppliesToType.TRANSFER_TYPE,
+        description="Transfer",
+    )
+
+    return {"file": file_type, "transfer": transfer_type}
+
+
+@pytest.fixture()
 def user() -> User:
     return User.objects.create(
         id=1,

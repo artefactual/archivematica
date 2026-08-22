@@ -37,6 +37,14 @@
         <small>{{ name }}</small>
       </h1>
 
+      {% if section == 'transfer' %}
+        <div class="alert alert-info">
+          <p>
+            {% trans "Rights added here are stored at transfer scope. Archivematica includes them with each original file when generating transfer and AIP METS files, alongside any file-specific rights." %}
+          </p>
+        </div>
+      {% endif %}
+
       {% if request.method == 'POST' %}
         {% if form.is_valid %}
           <div class="alert alert-success">
