@@ -29,7 +29,7 @@ volumes:
 services:
 
   mysql:
-    image: "percona/percona-server:8.4.10-10"
+    image: "percona/percona-server:8.4.11-11.1"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "12345"
@@ -95,7 +95,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:1.31.3"
+    image: "nginx:1.31.4"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
