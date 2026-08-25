@@ -414,7 +414,7 @@ define AT_HELP
 
       * aip-encrypt        :Tests the encryption of AIPs.
       * aip-encrypt-mirror :Tests the replication of encrypted AIPs.
-      * black-box          :Test Archivematica without Selenium web-driver.
+      * black-box          :Tests Archivematica APIs without browser automation.
       * icc                :Conformance check feature on ingest.
       * ipc                :Policy check feature on ingest.
       * picc               :Policy check feature for preservation derivatives.
@@ -434,7 +434,7 @@ test-at-behave: test-at-build  ## AMAUAT: run behave, default is `make test-at-b
 		run --rm -e HEADLESS=1 --no-deps archivematica-acceptance-tests behave \
 			--no-capture --no-capture-stderr --no-logcapture \
 			$(subst $(SPACE), --tags=,$(SPACE)$(TAGS)) --no-skipped -v --stop \
-			-D driver_name=$(BROWSER) \
+			-D browser_name=$(BROWSER) \
 			-D ssh_accessible=no \
 			-D am_url=http://nginx/ \
 			-D am_username=test \
