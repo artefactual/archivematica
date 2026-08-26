@@ -5,18 +5,24 @@ import type { VueWrapper } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 import { useProcessingMonitor } from './useProcessingMonitor'
 import type { MonitorConfigJson, MonitorUnitType } from './useProcessingMonitor'
-import type { ProcessingUnit } from '@/shared/http/processing'
+import type { JsonIfChangedResult } from '@/shared/http/client'
 import type {
-  TransferStatusesIfChangedOptions,
-  TransferStatusesIfChangedResponse,
-} from '@/shared/http/transfer'
+  ProcessingStatusesResponse,
+  ProcessingUnit,
+  ProcessingUnitSummariesResponse,
+} from '@/shared/http/processing'
+import type { TransferSummariesIfChangedOptions } from '@/shared/http/transfer'
 import { TRANSFER_STARTED_EVENT } from '@/shared/events/monitor'
+
+type ProcessingSummariesIfChangedResponse = JsonIfChangedResult<
+  ProcessingUnitSummariesResponse | ProcessingStatusesResponse
+>
 
 vi.mock('@/shared/http/transfer', async () => {
   const actual = await vi.importActual<typeof import('@/shared/http/transfer')>('@/shared/http/transfer')
   return {
     ...actual,
-    getTransferStatuses: vi.fn(),
+    getTransferSummaries: vi.fn(),
   }
 })
 
@@ -24,11 +30,11 @@ vi.mock('@/shared/http/ingest', async () => {
   const actual = await vi.importActual<typeof import('@/shared/http/ingest')>('@/shared/http/ingest')
   return {
     ...actual,
-    getIngestStatuses: vi.fn(),
+    getIngestSummaries: vi.fn(),
   }
 })
 
-import { getTransferStatuses } from '@/shared/http/transfer'
+import { getTransferSummaries } from '@/shared/http/transfer'
 
 const defaultConfig: MonitorConfigJson = {
   polling_interval: 10,
@@ -114,11 +120,11 @@ describe('useProcessingMonitor', () => {
   })
 
   it('uses changed-aware polling and skips unchanged payload updates', async () => {
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
 
-    mockGetTransferStatuses
+    mockGetTransferSummaries
       .mockResolvedValueOnce({
         changed: true,
         raw: '{"objects":[{"uuid":"t-1"}],"mcp":true}',
@@ -142,17 +148,17 @@ describe('useProcessingMonitor', () => {
 
     const { wrapper, monitor } = await mountMonitor('Transfer')
 
-    expect(getTransferStatuses).toHaveBeenNthCalledWith(1, { previousRaw: undefined })
+    expect(getTransferSummaries).toHaveBeenNthCalledWith(1, { previousRaw: undefined })
     expect(monitor.units.value.map((unit: ProcessingUnit) => unit.uuid)).toEqual(['t-1'])
 
     await monitor.refresh()
-    expect(getTransferStatuses).toHaveBeenNthCalledWith(2, {
+    expect(getTransferSummaries).toHaveBeenNthCalledWith(2, {
       previousRaw: '{"objects":[{"uuid":"t-1"}],"mcp":true}',
     })
     expect(monitor.units.value.map((unit: ProcessingUnit) => unit.uuid)).toEqual(['t-1'])
 
     await monitor.refresh()
-    expect(getTransferStatuses).toHaveBeenNthCalledWith(3, {
+    expect(getTransferSummaries).toHaveBeenNthCalledWith(3, {
       previousRaw: '{"objects":[{"uuid":"t-1"}],"mcp":true}',
     })
     expect(monitor.units.value.map((unit: ProcessingUnit) => unit.uuid)).toEqual(['t-2'])
@@ -161,11 +167,11 @@ describe('useProcessingMonitor', () => {
   })
 
   it('sorts incoming units and jobs by descending timestamp', async () => {
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
 
-    mockGetTransferStatuses.mockResolvedValue({
+    mockGetTransferSummaries.mockResolvedValue({
       changed: true,
       raw: '{"objects":[{"uuid":"older"},{"uuid":"newer"},{"uuid":"middle"}],"mcp":true}',
       data: {
@@ -215,13 +221,115 @@ describe('useProcessingMonitor', () => {
     wrapper.unmount()
   })
 
+  it('retains raw jobs while the summary removes the pending decision identity', async () => {
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+
+    mockGetTransferSummaries
+      .mockResolvedValueOnce({
+        changed: true,
+        raw: '{"results":[{"uuid":"t-1","has_awaiting_decision":true}]}',
+        data: {
+          results: [{
+            uuid: 't-1',
+            directory: 'Transfer-1',
+            timestamp: 1,
+            has_awaiting_decision: true,
+            awaiting_job_uuids: ['job-1'],
+          }],
+        },
+      })
+      .mockResolvedValueOnce({
+        changed: true,
+        raw: '{"results":[{"uuid":"t-1","has_awaiting_decision":false}]}',
+        data: {
+          results: [{
+            uuid: 't-1',
+            directory: 'Transfer-1',
+            timestamp: 2,
+            has_awaiting_decision: false,
+            awaiting_job_uuids: [],
+          }],
+        },
+      })
+
+    const { wrapper, monitor } = await mountMonitor('Transfer')
+    monitor.units.value[0].jobs = [{
+      uuid: 'job-1',
+      type: 'Choose an action',
+      microservicegroup: 'Decision',
+      currentstep: 1,
+      timestamp: 1,
+      produces_tasks: false,
+      choices: { approve: 'Approve' },
+    }]
+
+    await monitor.refresh()
+
+    expect(monitor.units.value[0].jobs[0]?.choices).toEqual({ approve: 'Approve' })
+    expect(monitor.units.value[0].awaiting_job_uuids).toEqual([])
+    wrapper.unmount()
+  })
+
+  it('retains raw jobs while the summary replaces the pending decision identity', async () => {
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+
+    mockGetTransferSummaries
+      .mockResolvedValueOnce({
+        changed: true,
+        raw: '{"results":[{"uuid":"t-1","timestamp":1}]}',
+        data: {
+          results: [{
+            uuid: 't-1',
+            directory: 'Transfer-1',
+            timestamp: 1,
+            has_awaiting_decision: true,
+            awaiting_job_uuids: ['job-1'],
+          }],
+        },
+      })
+      .mockResolvedValueOnce({
+        changed: true,
+        raw: '{"results":[{"uuid":"t-1","timestamp":2}]}',
+        data: {
+          results: [{
+            uuid: 't-1',
+            directory: 'Transfer-1',
+            timestamp: 2,
+            has_awaiting_decision: true,
+            awaiting_job_uuids: ['job-2'],
+          }],
+        },
+      })
+
+    const { wrapper, monitor } = await mountMonitor('Transfer')
+    monitor.units.value[0].jobs = [{
+      uuid: 'job-1',
+      type: 'First decision',
+      microservicegroup: 'Decision',
+      currentstep: 1,
+      timestamp: 1,
+      produces_tasks: false,
+      choices: { approve: 'Approve' },
+    }]
+
+    await monitor.refresh()
+
+    expect(monitor.units.value[0].jobs[0]?.choices).toEqual({ approve: 'Approve' })
+    expect(monitor.units.value[0].awaiting_job_uuids).toEqual(['job-2'])
+    wrapper.unmount()
+  })
+
   it('pauses polling while hidden and resumes when visible', async () => {
     vi.useFakeTimers()
 
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
-    mockGetTransferStatuses.mockResolvedValue({
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+    mockGetTransferSummaries.mockResolvedValue({
       changed: true,
       raw: '{"objects":[],"mcp":true}',
       data: { objects: [], mcp: true },
@@ -229,26 +337,26 @@ describe('useProcessingMonitor', () => {
 
     const pollIntervalMs = defaultConfig.polling_interval * 1000
     const { wrapper } = await mountMonitor('Transfer')
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(pollIntervalMs)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(2)
 
     setDocumentVisibility('hidden')
     await flushPromises()
 
     await vi.advanceTimersByTimeAsync(pollIntervalMs * 3)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(2)
 
     setDocumentVisibility('visible')
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(3)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(3)
 
     await vi.advanceTimersByTimeAsync(pollIntervalMs)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(4)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(4)
 
     wrapper.unmount()
   })
@@ -257,10 +365,10 @@ describe('useProcessingMonitor', () => {
     vi.useFakeTimers()
     setDocumentVisibility('hidden')
 
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
-    mockGetTransferStatuses.mockResolvedValue({
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+    mockGetTransferSummaries.mockResolvedValue({
       changed: true,
       raw: '{"objects":[],"mcp":true}',
       data: { objects: [], mcp: true },
@@ -268,19 +376,19 @@ describe('useProcessingMonitor', () => {
 
     const pollIntervalMs = defaultConfig.polling_interval * 1000
     const { wrapper } = await mountMonitor('Transfer')
-    expect(getTransferStatuses).toHaveBeenCalledTimes(0)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(0)
 
     await vi.advanceTimersByTimeAsync(pollIntervalMs * 2)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(0)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(0)
 
     setDocumentVisibility('visible')
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(pollIntervalMs)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(2)
 
     wrapper.unmount()
   })
@@ -288,10 +396,10 @@ describe('useProcessingMonitor', () => {
   it('accelerates next poll to one second when requested', async () => {
     vi.useFakeTimers()
 
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
-    mockGetTransferStatuses.mockResolvedValue({
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+    mockGetTransferSummaries.mockResolvedValue({
       changed: true,
       raw: '{"objects":[],"mcp":true}',
       data: { objects: [], mcp: true },
@@ -299,25 +407,25 @@ describe('useProcessingMonitor', () => {
 
     const pollIntervalMs = defaultConfig.polling_interval * 1000
     const { wrapper, monitor } = await mountMonitor('Transfer')
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(5000)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     monitor.requestSoonerPoll()
 
     await vi.advanceTimersByTimeAsync(999)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(1)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(2)
 
     await vi.advanceTimersByTimeAsync(pollIntervalMs)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(3)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(3)
 
     wrapper.unmount()
   })
@@ -325,37 +433,37 @@ describe('useProcessingMonitor', () => {
   it('reschedules near-imminent polling to one second and keeps only one accelerated timer', async () => {
     vi.useFakeTimers()
 
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
-    mockGetTransferStatuses.mockResolvedValue({
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+    mockGetTransferSummaries.mockResolvedValue({
       changed: true,
       raw: '{"objects":[],"mcp":true}',
       data: { objects: [], mcp: true },
     })
 
     const { wrapper, monitor } = await mountMonitor('Transfer')
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(defaultConfig.polling_interval * 1000 - 500)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     monitor.requestSoonerPoll()
 
     await vi.advanceTimersByTimeAsync(500)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     monitor.requestSoonerPoll()
 
     await vi.advanceTimersByTimeAsync(999)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(1)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(2)
 
     wrapper.unmount()
   })
@@ -363,31 +471,31 @@ describe('useProcessingMonitor', () => {
   it('accelerates polling when a transfer-started event is received', async () => {
     vi.useFakeTimers()
 
-    const mockGetTransferStatuses = vi.mocked(getTransferStatuses) as unknown as MockedFunction<(
-      options: TransferStatusesIfChangedOptions,
-    ) => Promise<TransferStatusesIfChangedResponse>>
-    mockGetTransferStatuses.mockResolvedValue({
+    const mockGetTransferSummaries = vi.mocked(getTransferSummaries) as unknown as MockedFunction<(
+      options: TransferSummariesIfChangedOptions,
+    ) => Promise<ProcessingSummariesIfChangedResponse>>
+    mockGetTransferSummaries.mockResolvedValue({
       changed: true,
       raw: '{"objects":[],"mcp":true}',
       data: { objects: [], mcp: true },
     })
 
     const { wrapper } = await mountMonitor('Transfer')
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(5000)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     document.dispatchEvent(new CustomEvent(TRANSFER_STARTED_EVENT))
 
     await vi.advanceTimersByTimeAsync(999)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(1)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(1)
     await flushPromises()
-    expect(getTransferStatuses).toHaveBeenCalledTimes(2)
+    expect(getTransferSummaries).toHaveBeenCalledTimes(2)
 
     wrapper.unmount()
   })

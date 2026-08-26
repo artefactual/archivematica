@@ -281,12 +281,94 @@ def test_units_summary_handler_includes_dip_jobs(wf):
                 "microservicegroup": link.get_label("group", "en"),
             },
             "has_awaiting_decision": True,
+            "awaiting_job_uuids": [str(latest_job.jobuuid)],
             "access_system_id": None,
         }
     ]
     assert "jobs" not in response[0]
     assert response[0]["status"] is not None
     assert str(latest_job.jobuuid)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("unit_type", "model", "job_types", "other_job_type", "query_count"),
+    [
+        ("Transfer", models.Transfer, ["unitTransfer"], "unitDIP", 2),
+        ("SIP", models.SIP, ["unitSIP", "unitDIP"], "unitTransfer", 3),
+    ],
+)
+@pytest.mark.parametrize("unit_count", [1, 12])
+def test_units_summary_batches_current_decision_identities(
+    wf, unit_type, model, job_types, other_job_type, query_count, unit_count
+):
+    created_at = timezone.now()
+    expected = {}
+    for index in range(unit_count):
+        unit = model.objects.create(uuid=uuid.uuid4())
+        pending = []
+        for offset, job_type, status in [
+            (3, job_types[-1], models.Job.STATUS_AWAITING_DECISION),
+            (1, job_types[0], models.Job.STATUS_AWAITING_DECISION),
+            (90, job_types[0], models.Job.STATUS_EXECUTING_COMMANDS),
+            (2, job_types[0], models.Job.STATUS_COMPLETED_SUCCESSFULLY),
+            (99, other_job_type, models.Job.STATUS_AWAITING_DECISION),
+        ]:
+            job = models.Job.objects.create(
+                jobuuid=uuid.UUID(int=index * 100 + offset),
+                sipuuid=unit.pk,
+                unittype=job_type,
+                microservicechainlink=TASK_PRODUCING_LINK_ID,
+                createdtime=created_at,
+                currentstep=status,
+            )
+            if status == models.Job.STATUS_AWAITING_DECISION and job_type in job_types:
+                pending.append(str(job.jobuuid))
+        expected[str(unit.pk)] = sorted(pending)
+
+    hidden = model.objects.create(uuid=uuid.uuid4(), hidden=True)
+    models.Job.objects.create(
+        sipuuid=hidden.pk,
+        unittype=job_types[0],
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
+        createdtime=created_at,
+        currentstep=models.Job.STATUS_AWAITING_DECISION,
+    )
+    shutdown_event = threading.Event()
+    shutdown_event.set()
+    server = rpc_server.RPCServer(wf, shutdown_event, mock.MagicMock(), None)
+    payload = {"type": unit_type, "lang": "en"}
+
+    with CaptureQueriesContext(connection) as queries:
+        response = server._units_summary_handler(None, None, payload)
+
+    assert len(queries) == query_count
+    assert {row["uuid"]: row["awaiting_job_uuids"] for row in response} == expected
+    assert all(row["has_awaiting_decision"] for row in response)
+
+    # A different decision can become current without changing either the
+    # latest Job timestamp or the boolean flag. Its identity must change the
+    # response so the HTTP client's unchanged-body optimization sees it.
+    unit_id = response[0]["uuid"]
+    old_job_id = expected[unit_id][0]
+    models.Job.objects.filter(pk=old_job_id).update(
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY
+    )
+    replacement_id = uuid.UUID(int=uuid.UUID(old_job_id).int + 3)
+    models.Job.objects.create(
+        jobuuid=replacement_id,
+        sipuuid=unit_id,
+        unittype=job_types[0],
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
+        createdtime=created_at,
+        currentstep=models.Job.STATUS_AWAITING_DECISION,
+    )
+    expected_row = dict(response[0])
+    expected_row["awaiting_job_uuids"] = sorted(
+        [expected[unit_id][1], str(replacement_id)]
+    )
+    updated = server._units_summary_handler(None, None, payload)
+    assert next(row for row in updated if row["uuid"] == unit_id) == expected_row
 
 
 @pytest.mark.django_db
@@ -325,6 +407,7 @@ def test_units_summary_handler_returns_queued_transfer_without_jobs(wf):
             "active": True,
             "status": None,
             "has_awaiting_decision": False,
+            "awaiting_job_uuids": [],
             "processing_state": "waiting_for_processing",
         }
     ]

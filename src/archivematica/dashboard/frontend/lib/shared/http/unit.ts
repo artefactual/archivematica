@@ -61,3 +61,7 @@ export const deleteCompletedUnits = async (unitType: UnitType): Promise<UnitDele
 export const getUnitDetailUrl = (unitType: UnitType, unitUuid: string): string => {
   return createUrl(`/${unitType}/${unitUuid}/`)
 }
+
+export const getUnitJobHistoryUrl = (unitType: UnitType, unitUuid: string, linkId: string): string => {
+  return createUrl(`/${unitType}/${unitUuid}/job-history/${linkId}/`)
+}

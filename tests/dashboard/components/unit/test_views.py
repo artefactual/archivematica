@@ -21,37 +21,46 @@ def transfer(db):
 @pytest.mark.django_db()
 class TestProcessingMonitorViews:
     @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_transfer_list_returns_rpc_units(
+    def test_transfer_list_returns_rpc_summaries(
         self, mcp_client_cls, dashboard_uuid, admin_client
     ):
-        unit = {
+        summary = {
             "uuid": "59402c61-3aba-4af7-966a-996073c0601d",
             "directory": "transfer",
             "timestamp": 1.0,
+            "started_at": 1.0,
             "active": True,
-            "jobs": [],
+            "status": {
+                "currentstep": 3,
+                "type": "Job",
+                "microservicegroup": "Microservice",
+            },
+            "has_awaiting_decision": False,
+            "awaiting_job_uuids": [],
         }
-        mcp_client_cls.return_value.get_transfers_statuses.return_value = [unit]
+        mcp_client_cls.return_value.get_units_summary.return_value = [summary]
         url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
 
         response = admin_client.get(url)
 
         assert response.status_code == 200
-        assert response.json() == {"objects": [unit], "mcp": True}
-        mcp_client_cls.return_value.get_transfers_statuses.assert_called_once_with()
+        assert response.json() == {"results": [summary]}
+        mcp_client_cls.return_value.get_units_summary.assert_called_once_with(
+            "Transfer"
+        )
 
     @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
     def test_ingest_list_uses_sip_rpc_type(
         self, mcp_client_cls, dashboard_uuid, admin_client
     ):
-        mcp_client_cls.return_value.get_sips_statuses.return_value = []
+        mcp_client_cls.return_value.get_units_summary.return_value = []
         url = reverse("unit:processing_units", kwargs={"unit_type": "ingest"})
 
         response = admin_client.get(url)
 
         assert response.status_code == 200
-        assert response.json() == {"objects": [], "mcp": True}
-        mcp_client_cls.return_value.get_sips_statuses.assert_called_once_with()
+        assert response.json() == {"results": []}
+        mcp_client_cls.return_value.get_units_summary.assert_called_once_with("SIP")
 
     def test_processing_list_requires_dashboard_authentication(
         self, dashboard_uuid, client
@@ -73,7 +82,7 @@ class TestProcessingMonitorViews:
     def test_processing_list_reports_rpc_failure(
         self, mcp_client_cls, dashboard_uuid, admin_client
     ):
-        mcp_client_cls.return_value.get_transfers_statuses.side_effect = RPCServerError()
+        mcp_client_cls.return_value.get_units_summary.side_effect = RPCServerError()
         url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
 
         response = admin_client.get(url)
@@ -81,7 +90,7 @@ class TestProcessingMonitorViews:
         assert response.status_code == 503
         assert response.json() == {
             "error": True,
-            "message": "Unable to fetch processing units.",
+            "message": "Unable to fetch processing summaries.",
         }
 
     @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")

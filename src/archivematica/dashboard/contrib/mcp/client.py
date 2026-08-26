@@ -138,16 +138,7 @@ class MCPClient:
         return payload
 
     def execute(self, uuid, choice):
-        gm_client = GearmanClient([self.server])
-        data = {}
-        data["jobUUID"] = uuid
-        data["chain"] = choice
-        # Since `execute` is not using `_rpc_sync_call` yet, the user ID needs
-        # to be added manually here.
-        data["user_id"] = self.user.id
-        gm_client.submit_job(b"approveJob", data)
-        gm_client.shutdown()
-        return
+        self._rpc_sync_call("approveJob", {"jobUUID": uuid, "chain": choice})
 
     def execute_unit(self, unit_id, choice, mscl_id=None):
         """Execute the jobs awaiting for approval associated to a given unit.

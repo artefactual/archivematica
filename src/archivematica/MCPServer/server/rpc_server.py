@@ -457,8 +457,8 @@ class RPCServer(GearmanWorker):
 
         Unlike ``getUnitsStatuses``, this response never embeds Job rows. It
         includes only the latest Job fields needed to reproduce the unit status
-        icon, the timestamp shown in the monitor, and whether the unit has a Job
-        awaiting a decision.
+        icon, the timestamp shown in the monitor, and the UUIDs of Jobs awaiting
+        decisions so delayed detail responses cannot restore obsolete choices.
 
         [config]
         name = getUnitsSummary
@@ -491,12 +491,6 @@ class RPCServer(GearmanWorker):
             unittype__in=job_unit_types,
             microservicegroup=INGEST_START_TIME_MARKER_GROUP,
         ).order_by("-createdtime", "-jobuuid")
-        awaiting_jobs = Job.objects.filter(
-            sipuuid=OuterRef("uuid"),
-            unittype__in=job_unit_types,
-            currentstep=Job.STATUS_AWAITING_DECISION,
-        )
-
         units = model.objects.filter(hidden=False).annotate(
             has_jobs=Exists(
                 Job.objects.filter(
@@ -508,7 +502,6 @@ class RPCServer(GearmanWorker):
             ),
             oldest_job_time=Subquery(oldest_jobs.values("createdtime")[:1]),
             start_marker_time=Subquery(start_marker_jobs.values("createdtime")[:1]),
-            has_awaiting_decision=Exists(awaiting_jobs),
         )
         if type_ == "Transfer":
             units = units.filter(Q(has_jobs=True) | Q(status=PACKAGE_STATUS_PROCESSING))
@@ -516,6 +509,21 @@ class RPCServer(GearmanWorker):
             units = units.filter(has_jobs=True)
 
         units = list(units)
+        # Fetch decision identities in one batch, with stable ordering for
+        # changed-aware polling. Derive the flag from these same rows so the
+        # two fields cannot disagree if a decision changes between queries.
+        awaiting_job_uuids: dict[str, list[str]] = {}
+        for unit_id, job_id in (
+            Job.objects.filter(
+                sipuuid__in=[unit.uuid for unit in units],
+                unittype__in=job_unit_types,
+                currentstep=Job.STATUS_AWAITING_DECISION,
+            )
+            .order_by("jobuuid")
+            .values_list("sipuuid", "jobuuid")
+        ):
+            awaiting_job_uuids.setdefault(str(unit_id), []).append(str(job_id))
+
         processing_start_times = {}
         if type_ == "Transfer":
             queued_unit_ids = [unit.uuid for unit in units if not unit.has_jobs]
@@ -577,7 +585,8 @@ class RPCServer(GearmanWorker):
                 "started_at": started_timestamp,
                 "active": unit.active,
                 "status": status,
-                "has_awaiting_decision": unit.has_awaiting_decision,
+                "has_awaiting_decision": bool(awaiting_job_uuids.get(unit_id)),
+                "awaiting_job_uuids": awaiting_job_uuids.get(unit_id, []),
             }
             if type_ == "Transfer" and not unit.has_jobs:
                 item["processing_state"] = PROCESSING_STATE_WAITING_FOR_PROCESSING

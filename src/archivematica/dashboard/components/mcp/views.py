@@ -14,19 +14,29 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+import logging
+
 from django.http import HttpResponse
 from lxml import etree
 
 from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.contrib.mcp.client import RPCGearmanClientError
+
+LOGGER = logging.getLogger("archivematica.dashboard")
 
 
 def execute(request):
     result = ""
-    if request.POST.get("uuid"):
-        client = MCPClient(request.user)
-        result = client.execute(
-            request.POST.get("uuid"), request.POST.get("choice", "")
-        )
+    job_uuid = request.POST.get("uuid")
+    if job_uuid:
+        try:
+            client = MCPClient(request.user)
+            result = client.execute(job_uuid, request.POST.get("choice", ""))
+        except RPCGearmanClientError:
+            LOGGER.exception("Unable to execute choice for Job %s", job_uuid)
+            return HttpResponse(
+                "Unable to execute Job choice.", status=503, content_type="text/plain"
+            )
     return HttpResponse(result, content_type="text/plain")
 
 

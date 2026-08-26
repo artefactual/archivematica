@@ -22,6 +22,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'show-tasks', jobUuid: string): void
+  (event: 'show-job-history', payload: { unitUuid: string, linkId: string }): void
   (event: 'set-selected-job-choice', payload: { jobUuid: string, choice: string }): void
   (event: 'execute-job-choice', payload: { job: ProcessingJob, choice: string, unitUuid: string }): void
 }>()
@@ -29,6 +30,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const reviewUrl = computed(() => {
+  if (!props.job.uuid) return null
   const review = resolveIngestReviewLink({
     linkId: props.job.link_id,
     currentstep: props.job.currentstep,
@@ -74,19 +76,23 @@ const microserviceHelp = computed(() => {
       {{ ' ' }}
       <span :title="job.uuid">
         {{ job.type }}
-        <template v-if="reviewUrl">
-          {{ ' ' }}
-          <a
-            class="btn btn-default btn-xs"
-            :href="reviewUrl"
-            target="_blank"
-            rel="noopener"
-            @click.stop
-          >
-            {{ t('monitor.review') }}
-          </a>
-        </template>
       </span>
+      <template v-if="job.count && job.count > 1">
+        {{ ' ' }}
+        <span class="job-count">&times; {{ job.count.toLocaleString() }}</span>
+      </template>
+      <template v-if="reviewUrl">
+        {{ ' ' }}
+        <a
+          class="btn btn-default btn-xs"
+          :href="reviewUrl"
+          target="_blank"
+          rel="noopener"
+          @click.stop
+        >
+          {{ t('monitor.review') }}
+        </a>
+      </template>
       <template v-if="microserviceHelp">
         {{ ' ' }}
         <HelpTooltip :content="microserviceHelp" />
@@ -108,6 +114,7 @@ const microserviceHelp = computed(() => {
       :selected-choice="selectedChoice"
       :is-executing-choice="isExecutingChoice"
       @show-tasks="emit('show-tasks', $event)"
+      @show-job-history="emit('show-job-history', $event)"
       @set-selected-job-choice="emit('set-selected-job-choice', $event)"
       @execute-job-choice="emit('execute-job-choice', $event)"
     />

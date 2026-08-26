@@ -1,5 +1,7 @@
 from unittest import mock
 
+import gearman
+import pytest
 from django.urls import reverse
 from lxml import etree
 
@@ -71,3 +73,74 @@ def test_list(job_complete, gearman_client, rf, admin_user):
 
     # Assert that the unit dictionary matches the original value.
     assert response_unit_dict == FILE_FORMAT_IDENTIFICATION_CHOICES_DICT
+
+
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
+def test_execute_returns_plaintext_after_approval(
+    gearman_client, admin_client, dashboard_uuid
+):
+    gearman_client.return_value.submit_job.return_value = mock.Mock(
+        state=gearman.JOB_COMPLETE, result=["approving: ", "job-id", "chain-id"]
+    )
+
+    response = admin_client.post(
+        reverse("mcp:execute"), {"uuid": "job-id", "choice": "chain-id"}
+    )
+
+    assert response.status_code == 200
+    assert response["Content-Type"] == "text/plain"
+    assert response.content == b"None"
+    gearman_client.return_value.shutdown.assert_called_once_with()
+
+
+@pytest.mark.parametrize(
+    "state,payload",
+    [
+        (gearman.JOB_FAILED, None),
+        (gearman.JOB_CREATED, None),
+        (gearman.JOB_COMPLETE, {"error": True, "message": "Approval failed"}),
+    ],
+)
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
+def test_execute_returns_unavailable_for_unsuccessful_approval(
+    gearman_client, admin_client, dashboard_uuid, state, payload
+):
+    gearman_client.return_value.submit_job.return_value = mock.Mock(
+        state=state, result=payload
+    )
+
+    response = admin_client.post(
+        reverse("mcp:execute"), {"uuid": "job-id", "choice": "chain-id"}
+    )
+
+    assert response.status_code == 503
+    assert response["Content-Type"] == "text/plain"
+    assert response.content == b"Unable to execute Job choice."
+    gearman_client.return_value.shutdown.assert_called_once_with()
+
+
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
+def test_execute_returns_unavailable_for_transport_error(
+    gearman_client, admin_client, dashboard_uuid
+):
+    gearman_client.return_value.submit_job.side_effect = (
+        gearman.errors.ServerUnavailable("gearman:4730")
+    )
+
+    response = admin_client.post(
+        reverse("mcp:execute"), {"uuid": "job-id", "choice": "chain-id"}
+    )
+
+    assert response.status_code == 503
+    gearman_client.return_value.shutdown.assert_called_once_with()
+
+
+@mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
+def test_execute_without_uuid_preserves_empty_response(
+    gearman_client, admin_client, dashboard_uuid
+):
+    response = admin_client.post(reverse("mcp:execute"), {"uuid": ""})
+
+    assert response.status_code == 200
+    assert response.content == b""
+    gearman_client.assert_not_called()

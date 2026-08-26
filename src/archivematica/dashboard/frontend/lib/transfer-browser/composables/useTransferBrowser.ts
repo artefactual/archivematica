@@ -18,7 +18,6 @@ import {
 } from '@/shared/http/api'
 import {
   getSourceLocations as fetchSourceLocations,
-  getTransferStatus,
   createMetadataSetUuid,
 } from '@/shared/http/transfer'
 import type { FilesystemBrowseResponse } from '@/shared/http/filesystem'
@@ -212,12 +211,6 @@ export function useTransferBrowser() {
     })
   }
 
-  const fetchTransferStatus = async (uuid: string): Promise<Record<string, unknown>> => {
-    return runWithPending(async () => {
-      return getTransferStatus(uuid)
-    })
-  }
-
   const openComponentEditor = async (
     component: TransferComponent,
     transferType: string,
@@ -254,7 +247,6 @@ export function useTransferBrowser() {
     getSourceLocations,
     browseLocation,
     createTransfer,
-    getTransferStatus: fetchTransferStatus,
     createMetadataSetUuid,
     openComponentEditor,
     canEditComponents,

@@ -21,11 +21,14 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'show-tasks', jobUuid: string): void
+  (event: 'show-job-history', payload: { unitUuid: string, linkId: string }): void
   (event: 'set-selected-job-choice', payload: { jobUuid: string, choice: string }): void
   (event: 'execute-job-choice', payload: { job: ProcessingJob, choice: string, unitUuid: string }): void
 }>()
 
 const { t } = useI18n()
+
+const hasJobHistory = computed(() => (props.job.count ?? 1) > 1 && !!props.job.link_id)
 
 type InlineActionLink = {
   key: string
@@ -58,10 +61,19 @@ const inlineActionLinks = computed<InlineActionLink[]>(() => {
 })
 
 const onJobChoiceChange = (event: Event): void => {
+  if (!props.job.uuid) return
   const target = event.target as HTMLSelectElement | null
   const choice = target?.value ?? ''
   emit('set-selected-job-choice', { jobUuid: props.job.uuid, choice })
   emit('execute-job-choice', { job: props.job, choice, unitUuid: props.unitUuid })
+}
+
+const showTasks = (): void => {
+  if (hasJobHistory.value && props.job.link_id) {
+    emit('show-job-history', { unitUuid: props.unitUuid, linkId: props.job.link_id })
+  } else if (props.job.uuid) {
+    emit('show-tasks', props.job.uuid)
+  }
 }
 
 </script>
@@ -70,11 +82,12 @@ const onJobChoiceChange = (event: Event): void => {
   <div class="job-detail-actions">
     <!-- Allow showing tasks. -->
     <a
-      v-if="job.produces_tasks"
+      v-if="job.uuid && job.produces_tasks"
       class="btn_show_tasks"
       href="#"
-      :title="t('monitor.tasks')"
-      @click.stop.prevent="emit('show-tasks', job.uuid)"
+      :title="t(hasJobHistory ? 'monitor.jobHistory' : 'monitor.tasks')"
+      :aria-label="t(hasJobHistory ? 'monitor.jobHistory' : 'monitor.tasks')"
+      @click.stop.prevent="showTasks()"
     >
       <SilkCogIcon
         class="monitor-job-action-icon"
@@ -82,7 +95,7 @@ const onJobChoiceChange = (event: Event): void => {
         size="16"
         alt=""
       />
-      <span>{{ t('monitor.tasks') }}</span>
+      <span>{{ t(hasJobHistory ? 'monitor.jobHistory' : 'monitor.tasks') }}</span>
     </a>
 
     <!-- Other inline actions. -->
@@ -107,7 +120,7 @@ const onJobChoiceChange = (event: Event): void => {
 
     <!-- Allow executing job choices. -->
     <select
-      v-if="job.choices"
+      v-if="job.uuid && job.choices"
       :value="selectedChoice"
       :disabled="isExecutingChoice"
       @change.stop.prevent="onJobChoiceChange($event)"

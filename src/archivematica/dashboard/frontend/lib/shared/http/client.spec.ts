@@ -159,32 +159,32 @@ describe('shared http client', () => {
   it('returns changed payload metadata when JSON response differs', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      text: async () => JSON.stringify({ objects: [], mcp: true }),
+      text: async () => JSON.stringify({ results: [{ uuid: 'new' }] }),
     })
 
     const client = createHttpClient()
-    const result = await client.getJsonIfChanged('/transfer/status/', {
-      previousRaw: '{"objects":[],"mcp":false}',
+    const result = await client.getJsonIfChanged('/api/v2beta/transfer/', {
+      previousRaw: '{"results":[{"uuid":"old"}]}',
       strictJson: true,
       cacheBust: true,
     })
 
     expect(result).toMatchObject({
       changed: true,
-      data: { objects: [], mcp: true },
+      data: { results: [{ uuid: 'new' }] },
     })
-    expect(result.raw).toContain('"mcp":true')
+    expect(result.raw).toContain('"uuid":"new"')
   })
 
   it('returns unchanged payload metadata when raw response is identical', async () => {
-    const raw = '{"objects":[],"mcp":true}'
+    const raw = '{"results":[]}'
     mockFetch.mockResolvedValueOnce({
       ok: true,
       text: async () => raw,
     })
 
     const client = createHttpClient()
-    const result = await client.getJsonIfChanged('/transfer/status/', {
+    const result = await client.getJsonIfChanged('/api/v2beta/transfer/', {
       previousRaw: raw,
       strictJson: true,
       cacheBust: true,

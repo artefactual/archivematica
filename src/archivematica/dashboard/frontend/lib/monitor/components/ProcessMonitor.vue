@@ -2,6 +2,7 @@
 import { useProcessingMonitor } from '@/monitor/composables'
 import type { MonitorUnitType } from '@/monitor/composables'
 import type { MonitorConfig } from '@/monitor/composables'
+import { PROCESSING_UNIT_STATE } from '@/shared/http/processing'
 import type { ProcessingJob, ProcessingUnit } from '@/shared/http/processing'
 import {
   getUploadTarget,
@@ -12,6 +13,9 @@ import {
   getIngestUploadAsUrl,
   getJobTasksUrl,
   getUnitDetailUrl,
+  getUnitJobHistoryUrl,
+  getIngestJobGroups,
+  getTransferJobGroups,
 } from '@/shared/http'
 import type { UnitType } from '@/shared/http/unit'
 import {
@@ -25,7 +29,7 @@ import ProcessMonitorUploadTargetDialog from './ProcessMonitorUploadTargetDialog
 import ProcessMonitorUnit from './ProcessMonitorUnit.vue'
 import { useBreakpoints } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
-import { computed, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   unitType: MonitorUnitType
@@ -34,7 +38,14 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const { units, loading, error, refresh, requestSoonerPoll } = useProcessingMonitor(props.unitType, props.config)
+const {
+  units,
+  loading,
+  error,
+  refresh,
+  refreshVersion,
+  requestSoonerPoll,
+} = useProcessingMonitor(props.unitType, props.config)
 
 // List of expanded units by UUID.
 const expandedUnitUuids = ref<Record<string, boolean>>({})
@@ -42,7 +53,20 @@ const expandedUnitUuids = ref<Record<string, boolean>>({})
 // List of expanded job group keys by "unitUuid::groupName".
 const expandedGroupKeys = ref<Record<string, boolean>>({})
 
-const executingChoiceJobUuids = ref<Record<string, boolean>>({})
+// Keep mutations tied to the unit independently of refreshed Job objects.
+const executingChoiceUnitUuids = ref<Record<string, string>>({})
+const executingChoiceJobUuids = computed<Record<string, boolean>>(() =>
+  Object.fromEntries(Object.keys(executingChoiceUnitUuids.value).map(uuid => [uuid, true])),
+)
+const resolvedChoiceJobUuids = ref<Record<string, string>>({})
+let disposed = false
+onUnmounted(() => {
+  disposed = true
+})
+
+const unitHasExecutingChoice = (unitUuid: string): boolean =>
+  Object.values(executingChoiceUnitUuids.value).includes(unitUuid)
+
 const selectedChoicesByJobUuid = ref<Record<string, string>>({})
 
 const jobIsAwaitingDecision = (job: ProcessingJob): boolean =>
@@ -52,20 +76,49 @@ const jobIsAwaitingDecision = (job: ProcessingJob): boolean =>
     microserviceGroup: job.microservicegroup,
   })
 
-const unitHasAwaitingDecision = (unit: ProcessingUnit): boolean => {
-  return unit.jobs.some(jobIsAwaitingDecision)
+const markChoiceResolved = (job: ProcessingJob): void => {
+  if (jobIsAwaitingDecision(job)) {
+    job.currentstep = STATUS_CODE_BY_NAME.STATUS_EXECUTING_COMMANDS
+    job.currentstep_label = undefined
+  }
+  job.choices = undefined
 }
 
-const isUnitExpanded = (unit: ProcessingUnit): boolean => {
-  const stored = expandedUnitUuids.value[unit.uuid]
-  if (stored !== undefined) {
-    return stored === true
-  }
-  return true
+const jobHasCurrentDecision = (unit: ProcessingUnit, job: ProcessingJob): boolean =>
+  !!job.uuid
+  && !resolvedChoiceJobUuids.value[job.uuid]
+  && (unit.awaiting_job_uuids?.includes(job.uuid) ?? unit.has_awaiting_decision === undefined)
+
+const isUnitExpandable = (unit: ProcessingUnit): boolean =>
+  unit.processing_state !== PROCESSING_UNIT_STATE.waitingForProcessing
+
+const isUnitExpanded = (unit: ProcessingUnit): boolean =>
+  isUnitExpandable(unit) && expandedUnitUuids.value[unit.uuid] === true
+
+const unitGroupRequestGenerations = ref<Record<string, number>>({})
+const pendingUnitGroupReloadUuids = ref<Record<string, boolean>>({})
+
+const invalidateUnitJobGroupsRequest = (unitUuid: string): void => {
+  unitGroupRequestGenerations.value[unitUuid]
+    = (unitGroupRequestGenerations.value[unitUuid] ?? 0) + 1
+  delete pendingUnitGroupReloadUuids.value[unitUuid]
 }
 
 const toggleUnit = (unit: ProcessingUnit): void => {
-  expandedUnitUuids.value[unit.uuid] = !isUnitExpanded(unit)
+  if (!isUnitExpandable(unit)) return
+  const expanding = !isUnitExpanded(unit)
+  for (const unitUuid of Object.keys(expandedUnitUuids.value)) {
+    if (expandedUnitUuids.value[unitUuid] === true) {
+      expandedUnitUuids.value[unitUuid] = false
+      invalidateUnitJobGroupsRequest(unitUuid)
+    }
+  }
+  expandedUnitUuids.value[unit.uuid] = expanding
+  // Legacy embedded payloads already include Jobs. Summaries declare
+  // has_awaiting_decision and need the per-unit lazy request.
+  if (expanding && unit.has_awaiting_decision !== undefined) {
+    void loadUnitJobGroups(unit.uuid, true)
+  }
 }
 
 type JobGroup = {
@@ -89,8 +142,84 @@ const groupJobs = (jobs: ProcessingJob[]): JobGroup[] => {
 }
 
 const groupedJobsByUnitUuid = computed<Record<string, JobGroup[]>>(() => {
-  return Object.fromEntries(units.value.map(unit => [unit.uuid, groupJobs(unit.jobs)]))
+  return Object.fromEntries(units.value.map(unit => [unit.uuid, groupJobs(unit.jobs.map(job =>
+    // Preserve raw details: a response may arrive before the summary that
+    // confirms its new decision. History remains usable in either ordering.
+    job.choices && !jobHasCurrentDecision(unit, job) ? { ...job, choices: undefined } : job,
+  ))]))
 })
+
+const loadingUnitGroupUuids = ref<Record<string, boolean>>({})
+const unitGroupErrorUuids = ref<Record<string, boolean>>({})
+
+const loadUnitJobGroups = async (unitUuid: string, forceReload = false): Promise<void> => {
+  if (disposed || unitHasExecutingChoice(unitUuid)) return
+  if (loadingUnitGroupUuids.value[unitUuid]) {
+    // Ordinary polling reuses the request already in progress. Reopening a
+    // unit needs a fresh request after its former generation completes.
+    if (forceReload) pendingUnitGroupReloadUuids.value[unitUuid] = true
+    return
+  }
+  const requestGeneration = unitGroupRequestGenerations.value[unitUuid] ?? 0
+  delete pendingUnitGroupReloadUuids.value[unitUuid]
+  loadingUnitGroupUuids.value[unitUuid] = true
+  try {
+    const response = props.unitType === 'Transfer'
+      ? await getTransferJobGroups(unitUuid)
+      : await getIngestJobGroups(unitUuid)
+    if (
+      disposed
+      || (unitGroupRequestGenerations.value[unitUuid] ?? 0) !== requestGeneration
+    ) {
+      return
+    }
+    delete unitGroupErrorUuids.value[unitUuid]
+    const unit = units.value.find(candidate => candidate.uuid === unitUuid)
+    if (unit) {
+      unit.jobs = response.results.flatMap(group => group.jobs)
+      // A successful choice supersedes even a subsequently fetched snapshot
+      // while MCPServer is still persisting that Job's new status.
+      for (const job of unit.jobs) {
+        if (job.uuid && resolvedChoiceJobUuids.value[job.uuid]) {
+          markChoiceResolved(job)
+        }
+      }
+      for (const group of response.results) {
+        const groupKey = `${unitUuid}::${group.name}`
+        if (
+          !(groupKey in expandedGroupKeys.value)
+          && group.jobs.some(jobIsAwaitingDecision)
+        ) {
+          expandedGroupKeys.value[groupKey] = true
+        }
+        for (const job of group.jobs) {
+          if (job.uuid && job.choices && jobHasCurrentDecision(unit, job) && !(job.uuid in selectedChoicesByJobUuid.value)) {
+            selectedChoicesByJobUuid.value[job.uuid] = ''
+          }
+        }
+      }
+    }
+  } catch {
+    if (
+      disposed
+      || (unitGroupRequestGenerations.value[unitUuid] ?? 0) !== requestGeneration
+    ) {
+      return
+    }
+    // Keep the unit summary usable and retry on the next monitor poll.
+    unitGroupErrorUuids.value[unitUuid] = true
+  } finally {
+    delete loadingUnitGroupUuids.value[unitUuid]
+    const shouldReload = pendingUnitGroupReloadUuids.value[unitUuid] === true
+      && !disposed
+      && !unitHasExecutingChoice(unitUuid)
+      && units.value.some(candidate => candidate.uuid === unitUuid && isUnitExpanded(candidate))
+    delete pendingUnitGroupReloadUuids.value[unitUuid]
+    if (shouldReload) {
+      void loadUnitJobGroups(unitUuid)
+    }
+  }
+}
 
 const getUnitGroups = (unitUuid: string): JobGroup[] => {
   return groupedJobsByUnitUuid.value[unitUuid] ?? []
@@ -118,7 +247,7 @@ const toggleGroup = (unitUuid: string, groupName: string, jobs: ProcessingJob[])
 }
 
 const isJobExecutingChoice = (jobUuid: string): boolean => {
-  return executingChoiceJobUuids.value[jobUuid] === true
+  return executingChoiceJobUuids.value[jobUuid] !== undefined
 }
 
 const setSelectedJobChoice = (jobUuid: string, choice: string): void => {
@@ -143,7 +272,7 @@ type SelectedJobChoicePayload = {
 }
 
 type AtomUploadPendingChoice = {
-  job: ProcessingJob
+  job: ProcessingJob & { uuid: string }
   choice: string
   unitUuid: string
 }
@@ -206,6 +335,8 @@ watch(units, (nextUnits) => {
   for (const unitUuid of Object.keys(expandedUnitUuids.value)) {
     if (!nextUnitUuids.has(unitUuid)) {
       delete expandedUnitUuids.value[unitUuid]
+      invalidateUnitJobGroupsRequest(unitUuid)
+      delete unitGroupErrorUuids.value[unitUuid]
     }
   }
 
@@ -218,10 +349,12 @@ watch(units, (nextUnits) => {
     }
   }
 
-  const validJobUuids = new Set(nextUnits.flatMap(unit => unit.jobs.map(job => job.uuid)))
-  for (const jobUuid of Object.keys(executingChoiceJobUuids.value)) {
-    if (!validJobUuids.has(jobUuid)) {
-      delete executingChoiceJobUuids.value[jobUuid]
+  const validJobUuids = new Set(
+    nextUnits.flatMap(unit => unit.jobs.flatMap(job => job.uuid ? [job.uuid] : [])),
+  )
+  for (const [jobUuid, unitUuid] of Object.entries(resolvedChoiceJobUuids.value)) {
+    if (!nextUnitUuids.has(unitUuid)) {
+      delete resolvedChoiceJobUuids.value[jobUuid]
     }
   }
   for (const jobUuid of Object.keys(selectedChoicesByJobUuid.value)) {
@@ -231,11 +364,16 @@ watch(units, (nextUnits) => {
   }
 
   for (const unit of nextUnits) {
-    if (!(unit.uuid in expandedUnitUuids.value) && unitHasAwaitingDecision(unit)) {
-      // Auto-opened units stay open until user toggles them.
-      expandedUnitUuids.value[unit.uuid] = true
+    if (!isUnitExpandable(unit)) {
+      if (
+        expandedUnitUuids.value[unit.uuid] === true
+        || loadingUnitGroupUuids.value[unit.uuid] === true
+      ) {
+        invalidateUnitJobGroupsRequest(unit.uuid)
+      }
+      expandedUnitUuids.value[unit.uuid] = false
+      delete unitGroupErrorUuids.value[unit.uuid]
     }
-
     const groups = getUnitGroups(unit.uuid)
     for (const group of groups) {
       const groupKey = getGroupKey(unit.uuid, group.name)
@@ -246,12 +384,26 @@ watch(units, (nextUnits) => {
     }
 
     for (const job of unit.jobs) {
-      if (job.choices && !(job.uuid in selectedChoicesByJobUuid.value)) {
+      if (job.uuid && resolvedChoiceJobUuids.value[job.uuid]) {
+        markChoiceResolved(job)
+      }
+      if (job.uuid && job.choices && jobHasCurrentDecision(unit, job) && !(job.uuid in selectedChoicesByJobUuid.value)) {
         selectedChoicesByJobUuid.value[job.uuid] = ''
       }
-      if (!job.choices && job.uuid in selectedChoicesByJobUuid.value) {
+      if (job.uuid && (!job.choices || !jobHasCurrentDecision(unit, job)) && job.uuid in selectedChoicesByJobUuid.value) {
         delete selectedChoicesByJobUuid.value[job.uuid]
       }
+    }
+  }
+})
+
+watch(refreshVersion, () => {
+  for (const unit of units.value) {
+    if (
+      isUnitExpanded(unit)
+      && unit.has_awaiting_decision !== undefined
+    ) {
+      void loadUnitJobGroups(unit.uuid)
     }
   }
 })
@@ -261,6 +413,10 @@ const getRemoveAllMessageKeys = (): RemoveAllMessageKeys => monitorUnitMeta[prop
 
 const showTasks = (jobUuid: string): void => {
   window.open(getJobTasksUrl(jobUuid), 'output')
+}
+
+const showJobHistory = (payload: { unitUuid: string, linkId: string }): void => {
+  window.open(getUnitJobHistoryUrl(getApiUnitType(), payload.unitUuid, payload.linkId), 'output')
 }
 
 const openPanel = (unitUuid: string): void => {
@@ -276,22 +432,44 @@ const getUnitByUuid = (unitUuid: string): ProcessingUnit | undefined => {
   return units.value.find(candidate => candidate.uuid === unitUuid)
 }
 
-const executeMcpChoice = async (job: ProcessingJob, choice: string): Promise<void> => {
-  executingChoiceJobUuids.value[job.uuid] = true
+const getCurrentDecisionJob = (unitUuid: string, jobUuid: string, choice: string): ProcessingJob | undefined => {
+  if (disposed || isJobExecutingChoice(jobUuid)) return
+  const unit = getUnitByUuid(unitUuid)
+  const job = unit?.jobs.find(candidate => candidate.uuid === jobUuid)
+  if (unit && job && jobHasCurrentDecision(unit, job) && Object.prototype.hasOwnProperty.call(job.choices ?? {}, choice)) {
+    return job
+  }
+}
+
+const executeMcpChoice = async (
+  job: ProcessingJob,
+  choice: string,
+  unitUuid: string,
+): Promise<boolean> => {
+  if (!job.uuid || !getCurrentDecisionJob(unitUuid, job.uuid, choice)) return false
+  const jobUuid = job.uuid
+  executingChoiceUnitUuids.value[jobUuid] = unitUuid
+  invalidateUnitJobGroupsRequest(unitUuid)
   try {
-    await executeChoice({
-      uuid: job.uuid,
-      choice,
-    })
-    requestSoonerPoll()
-    job.currentstep = STATUS_CODE_BY_NAME.STATUS_EXECUTING_COMMANDS
-    job.currentstep_label = undefined
-    job.choices = undefined
-    delete selectedChoicesByJobUuid.value[job.uuid]
+    await executeChoice({ uuid: jobUuid, choice })
+    resolvedChoiceJobUuids.value[jobUuid] = unitUuid
+    markChoiceResolved(job)
+    // A summary may have replaced the object captured when the choice started.
+    const currentJob = getUnitByUuid(unitUuid)?.jobs.find(candidate => candidate.uuid === jobUuid)
+    if (currentJob) markChoiceResolved(currentJob)
+    delete selectedChoicesByJobUuid.value[jobUuid]
+    return true
   } catch {
-    selectedChoicesByJobUuid.value[job.uuid] = ''
+    selectedChoicesByJobUuid.value[jobUuid] = ''
+    return false
   } finally {
-    delete executingChoiceJobUuids.value[job.uuid]
+    delete executingChoiceUnitUuids.value[jobUuid]
+    requestSoonerPoll()
+    if (units.value.some(unit =>
+      unit.uuid === unitUuid && isUnitExpanded(unit) && unit.has_awaiting_decision !== undefined,
+    )) {
+      void loadUnitJobGroups(unitUuid, true)
+    }
   }
 }
 
@@ -300,6 +478,7 @@ const executeAtomUploadChoice = async (
   target: string,
   options?: { preserveSelectionOnFailure?: boolean },
 ): Promise<boolean> => {
+  if (!getCurrentDecisionJob(payload.unitUuid, payload.job.uuid, payload.choice)) return false
   try {
     const response = await setUploadTarget(payload.unitUuid, target)
     if (!response.ready) {
@@ -314,8 +493,7 @@ const executeAtomUploadChoice = async (
       unit.access_system_id = target
     }
 
-    await executeMcpChoice(payload.job, payload.choice)
-    return true
+    return await executeMcpChoice(payload.job, payload.choice, payload.unitUuid)
   } catch {
     if (options?.preserveSelectionOnFailure !== true) {
       selectedChoicesByJobUuid.value[payload.job.uuid] = ''
@@ -401,9 +579,12 @@ const executeJobChoice = async (
   choice: string,
   unitUuid: string,
 ): Promise<void> => {
-  if (!choice || isJobExecutingChoice(job.uuid)) {
+  if (!job.uuid || !choice) {
     return
   }
+  const currentJob = getCurrentDecisionJob(unitUuid, job.uuid, choice)
+  if (!currentJob) return
+  job = currentJob
 
   if (props.unitType === 'SIP') {
     const accessSystemId = getUnitAccessSystemId(unitUuid)
@@ -418,7 +599,11 @@ const executeJobChoice = async (
     }
 
     if (behavior.kind === 'require_atom_target') {
-      const payload: AtomUploadPendingChoice = { job, choice, unitUuid }
+      const payload: AtomUploadPendingChoice = {
+        job: job as ProcessingJob & { uuid: string },
+        choice,
+        unitUuid,
+      }
       if (behavior.hasStoredTarget && accessSystemId) {
         const success = await executeAtomUploadChoice(payload, accessSystemId, {
           preserveSelectionOnFailure: true,
@@ -434,7 +619,7 @@ const executeJobChoice = async (
     }
   }
 
-  await executeMcpChoice(job, choice)
+  await executeMcpChoice(job, choice, unitUuid)
 }
 
 const onToggleGroup = (payload: ToggleGroupPayload): void => {
@@ -634,7 +819,10 @@ const removeAllTitle = computed(() => t('monitor.removeAllCompleted'))
           v-for="unit in units"
           :key="unit.uuid"
           :unit="unit"
+          :is-expandable="isUnitExpandable(unit)"
           :is-expanded="isUnitExpanded(unit)"
+          :is-loading-job-groups="loadingUnitGroupUuids[unit.uuid] === true"
+          :has-job-groups-error="unitGroupErrorUuids[unit.uuid] === true"
           :unit-groups="getUnitGroups(unit.uuid)"
           :expanded-group-keys="expandedGroupKeys"
           :executing-choice-job-uuids="executingChoiceJobUuids"
@@ -646,6 +834,7 @@ const removeAllTitle = computed(() => t('monitor.removeAllCompleted'))
           @remove-unit="requestRemoveUnit"
           @toggle-group="onToggleGroup"
           @show-tasks="showTasks"
+          @show-job-history="showJobHistory"
           @set-selected-job-choice="onSetSelectedJobChoice"
           @execute-job-choice="onExecuteJobChoice"
         />

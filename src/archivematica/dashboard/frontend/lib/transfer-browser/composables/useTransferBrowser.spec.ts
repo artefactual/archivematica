@@ -6,7 +6,6 @@ import type { TransferComponent } from '@/transfer-browser/types'
 const mockGetProcessingConfigurations = vi.fn()
 const mockCreateTransferPackage = vi.fn()
 const mockGetSourceLocations = vi.fn()
-const mockGetTransferStatus = vi.fn()
 const mockCreateMetadataSetUuid = vi.fn()
 const mockGetFilesystemChildren = vi.fn()
 
@@ -17,7 +16,6 @@ vi.mock('@/shared/http/api', () => ({
 
 vi.mock('@/shared/http/transfer', () => ({
   getSourceLocations: (...args: unknown[]) => mockGetSourceLocations(...args),
-  getTransferStatus: (...args: unknown[]) => mockGetTransferStatus(...args),
   createMetadataSetUuid: (...args: unknown[]) => mockCreateMetadataSetUuid(...args),
 }))
 
@@ -32,7 +30,6 @@ describe('useTransferBrowser', () => {
     mockGetProcessingConfigurations.mockReset()
     mockCreateTransferPackage.mockReset()
     mockGetSourceLocations.mockReset()
-    mockGetTransferStatus.mockReset()
     mockCreateMetadataSetUuid.mockReset()
     mockGetFilesystemChildren.mockReset()
     mockWindowOpen.mockReset()
