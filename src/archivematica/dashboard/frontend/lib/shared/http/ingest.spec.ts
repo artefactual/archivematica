@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
-  getIngestStatuses,
-  getIngestStatus,
+  getIngestSummaries,
+  getIngestJobGroups,
   getUploadTarget,
   setUploadTarget,
   checkUploadDestinationStatusCode,
@@ -26,54 +26,27 @@ describe('ingest http', () => {
     vi.clearAllMocks()
   })
 
-  it('fetches ingest statuses with cache busting', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({ objects: [], mcp: true }),
-    })
+  it('fetches internal ingest summaries with unchanged checks', async () => {
+    const raw = JSON.stringify({ results: [] })
+    mockFetch.mockResolvedValueOnce({ ok: true, text: async () => raw })
 
-    await getIngestStatuses()
+    const response = await getIngestSummaries({})
 
+    expect(response).toMatchObject({ changed: true, data: { results: [] } })
     const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
     expect(url).toContain('/ingest/status/')
-    expect(url).toMatch(/[_]=\d+/)
   })
 
-  it('fetches one ingest status with cache busting', async () => {
+  it('fetches grouped jobs for one SIP', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      text: async () => JSON.stringify({ objects: [], mcp: true }),
+      text: async () => JSON.stringify({ results: [] }),
     })
 
-    await getIngestStatus('sip-uuid')
+    await getIngestJobGroups('sip-uuid')
 
     const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
-    expect(url).toContain('/ingest/status/sip-uuid/')
-    expect(url).toMatch(/[_]=\d+/)
-  })
-
-  it('supports raw-response unchanged checks for ingest statuses', async () => {
-    const raw = JSON.stringify({ objects: [], mcp: true })
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => raw,
-    })
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => raw,
-    })
-
-    const first = await getIngestStatuses({})
-    const second = await getIngestStatuses({ previousRaw: first.raw })
-
-    expect(first).toMatchObject({
-      changed: true,
-      data: { objects: [], mcp: true },
-    })
-    expect(second).toEqual({
-      changed: false,
-      raw,
-    })
+    expect(url).toContain('/ingest/sip-uuid/job-groups/')
   })
 
   it('gets and sets upload target with proper methods', async () => {

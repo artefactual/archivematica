@@ -14,7 +14,6 @@ import {
   SilkCancelIcon,
   SilkHourglassIcon,
   SilkTableEditIcon,
-  SilkZoomIcon,
 } from '@/shared/icons'
 import ProcessMonitorGroup from './ProcessMonitorGroup.vue'
 import { useI18n } from 'vue-i18n'
@@ -24,9 +23,12 @@ type JobGroup = {
   jobs: ProcessingJob[]
 }
 
-defineProps<{
+const props = defineProps<{
   unit: ProcessingUnit
+  isExpandable: boolean
   isExpanded: boolean
+  isLoadingJobGroups: boolean
+  hasJobGroupsError: boolean
   unitGroups: JobGroup[]
   expandedGroupKeys: Record<string, boolean>
   executingChoiceJobUuids: Record<string, boolean>
@@ -41,11 +43,18 @@ const emit = defineEmits<{
   (event: 'remove-unit', unit: ProcessingUnit): void
   (event: 'toggle-group', payload: { unitUuid: string, groupName: string, jobs: ProcessingJob[] }): void
   (event: 'show-tasks', jobUuid: string): void
+  (event: 'show-job-history', payload: { unitUuid: string, linkId: string }): void
   (event: 'set-selected-job-choice', payload: { jobUuid: string, choice: string }): void
   (event: 'execute-job-choice', payload: { job: ProcessingJob, choice: string, unitUuid: string }): void
 }>()
 
 const { t } = useI18n()
+
+const toggleUnit = (): void => {
+  if (props.isExpandable) {
+    emit('toggle-unit', props.unit)
+  }
+}
 
 const statusIconByName = {
   'accept': SilkAcceptIcon,
@@ -56,7 +65,8 @@ const statusIconByName = {
 } as const
 
 const getStatusIconName = (unit: ProcessingUnit): keyof typeof statusIconByName => {
-  const job = unit.jobs[0]
+  if (unit.has_awaiting_decision === true) return 'bell'
+  const job = unit.status ?? unit.jobs[0]
   if (!job && unit.processing_state === PROCESSING_UNIT_STATE.waitingForProcessing) {
     return 'hourglass'
   }
@@ -71,7 +81,26 @@ const getStatusIconName = (unit: ProcessingUnit): keyof typeof statusIconByName 
     : 'accept'
 }
 
+const statusCodeByIconName = {
+  'accept': 2,
+  'arrow-refresh': 3,
+  'bell': 1,
+  'cancel': 4,
+} as const
+
+const getStatusLabel = (unit: ProcessingUnit): string => {
+  const iconName = getStatusIconName(unit)
+  if (iconName === 'hourglass') {
+    return t('monitor.waitingForProcessing')
+  }
+  const statusCode = statusCodeByIconName[iconName]
+  return props.jobStatuses[String(statusCode)] ?? String(statusCode)
+}
+
 const getIngestStartTime = (unit: ProcessingUnit): string => {
+  if (typeof unit.started_at === 'number') {
+    return formatDateTime(unit.started_at)
+  }
   const jobs = Array.isArray(unit.jobs) ? unit.jobs : []
   const startJob
     = jobs.find(job => isIngestStartTimeMarkerJob(job.type))
@@ -86,6 +115,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
   <div
     class="sip"
     :class="{
+      'sip-expandable': isExpandable,
       'sip-selected': isExpanded,
       'sip-expanded': isExpanded,
     }"
@@ -93,6 +123,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
     <div
       :id="`sip-row-${unit.uuid}`"
       class="sip-row"
+      @click="toggleUnit"
     >
       <div class="sip-detail-icon-status">
         <component
@@ -105,24 +136,24 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
           size="16"
           alt=""
         />
+        <span class="sr-only monitor-status-label">{{ getStatusLabel(unit) }}</span>
       </div>
       <div
         class="sip-detail-directory"
-        @click.stop.prevent="emit('toggle-unit', unit)"
+        :role="isExpandable ? 'button' : undefined"
+        :tabindex="isExpandable ? 0 : undefined"
+        :aria-expanded="isExpandable ? isExpanded : undefined"
+        :aria-controls="isExpandable ? `sip-jobs-${unit.uuid}` : undefined"
+        @keydown.enter.stop.prevent="toggleUnit"
+        @keydown.space.stop.prevent="toggleUnit"
       >
         {{ unit.directory }}
         <abbr :title="unit.uuid">{{ t('monitor.uuid') }}</abbr>
       </div>
-      <div
-        class="sip-detail-uuid"
-        @click.stop.prevent="emit('toggle-unit', unit)"
-      >
+      <div class="sip-detail-uuid">
         {{ unit.uuid }}
       </div>
-      <div
-        class="sip-detail-timestamp"
-        @click.stop.prevent="emit('toggle-unit', unit)"
-      >
+      <div class="sip-detail-timestamp">
         {{ getIngestStartTime(unit) }}
       </div>
       <div class="sip-detail-actions">
@@ -132,8 +163,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
           :title="t('monitor.metadata')"
           @click.stop.prevent="emit('open-panel', unit.uuid)"
         >
-          <component
-            :is="isExpanded ? SilkTableEditIcon : SilkZoomIcon"
+          <SilkTableEditIcon
             class="monitor-action-icon"
             aria-hidden="true"
             size="16"
@@ -142,6 +172,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
           <span>{{ t('monitor.metadata') }}</span>
         </a>
         <a
+          v-if="unit.processing_state !== PROCESSING_UNIT_STATE.waitingForProcessing"
           class="btn_remove_sip"
           href="#"
           :title="t('monitor.remove')"
@@ -160,9 +191,25 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
     <Transition name="sip-jobs-slide">
       <div
         v-if="isExpanded"
+        :id="`sip-jobs-${unit.uuid}`"
         class="sip-detail-job-container"
         :class="{ 'sip-detail-job-container-expanded': isExpanded }"
+        :aria-busy="isLoadingJobGroups"
       >
+        <p
+          v-if="isLoadingJobGroups && unitGroups.length === 0"
+          class="monitor-job-groups-loading"
+          role="status"
+        >
+          {{ t('misc.loading') }}
+        </p>
+        <div
+          v-if="hasJobGroupsError"
+          class="alert alert-warning monitor-job-groups-warning"
+          role="alert"
+        >
+          {{ t('monitor.jobGroupsLoadFailed') }}
+        </div>
         <ProcessMonitorGroup
           v-for="group in unitGroups"
           :key="group.name"
@@ -175,6 +222,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
           :job-statuses="jobStatuses"
           @toggle-group="emit('toggle-group', $event)"
           @show-tasks="emit('show-tasks', $event)"
+          @show-job-history="emit('show-job-history', $event)"
           @set-selected-job-choice="emit('set-selected-job-choice', $event)"
           @execute-job-choice="emit('execute-job-choice', $event)"
         />
@@ -195,7 +243,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
   margin-bottom: 10px;
 }
 
-.sip:hover,
+.sip-expandable:hover,
 .sip-selected {
   border-color: #bbb;
   background-color: #eee;
@@ -210,7 +258,7 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
   border-color: #bbb;
 }
 
-.sip-row {
+.sip-expandable .sip-row {
   cursor: pointer;
 }
 
@@ -236,6 +284,15 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
   padding: 4px 0;
   display: table-cell;
   white-space: nowrap;
+}
+
+.sip-detail-directory:focus {
+  outline: none;
+}
+
+.sip-detail-directory:focus-visible {
+  outline: 1px dotted #333;
+  outline-offset: 1px;
 }
 
 .sip-detail-uuid {
@@ -292,8 +349,28 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
 
 .sip-removing .sip-detail-actions > a,
 .sip:hover .sip-detail-actions > a,
+.sip:focus-within .sip-detail-actions > a,
 .sip-selected .sip-detail-actions > a {
   visibility: visible;
+}
+
+/* Queued rows have no focusable expander. Keep Metadata in the tab order
+   while revealing it only when the row is hovered or contains focus. */
+.sip:not(.sip-expandable) .btn_show_metadata {
+  visibility: visible;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sip:hover .btn_show_metadata,
+.sip:focus-within .btn_show_metadata {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn_show_metadata:focus-visible {
+  outline: 1px dotted #333;
+  outline-offset: 1px;
 }
 
 .sip-detail-job-container {
@@ -309,6 +386,15 @@ const getIngestStartTime = (unit: ProcessingUnit): string => {
 
 .sip-detail-job-container-expanded {
   display: block;
+}
+
+.monitor-job-groups-warning {
+  margin: 0;
+  padding: 6px 10px;
+}
+
+.monitor-job-groups-loading {
+  margin: 5px;
 }
 
 .sip-jobs-slide-enter-from,

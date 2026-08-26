@@ -1,6 +1,9 @@
 import { createHttpClient } from './client'
 import type { JsonIfChangedResult } from './client'
-import type { ProcessingStatusesResponse } from './processing'
+import type {
+  ProcessingJobGroupsResponse,
+  ProcessingUnitSummariesResponse,
+} from './processing'
 
 export type SourceLocationPurpose = 'AR' | 'AS' | 'CP' | 'DS' | 'SD' | 'SS' | 'TS' | 'RP'
 
@@ -19,12 +22,10 @@ export interface SourceLocation {
 }
 
 export type TransferLocationsResponse = SourceLocation[]
-export type TransferStatusResponse = ProcessingStatusesResponse
-export type TransferStatusesResponse = ProcessingStatusesResponse
-export type TransferStatusesIfChangedResponse = JsonIfChangedResult<TransferStatusesResponse>
-export type TransferStatusesIfChangedOptions = {
+export type TransferSummariesIfChangedOptions = {
   previousRaw?: string
 }
+export type TransferSummariesIfChangedResponse = JsonIfChangedResult<ProcessingUnitSummariesResponse>
 
 const client = createHttpClient()
 const SOURCE_LOCATION_PURPOSES: SourceLocationPurpose[] = ['AR', 'AS', 'CP', 'DS', 'SD', 'SS', 'TS', 'RP']
@@ -117,32 +118,23 @@ export const getSourceLocations = async (): Promise<TransferLocationsResponse> =
   return parseSourceLocations(data)
 }
 
-export const getTransferStatus = async (uuid: string): Promise<TransferStatusResponse> => {
-  return client.getJson<TransferStatusResponse>(`/transfer/status/${uuid}/`, {
-    cacheBust: true,
-    strictJson: true,
-  })
-}
-
-export function getTransferStatuses(
-  options: TransferStatusesIfChangedOptions,
-): Promise<TransferStatusesIfChangedResponse>
-export function getTransferStatuses(): Promise<TransferStatusesResponse>
-export function getTransferStatuses(
-  options?: TransferStatusesIfChangedOptions,
-): Promise<TransferStatusesResponse | TransferStatusesIfChangedResponse> {
-  if (options === undefined) {
-    return client.getJson<TransferStatusesResponse>('/transfer/status/', {
-      cacheBust: true,
-      strictJson: true,
-    })
-  }
-
-  return client.getJsonIfChanged<TransferStatusesResponse>('/transfer/status/', {
+export const getTransferSummaries = (
+  options: TransferSummariesIfChangedOptions,
+): Promise<TransferSummariesIfChangedResponse> => {
+  return client.getJsonIfChanged<ProcessingUnitSummariesResponse>('/transfer/status/', {
     cacheBust: true,
     strictJson: true,
     previousRaw: options.previousRaw,
   })
+}
+
+export const getTransferJobGroups = async (
+  uuid: string,
+): Promise<ProcessingJobGroupsResponse> => {
+  return client.getJson<ProcessingJobGroupsResponse>(
+    `/transfer/${uuid}/job-groups/`,
+    { cacheBust: true, strictJson: true },
+  )
 }
 
 export const createMetadataSetUuid = async (): Promise<string> => {

@@ -30,6 +30,11 @@ urlpatterns = [
         views.processing_unit_job_groups,
         name="processing_unit_job_groups",
     ),
+    path(
+        "<uuid:unit_uuid>/job-history/<uuid:link_uuid>/",
+        views.job_history,
+        name="job_history",
+    ),
     re_path(
         r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/$", views.detail, name="detail"
     ),

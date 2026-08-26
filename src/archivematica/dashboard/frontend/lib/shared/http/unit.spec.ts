@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { deleteUnit, deleteCompletedUnits, getUnitDetailUrl } from '@/shared/http/unit'
+import { deleteUnit, deleteCompletedUnits, getUnitDetailUrl, getUnitJobHistoryUrl } from '@/shared/http/unit'
 
 const mockFetch = vi.fn()
 
@@ -61,5 +61,10 @@ describe('unit http', () => {
   it('builds unit detail URLs', () => {
     expect(getUnitDetailUrl('transfer', 'u1')).toContain('/transfer/u1/')
     expect(getUnitDetailUrl('ingest', 'u2')).toContain('/ingest/u2/')
+  })
+
+  it('builds job history URLs scoped to the package type, UUID and workflow link', () => {
+    expect(getUnitJobHistoryUrl('transfer', 'u1', 'link-1')).toContain('/transfer/u1/job-history/link-1/')
+    expect(getUnitJobHistoryUrl('ingest', 'u2', 'link-2')).toContain('/ingest/u2/job-history/link-2/')
   })
 })

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   getSourceLocations,
-  getTransferStatus,
-  getTransferStatuses,
+  getTransferSummaries,
+  getTransferJobGroups,
   createMetadataSetUuid,
 } from '@/shared/http/transfer'
 
@@ -62,54 +62,27 @@ describe('transfer http', () => {
     await expect(getSourceLocations()).rejects.toThrow('Expected source location')
   })
 
-  it('fetches transfer status for a UUID', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({ status: 'ok' }),
-    })
+  it('fetches internal transfer summaries with unchanged checks', async () => {
+    const raw = JSON.stringify({ results: [] })
+    mockFetch.mockResolvedValueOnce({ ok: true, text: async () => raw })
 
-    await getTransferStatus('transfer-uuid')
+    const response = await getTransferSummaries({})
 
-    const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
-    expect(url).toContain('/transfer/status/transfer-uuid/')
-    expect(url).toMatch(/[_]=\d+/)
-  })
-
-  it('fetches transfer statuses list with cache busting', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => JSON.stringify({ objects: [], mcp: true }),
-    })
-
-    await getTransferStatuses()
-
+    expect(response).toMatchObject({ changed: true, data: { results: [] } })
     const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
     expect(url).toContain('/transfer/status/')
-    expect(url).toMatch(/[_]=\d+/)
   })
 
-  it('supports raw-response unchanged checks for transfer statuses', async () => {
-    const raw = JSON.stringify({ objects: [], mcp: true })
+  it('fetches grouped jobs for one transfer', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      text: async () => raw,
-    })
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => raw,
+      text: async () => JSON.stringify({ results: [] }),
     })
 
-    const first = await getTransferStatuses({})
-    const second = await getTransferStatuses({ previousRaw: first.raw })
+    await getTransferJobGroups('transfer-uuid')
 
-    expect(first).toMatchObject({
-      changed: true,
-      data: { objects: [], mcp: true },
-    })
-    expect(second).toEqual({
-      changed: false,
-      raw,
-    })
+    const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
+    expect(url).toContain('/transfer/transfer-uuid/job-groups/')
   })
 
   it('creates metadata set UUID', async () => {

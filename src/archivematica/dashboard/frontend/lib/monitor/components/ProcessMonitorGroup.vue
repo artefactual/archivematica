@@ -24,6 +24,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'toggle-group', payload: { unitUuid: string, groupName: string, jobs: ProcessingJob[] }): void
   (event: 'show-tasks', jobUuid: string): void
+  (event: 'show-job-history', payload: { unitUuid: string, linkId: string }): void
   (event: 'set-selected-job-choice', payload: { jobUuid: string, choice: string }): void
   (event: 'execute-job-choice', payload: { job: ProcessingJob, choice: string, unitUuid: string }): void
 }>()
@@ -60,13 +61,22 @@ const toggleGroup = (): void => {
     jobs: props.group.jobs,
   })
 }
+
+const jobContainerId = (): string =>
+  `job-container-${props.unitUuid}-${props.group.name.replace(/[^A-Za-z0-9_-]+/g, '-')}`
 </script>
 
 <template>
   <div class="microservicegroup">
     <div
       class="microservice-group"
+      role="button"
+      tabindex="0"
+      :aria-expanded="isGroupExpanded()"
+      :aria-controls="jobContainerId()"
       @click.stop.prevent="toggleGroup()"
+      @keydown.enter.stop.prevent="toggleGroup()"
+      @keydown.space.stop.prevent="toggleGroup()"
     >
       &nbsp;<span class="microservice-group-arrow">{{ isGroupExpanded() ? '▾' : '▸' }}</span>{{ ' ' }}
       <span class="microservice-group-name">
@@ -75,18 +85,20 @@ const toggleGroup = (): void => {
     </div>
     <div
       v-if="isGroupExpanded()"
+      :id="jobContainerId()"
       class="job-container"
     >
       <ProcessMonitorJob
         v-for="job in group.jobs"
-        :key="job.uuid"
+        :key="job.key ?? job.uuid"
         :job="job"
         :unit-uuid="unitUuid"
         :microservices-help="microservicesHelp"
         :job-statuses="jobStatuses"
-        :selected-choice="selectedChoicesByJobUuid[job.uuid] ?? ''"
-        :is-executing-choice="executingChoiceJobUuids[job.uuid] === true"
+        :selected-choice="selectedChoicesByJobUuid[job.uuid ?? ''] ?? ''"
+        :is-executing-choice="executingChoiceJobUuids[job.uuid ?? ''] === true"
         @show-tasks="emit('show-tasks', $event)"
+        @show-job-history="emit('show-job-history', $event)"
         @set-selected-job-choice="emit('set-selected-job-choice', $event)"
         @execute-job-choice="emit('execute-job-choice', $event)"
       />
@@ -99,5 +111,10 @@ const toggleGroup = (): void => {
   cursor: pointer;
   border-top: 1px solid #ddd;
   padding: 2px 0 3px;
+}
+
+.microservice-group:focus {
+  outline: 1px dotted #333;
+  outline-offset: -1px;
 }
 </style>

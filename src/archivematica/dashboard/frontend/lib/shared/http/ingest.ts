@@ -1,13 +1,15 @@
 import { HttpError, createHttpClient, createUrl } from './client'
 import type { JsonIfChangedResult } from './client'
-import type { ProcessingStatusesResponse } from './processing'
+import type {
+  ProcessingJobGroupsResponse,
+  ProcessingUnitSummariesResponse,
+} from './processing'
 
-export type IngestStatusResponse = ProcessingStatusesResponse
-export type IngestStatusesIfChangedResponse = JsonIfChangedResult<IngestStatusResponse>
 export type IngestPreviewType = 'aip' | 'normalization' | 'dip'
-export type IngestStatusesIfChangedOptions = {
+export type IngestSummariesIfChangedOptions = {
   previousRaw?: string
 }
+export type IngestSummariesIfChangedResponse = JsonIfChangedResult<ProcessingUnitSummariesResponse>
 
 export type IngestUploadTargetResponse = {
   target: string
@@ -27,32 +29,23 @@ export type IngestAsMatcherPairResult = 'created' | 'duplicate'
 
 const client = createHttpClient()
 
-export function getIngestStatuses(
-  options: IngestStatusesIfChangedOptions,
-): Promise<IngestStatusesIfChangedResponse>
-export function getIngestStatuses(): Promise<IngestStatusResponse>
-export function getIngestStatuses(
-  options?: IngestStatusesIfChangedOptions,
-): Promise<IngestStatusResponse | IngestStatusesIfChangedResponse> {
-  if (options === undefined) {
-    return client.getJson<IngestStatusResponse>('/ingest/status/', {
-      cacheBust: true,
-      strictJson: true,
-    })
-  }
-
-  return client.getJsonIfChanged<IngestStatusResponse>('/ingest/status/', {
+export const getIngestSummaries = (
+  options: IngestSummariesIfChangedOptions,
+): Promise<IngestSummariesIfChangedResponse> => {
+  return client.getJsonIfChanged<ProcessingUnitSummariesResponse>('/ingest/status/', {
     cacheBust: true,
     strictJson: true,
     previousRaw: options.previousRaw,
   })
 }
 
-export const getIngestStatus = async (uuid: string): Promise<IngestStatusResponse> => {
-  return client.getJson<IngestStatusResponse>(`/ingest/status/${uuid}/`, {
-    cacheBust: true,
-    strictJson: true,
-  })
+export const getIngestJobGroups = async (
+  uuid: string,
+): Promise<ProcessingJobGroupsResponse> => {
+  return client.getJson<ProcessingJobGroupsResponse>(
+    `/ingest/${uuid}/job-groups/`,
+    { cacheBust: true, strictJson: true },
+  )
 }
 
 export const getUploadTarget = async (sipUuid: string): Promise<IngestUploadTargetResponse> => {

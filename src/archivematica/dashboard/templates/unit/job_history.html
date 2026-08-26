@@ -1,0 +1,60 @@
+{% extends "layout_fluid.html" %}
+{% load breadcrumb %}
+{% load i18n %}
+
+{% block data_features %}localize-timestamps{% endblock %}
+
+{% block content %}
+  <ol class="breadcrumb">
+    {% if unit_type == 'transfer' %}
+      {% trans "Transfer" as unit_label %}
+      {% breadcrumb_url unit_label 'transfer:transfer_index' %}
+    {% else %}
+      {% trans "Ingest" as unit_label %}
+      {% breadcrumb_url unit_label 'ingest:ingest_index' %}
+    {% endif %}
+    {% breadcrumb_url name 'unit:detail' unit_type uuid %}
+    {% trans "Job history" as history_label %}
+    {% breadcrumb history_label %}
+  </ol>
+
+  <h1>{{ history_label }}<br /><small>{{ job_type }}</small></h1>
+  <p>{% trans "All jobs for this workflow step, including every status, newest first." %}</p>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">{% trans "Created time" %}</th>
+        <th scope="col">{% trans "Job UUID" %}</th>
+        <th scope="col">{% trans "Status" %}</th>
+        <th scope="col">{% trans "Tasks" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in page %}
+        <tr>
+          <td><span class="datetime">{{ job.createdtime.isoformat }}</span></td>
+          <td>{{ job.jobuuid }}</td>
+          <td>{{ job.get_currentstep_display }}</td>
+          <td>
+            {% if job.has_tasks %}
+              <a href="/tasks/{{ job.jobuuid }}/">{% trans "Tasks" %}</a>
+            {% else %}
+              {% trans "No tasks" %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <nav aria-label="{% trans 'Job history pages' %}">
+    {% if page.has_previous %}
+      <a class="btn btn-default" href="?page={{ page.previous_page_number }}">{% trans "Previous page" %}</a>
+    {% endif %}
+    <span>{% blocktrans with number=page.number total=page.paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktrans %}</span>
+    {% if page.has_next %}
+      <a class="btn btn-default" href="?page={{ page.next_page_number }}">{% trans "Next page" %}</a>
+    {% endif %}
+  </nav>
+{% endblock %}

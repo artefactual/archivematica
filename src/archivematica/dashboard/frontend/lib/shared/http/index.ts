@@ -10,8 +10,8 @@ export {
 export type { DirectoryEntry, FilesystemBrowseResponse, CopyMetadataFilesResponse } from './filesystem'
 export {
   getSourceLocations,
-  getTransferStatus,
-  getTransferStatuses,
+  getTransferSummaries,
+  getTransferJobGroups,
   createMetadataSetUuid,
 } from './transfer'
 export type {
@@ -23,13 +23,19 @@ export type {
   ProcessingUnit,
   ProcessingStatusObjects,
   ProcessingStatusesResponse,
+  ProcessingJobGroup,
+  ProcessingJobGroupsResponse,
+  ProcessingUnitStatus,
+  ProcessingUnitSummary,
+  ProcessingUnitSummariesResponse,
 } from './processing'
 export {
   getProcessingConfigurations,
   createTransferPackage,
 } from './api'
 export {
-  getIngestStatuses,
+  getIngestSummaries,
+  getIngestJobGroups,
   getUploadTarget,
   setUploadTarget,
   checkUploadDestinationStatusCode,
@@ -62,6 +68,7 @@ export type { StatusResponse } from './status'
 export { getStatus } from './status'
 export {
   getUnitDetailUrl,
+  getUnitJobHistoryUrl,
   deleteUnit,
   deleteCompletedUnits,
 } from './unit'
