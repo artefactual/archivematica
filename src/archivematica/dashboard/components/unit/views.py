@@ -17,13 +17,68 @@
 import logging
 
 import django.http
+from django.core.exceptions import ValidationError
 from django.shortcuts import render
 
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.contrib.mcp.client import MCPClient
+from archivematica.dashboard.contrib.mcp.client import RPCGearmanClientError
 from archivematica.dashboard.main import models
 
 LOGGER = logging.getLogger("archivematica.dashboard")
+
+PROCESSING_UNIT_TYPES = {
+    "transfer": (models.Transfer, "Transfer"),
+    "ingest": (models.SIP, "SIP"),
+}
+
+
+def _processing_error(message, status_code):
+    return helpers.json_response(
+        {"error": True, "message": message}, status_code=status_code
+    )
+
+
+def processing_units(request, unit_type):
+    """Return processing units for the Dashboard monitor."""
+    if request.method != "GET":
+        return django.http.HttpResponseNotAllowed(["GET"])
+
+    _, rpc_type = PROCESSING_UNIT_TYPES[unit_type]
+    client = MCPClient(request.user)
+    try:
+        if rpc_type == "Transfer":
+            results = client.get_transfers_statuses()
+        else:
+            results = client.get_sips_statuses()
+    except RPCGearmanClientError:
+        LOGGER.exception("Unable to fetch %s processing units", rpc_type)
+        return _processing_error("Unable to fetch processing units.", 503)
+    return helpers.json_response({"objects": results, "mcp": True})
+
+
+def processing_unit_job_groups(request, unit_type, unit_uuid):
+    """Return aggregated Job rows for one Dashboard processing unit."""
+    if request.method != "GET":
+        return django.http.HttpResponseNotAllowed(["GET"])
+
+    unit_model, rpc_type = PROCESSING_UNIT_TYPES[unit_type]
+    try:
+        unit_exists = unit_model.objects.filter(uuid=unit_uuid, hidden=False).exists()
+    except ValidationError:
+        unit_exists = False
+    if not unit_exists:
+        return _processing_error(
+            f"Unit with UUID {unit_uuid} does not exist",
+            404,
+        )
+
+    try:
+        results = MCPClient(request.user).get_unit_job_groups(rpc_type, str(unit_uuid))
+    except RPCGearmanClientError:
+        LOGGER.exception("Unable to fetch Job groups for unit %s", unit_uuid)
+        return _processing_error("Unable to fetch Job groups.", 503)
+    return helpers.json_response({"results": results})
 
 
 def detail(request, unit_type, unit_uuid):

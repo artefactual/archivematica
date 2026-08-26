@@ -115,14 +115,19 @@ class MCPClient:
         elif "user_id" not in data:
             data["user_id"] = self.user.id
         client = GearmanClient([self.server])
-        response = client.submit_job(
-            ability.encode(),
-            data,
-            background=False,
-            wait_until_complete=True,
-            poll_timeout=timeout,
-        )
-        client.shutdown()
+        try:
+            try:
+                response = client.submit_job(
+                    ability.encode(),
+                    data,
+                    background=False,
+                    wait_until_complete=True,
+                    poll_timeout=timeout,
+                )
+            except gearman.errors.GearmanError as err:
+                raise RPCError(f"{ability} failed (check the logs)") from err
+        finally:
+            client.shutdown()
         if response.state == gearman.JOB_CREATED:
             raise TimeoutError(timeout)
         elif response.state != gearman.JOB_COMPLETE:

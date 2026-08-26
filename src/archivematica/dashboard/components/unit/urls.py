@@ -24,6 +24,12 @@ app_name = "unit"
 # The first segment of these urls is '^(?P<unit_type>transfer|ingest)/'
 # All views should expect a first parameter of unit_type, with a value of 'transfer' or 'ingest'
 urlpatterns = [
+    path("status/", views.processing_units, name="processing_units"),
+    re_path(
+        r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/job-groups/$",
+        views.processing_unit_job_groups,
+        name="processing_unit_job_groups",
+    ),
     re_path(
         r"^(?P<unit_uuid>" + settings.UUID_REGEX + ")/$", views.detail, name="detail"
     ),
