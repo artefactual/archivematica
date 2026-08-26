@@ -41,8 +41,6 @@ urlpatterns = [
         views.component,
         name="component",
     ),
-    path("status/", views.status),
-    re_path(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.status),
     re_path(
         r"^(?P<uuid>" + settings.UUID_REGEX + ")/metadata/$",
         views.transfer_metadata_list,

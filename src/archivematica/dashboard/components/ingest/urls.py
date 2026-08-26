@@ -66,8 +66,6 @@ urlpatterns = [
         views.ingest_upload,
         name="ingest_upload",
     ),
-    path("status/", views.ingest_status),
-    re_path(r"^status/(?P<uuid>" + settings.UUID_REGEX + ")/$", views.ingest_status),
     re_path(
         r"^normalization-report/(?P<uuid>"
         + settings.UUID_REGEX

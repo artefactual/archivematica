@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
-import json
 import logging
 import os
 import shutil
@@ -43,7 +42,6 @@ from archivematica.dashboard.components.ingest import forms as ingest_forms
 from archivematica.dashboard.components.ingest.views_NormalizationReport import (
     getNormalizationReportQuery,
 )
-from archivematica.dashboard.contrib.mcp.client import MCPClient
 from archivematica.dashboard.main import forms
 from archivematica.dashboard.main import models
 
@@ -81,18 +79,6 @@ class SipsView(View):
         """
         sip = models.SIP.objects.create(uuid=str(uuid.uuid4()), currentpath=None)
         return helpers.json_response({"success": True, "id": sip.uuid})
-
-
-def ingest_status(request, uuid=None):
-    response = {"objects": {}, "mcp": False}
-    try:
-        client = MCPClient(request.user)
-        response["objects"] = client.get_sips_statuses()
-    except Exception:
-        pass
-    else:
-        response["mcp"] = True
-    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 def ingest_sip_metadata_type_id():

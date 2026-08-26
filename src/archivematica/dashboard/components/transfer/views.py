@@ -29,7 +29,6 @@ import archivematica.dashboard.components.decorators as decorators
 from archivematica.archivematicaCommon import storageService as storage_service
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.ingest.forms import DublinCoreMetadataForm
-from archivematica.dashboard.contrib.mcp.client import MCPClient
 from archivematica.dashboard.main import models
 
 logger = logging.getLogger("archivematica.dashboard")
@@ -117,18 +116,6 @@ def component(request, uuid):
         messages.append("Metadata saved.")
 
     return render(request, "transfer/component.html", locals())
-
-
-def status(request, uuid=None):
-    response = {"objects": {}, "mcp": False}
-    try:
-        client = MCPClient(request.user)
-        response["objects"] = client.get_transfers_statuses()
-    except Exception:
-        pass
-    else:
-        response["mcp"] = True
-    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 def transfer_metadata_type_id():
