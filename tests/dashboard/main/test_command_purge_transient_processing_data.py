@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_duration
 import archivematica.search.constants
 from archivematica.dashboard.main import models
 from archivematica.search.service import SearchService
+from archivematica.search.service import SearchServiceError
 
 
 @pytest.fixture
@@ -108,8 +109,22 @@ def test_purge_command_removes_search_documents(
 ):
     call_command("purge_transient_processing_data")
 
-    mock_search_service.delete_aip.assert_called_once_with(old_sip.pk)
-    mock_search_service.delete_aip_files.assert_called_once_with(old_sip.pk)
+    mock_search_service.delete_aip.assert_called_once_with(str(old_sip.uuid))
+    mock_search_service.delete_aip_files.assert_called_once_with(str(old_sip.uuid))
+
+
+@pytest.mark.django_db
+def test_purge_command_reports_search_errors_and_continues(
+    mock_search_service, search_enabled, old_sip, old_transfer, capsys
+):
+    mock_search_service.delete_aip.side_effect = SearchServiceError("boom")
+
+    call_command("purge_transient_processing_data")
+
+    captured = capsys.readouterr()
+    assert "Error: boom" in captured.out
+    assert "SearchServiceError: boom" in captured.out
+    assert models.Transfer.objects.filter(pk=old_transfer.pk).count() == 0
 
 
 @pytest.mark.django_db

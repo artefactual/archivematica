@@ -10,16 +10,16 @@ from archivematica.search.service import setup_search_service_from_conf
 
 
 class DashboardCommand(BaseCommand):
-    def success(self, message):
+    def success(self, message: str) -> None:
         self.stdout.write(self.style.SUCCESS(message))
 
-    def error(self, message):
+    def error(self, message: str) -> None:
         self.stdout.write(self.style.ERROR(message))
 
-    def warning(self, message):
+    def warning(self, message: str) -> None:
         self.stdout.write(self.style.WARNING(message))
 
-    def info(self, message):
+    def info(self, message: str) -> None:
         self.stdout.write(message)
 
 
