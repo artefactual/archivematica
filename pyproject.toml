@@ -98,6 +98,10 @@ DJANGO_SETTINGS_MODULE="settings.test"
 norecursedirs = ".svn _build tmp* node_modules bower_components share .tox .venv"
 
 [tool.coverage.run]
+# The source path is resolved against the current directory. tox runs pytest
+# from the tests directories, so it exports COVERAGE_SOURCE_DIR (see setenv
+# below); the default works when running pytest from the repository root.
+source = ["${COVERAGE_SOURCE_DIR-src/archivematica}"]
 omit = [
     "**/src/archivematica/archivematicaCommon/externals/*",
     "**/migrations/*",
@@ -105,13 +109,6 @@ omit = [
     "**/tests/*",
     "**/wsgi.py",
     "**/manage.py",
-]
-include = [
-    "**/src/archivematica/archivematicaCommon/*",
-    "**/src/archivematica/dashboard/*",
-    "**/src/archivematica/MCPClient/*",
-    "**/src/archivematica/MCPClient/clientScripts/*",
-    "**/src/archivematica/MCPServer/*",
 ]
 branch = true
 
@@ -236,6 +233,9 @@ legacy_tox_ini = """
         DJANGO_SETTINGS_MODULE = {env:DJANGO_SETTINGS_MODULE:settings.test}
         PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:}
         UV_CACHE_DIR = {temp_dir}/uv-cache
+        # Coverage: pytest runs from the tests directories (see changedir), so
+        # [tool.coverage.run] source needs an absolute path.
+        COVERAGE_SOURCE_DIR = {toxinidir}/src/archivematica
         # Storage Service
         STORAGE_SERVICE_ROOT = {toxinidir}/hack/submodules/archivematica-storage-service
         # TOXENV-specific
