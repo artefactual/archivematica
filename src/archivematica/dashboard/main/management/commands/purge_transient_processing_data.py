@@ -33,15 +33,21 @@ recently purged transfers.
 
 import logging
 import traceback
+from datetime import datetime
+from typing import Any
 
 from django.conf import settings as django_settings
 from django.core.management.base import CommandError
+from django.core.management.base import CommandParser
+from django.db.models import Model
+from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_duration
 
 import archivematica.search.constants
 from archivematica.dashboard.main import models
 from archivematica.dashboard.main.management.commands import DashboardCommand
+from archivematica.search.service import SearchService
 from archivematica.search.service import SearchServiceError
 from archivematica.search.service import setup_search_service_from_conf
 
@@ -49,7 +55,7 @@ from archivematica.search.service import setup_search_service_from_conf
 class Command(DashboardCommand):
     help = __doc__
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "--dry-run",
             action="store_true",
@@ -88,8 +94,8 @@ class Command(DashboardCommand):
             ),
         )
 
-    def handle(self, *args, **options):
-        search_service = None
+    def handle(self, *args: Any, **options: Any) -> None:
+        search_service: SearchService | None = None
         if (
             not options["keep_searches"]
             and archivematica.search.constants.AIPS_INDEX
@@ -104,15 +110,14 @@ class Command(DashboardCommand):
                 raise CommandError(f"Unable to connect to the search service: {err}")
 
         # Build look-up options.
-        kwargs = {
-            "include_unknown": options["purge_unknown"],
-            "include_failed": not options["keep_failed"],
-        }
+        include_unknown: bool = options["purge_unknown"]
+        include_failed: bool = not options["keep_failed"]
+        completed_before: datetime | None = None
         if options["age"] != "0":
             duration = parse_duration(options["age"])
             if duration is None:
                 raise CommandError("Age could not be parsed.")
-            kwargs["completed_before"] = timezone.now() - duration
+            completed_before = timezone.now() - duration
 
         self.info("Purging expired idempotency records...")
         expired_idempotency_records = models.IdempotencyRecord.objects.filter(
@@ -122,9 +127,13 @@ class Command(DashboardCommand):
             self.delete_queryset(expired_idempotency_records, options["quiet"])
 
         self.info("Purging SIPs...")
-        sips = models.SIP.objects.done(**kwargs)
+        sips = models.SIP.objects.done(
+            completed_before=completed_before,
+            include_failed=include_failed,
+            include_unknown=include_unknown,
+        )
         for sip in sips:
-            package_id = sip.pk
+            package_id = sip.uuid
             if not options["quiet"]:
                 self.warning(f"» SIP {package_id} with status {sip.status_str}")
             if options["dry_run"]:
@@ -148,23 +157,23 @@ class Command(DashboardCommand):
                     models.SIP.objects.filter(pk=package_id),
                     options["quiet"],
                 )
-                if (
-                    not options["keep_searches"]
-                    and archivematica.search.constants.AIPS_INDEX
-                    in django_settings.SEARCH_ENABLED
-                ):
+                if search_service is not None:
                     if not options["quiet"]:
                         self.info("  Purging search documents...")
-                    search_service.delete_aip(package_id)
-                    search_service.delete_aip_files(package_id)
+                    search_service.delete_aip(str(package_id))
+                    search_service.delete_aip_files(str(package_id))
             except Exception as err:
                 self.error(f"  Error: {err}")
-                self.stdout.write(traceback.print_exc())
+                self.stdout.write(traceback.format_exc())
 
         self.info("Purging transfers...")
-        transfers = models.Transfer.objects.done(**kwargs)
+        transfers = models.Transfer.objects.done(
+            completed_before=completed_before,
+            include_failed=include_failed,
+            include_unknown=include_unknown,
+        )
         for transfer in transfers:
-            package_id = transfer.pk
+            package_id = transfer.uuid
             if not options["quiet"]:
                 self.warning(
                     f"» Transfer {package_id} with status {transfer.status_str}"
@@ -192,7 +201,7 @@ class Command(DashboardCommand):
                 self.error(f"  Error: {err}")
                 self.stdout.write(traceback.format_exc())
 
-    def delete_queryset(self, queryset, quiet):
+    def delete_queryset(self, queryset: QuerySet[Model], quiet: bool) -> None:
         result = queryset.delete()
         if not quiet and result and len(result) == 2:
             matches = result[1]

@@ -25,6 +25,7 @@ import logging
 import os
 import re
 import uuid
+from datetime import datetime
 from typing import Any
 from typing import TypeVar
 
@@ -401,7 +402,12 @@ _PackageT = TypeVar("_PackageT", bound=models.Model)
 
 
 class PackageManager(models.Manager[_PackageT]):
-    def done(self, completed_before=None, include_failed=True, include_unknown=False):
+    def done(
+        self,
+        completed_before: datetime | None = None,
+        include_failed: bool = True,
+        include_unknown: bool = False,
+    ) -> models.QuerySet[_PackageT]:
         statuses = [PACKAGE_STATUS_DONE, PACKAGE_STATUS_COMPLETED_SUCCESSFULLY]
         if include_failed:
             statuses.append(PACKAGE_STATUS_FAILED)

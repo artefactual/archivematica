@@ -166,6 +166,7 @@ ignore_errors = true
 module = [
     "archivematica.archivematicaCommon.transfer_source_retrieval",
     "archivematica.archivematicaCommon.executeOrRunSubProcess",
+    "archivematica.dashboard.main.management.commands.purge_transient_processing_data",
     "archivematica.MCPClient.client.*",
     "archivematica.MCPClient.clientScripts.characterize_file",
     "archivematica.MCPClient.clientScripts.has_packages",
