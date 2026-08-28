@@ -4,17 +4,24 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd ${__dir}
 
-# Service that runs pytest. Use archivematica-dashboard-cas to run the CAS
-# authentication test suite instead of the default one.
+# Service that runs pytest. Authentication integration suites use dedicated
+# services because their Django settings cannot all be enabled together.
 INTEGRATION_SERVICE="${INTEGRATION_SERVICE:-archivematica-dashboard}"
 
 if [ -z "${SKIP_DOCKER_BUILD}" ]; then
-    if [ "${INTEGRATION_SERVICE}" == "archivematica-dashboard-cas" ]; then
-        # The CAS service reuses the image built by the default service.
-        docker compose build archivematica-dashboard cas
-    else
-        docker compose build "${INTEGRATION_SERVICE}"
-    fi
+    case "${INTEGRATION_SERVICE}" in
+        archivematica-dashboard-cas)
+            # The CAS service reuses the image built by the default service.
+            docker compose build archivematica-dashboard cas
+            ;;
+        archivematica-dashboard-ldap)
+            # The LDAP service reuses the image built by the default service.
+            docker compose build archivematica-dashboard
+            ;;
+        *)
+            docker compose build "${INTEGRATION_SERVICE}"
+            ;;
+    esac
 
     status=$?
 

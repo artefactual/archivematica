@@ -541,7 +541,8 @@ described in the [Installation](#installation) section:
 docker compose -f docker-compose.yml -f docker-compose.ldap.yml up -d --build
 ```
 
-The OpenLDAP image is pinned by digest. Its initial directory entries are
+The OpenLDAP image is pinned by digest so the development and integration-test
+directories use the same server build. Its initial directory entries are
 loaded from `hack/etc/ldap/init_org_entries.ldif`, but only while the directory
 is being initialized. The image stores its configuration and database in
 anonymous volumes that Compose reattaches when a container is recreated, and
@@ -579,6 +580,11 @@ All application users share the password `test`:
 | `admin`    | `enabled`, `administrators`, `managers`, `reviewers` | Superuser        | Administrator        |
 | `disabled` | `enabled`, `disabled`                                | Denied           | Denied               |
 | `outsider` | none                                                 | Denied           | Denied               |
+
+Each user also has a `<username>_ldap` uid because the integration test suite
+in `tests/integration/` shares this directory and enables
+`AUTH_LDAP_USERNAME_SUFFIX`. Use the bare usernames with this overlay, which
+leaves the suffix unset.
 
 The multi-role memberships make precedence visible: Administrator wins over
 Manager and Reviewer, and Manager wins over Reviewer. The `enabled` group is

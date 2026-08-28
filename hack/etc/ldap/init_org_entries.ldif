@@ -2,6 +2,11 @@ version: 1
 
 # Local-only OpenLDAP directory entries for Archivematica development.
 # Do not use these accounts or passwords in production.
+#
+# Every user carries a second uid with the _ldap suffix because this file is
+# shared with the integration test suite in tests/integration/, which enables
+# AUTH_LDAP_USERNAME_SUFFIX. The development overlay leaves the suffix unset,
+# so use the bare uids there.
 
 ##############################
 # Users
@@ -11,6 +16,7 @@ dn: uid=demo,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 objectClass: top
 objectClass: inetOrgPerson
 uid: demo
+uid: demo_ldap
 cn: Demo User
 sn: User
 givenName: Demo
@@ -21,6 +27,7 @@ dn: uid=reviewer,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 objectClass: top
 objectClass: inetOrgPerson
 uid: reviewer
+uid: reviewer_ldap
 cn: Reviewer User
 sn: User
 givenName: Reviewer
@@ -31,6 +38,7 @@ dn: uid=manager,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 objectClass: top
 objectClass: inetOrgPerson
 uid: manager
+uid: manager_ldap
 cn: Manager User
 sn: User
 givenName: Manager
@@ -41,6 +49,7 @@ dn: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 objectClass: top
 objectClass: inetOrgPerson
 uid: admin
+uid: admin_ldap
 cn: Admin User
 sn: User
 givenName: Admin
@@ -51,6 +60,7 @@ dn: uid=disabled,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 objectClass: top
 objectClass: inetOrgPerson
 uid: disabled
+uid: disabled_ldap
 cn: Disabled User
 sn: User
 givenName: Disabled
@@ -61,10 +71,24 @@ dn: uid=outsider,ou=External,ou=Users,${LDAP_INIT_ORG_DN}
 objectClass: top
 objectClass: inetOrgPerson
 uid: outsider
+uid: outsider_ldap
 cn: Outside User
 sn: User
 givenName: Outside
 mail: outsider@example.com
+userPassword: test
+
+# This account only has a suffixed uid so the integration test proves that the
+# LDAP username is stripped before the local user is created. Subsequent
+# authenticated requests convert that local username back to the LDAP form.
+dn: uid=suffix_ldap,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: suffix_ldap
+cn: Suffix User
+sn: User
+givenName: Suffix
+mail: suffix@example.com
 userPassword: test
 
 ##############################
@@ -83,6 +107,7 @@ member: uid=reviewer,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 member: uid=manager,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 member: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 member: uid=disabled,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=suffix_ldap,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
 
 dn: cn=disabled,ou=Groups,${LDAP_INIT_ORG_DN}
 objectClass: top

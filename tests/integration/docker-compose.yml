@@ -23,6 +23,23 @@ x-dashboard-environment: &dashboard-environment
   # /src is bind-mounted, so point Django staticfiles to the image-owned dist copy.
   FRONTEND_DIST_DIR: "/opt/am-dashboard-dist"
 
+x-ldap-client-environment: &ldap-client-environment
+  AUTH_LDAP_SERVER_URI: "ldap://openldap:389"
+  AUTH_LDAP_USERNAME_SUFFIX: "_ldap"
+  AUTH_LDAP_BIND_DN: "uid=ldapadmin,dc=archivematica,dc=org"
+  AUTH_LDAP_BIND_PASSWORD: "test"
+  AUTH_LDAP_USER_SEARCH_BASE_DN: "ou=Users,dc=archivematica,dc=org"
+  AUTH_LDAP_USER_SEARCH_BASE_FILTERSTR: "(uid=%(user)s)"
+  AUTH_LDAP_GROUP_SEARCH_BASE_DN: "ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_GROUP_SEARCH_FILTERSTR: "(objectClass=groupOfNames)"
+  AUTH_LDAP_GROUP_IS_ACTIVE: "cn=enabled,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_GROUP_IS_STAFF: "cn=administrators,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_GROUP_IS_SUPERUSER: "cn=administrators,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_REQUIRE_GROUP: "cn=enabled,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_DENY_GROUP: "cn=disabled,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_START_TLS: "false"
+  AUTH_LDAP_PROTOCOL_VERSION: "3"
+
 services:
 
   mysql:
@@ -119,6 +136,23 @@ services:
       cas:
         condition: service_healthy
 
+  archivematica-dashboard-ldap:
+    image: "archivematica-dashboard-integration-tests:latest"
+    entrypoint: ""
+    working_dir: "/src"
+    command: ["pytest", "--browser", "firefox", "/src/tests/integration/test_ldap_auth.py"]
+    hostname: "archivematica-dashboard"
+    environment:
+      <<: [*dashboard-environment, *ldap-client-environment]
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_LDAP_AUTHENTICATION: "true"
+    volumes:
+      - "../../:/src"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      openldap:
+        condition: service_healthy
+
   keycloak:
     image: "quay.io/keycloak/keycloak:26.7.3-0"
     command: ["start-dev", "--import-realm"]
@@ -157,3 +191,42 @@ services:
       timeout: 5s
       retries: 24
       start_period: 20s
+
+  openldap:
+    # The image only publishes the latest tag, so the build is pinned by its
+    # digest, which Dependabot keeps up to date.
+    image: "vegardit/openldap:latest@sha256:8161e8fa74c518697776fff27b403cc4c273aede07b6d87f473a45201050d0de"
+    environment:
+      LDAP_INIT_ORG_DN: "dc=archivematica,dc=org"
+      LDAP_INIT_ORG_NAME: "Archivematica integration tests"
+      LDAP_INIT_ORG_ATTR_O: "Archivematica"
+      LDAP_INIT_ROOT_USER_DN: "uid=ldapadmin,dc=archivematica,dc=org"
+      LDAP_INIT_ROOT_USER_PW: "test"
+      # The image's default password policy requires eight characters and
+      # would reject the shared four-character test password in the LDIF.
+      LDAP_INIT_PPOLICY_PW_MIN_LENGTH: "4"
+      LDAP_TLS_ENABLED: "false"
+      LDAP_LDAPS_ENABLED: "false"
+    volumes:
+      - "../../hack/etc/ldap/init_org_entries.ldif:/opt/ldifs/init_org_entries.ldif:ro"
+    healthcheck:
+      test:
+        - CMD
+        - ldapsearch
+        - -x
+        - -H
+        - ldap://127.0.0.1:389
+        - -D
+        - uid=ldapadmin,dc=archivematica,dc=org
+        - -w
+        - test
+        - -b
+        - dc=archivematica,dc=org
+        - -s
+        - base
+        - (objectClass=*)
+        - dn
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
