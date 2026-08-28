@@ -2,6 +2,9 @@
 name: "LDAP Integration Test"
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "tests/integration/docker-compose.yml"
 env:
   UBUNTU_VERSION: "24.04"
   PYTHON_VERSION: "3.10"
