@@ -62,7 +62,6 @@ dependencies = [
 dev = [
   "coverage[toml]",
   "django-stubs[compatible-mypy]",
-  "mockldap @ git+https://github.com/artefactual-labs/mockldap@v0.3.1",
   "playwright",
   "pre-commit",
   "pytest",

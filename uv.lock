@@ -92,7 +92,6 @@ dev = [
     { name = "coverage", extra = ["toml"] },
     { name = "django-stubs", version = "6.0.9", source = { registry = "https://pypi.org/simple" }, extra = ["compatible-mypy"], marker = "python_full_version < '3.11'" },
     { name = "django-stubs", version = "6.1.0", source = { registry = "https://pypi.org/simple" }, extra = ["compatible-mypy"], marker = "python_full_version >= '3.11'" },
-    { name = "mockldap" },
     { name = "playwright" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -147,7 +146,6 @@ requires-dist = [
 dev = [
     { name = "coverage", extras = ["toml"] },
     { name = "django-stubs", extras = ["compatible-mypy"] },
-    { name = "mockldap", git = "https://github.com/artefactual-labs/mockldap?rev=v0.3.1" },
     { name = "playwright" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -1053,15 +1051,6 @@ wheels = [
 ]
 
 [[package]]
-name = "funcparserlib"
-version = "1.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/93/44/a21dfd9c45ad6909257e5186378a4fedaf41406824ce1ec06bc2a6c168e7/funcparserlib-1.0.1.tar.gz", hash = "sha256:a2c4a0d7942f7a0e7635c369d921066c8d4cae7f8b5bf7914466bec3c69837f4", size = 17238, upload-time = "2022-11-03T23:10:54.553Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/66/acd740d84f59c655935f586c113a863aa404dfe932052a68a1163d88ea63/funcparserlib-1.0.1-py2.py3-none-any.whl", hash = "sha256:95da15d3f0d00b9b6f4bf04005c708af3faa115f7b45692ace064ebe758c68e8", size = 17842, upload-time = "2022-11-03T23:10:53.434Z" },
-]
-
-[[package]]
 name = "gearman3"
 version = "0.2.1"
 source = { git = "https://github.com/artefactual-labs/python-gearman.git?rev=b68efc868c7a494dd6a2d2e820fb098a6da9f797#b68efc868c7a494dd6a2d2e820fb098a6da9f797" }
@@ -1595,15 +1584,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c1/3a/8c7cf141a4215bba644b4be4a5f0e5b464d65dbfa1465271cb08a780bfcf/metsrw-0.7.0.tar.gz", hash = "sha256:5aa79345d01983ab212926247a700977e325fb87e4f47ab659ea61c1275e49fd", size = 121457, upload-time = "2026-07-03T17:19:51.006Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/cf/d89c851bd05cd5f2b49fea4a6c1a25eae2bf18062708e217f57d0c554963/metsrw-0.7.0-py3-none-any.whl", hash = "sha256:a9cde54438a8cacb56bcf6f05b7526eae0f4d175441f0fcaddbfb3b33d6e3acb", size = 92729, upload-time = "2026-07-03T17:19:49.592Z" },
-]
-
-[[package]]
-name = "mockldap"
-version = "0.3.0.post1"
-source = { git = "https://github.com/artefactual-labs/mockldap?rev=v0.3.1#61b362ef6a45911e2ec33923da3af17d51157dac" }
-dependencies = [
-    { name = "funcparserlib" },
-    { name = "python-ldap" },
 ]
 
 [[package]]
