@@ -35,10 +35,10 @@ class CustomCASBackend(CASBackend):
 class CustomLDAPBackend(LDAPBackend):
     """Append a usernamed suffix to LDAP users, if configured"""
 
-    def ldap_to_django_username(self, username):
-        return username.rstrip(settings.AUTH_LDAP_USERNAME_SUFFIX)
+    def ldap_to_django_username(self, username: str) -> str:
+        return username.removesuffix(settings.AUTH_LDAP_USERNAME_SUFFIX)
 
-    def django_to_ldap_username(self, username):
+    def django_to_ldap_username(self, username: str) -> str:
         return username + settings.AUTH_LDAP_USERNAME_SUFFIX
 
 

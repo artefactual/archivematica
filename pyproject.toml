@@ -180,6 +180,7 @@ module = [
     "archivematica.search.service",
     "tests.archivematicaCommon.test_execute_functions",
     "tests.conftest",
+    "tests.dashboard.components.accounts.test_backends",
     "tests.dashboard.components.accounts.test_views",
     "tests.dashboard.components.administration.test_administration",
     "tests.dashboard.fpr.test_command_get_fpr_changes",
