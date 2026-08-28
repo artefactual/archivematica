@@ -24,6 +24,7 @@
 - [Cleaning up](#cleaning-up)
 - [Percona tuning](#percona-tuning)
 - [OIDC authentication](#oidc-authentication)
+- [LDAP authentication](#ldap-authentication)
 - [CAS authentication](#cas-authentication)
 - [Instrumentation](#instrumentation)
   - [Running Prometheus and Grafana](#running-prometheus-and-grafana)
@@ -528,6 +529,85 @@ Administrative user:
 
 - Username: `admin@example.com`
 - Password: `test`
+
+## LDAP authentication
+
+Use the `docker-compose.ldap.yml` overlay to start a [VegardIT OpenLDAP]
+server and enable LDAP authentication in the Dashboard and Storage Service.
+The base development environment must be installed and bootstrapped first as
+described in the [Installation](#installation) section:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.ldap.yml up -d --build
+```
+
+The OpenLDAP image is pinned by digest. Its initial directory entries are
+loaded from `hack/etc/ldap/init_org_entries.ldif`, but only while the directory
+is being initialized. The image stores its configuration and database in
+anonymous volumes that Compose reattaches when a container is recreated, and
+the initialization marker they carry makes the entrypoint skip the LDIF. Pass
+`--renew-anon-volumes` to discard that state after editing the LDIF or the LDAP
+environment settings:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.ldap.yml up -d \
+  --force-recreate --renew-anon-volumes \
+  openldap archivematica-dashboard archivematica-storage-service
+```
+
+Without `--renew-anon-volumes` the server keeps its previous directory and the
+edit is silently ignored.
+
+This overlay uses unencrypted LDAP and shared test passwords, and is intended
+for local testing and demonstrations only. The LDAP server is available to
+host tools at `ldap://127.0.0.1:62083`; its directory uses the base DN
+`dc=archivematica,dc=org`. For example:
+
+```shell
+ldapsearch -x -H ldap://127.0.0.1:62083 \
+  -D uid=ldapadmin,dc=archivematica,dc=org -w test \
+  -b dc=archivematica,dc=org '(objectClass=*)'
+```
+
+All application users share the password `test`:
+
+| Username   | LDAP groups                                          | Dashboard access | Storage Service role |
+| ---------- | ---------------------------------------------------- | ---------------- | -------------------- |
+| `demo`     | `enabled`                                            | Regular user     | Reader               |
+| `reviewer` | `enabled`, `reviewers`                               | Regular user     | Reviewer             |
+| `manager`  | `enabled`, `managers`, `reviewers`                   | Regular user     | Manager              |
+| `admin`    | `enabled`, `administrators`, `managers`, `reviewers` | Superuser        | Administrator        |
+| `disabled` | `enabled`, `disabled`                                | Denied           | Denied               |
+| `outsider` | none                                                 | Denied           | Denied               |
+
+The multi-role memberships make precedence visible: Administrator wins over
+Manager and Reviewer, and Manager wins over Reviewer. The `enabled` group is
+required for authentication and `disabled` takes precedence over it.
+LDAP attributes populate each local user's first name, last name, and email on
+every login. The Dashboard maps the `administrators` group to its staff and
+superuser flags; its other authenticated users have the same regular-user
+access.
+
+The Storage Service maps LDAP groups to its permission roles:
+
+- **Reader** can view and list records.
+- **Reviewer** adds approval or rejection of package deletion requests.
+- **Manager** can perform storage and configuration operations, but cannot
+  manage users.
+- **Administrator** has unrestricted access, including user management.
+
+LDAP authentication is added ahead of the local Django authentication backend,
+so the local accounts created during bootstrap can still log in. Enabling LDAP
+also disables user editing across both applications, for local accounts as well
+as LDAP ones: the Dashboard profile page drops the name, email, and password
+fields, keeping only the API key and email preferences, and the Storage Service
+hides its user creation and editing actions.
+
+Visiting the Dashboard at <http://127.0.0.1:62080> or the Storage Service at
+<http://127.0.0.1:62081> shows the normal login page; enter one of the LDAP
+usernames above to exercise the integration.
+
+[VegardIT OpenLDAP]: https://github.com/vegardit/docker-openldap
 
 ## CAS authentication
 

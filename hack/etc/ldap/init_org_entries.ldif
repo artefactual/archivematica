@@ -1,0 +1,114 @@
+version: 1
+
+# Local-only OpenLDAP directory entries for Archivematica development.
+# Do not use these accounts or passwords in production.
+
+##############################
+# Users
+##############################
+
+dn: uid=demo,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: demo
+cn: Demo User
+sn: User
+givenName: Demo
+mail: demo@example.com
+userPassword: test
+
+dn: uid=reviewer,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: reviewer
+cn: Reviewer User
+sn: User
+givenName: Reviewer
+mail: reviewer@example.com
+userPassword: test
+
+dn: uid=manager,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: manager
+cn: Manager User
+sn: User
+givenName: Manager
+mail: manager@example.com
+userPassword: test
+
+dn: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: admin
+cn: Admin User
+sn: User
+givenName: Admin
+mail: admin@example.com
+userPassword: test
+
+dn: uid=disabled,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: disabled
+cn: Disabled User
+sn: User
+givenName: Disabled
+mail: disabled@example.com
+userPassword: test
+
+dn: uid=outsider,ou=External,ou=Users,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: inetOrgPerson
+uid: outsider
+cn: Outside User
+sn: User
+givenName: Outside
+mail: outsider@example.com
+userPassword: test
+
+##############################
+# Authentication and authorization groups
+##############################
+
+# Membership in enabled is required to authenticate. The disabled user is
+# deliberately in both enabled and disabled so AUTH_LDAP_DENY_GROUP can be
+# exercised independently from AUTH_LDAP_REQUIRE_GROUP.
+dn: cn=enabled,ou=Groups,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: groupOfNames
+cn: enabled
+member: uid=demo,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=reviewer,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=manager,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=disabled,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+
+dn: cn=disabled,ou=Groups,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: groupOfNames
+cn: disabled
+member: uid=disabled,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+
+# The admin belongs to every role group and the manager also belongs to the
+# reviewer group. This makes role-precedence behavior testable.
+dn: cn=administrators,ou=Groups,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: groupOfNames
+cn: administrators
+member: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+
+dn: cn=managers,ou=Groups,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: groupOfNames
+cn: managers
+member: uid=manager,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+
+dn: cn=reviewers,ou=Groups,${LDAP_INIT_ORG_DN}
+objectClass: top
+objectClass: groupOfNames
+cn: reviewers
+member: uid=reviewer,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=manager,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
+member: uid=admin,ou=Internal,ou=Users,${LDAP_INIT_ORG_DN}
