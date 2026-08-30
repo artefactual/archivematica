@@ -1,0 +1,834 @@
+---
+# Object storage
+# ==============
+#
+# Use this overlay to start SeaweedFS (https://github.com/seaweedfs/seaweedfs),
+# an S3-compatible object store, and configure the Storage Service with an
+# rclone remote pointing at it:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.object-storage.yml up -d
+#
+# This is the same service and configuration used by the Storage Service
+# integration tests, so the rclone and S3 spaces created here behave like the
+# ones exercised there. The seaweedfs-setup service imports the identities and
+# policies of the seaweedfs-* configs listed at the end of this file. The S3
+# API is published on http://127.0.0.1:62085 and the filer interface on
+# http://127.0.0.1:62086/buckets/, which is where the buckets live in the filer
+# namespace. The root of that namespace also holds SeaweedFS's own
+# configuration, including the imported identities and policies under /etc.
+#
+# The overlay configures a single rclone remote named mys3 through the
+# RCLONE_CONFIG_MYS3_* environment variables of the
+# archivematica-storage-service service. Objects are kept in the seaweedfs_data
+# volume, so they survive restarts of the environment.
+#
+# Layout of this file
+# -------------------
+#
+# Everything the overlay needs is in this file. The SeaweedFS setup script,
+# its identities and policies, and the two Storage Service scripts below are
+# Compose configs with inline content, listed in the configs section at the
+# end, that Compose copies into the containers each time `up` or `run` starts
+# them. A container that keeps running, or is merely restarted, keeps the copy
+# it started with: after editing a script, recreate the Storage Service
+# container with `up -d --force-recreate --no-deps archivematica-storage-service`.
+# Compose interpolates ${VARIABLE} references in every value of the file,
+# inline content included, so each $ of the embedded shell script is written
+# as $$ (Compose turns $$ into a single $).
+#
+# Object storage spaces
+# ---------------------
+#
+# The following command creates two spaces in the Storage Service, both backed
+# by SeaweedFS but using different buckets, each one with a transfer source, an
+# AIP storage and a DIP storage location:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.object-storage.yml \
+#     exec archivematica-storage-service \
+#     python /etc/archivematica/object-storage/create_object_storage_spaces.py
+#
+#   Space   Bucket          Locations
+#   ------  --------------  ---------------------------
+#   RClone  rclone-storage  transfer-source, aips, dips
+#   S3      s3-storage      transfer-source, aips, dips
+#
+# The rclone space uses the mys3 remote defined by the overlay. The buckets are
+# created if they are missing, and the locations are associated with every
+# registered pipeline, so bootstrap the environment first. The script is
+# idempotent: running it again reuses the spaces and locations created before.
+# The endpoint, the credentials, the bucket names and the staging paths can be
+# changed with the options listed by adding --help to the command.
+#
+# Populating the locations
+# ------------------------
+#
+# To measure how browsing and listing behave when a location holds thousands
+# of keys, fill the locations with fake content:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.object-storage.yml \
+#     exec archivematica-storage-service \
+#     python /etc/archivematica/object-storage/populate_object_storage.py
+#
+# By default this writes 10000 zero-byte objects to each of the six locations
+# using 32 concurrent uploads, which takes a couple of minutes. The ceiling is
+# the CPU cost of signing each request in the Storage Service container rather
+# than the concurrency, so raising --workers much beyond its default does not
+# help. Options follow the script name, for example:
+#
+#   # 500 transfers of 20 files each, in the rclone transfer source only.
+#   docker compose -f docker-compose.yml -f docker-compose.object-storage.yml \
+#     exec archivematica-storage-service \
+#     python /etc/archivematica/object-storage/populate_object_storage.py \
+#     --space rclone --purpose TS --layout nested --transfers 500 --files-per-transfer 20
+#
+#   # Replace the contents of the S3 AIP storage location with 50000 keys of 1 KB.
+#   docker compose -f docker-compose.yml -f docker-compose.object-storage.yml \
+#     exec archivematica-storage-service \
+#     python /etc/archivematica/object-storage/populate_object_storage.py \
+#     --space s3 --purpose AS --count 50000 --size 1024 --clear
+#
+# The flat layout writes every key under a single prefix, which is the worst
+# case for browsing. The nested layout writes transfer directories with an
+# objects directory and a metadata/metadata.csv file, which Archivematica can
+# process. Add --help to the command to see every option.
+#
+# --clear deletes the objects of a location, but SeaweedFS keeps the now empty
+# directories of a previous nested run, which rclone still lists even though
+# the S3 API does not report them. Remove the seaweedfs_data volume to start
+# from a completely clean state.
+
+services:
+  archivematica-storage-service:
+    environment:
+      # The rclone remote of the rclone space. The remote name must match the
+      # --rclone-remote option of the create script, and the credentials the
+      # "ss" identity of the seaweedfs-iam config.
+      RCLONE_CONFIG_MYS3_TYPE: "s3"
+      RCLONE_CONFIG_MYS3_PROVIDER: "SeaweedFS"
+      RCLONE_CONFIG_MYS3_ENDPOINT: "http://seaweedfs:8333"
+      RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "ss"
+      RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "ss123"
+      RCLONE_CONFIG_MYS3_REGION: "us-east-1"
+    configs:
+      - source: object-storage-create-spaces
+        target: /etc/archivematica/object-storage/create_object_storage_spaces.py
+      - source: object-storage-populate
+        target: /etc/archivematica/object-storage/populate_object_storage.py
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+      seaweedfs-setup:
+        condition: service_completed_successfully
+
+  seaweedfs:
+    image: "chrislusf/seaweedfs:4.47"
+    command: ["mini", "-dir=/data"]
+    environment:
+      WEED_ADMIN_USER: "admin"
+      WEED_ADMIN_PASSWORD: "admin123"
+    ports:
+      # S3 API, e.g. for host-side clients like the AWS CLI or rclone.
+      - "127.0.0.1:62085:8333"
+      # Filer interface, to eyeball the contents of the buckets.
+      - "127.0.0.1:62086:8888"
+    healthcheck:
+      # The S3 API answers 403 to unsigned requests once it is up.
+      test:
+        [
+          "CMD-SHELL",
+          "test \"$$(curl -sS --max-time 2 -o /dev/null -w '%{http_code}' http://localhost:8333/ || true)\" = \"403\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - "seaweedfs_data:/data"
+
+  seaweedfs-setup:
+    # One-shot service: imports the S3 identities and policies with weed
+    # shell, retrying until SeaweedFS answers.
+    image: "chrislusf/seaweedfs:4.47"
+    entrypoint: []
+    command: ["/bin/sh", "/setup.sh"]
+    configs:
+      - source: seaweedfs-setup
+        target: /setup.sh
+      - source: seaweedfs-iam
+        target: /config/iam.json
+      - source: seaweedfs-policy-admin-access
+        target: /config/policies/admin-access.json
+      - source: seaweedfs-policy-browse-buckets
+        target: /config/policies/browse-buckets.json
+    depends_on:
+      seaweedfs:
+        condition: service_started
+
+volumes:
+  seaweedfs_data:
+
+configs:
+  # Script of the seaweedfs-setup service. Every $$ below is a single $ in
+  # the script the container gets, see the layout notes at the top.
+  seaweedfs-setup:
+    content: |
+      # Import the S3 identities and policies of the /config files. weed shell
+      # prints "error:" lines until the master and the filer answer, so retry
+      # until an import goes through.
+      set -eu
+      while :; do
+        output=$$(
+          weed shell -master=seaweedfs:9333 -filer=seaweedfs:8888 2>&1 <<'EOF' || true
+      s3.iam.import -file=/config/iam.json -apply
+      s3.policy -put -name=AdminAccess -file=/config/policies/admin-access.json
+      s3.policy -put -name=BrowseBuckets -file=/config/policies/browse-buckets.json
+      s3.config.show
+      EOF
+        )
+        printf '%s\n' "$$output"
+
+        if ! printf '%s\n' "$$output" | grep -qi '^error:'; then
+          break
+        fi
+
+        sleep 1
+      done
+
+  # S3 identities: "ss" has the AdminAccess policy and is the account of the
+  # rclone remote and of the spaces created by the script below; "limited"
+  # has the BrowseBuckets policy, which only allows listing and reading the
+  # storage-service-browse-* buckets.
+  seaweedfs-iam:
+    content: |
+      {
+        "identities": [
+          {
+            "name": "ss",
+            "credentials": [
+              {
+                "accessKey": "ss",
+                "secretKey": "ss123",
+                "status": "Active"
+              }
+            ],
+            "policyNames": [
+              "AdminAccess"
+            ]
+          },
+          {
+            "name": "limited",
+            "credentials": [
+              {
+                "accessKey": "limited",
+                "secretKey": "limited123",
+                "status": "Active"
+              }
+            ],
+            "policyNames": [
+              "BrowseBuckets"
+            ]
+          }
+        ]
+      }
+  seaweedfs-policy-admin-access:
+    content: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "AdminAccess",
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+              "arn:aws:s3:::*",
+              "arn:aws:s3:::*/*"
+            ]
+          }
+        ]
+      }
+  seaweedfs-policy-browse-buckets:
+    content: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "BrowseBuckets",
+            "Effect": "Allow",
+            "Action": [
+              "s3:GetObject",
+              "s3:ListBucket"
+            ],
+            "Resource": [
+              "arn:aws:s3:::storage-service-browse-*",
+              "arn:aws:s3:::storage-service-browse-*/*"
+            ]
+          }
+        ]
+      }
+
+  # Storage Service script that creates the rclone and S3 spaces.
+  object-storage-create-spaces:
+    content: |
+      #!/usr/bin/env python
+      """Create the SeaweedFS-backed rclone and S3 spaces in the Storage Service.
+
+      Each space gets a transfer source, an AIP storage and a DIP storage location,
+      and the buckets backing them are created in SeaweedFS. Re-running this is safe:
+      existing spaces and locations are reused.
+
+      Run it inside the Storage Service container of the object storage overlay,
+      where the Storage Service models and boto3 are available:
+
+          docker compose -f docker-compose.yml -f docker-compose.object-storage.yml \\
+              exec archivematica-storage-service \\
+              python /etc/archivematica/object-storage/create_object_storage_spaces.py
+      """
+
+      import argparse
+      import os
+      import sys
+
+      import django
+
+      django.setup()
+
+      import boto3
+      import botocore.exceptions
+      from archivematica.storage_service.locations.models import Location
+      from archivematica.storage_service.locations.models import Pipeline
+      from archivematica.storage_service.locations.models import Space
+      from archivematica.storage_service.locations.models.rclone import RClone
+      from archivematica.storage_service.locations.models.s3 import S3
+
+      # Purpose, relative path (the object key prefix) and description of each of
+      # the locations created in both spaces.
+      LOCATIONS = (
+          (Location.TRANSFER_SOURCE, "transfer-source", "transfer source"),
+          (Location.AIP_STORAGE, "aips", "AIP storage"),
+          (Location.DIP_STORAGE, "dips", "DIP storage"),
+      )
+
+
+      def parse_args(argv: list[str]) -> argparse.Namespace:
+          parser = argparse.ArgumentParser(
+              description=(
+                  "Create the SeaweedFS-backed rclone and S3 spaces in the Storage "
+                  "Service, each with a transfer source, an AIP storage and a DIP "
+                  "storage location."
+              ),
+              formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+          )
+          parser.add_argument(
+              "--endpoint",
+              default="http://seaweedfs:8333",
+              help="S3 endpoint, as seen from the containers",
+          )
+          parser.add_argument("--access-key-id", default="ss", help="S3 access key")
+          parser.add_argument("--secret-access-key", default="ss123", help="S3 secret key")
+          parser.add_argument("--region", default="us-east-1", help="S3 region")
+          parser.add_argument(
+              "--rclone-remote",
+              default="mys3",
+              help="must match the RCLONE_CONFIG_<REMOTE>_* variables of the overlay",
+          )
+          parser.add_argument(
+              "--rclone-bucket", default="rclone-storage", help="bucket of the rclone space"
+          )
+          parser.add_argument(
+              "--rclone-staging-path",
+              default="/var/archivematica/storage_service/rclone_staging",
+              help="staging path of the rclone space",
+          )
+          parser.add_argument(
+              "--s3-bucket", default="s3-storage", help="bucket of the S3 space"
+          )
+          parser.add_argument(
+              "--s3-staging-path",
+              default="/var/archivematica/storage_service/s3_staging",
+              help="staging path of the S3 space",
+          )
+          return parser.parse_args(argv)
+
+
+      def ensure_bucket(options: argparse.Namespace, name: str) -> None:
+          """Create the bucket in SeaweedFS unless it is already there."""
+          client = boto3.client(
+              "s3",
+              endpoint_url=options.endpoint,
+              aws_access_key_id=options.access_key_id,
+              aws_secret_access_key=options.secret_access_key,
+              region_name=options.region,
+          )
+          try:
+              client.get_bucket_location(Bucket=name)
+          except botocore.exceptions.ClientError as err:
+              if err.response["Error"]["Code"] != "NoSuchBucket":
+                  raise
+              client.create_bucket(Bucket=name)
+              print(f"Created bucket {name}.")
+          else:
+              print(f"Reused bucket {name}.")
+
+
+      def ensure_rclone_space(options: argparse.Namespace) -> tuple[Space, bool]:
+          """Return the rclone space, creating it if needed."""
+          rclone = RClone.objects.filter(
+              remote_name=options.rclone_remote, container=options.rclone_bucket
+          ).first()
+          if rclone is not None:
+              return rclone.space, False
+          space = Space.objects.create(
+              access_protocol=Space.RCLONE,
+              path="",
+              staging_path=options.rclone_staging_path,
+          )
+          RClone.objects.create(
+              space=space,
+              remote_name=options.rclone_remote,
+              container=options.rclone_bucket,
+          )
+          return space, True
+
+
+      def ensure_s3_space(options: argparse.Namespace) -> tuple[Space, bool]:
+          """Return the S3 space, creating it if needed."""
+          s3 = S3.objects.filter(
+              endpoint_url=options.endpoint, bucket=options.s3_bucket
+          ).first()
+          if s3 is not None:
+              return s3.space, False
+          space = Space.objects.create(
+              access_protocol=Space.S3, path="", staging_path=options.s3_staging_path
+          )
+          S3.objects.create(
+              space=space,
+              endpoint_url=options.endpoint,
+              access_key_id=options.access_key_id,
+              secret_access_key=options.secret_access_key,
+              region=options.region,
+              bucket=options.s3_bucket,
+          )
+          return space, True
+
+
+      def ensure_locations(space: Space, label: str, pipelines: list[Pipeline]) -> None:
+          """Create the transfer source, AIP and DIP locations of a space."""
+          for purpose, relative_path, description in LOCATIONS:
+              location, created = Location.objects.get_or_create(
+                  space=space,
+                  purpose=purpose,
+                  relative_path=relative_path,
+                  defaults={"description": f"SeaweedFS {label} {description}"},
+              )
+              if pipelines:
+                  location.pipeline.add(*pipelines)
+              print(
+                  "{} {} location {} ({})".format(
+                      "Created" if created else "Reused",
+                      description,
+                      location.uuid,
+                      relative_path,
+                  )
+              )
+
+
+      def main(options: argparse.Namespace) -> None:
+          pipelines = list(Pipeline.objects.all())
+          if not pipelines:
+              print(
+                  "WARNING: no pipelines are registered, the locations will not be "
+                  "usable from the Dashboard until the environment is bootstrapped."
+              )
+
+          for label, staging_path, bucket, ensure_space in (
+              (
+                  "rclone",
+                  options.rclone_staging_path,
+                  options.rclone_bucket,
+                  ensure_rclone_space,
+              ),
+              ("S3", options.s3_staging_path, options.s3_bucket, ensure_s3_space),
+          ):
+              print(f"--- {label} space ---")
+              os.makedirs(staging_path, exist_ok=True)
+              ensure_bucket(options, bucket)
+              space, created = ensure_space(options)
+              print(
+                  "{} space {} (bucket {}, staging path {})".format(
+                      "Created" if created else "Reused", space.uuid, bucket, staging_path
+                  )
+              )
+              ensure_locations(space, label, pipelines)
+
+
+      if __name__ == "__main__":
+          main(parse_args(sys.argv[1:]))
+
+  # Storage Service script that fills the locations with fake content.
+  object-storage-populate:
+    content: |
+      #!/usr/bin/env python
+      """Fill the object storage locations of the Storage Service with fake content.
+
+      Useful to measure how browsing and listing behave when a location holds
+      thousands of keys.
+
+      Run it inside the Storage Service container of the object storage overlay,
+      where the Storage Service models and boto3 are available:
+
+          docker compose -f docker-compose.yml -f docker-compose.object-storage.yml \\
+              exec archivematica-storage-service \\
+              python /etc/archivematica/object-storage/populate_object_storage.py --help
+      """
+
+      from __future__ import annotations
+
+      import argparse
+      import concurrent.futures
+      import dataclasses
+      import itertools
+      import os
+      import sys
+      import threading
+      import time
+      from collections.abc import Callable
+      from collections.abc import Iterable
+      from collections.abc import Iterator
+      from typing import TYPE_CHECKING
+
+      import django
+
+      django.setup()
+
+      import boto3
+      import botocore.config
+      import botocore.exceptions
+      from archivematica.storage_service.locations.models import Location
+      from archivematica.storage_service.locations.models import Space
+
+      if TYPE_CHECKING:
+          from mypy_boto3_s3 import S3Client
+          from mypy_boto3_s3.type_defs import ObjectIdentifierTypeDef
+
+      # Number of keys submitted to the thread pool at a time, to keep the memory
+      # footprint flat regardless of how many keys are requested.
+      CHUNK_SIZE = 2000
+
+      # How often the progress of a location is reported.
+      REPORT_EVERY = 1000
+
+      # Only used when a space does not carry its own credentials, i.e. the rclone
+      # space, whose remote is configured through environment variables.
+      DEFAULTS = {
+          "ENDPOINT": "http://seaweedfs:8333",
+          "ACCESS_KEY_ID": "ss",
+          "SECRET_ACCESS_KEY": "ss123",
+          "REGION": "us-east-1",
+      }
+
+      # Names accepted by --space and --purpose, mapped to the model constants.
+      PROTOCOLS = {"rclone": Space.RCLONE, "s3": Space.S3}
+
+      PURPOSES = {
+          "TS": Location.TRANSFER_SOURCE,
+          "AS": Location.AIP_STORAGE,
+          "DS": Location.DIP_STORAGE,
+      }
+
+
+      def csv_choice(valid: Iterable[str]) -> Callable[[str], str]:
+          """Return an argparse type accepting "all" or a comma separated subset."""
+          names = list(valid)
+
+          def parse(value: str) -> str:
+              if value == "all":
+                  return value
+              unknown = [name for name in value.split(",") if name not in names]
+              if unknown:
+                  raise argparse.ArgumentTypeError(
+                      f"{', '.join(unknown)}: expected all or a comma separated "
+                      f"subset of {', '.join(names)}"
+                  )
+              return value
+
+          return parse
+
+
+      def parse_args(argv: list[str]) -> argparse.Namespace:
+          parser = argparse.ArgumentParser(
+              description=(
+                  "Fill the object storage locations of the Storage Service with "
+                  "fake content."
+              ),
+              formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+              epilog=(
+                  "The flat layout writes every key under a single prefix, which is "
+                  "the worst case for browsing. The nested layout writes transfer "
+                  "directories that Archivematica can process."
+              ),
+          )
+          parser.add_argument(
+              "--space",
+              dest="spaces",
+              default="all",
+              type=csv_choice(PROTOCOLS),
+              help="rclone, s3 or all",
+          )
+          parser.add_argument(
+              "--purpose",
+              dest="purposes",
+              default="all",
+              type=csv_choice(PURPOSES),
+              help="TS, AS, DS or all",
+          )
+          parser.add_argument(
+              "--layout", choices=("flat", "nested"), default="flat", help="key layout"
+          )
+          parser.add_argument(
+              "--count", type=int, default=10000, help="keys per location, flat layout"
+          )
+          parser.add_argument(
+              "--transfers",
+              type=int,
+              default=200,
+              help="transfer directories, nested layout",
+          )
+          parser.add_argument(
+              "--files-per-transfer",
+              type=int,
+              default=50,
+              help="files in each transfer, nested layout",
+          )
+          parser.add_argument(
+              "--size", type=int, default=0, help="size of each object, in bytes"
+          )
+          parser.add_argument(
+              "--workers", type=int, default=32, help="concurrent uploads per location"
+          )
+          parser.add_argument(
+              "--clear",
+              action="store_true",
+              help="delete the keys already under each location first",
+          )
+          return parser.parse_args(argv)
+
+
+      @dataclasses.dataclass(frozen=True)
+      class Connection:
+          """The S3 endpoint, credentials and bucket backing a space."""
+
+          endpoint_url: str
+          access_key_id: str
+          secret_access_key: str
+          region: str
+          bucket: str
+
+          def client(self, workers: int) -> S3Client:
+              # The default connection pool of botocore holds ten connections, which
+              # would throttle the workers before the object store does.
+              return boto3.client(
+                  "s3",
+                  endpoint_url=self.endpoint_url,
+                  aws_access_key_id=self.access_key_id,
+                  aws_secret_access_key=self.secret_access_key,
+                  region_name=self.region,
+                  config=botocore.config.Config(max_pool_connections=workers),
+              )
+
+
+      class Uploader:
+          """Write keys to a bucket from several threads.
+
+          Botocore clients are not meant to be shared across threads, so each thread
+          gets its own. A new instance is used for every location, which keeps the
+          per-thread clients from leaking into the next one.
+          """
+
+          def __init__(self, connection: Connection, workers: int) -> None:
+              self.connection = connection
+              self.workers = workers
+              self._local = threading.local()
+
+          @property
+          def client(self) -> S3Client:
+              client: S3Client | None = getattr(self._local, "client", None)
+              if client is None:
+                  client = self.connection.client(self.workers)
+                  self._local.client = client
+              return client
+
+          def put(self, item: tuple[str, bytes]) -> None:
+              key, body = item
+              self.client.put_object(Bucket=self.connection.bucket, Key=key, Body=body)
+
+
+      def rclone_setting(remote_name: str, setting: str) -> str:
+          """Read a setting of an rclone remote from the environment."""
+          name = f"RCLONE_CONFIG_{remote_name.upper().rstrip(':')}_{setting}"
+          return os.environ.get(name, DEFAULTS[setting])
+
+
+      def connection_for(space: Space) -> Connection:
+          """Return the endpoint, credentials and bucket backing a space."""
+          if space.access_protocol == Space.S3:
+              s3 = space.s3
+              return Connection(
+                  endpoint_url=s3.endpoint_url,
+                  access_key_id=s3.access_key_id,
+                  secret_access_key=s3.secret_access_key,
+                  region=s3.region,
+                  bucket=s3.bucket or str(space.uuid),
+              )
+          rclone = space.rclone
+          remote = rclone.remote_name
+          return Connection(
+              endpoint_url=rclone_setting(remote, "ENDPOINT"),
+              access_key_id=rclone_setting(remote, "ACCESS_KEY_ID"),
+              secret_access_key=rclone_setting(remote, "SECRET_ACCESS_KEY"),
+              region=rclone_setting(remote, "REGION"),
+              bucket=rclone.container,
+          )
+
+
+      def make_body(key: str, size: int) -> bytes:
+          """Return the contents of an object, distinguishable from the others."""
+          if size <= 0:
+              return b""
+          seed = f"{key}\n".encode()
+          if len(seed) >= size:
+              return seed[:size]
+          return seed + b"x" * (size - len(seed))
+
+
+      def iter_flat(prefix: str, options: argparse.Namespace) -> Iterator[tuple[str, bytes]]:
+          """Yield sibling keys under a single prefix, the worst case for browsing."""
+          count: int = options.count
+          width = max(len(str(count)), 5)
+          for index in range(1, count + 1):
+              key = f"{prefix}/file-{index:0{width}d}.txt"
+              yield key, make_body(key, options.size)
+
+
+      def iter_nested(
+          prefix: str, options: argparse.Namespace
+      ) -> Iterator[tuple[str, bytes]]:
+          """Yield keys shaped like transfers that Archivematica can process."""
+          transfers: int = options.transfers
+          files_per_transfer: int = options.files_per_transfer
+          transfer_width = max(len(str(transfers)), 4)
+          file_width = max(len(str(files_per_transfer)), 3)
+          for transfer in range(1, transfers + 1):
+              name = f"transfer-{transfer:0{transfer_width}d}"
+              metadata = f"filename,dc.title\nobjects,Fake transfer {name}\n"
+              yield f"{prefix}/{name}/metadata/metadata.csv", metadata.encode()
+              for index in range(1, files_per_transfer + 1):
+                  key = f"{prefix}/{name}/objects/file-{index:0{file_width}d}.txt"
+                  yield key, make_body(key, options.size)
+
+
+      def chunked(
+          iterable: Iterable[tuple[str, bytes]], size: int
+      ) -> Iterator[list[tuple[str, bytes]]]:
+          iterator = iter(iterable)
+          while True:
+              chunk = list(itertools.islice(iterator, size))
+              if not chunk:
+                  return
+              yield chunk
+
+
+      def ensure_bucket(client: S3Client, bucket: str) -> None:
+          try:
+              client.get_bucket_location(Bucket=bucket)
+          except botocore.exceptions.ClientError as err:
+              if err.response["Error"]["Code"] != "NoSuchBucket":
+                  raise
+              client.create_bucket(Bucket=bucket)
+              print(f"  created missing bucket {bucket}")
+
+
+      def clear_prefix(client: S3Client, bucket: str, prefix: str) -> None:
+          """Delete every key under a prefix, one listing page at a time."""
+          paginator = client.get_paginator("list_objects_v2")
+          deleted = 0
+          for page in paginator.paginate(Bucket=bucket, Prefix=f"{prefix}/"):
+              keys: list[ObjectIdentifierTypeDef] = [
+                  {"Key": obj["Key"]} for obj in page.get("Contents", [])
+              ]
+              if not keys:
+                  continue
+              client.delete_objects(Bucket=bucket, Delete={"Objects": keys})
+              deleted += len(keys)
+          print(f"  deleted {deleted} existing keys")
+
+
+      def populate(location: Location, options: argparse.Namespace) -> None:
+          space = location.space
+          connection = connection_for(space)
+          prefix = location.full_path.strip("/")
+          workers: int = options.workers
+          uploader = Uploader(connection, workers)
+
+          print(
+              f"{location.get_purpose_display()} {location.uuid} "
+              f"-> {space.get_access_protocol_display()} {connection.bucket}/{prefix}"
+          )
+
+          ensure_bucket(uploader.client, connection.bucket)
+          if options.clear:
+              clear_prefix(uploader.client, connection.bucket, prefix)
+
+          if options.layout == "nested":
+              items = iter_nested(prefix, options)
+              total = options.transfers * (options.files_per_transfer + 1)
+          else:
+              items = iter_flat(prefix, options)
+              total = options.count
+
+          started = time.monotonic()
+          done = 0
+          with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+              for chunk in chunked(items, CHUNK_SIZE):
+                  for _ in pool.map(uploader.put, chunk):
+                      done += 1
+                      if done % REPORT_EVERY == 0:
+                          elapsed = time.monotonic() - started
+                          print(f"  {done}/{total} keys ({done / elapsed:.0f} keys/s)")
+
+          elapsed = time.monotonic() - started
+          print(f"  wrote {done} keys in {elapsed:.1f}s ({done / elapsed:.0f} keys/s)")
+
+
+      def selected(names: str, mapping: dict[str, str]) -> list[str]:
+          """Map "all" or a comma separated list of names to model constants."""
+          if names == "all":
+              return list(mapping.values())
+          return [mapping[name] for name in names.split(",")]
+
+
+      def main(options: argparse.Namespace) -> None:
+          locations = Location.active.filter(
+              space__access_protocol__in=selected(options.spaces, PROTOCOLS),
+              purpose__in=selected(options.purposes, PURPOSES),
+          ).order_by("space__access_protocol", "purpose")
+
+          if not locations:
+              raise SystemExit(
+                  "No matching locations found, run create_object_storage_spaces.py first."
+              )
+
+          if options.layout == "nested":
+              shape = f"{options.transfers} transfers of {options.files_per_transfer} files"
+          else:
+              shape = f"{options.count} files"
+          print(
+              f"Writing {shape} of {options.size} bytes to {len(locations)} "
+              f"location(s) with {options.workers} workers."
+          )
+
+          for location in locations:
+              populate(location, options)
+
+
+      if __name__ == "__main__":
+          main(parse_args(sys.argv[1:]))
