@@ -120,7 +120,7 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:26.7.2-1"
+    image: "quay.io/keycloak/keycloak:26.7.3-0"
     command: ["start-dev", "--import-realm"]
     restart: "unless-stopped"
     environment:
