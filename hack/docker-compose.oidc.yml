@@ -86,7 +86,7 @@ services:
         condition: service_started
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:26.7.2-1"
+    image: "quay.io/keycloak/keycloak:26.7.3-0"
     command: ["start-dev", "--import-realm"]
     environment:
       KEYCLOAK_ADMIN: "admin"
