@@ -40,6 +40,18 @@ x-ldap-client-environment: &ldap-client-environment
   AUTH_LDAP_START_TLS: "false"
   AUTH_LDAP_PROTOCOL_VERSION: "3"
 
+configs:
+  openldap-healthcheck:
+    # Health check script for the openldap service. Docker runs it with the
+    # container environment, so it binds with the LDAP_INIT_* credentials set
+    # on the service.
+    content: |
+      # Fails until slapd accepts connections and the entrypoint has created
+      # the organization entry.
+      exec ldapsearch -x -H ldap://127.0.0.1:389 \
+        -D "$$LDAP_INIT_ROOT_USER_DN" -w "$$LDAP_INIT_ROOT_USER_PW" \
+        -b "$$LDAP_INIT_ORG_DN" -s base '(objectClass=*)' dn
+
 services:
 
   mysql:
@@ -193,9 +205,10 @@ services:
       start_period: 20s
 
   openldap:
-    # The image only publishes the latest tag, so the build is pinned by its
-    # digest, which Dependabot keeps up to date.
-    image: "vegardit/openldap:latest@sha256:8161e8fa74c518697776fff27b403cc4c273aede07b6d87f473a45201050d0de"
+    # Upstream publishes versioned tags, but may rebuild them to pick up
+    # base-image security updates. Keep the version tag for readability and
+    # pin the exact build by digest; Dependabot keeps both up to date.
+    image: "vegardit/openldap:2.6.10@sha256:4378fb00077a0dd4a969f35694d7a3660c171ccb2bd62e9260647490882f17c5"
     environment:
       LDAP_INIT_ORG_DN: "dc=archivematica,dc=org"
       LDAP_INIT_ORG_NAME: "Archivematica integration tests"
@@ -209,23 +222,11 @@ services:
       LDAP_LDAPS_ENABLED: "false"
     volumes:
       - "../../hack/etc/ldap/init_org_entries.ldif:/opt/ldifs/init_org_entries.ldif:ro"
+    configs:
+      - source: openldap-healthcheck
+        target: /usr/local/bin/openldap-healthcheck
     healthcheck:
-      test:
-        - CMD
-        - ldapsearch
-        - -x
-        - -H
-        - ldap://127.0.0.1:389
-        - -D
-        - uid=ldapadmin,dc=archivematica,dc=org
-        - -w
-        - test
-        - -b
-        - dc=archivematica,dc=org
-        - -s
-        - base
-        - (objectClass=*)
-        - dn
+      test: ["CMD", "sh", "/usr/local/bin/openldap-healthcheck"]
       interval: 5s
       timeout: 5s
       retries: 12
