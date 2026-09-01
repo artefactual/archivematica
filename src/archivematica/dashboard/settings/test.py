@@ -16,11 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 """Test settings and globals."""
 
-from typing import Any
-
-import ldap
-from django_auth_ldap.config import LDAPSearch
-
 from archivematica.dashboard.settings.local import *
 from archivematica.dashboard.settings.local import MIDDLEWARE
 from archivematica.dashboard.settings.local import STORAGES
@@ -62,13 +57,3 @@ STORAGES["staticfiles"]["BACKEND"] = (
 )
 if MIDDLEWARE[0] == "whitenoise.middleware.WhiteNoiseMiddleware":
     del MIDDLEWARE[0]
-
-
-# Special testing setup for LDAP tests in test_ldap.py
-# (since override_settings would take effect too late)
-AUTH_LDAP_SERVER_URI = "ldap://localhost/"
-AUTH_LDAP_USER_SEARCH = LDAPSearch(
-    "ou=example,o=test", ldap.SCOPE_SUBTREE, "(cn=%(user)s)"
-)
-AUTH_LDAP_USER_FLAGS_BY_GROUP: dict[str, Any] = {}
-AUTH_LDAP_USERNAME_SUFFIX = "_ldap"

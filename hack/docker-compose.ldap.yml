@@ -1,0 +1,83 @@
+---
+x-ldap-client-environment: &ldap-client-environment
+  AUTH_LDAP_SERVER_URI: "ldap://openldap:389"
+  AUTH_LDAP_BIND_DN: "uid=ldapadmin,dc=archivematica,dc=org"
+  AUTH_LDAP_BIND_PASSWORD: "test"
+  AUTH_LDAP_USER_SEARCH_BASE_DN: "ou=Users,dc=archivematica,dc=org"
+  AUTH_LDAP_USER_SEARCH_BASE_FILTERSTR: "(uid=%(user)s)"
+  AUTH_LDAP_GROUP_SEARCH_BASE_DN: "ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_GROUP_SEARCH_FILTERSTR: "(objectClass=groupOfNames)"
+  AUTH_LDAP_GROUP_IS_ACTIVE: "cn=enabled,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_GROUP_IS_STAFF: "cn=administrators,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_GROUP_IS_SUPERUSER: "cn=administrators,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_REQUIRE_GROUP: "cn=enabled,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_DENY_GROUP: "cn=disabled,ou=Groups,dc=archivematica,dc=org"
+  AUTH_LDAP_START_TLS: "false"
+  AUTH_LDAP_PROTOCOL_VERSION: "3"
+
+configs:
+  openldap-healthcheck:
+    # Health check script for the openldap service. Docker runs it with the
+    # container environment, so it binds with the LDAP_INIT_* credentials set
+    # on the service.
+    content: |
+      # Fails until slapd accepts connections and the entrypoint has created
+      # the organization entry.
+      exec ldapsearch -x -H ldap://127.0.0.1:389 \
+        -D "$$LDAP_INIT_ROOT_USER_DN" -w "$$LDAP_INIT_ROOT_USER_PW" \
+        -b "$$LDAP_INIT_ORG_DN" -s base '(objectClass=*)' dn
+
+services:
+  archivematica-dashboard:
+    environment:
+      <<: *ldap-client-environment
+      # Archivematica Dashboard qa/1.x LDAP switch.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_LDAP_AUTHENTICATION: "true"
+    depends_on:
+      openldap:
+        condition: service_healthy
+
+  archivematica-storage-service:
+    environment:
+      <<: *ldap-client-environment
+      # Archivematica Storage Service qa/0.x LDAP switch.
+      SS_LDAP_AUTHENTICATION: "true"
+
+      # Map LDAP group names to the Storage Service permission roles. A user
+      # that matches none of these groups gets the reader role.
+      AUTH_LDAP_ADMIN_GROUP: "administrators"
+      AUTH_LDAP_MANAGER_GROUP: "managers"
+      AUTH_LDAP_REVIEWER_GROUP: "reviewers"
+    depends_on:
+      openldap:
+        condition: service_healthy
+
+  openldap:
+    # Upstream publishes versioned tags, but may rebuild them to pick up
+    # base-image security updates. Keep the version tag for readability and
+    # pin the exact build by digest; Dependabot keeps both up to date.
+    image: "vegardit/openldap:2.6.10@sha256:4378fb00077a0dd4a969f35694d7a3660c171ccb2bd62e9260647490882f17c5"
+    environment:
+      LDAP_INIT_ORG_DN: "dc=archivematica,dc=org"
+      LDAP_INIT_ORG_NAME: "Archivematica development"
+      LDAP_INIT_ORG_ATTR_O: "Archivematica"
+      LDAP_INIT_ROOT_USER_DN: "uid=ldapadmin,dc=archivematica,dc=org"
+      LDAP_INIT_ROOT_USER_PW: "test"
+      # The image's default password policy requires eight characters and
+      # would reject the shared four-character test password in the LDIF.
+      LDAP_INIT_PPOLICY_PW_MIN_LENGTH: "4"
+      LDAP_TLS_ENABLED: "false"
+      LDAP_LDAPS_ENABLED: "false"
+    volumes:
+      - "./etc/ldap/init_org_entries.ldif:/opt/ldifs/init_org_entries.ldif:ro"
+    ports:
+      - "127.0.0.1:62083:389"
+    configs:
+      - source: openldap-healthcheck
+        target: /usr/local/bin/openldap-healthcheck
+    healthcheck:
+      test: ["CMD", "sh", "/usr/local/bin/openldap-healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s

@@ -1,5 +1,5 @@
 ---
-name: "OIDC Integration Test"
+name: "LDAP Integration Test"
 on:
   workflow_dispatch:
   pull_request:
@@ -82,11 +82,11 @@ jobs:
           load: true
           cache-from: |
             type=gha,scope=archivematica-tests-base-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}
-            type=gha,scope=archivematica-oidc-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}
+            type=gha,scope=archivematica-ldap-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}
             type=gha,scope=archivematica-tests-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}-${{ steps.cache_key.outputs.requirements_hash }}
           cache-to: |
             type=gha,scope=archivematica-tests-base-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
-            type=gha,scope=archivematica-oidc-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
+            type=gha,scope=archivematica-ldap-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
             type=gha,scope=archivematica-tests-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}-${{ steps.cache_key.outputs.requirements_hash }},mode=max
       - name: "Run tests"
         run: |
@@ -102,3 +102,4 @@ jobs:
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           PYTEST_ADDOPTS: -vv
+          INTEGRATION_SERVICE: archivematica-dashboard-ldap
