@@ -45,7 +45,7 @@ services:
       - "SYS_NICE"
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.20"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.21"
     environment:
       - "cluster.name=am-cluster"
       - "node.name=am-node"
@@ -75,7 +75,7 @@ services:
       - "127.0.0.1:62002:9200"
 
   gearmand:
-    image: "artefactual/gearmand:2.0.0-alpine"
+    image: "artefactual/gearmand:2.1.0-alpine"
     command: "--queue-type=builtin"
     user: "gearman"
     ports:
