@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mets:mets
+  xmlns:mets="http://www.loc.gov/METS/"
+  xmlns:premis="http://www.loc.gov/premis/v3"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <mets:amdSec ID="amdSec_1">
+    <mets:techMD ID="techMD_1">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object>
+            <premis:objectIdentifier>
+              <premis:objectIdentifierValue>85aa559e-5a38-4be7-a814-708f738fd40c</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:objectCharacteristics>
+              <premis:fixity>
+                <premis:messageDigestAlgorithm>sha256</premis:messageDigestAlgorithm>
+                <premis:messageDigest>b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9</premis:messageDigest>
+              </premis:fixity>
+              <premis:size>11</premis:size>
+              <premis:format>
+                <premis:formatRegistry>
+                  <premis:formatRegistryName>PRONOM</premis:formatRegistryName>
+                  <premis:formatRegistryKey>x-fmt/111</premis:formatRegistryKey>
+                </premis:formatRegistry>
+              </premis:format>
+            </premis:objectCharacteristics>
+            <premis:originalName>%SIPDirectory%objects/preserved.txt</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:amdSec ID="amdSec_2">
+    <mets:techMD ID="techMD_2">
+      <mets:mdWrap MDTYPE="PREMIS:OBJECT">
+        <mets:xmlData>
+          <premis:object>
+            <premis:objectIdentifier>
+              <premis:objectIdentifierValue>534f0728-8b35-465c-b1c3-28d67653c349</premis:objectIdentifierValue>
+            </premis:objectIdentifier>
+            <premis:originalName>%SIPDirectory%objects/deleted.txt</premis:originalName>
+          </premis:object>
+        </mets:xmlData>
+      </mets:mdWrap>
+    </mets:techMD>
+  </mets:amdSec>
+  <mets:fileSec>
+    <mets:fileGrp USE="preservation">
+      <mets:file ID="file-85aa559e-5a38-4be7-a814-708f738fd40c" ADMID="amdSec_1">
+        <mets:FLocat xlink:href="objects/preserved.txt"/>
+      </mets:file>
+    </mets:fileGrp>
+    <mets:fileGrp USE="deleted">
+      <mets:file ID="file-534f0728-8b35-465c-b1c3-28d67653c349" ADMID="amdSec_2"/>
+    </mets:fileGrp>
+  </mets:fileSec>
+</mets:mets>

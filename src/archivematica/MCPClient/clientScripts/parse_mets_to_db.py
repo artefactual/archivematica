@@ -53,6 +53,8 @@ def parse_files(job, root):
 
     for fe in filesec.findall(".//mets:file", namespaces=ns.NSMAP):
         filegrpuse = fe.getparent().get("USE")
+        if filegrpuse == "deleted":
+            continue
         job.pyprint("filegrpuse", filegrpuse)
 
         amdid = fe.get("ADMID")

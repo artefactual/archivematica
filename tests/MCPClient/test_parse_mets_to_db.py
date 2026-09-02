@@ -540,6 +540,36 @@ class TestParseFiles(TestCase):
         assert pres["derivation"] == self.PRES_INFO["derivation"]
         assert pres["derivation_event"] == self.PRES_INFO["derivation_event"]
 
+    def test_parse_file_info_ignores_deleted_files_without_flocat(self):
+        """It should ignore deleted file entries that have no physical location.
+
+        Reingest retains deleted entries in the METS as provenance tombstones after
+        their files have been removed from the AIP. They therefore have no FLocat
+        and should not be loaded into the database as files to process again.
+        """
+        root = etree.parse(
+            os.path.join(THIS_DIR, "fixtures", "mets_deleted_file_without_flocat.xml")
+        )
+
+        files = parse_mets_to_db.parse_files(mcp_job, root)
+
+        assert files == [
+            {
+                "uuid": "85aa559e-5a38-4be7-a814-708f738fd40c",
+                "original_path": "%SIPDirectory%objects/preserved.txt",
+                "current_path": "%SIPDirectory%objects/preserved.txt",
+                "use": "preservation",
+                "checksum": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+                "checksumtype": "sha256",
+                "size": "11",
+                "format_version": fpr.models.FormatVersion.objects.get(
+                    uuid="61c8d737-e809-47a1-b89f-83c1239dae99"
+                ),
+                "derivation": None,
+                "derivation_event": None,
+            }
+        ]
+
     def test_parse_file_info_reingest(self):
         """
         It should parse the correct techMD in the amdSec.
