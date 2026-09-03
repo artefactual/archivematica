@@ -80,7 +80,7 @@ services:
       - "127.0.0.1:62004:4730"
 
   clamavd:
-    image: "clamav/clamav-debian:1.4.3-57"
+    image: "clamav/clamav-debian:1.4.3-83"
     user: "clamav"
     entrypoint: "/init-unprivileged"
     environment:
