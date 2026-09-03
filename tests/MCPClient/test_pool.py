@@ -1,5 +1,6 @@
 import queue
 from typing import Any
+from typing import Optional
 
 import pytest
 
@@ -40,7 +41,7 @@ class FakeWorker:
         self.alive = False
         self.exitcode = -9
 
-    def join(self, timeout: float | None = None) -> None:
+    def join(self, timeout: Optional[float] = None) -> None:
         self.join_calls.append(timeout)
 
 
