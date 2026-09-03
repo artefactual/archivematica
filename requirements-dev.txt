@@ -6,7 +6,7 @@
 #
 agentarchives==0.10.0
     # via archivematica (pyproject.toml)
-amclient==1.5.0
+amclient==1.6.1
     # via archivematica (pyproject.toml)
 ammcpc==0.3.0
     # via archivematica (pyproject.toml)
