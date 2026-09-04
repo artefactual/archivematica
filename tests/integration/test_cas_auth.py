@@ -1,4 +1,5 @@
 import os
+import re
 import uuid
 
 import pytest
@@ -15,6 +16,10 @@ if "RUN_INTEGRATION_TESTS" not in os.environ:
 
 if not django_settings.CAS_AUTHENTICATION:
     pytest.skip("Skipping CAS integration tests", allow_module_level=True)
+
+
+def url_starting_with(prefix: str) -> re.Pattern[str]:
+    return re.compile(f"^{re.escape(prefix)}")
 
 
 def open_user_menu(page: Page) -> None:
@@ -45,7 +50,7 @@ def log_in_via_cas(
 def get_profile_details(page: Page, live_server: LiveServer) -> list[str]:
     click_profile_from_user_menu(page)
 
-    assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:profile')}")
     details_text = page.locator("dl.dl-horizontal").text_content()
     assert details_text is not None
 
@@ -67,7 +72,7 @@ def test_login_redirects_to_cas_server_login_page(
 ) -> None:
     page.goto(live_server.url)
 
-    assert page.url.startswith(f"{settings.CAS_SERVER_URL}login")
+    expect(page).to_have_url(url_starting_with(f"{settings.CAS_SERVER_URL}login"))
     expect(page.locator("#username")).to_be_visible()
 
 
@@ -80,7 +85,7 @@ def test_cas_backend_creates_local_user(
 ) -> None:
     log_in_via_cas(page, live_server, "demo", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "demo",
@@ -110,7 +115,7 @@ def test_cas_backend_authenticates_existing_user(
 
     log_in_via_cas(page, live_server, "demo", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "demo",
@@ -137,7 +142,7 @@ def test_admin_attribute_grants_administrator_role(
     # attribute is parsed as a list.
     log_in_via_cas(page, live_server, "admin", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "admin",
@@ -163,7 +168,7 @@ def test_single_valued_admin_attribute_grants_administrator_role(
     # attribute is parsed as a string.
     log_in_via_cas(page, live_server, "sysadmin", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
 
     user = django_user_model.objects.get(username="sysadmin")
     assert user.is_superuser
@@ -181,7 +186,7 @@ def test_missing_admin_attribute_removes_administrator_role(
 
     log_in_via_cas(page, live_server, "demo", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "demo",
@@ -208,7 +213,7 @@ def test_autoconfigure_email_sets_email_of_new_user(
 
     log_in_via_cas(page, live_server, "demo", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "demo",
@@ -229,14 +234,14 @@ def test_logging_out_logs_out_user_from_cas_server(
 ) -> None:
     log_in_via_cas(page, live_server, "demo", "test")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
 
     # Logging out redirects the user to the CAS server logout page.
     click_logout_from_user_menu(page)
-    assert page.url.startswith(f"{settings.CAS_SERVER_URL}logout")
+    expect(page).to_have_url(url_starting_with(f"{settings.CAS_SERVER_URL}logout"))
 
     # The CAS single sign-on session is over, so authenticating again
     # requires to submit the CAS login form.
     page.goto(live_server.url)
-    assert page.url.startswith(f"{settings.CAS_SERVER_URL}login")
+    expect(page).to_have_url(url_starting_with(f"{settings.CAS_SERVER_URL}login"))
     expect(page.locator("#username")).to_be_visible()

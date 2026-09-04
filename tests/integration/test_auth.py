@@ -25,14 +25,14 @@ def test_logout_link_logs_out_user(
 ) -> None:
     page.goto(live_server.url)
 
-    assert page.url == f"{live_server.url}{reverse('accounts:login')}"
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:login')}")
 
     page.get_by_label("Username").fill("foobar")
     page.get_by_label("Password").fill("foobar1A,")
     page.get_by_text("Log in", exact=True).click()
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
 
     click_logout_from_user_menu(page)
 
-    assert page.url == f"{live_server.url}{reverse('accounts:login')}"
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:login')}")

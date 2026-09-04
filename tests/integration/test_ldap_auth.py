@@ -38,7 +38,7 @@ def get_profile_details(page: Page, live_server: LiveServer) -> list[str]:
     open_user_menu(page)
     page.get_by_role("link", name="Your profile").click()
 
-    assert page.url == f"{live_server.url}{reverse('accounts:profile')}"
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:profile')}")
     details_text = page.locator("dl.dl-horizontal").text_content()
     assert details_text is not None
 
@@ -54,7 +54,7 @@ def test_ldap_backend_creates_local_user_and_maps_profile_attributes(
 ) -> None:
     log_in_via_ldap(page, live_server, "demo")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "demo",
@@ -89,7 +89,7 @@ def test_ldap_backend_updates_existing_user_attributes(
 
     log_in_via_ldap(page, live_server, "manager")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     user.refresh_from_db()
     assert (user.first_name, user.last_name, user.email) == (
         "Manager",
@@ -108,7 +108,7 @@ def test_ldap_backend_maps_username_suffix_end_to_end(
 ) -> None:
     log_in_via_ldap(page, live_server, "suffix")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert django_user_model.objects.filter(username="suffix").exists()
     assert not django_user_model.objects.filter(username="suffix_ldap").exists()
 
@@ -123,7 +123,7 @@ def test_administrator_group_maps_django_flags(
     # The fixture puts admin in every role group. Administrator flags must win.
     log_in_via_ldap(page, live_server, "admin")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     assert get_profile_details(page, live_server) == [
         "Username",
         "admin",
@@ -152,8 +152,10 @@ def test_required_and_denied_groups_reject_login(
 ) -> None:
     log_in_via_ldap(page, live_server, username)
 
-    assert page.url == f"{live_server.url}{reverse('accounts:login')}"
-    assert "correct username and password" in page.locator("body").inner_text()
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:login')}")
+    expect(page.locator("div.alert")).to_contain_text(
+        "Please enter a correct username and password"
+    )
     assert not django_user_model.objects.filter(username=username).exists()
 
 
@@ -166,7 +168,10 @@ def test_wrong_password_is_rejected(
 ) -> None:
     log_in_via_ldap(page, live_server, "demo", "wrong-password")
 
-    assert page.url == f"{live_server.url}{reverse('accounts:login')}"
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:login')}")
+    expect(page.locator("div.alert")).to_contain_text(
+        "Please enter a correct username and password"
+    )
     assert not django_user_model.objects.filter(username="demo").exists()
 
 
@@ -176,8 +181,8 @@ def test_logout_ends_local_ldap_session(
 ) -> None:
     log_in_via_ldap(page, live_server, "demo")
 
-    assert page.url == f"{live_server.url}/transfer/"
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
     open_user_menu(page)
     page.get_by_role("button", name="Log out").click()
 
-    assert page.url == f"{live_server.url}{reverse('accounts:login')}"
+    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:login')}")
