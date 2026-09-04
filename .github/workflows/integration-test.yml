@@ -16,7 +16,24 @@ on:
   pull_request:
     paths:
       - ".github/workflows/integration-test.yml"
-      - "tests/integration/docker-compose.yml"
+      - "hack/Dockerfile"
+      - "hack/etc/cas/**"
+      - "hack/etc/ldap/**"
+      - "src/archivematica/dashboard/components/accounts/**"
+      - "src/archivematica/dashboard/settings/**"
+      - "tests/integration/**"
+  push:
+    branches:
+      - "qa/**"
+      - "stable/**"
+    paths:
+      - ".github/workflows/integration-test.yml"
+      - "hack/Dockerfile"
+      - "hack/etc/cas/**"
+      - "hack/etc/ldap/**"
+      - "src/archivematica/dashboard/components/accounts/**"
+      - "src/archivematica/dashboard/settings/**"
+      - "tests/integration/**"
 env:
   UBUNTU_VERSION: "24.04"
   PYTHON_VERSION: "3.10"
