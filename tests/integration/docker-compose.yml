@@ -41,6 +41,17 @@ x-ldap-client-environment: &ldap-client-environment
   AUTH_LDAP_PROTOCOL_VERSION: "3"
 
 configs:
+  keycloak-healthcheck:
+    # The Keycloak image ships no curl or wget, so use bash's /dev/tcp. Gate on
+    # the OIDC discovery document of every realm the tests log in to, which is
+    # only served once `--import-realm` has finished.
+    content: |
+      for realm in demo secondary; do
+        exec 3<>/dev/tcp/127.0.0.1/8080 &&
+        printf 'GET /realms/%s/.well-known/openid-configuration HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' "$$realm" >&3 &&
+        head -n 1 <&3 | grep -q ' 200 ' || exit 1
+      done
+
   openldap-healthcheck:
     # Health check script for the openldap service. Docker runs it with the
     # container environment, so it binds with the LDAP_INIT_* credentials set
@@ -125,9 +136,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    links:
-      - "mysql"
-      - "keycloak"
+      keycloak:
+        condition: service_healthy
 
   archivematica-dashboard-cas:
     image: "archivematica-dashboard-integration-tests:latest"
@@ -178,6 +188,15 @@ services:
       - 8080:8080
     volumes:
       - "./etc/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro"
+    configs:
+      - source: keycloak-healthcheck
+        target: /usr/local/bin/keycloak-healthcheck
+    healthcheck:
+      test: ["CMD", "bash", "/usr/local/bin/keycloak-healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
 
   cas:
     image: "archivematica-cas"
