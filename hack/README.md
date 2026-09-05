@@ -530,6 +530,17 @@ Administrative user:
 - Username: `admin@example.com`
 - Password: `test`
 
+The Dashboard, the Storage Service and the browser all reach Keycloak as
+`keycloak.localhost:8080`. The hostname must resolve to the local host in the
+browser, which is the standard behaviour for `*.localhost` names in modern
+browsers and Linux distributions, and the overlay also sets it as a Docker
+network alias so the containers can use the same URLs. If `keycloak.localhost`
+does not resolve on your host, add the following entry to `/etc/hosts`:
+
+```text
+127.0.0.1 keycloak.localhost
+```
+
 ## LDAP authentication
 
 Use the `docker-compose.ldap.yml` overlay to start a [VegardIT OpenLDAP]
