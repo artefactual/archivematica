@@ -65,4 +65,18 @@ if settings.OIDC_AUTHENTICATION:
     urlpatterns += [path("oidc/", include("mozilla_django_oidc.urls"))]
 
 if "shibboleth" in settings.INSTALLED_APPS:
-    urlpatterns += [path("shib/", include("shibboleth.urls"))]
+    from shibboleth.views import ShibbolethLoginView
+    from shibboleth.views import ShibbolethView
+
+    from archivematica.dashboard.components.accounts.views import (
+        CustomShibbolethLogoutView,
+    )
+
+    # The library's URLconf, with a logout view that accepts the POST of the
+    # "Log out" form.
+    shibboleth_urlpatterns = [
+        path("login/", ShibbolethLoginView.as_view(), name="login"),
+        path("logout/", CustomShibbolethLogoutView.as_view(), name="logout"),
+        path("", ShibbolethView.as_view(), name="info"),
+    ]
+    urlpatterns += [path("shib/", include((shibboleth_urlpatterns, "shibboleth")))]

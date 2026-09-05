@@ -654,6 +654,9 @@ if SHIBBOLETH_AUTHENTICATION:
         "shibboleth.context_processors.logout_link"
     ]
 
+    # The page the service provider returns to after logging out.
+    LOGIN_EXEMPT_URLS.append(r"^administration/accounts/logged-out$")
+
     from archivematica.dashboard.settings.components.shibboleth_auth import *
 
 LDAP_AUTHENTICATION = config.get("ldap_authentication")
