@@ -228,13 +228,6 @@ def test_missing_entitlement_attribute_is_rejected(
     assert not django_user_model.objects.filter(username="demo@example.com").exists()
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "django-shibboleth-remoteuser fails with ValueError (min() of an empty "
-        "list) when no attribute that maps to a user field is released"
-    ),
-)
 @pytest.mark.django_db
 def test_login_with_only_eppn_and_entitlement(
     page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID

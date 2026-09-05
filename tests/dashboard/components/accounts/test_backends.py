@@ -89,13 +89,6 @@ def test_shibboleth_backend_rejects_inactive_user(
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "django-shibboleth-remoteuser fails with ValueError (min() of an empty "
-        "list) when no attribute that maps to a user field is released"
-    ),
-)
 @pytest.mark.django_db
 def test_shibboleth_backend_accepts_login_without_user_field_attributes() -> None:
     user = CustomShibbolethRemoteUserBackend().authenticate(
