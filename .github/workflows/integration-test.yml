@@ -13,12 +13,14 @@ on:
           - "oidc"
           - "cas"
           - "ldap"
+          - "shibboleth"
   pull_request:
     paths:
       - ".github/workflows/integration-test.yml"
       - "hack/Dockerfile"
       - "hack/etc/cas/**"
       - "hack/etc/ldap/**"
+      - "hack/etc/shibboleth/**"
       - "src/archivematica/dashboard/components/accounts/**"
       - "src/archivematica/dashboard/settings/**"
       - "tests/integration/**"
@@ -31,6 +33,7 @@ on:
       - "hack/Dockerfile"
       - "hack/etc/cas/**"
       - "hack/etc/ldap/**"
+      - "hack/etc/shibboleth/**"
       - "src/archivematica/dashboard/components/accounts/**"
       - "src/archivematica/dashboard/settings/**"
       - "tests/integration/**"
@@ -68,6 +71,11 @@ jobs:
                           name: "LDAP",
                           label: "ldap",
                           service: "archivematica-dashboard-ldap"
+                      },
+                      {
+                          name: "Shibboleth",
+                          label: "shibboleth",
+                          service: "archivematica-dashboard-shibboleth"
                       }
                   ]
                   | if $selected == "all"
@@ -175,6 +183,18 @@ jobs:
             type=gha,scope=archivematica-cas-server
           cache-to: |
             type=gha,scope=archivematica-cas-server,mode=max
+      - name: "Build Shibboleth service provider image"
+        if: "${{ matrix.provider.name == 'Shibboleth' }}"
+        uses: "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a" # v7.3.0
+        with:
+          context: ./hack/etc/shibboleth
+          tags: archivematica-shibboleth-sp:latest
+          push: false
+          load: true
+          cache-from: |
+            type=gha,scope=archivematica-shibboleth-sp
+          cache-to: |
+            type=gha,scope=archivematica-shibboleth-sp,mode=max
       - name: "Run tests"
         id: "run-tests"
         run: |

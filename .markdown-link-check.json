@@ -1,7 +1,7 @@
 {
   "ignorePatterns": [
     {
-      "pattern": "^http://(127.0.0.1|localhost)"
+      "pattern": "^http://(127.0.0.1|localhost|[a-z0-9-]+\\.localhost)"
     }
   ]
 }

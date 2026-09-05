@@ -46,7 +46,7 @@ configs:
     # the OIDC discovery document of every realm the tests log in to, which is
     # only served once `--import-realm` has finished.
     content: |
-      for realm in demo secondary; do
+      for realm in demo secondary shibboleth; do
         exec 3<>/dev/tcp/127.0.0.1/8080 &&
         printf 'GET /realms/%s/.well-known/openid-configuration HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' "$$realm" >&3 &&
         head -n 1 <&3 | grep -q ' 200 ' || exit 1
@@ -175,6 +175,28 @@ services:
       openldap:
         condition: service_healthy
 
+  archivematica-dashboard-shibboleth:
+    image: "archivematica-dashboard-integration-tests:latest"
+    entrypoint: ""
+    working_dir: "/src"
+    command: ["pytest", "--browser", "firefox", "/src/tests/integration/test_shibboleth_auth.py"]
+    hostname: "archivematica-dashboard"
+    environment:
+      <<: *dashboard-environment
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SHIBBOLETH_AUTHENTICATION: "true"
+    volumes:
+      - "../../:/src"
+    networks:
+      default:
+        aliases:
+          # The service provider proxies to the live test server by this name.
+          - archivematica-dashboard
+    depends_on:
+      mysql:
+        condition: service_healthy
+      shibboleth-sp:
+        condition: service_healthy
+
   keycloak:
     image: "quay.io/keycloak/keycloak:26.7.3-0"
     command: ["start-dev", "--import-realm"]
@@ -188,6 +210,7 @@ services:
       - 8080:8080
     volumes:
       - "./etc/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro"
+      - "./etc/keycloak/shibboleth-realm.json:/opt/keycloak/data/import/shibboleth-realm.json:ro"
     configs:
       - source: keycloak-healthcheck
         target: /usr/local/bin/keycloak-healthcheck
@@ -197,6 +220,39 @@ services:
       timeout: 5s
       retries: 30
       start_period: 30s
+
+  shibboleth-sp:
+    image: "archivematica-shibboleth-sp"
+    build:
+      context: "../../hack/etc/shibboleth"
+    environment:
+      # The browser and the service provider both reach Keycloak by its
+      # service name inside the Compose network, so one URL serves as the
+      # identity provider entity ID and as the metadata source.
+      SHIBBOLETH_IDP_URL: "http://keycloak:8080/realms/shibboleth"
+      SHIBBOLETH_IDP_METADATA_URL: "http://keycloak:8080/realms/shibboleth/protocol/saml/descriptor"
+    volumes:
+      - "../../hack/etc/shibboleth/shibboleth2.xml:/etc/shibboleth-templates/shibboleth2.xml:ro"
+      - "../../hack/etc/shibboleth/attribute-map-archivematica.xml:/etc/shibboleth/attribute-map-archivematica.xml:ro"
+      - "../../hack/etc/shibboleth/attribute-policy.xml:/etc/shibboleth/attribute-policy.xml:ro"
+      - "../../hack/etc/shibboleth/apache/archivematica.conf:/etc/apache2/sites-enabled/archivematica.conf:ro"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - --max-time
+        - "2"
+        - http://127.0.0.1/Shibboleth.sso/Status
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
 
   cas:
     image: "archivematica-cas"

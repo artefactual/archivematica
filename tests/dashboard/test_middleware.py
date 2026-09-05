@@ -9,6 +9,9 @@ from django.test.client import Client
 from django.urls import reverse
 
 from archivematica.dashboard.installer.middleware import _load_exempt_urls
+from archivematica.dashboard.middleware.common import (
+    CustomShibbolethRemoteUserMiddleware,
+)
 
 TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 
@@ -126,3 +129,44 @@ class OidcCaptureQueryParamMiddlewareTestCase(TestCase):
             assert response.status_code == 200
 
             assert self.client.session["providername"] == "MYPROVIDER"
+
+
+@override_settings(SHIBBOLETH_ADMIN_ENTITLEMENT="preservation-admin")
+class CustomShibbolethRemoteUserMiddlewareTestCase(TestCase):
+    """make_profile maps the entitlement attribute to the superuser flag."""
+
+    def setUp(self):
+        self.middleware = CustomShibbolethRemoteUserMiddleware(lambda request: None)
+        self.user = get_user_model().objects.create(username="demo@example.com")
+
+    def make_profile(self, entitlement):
+        self.middleware.make_profile(self.user, {"entitlement": entitlement})
+        self.user.refresh_from_db()
+
+    def test_admin_entitlement_grants_superuser(self):
+        self.make_profile("preservation-admin")
+
+        self.assertTrue(self.user.is_superuser)
+
+    def test_admin_entitlement_is_found_among_others(self):
+        self.make_profile("preservation-user;preservation-admin;preservation-manager")
+
+        self.assertTrue(self.user.is_superuser)
+
+    def test_other_entitlements_do_not_grant_superuser(self):
+        self.make_profile("preservation-user;preservation-manager")
+
+        self.assertFalse(self.user.is_superuser)
+
+    def test_missing_admin_entitlement_revokes_superuser(self):
+        self.user.is_superuser = True
+        self.user.save()
+
+        self.make_profile("preservation-user")
+
+        self.assertFalse(self.user.is_superuser)
+
+    def test_entitlement_is_matched_whole(self):
+        self.make_profile("preservation-administrator")
+
+        self.assertFalse(self.user.is_superuser)

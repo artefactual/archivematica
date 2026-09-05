@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Development-only Shibboleth service provider configuration for Archivematica.
+
+The container entrypoint renders this template. SHIBBOLETH_IDP_URL is the
+identity provider's public base URL, which is also its entity ID, and
+SHIBBOLETH_IDP_METADATA_URL is where the service provider fetches its
+metadata. They differ because libcurl, which shibd uses, resolves any
+*.localhost name to the loopback address instead of asking Docker's DNS.
+
+The Dashboard is the default application and the Storage Service an override,
+so each presents its own entity ID.
+
+Sessions and handlers run over plain HTTP, and the client address is not
+checked because requests arrive through nginx.
+-->
+<SPConfig xmlns="urn:mace:shibboleth:3.0:native:sp:config"
+    xmlns:conf="urn:mace:shibboleth:3.0:native:sp:config"
+    clockSkew="180">
+
+    <!-- Log to the container output instead of /var/log/shibboleth. -->
+    <OutOfProcess logger="console.logger"
+        tranLogFormat="%u|%s|%IDP|%i|%ac|%t|%attr|%n|%b|%E|%S|%SS|%L|%UA|%a" />
+
+    <ApplicationDefaults entityID="urn:archivematica:dashboard"
+        REMOTE_USER="eppn"
+        cipherSuites="DEFAULT:!EXP:!LOW:!aNULL:!eNULL:!DES:!IDEA:!SEED:!RC4:!3DES:!kRSA:!SSLv2:!SSLv3:!TLSv1:!TLSv1.1">
+
+        <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
+            checkAddress="false" handlerSSL="false" cookieProps="http"
+            redirectLimit="exact">
+
+            <SSO entityID="${SHIBBOLETH_IDP_URL}">
+              SAML2
+            </SSO>
+
+            <!--
+            Logging out ends the session in front of the application only;
+            the Keycloak session survives, so the next login is silent.
+            -->
+            <Logout>Local</Logout>
+
+            <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
+            <Handler type="Session" Location="/Session" showAttributeValues="true"/>
+        </Sessions>
+
+        <Errors supportContact="root@localhost"
+            helpLocation="/about.html"
+            styleSheet="/shibboleth-sp/main.css"/>
+
+        <!--
+        Keycloak publishes SAML metadata per realm. It is fetched over plain
+        HTTP and cached under /var/cache/shibboleth.
+        -->
+        <MetadataProvider type="XML" validate="true"
+            url="${SHIBBOLETH_IDP_METADATA_URL}"
+            backingFilePath="keycloak-idp-metadata.xml" maxRefreshDelay="3600"/>
+
+        <!--
+        The stock attribute map turns the eduPerson attributes Keycloak
+        releases into the eppn and entitlement headers; the supplementary map
+        adds givenName, sn and mail, which the stock file only carries as
+        commented-out examples.
+        -->
+        <AttributeExtractor type="Chaining">
+            <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+            <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map-archivematica.xml"/>
+        </AttributeExtractor>
+        <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+        <AttributeResolver type="Query" subjectMatch="true"/>
+
+        <CredentialResolver type="File" use="signing"
+            key="sp-signing-key.pem" certificate="sp-signing-cert.pem"/>
+        <CredentialResolver type="File" use="encryption"
+            key="sp-encrypt-key.pem" certificate="sp-encrypt-cert.pem"/>
+
+        <ApplicationOverride id="storage-service" entityID="urn:archivematica:storage-service"/>
+    </ApplicationDefaults>
+
+    <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+    <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+</SPConfig>
