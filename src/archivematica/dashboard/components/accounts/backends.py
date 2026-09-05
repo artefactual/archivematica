@@ -19,6 +19,20 @@ class CustomShibbolethRemoteUserBackend(ShibbolethRemoteUserBackend):
         generate_api_key(user)
         return user
 
+    @staticmethod
+    def update_user_params(user, params):
+        """Copy the released attributes onto the user when they changed.
+
+        The library's version fails when the identity provider releases no
+        attribute that maps to a user field.
+        """
+        if params and any(
+            getattr(user, name) != value for name, value in params.items()
+        ):
+            for name, value in params.items():
+                setattr(user, name, value)
+            user.save()
+
 
 class CustomCASBackend(CASBackend):
     def configure_user(self, user):
