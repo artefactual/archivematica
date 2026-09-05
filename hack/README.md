@@ -26,6 +26,7 @@
 - [OIDC authentication](#oidc-authentication)
 - [LDAP authentication](#ldap-authentication)
 - [CAS authentication](#cas-authentication)
+- [Shibboleth authentication](#shibboleth-authentication)
 - [Instrumentation](#instrumentation)
   - [Running Prometheus and Grafana](#running-prometheus-and-grafana)
   - [Percona Monitoring and Management](#percona-monitoring-and-management)
@@ -699,6 +700,108 @@ sign-on.
 
 [Apereo CAS]: https://apereo.github.io/cas/
 [Apereo CAS WAR overlay]: https://apereo.github.io/cas/7.3.x/installation/WAR-Overlay-Installation.html
+
+## Shibboleth authentication
+
+Use the `docker-compose.shibboleth.yml` overlay to put a [Shibboleth Service
+Provider] in front of the Dashboard and the Storage Service, with a Keycloak
+realm as the SAML identity provider, and enable the Shibboleth authentication
+settings of both applications. The base development environment must be
+installed and bootstrapped first as described in the
+[Installation](#installation) section:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.shibboleth.yml up -d --build
+```
+
+This overlay differs from the other single sign-on overlays in how the
+applications are reached. The Dashboard and the Storage Service do not speak
+SAML themselves: they trust the `eppn`, `givenName`, `sn`, `mail` and
+`entitlement` request headers set by a service provider in front of them. The
+overlay builds a small Apache httpd image with `mod_shib` (the Shibboleth
+Service Provider packaged by Debian) from `hack/etc/shibboleth/` and replaces
+the nginx configuration so that <http://127.0.0.1:62080> and
+<http://127.0.0.1:62081> are proxied through it. Requests between the
+Archivematica services keep using the container names and never go through
+the service provider. Requests to the `/api/` paths of both applications do
+not require a Shibboleth session, so API clients keep working with their API
+keys; requests that carry the attribute headers themselves are rejected by the
+service provider (`Attempt to spoof header` in its log).
+
+The service provider configuration is mounted from `hack/etc/shibboleth/` at
+runtime, so editing it only requires recreating the `shibboleth-sp` service.
+The identity provider is a `shibboleth` realm that Keycloak imports from
+`hack/etc/keycloak/shibboleth-realm.json` when its container is created, so
+after editing the realm recreate both:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.shibboleth.yml up -d \
+  --force-recreate keycloak shibboleth-sp
+```
+
+This overlay is intended for local testing and demonstrations only: it uses
+unencrypted HTTP, shared test passwords, unsigned authentication requests and
+identity provider metadata fetched over plain HTTP. Visiting the Dashboard at
+<http://127.0.0.1:62080> or the Storage Service at <http://127.0.0.1:62081>
+redirects to the Keycloak login page. The following users are predefined, all
+with the password `test`:
+
+| Username   | Entitlements                                                          | Dashboard role | Storage Service role |
+| ---------- | --------------------------------------------------------------------- | -------------- | -------------------- |
+| `demo`     | `preservation-user`                                                   | Regular user   | Reader               |
+| `reviewer` | `preservation-reviewer`                                               | Regular user   | Reviewer             |
+| `manager`  | `preservation-manager`, `preservation-reviewer`                       | Regular user   | Manager              |
+| `admin`    | `preservation-admin`, `preservation-manager`, `preservation-reviewer` | Superuser      | Administrator        |
+
+The applications identify users by the `eppn` (eduPersonPrincipalName)
+attribute, which the realm releases as the user's email address, so the local
+accounts are named `demo@example.com`, `admin@example.com` and so on; their
+first name, last name and email are taken from the `givenName`, `sn` and `mail`
+attributes on every login. The entitlements are Keycloak groups whose
+`entitlement` attribute is released as the multi-valued eduPersonEntitlement
+attribute. Both applications require it: the Dashboard maps
+`preservation-admin` to its superuser flag, and the Storage Service maps
+`preservation-admin`, `preservation-manager` and `preservation-reviewer` to its
+administrator, manager and reviewer roles, falling back to the reader role. The
+overlapping memberships make the precedence visible: administrator wins over
+manager, which wins over reviewer. The attribute and entitlement names are part
+of each application's settings rather than environment variables, so the
+overlay only enables the backends. Enabling Shibboleth disables user editing in
+both applications.
+
+Logging out ends the session in the service provider only. The Keycloak
+session survives, so the next visit logs the same user in again without asking
+for a password; to switch users, sign out of Keycloak at
+<http://keycloak.localhost:8080/realms/shibboleth/protocol/openid-connect/logout>
+or use a private browsing window.
+
+The service provider and the browser reach Keycloak as
+`keycloak.localhost:8080`, the hostname the [OIDC overlay](#oidc-authentication)
+uses too, so the same `/etc/hosts` note applies if it does not resolve on your
+host. Keycloak is told this hostname (`KC_HOSTNAME`) because the identity
+provider metadata embeds it, and the service provider fetches that metadata
+through the `keycloak` container name because libcurl, which `shibd` uses,
+resolves `*.localhost` names to the loopback address on its own.
+
+To inspect a session, open <http://127.0.0.1:62080/Shibboleth.sso/Session> (or
+the same path on port 62081) after logging in: it lists the attributes the
+service provider received. The service provider status page is limited to the
+container, and its log carries both `shibd` and Apache:
+
+```shell
+docker compose -f docker-compose.yml -f docker-compose.shibboleth.yml \
+  exec shibboleth-sp curl -s http://127.0.0.1/Shibboleth.sso/Status
+
+docker compose -f docker-compose.yml -f docker-compose.shibboleth.yml \
+  logs shibboleth-sp
+```
+
+The Keycloak administration console at <http://keycloak.localhost:8080>
+(username `admin`, password `admin`) shows the `shibboleth` realm, its two SAML
+clients and the `archivematica-attributes` client scope that releases the
+attributes.
+
+[Shibboleth Service Provider]: https://shibboleth.atlassian.net/wiki/spaces/SP3/overview
 
 ## Instrumentation
 

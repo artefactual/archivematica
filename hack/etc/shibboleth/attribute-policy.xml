@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Development-only attribute filter policy.
+
+The policy shipped with the service provider only accepts an eppn whose scope
+is asserted by the identity provider's metadata (a shibmd:Scope extension),
+which Keycloak does not publish. This policy accepts every attribute value the
+identity provider releases instead.
+-->
+<AttributeFilterPolicyGroup xmlns="urn:mace:shibboleth:2.0:afp"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/sp/shibboleth-afp.xsd">
+
+    <AttributeFilterPolicy>
+        <PolicyRequirementRule xsi:type="ANY"/>
+        <AttributeRule attributeID="*" permitAny="true"/>
+    </AttributeFilterPolicy>
+
+</AttributeFilterPolicyGroup>

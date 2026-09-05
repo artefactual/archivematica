@@ -18,6 +18,10 @@ if [ -z "${SKIP_DOCKER_BUILD}" ]; then
             # The LDAP service reuses the image built by the default service.
             docker compose build archivematica-dashboard
             ;;
+        archivematica-dashboard-shibboleth)
+            # The Shibboleth service reuses the image built by the default service.
+            docker compose build archivematica-dashboard shibboleth-sp
+            ;;
         *)
             docker compose build "${INTEGRATION_SERVICE}"
             ;;

@@ -1,0 +1,109 @@
+---
+configs:
+  keycloak-healthcheck:
+    # The Keycloak image ships no curl/wget, so use bash's /dev/tcp. Gate on
+    # the SAML descriptor of the realm, which is only served once
+    # `--import-realm` has finished. KC_HTTP_PORT is Keycloak's own setting
+    # for the port it listens on.
+    content: |
+      exec 3<>/dev/tcp/127.0.0.1/$${KC_HTTP_PORT:-8080} &&
+      printf 'GET /realms/shibboleth/protocol/saml/descriptor HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+      head -n 1 <&3 | grep -q ' 200 '
+
+services:
+  archivematica-dashboard:
+    environment:
+      # Archivematica Dashboard qa/1.x Shibboleth switch. The attribute map,
+      # the entitlements and the logout URL are part of the Dashboard
+      # settings, so there is nothing else to configure.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SHIBBOLETH_AUTHENTICATION: "true"
+
+      # The development environment uses HTTP.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE: "Lax"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
+
+  archivematica-storage-service:
+    environment:
+      # Archivematica Storage Service qa/0.x Shibboleth switch.
+      SS_SHIBBOLETH_AUTHENTICATION: "true"
+
+      # The development environment uses HTTP.
+      SESSION_COOKIE_SAMESITE: "Lax"
+      SESSION_COOKIE_SECURE: "false"
+      CSRF_COOKIE_SECURE: "false"
+
+  nginx:
+    volumes:
+      # Compose merges volumes by target path, so this replaces the base
+      # configuration with one that sends both applications through the
+      # Shibboleth service provider.
+      - "./etc/nginx/conf.d/archivematica.shibboleth.conf:/etc/nginx/conf.d/archivematica.conf:ro"
+    depends_on:
+      shibboleth-sp:
+        condition: service_healthy
+
+  shibboleth-sp:
+    image: "archivematica-shibboleth-sp"
+    build:
+      context: ./etc/shibboleth
+    environment:
+      # The identity provider as browsers reach it, which is also its SAML
+      # entity ID (see KC_HOSTNAME below).
+      SHIBBOLETH_IDP_URL: "http://keycloak.localhost:8080/realms/shibboleth"
+      # Where shibd fetches the metadata. libcurl resolves any *.localhost
+      # name to the loopback address instead of asking Docker's DNS, so the
+      # container-to-container URL uses the service name.
+      SHIBBOLETH_IDP_METADATA_URL: "http://keycloak:8080/realms/shibboleth/protocol/saml/descriptor"
+    volumes:
+      - "./etc/shibboleth/shibboleth2.xml:/etc/shibboleth-templates/shibboleth2.xml:ro"
+      - "./etc/shibboleth/attribute-map-archivematica.xml:/etc/shibboleth/attribute-map-archivematica.xml:ro"
+      - "./etc/shibboleth/attribute-policy.xml:/etc/shibboleth/attribute-policy.xml:ro"
+      - "./etc/shibboleth/apache/archivematica.conf:/etc/apache2/sites-enabled/archivematica.conf:ro"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - --max-time
+        - "2"
+        - http://127.0.0.1/Shibboleth.sso/Status
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  keycloak:
+    image: "quay.io/keycloak/keycloak:26.7.3-0"
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+      KC_LOG_LEVEL: "INFO"
+      # The URLs in the SAML metadata follow this hostname whichever name the
+      # service provider fetched it through.
+      KC_HOSTNAME: "http://keycloak.localhost:8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./etc/keycloak/shibboleth-realm.json:/opt/keycloak/data/import/shibboleth-realm.json:ro"
+    networks:
+      default:
+        aliases:
+          # This makes SHIBBOLETH_IDP_URL resolvable from the service provider
+          # container. The same hostname is also used by the host browser.
+          - keycloak.localhost
+    configs:
+      - source: keycloak-healthcheck
+        target: /healthcheck.sh
+    healthcheck:
+      test: ["CMD", "bash", "/healthcheck.sh"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
