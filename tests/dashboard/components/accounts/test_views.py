@@ -16,6 +16,7 @@ from django.test import RequestFactory
 from django.urls import reverse
 from tastypie.models import ApiKey
 
+from archivematica.dashboard.components.accounts.views import CustomShibbolethLogoutView
 from archivematica.dashboard.components.accounts.views import get_oidc_logout_url
 
 
@@ -550,3 +551,29 @@ def test_logout_view_logs_out_user(
     assert response.status_code == 200
 
     assert response.request["PATH_INFO"] == reverse("accounts:login")
+
+
+@pytest.mark.django_db
+def test_shibboleth_logout_view_accepts_post(
+    rf: RequestFactory,
+    django_user_model: type[User],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The library binds these from the Shibboleth settings at import time.
+    monkeypatch.setattr(
+        "shibboleth.views.LOGOUT_URL", "/Shibboleth.sso/Logout?return=%s"
+    )
+    monkeypatch.setattr(
+        "shibboleth.views.LOGOUT_REDIRECT_URL", "/administration/accounts/logged-out"
+    )
+    request = rf.post("/shib/logout/")
+    attach_session(request)
+    request.user = django_user_model.objects.create(username="demo@example.com")
+
+    response = CustomShibbolethLogoutView.as_view()(request)
+
+    assert response.status_code == 302
+    assert response["Location"] == (
+        "/Shibboleth.sso/Logout?return=/administration/accounts/logged-out"
+    )
+    assert request.user.is_anonymous

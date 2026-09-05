@@ -32,6 +32,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from mozilla_django_oidc.views import OIDCAuthenticationRequestView
 from mozilla_django_oidc.views import OIDCLogoutView
+from shibboleth.views import ShibbolethLogoutView
 from tastypie.models import ApiKey
 
 import archivematica.dashboard.components.decorators as decorators
@@ -326,3 +327,18 @@ def get_oidc_logout_url(request: HttpRequest) -> str:
     logout_url = f"{end_session_endpoint}?{urlencode(params)}"
 
     return logout_url
+
+
+class CustomShibbolethLogoutView(ShibbolethLogoutView):
+    """Accept the POST that the "Log out" form submits.
+
+    The library's view only implements GET.
+    """
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+
+def logged_out(request):
+    """Page the service provider returns to after a Shibboleth logout."""
+    return render(request, "accounts/logged_out.html")

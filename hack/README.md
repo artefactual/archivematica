@@ -725,8 +725,10 @@ the nginx configuration so that <http://127.0.0.1:62080> and
 Archivematica services keep using the container names and never go through
 the service provider. Requests to the `/api/` paths of both applications do
 not require a Shibboleth session, so API clients keep working with their API
-keys; requests that carry the attribute headers themselves are rejected by the
-service provider (`Attempt to spoof header` in its log).
+keys, and neither do the Dashboard's static files and logged-out page, which
+the browser loads once the session is gone. Requests that carry the attribute
+headers themselves are rejected by the service provider (`Attempt to spoof
+header` in its log).
 
 The service provider configuration is mounted from `hack/etc/shibboleth/` at
 runtime, so editing it only requires recreating the `shibboleth-sp` service.
@@ -773,7 +775,8 @@ Logging out ends the session in the service provider only. The Keycloak
 session survives, so the next visit logs the same user in again without asking
 for a password; to switch users, sign out of Keycloak at
 <http://keycloak.localhost:8080/realms/shibboleth/protocol/openid-connect/logout>
-or use a private browsing window.
+or use a private browsing window. The Dashboard returns to its logged-out page
+after the service provider logout.
 
 The service provider and the browser reach Keycloak as
 `keycloak.localhost:8080`, the hostname the [OIDC overlay](#oidc-authentication)

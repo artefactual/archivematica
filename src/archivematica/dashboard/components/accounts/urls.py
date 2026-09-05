@@ -30,6 +30,9 @@ urlpatterns = [
     path("list/", views.list),
 ]
 
+if "shibboleth" in settings.INSTALLED_APPS:
+    urlpatterns += [path("logged-out", views.logged_out, name="logged_out")]
+
 if "django_cas_ng" in settings.INSTALLED_APPS:
     import django_cas_ng.views
 

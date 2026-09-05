@@ -308,7 +308,7 @@ def test_logout_ends_the_local_session_and_redirects_to_the_service_provider(
 
     assert response.status == 302
     assert (
-        response.headers["location"] == f"/Shibboleth.sso/Logout?target={LOGOUT_TARGET}"
+        response.headers["location"] == f"/Shibboleth.sso/Logout?return={LOGOUT_TARGET}"
     )
 
     page.set_extra_http_headers({})
@@ -319,13 +319,6 @@ def test_logout_ends_the_local_session_and_redirects_to_the_service_provider(
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "the logout form submits a POST, which the django-shibboleth-remoteuser "
-        "logout view does not implement (405)"
-    ),
-)
 @pytest.mark.django_db
 def test_logout_button_logs_out(
     page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID
@@ -334,9 +327,18 @@ def test_logout_button_logs_out(
     page.goto(live_server.url)
     open_user_menu(page)
 
-    page.get_by_role("button", name="Log out").click()
+    with page.expect_response(
+        lambda response: (
+            response.request.method == "POST"
+            and reverse("shibboleth:logout") in response.url
+        )
+    ) as logout:
+        page.get_by_role("button", name="Log out").click()
 
-    assert page.url == f"{live_server.url}/Shibboleth.sso/Logout?target={LOGOUT_TARGET}"
+    assert logout.value.status == 302
+    expect(page).to_have_url(
+        f"{live_server.url}/Shibboleth.sso/Logout?return={LOGOUT_TARGET}"
+    )
 
 
 @pytest.mark.django_db
@@ -361,25 +363,30 @@ def test_login_view_redirects_to_the_login_page(
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "SHIBBOLETH_LOGOUT_REDIRECT_URL points at a page whose view was removed "
-        "(9318359ae); the accounts/logged_out.html template is not routed"
-    ),
-)
 @pytest.mark.django_db
-def test_logout_redirect_target_offers_the_shibboleth_login(
+def test_logged_out_page_offers_to_log_in_again(
     page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID
 ) -> None:
     response = page.goto(f"{live_server.url}{LOGOUT_TARGET}")
 
     assert response is not None
     assert response.status == 200
+    expect(page.get_by_text("You are logged out.")).to_be_visible()
 
     page.get_by_role("link", name="Log in again").click()
 
-    assert page.url == f"{live_server.url}{reverse('accounts:login')}?target="
+    expect(page).to_have_url(
+        url_starting_with(f"{live_server.url}{reverse('accounts:login')}")
+    )
+
+    # With the attribute headers present the same link logs the user back in
+    # and lands in the application.
+    page.set_extra_http_headers(shibboleth_headers())
+    page.goto(f"{live_server.url}{LOGOUT_TARGET}")
+
+    page.get_by_role("link", name="Log in again").click()
+
+    expect(page).to_have_url(f"{live_server.url}/transfer/")
 
 
 @pytest.mark.django_db
@@ -517,19 +524,58 @@ def test_saml_logout_ends_the_service_provider_session(
 ) -> None:
     page.goto(SP_URL)
     log_in_via_keycloak(page, "demo")
+    open_user_menu(page)
 
-    page.goto(f"{SP_URL}{reverse('shibboleth:logout')}?target={LOGOUT_TARGET}")
+    page.get_by_role("button", name="Log out").click()
 
-    assert page.url == f"{SP_URL}/Shibboleth.sso/Logout?target={LOGOUT_TARGET}"
-    assert "Logout completed successfully" in (
-        page.locator("body").text_content() or ""
-    )
+    # The application logs out and sends the browser to the service
+    # provider's logout handler, which ends its session and returns to the
+    # logged-out page.
+    expect(page).to_have_url(f"{SP_URL}{LOGOUT_TARGET}")
+    expect(page.get_by_text("You are logged out.")).to_be_visible()
+    expect(page.get_by_role("link", name="Log in again")).to_be_visible()
 
     page.goto(f"{SP_URL}/Shibboleth.sso/Session")
 
     assert "A valid session was not found" in (
         page.locator("body").text_content() or ""
     )
+
+    # The link re-establishes the service provider session through Keycloak's
+    # surviving session and ends in the application.
+    page.goto(f"{SP_URL}{LOGOUT_TARGET}")
+
+    page.get_by_role("link", name="Log in again").click()
+
+    expect(page).to_have_url(f"{SP_URL}/transfer/")
+
+    page.goto(f"{SP_URL}/Shibboleth.sso/Session")
+
+    assert "eppn: demo@example.com" in (page.locator("body").text_content() or "")
+
+
+@pytest.mark.django_db
+def test_logged_out_page_and_its_assets_need_no_session(
+    browser: Browser, live_server: LiveServer, dashboard_uuid: uuid.UUID
+) -> None:
+    context = browser.new_context()
+
+    response = context.request.get(f"{SP_URL}{LOGOUT_TARGET}", max_redirects=0)
+
+    assert response.status == 200
+    assert "You are logged out." in response.text()
+
+    # The page's stylesheets and JavaScript catalog must be served too, not
+    # turned into a login.
+    for path, content_type in (
+        ("/media/css/style.css", "text/css"),
+        ("/jsi18n/", "text/javascript"),
+    ):
+        response = context.request.get(f"{SP_URL}{path}", max_redirects=0)
+
+        assert response.status == 200, path
+        assert response.headers["content-type"].startswith(content_type), path
+    context.close()
 
 
 @pytest.mark.django_db

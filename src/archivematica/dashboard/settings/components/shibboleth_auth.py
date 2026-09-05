@@ -1,6 +1,8 @@
 # Shibboleth authentication settings
 
-SHIBBOLETH_LOGOUT_URL = "/Shibboleth.sso/Logout?target=%s"
+# The service provider's logout handler returns the browser to the URL in
+# the "return" parameter (it has no "target" parameter).
+SHIBBOLETH_LOGOUT_URL = "/Shibboleth.sso/Logout?return=%s"
 SHIBBOLETH_LOGOUT_REDIRECT_URL = "/administration/accounts/logged-out"
 
 SHIBBOLETH_REMOTE_USER_HEADER = "HTTP_EPPN"
