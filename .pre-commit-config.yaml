@@ -96,5 +96,6 @@ repos:
     args: [--quiet, --config, .markdown-link-check.json]
     exclude: |
       (?x)^(
-        src/archivematica/dashboard/media/vendor/.*\.md
+        src/archivematica/dashboard/media/vendor/.*\.md|
+        RELEASENOTES.md
       )
