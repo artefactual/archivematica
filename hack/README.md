@@ -828,6 +828,6 @@ environment is not working? Here are some tips:
   branches, make sure they are not outdated.  Rebase often!
 - Look for open/closed [issues][am-issues] that may relate to your
   problem!
-- [Get support](https://www.archivematica.org/community/support/).
+- [Get support](https://www.archivematica.org/community/).
 
 [am-issues]: https://github.com/archivematica/issues/issues
