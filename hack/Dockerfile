@@ -95,7 +95,7 @@ RUN set -ex \
 	&& SELENIUM_CACHE=${SELENIUM_DIR}/cache \
 	&& SELENIUM_BIN=${SELENIUM_DIR}/bin \
 	&& mkdir -p $SELENIUM_CACHE $SELENIUM_BIN \
-	&& SELENIUM_MANAGER_DOWNLOAD_URL=$(curl -sL -o /dev/null -w '%{url_effective}' https://github.com/SeleniumHQ/selenium_manager_artifacts/releases/latest | sed -e 's|/tag/\(.*\)|/download/\1/selenium-manager-linux|g') \
+	&& SELENIUM_MANAGER_DOWNLOAD_URL=$(curl -sL -o /dev/null -w '%{url_effective}' https://github.com/SeleniumHQ/selenium_manager_artifacts/releases/latest | sed -e 's|/tag/\(.*\)|/download/\1/selenium-manager-linux-x86_64|g') \
 	&& curl -o $SELENIUM_BIN/selenium-manager -L $SELENIUM_MANAGER_DOWNLOAD_URL \
 	&& chmod +x $SELENIUM_BIN/selenium-manager \
 	&& CHROME_OUTPUT=$($SELENIUM_BIN/selenium-manager --cache-path $SELENIUM_CACHE --browser chrome --output JSON) \
