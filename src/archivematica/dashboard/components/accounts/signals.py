@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Mapping
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -12,7 +13,7 @@ from archivematica.dashboard.components.helpers import generate_api_key
 logger = logging.getLogger("archivematica.dashboard")
 
 
-def _cas_user_is_administrator(cas_attributes):
+def _cas_user_is_administrator(cas_attributes: Mapping[str, object]) -> bool:
     """Determine if new user is an administrator from CAS attributes.
 
     :param cas_attributes: Attributes dict returned by CAS server.

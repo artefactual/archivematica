@@ -1,14 +1,85 @@
 ---
-name: "OIDC Integration Test"
+name: "Authentication Integration Test"
 on:
   workflow_dispatch:
+    inputs:
+      provider:
+        description: "Authentication provider to test"
+        default: "all"
+        required: true
+        type: "choice"
+        options:
+          - "all"
+          - "oidc"
+          - "cas"
+          - "ldap"
   pull_request:
     paths:
-      - "tests/integration/docker-compose.yml"
+      - ".github/workflows/integration-test.yml"
+      - "hack/Dockerfile"
+      - "hack/etc/cas/**"
+      - "hack/etc/ldap/**"
+      - "src/archivematica/dashboard/components/accounts/**"
+      - "src/archivematica/dashboard/settings/**"
+      - "tests/integration/**"
+  push:
+    branches:
+      - "qa/**"
+      - "stable/**"
+    paths:
+      - ".github/workflows/integration-test.yml"
+      - "hack/Dockerfile"
+      - "hack/etc/cas/**"
+      - "hack/etc/ldap/**"
+      - "src/archivematica/dashboard/components/accounts/**"
+      - "src/archivematica/dashboard/settings/**"
+      - "tests/integration/**"
 env:
   UBUNTU_VERSION: "24.04"
   PYTHON_VERSION: "3.10"
 jobs:
+  select_matrix:
+    name: "Select the authentication provider matrix"
+    runs-on: "ubuntu-24.04"
+    outputs:
+      providers: "${{ steps.select.outputs.providers }}"
+    steps:
+      - name: "Select matrix"
+        id: "select"
+        env:
+          SELECTED_PROVIDER: "${{ inputs.provider }}"
+        run: |
+          selected="${SELECTED_PROVIDER:-all}"
+          providers=$(
+              jq --compact-output --null-input \
+                  --arg selected "$selected" \
+                  '[
+                      {
+                          name: "OIDC",
+                          label: "oidc",
+                          service: "archivematica-dashboard"
+                      },
+                      {
+                          name: "CAS",
+                          label: "cas",
+                          service: "archivematica-dashboard-cas"
+                      },
+                      {
+                          name: "LDAP",
+                          label: "ldap",
+                          service: "archivematica-dashboard-ldap"
+                      }
+                  ]
+                  | if $selected == "all"
+                    then .
+                    else map(select(.label == $selected))
+                    end'
+          )
+          if [[ $(jq 'length' <<< "$providers") -eq 0 ]]; then
+              echo "Unknown authentication provider: ${selected}" >&2
+              exit 1
+          fi
+          echo "providers=${providers}" >> "$GITHUB_OUTPUT"
   cache-python-builder:
     name: "Cache layers of the python-builder stage"
     runs-on: "ubuntu-24.04"
@@ -42,9 +113,13 @@ jobs:
             type=gha,scope=archivematica-tests-base-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
             type=gha,scope=archivematica-tests-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}-${{ steps.cache_key.outputs.requirements_hash }},mode=max
   test:
-    needs: [cache-python-builder]
-    name: "Test"
+    needs: [cache-python-builder, select_matrix]
+    name: "Test ${{ matrix.provider.name }}"
     runs-on: "ubuntu-24.04"
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: "${{ fromJSON(needs.select_matrix.outputs.providers) }}"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
@@ -82,13 +157,26 @@ jobs:
           load: true
           cache-from: |
             type=gha,scope=archivematica-tests-base-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}
-            type=gha,scope=archivematica-oidc-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}
+            type=gha,scope=archivematica-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}
             type=gha,scope=archivematica-tests-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}-${{ steps.cache_key.outputs.requirements_hash }}
           cache-to: |
             type=gha,scope=archivematica-tests-base-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
-            type=gha,scope=archivematica-oidc-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
+            type=gha,scope=archivematica-integration-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }},mode=max
             type=gha,scope=archivematica-tests-${{ env.UBUNTU_VERSION }}-${{ env.PYTHON_VERSION }}-${{ steps.cache_key.outputs.requirements_hash }},mode=max
+      - name: "Build CAS server image"
+        if: "${{ matrix.provider.name == 'CAS' }}"
+        uses: "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a" # v7.3.0
+        with:
+          context: ./hack/etc/cas
+          tags: archivematica-cas:latest
+          push: false
+          load: true
+          cache-from: |
+            type=gha,scope=archivematica-cas-server
+          cache-to: |
+            type=gha,scope=archivematica-cas-server,mode=max
       - name: "Run tests"
+        id: "run-tests"
         run: |
           ./run.sh
         shell: "bash"
@@ -99,6 +187,21 @@ jobs:
           UBUNTU_VERSION: ${{ env.UBUNTU_VERSION }}
           PYTHON_VERSION: ${{ env.PYTHON_VERSION }}
           SKIP_DOCKER_BUILD: 1
+          REUSE_TEST_ENV: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           PYTEST_ADDOPTS: -vv
+          INTEGRATION_SERVICE: ${{ matrix.provider.service }}
+      - name: "Save docker logs on failure"
+        if: "${{ (failure() && steps.run-tests.outcome == 'failure') || (cancelled() && steps.run-tests.outcome == 'cancelled') }}"
+        run: |
+          mkdir docker-logs
+          docker compose logs --no-color > docker-logs/docker-compose.log
+          docker compose ps --all > docker-logs/docker-compose-ps.log
+        working-directory: "tests/integration"
+      - name: "Upload docker logs on failure"
+        if: "${{ (failure() && steps.run-tests.outcome == 'failure') || (cancelled() && steps.run-tests.outcome == 'cancelled') }}"
+        uses: "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" # v7.0.1
+        with:
+          name: "docker-logs-${{ matrix.provider.label }}"
+          path: "tests/integration/docker-logs"
