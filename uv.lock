@@ -79,6 +79,7 @@ dependencies = [
     { name = "opf-fido" },
     { name = "orjson" },
     { name = "prometheus-client" },
+    { name = "pygfried" },
     { name = "pyjwt" },
     { name = "python-dateutil" },
     { name = "python-ldap" },
@@ -134,6 +135,7 @@ requires-dist = [
     { name = "opf-fido", git = "https://github.com/artefactual-labs/fido.git?rev=3e16f31492d72ae650b25fabc9b9f55a7c4259f2" },
     { name = "orjson" },
     { name = "prometheus-client" },
+    { name = "pygfried", specifier = "==0.17.0" },
     { name = "pyjwt" },
     { name = "python-dateutil" },
     { name = "python-ldap" },
@@ -1912,6 +1914,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8b/04/e7c1fe4dc78a6fdbfd6c337b1c3732ff543b8a397683ab38378447baa331/pyee-13.0.1.tar.gz", hash = "sha256:0b931f7c14535667ed4c7e0d531716368715e860b988770fc7eb8578d1f67fc8", size = 31655, upload-time = "2026-02-14T21:12:28.044Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/c4/b4d4827c93ef43c01f599ef31453ccc1c132b353284fc6c87d535c233129/pyee-13.0.1-py3-none-any.whl", hash = "sha256:af2f8fede4171ef667dfded53f96e2ed0d6e6bd7ee3bb46437f77e3b57689228", size = 15659, upload-time = "2026-02-14T21:12:26.263Z" },
+]
+
+[[package]]
+name = "pygfried"
+version = "0.17.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c1/ab/de8246770879f7fa6d01113fd4e36919dc90ed4d29f09136cc8cc4d93075/pygfried-0.17.0.tar.gz", hash = "sha256:f2f99d770dace70df98c44dfe86584c6c446e6a876eeab351c8c5f8216486c47", size = 894178, upload-time = "2026-07-27T09:13:35.813Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/85/38/05dd8f4f860b31b2cd4278662c0760b915b3feb28f87c98c24e42b38f331/pygfried-0.17.0-cp310-abi3-macosx_11_0_universal2.whl", hash = "sha256:60654f6863e3b694a3cc2046f5dbdda7f4f4cc7647ebeb455c182df7bf66d73c", size = 2441623, upload-time = "2026-07-27T09:13:29.553Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/3d/1999965e2c397d7ea46f4f48875fe184bf97e2f3d22d98d9662bf5032f05/pygfried-0.17.0-cp310-abi3-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:7ac9b474e35c5df36b69878a857403653180d12c2fab3078a0b5ebf4e0eeda6e", size = 2716051, upload-time = "2026-07-27T09:13:31.421Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/e6/b0c904afe1e312343ac39d4567824997296e8fdaa88e5466f16fe706e2d7/pygfried-0.17.0-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:70466602ba7f1c79f531084a827e3f892707ec967d39ec652a999d767b289fcb", size = 2513652, upload-time = "2026-07-27T09:13:32.872Z" },
+    { url = "https://files.pythonhosted.org/packages/09/1a/d514dfadcf23fcd1623ca29f632c2e871da9e0596ef7c69cfff426a865d5/pygfried-0.17.0-cp310-abi3-win_amd64.whl", hash = "sha256:3102bb9a18a60cbe6640bf56668a4d9a2d1ff904b863b0e1161bed4cae8cb27e", size = 2670995, upload-time = "2026-07-27T09:13:34.201Z" },
 ]
 
 [[package]]

@@ -258,10 +258,11 @@ class FormatVersion(VersionedModel, models.Model):
 
 
 class IDCommand(VersionedModel, models.Model):
-    """Command to run an IDToolConfig and parse the output.
+    """Configuration for a format identification backend.
 
-    IDCommand runs 'script' (which runs an IDTool with a specific IDToolConfig)
-    and parses the output."""
+    Built-in backends are implemented in MCPClient code. Legacy backends execute
+    the database ``script`` using the selected script type.
+    """
 
     uuid = UUIDField(
         default=uuid.uuid4,
@@ -279,15 +280,32 @@ class IDCommand(VersionedModel, models.Model):
     )
     config = models.CharField(_("configuration"), max_length=4, choices=CONFIG_CHOICES)
 
-    script = models.TextField(_("script"), help_text=_("Script to be executed."))
+    script = models.TextField(
+        _("script"),
+        blank=True,
+        help_text=_("Script to be executed by script-based commands."),
+    )
+
+    class Backend(models.TextChoices):
+        LEGACY = "legacy", _("FPR script")
+        FIDO = "fido", _("Fido CLI")
+        SIEGFRIED = "siegfried", _("Siegfried CLI")
+        PYGFRIED = "pygfried", _("Pygfried")
+
+    BATCH_BACKENDS = (Backend.FIDO, Backend.SIEGFRIED, Backend.PYGFRIED)
     SCRIPT_TYPE_CHOICES = (
         ("bashScript", _("Bash script")),
         ("pythonScript", _("Python script")),
         ("command", _("Command line")),
         ("as_is", _("No shebang needed")),
+        (Backend.FIDO, Backend.FIDO.label),
+        (Backend.SIEGFRIED, Backend.SIEGFRIED.label),
+        (Backend.PYGFRIED, Backend.PYGFRIED.label),
     )
     script_type = models.CharField(
-        _("script type"), max_length=16, choices=SCRIPT_TYPE_CHOICES
+        _("execution mode"),
+        max_length=16,
+        choices=SCRIPT_TYPE_CHOICES,
     )
     tool = models.ForeignKey(
         "IDTool",
@@ -307,6 +325,32 @@ class IDCommand(VersionedModel, models.Model):
             "config": self.get_config_display(),
             "command": self.description,
         }
+
+    @property
+    def backend(self) -> str:
+        """Return the command's normalized identification backend."""
+
+        if self.script_type in self.BATCH_BACKENDS:
+            return self.script_type
+        return self.Backend.LEGACY
+
+    def get_backend_display(self) -> str:
+        """Return the translated label for the normalized backend."""
+
+        return str(self.Backend(self.backend).label)
+
+    def clean(self) -> None:
+        """Reject scripts that built-in identification backends would ignore."""
+
+        super().clean()
+        if self.backend != self.Backend.LEGACY and self.script:
+            raise ValidationError(
+                {
+                    "script": _(
+                        "Built-in identification backends do not execute FPR scripts."
+                    )
+                }
+            )
 
     def save(self, *args, **kwargs) -> None:
         """Override save() to ensure that only one command is enabled."""

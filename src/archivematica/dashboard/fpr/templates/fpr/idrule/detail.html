@@ -30,11 +30,4 @@
           <dd>{{ idrule.enabled|yesno:_("Yes,No") }}</dd>
       </dl>
     </div>
-    {% if request.user.is_superuser %}
-      <div class="well well-sm">
-        <a class="btn btn-default btn-sm" href="{% url 'fpr:idrule_edit' idrule.uuid %}">{% trans "Replace" %}</a>
-        <a class="btn btn-default btn-sm" href="{% url 'fpr:idrule_delete' idrule.uuid %}">{{ idrule.enabled|yesno:_("Disable,Enable") }}</a>
-      </div>
-    {% endif %}
-
 {% endblock app_content %}

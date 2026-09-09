@@ -55,6 +55,16 @@ def workers(config, section):
         return multiprocessing.cpu_count()
 
 
+def identification_workers(config, section):
+    """Return configured batch parallelism, defaulting to available CPUs."""
+
+    try:
+        value = config.config.getint(section, "identification_workers")
+    except (configparser.Error, ValueError):
+        return multiprocessing.cpu_count()
+    return max(1, value)
+
+
 CONFIG_MAPPING = {
     # [MCPClient]
     "workers": {
@@ -66,6 +76,10 @@ CONFIG_MAPPING = {
         "section": "MCPClient",
         "option": "max_tasks_per_child",
         "type": "int",
+    },
+    "identification_workers": {
+        "section": "MCPClient",
+        "process_function": identification_workers,
     },
     "shared_directory": {
         "section": "MCPClient",
@@ -243,6 +257,7 @@ prometheus_detailed_metrics = false
 time_zone = UTC
 workers =
 max_tasks_per_child = 10
+identification_workers =
 clamav_client_timeout = 86400
 clamav_client_backend = clamdscanner    ; Options: clamdscanner or clamscanner
 clamav_client_max_file_size = 42        ; MB
@@ -356,6 +371,7 @@ else:
 
 WORKERS = config.get("workers")
 MAX_TASKS_PER_CHILD = config.get("max_tasks_per_child")
+IDENTIFICATION_WORKERS = config.get("identification_workers")
 SHARED_DIRECTORY = config.get("shared_directory")
 PROCESSING_DIRECTORY = config.get("processing_directory")
 REJECTED_DIRECTORY = config.get("rejected_directory")

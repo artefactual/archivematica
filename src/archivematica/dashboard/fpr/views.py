@@ -1,12 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from archivematica.dashboard.fpr import forms as fprforms
 from archivematica.dashboard.fpr import models as fprmodels
@@ -16,8 +18,6 @@ from archivematica.dashboard.fpr import utils
 CLASS_CATEGORY_MAP = {
     "format": fprmodels.Format,
     "formatgroup": fprmodels.FormatGroup,
-    "idrule": fprmodels.IDRule,
-    "idcommand": fprmodels.IDCommand,
     "fprule": fprmodels.FPRule,
     "fpcommand": fprmodels.FPCommand,
 }
@@ -283,45 +283,83 @@ def formatgroup_delete(request, slug):
 # ########### ID TOOLS ############
 
 
+def _current_idcommands_for_tool(idtool):
+    """Return the command heads associated with an identification tool."""
+
+    replaced_commands = fprmodels.IDCommand.objects.filter(
+        replaces__isnull=False
+    ).values_list("replaces_id", flat=True)
+    return fprmodels.IDCommand.objects.filter(tool=idtool).exclude(
+        uuid__in=replaced_commands
+    )
+
+
+def _selectable_idcommand(idtool):
+    """Choose one current command without guessing between implementations."""
+
+    commands = _current_idcommands_for_tool(idtool)
+    built_in_commands = list(
+        commands.filter(script_type__in=fprmodels.IDCommand.BATCH_BACKENDS)
+    )
+    if len(built_in_commands) == 1:
+        return built_in_commands[0]
+    if built_in_commands:
+        return None
+
+    legacy_commands = list(commands)
+    return legacy_commands[0] if len(legacy_commands) == 1 else None
+
+
 def idtool_list(request):
     idtools = fprmodels.IDTool.objects.filter(enabled=True)
-    fpr_table_payload = payloads.idtool_list_payload(request, idtools)
+    enabled_tool_ids = set(
+        fprmodels.IDCommand.active.filter(tool__isnull=False).values_list(
+            "tool_id", flat=True
+        )
+    )
+    fpr_table_payload = payloads.idtool_list_payload(request, idtools, enabled_tool_ids)
     return render(request, "fpr/idtool/list.html", context(locals()))
 
 
 def idtool_detail(request, slug):
     idtool = get_object_or_404(fprmodels.IDTool, slug=slug, enabled=True)
-    replacing_commands = [
-        r[0]
-        for r in fprmodels.IDCommand.objects.filter(
-            replaces__isnull=False, tool=idtool
-        ).values_list("replaces_id")
-    ]
-    idcommands = fprmodels.IDCommand.objects.filter(tool=idtool).exclude(
-        uuid__in=replacing_commands
-    )
-    fpr_table_payload = payloads.idtool_detail_commands_payload(
-        request, idtool, idcommands
-    )
+    selectable_command = _selectable_idcommand(idtool)
+    selected = fprmodels.IDCommand.active.filter(tool=idtool).exists()
     return render(request, "fpr/idtool/detail.html", context(locals()))
 
 
 @user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
-def idtool_edit(request, slug=None):
-    if slug:
-        idtool = get_object_or_404(fprmodels.IDTool, slug=slug, enabled=True)
-        title = _("Edit identification tool %(name)s") % {"name": idtool.description}
-    else:
-        idtool = None
-        title = _("Create identification tool")
+@require_POST
+def idtool_select(request, slug):
+    """Select a tool by atomically enabling its managed command."""
 
-    form = fprforms.IDToolForm(request.POST or None, instance=idtool)
-    if form.is_valid():
-        idtool = form.save()
-        messages.info(request, _("Saved."))
-        return redirect("fpr:idtool_detail", idtool.slug)
+    idtool = get_object_or_404(fprmodels.IDTool, slug=slug, enabled=True)
+    with transaction.atomic():
+        # Serialize tool selection and repair any pre-existing multiple-enabled
+        # state while choosing exactly one implementation.
+        list(
+            fprmodels.IDCommand.objects.select_for_update().values_list("pk", flat=True)
+        )
+        command = _selectable_idcommand(idtool)
+        if command is None:
+            messages.error(
+                request,
+                _(
+                    "This tool cannot be selected because it does not have one "
+                    "unambiguous current implementation."
+                ),
+            )
+            return redirect("fpr:idtool_detail", idtool.slug)
 
-    return render(request, "fpr/idtool/form.html", context(locals()))
+        fprmodels.IDCommand.objects.filter(enabled=True).update(enabled=False)
+        fprmodels.IDCommand.objects.filter(pk=command.pk).update(enabled=True)
+
+    messages.info(
+        request,
+        _("%(tool)s is now the format identification tool.")
+        % {"tool": idtool.description},
+    )
+    return redirect("fpr:idtool_list")
 
 
 # ########### ID RULES ############
@@ -345,60 +383,6 @@ def idrule_detail(request, uuid=None):
     idrule = get_object_or_404(fprmodels.IDRule, uuid=uuid)
     utils.warn_if_viewing_disabled_revision(request, idrule)
     return render(request, "fpr/idrule/detail.html", context(locals()))
-
-
-@user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
-def idrule_edit(request, uuid=None):
-    if uuid:
-        idrule = get_object_or_404(fprmodels.IDRule, uuid=uuid)
-        title = _("Replace identification rule %(uuid)s") % {"uuid": idrule.uuid}
-    else:
-        idrule = None
-        title = _("Create identification rule")
-    form = fprforms.IDRuleForm(request.POST or None, instance=idrule)
-    if form.is_valid():
-        new_idrule = form.save(commit=False)
-        replaces = utils.determine_what_replaces_model_instance(
-            fprmodels.IDRule, idrule
-        )
-        new_idrule.save(replacing=replaces)
-        messages.info(request, _("Saved."))
-        return redirect("fpr:idrule_list")
-    else:
-        utils.warn_if_replacing_with_old_revision(request, idrule)
-
-    return render(request, "fpr/idrule/form.html", context(locals()))
-
-
-@user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
-def idrule_delete(request, uuid):
-    idrule = get_object_or_404(fprmodels.IDRule, uuid=uuid)
-    breadcrumbs = [
-        {"text": _("Identification rules"), "link": reverse("fpr:idrule_list")},
-        {"text": str(idrule), "link": reverse("fpr:idrule_detail", args=[idrule.uuid])},
-    ]
-    if request.method == "POST":
-        if "disable" in request.POST:
-            idrule.enabled = False
-            messages.info(request, _("Disabled."))
-        if "enable" in request.POST:
-            idrule.enabled = True
-            messages.info(request, _("Enabled."))
-        idrule.save()
-        return redirect("fpr:idrule_detail", idrule.uuid)
-    return render(
-        request,
-        "fpr/disable.html",
-        context(
-            {
-                "breadcrumbs": breadcrumbs,
-                "dependent_objects": None,
-                "form_url": reverse("fpr:idrule_delete", args=[idrule.uuid]),
-                "toggle_label": _("Enable/disable identification rule"),
-                "object": idrule,
-            }
-        ),
-    )
 
 
 # ########### ID COMMANDS ############
@@ -427,79 +411,6 @@ def idcommand_detail(request, uuid):
     idcommand = get_object_or_404(fprmodels.IDCommand, uuid=uuid)
     utils.warn_if_viewing_disabled_revision(request, idcommand)
     return render(request, "fpr/idcommand/detail.html", context(locals()))
-
-
-@user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
-def idcommand_edit(request, uuid=None):
-    if uuid:
-        idcommand = get_object_or_404(fprmodels.IDCommand, uuid=uuid)
-        title = _("Replace identification command %(name)s") % {
-            "name": idcommand.description
-        }
-    else:
-        idcommand = None
-        title = _("Create identification command")
-
-    # Set tool to parent if it exists
-    initial = {}
-    try:
-        initial["tool"] = fprmodels.IDTool.objects.get(
-            uuid=request.GET["parent"], enabled=True
-        )
-    except (KeyError, fprmodels.IDTool.DoesNotExist, ValidationError):
-        initial["tool"] = None
-
-    form = fprforms.IDCommandForm(
-        request.POST or None, instance=idcommand, initial=initial
-    )
-    if form.is_valid():
-        new_idcommand = form.save(commit=False)
-        replaces = utils.determine_what_replaces_model_instance(
-            fprmodels.IDCommand, idcommand
-        )
-        new_idcommand.save(replacing=replaces)
-        utils.update_references_to_object(
-            fprmodels.IDCommand, "uuid", replaces, new_idcommand
-        )
-        messages.info(request, _("Saved."))
-        return redirect("fpr:idcommand_list")
-    else:
-        utils.warn_if_replacing_with_old_revision(request, idcommand)
-
-    return render(request, "fpr/idcommand/form.html", context(locals()))
-
-
-@user_passes_test(lambda u: u.is_superuser, login_url="/forbidden/")
-def idcommand_delete(request, uuid):
-    command = get_object_or_404(fprmodels.IDCommand, uuid=uuid)
-    breadcrumbs = [
-        {"text": _("Identification commands"), "link": reverse("fpr:idcommand_list")},
-        {
-            "text": command.description,
-            "link": reverse("fpr:idcommand_detail", args=[command.uuid]),
-        },
-    ]
-    if request.method == "POST":
-        if "disable" in request.POST:
-            command.enabled = False
-            messages.info(request, _("Disabled."))
-        if "enable" in request.POST:
-            command.enabled = True
-            messages.info(request, _("Enabled."))
-        command.save()
-        return redirect("fpr:idcommand_detail", command.uuid)
-    return render(
-        request,
-        "fpr/disable.html",
-        context(
-            {
-                "breadcrumbs": breadcrumbs,
-                "form_url": reverse("fpr:idcommand_delete", args=[command.uuid]),
-                "toggle_label": _("Enable/disable identification command"),
-                "object": command,
-            }
-        ),
-    )
 
 
 # ########### FP RULES ############
@@ -800,7 +711,7 @@ def _augment_revisions_with_detail_url(request, entity_name, model, revisions):
     for revision in revisions:
         revision.display_title = _get_revision_display_title(entity_name, revision)
 
-        if request.user.is_superuser:
+        if request.user.is_superuser and entity_name not in {"idcommand", "idrule"}:
             detail_view_name = entity_name + "_edit"
         else:
             detail_view_name = entity_name + "_detail"
