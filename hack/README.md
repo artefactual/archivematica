@@ -437,6 +437,11 @@ AMAUATs in Firefox like this:
 make test-at-behave TAGS=black-box BROWSER=Firefox
 ```
 
+AMAUAT writes its log to
+`hack/submodules/archivematica-acceptance-tests/AMAUAT.log`. Failed browser
+scenarios also leave screenshots and Playwright traces under
+`hack/submodules/archivematica-acceptance-tests/output/playwright/`.
+
 [amauats-black-box]: https://github.com/artefactual-labs/archivematica-acceptance-tests/tree/qa/1.x/features/black_box
 
 ## Resetting the environment
