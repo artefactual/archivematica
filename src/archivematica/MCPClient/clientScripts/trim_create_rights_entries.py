@@ -31,6 +31,7 @@ django.setup()
 from django.db import transaction
 
 from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import (
     RightsStatementOtherRightsDocumentationIdentifier,
@@ -153,13 +154,9 @@ def call(jobs):
                             "transfer",
                             "%transferDirectory%",
                         )[filePath.replace(transferPath, "%transferDirectory%", 1)]
-                        FileMetadataAppliesToType = (
-                            "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
-                        )
-
                         # RightsStatement
                         statement = RightsStatement.objects.create(
-                            metadataappliestotype_id=FileMetadataAppliesToType,
+                            metadata_applies_to=MetadataAppliesTo.FILE,
                             metadataappliestoidentifier=fileUUID,
                             rightsstatementidentifiertype="UUID",
                             rightsstatementidentifiervalue=str(uuid.uuid4()),

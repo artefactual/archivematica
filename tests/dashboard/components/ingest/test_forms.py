@@ -76,11 +76,9 @@ def test_aic_dublin_core_form_clean_identifier_does_not_double_prefix() -> None:
 
 
 @pytest.mark.django_db
-def test_dublin_core_form_save_updates_reingest_status(
-    metadata_applies_to_types,
-) -> None:
+def test_dublin_core_form_save_updates_reingest_status() -> None:
     dublin_core = models.DublinCore.objects.create(
-        metadataappliestotype=metadata_applies_to_types["sip"],
+        metadata_applies_to=models.MetadataAppliesTo.SIP,
         status=models.METADATA_STATUS_REINGEST,
     )
 

@@ -15,6 +15,7 @@ from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataCSV
@@ -72,10 +73,10 @@ class TestNormativeStructMap(TestCase):
 class TestDublinCore(TestCase):
     """Test creation of dmdSecs containing Dublin Core."""
 
-    fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
+    fixture_files = ["dublincore.json"]
     fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
     sipuuid = "8b891d7c-5bd2-4249-84a1-2f00f725b981"
-    siptypeuuid = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
+    siptypeuuid = MetadataAppliesTo.SIP
 
     def test_get_dublincore(self):
         """It should create a Dublin Core element from the database info."""
@@ -554,7 +555,6 @@ class TestCreateDigiprovMD(TestCase):
     """Test creating PREMIS:EVENTS and PREMIS:AGENTS"""
 
     fixture_files = [
-        "metadata_applies_to_type.json",
         "agents.json",
         "sip.json",
         "files.json",

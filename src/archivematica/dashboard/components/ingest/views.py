@@ -95,15 +95,10 @@ def ingest_status(request, uuid=None):
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 
-def ingest_sip_metadata_type_id():
-    return helpers.get_metadata_type_id_by_description("SIP")
-
-
 @decorators.load_jobs  # Adds jobs, name
 def ingest_metadata_list(request, uuid, jobs, name):
-    # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
-        metadataappliestotype=ingest_sip_metadata_type_id(),
+        metadata_applies_to=models.MetadataAppliesTo.SIP,
         metadataappliestoidentifier__exact=uuid,
     )
 
@@ -118,15 +113,15 @@ def ingest_metadata_edit(request, uuid, id=None):
         # Otherwise look for a SIP with the provided UUID, creating a new one
         # if needed.  Not using get_or_create because that save the empty
         # object, even if the form is not submitted.
-        sip_type_id = ingest_sip_metadata_type_id()
+        sip_type_id = models.MetadataAppliesTo.SIP
         try:
             dc = models.DublinCore.objects.get(
-                metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+                metadata_applies_to=sip_type_id, metadataappliestoidentifier=uuid
             )
             id = dc.id
         except (models.DublinCore.DoesNotExist, ValidationError):
             dc = models.DublinCore(
-                metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+                metadata_applies_to=sip_type_id, metadataappliestoidentifier=uuid
             )
 
     # If the SIP is an AIC, use the AIC metadata form
@@ -195,15 +190,15 @@ def ingest_metadata_add_files(request, sip_uuid):
 
 
 def aic_metadata_add(request, uuid):
-    sip_type_id = ingest_sip_metadata_type_id()
+    sip_type_id = models.MetadataAppliesTo.SIP
     try:
         dc = models.DublinCore.objects.get(
-            metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+            metadata_applies_to=sip_type_id, metadataappliestoidentifier=uuid
         )
         id = dc.id
     except (models.DublinCore.DoesNotExist, ValidationError):
         dc = models.DublinCore(
-            metadataappliestotype=sip_type_id, metadataappliestoidentifier=uuid
+            metadata_applies_to=sip_type_id, metadataappliestoidentifier=uuid
         )
 
     form = ingest_forms.AICDublinCoreMetadataForm(request.POST or None, instance=dc)

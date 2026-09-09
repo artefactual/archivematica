@@ -36,6 +36,7 @@ from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FPCommandOutput
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Transfer
 
@@ -120,9 +121,6 @@ class FSEntriesTree:
     """
 
     QUERY_BATCH_SIZE = 2000
-    TRANSFER_RIGHTS_LOOKUP_UUID = "45696327-44c5-4e78-849b-e027a189bf4d"
-    FILE_RIGHTS_LOOKUP_UUID = "7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17"
-
     file_queryset_prefetches = [
         "identifiers",
         "event_set",
@@ -246,7 +244,7 @@ class FSEntriesTree:
     def load_rights_data_from_db(self):
         transfer_rights = self.rights_queryset.filter(
             metadataappliestoidentifier=self.transfer.uuid,
-            metadataappliestotype_id=self.TRANSFER_RIGHTS_LOOKUP_UUID,
+            metadata_applies_to=MetadataAppliesTo.TRANSFER,
         )
 
         for rights in transfer_rights:
@@ -257,7 +255,7 @@ class FSEntriesTree:
         for _, fsentry in self.file_index.items():
             file_rights = self.rights_queryset.filter(
                 metadataappliestoidentifier=fsentry.file_uuid,
-                metadataappliestotype_id=self.FILE_RIGHTS_LOOKUP_UUID,
+                metadata_applies_to=MetadataAppliesTo.FILE,
             )
 
             for rights in file_rights:

@@ -33,6 +33,7 @@ from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import UnitVariable
 from archivematica.MCPClient.client import metrics
 
@@ -179,10 +180,10 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # Get the AIP subtype from any DC type attribute supplied by the user for
     # the AIP. If found, this will replace 'Archival Information Package' in
     # ``<mets:div TYPE='Archival Information Package'>`` in the pointer file.
-    sip_metadata_uuid = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
     try:
         dc = DublinCore.objects.get(
-            metadataappliestotype_id=sip_metadata_uuid, metadataappliestoidentifier=uuid
+            metadata_applies_to=MetadataAppliesTo.SIP,
+            metadataappliestoidentifier=uuid,
         )
     except (DublinCore.DoesNotExist, ValidationError):
         aip_subtype = "Archival Information Package"

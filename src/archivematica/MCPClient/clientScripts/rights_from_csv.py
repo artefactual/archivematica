@@ -71,10 +71,7 @@ class RightCsvReader:
 
     def parse(self):
         """Read and parse rights CSV file."""
-        # Cache metadata applies to type
-        self.metadata_applies_to_type = models.MetadataAppliesToType.objects.filter(
-            description="File"
-        ).first()
+        self.metadata_applies_to_type = models.MetadataAppliesTo.FILE
 
         # Use universal newline mode to support unusual newlines, like \r
         with open(self.rights_csv_filepath) as f:
@@ -171,7 +168,7 @@ class RightCsvReader:
 
         # Create rights statement
         rights_statement = models.RightsStatement()
-        rights_statement.metadataappliestotype = self.metadata_applies_to_type
+        rights_statement.metadata_applies_to = self.metadata_applies_to_type
         rights_statement.metadataappliestoidentifier = transfer_file.uuid
         rights_statement.rightsbasis = basis
         rights_statement.status = "ORIGINAL"

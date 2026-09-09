@@ -131,15 +131,10 @@ def status(request, uuid=None):
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 
-def transfer_metadata_type_id():
-    return helpers.get_metadata_type_id_by_description("Transfer")
-
-
 @decorators.load_jobs  # Adds jobs, name
 def transfer_metadata_list(request, uuid, jobs, name):
-    # See MetadataAppliesToTypes table
     metadata = models.DublinCore.objects.filter(
-        metadataappliestotype=transfer_metadata_type_id(),
+        metadata_applies_to=models.MetadataAppliesTo.TRANSFER,
         metadataappliestoidentifier__exact=uuid,
     )
 
@@ -152,13 +147,13 @@ def transfer_metadata_edit(request, uuid, id=None):
     else:
         try:
             dc = models.DublinCore.objects.get(
-                metadataappliestotype=transfer_metadata_type_id(),
+                metadata_applies_to=models.MetadataAppliesTo.TRANSFER,
                 metadataappliestoidentifier__exact=uuid,
             )
             return redirect("transfer:transfer_metadata_edit", uuid, dc.id)
         except (models.DublinCore.DoesNotExist, ValidationError):
             dc = models.DublinCore(
-                metadataappliestotype=transfer_metadata_type_id(),
+                metadata_applies_to=models.MetadataAppliesTo.TRANSFER,
                 metadataappliestoidentifier=uuid,
             )
 

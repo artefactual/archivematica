@@ -10,9 +10,6 @@ from django.db import transaction
 
 from archivematica.dashboard.main import models
 
-# This is the UUID of SIP from the `MetadataAppliesToTypes` table
-INGEST_METADATA_TYPE = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
-
 
 def main(job, sip_uuid, dc_path):
     # If there's no metadata, that's not an error, and just keep going
@@ -25,7 +22,7 @@ def main(job, sip_uuid, dc_path):
         data = json.load(json_data)
     dc = models.DublinCore(
         metadataappliestoidentifier=sip_uuid,
-        metadataappliestotype_id=INGEST_METADATA_TYPE,
+        metadata_applies_to=models.MetadataAppliesTo.SIP,
     )
     for key, value in data.items():
         try:

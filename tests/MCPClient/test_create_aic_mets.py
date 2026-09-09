@@ -26,11 +26,7 @@ def extract_file_mock(aip_uuid, mets_in_aip, mets_path):
         ns.dctermsBNS + "dublincore", nsmap={"dcterms": ns.dctermsNS, "dc": ns.dcNS}
     ),
 )
-@mock.patch(
-    "archivematica.MCPClient.clientScripts.create_mets_v2.SIPMetadataAppliesToType"
-)
 def test_create_aic_mets(
-    SIPMetadataAppliesToType,
     getDublinCore,
     extract_file,
     insertIntoDerivations,

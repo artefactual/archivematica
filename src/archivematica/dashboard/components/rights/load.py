@@ -7,11 +7,9 @@ This module does not use the ``__`` notation for accessors offered by
 ``premisrw``.
 """
 
-from archivematica.dashboard.components.helpers import (
-    get_metadata_type_id_by_description,
-)
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import RightsStatementCopyright
 from archivematica.dashboard.main.models import RightsStatementLicense
@@ -29,7 +27,7 @@ def load_rights(obj, rights):
 def _create_rights_statement(md_type, obj_id, rights_statement):
     """Populate ``RightsStatement`` from a ``PREMISRights`` object."""
     db_stmt = RightsStatement.objects.create(
-        metadataappliestotype=md_type,
+        metadata_applies_to=md_type,
         metadataappliestoidentifier=obj_id,
         status="ORIGINAL",
         rightsstatementidentifiertype=rights_statement.rights_statement_identifier_type,
@@ -336,13 +334,18 @@ _ALLOWED_METADATA_TYPES = (File, Transfer, SIP)
 
 
 def _mdtype(obj):
-    """Return the ``MetadataAppliesToType`` that corresponds to ``obj.``."""
+    """Return the ``MetadataAppliesTo`` that corresponds to ``obj``."""
     if obj.__class__ not in _ALLOWED_METADATA_TYPES:
         raise TypeError(
             "Types supported: %s"
             % ", ".join([item.__name__ for item in _ALLOWED_METADATA_TYPES])
         )
-    return get_metadata_type_id_by_description(obj.__class__.__name__)
+    mapping = {
+        File.__name__: MetadataAppliesTo.FILE,
+        Transfer.__name__: MetadataAppliesTo.TRANSFER,
+        SIP.__name__: MetadataAppliesTo.SIP,
+    }
+    return mapping[obj.__class__.__name__]
 
 
 def _parse_edtf_datetime(date_string):

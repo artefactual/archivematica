@@ -15,7 +15,7 @@ from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FPCommandOutput
-from archivematica.dashboard.main.models import MetadataAppliesToType
+from archivematica.dashboard.main.models import MetadataAppliesTo
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import RightsStatementCopyright
 from archivematica.dashboard.main.models import (
@@ -162,11 +162,8 @@ def fpcommand_output(db, fprule_characterization, file_obj):
 
 @pytest.fixture()
 def basic_rights_statement(db, file_obj):
-    MetadataAppliesToType.objects.get_or_create(
-        pk="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17", description="File"
-    )
     rights = RightsStatement.objects.create(
-        metadataappliestotype_id="7f04d9d4-92c2-44a5-93dc-b7bfdf0c1f17",
+        metadata_applies_to=MetadataAppliesTo.FILE,
         metadataappliestoidentifier=file_obj.uuid,
         rightsstatementidentifiertype="UUID",
         rightsstatementidentifiervalue=str(uuid.uuid4()),
@@ -968,9 +965,7 @@ def test_agent_to_premis_with_blank_fields():
 
 @pytest.fixture
 def empty_rights_statement(db):
-    return RightsStatement.objects.create(
-        metadataappliestotype=MetadataAppliesToType.objects.create()
-    )
+    return RightsStatement.objects.create(metadata_applies_to=MetadataAppliesTo.FILE)
 
 
 def set_right_basis(rights_statement, rights_basis):
