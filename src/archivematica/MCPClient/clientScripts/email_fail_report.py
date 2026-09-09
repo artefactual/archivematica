@@ -22,13 +22,13 @@ from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db import connection
-from django.db import transaction
 from lxml import etree
 
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.externals.HTML import HTML
 from archivematica.dashboard.main.models import Job
 from archivematica.dashboard.main.models import Report
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -250,7 +250,7 @@ def call(jobs):
                 job.set_status(1)
 
     # Generate report in plain text and store it in the database
-    with transaction.atomic():
+    with transactions.atomic():
         for args in reports_to_store:
             content = get_content_for(
                 args.unit_type, args.unit_name, args.unit_uuid, html=False

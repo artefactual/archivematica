@@ -5,7 +5,6 @@ import sys
 import uuid
 
 import metsrw
-from django.db import transaction
 from django.utils import dateparse
 from django.utils import timezone
 from lxml import etree
@@ -13,6 +12,7 @@ from lxml import etree
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 
 logger = logging.getLogger(__name__)
 FAILURE = 1
@@ -837,5 +837,5 @@ def main(job):
 def call(jobs):
     for job in jobs:
         with job.JobContext(logger=logger):
-            with transaction.atomic():
+            with transactions.atomic():
                 job.set_status(main(job))

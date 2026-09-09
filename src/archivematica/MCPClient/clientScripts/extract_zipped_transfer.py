@@ -23,11 +23,10 @@ import sys
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon.executeOrRunSubProcess import executeOrRun
 from archivematica.archivematicaCommon.fileOperations import get_extract_dir_name
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 
 
 def extract(job, target, destinationDirectory):
@@ -69,7 +68,7 @@ def call(jobs):
     parser.add_argument("shared_path", type=str)
     parser.add_argument("--bag", action="store_true")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parser.parse_args(job.args[1:])

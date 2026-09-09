@@ -6,9 +6,8 @@ import sys
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.dashboard.main import models
+from archivematica.MCPClient.client import transactions
 
 # This is the UUID of SIP from the `MetadataAppliesToTypes` table
 INGEST_METADATA_TYPE = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
@@ -47,7 +46,7 @@ def main(job, sip_uuid, dc_path):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 sip_uuid = job.args[1]

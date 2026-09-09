@@ -16,6 +16,7 @@ import threading
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any
 from typing import Callable
 from typing import NamedTuple
@@ -82,6 +83,9 @@ class MetricEvent(NamedTuple):
 REGISTRY = CollectorRegistry()
 _EVENT_QUEUE: Optional[MetricQueue] = None
 _EVENT_QUEUE_LOCK = threading.RLock()
+_CURRENT_SCRIPT_NAME: ContextVar[Optional[str]] = ContextVar(
+    "mcpclient_script_name", default=None
+)
 _GAUGE_MAX_VALUES: dict[tuple[str, tuple[tuple[str, str], ...]], float] = {}
 _GAUGE_MAX_VALUES_LOCK = threading.RLock()
 _QUEUE_WRITE_FAILURE_LOGGED = False
@@ -118,6 +122,32 @@ task_execution_time_histogram = Histogram(
     "Histogram of worker task execution times in seconds, labeled by script",
     ["script_name"],
     buckets=TASK_DURATION_BUCKETS,
+    registry=REGISTRY,
+)
+database_transaction_duration_histogram = Histogram(
+    "mcpclient_database_transaction_duration_seconds",
+    "Duration of outer database transactions, labeled by client script",
+    ["script_name"],
+    buckets=(
+        0.01,
+        0.05,
+        0.1,
+        0.25,
+        0.5,
+        1.0,
+        2.5,
+        5.0,
+        10.0,
+        30.0,
+        60.0,
+        300.0,
+        900.0,
+        3600.0,
+        7200.0,
+        14400.0,
+        28800.0,
+        float("inf"),
+    ),
     registry=REGISTRY,
 )
 
@@ -305,6 +335,9 @@ _COLLECTORS = {
     "job_error_counter": job_error_counter,
     "job_error_timestamp": job_error_timestamp,
     "task_execution_time_histogram": task_execution_time_histogram,
+    "database_transaction_duration_histogram": (
+        database_transaction_duration_histogram
+    ),
     "transfer_started_counter": transfer_started_counter,
     "transfer_started_timestamp": transfer_started_timestamp,
     "transfer_completed_counter": transfer_completed_counter,
@@ -360,6 +393,15 @@ def configure_event_queue(event_queue: Optional[MetricQueue]) -> None:
     global _EVENT_QUEUE
     with _EVENT_QUEUE_LOCK:
         _EVENT_QUEUE = event_queue
+
+
+@contextmanager
+def client_script_context(script_name: str) -> Iterator[None]:
+    token = _CURRENT_SCRIPT_NAME.set(script_name)
+    try:
+        yield
+    finally:
+        _CURRENT_SCRIPT_NAME.reset(token)
 
 
 def apply_event(event: MetricEvent) -> None:
@@ -576,6 +618,7 @@ def init_counter_labels() -> None:
     modules_config.read(settings.CLIENT_MODULES_FILE)
     for script_name, _ in modules_config.items("supportedBatchCommands"):
         task_execution_time_histogram.labels(script_name=script_name)
+        database_transaction_duration_histogram.labels(script_name=script_name)
         job_counter.labels(script_name=script_name)
         job_processed_timestamp.labels(script_name=script_name)
         job_error_counter.labels(script_name=script_name)
@@ -634,6 +677,18 @@ def job_failed(script_name: str) -> None:
     _inc("job_counter", labels)
     _inc("job_error_counter", labels)
     _set_to_current_time("job_error_timestamp", labels)
+
+
+@skip_if_prometheus_disabled
+def database_transaction_observed(duration: float) -> None:
+    script_name = _CURRENT_SCRIPT_NAME.get()
+    if script_name is None:
+        return
+    _observe(
+        "database_transaction_duration_histogram",
+        {"script_name": script_name},
+        duration,
+    )
 
 
 def _get_file_group(raw_file_group_use: str) -> str:

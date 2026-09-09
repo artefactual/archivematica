@@ -23,11 +23,11 @@ from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 
 django.setup()
 from django.db import connection
-from django.db import transaction
 
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FileFormatVersion
 from archivematica.dashboard.main.models import FileID
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.setMaildirFileGrpUseAndFileIDs")
 
@@ -96,7 +96,7 @@ def set_archivematica_maildir_files(sip_uuid, sip_path):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 sip_uuid = job.args[1]

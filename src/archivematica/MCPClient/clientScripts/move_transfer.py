@@ -32,10 +32,9 @@ from collections.abc import Sequence
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon.fileOperations import rename
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 
 
@@ -77,7 +76,7 @@ def moveSIP(
 
 def call(jobs: Sequence[Job]) -> None:
     """Run move tasks using arguments emitted by workflow links."""
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 src = job.args[1]

@@ -7,14 +7,13 @@ import django
 
 django.setup()
 
-from django.db import transaction
-
 from archivematica.archivematicaCommon import archivematicaFunctions
 from archivematica.archivematicaCommon import fileOperations
 from archivematica.archivematicaCommon.archivematicaFunctions import OPTIONAL_FILES
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     REQUIRED_DIRECTORIES,
 )
+from archivematica.MCPClient.client import transactions
 
 
 def restructureForComplianceFileUUIDsAssigned(
@@ -86,7 +85,7 @@ def call(jobs):
     parser.add_argument("target", help="%%SIPDirectory%%")
     parser.add_argument("sip_uuid", help="%%SIPUUID%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parser.parse_args(job.args[1:])

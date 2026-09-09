@@ -15,6 +15,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
+"""Store AIPs and DIPs while coordinating their package relationship.
+
+The AIP and DIP jobs can run in either order and in different MCPClient
+processes. If the AIP exists first, the DIP is stored with the AIP UUID as its
+related package. If the DIP arrives first, this module publishes its generated
+UUID in a ``relatedPackage`` UnitVariable for the later AIP job to consume.
+
+That UnitVariable is a cross-process publication point: once visible, an AIP
+worker assumes the DIP already exists in Storage Service. The DIP must therefore
+be stored before the marker is written. Storage Service requests can be slow or
+stall, so they must also remain outside database transactions; only the final
+marker write uses Django's autocommit transaction.
+"""
+
 import argparse
 import os
 from pprint import pformat
@@ -24,7 +38,7 @@ import django
 
 django.setup()
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import close_old_connections
 from metsrw.plugins import premisrw
 
 from archivematica.archivematicaCommon import storageService as storage_service
@@ -133,6 +147,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
     # having a unique UUID; assign a new one before uploading.
     # TODO allow mapping the AIP UUID to the DIP UUID for retrieval.
     related_package_uuid = None
+    publish_related_package = False
     if sip_type == "DIP":
         uuid = str(uuid4())
         job.pyprint(f"Checking if DIP {uuid} parent AIP has been created...")
@@ -146,15 +161,7 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
             related_package_uuid = sip_uuid
             job.pyprint("Parent AIP exists so relationship can be created.")
         except IndexError:
-            UnitVariable.objects.create(
-                unittype="SIP",
-                unituuid=sip_uuid,
-                variable="relatedPackage",
-                variablevalue=uuid,
-            )
-            job.pyprint(
-                f"Noting DIP UUID {uuid} related to AIP so relationship can be created when AIP is stored."
-            )
+            publish_related_package = True
     else:
         uuid = sip_uuid
         try:
@@ -207,6 +214,23 @@ def store_aip(job, aip_destination_uri, aip_path, sip_uuid, sip_name, sip_type):
         errmsg = f"{sip_type} creation failed: {err}."
         logger.warning(errmsg)
         raise Exception(errmsg + " See logs for more details.")
+    finally:
+        close_old_connections()
+
+    # UnitVariable writes use autocommit. An AIP worker can therefore see this
+    # marker immediately and send the DIP UUID to Storage Service as an existing
+    # related package. Publish it only after Storage Service confirms that the
+    # DIP exists, while keeping the storage request outside a transaction.
+    if publish_related_package:
+        UnitVariable.objects.create(
+            unittype="SIP",
+            unituuid=sip_uuid,
+            variable="relatedPackage",
+            variablevalue=uuid,
+        )
+        job.pyprint(
+            f"Noting DIP UUID {uuid} related to AIP so relationship can be created when AIP is stored."
+        )
 
     message = f"Storage Service created {sip_type}:\n{pformat(new_file)}"
     logger.info(message)
@@ -310,17 +334,16 @@ def call(jobs):
     parser.add_argument("sip_name", type=str, help="%%SIPName%%")
     parser.add_argument("sip_type", type=str, help="%%SIPType%%")
 
-    with transaction.atomic():
-        for job in jobs:
-            with job.JobContext(logger=logger):
-                args = parser.parse_args(job.args[1:])
-                job.set_status(
-                    store_aip(
-                        job,
-                        args.aip_destination_uri,
-                        args.aip_filename,
-                        args.sip_uuid,
-                        args.sip_name,
-                        args.sip_type,
-                    )
+    for job in jobs:
+        with job.JobContext(logger=logger):
+            args = parser.parse_args(job.args[1:])
+            job.set_status(
+                store_aip(
+                    job,
+                    args.aip_destination_uri,
+                    args.aip_filename,
+                    args.sip_uuid,
+                    args.sip_name,
+                    args.sip_type,
                 )
+            )

@@ -15,7 +15,8 @@ import os
 import uuid
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -193,7 +194,7 @@ def main(job):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 job.set_status(main(job))

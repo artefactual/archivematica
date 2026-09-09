@@ -48,7 +48,6 @@ import django
 
 django.setup()
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
@@ -63,6 +62,7 @@ from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DashboardSetting
 from archivematica.dashboard.main.models import Directory
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.bind_pids")
 
@@ -235,7 +235,7 @@ def call(jobs):
         "shared_path", type=str, help="The shared directory where SIPs are stored."
     )
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

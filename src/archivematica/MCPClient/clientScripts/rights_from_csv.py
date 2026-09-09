@@ -21,9 +21,8 @@ import os
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.dashboard.main import models
+from archivematica.MCPClient.client import transactions
 
 
 class RightsRowException(Exception):
@@ -413,7 +412,7 @@ class RightCsvReader:
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 transfer_uuid = job.args[1]
