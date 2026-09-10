@@ -227,20 +227,23 @@ def create_bundle(job, tabfile_json):
     bundle = metsrw.FSEntry(path=base_name, type="Directory")
     # Find the original file and add it to the METS FS Entries.
     tabfile_datafile = tabfile_json.get("dataFile")
-    fname = None
-    ext = EXTENSION_MAPPING.get(
-        tabfile_datafile.get("originalFormatLabel", ""), "UNKNOWN"
-    )
-    logger.info("Retrieved extension mapping value: %s", ext)
-    logger.info(
-        "Original file format listed as %s",
-        tabfile_datafile.get("originalFileFormat", "None"),
-    )
-    if ext == "UNKNOWN":
-        fname = tabfile_datafile.get("filename")
-        logger.info("Original Format Label is UNKNOWN, using filename: %s", fname)
-    if fname is None:
-        fname = f"{base_name}{ext}"
+    fname = tabfile_datafile.get("originalFileName")
+    if fname:
+        logger.info("Using original file name from dataset.json: %s", fname)
+    else:
+        ext = EXTENSION_MAPPING.get(
+            tabfile_datafile.get("originalFormatLabel", ""), "UNKNOWN"
+        )
+        logger.info("Retrieved extension mapping value: %s", ext)
+        logger.info(
+            "Original file format listed as %s",
+            tabfile_datafile.get("originalFileFormat", "None"),
+        )
+        if ext == "UNKNOWN":
+            fname = tabfile_datafile.get("filename")
+            logger.info("Original Format Label is UNKNOWN, using filename: %s", fname)
+        if fname is None:
+            fname = f"{base_name}{ext}"
     checksum_value = tabfile_datafile.get("md5")
     if checksum_value is None:
         return None
