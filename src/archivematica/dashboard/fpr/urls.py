@@ -9,7 +9,7 @@ app_name = "fpr"
 urlpatterns = [
     path("", views.home, name="fpr_index"),
     re_path(
-        r"^(?P<category>format|formatgroup|idrule|idcommand|fprule|fpcommand)/(?P<uuid>"
+        r"^(?P<category>format|formatgroup|fprule|fpcommand)/(?P<uuid>"
         + UUID_REGEX
         + ")/toggle_enabled/$",
         views.toggle_enabled,
@@ -56,44 +56,25 @@ urlpatterns = [
     ),
     # ID Tools
     path("idtool/", views.idtool_list, name="idtool_list"),
-    path("idtool/create/", views.idtool_edit, name="idtool_create"),
     re_path(r"^idtool/(?P<slug>[-\w]+)/$", views.idtool_detail, name="idtool_detail"),
-    re_path(r"^idtool/(?P<slug>[-\w]+)/edit/$", views.idtool_edit, name="idtool_edit"),
+    re_path(
+        r"^idtool/(?P<slug>[-\w]+)/select/$",
+        views.idtool_select,
+        name="idtool_select",
+    ),
     # ID Rules
     path("idrule/", views.idrule_list, name="idrule_list"),
-    path("idrule/create/", views.idrule_edit, name="idrule_create"),
-    re_path(
-        r"^idrule/(?P<uuid>" + UUID_REGEX + ")/edit/$",
-        views.idrule_edit,
-        name="idrule_edit",
-    ),
     re_path(
         r"^idrule/(?P<uuid>" + UUID_REGEX + ")/$",
         views.idrule_detail,
         name="idrule_detail",
     ),
-    re_path(
-        r"^idrule/(?P<uuid>" + UUID_REGEX + ")/delete/$",
-        views.idrule_delete,
-        name="idrule_delete",
-    ),
     # ID Commands
     path("idcommand/", views.idcommand_list, name="idcommand_list"),
-    path("idcommand/create/", views.idcommand_edit, name="idcommand_create"),
     re_path(
         r"^idcommand/(?P<uuid>" + UUID_REGEX + ")/$",
         views.idcommand_detail,
         name="idcommand_detail",
-    ),
-    re_path(
-        r"^idcommand/(?P<uuid>" + UUID_REGEX + ")/edit/$",
-        views.idcommand_edit,
-        name="idcommand_edit",
-    ),
-    re_path(
-        r"^idcommand/(?P<uuid>" + UUID_REGEX + ")/delete/$",
-        views.idcommand_delete,
-        name="idcommand_delete",
     ),
     # FP Rules
     re_path(

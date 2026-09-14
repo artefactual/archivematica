@@ -4,8 +4,6 @@
 {% url 'fpr:format_list' as url_format %}
 {% url 'fpr:formatgroup_list' as url_formatgroup %}
 {% url 'fpr:idtool_list' as url_idtool %}
-{% url 'fpr:idrule_list' as url_idrule %}
-{% url 'fpr:idcommand_list' as url_idcommand %}
 {% url 'fpr:fprule_list' as url_fprule %}
 {% url 'fpr:fptool_list' as url_fptool %}
 
@@ -18,8 +16,6 @@
 
       <li class="fpr-sidebar-heading">{% trans "Identification" %}</li>
       <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idtool %}"><a href="{{ url_idtool }}">{% trans "Tools" %}</a></li>
-      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idrule %}"><a href="{{ url_idrule }}">{% trans "Rules" %}</a></li>
-      <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_idcommand %}"><a href="{{ url_idcommand }}">{% trans "Commands" %}</a></li>
 
       <li class="fpr-sidebar-heading">{% trans "Format policy registry" %}</li>
       <li role="presentation" class="fpr-sidebar-item fpr-sidebar-indented {% active request url_fptool %}"><a href="{{ url_fptool }}">{% trans "Tools" %}</a></li>

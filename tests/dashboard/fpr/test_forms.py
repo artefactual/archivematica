@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from archivematica.dashboard.fpr.forms import FPRuleForm
-from archivematica.dashboard.fpr.forms import IDToolForm
 from archivematica.dashboard.fpr.models import Format
 from archivematica.dashboard.fpr.models import FormatGroup
 from archivematica.dashboard.fpr.models import FormatVersion
@@ -10,21 +9,6 @@ from archivematica.dashboard.fpr.models import FPRule
 
 
 class TestForms(TestCase):
-    def test_IDToolForm(self):
-        data = {"description": "Foobar", "version": "v1.2.3"}
-
-        form = IDToolForm(data)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        # Our second attempt should not validate.
-        form = IDToolForm(data)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.non_field_errors(),
-            ["An ID tool with this description and version already exists"],
-        )
-
     def test_FPRuleForm(self):
         fprule = self.create_fprule()
         form = FPRuleForm(

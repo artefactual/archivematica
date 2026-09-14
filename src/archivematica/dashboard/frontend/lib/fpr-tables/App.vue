@@ -36,7 +36,6 @@ const EMPTY_TEXT_KEY_BY_KIND: Record<FprTableKind, string> = {
   'idrule-list': 'fpr.empty.idRules',
   'fprule-list': 'fpr.empty.fpRules',
   'format-detail-versions': 'fpr.empty.versions',
-  'idtool-detail-commands': 'fpr.empty.commands',
   'fptool-detail-commands': 'fpr.empty.commands',
   'formatgroup-form-formats': 'fpr.empty.formats',
 }
@@ -51,7 +50,6 @@ const CREATE_LABEL_KEY_BY_KIND: Record<FprTableKind, string> = {
   'idrule-list': 'fpr.create.rule',
   'fprule-list': 'fpr.create.rule',
   'format-detail-versions': 'fpr.create.formatVersion',
-  'idtool-detail-commands': 'fpr.create.command',
   'fptool-detail-commands': 'fpr.create.toolCommand',
   'formatgroup-form-formats': 'fpr.create.format',
 }
@@ -85,6 +83,7 @@ const COLUMN_DEFINITIONS_BY_KIND: Record<FprTableKind, KindColumnDefinition[]> =
   'idtool-list': [
     { id: 'description', fallbackLabelKey: 'fpr.columns.description' },
     { id: 'version', fallbackLabelKey: 'fpr.columns.version' },
+    { id: 'enabled', fallbackLabelKey: 'fpr.columns.enabled' },
     { id: 'actions', fallbackLabelKey: 'fpr.columns.actions' },
   ],
   'fptool-list': [
@@ -117,13 +116,6 @@ const COLUMN_DEFINITIONS_BY_KIND: Record<FprTableKind, KindColumnDefinition[]> =
     { id: 'pronomId', fallbackLabelKey: 'fpr.columns.pronomId' },
     { id: 'accessFormat', fallbackLabelKey: 'fpr.columns.accessFormat' },
     { id: 'preservationFormat', fallbackLabelKey: 'fpr.columns.preservationFormat' },
-    { id: 'enabled', fallbackLabelKey: 'fpr.columns.enabled' },
-    { id: 'actions', fallbackLabelKey: 'fpr.columns.actions' },
-  ],
-  'idtool-detail-commands': [
-    { id: 'configuration', fallbackLabelKey: 'fpr.columns.configuration' },
-    { id: 'identifier', fallbackLabelKey: 'fpr.columns.identifier' },
-    { id: 'commandScript', fallbackLabelKey: 'fpr.columns.command' },
     { id: 'enabled', fallbackLabelKey: 'fpr.columns.enabled' },
     { id: 'actions', fallbackLabelKey: 'fpr.columns.actions' },
   ],
@@ -386,8 +378,6 @@ const createUrl = computed(() => {
       return fprRoutes.getFprFpRuleCreateUrl()
     case 'format-detail-versions':
       return create.formatSlug ? fprRoutes.getFprFormatVersionCreateUrl(create.formatSlug) : null
-    case 'idtool-detail-commands':
-      return fprRoutes.getFprIdCommandCreateUrl(create.parentUuid)
     case 'fptool-detail-commands':
       return fprRoutes.getFprFpCommandCreateUrl(create.parentUuid)
     default:
@@ -429,7 +419,6 @@ const actionUrlForRow = (row: FprRow, action: TableAction): string | null => {
       if (action.key === 'edit') return fprRoutes.getFprFormatEditUrl(formatSlug)
       return null
     case 'idcommand-list':
-    case 'idtool-detail-commands':
       if (action.key === 'view') return fprRoutes.getFprIdCommandDetailUrl(rowId)
       if (action.key === 'replace') return fprRoutes.getFprIdCommandEditUrl(rowId)
       if (action.key === 'disable' || action.key === 'enable') return fprRoutes.getFprIdCommandDeleteUrl(rowId)
@@ -520,8 +509,6 @@ const linkUrlForCell = (row: FprRow, columnId: string): string | null => {
         const pronomId = stringField(row, 'pronomId')
         return pronomId ? `https://www.nationalarchives.gov.uk/PRONOM/${pronomId}` : null
       }
-      return null
-    case 'idtool-detail-commands':
       return null
     case 'fptool-detail-commands':
       return (columnId === 'command' || columnId === 'uuid') ? fprRoutes.getFprFpCommandDetailUrl(rowId) : null

@@ -160,4 +160,38 @@ describe('FprTables App', () => {
     expect(text).toContain('TIFF (version: 6.0, fmt/353)')
     expect(text).toContain('3 out of 5')
   })
+
+  it('shows whether an identification tool is enabled', () => {
+    const wrapper = mount(App, {
+      props: {
+        payload: {
+          version: 1,
+          kind: 'idtool-list',
+          columns: [
+            { key: 'description' },
+            { key: 'version' },
+            { key: 'enabled' },
+            { key: 'actions', sortable: false },
+          ],
+          rows: [
+            {
+              id: 'tool-1',
+              description: 'Pygfried',
+              toolSlug: 'pygfried-0170',
+              version: '0.17.0',
+              enabled: true,
+              actions: [{ key: 'view' as const, style: 'default' as const }],
+            },
+          ],
+          ui: { create: null },
+        },
+      },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    expect(wrapper.find('thead').text()).toContain('Enabled')
+    expect(wrapper.find('tbody .label-success').text()).toBe('Yes')
+  })
 })

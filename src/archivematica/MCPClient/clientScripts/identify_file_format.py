@@ -2,7 +2,6 @@
 import argparse
 import dataclasses
 import json
-import multiprocessing
 import uuid
 from typing import Optional
 
@@ -10,6 +9,7 @@ import django
 
 django.setup()
 
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
@@ -23,6 +23,18 @@ from archivematica.dashboard.main.models import FileFormatVersion
 from archivematica.dashboard.main.models import FileID
 from archivematica.dashboard.main.models import UnitVariable
 from archivematica.MCPClient.client.job import Job
+from archivematica.MCPClient.clientScripts.file_identification import (
+    IdentificationBackend,
+)
+from archivematica.MCPClient.clientScripts.file_identification import (
+    IdentificationRequest,
+)
+from archivematica.MCPClient.clientScripts.file_identification import (
+    IdentificationResult,
+)
+from archivematica.MCPClient.clientScripts.file_identification import (
+    get_identification_backend,
+)
 
 SUCCESS = 0
 ERROR = 255
@@ -30,14 +42,21 @@ ERROR = 255
 
 @dataclasses.dataclass
 class IdentifyFileFormatArgs:
+    """Parsed arguments for one format-identification job."""
+
     idcommand: str
     file_path: str
     file_uuid: str
     disable_reidentify: bool
 
 
-def concurrent_instances() -> int:
-    return multiprocessing.cpu_count()
+@dataclasses.dataclass
+class PendingIdentification:
+    """A prepared file awaiting batch identification."""
+
+    job: Job
+    args: IdentifyFileFormatArgs
+    file: File
 
 
 def _save_id_preference(file_: File, value: bool) -> None:
@@ -132,20 +151,23 @@ def _default_idcommand() -> IDCommand | None:
     return IDCommand.active.first()
 
 
-def main(
-    job: Job, enabled: str, file_path: str, file_uuid: str, disable_reidentify: bool
-) -> int:
-    enabled_bool = True if enabled == "True" else False
-    if not enabled_bool:
-        job.print_output("Skipping file format identification")
-        return SUCCESS
+def _create_backend(command: IDCommand) -> IdentificationBackend:
+    """Build the selected backend using MCPClient configuration."""
 
-    command = _default_idcommand()
-    if command is None:
-        job.write_error("Unable to determine IDCommand.\n")
-        return ERROR
+    return get_identification_backend(
+        command,
+        execute_command=executeOrRun,
+        workers=settings.IDENTIFICATION_WORKERS,
+    )
 
-    command_uuid = command.uuid
+
+def _prepare_identification(
+    job: Job,
+    args: IdentifyFileFormatArgs,
+    command: IDCommand,
+) -> PendingIdentification | None:
+    """Log and prepare one eligible file for batch identification."""
+
     tool = command.tool
     tool_uuid: str | uuid.UUID
     if tool is not None:
@@ -157,41 +179,54 @@ def main(
     job.print_output("IDCommand UUID:", command.uuid)
     job.print_output("IDTool:", tool_description)
     job.print_output("IDTool UUID:", tool_uuid)
-    job.print_output(f"File: ({file_uuid}) {file_path}")
+    job.print_output(f"File: ({args.file_uuid}) {args.file_path}")
 
-    file_ = File.objects.get(uuid=file_uuid)
+    file_ = File.objects.get(uuid=args.file_uuid)
 
-    # If reidentification is disabled and a format identification event exists for this file, exit
+    # Skip files with an existing identification event when re-identification
+    # is disabled.
     if (
-        disable_reidentify
+        args.disable_reidentify
         and file_.event_set.filter(event_type="format identification").exists()
     ):
         job.print_output(
             "This file has already been identified, and re-identification is disabled. Skipping."
         )
-        return SUCCESS
+        return None
 
     # Save whether identification was enabled by the user for use in a later
-    # chain.
-    _save_id_preference(file_, enabled_bool)
+    # chain. Keep this write in a short transaction; identification itself can
+    # be comparatively slow and must not hold a database transaction open.
+    with transaction.atomic():
+        _save_id_preference(file_, True)
 
-    exitcode, output, err = executeOrRun(
-        command.script_type,
-        command.script,
-        arguments=[file_path],
-        printing=False,
-        capture_output=True,
-    )
-    output = output.strip()
+    return PendingIdentification(job=job, args=args, file=file_)
 
-    if exitcode != 0:
-        job.print_error(f"Error: IDCommand with UUID {command_uuid} exited non-zero.")
-        job.print_error(f"Error: {err}")
+
+def _save_identification_result(
+    pending: PendingIdentification,
+    command: IDCommand,
+    result: IdentificationResult,
+) -> int:
+    """Persist and report one result, returning its Gearman job status."""
+
+    job = pending.job
+    file_path = pending.args.file_path
+    file_uuid = pending.args.file_uuid
+
+    if result.errors:
+        for error in result.errors:
+            job.print_error(error)
         return ERROR
 
+    output = result.output
+    if output is None:
+        raise ValueError("Successful identification result is missing output")
+
     job.print_output("Command output:", output)
-    # PUIDs are the same regardless of tool, so PUID-producing tools don't have "rules" per se - we just
-    # go straight to the FormatVersion table to see if there's a matching PUID
+    # PUIDs are the same regardless of tool, so PUID-producing tools don't
+    # have "rules" per se. Go straight to the FormatVersion table to see if
+    # there is a matching PUID.
     try:
         if command.config == "PUID":
             format_version = FormatVersion.active.get(pronom_id=output)
@@ -215,10 +250,10 @@ def main(
         write_identification_event(file_uuid, command, success=False)
         return ERROR
 
-    (ffv, created) = FileFormatVersion.objects.get_or_create(
-        file_uuid=file_, defaults={"format_version": format_version}
+    ffv, created = FileFormatVersion.objects.get_or_create(
+        file_uuid=pending.file, defaults={"format_version": format_version}
     )
-    if not created:  # Update the version if it wasn't created new
+    if not created:
         ffv.format_version = format_version
         ffv.save()
     job.print_output(f"{file_path} identified as a {format_version.description}")
@@ -227,6 +262,73 @@ def main(
     write_file_id(file_uuid=file_uuid, format=format_version, output=output)
 
     return SUCCESS
+
+
+def _identify_pending(
+    pending_identifications: list[PendingIdentification],
+    command: IDCommand,
+) -> None:
+    """Identify prepared files in one batch and finish their jobs."""
+
+    backend = _create_backend(command)
+    requests = [
+        IdentificationRequest(path=pending.args.file_path)
+        for pending in pending_identifications
+    ]
+
+    try:
+        results = backend.identify_many(requests)
+        if len(results) != len(requests):
+            raise ValueError(
+                "Identification backend returned "
+                f"{len(results)} results for {len(requests)} requests"
+            )
+    except Exception as error:
+        for pending in pending_identifications:
+            with pending.job.JobContext():
+                pending.job.print_error(
+                    f"Error: Batch format identification failed: {error}"
+                )
+                pending.job.set_status(ERROR)
+        return
+
+    for pending, result in zip(pending_identifications, results):
+        with pending.job.JobContext():
+            with transaction.atomic():
+                status = _save_identification_result(pending, command, result)
+            pending.job.set_status(status)
+
+
+def main(
+    job: Job, enabled: str, file_path: str, file_uuid: str, disable_reidentify: bool
+) -> int:
+    """Identify one file through the batch backend contract."""
+
+    enabled_bool = True if enabled == "True" else False
+    if not enabled_bool:
+        job.print_output("Skipping file format identification")
+        return SUCCESS
+
+    command = _default_idcommand()
+    if command is None:
+        job.write_error("Unable to determine IDCommand.\n")
+        return ERROR
+
+    args = IdentifyFileFormatArgs(
+        idcommand=enabled,
+        file_path=file_path,
+        file_uuid=file_uuid,
+        disable_reidentify=disable_reidentify,
+    )
+    pending = _prepare_identification(job, args, command)
+    if pending is None:
+        return SUCCESS
+
+    result = _create_backend(command).identify_many(
+        [IdentificationRequest(path=file_path)]
+    )[0]
+    with transaction.atomic():
+        return _save_identification_result(pending, command, result)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -256,18 +358,39 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> IdentifyFileFormatA
 
 
 def call(jobs: list[Job]) -> None:
-    parser = get_parser()
+    """Prepare a Gearman job batch and identify eligible files together."""
 
-    with transaction.atomic():
-        for job in jobs:
+    parser = get_parser()
+    enabled_jobs: list[tuple[Job, IdentifyFileFormatArgs]] = []
+
+    for job in jobs:
+        with job.JobContext():
+            args = parse_args(parser, job)
+            if args.idcommand != "True":
+                job.print_output("Skipping file format identification")
+                job.set_status(SUCCESS)
+                continue
+            enabled_jobs.append((job, args))
+
+    if not enabled_jobs:
+        return
+
+    command = _default_idcommand()
+    if command is None:
+        for job, _ in enabled_jobs:
             with job.JobContext():
-                args = parse_args(parser, job)
-                job.set_status(
-                    main(
-                        job,
-                        args.idcommand,
-                        args.file_path,
-                        args.file_uuid,
-                        args.disable_reidentify,
-                    )
-                )
+                job.write_error("Unable to determine IDCommand.\n")
+                job.set_status(ERROR)
+        return
+
+    pending_identifications = []
+    for job, args in enabled_jobs:
+        with job.JobContext():
+            pending = _prepare_identification(job, args, command)
+            if pending is None:
+                job.set_status(SUCCESS)
+                continue
+            pending_identifications.append(pending)
+
+    if pending_identifications:
+        _identify_pending(pending_identifications, command)
