@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import metsrw
 from django.core.management import call_command
@@ -2114,3 +2115,40 @@ class TestUpdateMetadataCSV(TestCase):
             nondc_dmdsecs[0].findtext(".//custom_field", namespaces=NSMAP)
             == "A custom field"
         )
+
+
+class TestAddNewFilesMetadataCSV(TestCase):
+    """Ensure add_new_files reprocesses metadata.csv when contents change."""
+
+    def setUp(self):
+        self.sip_uuid = "5b5b0c0c-4bde-4ce0-9da3-4e278ee2bfad"
+        self.sip_dir = os.path.join(FIXTURES_DIR, "metadata_csv_directories", "")
+        self.sip = models.SIP.objects.create(uuid=self.sip_uuid, currentpath="")
+        self.metadata_file = models.File.objects.create(
+            uuid="b6c17471-0f3c-4f34-9b26-8738b614c9d9",
+            sip=self.sip,
+            originallocation=b"%SIPDirectory%objects/metadata/metadata.csv",
+            currentlocation=b"%SIPDirectory%objects/metadata/metadata.csv",
+            filegrpuse="metadata",
+            checksum="old-digest-value",
+            checksumtype="SHA-256",
+        )
+
+    @mock.patch(
+        "archivematica.MCPClient.clientScripts.archivematicaCreateMETSReingest.update_metadata_csv"
+    )
+    def test_metadata_csv_with_new_content_is_reprocessed(self, mock_update):
+        mets = metsrw.METSDocument.fromfile(
+            os.path.join(FIXTURES_DIR, "mets_metadata_csv_existing.xml")
+        )
+        mock_update.return_value = mets
+
+        result = archivematicaCreateMETSReingest.add_new_files(
+            mcp_job, mets, self.sip_uuid, self.sip_dir
+        )
+
+        mock_update.assert_called_once()
+        args = mock_update.call_args[0]
+        assert args[0] is mcp_job
+        assert str(args[2].uuid) == str(self.metadata_file.uuid)
+        assert result is mets
