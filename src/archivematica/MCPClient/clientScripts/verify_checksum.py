@@ -34,7 +34,8 @@ import sys
 import uuid
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
@@ -219,7 +220,7 @@ def write_premis_event_per_file(file_uuids, transfer_uuid, event_detail):
     event_outcome = "pass"
     events = []
     agents = Transfer.objects.get(uuid=transfer_uuid).agents
-    with transaction.atomic():
+    with transactions.atomic():
         for file_obj in file_uuids:
             checksum_event = Event(
                 file_uuid=file_obj,

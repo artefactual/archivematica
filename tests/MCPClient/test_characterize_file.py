@@ -1,11 +1,19 @@
 from unittest import mock
 
 import pytest
+from django.db import connection
 
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import characterize_file
+
+
+@pytest.fixture(autouse=True)
+def mock_close_old_connections(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+    result = mock.Mock()
+    monkeypatch.setattr(characterize_file, "close_old_connections", result)
+    return result
 
 
 @pytest.fixture
@@ -37,6 +45,46 @@ def delete_characterization_rules() -> None:
     fprmodels.FPRule.objects.filter(
         purpose__in=["characterization", "default_characterization"]
     ).delete()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_characterization_does_not_wrap_commands_in_transactions(
+    sip_file: models.File,
+    sip: models.SIP,
+    rule_with_xml_output_format: fprmodels.FPRule,
+    sip_file_format_version: models.FileFormatVersion,
+    mock_close_old_connections: mock.Mock,
+) -> None:
+    del sip_file_format_version
+    stdout = "<mock>success</mock>"
+    job = mock.Mock(
+        args=["characterize_file", str(sip_file.uuid), str(sip.uuid)],
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+
+    def execute_rule(*args: object, **kwargs: object) -> tuple[int, str, str]:
+        assert connection.in_atomic_block is False
+        return 0, stdout, ""
+
+    def insert_output(*args: object, **kwargs: object) -> None:
+        assert connection.in_atomic_block is False
+
+    with (
+        mock.patch.object(characterize_file, "executeOrRun", side_effect=execute_rule),
+        mock.patch.object(
+            characterize_file,
+            "insertIntoFPCommandOutput",
+            side_effect=insert_output,
+        ) as insert_into_fp_command_output,
+    ):
+        characterize_file.call([job])
+
+    mock_close_old_connections.assert_called_once_with()
+    insert_into_fp_command_output.assert_called_once_with(
+        sip_file.uuid, stdout, rule_with_xml_output_format.uuid
+    )
+    job.set_status.assert_called_once_with(0)
 
 
 @pytest.mark.django_db

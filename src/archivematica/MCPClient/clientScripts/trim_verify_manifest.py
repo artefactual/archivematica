@@ -23,14 +23,13 @@ import uuid
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
+from archivematica.MCPClient.client import transactions
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 transferUUID = job.args[1]

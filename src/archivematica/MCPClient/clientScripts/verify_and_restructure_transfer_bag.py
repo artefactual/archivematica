@@ -19,7 +19,8 @@ import os
 import sys
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -144,7 +145,7 @@ def restructureBagForComplianceFileUUIDsAssigned(
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 target = job.args[1]

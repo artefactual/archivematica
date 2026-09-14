@@ -21,11 +21,11 @@ import os
 import django
 
 django.setup()
-from django.db import transaction
 from django.utils.timezone import get_current_timezone
 
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main import models
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.storeFileModificationDates")
 
@@ -65,7 +65,7 @@ def main(transfer_uuid, shared_directory_path, timezone):
 
 def call(jobs):
     timezone = get_current_timezone()
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 transfer_uuid = job.args[1]

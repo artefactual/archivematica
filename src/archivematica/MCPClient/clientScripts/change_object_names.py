@@ -22,8 +22,6 @@ import uuid
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.dashboard.main.models import SIP
@@ -31,6 +29,7 @@ from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.clientScripts import change_names
 
 logger = get_script_logger("archivematica.mcp.client.changeObjectNames")
@@ -259,7 +258,7 @@ class NameChanger:
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 # job.args[4] (taskUUID) is unused.

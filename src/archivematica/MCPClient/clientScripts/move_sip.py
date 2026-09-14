@@ -22,10 +22,9 @@ import sys
 import django
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon.fileOperations import rename
 from archivematica.dashboard.main.models import SIP
+from archivematica.MCPClient.client import transactions
 
 
 def updateDB(dst, sip_uuid):
@@ -54,7 +53,7 @@ def moveSIP(job, src, dst, sipUUID, sharedDirectoryPath):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 src = job.args[1]
