@@ -38,7 +38,7 @@ on:
       - "src/archivematica/dashboard/settings/**"
       - "tests/integration/**"
 env:
-  UBUNTU_VERSION: "24.04"
+  UBUNTU_VERSION: "26.04"
   PYTHON_VERSION: "3.10"
 jobs:
   select_matrix:

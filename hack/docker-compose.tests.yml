@@ -8,7 +8,7 @@ services:
       dockerfile: "hack/Dockerfile"
       args:
         TARGET: "archivematica-tests"
-        UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-26.04}
         PYTHON_VERSION: ${PYTHON_VERSION:-}
     volumes:
       - "../:/src"
