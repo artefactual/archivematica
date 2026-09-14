@@ -1,0 +1,45 @@
+---
+
+services:
+  archivematica-amauats:
+    build:
+      context: "../"
+      dockerfile: "hack/Dockerfile"
+      args:
+        TARGET: "archivematica-dashboard-integration-tests"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
+    entrypoint: ""
+    working_dir: "/src"
+    # Use the suite-local pytest config so this live Playwright run does not
+    # inherit the repo-wide Django pytest settings from pyproject.toml.
+    command:
+      [
+        "pytest",
+        "-c",
+        "/src/tests/amauats/pytest.ini",
+        "--browser",
+        "firefox",
+        "/src/tests/amauats/",
+      ]
+    environment:
+      PYTEST_ADDOPTS: ${PYTEST_ADDOPTS:-}
+      RUN_AMAUATS: "true"
+      AMAUATS_DASHBOARD_URL: "http://nginx/"
+      AMAUATS_STORAGE_SERVICE_URL: "http://nginx:8000/"
+      AMAUATS_DASHBOARD_USERNAME: "test"
+      AMAUATS_DASHBOARD_PASSWORD: "test"
+      AMAUATS_DASHBOARD_API_KEY: "test"
+      AMAUATS_STORAGE_SERVICE_USERNAME: "test"
+      AMAUATS_STORAGE_SERVICE_API_KEY: "test"
+      AMAUATS_SAMPLE_DATA_ROOT: "/src/hack/submodules/archivematica-sampledata"
+    volumes:
+      - "../:/src"
+      - "/dev/shm:/dev/shm"
+      # Needed only for encryption scenarios that assert directly on on-disk
+      # AIP files under the shared directory.
+      - "${HOME}/.am/am-pipeline-data:/var/archivematica/sharedDirectory"
+    links:
+      - "nginx"

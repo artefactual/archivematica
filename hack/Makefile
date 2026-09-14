@@ -21,6 +21,10 @@ define compose_amauat
 	docker compose -f docker-compose.yml -f docker-compose.acceptance-tests.yml $(1)
 endef
 
+define compose_pytest_amauats
+	docker compose -f docker-compose.yml -f docker-compose.amauats.yml $(1)
+endef
+
 define compose_tests
 	docker compose -f docker-compose.yml -f docker-compose.tests.yml $(1)
 endef
@@ -391,6 +395,14 @@ test-archivematica: start-mysql  ## Run Archivematica tests in a single run.
 
 test-integration:  ## Run integration tests.
 	$(CURDIR)/tests/integration/run.sh
+
+test-amauats-build:  ## AMAUAT pytest: build image.
+	$(call compose_pytest_amauats, \
+		build --build-arg USER_ID=$(CALLER_UID) --build-arg GROUP_ID=$(CALLER_GID) archivematica-amauats)
+
+test-amauats:  ## AMAUAT pytest: run the pytest-bdd + Playwright suite.
+	$(call compose_pytest_amauats, \
+		run --rm --no-deps -e PYTEST_ADDOPTS=$(subst $(SPACE),\$(SPACE),${PYTEST_ADDOPTS}) archivematica-amauats)
 
 test-at-build:  ## AMAUAT: build image.
 	$(call compose_amauat, \

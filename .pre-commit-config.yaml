@@ -81,6 +81,7 @@ repos:
     - prometheus-client
     - pyjwt
     - pytest
+    - pytest-bdd
     - pytest-django
     - types-gunicorn
     - types-jsonschema

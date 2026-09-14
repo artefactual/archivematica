@@ -20,6 +20,8 @@
 - [Ports](#ports)
 - [Tests](#tests)
   - [AMAUATs](#amauats)
+    - [Pytest-bdd runner](#pytest-bdd-runner)
+    - [Filtering with `PYTEST_ADDOPTS` and `-k`](#filtering-with-pytest_addopts-and--k)
 - [Resetting the environment](#resetting-the-environment)
 - [Cleaning up](#cleaning-up)
 - [Percona tuning](#percona-tuning)
@@ -439,6 +441,73 @@ make test-at-behave TAGS=black-box BROWSER=Firefox
 ```
 
 [amauats-black-box]: https://github.com/artefactual-labs/archivematica-acceptance-tests/tree/qa/1.x/features/black_box
+
+#### Pytest-bdd runner
+
+In addition to the legacy Behave runner, this repository includes a new
+[pytest-bdd](https://pytest-bdd.readthedocs.io/en/latest/) AMAUAT suite under
+`tests/amauats/`.
+
+The new infrastructure is organized like this:
+
+- `tests/amauats/features/` contains the ported feature files.
+- `tests/amauats/test_*.py` collects scenarios with `pytest-bdd`.
+- `tests/amauats/*.py` contains the shared step implementations and helpers.
+
+This suite uses Playwright for browser automation and runs against the local
+Archivematica Docker Compose environment started from this `hack/` directory.
+
+Use these targets to build and run it:
+
+```shell
+make test-amauats-build
+make test-amauats
+```
+
+- `make test-amauats-build` builds the Playwright-enabled AMAUAT runner image.
+- `make test-amauats` runs the pytest-bdd suite using
+  `docker-compose.amauats.yml`.
+
+The runner points pytest at `tests/amauats/pytest.ini` so this live suite does
+not inherit the repository-wide Django pytest settings from
+`pyproject.toml`.
+
+#### Filtering with `PYTEST_ADDOPTS` and `-k`
+
+Like the other pytest-based targets, `make test-amauats` forwards
+`PYTEST_ADDOPTS` to pytest. Use it to narrow the run to a specific module or
+scenario.
+
+For example:
+
+```shell
+env PYTEST_ADDOPTS='-q -x tests/amauats/test_black_box_reingest.py -k metadata_only_reingest_without_error' make test-amauats
+```
+
+In the pytest-bdd suite, `-k` matches the collected pytest test name. It does
+not match a custom marker or tag.
+
+For example, the scenario:
+
+```gherkin
+Scenario: Metadata only reingest without error
+```
+
+is collected by pytest-bdd as a test named:
+
+```text
+test_metadata_only_reingest_without_error
+```
+
+So `-k metadata_only_reingest_without_error` selects that scenario by matching
+the generated pytest test name.
+
+If you need to discover the generated names before running a scenario, collect
+the tests without executing them:
+
+```shell
+env PYTEST_ADDOPTS='--collect-only -q tests/amauats/test_black_box_reingest.py' make test-amauats
+```
 
 ## Resetting the environment
 
