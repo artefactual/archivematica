@@ -79,7 +79,7 @@ services:
       start_period: 10s
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:26.7.3-0"
+    image: "quay.io/keycloak/keycloak:26.7.3-1"
     command: ["start-dev", "--import-realm"]
     environment:
       KEYCLOAK_ADMIN: "admin"
