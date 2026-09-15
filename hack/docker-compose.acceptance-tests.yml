@@ -13,7 +13,8 @@ services:
     security_opt:
       - "seccomp:unconfined"
     volumes:
-      - "./submodules/archivematica-acceptance-tests/:/src/"
+      # Keep live source edits and test artifacts in the host checkout.
+      - "./submodules/archivematica-acceptance-tests/:/home/artefactual/acceptance-tests/"
       - "/dev/shm:/dev/shm"
       - "./submodules/archivematica-sampledata:/home/archivematica/archivematica-sampledata:ro"
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"

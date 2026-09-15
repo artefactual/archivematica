@@ -62,6 +62,7 @@ jobs:
         working-directory: ./hack
       - name: "Run AMAUAT tag"
         id: "amauat-run"
+        timeout-minutes: 30
         run: |
           make -C hack/ test-at-behave TAGS="${{ matrix.tag }}" BROWSER=${{ matrix.browser }}
       - name: "Save docker logs on failure"
