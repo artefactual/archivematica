@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { computed, h, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
+  columnVisibilityFeature,
   createColumnHelper,
   FlexRender,
   functionalUpdate,
-  getCoreRowModel,
-  useVueTable,
+  rowPaginationFeature,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
   type ColumnDef,
   type PaginationState as TablePaginationState,
   type SortingState,
-  type VisibilityState,
+  type ColumnVisibilityState,
 } from '@tanstack/vue-table'
 import { useI18n } from 'vue-i18n'
 import {
@@ -59,7 +62,7 @@ const paginationPageSizeOptions = [10, 25, 50]
 const DEFAULT_PAGE_SIZE = 10
 const pagination = ref<TablePaginationState>({ pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE })
 const sorting = ref<SortingState>([])
-const columnVisibility = ref<VisibilityState>({})
+const columnVisibility = ref<ColumnVisibilityState>({})
 const loadingState = ref(true)
 const isModeSwitching = ref(false)
 const activeSearchRequestId = ref(0)
@@ -67,7 +70,12 @@ const hasSubmittedSearch = ref(false)
 const thumbnailLoadFailures = ref<Record<string, true>>({})
 
 const { loading, error, execute } = useArchivalStorageSearch()
-const columnHelper = createColumnHelper<SearchResultRow>()
+const features = tableFeatures({
+  rowSortingFeature,
+  rowPaginationFeature,
+  columnVisibilityFeature,
+})
+const columnHelper = createColumnHelper<typeof features, SearchResultRow>()
 
 const formatDate = (value: unknown): string => {
   if (typeof value !== 'number') return ''
@@ -138,7 +146,7 @@ const renderAipAic = (row: SearchResultRow) => {
   return t('archivalStorage.none')
 }
 
-const buildColumnDefs = (columns: ModeColumn[]): ColumnDef<SearchResultRow>[] => {
+const buildColumnDefs = (columns: ModeColumn[]): ColumnDef<typeof features, SearchResultRow>[] => {
   return columns.map(column => columnHelper.accessor(
     row => row[column.accessorKey],
     {
@@ -234,7 +242,8 @@ const pageCount = computed(() => {
   return count > 0 ? count : 1
 })
 
-const table = useVueTable({
+const table = useTable({
+  features,
   get data() {
     return tableData.value
   },
@@ -257,7 +266,7 @@ const table = useVueTable({
   get pageCount() {
     return pageCount.value
   },
-  getRowId: (originalRow, index) => getStableRowId(originalRow, index),
+  getRowId: (originalRow: SearchResultRow, index: number) => getStableRowId(originalRow, index),
   onSortingChange: (updater) => {
     sorting.value = functionalUpdate(updater, sorting.value)
   },
@@ -267,7 +276,6 @@ const table = useVueTable({
   onColumnVisibilityChange: (updater) => {
     columnVisibility.value = functionalUpdate(updater, columnVisibility.value)
   },
-  getCoreRowModel: getCoreRowModel(),
 })
 
 const getCurrentSortState = (): SortState => {

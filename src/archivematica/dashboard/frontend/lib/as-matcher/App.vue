@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import {
+  createSortedRowModel,
   functionalUpdate,
-  getCoreRowModel,
-  getSortedRowModel,
-  useVueTable,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_text,
+  tableFeatures,
+  useTable,
   type ColumnDef,
   type SortingState,
 } from '@tanstack/vue-table'
@@ -143,22 +146,31 @@ const resourceRowsById = new Map(resourceRows.map(row => [row.resourceId, row]))
 const objectRows = [...props.objectPaths].sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }))
 const objectPathByUuid = new Map(objectRows.map(item => [item.uuid, item.path]))
 
-const resourceColumns: ColumnDef<ResourceRow>[] = [
+const features = tableFeatures({
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    text: sortFn_text,
+  },
+})
+
+const resourceColumns: ColumnDef<typeof features, ResourceRow>[] = [
   {
     id: 'level',
     accessorFn: row => row.levelOfDescription,
-    sortingFn: (left, right) => left.original.sortPosition - right.original.sortPosition,
+    sortFn: (left, right) => left.original.sortPosition - right.original.sortPosition,
   },
   { id: 'title', accessorKey: 'title' },
   { id: 'identifier', accessorKey: 'identifier' },
   { id: 'dates', accessorKey: 'dates' },
 ]
 
-const pairColumns: ColumnDef<MatchRow>[] = [
+const pairColumns: ColumnDef<typeof features, MatchRow>[] = [
   {
     id: 'resourceOrder',
     accessorFn: row => row.resourceSortPosition ?? Number.MAX_SAFE_INTEGER,
-    sortingFn: (left, right) => {
+    sortFn: (left, right) => {
       const leftPosition = left.original.resourceSortPosition ?? Number.MAX_SAFE_INTEGER
       const rightPosition = right.original.resourceSortPosition ?? Number.MAX_SAFE_INTEGER
       if (leftPosition !== rightPosition) {
@@ -272,14 +284,56 @@ const filteredResourceSourceRows = computed(() => {
   return rows
 })
 
-const resourceTable = useVueTable({
+const buildMatchRow = (fileUuid: string, resourceNode: MatcherResourceNode): MatchRow | null => {
+  const objectPath = objectPathByUuid.get(fileUuid)
+  if (!objectPath) {
+    return null
+  }
+
+  const resourceId = normalizeText(resourceNode.id)
+  const visibleResource = resourceRowsById.get(resourceId)
+
+  const row: MatchRow = {
+    localId: nextPairLocalId,
+    createdOrder: nextPairCreatedOrder,
+    objectUuid: fileUuid,
+    objectPath,
+    resourceId,
+    resourceSortPosition: visibleResource?.sortPosition ?? null,
+    levelOfDescription: visibleResource?.levelOfDescription ?? normalizeText(resourceNode.levelOfDescription),
+    title: visibleResource?.title ?? normalizeText(resourceNode.title),
+    identifier: visibleResource?.identifier ?? normalizeText(resourceNode.identifier),
+    dates: visibleResource?.dates ?? normalizeText(resourceNode.dates),
+  }
+
+  nextPairLocalId += 1
+  nextPairCreatedOrder += 1
+  return row
+}
+
+const initializePairs = (initialMatches: MatcherInitialMatch[]) => {
+  const initialRows: MatchRow[] = []
+  for (const match of initialMatches) {
+    const row = buildMatchRow(match.file_uuid, match.resource)
+    if (row) {
+      initialRows.push(row)
+    }
+  }
+  pairs.value = initialRows
+}
+
+// Seed the pairs before the tables are created: the table adapter reads the
+// data option when the table is constructed and picks up later changes on
+// the next tick, which would render an empty pairs table first.
+initializePairs(props.initialMatches)
+
+const resourceTable = useTable({
+  features,
   get data() {
     return filteredResourceSourceRows.value
   },
   columns: resourceColumns,
   enableSortingRemoval: false,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
   state: {
     get sorting() {
       return resourceSorting.value
@@ -290,14 +344,13 @@ const resourceTable = useVueTable({
   },
 })
 
-const pairsTable = useVueTable({
+const pairsTable = useTable({
+  features,
   get data() {
     return pairs.value
   },
   columns: pairColumns,
   enableSortingRemoval: false,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
   state: {
     get sorting() {
       return pairsSorting.value
@@ -398,33 +451,6 @@ const onSelectAllVisibleChange = (event: Event) => {
   setVisibleObjectSelection(target.checked)
 }
 
-const buildMatchRow = (fileUuid: string, resourceNode: MatcherResourceNode): MatchRow | null => {
-  const objectPath = objectPathByUuid.get(fileUuid)
-  if (!objectPath) {
-    return null
-  }
-
-  const resourceId = normalizeText(resourceNode.id)
-  const visibleResource = resourceRowsById.get(resourceId)
-
-  const row: MatchRow = {
-    localId: nextPairLocalId,
-    createdOrder: nextPairCreatedOrder,
-    objectUuid: fileUuid,
-    objectPath,
-    resourceId,
-    resourceSortPosition: visibleResource?.sortPosition ?? null,
-    levelOfDescription: visibleResource?.levelOfDescription ?? normalizeText(resourceNode.levelOfDescription),
-    title: visibleResource?.title ?? normalizeText(resourceNode.title),
-    identifier: visibleResource?.identifier ?? normalizeText(resourceNode.identifier),
-    dates: visibleResource?.dates ?? normalizeText(resourceNode.dates),
-  }
-
-  nextPairLocalId += 1
-  nextPairCreatedOrder += 1
-  return row
-}
-
 const addPairFromCurrentSelection = (objectItem: MatcherObjectPath, resource: ResourceRow) => {
   const row: MatchRow = {
     localId: nextPairLocalId,
@@ -442,17 +468,6 @@ const addPairFromCurrentSelection = (objectItem: MatcherObjectPath, resource: Re
   nextPairLocalId += 1
   nextPairCreatedOrder += 1
   pairs.value = [...pairs.value, row]
-}
-
-const initializePairs = (initialMatches: MatcherInitialMatch[]) => {
-  const initialRows: MatchRow[] = []
-  for (const match of initialMatches) {
-    const row = buildMatchRow(match.file_uuid, match.resource)
-    if (row) {
-      initialRows.push(row)
-    }
-  }
-  pairs.value = initialRows
 }
 
 const pairSelectedObjects = async () => {
@@ -533,7 +548,6 @@ const removePair = async (pair: MatchRow) => {
   }
 }
 
-initializePairs(props.initialMatches)
 </script>
 
 <template>
