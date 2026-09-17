@@ -167,6 +167,39 @@ describe('ArchivesSpace matcher', () => {
     expect(wrapper.text()).toContain('No pairs yet.')
   })
 
+  it('sorts numbered resource titles in natural order', async () => {
+    const wrapper = mount(App, {
+      props: {
+        ...makeProps(),
+        resourceData: {
+          id: 'resource-root',
+          title: 'Resource root',
+          identifier: 'R1',
+          dates: '2000-2001',
+          levelOfDescription: 'collection',
+          children: Array.from({ length: 12 }, (_, index) => ({
+            id: `component-${index + 1}`,
+            title: `Series ${index + 1}`,
+            identifier: `S${index + 1}`,
+            dates: '2001',
+            levelOfDescription: 'series',
+            children: [],
+          })),
+        },
+      },
+      global: {
+        plugins: [createI18nMock()],
+      },
+    })
+
+    await wrapper.findAll('.as-matcher-sort-btn')[1]!.trigger('click')
+
+    const titles = wrapper.findAll('.as-matcher-resource-title').map(el => el.attributes('title'))
+    expect(titles.filter(title => title?.startsWith('Series'))).toEqual(
+      Array.from({ length: 12 }, (_, index) => `Series ${index + 1}`),
+    )
+  })
+
   it('renders when ArchivesSpace returns children as false', () => {
     const wrapper = mount(App, {
       props: {

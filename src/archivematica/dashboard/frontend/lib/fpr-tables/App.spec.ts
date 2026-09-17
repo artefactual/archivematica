@@ -106,6 +106,23 @@ describe('FprTables App', () => {
     expect(wrapper.find('table').exists()).toBe(false)
   })
 
+  it('sorts numbered descriptions in natural order', async () => {
+    const wrapper = mount(App, {
+      props: { payload: makePayload(12) },
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    await wrapper.get('th.fpr-sortable button').trigger('click')
+
+    const descriptions = wrapper.findAll('tbody tr').map(row => row.findAll('td')[0]!.text())
+    expect(descriptions).toEqual([
+      'Format 1', 'Format 2', 'Format 3', 'Format 4', 'Format 5',
+      'Format 6', 'Format 7', 'Format 8', 'Format 9', 'Format 10',
+    ])
+  })
+
   it('shows the table empty message when payload has no rows', () => {
     const wrapper = mount(App, {
       props: { payload: makePayload(0) },

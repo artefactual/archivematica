@@ -2,18 +2,24 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  columnFilteringFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
   FlexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
+  globalFilteringFeature,
+  rowPaginationFeature,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_text,
+  tableFeatures,
   type Cell,
   type ColumnDef,
   type PaginationState,
   type Row,
   type SortingState,
   type Updater,
-  useVueTable,
+  useTable,
 } from '@tanstack/vue-table'
 import { ResultsPagination } from '@/shared/components'
 import * as fprRoutes from '@/shared/http/fpr'
@@ -155,6 +161,20 @@ const VALUE_KEY_PREFIX_BY_COLUMN: Partial<Record<string, string>> = {
 // First matching column expands.
 const FILL_COLUMN_PREFERENCE = ['description', 'format', 'command'] as const
 
+const features = tableFeatures({
+  rowSortingFeature,
+  rowPaginationFeature,
+  columnFilteringFeature,
+  globalFilteringFeature,
+  sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  filteredRowModel: createFilteredRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    text: sortFn_text,
+  },
+})
+
 // TanStack sort state is controlled from Vue so we can reset pagination on sort
 // changes.
 const sorting = ref<SortingState>([])
@@ -270,7 +290,7 @@ const {
 
 // Normalize mixed row values into stable strings.
 // This keeps TanStack sort/filter behavior consistent across types.
-const fieldColumn = (id: string, fallbackLabelKey: string): ColumnDef<FprRow> => ({
+const fieldColumn = (id: string, fallbackLabelKey: string): ColumnDef<typeof features, FprRow> => ({
   id,
   accessorFn: (row) => {
     if (id === 'enabled' && typeof row.enabled === 'boolean') {
@@ -283,7 +303,7 @@ const fieldColumn = (id: string, fallbackLabelKey: string): ColumnDef<FprRow> =>
 })
 
 // The "actions" has the same definition across all tables.
-const actionsColumn = (): ColumnDef<FprRow> => ({
+const actionsColumn = (): ColumnDef<typeof features, FprRow> => ({
   id: 'actions',
   accessorFn: () => '',
   header: columnLabel('actions', t('fpr.columns.actions')),
@@ -293,7 +313,7 @@ const actionsColumn = (): ColumnDef<FprRow> => ({
 
 // Rebuild TanStack columns from the payload.
 // This supports payload-driven table kinds in the shared renderer.
-const columns = computed<ColumnDef<FprRow>[]>(() => {
+const columns = computed<ColumnDef<typeof features, FprRow>[]>(() => {
   const availableColumnKeys = new Set(props.payload.columns.map(column => column.key))
   return COLUMN_DEFINITIONS_BY_KIND[props.payload.kind]
     .filter(({ id }) => availableColumnKeys.has(id))
@@ -302,7 +322,8 @@ const columns = computed<ColumnDef<FprRow>[]>(() => {
     )
 })
 
-const table = useVueTable({
+const table = useTable({
+  features,
   get data() {
     return props.payload.rows
   },
@@ -325,16 +346,12 @@ const table = useVueTable({
   onPaginationChange: updater => updateRef(updater, pagination),
   globalFilterFn: (row, _columnId, filterValue) =>
     tokenizedGlobalFilter(row.original, String(filterValue ?? '')),
-  getCoreRowModel: getCoreRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-  getRowId: row => row.id,
+  getRowId: (row: FprRow) => row.id,
 })
 
 // Use pre-pagination rows for totals/info.
 // This reflects filter+sort results before page slicing.
-const filteredRows = computed(() => table.getPrePaginationRowModel().rows)
+const filteredRows = computed(() => table.getPrePaginatedRowModel().rows)
 // These are the rows currently rendered in the table body (after pagination).
 const rows = computed(() => table.getRowModel().rows)
 const actionButtonClass = (style: TableActionStyle, size: 'xs' | 'sm' = 'xs') => {
@@ -564,14 +581,14 @@ const bodyCellClass = (columnId: string) => [
   columnId === 'actions' ? 'fpr-col-actions' : null,
 ]
 
-const cellsForRow = (row: Row<FprRow>): Array<{ cell: Cell<FprRow, unknown>, linkUrl: string | null }> =>
-  row.getVisibleCells().map(cell => ({
-    cell: cell as Cell<FprRow, unknown>,
+const cellsForRow = (row: Row<typeof features, FprRow>): Array<{ cell: Cell<typeof features, FprRow, unknown>, linkUrl: string | null }> =>
+  row.getAllCells().map(cell => ({
+    cell: cell as Cell<typeof features, FprRow, unknown>,
     linkUrl: linkUrlForCell(row.original, cell.column.id),
   }))
 
-const pageIndex = computed(() => table.getState().pagination.pageIndex)
-const pageSize = computed(() => table.getState().pagination.pageSize)
+const pageIndex = computed(() => pagination.value.pageIndex)
+const pageSize = computed(() => pagination.value.pageSize)
 const pageCount = computed(() => table.getPageCount())
 const canPreviousPage = computed(() => table.getCanPreviousPage())
 const canNextPage = computed(() => table.getCanNextPage())
