@@ -27,7 +27,8 @@ const emit = defineEmits<{
   (event: 'execute-job-choice', payload: { job: ProcessingJob, choice: string, unitUuid: string }): void
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const numberFormatter = computed(() => new Intl.NumberFormat(locale.value))
 
 const reviewUrl = computed(() => {
   if (!props.job.uuid) return null
@@ -79,7 +80,7 @@ const microserviceHelp = computed(() => {
       </span>
       <template v-if="job.count && job.count > 1">
         {{ ' ' }}
-        <span class="job-count">&times; {{ job.count.toLocaleString() }}</span>
+        <span class="job-count">&times; {{ numberFormatter.format(job.count) }}</span>
       </template>
       <template v-if="reviewUrl">
         {{ ' ' }}
