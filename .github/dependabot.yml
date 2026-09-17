@@ -36,3 +36,21 @@ updates:
       frontend:
         patterns:
           - "*"
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      python:
+        patterns:
+          - "*"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      pre-commit:
+        patterns:
+          - "*"
