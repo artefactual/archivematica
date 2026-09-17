@@ -36,6 +36,11 @@ updates:
       frontend:
         patterns:
           - "*"
+    ignore:
+      # TypeScript 7 ships no JavaScript compiler API yet, which vue-tsc and
+      # typescript-eslint need. Revisit once both support the TypeScript 7.1 API.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
