@@ -224,7 +224,7 @@ jobs:
           REUSE_TEST_ENV: 1
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
-          PYTEST_ADDOPTS: -vv
+          PYTEST_ADDOPTS: -vv --tracing retain-on-failure --screenshot only-on-failure
           INTEGRATION_SERVICE: ${{ matrix.provider.service }}
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.run-tests.outcome == 'failure') || (cancelled() && steps.run-tests.outcome == 'cancelled') }}"
@@ -239,3 +239,9 @@ jobs:
         with:
           name: "docker-logs-${{ matrix.provider.label }}"
           path: "tests/integration/docker-logs"
+      - name: "Upload Playwright traces on failure"
+        if: "${{ (failure() && steps.run-tests.outcome == 'failure') || (cancelled() && steps.run-tests.outcome == 'cancelled') }}"
+        uses: "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a" # v7.0.1
+        with:
+          name: "playwright-traces-${{ matrix.provider.label }}"
+          path: "test-results"

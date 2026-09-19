@@ -28,3 +28,6 @@ src/archivematica/dashboard/static/
 
 # setuptools build
 **/*.egg-info
+
+# Playwright traces of failed integration tests
+test-results/
