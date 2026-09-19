@@ -28,7 +28,7 @@ jobs:
       - name: "Check out repository"
         uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
       - name: "Set up Docker Buildx"
-        uses: "docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e" # v4.3.0
+        uses: "docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069" # v4.4.1
         with:
           driver-opts: |
             network=host
@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "requirements_hash=${{ hashFiles('.python-version', 'pyproject.toml', 'uv.lock') }}" >> $GITHUB_OUTPUT
       - name: "Build base layers"
-        uses: "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a" # v7.3.0
+        uses: "docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc" # v7.4.0
         with:
           context: .
           file: ./hack/Dockerfile
@@ -100,12 +100,12 @@ jobs:
         run: |
           echo "requirements_hash=${{ hashFiles('.python-version', 'pyproject.toml', 'uv.lock', 'hack/submodules/**/uv.lock') }}" >> $GITHUB_OUTPUT
       - name: "Set up buildx"
-        uses: "docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e" # v4.3.0
+        uses: "docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069" # v4.4.1
         with:
           driver-opts: |
             network=host
       - name: "Build archivematica-tests image"
-        uses: "docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a" # v7.3.0
+        uses: "docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc" # v7.4.0
         with:
           context: .
           file: ./hack/Dockerfile
@@ -147,7 +147,7 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python-version }}
       - name: "Upload coverage report"
         if: matrix.rule != 'storage-service' && matrix.rule != 'migrations' && github.repository == 'artefactual/archivematica'
-        uses: "codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4" # v7.1.0
+        uses: "codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5" # v7.1.1
         with:
           files: ./coverage.xml
           fail_ci_if_error: false
