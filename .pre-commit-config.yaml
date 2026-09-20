@@ -82,6 +82,7 @@ repos:
     - pyjwt
     - pytest
     - pytest-django
+    - pytest-playwright
     - types-gunicorn
     - types-jsonschema
     - types-lxml
