@@ -7,11 +7,11 @@ import pytest
 from django.conf import settings as django_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
-from playwright.sync_api import Browser
 from playwright.sync_api import Locator
 from playwright.sync_api import Page
 from playwright.sync_api import expect
 from pytest_django.live_server_helper import LiveServer
+from pytest_playwright import CreateContextCallback
 from tastypie.models import ApiKey
 
 ClickAndWaitFor = Callable[
@@ -166,19 +166,19 @@ def test_headers_preserve_a_long_username(
 
 @pytest.mark.django_db
 def test_entitlement_grants_and_revokes_superuser(
-    browser: Browser,
+    new_context: CreateContextCallback,
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
     click_and_wait_for: ClickAndWaitFor,
 ) -> None:
-    page = browser.new_page(
+    page = new_context(
         extra_http_headers=shibboleth_headers(
             "admin",
             "Admin",
             "preservation-admin;preservation-manager;preservation-reviewer",
         )
-    )
+    ).new_page()
     page.goto(live_server.url)
 
     assert get_profile_details(page, live_server.url, click_and_wait_for)[-1] == "yes"
@@ -187,9 +187,9 @@ def test_entitlement_grants_and_revokes_superuser(
 
     # The flag is set on every authentication, so a new session without the
     # entitlement revokes it.
-    page = browser.new_page(
+    page = new_context(
         extra_http_headers=shibboleth_headers("admin", "Admin", "preservation-user")
-    )
+    ).new_page()
     page.goto(live_server.url)
 
     assert get_profile_details(page, live_server.url, click_and_wait_for)[-1] == "no"
@@ -199,11 +199,13 @@ def test_entitlement_grants_and_revokes_superuser(
 
 @pytest.mark.django_db
 def test_attributes_are_only_read_when_a_session_is_established(
-    browser: Browser, live_server: LiveServer, dashboard_uuid: uuid.UUID
+    new_context: CreateContextCallback,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
 ) -> None:
     """Documents the library behaviour: once the user is logged in, changed
     headers are ignored until the user authenticates again."""
-    page = browser.new_page(extra_http_headers=shibboleth_headers())
+    page = new_context(extra_http_headers=shibboleth_headers()).new_page()
     page.goto(live_server.url)
     page.set_extra_http_headers(shibboleth_headers(first_name="Renamed"))
     page.goto(f"{live_server.url}{reverse('accounts:profile')}")
@@ -211,7 +213,9 @@ def test_attributes_are_only_read_when_a_session_is_established(
     assert "Demo User" in (page.locator("dl.dl-horizontal").text_content() or "")
     page.context.close()
 
-    page = browser.new_page(extra_http_headers=shibboleth_headers(first_name="Renamed"))
+    page = new_context(
+        extra_http_headers=shibboleth_headers(first_name="Renamed")
+    ).new_page()
     page.goto(f"{live_server.url}{reverse('accounts:profile')}")
 
     assert "Renamed User" in (page.locator("dl.dl-horizontal").text_content() or "")
@@ -454,7 +458,7 @@ def test_profile_page_disallows_edits(
 
 @pytest.mark.django_db
 def test_api_accepts_api_keys_and_session_calls_without_csrf_token(
-    browser: Browser,
+    new_context: CreateContextCallback,
     page: Page,
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
@@ -466,7 +470,7 @@ def test_api_accepts_api_keys_and_session_calls_without_csrf_token(
     api_key = ApiKey.objects.get(user=user).key
 
     # API key authentication from a client with no session.
-    context = browser.new_context()
+    context = new_context()
     response = context.request.get(
         f"{live_server.url}/api/transfer/unapproved/",
         headers={"Authorization": f"ApiKey {user.username}:{api_key}"},
@@ -593,9 +597,11 @@ def test_saml_logout_ends_the_service_provider_session(
 
 @pytest.mark.django_db
 def test_logged_out_page_and_its_assets_need_no_session(
-    browser: Browser, live_server: LiveServer, dashboard_uuid: uuid.UUID
+    new_context: CreateContextCallback,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
 ) -> None:
-    context = browser.new_context()
+    context = new_context()
 
     response = context.request.get(f"{SP_URL}{LOGOUT_TARGET}", max_redirects=0)
 
@@ -617,12 +623,12 @@ def test_logged_out_page_and_its_assets_need_no_session(
 
 @pytest.mark.django_db
 def test_service_provider_rejects_spoofed_attribute_headers(
-    browser: Browser,
+    new_context: CreateContextCallback,
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
 ) -> None:
-    context = browser.new_context()
+    context = new_context()
     spoofed = {"eppn": "attacker@example.com", "entitlement": "preservation-admin"}
 
     response = context.request.get(
@@ -643,10 +649,13 @@ def test_service_provider_rejects_spoofed_attribute_headers(
 
 @pytest.mark.django_db
 def test_service_provider_lets_api_key_requests_through(
-    browser: Browser, live_server: LiveServer, dashboard_uuid: uuid.UUID, user: User
+    new_context: CreateContextCallback,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
+    user: User,
 ) -> None:
     api_key = ApiKey.objects.create(user=user)
-    context = browser.new_context()
+    context = new_context()
 
     response = context.request.get(
         f"{SP_URL}/api/transfer/unapproved/",
