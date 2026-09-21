@@ -229,7 +229,7 @@ jobs:
       - name: "Save docker logs on failure"
         if: "${{ (failure() && steps.run-tests.outcome == 'failure') || (cancelled() && steps.run-tests.outcome == 'cancelled') }}"
         run: |
-          mkdir docker-logs
+          mkdir -p docker-logs
           docker compose logs --no-color > docker-logs/docker-compose.log
           docker compose ps --all > docker-logs/docker-compose-ps.log
         working-directory: "tests/integration"
