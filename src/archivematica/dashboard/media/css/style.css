@@ -62,6 +62,48 @@ body {
   width: 100%;
 }
 
+/*
+ * The connection status is injected after the page loads. It only gets the
+ * space left over by the brand and the navigation, and is truncated when that
+ * is not enough, so it never pushes the navigation onto another row.
+ */
+@media (min-width: 768px) {
+  .topbar .container-fluid {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .topbar .container-fluid::before,
+  .topbar .container-fluid::after {
+    display: none;
+  }
+
+  .topbar .navbar-brand {
+    float: none;
+    flex: 0 0 auto;
+  }
+
+  /* The navigation keeps its full width while there is room for it and
+     shrinks when there is not, so its items wrap and the user menu stays
+     within the viewport on narrow screens and with longer translations. */
+  .topbar .navbar-nav {
+    float: none;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  /* Room for the indicator is kept even when the navigation needs the rest
+     of the line, so the message is cut short instead of claiming a row. */
+  .topbar #connection-status {
+    float: none;
+    flex: 1 1 0;
+    min-width: 2em;
+    overflow: hidden;
+    margin-left: 15px;
+    order: 1;
+  }
+}
+
 .topbar a {
   color: #BFBFBF;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -179,6 +221,9 @@ li.user > a {
  */
 
 #connection-status > #status-bullet {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   height: 40px;
   line-height: 40px;
 }
@@ -190,6 +235,13 @@ li.user > a {
 
 #connection-status > #status-bullet > span {
   color: #bfbfbf;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#connection-status > #status-bullet > .status-icon {
+  flex: 0 0 auto;
 }
 
 /*
