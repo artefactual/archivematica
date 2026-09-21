@@ -1,15 +1,21 @@
 import os
 import re
 import uuid
+from collections.abc import Callable
 
 import pytest
 from django.conf import settings as django_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
+from playwright.sync_api import Locator
 from playwright.sync_api import Page
 from playwright.sync_api import expect
 from pytest_django import Settings
 from pytest_django.live_server_helper import LiveServer
+
+ClickAndWaitFor = Callable[
+    [Page, Locator | Callable[[], None], str | re.Pattern[str] | Locator], None
+]
 
 if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
@@ -38,19 +44,23 @@ def click_logout_from_user_menu(page: Page) -> None:
     page.get_by_role("button", name="Log out").click()
 
 
-def log_in_via_cas(
+def fill_cas_login(
     page: Page, live_server: LiveServer, username: str, password: str
-) -> None:
+) -> Locator:
     page.goto(live_server.url)
     page.locator("#username").fill(username)
     page.locator("#password").fill(password)
-    page.locator("button[name=submitBtn]").click()
+    return page.locator("button[name=submitBtn]")
 
 
-def get_profile_details(page: Page, live_server: LiveServer) -> list[str]:
-    click_profile_from_user_menu(page)
-
-    expect(page).to_have_url(f"{live_server.url}{reverse('accounts:profile')}")
+def get_profile_details(
+    page: Page, live_server: LiveServer, click_and_wait_for: ClickAndWaitFor
+) -> list[str]:
+    click_and_wait_for(
+        page,
+        lambda: click_profile_from_user_menu(page),
+        f"{live_server.url}{reverse('accounts:profile')}",
+    )
     details_text = page.locator("dl.dl-horizontal").text_content()
     assert details_text is not None
 
@@ -82,11 +92,14 @@ def test_cas_backend_creates_local_user(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
-    log_in_via_cas(page, live_server, "demo", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server) == [
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "demo", "test"),
+        f"{live_server.url}/transfer/",
+    )
+    assert get_profile_details(page, live_server, click_and_wait_for) == [
         "Username",
         "demo",
         "Name",
@@ -105,6 +118,7 @@ def test_cas_backend_authenticates_existing_user(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     django_user_model.objects.create(
         username="demo",
@@ -113,10 +127,12 @@ def test_cas_backend_authenticates_existing_user(
         last_name="User",
     )
 
-    log_in_via_cas(page, live_server, "demo", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server) == [
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "demo", "test"),
+        f"{live_server.url}/transfer/",
+    )
+    assert get_profile_details(page, live_server, click_and_wait_for) == [
         "Username",
         "demo",
         "Name",
@@ -137,13 +153,16 @@ def test_admin_attribute_grants_administrator_role(
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
     check_admin_attributes: Settings,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     # The admin user is a member of multiple CAS groups, so the memberOf
     # attribute is parsed as a list.
-    log_in_via_cas(page, live_server, "admin", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server) == [
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "admin", "test"),
+        f"{live_server.url}/transfer/",
+    )
+    assert get_profile_details(page, live_server, click_and_wait_for) == [
         "Username",
         "admin",
         "Name",
@@ -163,12 +182,15 @@ def test_single_valued_admin_attribute_grants_administrator_role(
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
     check_admin_attributes: Settings,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     # The sysadmin user is a member of a single CAS group, so the memberOf
     # attribute is parsed as a string.
-    log_in_via_cas(page, live_server, "sysadmin", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "sysadmin", "test"),
+        f"{live_server.url}/transfer/",
+    )
 
     user = django_user_model.objects.get(username="sysadmin")
     assert user.is_superuser
@@ -181,13 +203,16 @@ def test_missing_admin_attribute_removes_administrator_role(
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
     check_admin_attributes: Settings,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     django_user_model.objects.create(username="demo", is_superuser=True)
 
-    log_in_via_cas(page, live_server, "demo", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server) == [
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "demo", "test"),
+        f"{live_server.url}/transfer/",
+    )
+    assert get_profile_details(page, live_server, click_and_wait_for) == [
         "Username",
         "demo",
         "Name",
@@ -207,14 +232,17 @@ def test_autoconfigure_email_sets_email_of_new_user(
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
     settings: Settings,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     settings.CAS_AUTOCONFIGURE_EMAIL = True
     settings.CAS_EMAIL_DOMAIN = "example.com"
 
-    log_in_via_cas(page, live_server, "demo", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server) == [
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "demo", "test"),
+        f"{live_server.url}/transfer/",
+    )
+    assert get_profile_details(page, live_server, click_and_wait_for) == [
         "Username",
         "demo",
         "Name",
@@ -230,15 +258,24 @@ def test_autoconfigure_email_sets_email_of_new_user(
 
 @pytest.mark.django_db
 def test_logging_out_logs_out_user_from_cas_server(
-    page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID, settings: Settings
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
+    settings: Settings,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
-    log_in_via_cas(page, live_server, "demo", "test")
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
+    click_and_wait_for(
+        page,
+        fill_cas_login(page, live_server, "demo", "test"),
+        f"{live_server.url}/transfer/",
+    )
 
     # Logging out redirects the user to the CAS server logout page.
-    click_logout_from_user_menu(page)
-    expect(page).to_have_url(url_starting_with(f"{settings.CAS_SERVER_URL}logout"))
+    click_and_wait_for(
+        page,
+        lambda: click_logout_from_user_menu(page),
+        url_starting_with(f"{settings.CAS_SERVER_URL}logout"),
+    )
 
     # The CAS single sign-on session is over, so authenticating again
     # requires to submit the CAS login form.

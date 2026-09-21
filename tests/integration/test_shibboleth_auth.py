@@ -1,16 +1,22 @@
 import os
 import re
 import uuid
+from collections.abc import Callable
 
 import pytest
 from django.conf import settings as django_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from playwright.sync_api import Browser
+from playwright.sync_api import Locator
 from playwright.sync_api import Page
 from playwright.sync_api import expect
 from pytest_django.live_server_helper import LiveServer
 from tastypie.models import ApiKey
+
+ClickAndWaitFor = Callable[
+    [Page, Locator | Callable[[], None], str | re.Pattern[str] | Locator], None
+]
 
 if "RUN_INTEGRATION_TESTS" not in os.environ:
     pytest.skip("Skipping integration tests", allow_module_level=True)
@@ -54,11 +60,24 @@ def open_user_menu(page: Page) -> None:
     user_menu.evaluate("node => node.classList.add('open')")
 
 
-def get_profile_details(page: Page, base_url: str) -> list[str]:
+def click_profile_from_user_menu(page: Page) -> None:
     open_user_menu(page)
     page.get_by_role("link", name="Your profile").click()
 
-    expect(page).to_have_url(f"{base_url}{reverse('accounts:profile')}")
+
+def click_logout_from_user_menu(page: Page) -> None:
+    open_user_menu(page)
+    page.get_by_role("button", name="Log out").click()
+
+
+def get_profile_details(
+    page: Page, base_url: str, click_and_wait_for: ClickAndWaitFor
+) -> list[str]:
+    click_and_wait_for(
+        page,
+        lambda: click_profile_from_user_menu(page),
+        f"{base_url}{reverse('accounts:profile')}",
+    )
     details_text = page.locator("dl.dl-horizontal").text_content()
     assert details_text is not None
 
@@ -76,12 +95,13 @@ def test_headers_create_local_user_with_mapped_attributes(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page.set_extra_http_headers(shibboleth_headers())
     page.goto(live_server.url)
 
     expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server.url) == [
+    assert get_profile_details(page, live_server.url, click_and_wait_for) == [
         "Username",
         "demo@example.com",
         "Name",
@@ -102,6 +122,7 @@ def test_headers_update_an_existing_user(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     existing = django_user_model.objects.create(
         username="demo@example.com", first_name="Old", email="old@example.com"
@@ -110,7 +131,7 @@ def test_headers_update_an_existing_user(
     page.set_extra_http_headers(shibboleth_headers())
     page.goto(live_server.url)
 
-    assert get_profile_details(page, live_server.url)[1:6] == [
+    assert get_profile_details(page, live_server.url, click_and_wait_for)[1:6] == [
         "demo@example.com",
         "Name",
         "Demo User",
@@ -126,6 +147,7 @@ def test_headers_preserve_a_long_username(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     # The username is the principal name as released, however long.
     long_email = "person-with-very-long-name@long-institution-name.ac.uk"
@@ -135,7 +157,7 @@ def test_headers_preserve_a_long_username(
     page.goto(live_server.url)
 
     expect(page).to_have_url(f"{live_server.url}/transfer/")
-    assert get_profile_details(page, live_server.url)[:2] == [
+    assert get_profile_details(page, live_server.url, click_and_wait_for)[:2] == [
         "Username",
         long_email,
     ]
@@ -148,6 +170,7 @@ def test_entitlement_grants_and_revokes_superuser(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page = browser.new_page(
         extra_http_headers=shibboleth_headers(
@@ -158,7 +181,7 @@ def test_entitlement_grants_and_revokes_superuser(
     )
     page.goto(live_server.url)
 
-    assert get_profile_details(page, live_server.url)[-1] == "yes"
+    assert get_profile_details(page, live_server.url, click_and_wait_for)[-1] == "yes"
     assert django_user_model.objects.get(username="admin@example.com").is_superuser
     page.context.close()
 
@@ -169,7 +192,7 @@ def test_entitlement_grants_and_revokes_superuser(
     )
     page.goto(live_server.url)
 
-    assert get_profile_details(page, live_server.url)[-1] == "no"
+    assert get_profile_details(page, live_server.url, click_and_wait_for)[-1] == "no"
     assert not django_user_model.objects.get(username="admin@example.com").is_superuser
     page.context.close()
 
@@ -230,14 +253,17 @@ def test_missing_entitlement_attribute_is_rejected(
 
 @pytest.mark.django_db
 def test_login_with_only_eppn_and_entitlement(
-    page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page.set_extra_http_headers(
         {"eppn": "demo@example.com", "entitlement": "preservation-user"}
     )
     page.goto(live_server.url)
 
-    assert get_profile_details(page, live_server.url)[:2] == [
+    assert get_profile_details(page, live_server.url, click_and_wait_for)[:2] == [
         "Username",
         "demo@example.com",
     ]
@@ -245,7 +271,11 @@ def test_login_with_only_eppn_and_entitlement(
 
 @pytest.mark.django_db
 def test_without_headers_the_local_login_still_works(
-    page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID, user: User
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
+    user: User,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page.goto(live_server.url)
 
@@ -255,9 +285,9 @@ def test_without_headers_the_local_login_still_works(
 
     page.get_by_label("Username").fill(user.username)
     page.get_by_label("Password").fill("foobar1A,")
-    page.get_by_role("button", name="Log in").click()
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
+    click_and_wait_for(
+        page, page.get_by_role("button", name="Log in"), f"{live_server.url}/transfer/"
+    )
 
 
 @pytest.mark.django_db
@@ -365,7 +395,10 @@ def test_login_view_redirects_to_the_login_page(
 
 @pytest.mark.django_db
 def test_logged_out_page_offers_to_log_in_again(
-    page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     response = page.goto(f"{live_server.url}{LOGOUT_TARGET}")
 
@@ -373,10 +406,10 @@ def test_logged_out_page_offers_to_log_in_again(
     assert response.status == 200
     expect(page.get_by_text("You are logged out.")).to_be_visible()
 
-    page.get_by_role("link", name="Log in again").click()
-
-    expect(page).to_have_url(
-        url_starting_with(f"{live_server.url}{reverse('accounts:login')}")
+    click_and_wait_for(
+        page,
+        page.get_by_role("link", name="Log in again"),
+        url_starting_with(f"{live_server.url}{reverse('accounts:login')}"),
     )
 
     # With the attribute headers present the same link logs the user back in
@@ -384,9 +417,11 @@ def test_logged_out_page_offers_to_log_in_again(
     page.set_extra_http_headers(shibboleth_headers())
     page.goto(f"{live_server.url}{LOGOUT_TARGET}")
 
-    page.get_by_role("link", name="Log in again").click()
-
-    expect(page).to_have_url(f"{live_server.url}/transfer/")
+    click_and_wait_for(
+        page,
+        page.get_by_role("link", name="Log in again"),
+        f"{live_server.url}/transfer/",
+    )
 
 
 @pytest.mark.django_db
@@ -454,13 +489,10 @@ def test_api_accepts_api_keys_and_session_calls_without_csrf_token(
 # Through the service provider.
 
 
-def log_in_via_keycloak(page: Page, username: str, password: str = "test") -> None:
+def fill_keycloak_login(page: Page, username: str, password: str = "test") -> Locator:
     page.get_by_label("Username or email").fill(username)
     page.get_by_label("Password", exact=True).fill(password)
-    page.get_by_role("button", name="Sign In").click()
-    # Keycloak posts the assertion to the service provider, which redirects
-    # back into the application.
-    expect(page).to_have_url(f"{SP_URL}/transfer/")
+    return page.get_by_role("button", name="Sign In")
 
 
 @pytest.mark.django_db
@@ -469,6 +501,7 @@ def test_saml_login_through_the_service_provider(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page.goto(SP_URL)
 
@@ -476,9 +509,9 @@ def test_saml_login_through_the_service_provider(
         url_starting_with("http://keycloak:8080/realms/shibboleth/")
     )
 
-    log_in_via_keycloak(page, "demo")
+    click_and_wait_for(page, fill_keycloak_login(page, "demo"), f"{SP_URL}/transfer/")
 
-    assert get_profile_details(page, SP_URL) == [
+    assert get_profile_details(page, SP_URL, click_and_wait_for) == [
         "Username",
         "demo@example.com",
         "Name",
@@ -510,28 +543,32 @@ def test_saml_admin_entitlement_grants_superuser(
     live_server: LiveServer,
     dashboard_uuid: uuid.UUID,
     django_user_model: type[User],
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page.goto(SP_URL)
-    log_in_via_keycloak(page, "admin")
+    click_and_wait_for(page, fill_keycloak_login(page, "admin"), f"{SP_URL}/transfer/")
 
-    assert get_profile_details(page, SP_URL)[-1] == "yes"
+    assert get_profile_details(page, SP_URL, click_and_wait_for)[-1] == "yes"
     assert django_user_model.objects.get(username="admin@example.com").is_superuser
 
 
 @pytest.mark.django_db
 def test_saml_logout_ends_the_service_provider_session(
-    page: Page, live_server: LiveServer, dashboard_uuid: uuid.UUID
+    page: Page,
+    live_server: LiveServer,
+    dashboard_uuid: uuid.UUID,
+    click_and_wait_for: ClickAndWaitFor,
 ) -> None:
     page.goto(SP_URL)
-    log_in_via_keycloak(page, "demo")
-    open_user_menu(page)
-
-    page.get_by_role("button", name="Log out").click()
-
+    click_and_wait_for(page, fill_keycloak_login(page, "demo"), f"{SP_URL}/transfer/")
     # The application logs out and sends the browser to the service
     # provider's logout handler, which ends its session and returns to the
     # logged-out page.
-    expect(page).to_have_url(f"{SP_URL}{LOGOUT_TARGET}")
+    click_and_wait_for(
+        page,
+        lambda: click_logout_from_user_menu(page),
+        f"{SP_URL}{LOGOUT_TARGET}",
+    )
     expect(page.get_by_text("You are logged out.")).to_be_visible()
     expect(page.get_by_role("link", name="Log in again")).to_be_visible()
 
@@ -545,9 +582,9 @@ def test_saml_logout_ends_the_service_provider_session(
     # surviving session and ends in the application.
     page.goto(f"{SP_URL}{LOGOUT_TARGET}")
 
-    page.get_by_role("link", name="Log in again").click()
-
-    expect(page).to_have_url(f"{SP_URL}/transfer/")
+    click_and_wait_for(
+        page, page.get_by_role("link", name="Log in again"), f"{SP_URL}/transfer/"
+    )
 
     page.goto(f"{SP_URL}/Shibboleth.sso/Session")
 
