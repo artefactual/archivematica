@@ -1,0 +1,2056 @@
+---
+# Dataverse 4 transfer source
+# ===========================
+#
+# Use this overlay to run a local Dataverse (https://dataverse.org/) instance
+# with sample datasets and use it as a transfer source. The base development
+# environment must be installed and bootstrapped first as described in the
+# Installation section of the README:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml up -d --build
+#
+# The overlay runs Dataverse 4.20, the last release of the 4.x series the
+# Dataverse integration was developed against, using the iqss/dataverse-k8s
+# (Glassfish 4.1 on Java 8) and iqss/solr-k8s (Solr 7.7 with the Dataverse
+# schema) images published by the Dataverse community, a PostgreSQL 9.6
+# database and an Rserve (https://www.rforge.net/Rserve/) server built from
+# the rocker/r-ver image. Dataverse uses Rserve to ingest R data files and to
+# generate the R data file that is part of the bundle of every tabular file,
+# which Archivematica expects to find when it parses a Dataverse transfer.
+#
+# The first start takes a few minutes while Glassfish deploys the application.
+# The dataverse4-bootstrap service then installs Dataverse, creates the sample
+# datasets described below and exits. Follow its progress with:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml logs -f dataverse4-bootstrap
+#
+# This overlay is intended for local testing and demonstrations only. The
+# Dataverse web interface is available at http://dataverse4.localhost:62084
+# with the superuser account dataverseAdmin and the password admin1. Its API
+# token is fixed to 5b5e0fd3-4ad7-4f2e-9a68-1c8a9ba6b3d2 so that the scripts
+# below can use it. The /api/admin endpoints require the unblock-key=unblock
+# query parameter, and the built-in users key is burrito, so more accounts can
+# be created through the API.
+#
+# The dataverse4.localhost hostname must resolve to the local host in the
+# browser, which is the standard behaviour for *.localhost names in modern
+# browsers and Linux distributions. The overlay also sets it as a Docker
+# network alias so the Storage Service and the bootstrap service can use the
+# same URL. If dataverse4.localhost does not resolve on your host, add the
+# following entry to /etc/hosts:
+#
+#   127.0.0.1 dataverse4.localhost
+#
+# Layout of this file
+# -------------------
+#
+# Everything the overlay needs is in this file. The scripts and the dataset
+# manifests are Compose configs with inline content, listed in the configs
+# section at the end, that Compose copies into the containers when it creates
+# them; the Rserve image is built from the inline Dockerfile of the
+# dataverse4-rserve service. Two consequences of that:
+#
+# - Compose interpolates ${VARIABLE} references in every value of the file,
+#   inline content included, so each $ of the embedded shell scripts is
+#   written as $$ (Compose turns $$ into a single $).
+# - Compose copies the inline content into a container each time `up` or
+#   `run` starts it, but a container that keeps running, or is merely
+#   restarted, keeps the copy it started with. After editing an embedded
+#   script or manifest, start the one-shot bootstrap service again with `up`
+#   and recreate the Storage Service container with `up --force-recreate`, as
+#   the commands below do.
+#
+# Sample datasets
+# ---------------
+#
+# The bootstrap service publishes one dataset per manifest of the
+# dataverse4-datasets config. Each manifest holds the name of the sample
+# transfer directory, the dataset metadata in the format of the Dataverse
+# native API and the list of files to upload from the Dataverse sample
+# transfers of the sampledata submodule (SampleTransfers/Dataverse/): the
+# original files of the four transfers that have been there since
+# Archivematica 1.8, and the SPSS, Stata 14, Excel and R files of "A study of
+# my afternoon drinks in tabular data formats", which exercise the tabular
+# ingest. The sampledata checkout has no transfer of that last dataset yet, so
+# its four originals are embedded in this file as base64 text (the
+# dataverse4-original-* configs) and the bootstrap decodes them; a copy in the
+# checkout, SampleTransfers/Dataverse/TabularDataFormats/, takes precedence
+# when it exists. Dataverse converts every tabular file to a .tab file and
+# serves it as a bundle with the original file, an R data file, a DDI
+# codebook and citations, which is what the Storage Service downloads.
+#
+# Transfers of the first four datasets complete. A transfer of the tabular data
+# formats dataset currently fails at the "Parse Dataverse METS XML" job: the
+# labels of its original formats are missing from the format mapping of the
+# "Convert Dataverse structure" job, and the "Extract packages" job of the
+# default processing configurations unpacks and removes the R data file, which
+# the Dataverse METS still refers to.
+#
+# To add a dataset, add a manifest to the dataverse4-datasets config and run
+# the bootstrap service again. It only creates the datasets whose title does
+# not exist yet and rebuilds the Solr index, which is not persisted, so it can
+# run at any time:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml up dataverse4-bootstrap
+#
+# The export script below reads the same manifests, so recreate the Storage
+# Service container as well before exporting the new dataset:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml \
+#     up -d --force-recreate --no-deps archivematica-storage-service
+#
+# Transfers from Dataverse
+# ------------------------
+#
+# Register the instance in the Storage Service. The script creates a Dataverse
+# space and a transfer source location shared with every pipeline, and prints
+# the UUID of the location. It can be run again to update the settings:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml \
+#     exec archivematica-storage-service \
+#     python /etc/archivematica/dataverse4/register_transfer_source.py
+#
+# In the Dashboard, choose the "Dataverse" transfer type and browse the
+# "Dataverse 4 (development)" location: the datasets are listed as directories
+# named after their Dataverse entity id, which is also printed by the bootstrap
+# service next to the dataset title. Select a dataset and start the transfer.
+# The Storage Service downloads the files and the dataset metadata, and
+# Archivematica runs the Dataverse microservices of the transfer workflow. The
+# same transfer can be started with the API:
+#
+#   location="<location UUID printed by the registration script>"
+#   dataset="<entity id printed by the bootstrap service>"
+#   curl -X POST http://127.0.0.1:62080/api/v2beta/package \
+#     -H "Authorization: ApiKey test:test" \
+#     -H "Content-Type: application/json" \
+#     -d "{\"name\": \"drinks\", \"type\": \"dataverse\", \"processing_config\": \"automated\", \"path\": \"$(printf '%s:%s' "${location}" "${dataset}" | base64 -w0)\"}"
+#
+# The transfers in SampleTransfers/Dataverse/ can be regenerated from these
+# datasets, for example after changing a manifest or the Storage Service code
+# that fetches from Dataverse. The export script downloads every dataset
+# through the Dataverse space of the Storage Service, exactly as a transfer
+# receives it, into /var/archivematica/storage_service/dataverse4-sample-transfers
+# of the Storage Service container and prints the directory names. The
+# following commands replace the directories of the sampledata checkout with
+# those downloads:
+#
+#   compose="docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml"
+#   target="submodules/archivematica-sampledata/SampleTransfers/Dataverse"
+#   for name in $(${compose} exec -T archivematica-storage-service \
+#       python /etc/archivematica/dataverse4/export_sample_transfers.py); do
+#     rm -rf "${target:?}/${name:?}"
+#     ${compose} cp "archivematica-storage-service:/var/archivematica/storage_service/dataverse4-sample-transfers/${name}" "${target}/${name}"
+#     echo "Exported ${target}/${name}"
+#   done
+#
+# Starting over
+# -------------
+#
+# The Dataverse database and files live in Docker volumes. To reinstall from
+# scratch, remove the Dataverse services and their volumes and start the
+# overlay again:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml \
+#     rm --stop --force dataverse4 dataverse4-bootstrap dataverse4-postgres dataverse4-solr dataverse4-rserve
+#   docker volume rm am_dataverse4_data am_dataverse4_postgres_data
+
+# The API token of the dataverseAdmin account is fixed so that the Storage
+# Service registration script and the documentation above can refer to it.
+x-dataverse4-api-token: &dataverse4-api-token "5b5e0fd3-4ad7-4f2e-9a68-1c8a9ba6b3d2"
+
+# Like the single sign-on overlays, the same URL works from the host browser
+# and from the containers: the dataverse4 service listens on this port and gets
+# the hostname as a network alias.
+x-dataverse4-url: &dataverse4-url "http://dataverse4.localhost:62084"
+
+services:
+  archivematica-storage-service:
+    environment:
+      # Read by the registration and export scripts below. The Storage
+      # Service itself ignores them.
+      ARCHIVEMATICA_DATAVERSE4_URL: *dataverse4-url
+      ARCHIVEMATICA_DATAVERSE4_API_TOKEN: *dataverse4-api-token
+    configs:
+      - source: dataverse4-register-transfer-source
+        target: /etc/archivematica/dataverse4/register_transfer_source.py
+      - source: dataverse4-export-sample-transfers
+        target: /etc/archivematica/dataverse4/export_sample_transfers.py
+      - source: dataverse4-datasets
+        target: /etc/archivematica/dataverse4/datasets.json
+
+  dataverse4:
+    image: "iqss/dataverse-k8s:4.20"
+    # The wrapper makes the image's one-time Glassfish configuration survive
+    # container restarts, sets the HTTP port and caps the Java heap.
+    command: ["/etc/archivematica/dataverse4/entrypoint.sh"]
+    environment:
+      POSTGRES_SERVER: "dataverse4-postgres"
+      POSTGRES_USER: "dataverse"
+      POSTGRES_DATABASE: "dataverse"
+      # There is no mail server; notifications fail quietly.
+      MAIL_SERVER: "localhost"
+      # The image sets no locale, which makes Java default to ASCII and the
+      # tabular ingest replace non-ASCII characters with question marks.
+      LANG: "en_US.UTF-8"
+      DATAVERSE_HTTP_PORT: "62084"
+      DATAVERSE_JVM_MAX_HEAP: "2g"
+      # Lowercase variables become JVM options (dataverse_a_b -> dataverse.a.b).
+      dataverse_fqdn: "dataverse4.localhost"
+      dataverse_siteUrl: *dataverse4-url
+      dataverse_rserve_host: "dataverse4-rserve"
+    configs:
+      - source: dataverse4-entrypoint
+        target: /etc/archivematica/dataverse4/entrypoint.sh
+        mode: 0555
+      # The dataverse-k8s image reads its credentials from files under
+      # /secrets.
+      - source: dataverse4-db-password
+        target: /secrets/db/password
+      - source: dataverse4-api-key
+        target: /secrets/api/key
+      - source: dataverse4-admin-password
+        target: /secrets/admin/password
+      - source: dataverse4-rserve-password
+        target: /secrets/rserve/password
+      - source: dataverse4-doi-password
+        target: /secrets/doi/password
+    volumes:
+      - "dataverse4_data:/data"
+    ports:
+      - "127.0.0.1:62084:62084"
+    networks:
+      default:
+        aliases:
+          # This makes the Dataverse URL resolvable from the Storage Service
+          # and bootstrap containers. The same hostname is also used by the
+          # host browser.
+          - dataverse4.localhost
+    depends_on:
+      dataverse4-postgres:
+        condition: service_healthy
+      dataverse4-solr:
+        condition: service_healthy
+      dataverse4-rserve:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - --max-time
+        - "2"
+        - http://127.0.0.1:62084/api/info/version
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 120s
+
+  dataverse4-bootstrap:
+    # One-shot service: installs Dataverse on the first run, creates the
+    # sample datasets from the sampledata originals and reindexes. Safe to
+    # run again.
+    image: "iqss/dataverse-k8s:4.20"
+    command: ["/etc/archivematica/dataverse4/bootstrap.sh"]
+    environment:
+      DATAVERSE_URL: *dataverse4-url
+      DATAVERSE_ADMIN_API_TOKEN: *dataverse4-api-token
+      DATAVERSE_ROOT_NAME: "Archivematica Dataverse 4"
+      DATAVERSE_CONTACT_EMAIL: "dataverse@example.com"
+      SOLR_HOST_COLON_PORT: "dataverse4-solr:8983"
+      POSTGRES_SERVER: "dataverse4-postgres"
+      POSTGRES_USER: "dataverse"
+      POSTGRES_DATABASE: "dataverse"
+      SAMPLEDATA_DIR: "/home/archivematica/archivematica-sampledata"
+    configs:
+      - source: dataverse4-bootstrap-script
+        target: /etc/archivematica/dataverse4/bootstrap.sh
+        mode: 0555
+      - source: dataverse4-datasets
+        target: /etc/archivematica/dataverse4/datasets.json
+      - source: dataverse4-original-drinks-spss
+        target: /etc/archivematica/dataverse4/originals/TabularDataFormats/drinks-spss.sav.base64
+      - source: dataverse4-original-drinks-stata14
+        target: /etc/archivematica/dataverse4/originals/TabularDataFormats/drinks-stata14.dta.base64
+      - source: dataverse4-original-drinks-excel
+        target: /etc/archivematica/dataverse4/originals/TabularDataFormats/drinks-excel.xlsx.base64
+      - source: dataverse4-original-drinks-r
+        target: /etc/archivematica/dataverse4/originals/TabularDataFormats/drinks-r.RData.base64
+      - source: dataverse4-db-password
+        target: /secrets/db/password
+      - source: dataverse4-api-key
+        target: /secrets/api/key
+      - source: dataverse4-admin-password
+        target: /secrets/admin/password
+    volumes:
+      - "./submodules/archivematica-sampledata/:/home/archivematica/archivematica-sampledata/:ro"
+    depends_on:
+      dataverse4:
+        condition: service_healthy
+    restart: "no"
+
+  dataverse4-postgres:
+    image: "postgres:9.6"
+    environment:
+      POSTGRES_USER: "dataverse"
+      POSTGRES_PASSWORD: "dataverse"
+      POSTGRES_DB: "dataverse"
+    volumes:
+      - "dataverse4_postgres_data:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "dataverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  dataverse4-solr:
+    # Solr 7.7 with the Dataverse 4.20 schema in the collection1 core. The
+    # index is not persisted: the bootstrap service reindexes on every run.
+    image: "iqss/solr-k8s:4.20"
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --fail
+        - --silent
+        - --show-error
+        - --max-time
+        - "2"
+        - "http://127.0.0.1:8983/solr/collection1/select?q=*:*&rows=0"
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
+
+  dataverse4-rserve:
+    # Local/test-only Rserve server. Dataverse 4.x sends R code to an Rserve
+    # daemon to ingest R data files (.RData) as tabular data and to generate
+    # the .RData member of the tabular bundles the Storage Service downloads.
+    # Without it, tabular bundles are missing the .RData file that
+    # Archivematica expects to find.
+    image: "archivematica-dataverse-rserve"
+    build:
+      # The Dockerfile copies nothing from the build context (this directory),
+      # so only the Dockerfile itself is sent to the builder.
+      dockerfile_inline: |
+        # syntax=docker/dockerfile:1
+        FROM rocker/r-ver:4.4.2
+
+        # The R packages the Dataverse 4.20 installation guide requires: Rserve
+        # itself plus the libraries loaded by the scripts Dataverse sends to it.
+        # DescTools is only used by the Data Explorer preprocessing and is left
+        # out.
+        RUN install2.r --error --skipinstalled Rserve R2HTML rjson haven \
+            && rm -rf /tmp/downloaded_packages
+
+        # Rserve runs unprivileged. Its working directory holds the
+        # per-connection temporary files and the tabular data Dataverse
+        # transfers through the Rserve file API.
+        RUN useradd --system --user-group --home-dir /tmp/Rserv --create-home \
+              --shell /usr/sbin/nologin rserve
+
+        # Based on scripts/r/rserve/Rserv.conf in the Dataverse 4.20 sources.
+        # The uid/gid settings are not needed because the container runs as
+        # the rserve user, and the daemon stays in the foreground so the
+        # container keeps running.
+        COPY <<'RSERV_CONF' /etc/Rserv.conf
+        workdir /tmp/Rserv
+        pwdfile /etc/Rserv.pwd
+        remote enable
+        auth required
+        plaintext disable
+        fileio enable
+        daemon disable
+        port 6311
+        maxinbuf 262144
+        maxsendbuf 0
+        RSERV_CONF
+
+        # The account Dataverse logs in with: the rserve user and the password
+        # of the dataverse4-rserve-password config.
+        COPY <<'RSERV_PWD' /etc/Rserv.pwd
+        rserve rserve
+        RSERV_PWD
+        RUN chown rserve:rserve /etc/Rserv.conf /etc/Rserv.pwd \
+            && chmod 0600 /etc/Rserv.pwd
+
+        USER rserve
+        EXPOSE 6311
+        # run.Rserve() starts the server inside this R process, so it stays in
+        # the foreground and the container follows its lifetime.
+        CMD ["Rscript", "-e", "Rserve::run.Rserve(config.file = '/etc/Rserv.conf')"]
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6311"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+volumes:
+  dataverse4_data:
+  dataverse4_postgres_data:
+
+configs:
+  # Credentials read by the dataverse-k8s image and the bootstrap script.
+  dataverse4-db-password:
+    content: "dataverse"
+  dataverse4-admin-password:
+    content: "admin1"
+  dataverse4-rserve-password:
+    content: "rserve"
+  # Key that unblocks the /api/admin endpoints, which the bootstrap service
+  # blocks for everybody else like a production installation would.
+  dataverse4-api-key:
+    content: "unblock"
+  # The FAKE DOI provider registers nothing, but the image still creates a
+  # password alias for it.
+  dataverse4-doi-password:
+    content: "unused"
+
+  # The files below are written with $$ wherever the script needs a $, see
+  # the layout notes at the top.
+
+  # Entrypoint of the dataverse4 service.
+  dataverse4-entrypoint:
+    content: |
+      #!/bin/bash
+      # Start Glassfish for the dataverse4 service.
+      #
+      # The dataverse-k8s image configures the Glassfish domain (JDBC pool, JMS
+      # queue, password aliases, JVM options) every time its entrypoint runs and
+      # expects a fresh container each time, so a plain container restart fails on
+      # the resources that already exist. This wrapper runs that configuration once
+      # per container and marks the domain as configured.
+      set -e
+
+      marker="$${DOMAIN_DIR}/config/.archivematica-configured"
+
+      if [ ! -e "$${marker}" ]; then
+          # The image's configuration script starts and stops the domain itself.
+          . "$${SCRIPT_DIR}/init_1_conf_glassfish.sh"
+
+          asadmin start-domain
+          # Listen on the published port so that the dataverse4.localhost network
+          # alias works from the other containers with the same URL as the host.
+          asadmin set "server-config.network-config.network-listeners.network-listener.http-listener-1.port=$${DATAVERSE_HTTP_PORT:-62084}"
+          # The image sizes the heap as a percentage of the memory limit, but the
+          # Java 8 build it ships cannot read cgroup v2 limits and falls back to
+          # the memory of the host. Cap the heap explicitly instead.
+          asadmin create-jvm-options -- "-Xmx$${DATAVERSE_JVM_MAX_HEAP:-2g}"
+          asadmin stop-domain
+
+          touch "$${marker}"
+      fi
+
+      exec "$${GLASSFISH_DIR}/bin/asadmin" start-domain --verbose
+
+  # Script of the dataverse4-bootstrap service.
+  dataverse4-bootstrap-script:
+    content: |
+      #!/bin/bash
+      # Install the development Dataverse instance and create the sample datasets.
+      #
+      # This runs in the dataverse4-bootstrap service of docker-compose.dataverse-4.yml,
+      # which uses the image of the dataverse4 service so the Dataverse installation
+      # scripts, psql, curl and jq are available. The script can run any number of
+      # times:
+      #
+      #   1. installs Dataverse (reference data, metadata blocks, roles, the
+      #      dataverseAdmin account, the root dataverse and the settings) when the
+      #      root dataverse does not exist yet;
+      #   2. publishes the root dataverse;
+      #   3. creates and publishes one dataset per manifest in datasets.json,
+      #      uploading the files from the sampledata checkout, or the copies
+      #      embedded in the compose file when the checkout lacks them, unless a
+      #      dataset with the same title already exists;
+      #   4. reindexes, because the Solr index is not persisted.
+      set -euo pipefail
+
+      : "$${DATAVERSE_URL:=http://dataverse4.localhost:62084}"
+      : "$${DATAVERSE_ADMIN_API_TOKEN:?set to the API token given to dataverseAdmin}"
+      : "$${DATAVERSE_ROOT_NAME:=Archivematica Dataverse 4}"
+      : "$${DATAVERSE_CONTACT_EMAIL:=dataverse@example.com}"
+      : "$${SOLR_HOST_COLON_PORT:=dataverse4-solr:8983}"
+      : "$${POSTGRES_SERVER:=dataverse4-postgres}"
+      : "$${POSTGRES_USER:=dataverse}"
+      : "$${POSTGRES_DATABASE:=dataverse}"
+      : "$${SAMPLEDATA_DIR:=/home/archivematica/archivematica-sampledata}"
+      : "$${SECRETS_DIR:=/secrets}"
+      : "$${HOME_DIR:=/opt/dataverse}"
+
+      datasets_file="$$(cd "$$(dirname "$${BASH_SOURCE[0]}")" && pwd)/datasets.json"
+      # Base64 copies of the original files the sampledata checkout lacks, named
+      # after their manifest path plus ".base64".
+      originals_dir="$$(cd "$$(dirname "$${BASH_SOURCE[0]}")" && pwd)/originals"
+      samples_dir="$${SAMPLEDATA_DIR}/SampleTransfers/Dataverse"
+      admin_user="dataverseAdmin"
+      admin_password="$$(cat "$${SECRETS_DIR}/admin/password")"
+      unblock_key="$$(cat "$${SECRETS_DIR}/api/key")"
+      token="$${DATAVERSE_ADMIN_API_TOKEN}"
+      PGPASSWORD="$$(cat "$${SECRETS_DIR}/db/password")"
+      export PGPASSWORD
+      # The manifests of datasets_file, one line of JSON each, loaded by main.
+      manifests=()
+
+      log() {
+          printf '[dataverse4-bootstrap] %s\n' "$$*"
+      }
+
+      die() {
+          log "ERROR: $$*" >&2
+          exit 1
+      }
+
+      # Run an SQL statement and print its result.
+      sql() {
+          psql --host "$${POSTGRES_SERVER}" --username "$${POSTGRES_USER}" \
+              --dbname "$${POSTGRES_DATABASE}" --no-align --tuples-only --quiet \
+              --set ON_ERROR_STOP=1 --command "$$1"
+      }
+
+      # Call the Dataverse API as dataverseAdmin and print the JSON response. Fails
+      # unless the response status is OK or one of the statuses listed in
+      # API_ACCEPTED_STATUSES. Usage: api METHOD PATH [curl options].
+      api() {
+          local method="$$1" path="$$2" response status
+          shift 2
+          response="$$(curl --silent --show-error --max-time 600 --request "$${method}" \
+              --header "X-Dataverse-key: $${token}" "$$@" "$${DATAVERSE_URL}$${path}")" \
+              || die "$${method} $${path} failed"
+          status="$$(printf '%s' "$${response}" | jq -r '.status')"
+          case " OK $${API_ACCEPTED_STATUSES:-} " in
+              *" $${status} "*) ;;
+              *) die "$${method} $${path} failed: $${response}" ;;
+          esac
+          printf '%s' "$${response}"
+      }
+
+      # Change a database setting through the admin API.
+      setting() {
+          api PUT "/api/admin/settings/$$1?unblock-key=$${unblock_key}" --data "$$2" >/dev/null
+          log "setting $$1 = $$2"
+      }
+
+      # Print the title of a manifest.
+      manifest_title() {
+          printf '%s' "$$1" | jq -r '.dataset.datasetVersion.metadataBlocks.citation.fields[]
+              | select(.typeName == "title") | .value'
+      }
+
+      install_dataverse() {
+          log "loading the reference data"
+          psql --host "$${POSTGRES_SERVER}" --username "$${POSTGRES_USER}" \
+              --dbname "$${POSTGRES_DATABASE}" --quiet --set ON_ERROR_STOP=1 \
+              --file "$${HOME_DIR}/dvinstall/reference_data.sql" >/dev/null
+
+          log "running the Dataverse setup scripts"
+          cd "$${HOME_DIR}/dvinstall"
+          # The scripts expect Dataverse and Solr on localhost.
+          sed -i \
+              -e "s#localhost:8080#$${DATAVERSE_URL#http://}#g" \
+              -e "s#localhost:8983#$${SOLR_HOST_COLON_PORT}#g" \
+              setup-*.sh
+          jq --arg name "$${DATAVERSE_ROOT_NAME}" --arg email "$${DATAVERSE_CONTACT_EMAIL}" \
+              '.name = $$name | .dataverseContacts = [{contactEmail: $$email}]' \
+              data/dv-root.json > data/dv-root.json.new
+          mv data/dv-root.json.new data/dv-root.json
+          jq --arg email "$${DATAVERSE_CONTACT_EMAIL}" '.email = $$email' \
+              data/user-admin.json > data/user-admin.json.new
+          mv data/user-admin.json.new data/user-admin.json
+          # The insecure mode keeps the built-in users key (burrito) so that more
+          # accounts can be created through the API.
+          if ! ./setup-all.sh --insecure -p="$${admin_password}" > /tmp/setup-all.log 2>&1; then
+              cat /tmp/setup-all.log
+              die "setup-all.sh failed"
+          fi
+
+          log "assigning the API token of $${admin_user}"
+          sql "UPDATE apitoken SET tokenstring = '$${token}'
+               WHERE authenticateduser_id = (
+                   SELECT id FROM authenticateduser WHERE useridentifier = '$${admin_user}'
+               )" >/dev/null
+          api GET "/api/dataverses/:root" >/dev/null \
+              || die "the installation did not create the root dataverse, see /tmp/setup-all.log"
+
+          # Block the admin API for everybody but holders of the unblock key, like
+          # a production installation.
+          setting ":BlockedApiKey" "$${unblock_key}"
+          setting ":BlockedApiPolicy" "unblock-key"
+          setting ":BlockedApiEndpoints" "admin,test"
+          setting ":SolrHostColonPort" "$${SOLR_HOST_COLON_PORT}"
+          # Datasets get DOIs under the 10.5072 test authority without registering
+          # them anywhere.
+          setting ":DoiProvider" "FAKE"
+          setting ":SystemEmail" "$${DATAVERSE_ROOT_NAME} <$${DATAVERSE_CONTACT_EMAIL}>"
+      }
+
+      publish_root() {
+          local status
+          status="$$(curl --silent --output /dev/null --write-out '%{http_code}' \
+              "$${DATAVERSE_URL}/api/dataverses/:root")"
+          if [ "$${status}" = "200" ]; then
+              log "the root dataverse is published"
+              return
+          fi
+          api POST "/api/dataverses/:root/actions/:publish" >/dev/null
+          log "published the root dataverse"
+      }
+
+      dataset_exists() {
+          local count
+          count="$$(sql "SELECT count(*) FROM datasetfieldvalue v
+              JOIN datasetfield f ON v.datasetfield_id = f.id
+              JOIN datasetfieldtype t ON f.datasetfieldtype_id = t.id
+              WHERE t.name = 'title' AND v.value = \$$title\$$$$1\$$title\$$")"
+          [ "$${count}" != "0" ]
+      }
+
+      # Ingest and publication run in the background and lock the dataset.
+      wait_for_locks() {
+          local id="$$1" tries=0
+          while [ "$$(api GET "/api/datasets/$${id}/locks" | jq '.data | length')" != "0" ]; do
+              tries=$$((tries + 1))
+              if [ "$${tries}" -ge 300 ]; then
+                  die "dataset $${id} is still locked after 10 minutes"
+              fi
+              sleep 2
+          done
+      }
+
+      wait_for_release() {
+          local id="$$1" tries=0
+          while [ "$$(api GET "/api/datasets/$${id}" | jq -r '.data.latestVersion.versionState')" != "RELEASED" ]; do
+              tries=$$((tries + 1))
+              if [ "$${tries}" -ge 150 ]; then
+                  die "dataset $${id} is still not released after 5 minutes"
+              fi
+              sleep 2
+          done
+      }
+
+      # Upload one manifest entry to a dataset.
+      upload_file() {
+          local id="$$1" entry="$$2" relative_path path file json tmpdir origin=""
+          tmpdir="$$(mktemp -d)"
+          relative_path="$$(printf '%s' "$${entry}" | jq -r '.path')"
+          path="$${samples_dir}/$${relative_path}"
+          if [ ! -f "$${path}" ] && [ -f "$${originals_dir}/$${relative_path}.base64" ]; then
+              # The checkout does not have the file: use the embedded copy.
+              path="$${tmpdir}/$$(basename "$${relative_path}")"
+              base64 --decode "$${originals_dir}/$${relative_path}.base64" > "$${path}"
+              origin=" (embedded copy)"
+          fi
+          [ -f "$${path}" ] || die "file not found: $${path}"
+          file="$${path}"
+          if [ "$$(printf '%s' "$${entry}" | jq -r '.keepZipped // false')" = "true" ]; then
+              # Dataverse unpacks uploaded ZIP files, but keeps a ZIP file found
+              # inside another ZIP file as it is.
+              file="$${tmpdir}/$$(basename "$${path}").zip"
+              python - "$${path}" "$${file}" <<'PYTHON'
+      import os
+      import sys
+      import zipfile
+
+      source, destination = sys.argv[1], sys.argv[2]
+      with zipfile.ZipFile(destination, "w", zipfile.ZIP_STORED) as archive:
+          archive.write(source, os.path.basename(source))
+      PYTHON
+          fi
+          json="$$(printf '%s' "$${entry}" \
+              | jq -c '{description: (.description // ""), categories: (.categories // [])}')"
+          api POST "/api/datasets/$${id}/add" --form "file=@$${file}" --form "jsonData=$${json}" >/dev/null
+          log "uploaded $$(basename "$${path}")$${origin}"
+          rm -rf "$${tmpdir}"
+          # Tabular files cannot be added while the previous one is being ingested.
+          wait_for_locks "$${id}"
+      }
+
+      create_dataset() {
+          local manifest="$$1" title response id pid entry
+          title="$$(manifest_title "$${manifest}")"
+          if dataset_exists "$${title}"; then
+              log "dataset exists: $${title}"
+              return
+          fi
+          log "creating dataset: $${title}"
+          response="$$(printf '%s' "$${manifest}" | jq '.dataset' \
+              | api POST "/api/dataverses/:root/datasets" \
+                  --header "Content-Type: application/json" --data-binary @-)"
+          id="$$(printf '%s' "$${response}" | jq '.data.id')"
+          pid="$$(printf '%s' "$${response}" | jq -r '.data.persistentId')"
+          while IFS= read -r entry; do
+              upload_file "$${id}" "$${entry}"
+          done < <(printf '%s' "$${manifest}" | jq -c '.files[]')
+          # Publishing a large dataset is finished by a background workflow.
+          API_ACCEPTED_STATUSES="WORKFLOW_IN_PROGRESS" \
+              api POST "/api/datasets/$${id}/actions/:publish?type=major" >/dev/null
+          wait_for_release "$${id}"
+          log "published dataset $${id} ($${pid}) with these files:"
+          api GET "/api/datasets/$${id}" \
+              | jq -r '.data.latestVersion.files[] | "  \(.label) (\(.dataFile.contentType))"'
+      }
+
+      summary() {
+          local manifest title id
+          log "Dataverse is ready. Sample datasets (entity id, title):"
+          for manifest in "$${manifests[@]}"; do
+              title="$$(manifest_title "$${manifest}")"
+              id="$$(sql "SELECT dv.dataset_id FROM datasetfieldvalue v
+                  JOIN datasetfield f ON v.datasetfield_id = f.id
+                  JOIN datasetfieldtype t ON f.datasetfieldtype_id = t.id
+                  JOIN datasetversion dv ON f.datasetversion_id = dv.id
+                  WHERE t.name = 'title' AND v.value = \$$title\$$$${title}\$$title\$$
+                  ORDER BY dv.id DESC LIMIT 1")"
+              log "  $${id}  $${title}"
+          done
+          log "Web UI: $${DATAVERSE_URL} ($${admin_user} / $${admin_password})"
+          log "API token of $${admin_user}: $${token}"
+      }
+
+      main() {
+          local status manifest
+          jq -e 'type == "array" and length > 0' "$${datasets_file}" >/dev/null \
+              || die "$${datasets_file} must be a non-empty JSON array of manifests"
+          mapfile -t manifests < <(jq -c '.[]' "$${datasets_file}")
+          log "waiting for $${DATAVERSE_URL}"
+          until curl --silent --fail "$${DATAVERSE_URL}/api/info/version" >/dev/null; do
+              sleep 5
+          done
+          status="$$(curl --silent --output /dev/null --write-out '%{http_code}' \
+              "$${DATAVERSE_URL}/api/dataverses/:root")"
+          case "$${status}" in
+              404)
+                  install_dataverse
+                  ;;
+              200|401)
+                  log "Dataverse is installed"
+                  ;;
+              *)
+                  die "unexpected response $${status} from $${DATAVERSE_URL}/api/dataverses/:root"
+                  ;;
+          esac
+          publish_root
+          for manifest in "$${manifests[@]}"; do
+              create_dataset "$${manifest}"
+          done
+          api GET "/api/admin/index?unblock-key=$${unblock_key}" >/dev/null
+          log "reindexing in the background"
+          summary
+      }
+
+      main "$$@"
+
+  # Manifests of the sample datasets, read by the bootstrap and export scripts.
+  # Each manifest has the name of the sample transfer directory, the dataset
+  # in the format of the Dataverse native API and the files to upload from
+  # the Dataverse sample transfers of the sampledata checkout, with their
+  # optional description, categories and keepZipped flag.
+  dataverse4-datasets:
+    content: |
+      [
+        {
+          "directory": "AStudyOfMyAfternoonDrinks",
+          "dataset": {
+            "datasetVersion": {
+              "license": "CC0",
+              "termsOfUse": "CC0 Waiver",
+              "metadataBlocks": {
+                "citation": {
+                  "fields": [
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "title",
+                      "value": "A study of my afternoon drinks"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "author",
+                      "value": [
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "Artefactual"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "Tester, Archivematica"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "datasetContact",
+                      "value": [
+                        {
+                          "datasetContactAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactAffiliation",
+                            "value": "Artefactual"
+                          },
+                          "datasetContactEmail": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactEmail",
+                            "value": "tester@example.com"
+                          },
+                          "datasetContactName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactName",
+                            "value": "Tester, Archivematica"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "dsDescription",
+                      "value": [
+                        {
+                          "dsDescriptionDate": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionDate",
+                            "value": "2018-05-01"
+                          },
+                          "dsDescriptionValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionValue",
+                            "value": "Photos with my drinks, and a tabular file with some data on drinks. \r\n"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "controlledVocabulary",
+                      "typeName": "subject",
+                      "value": [
+                        "Arts and Humanities"
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "keyword",
+                      "value": [
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Drinks"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "notesText",
+                      "value": "My first test dataset\r\n"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "depositor",
+                      "value": "Tester, Archivematica"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "dateOfDeposit",
+                      "value": "2018-05-09"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "files": [
+            {
+              "path": "AStudyOfMyAfternoonDrinks/Drinks.csv",
+              "description": "A table with drinks data"
+            }
+          ]
+        },
+        {
+          "directory": "AStudyOfMyAfternoonSnacks",
+          "dataset": {
+            "datasetVersion": {
+              "license": "CC0",
+              "termsOfUse": "CC0 Waiver",
+              "metadataBlocks": {
+                "citation": {
+                  "fields": [
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "title",
+                      "value": "A study of my afternoon snacks"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "author",
+                      "value": [
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "Channel 4"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "Noel Fielding"
+                          }
+                        },
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "BBC"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "Mary Berry"
+                          }
+                        },
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "Freelance"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "Hollywood, Paul"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "datasetContact",
+                      "value": [
+                        {
+                          "datasetContactAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactAffiliation",
+                            "value": "Artefactual"
+                          },
+                          "datasetContactEmail": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactEmail",
+                            "value": "demo@example.com"
+                          },
+                          "datasetContactName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactName",
+                            "value": "Archivematica"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "dsDescription",
+                      "value": [
+                        {
+                          "dsDescriptionDate": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionDate",
+                            "value": "2019-01-10"
+                          },
+                          "dsDescriptionValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionValue",
+                            "value": "A study of my afternoon snacks."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "controlledVocabulary",
+                      "typeName": "subject",
+                      "value": [
+                        "Other"
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "keyword",
+                      "value": [
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Cake"
+                          }
+                        },
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Nourishment"
+                          }
+                        },
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Entertainment"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "notesText",
+                      "value": "This is a sample Dataset to test multiple author output in Archivematica. There are no Unicode characters included while another issue is resolved around that. Another Unicode set can be created"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "depositor",
+                      "value": "Tester, Archivematica"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "dateOfDeposit",
+                      "value": "2019-01-10"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "files": [
+            {
+              "path": "AStudyOfMyAfternoonSnacks/afternoon-snacks-1.csv",
+              "description": "Another replacement  file. "
+            },
+            {
+              "path": "AStudyOfMyAfternoonSnacks/cake-descriptions.txt"
+            }
+          ]
+        },
+        {
+          "directory": "NDSAStaffingReport",
+          "dataset": {
+            "datasetVersion": {
+              "license": "CC0",
+              "termsOfUse": "CC0 Waiver",
+              "metadataBlocks": {
+                "citation": {
+                  "fields": [
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "title",
+                      "value": "Replication Data for: Staffing for Effective Digital Preservation 2017: An NDSA Report"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "author",
+                      "value": [
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "NDSA"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "NDSA Staffing Survey Working Group"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "datasetContact",
+                      "value": [
+                        {
+                          "datasetContactAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactAffiliation",
+                            "value": "NDSA"
+                          },
+                          "datasetContactEmail": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactEmail",
+                            "value": "ndsa@diglib.org"
+                          },
+                          "datasetContactName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactName",
+                            "value": "NDSA contact"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "dsDescription",
+                      "value": [
+                        {
+                          "dsDescriptionValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionValue",
+                            "value": "Anonymised data for the report NDSA  Staffing for Effective Digital Preservation 2017.\r\n\r\n\r\nIn 2017, the National Digital Stewardship Alliance (NDSA) received completed survey responses from 133 institutions engaged in digital preservation, enabling the Staffing Survey Working Group to investigate how these organizations staffed and organized their digital preservation functions, and to identify any changes since the NDSA’s 2012 survey1 on the same topic, published in “Staffing for Effective Digital Preservation: An NDSA Report.”2"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "controlledVocabulary",
+                      "typeName": "subject",
+                      "value": [
+                        "Computer and Information Science"
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "keyword",
+                      "value": [
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "preservation"
+                          }
+                        },
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Staffing"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "publication",
+                      "value": [
+                        {
+                          "publicationCitation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "publicationCitation",
+                            "value": " Staffing for Effective Digital Preservation 2017: An NDSA Report,\r\nNational Digital Stewardship Alliance, 2017. "
+                          },
+                          "publicationURL": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "publicationURL",
+                            "value": "https://osf.io/3rcqk/"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "depositor",
+                      "value": "Altman, Micah"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "dateOfDeposit",
+                      "value": "2017-10-20"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "files": [
+            {
+              "path": "NDSAStaffingReport/CodeBook2017NDSA_DigitalPreservationStaffingSurvey.txt",
+              "description": "Codebook",
+              "categories": [
+                "Documentation"
+              ]
+            },
+            {
+              "path": "NDSAStaffingReport/Data2017StaffingSurveyAnonymous.csv",
+              "description": "Survey Response",
+              "categories": [
+                "Data"
+              ]
+            },
+            {
+              "path": "NDSAStaffingReport/Report_2017DigitalPreservationStaffingSurvey.pdf",
+              "description": "Report",
+              "categories": [
+                "Documentation"
+              ]
+            }
+          ]
+        },
+        {
+          "directory": "TabularDataFormats",
+          "dataset": {
+            "datasetVersion": {
+              "license": "CC0",
+              "termsOfUse": "CC0 Waiver",
+              "metadataBlocks": {
+                "citation": {
+                  "fields": [
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "title",
+                      "value": "A study of my afternoon drinks in tabular data formats"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "author",
+                      "value": [
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "Artefactual"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "Tester, Archivematica"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "datasetContact",
+                      "value": [
+                        {
+                          "datasetContactAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactAffiliation",
+                            "value": "Artefactual"
+                          },
+                          "datasetContactEmail": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactEmail",
+                            "value": "tester@example.com"
+                          },
+                          "datasetContactName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactName",
+                            "value": "Tester, Archivematica"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "dsDescription",
+                      "value": [
+                        {
+                          "dsDescriptionDate": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionDate",
+                            "value": "2026-09-23"
+                          },
+                          "dsDescriptionValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionValue",
+                            "value": "The drinks table from \"A study of my afternoon drinks\" saved with R in the SPSS, Stata 14, Excel and R data formats. Dataverse ingests each file as tabular data, so a transfer of this dataset contains one bundle per original format."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "controlledVocabulary",
+                      "typeName": "subject",
+                      "value": [
+                        "Arts and Humanities"
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "keyword",
+                      "value": [
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Drinks"
+                          }
+                        },
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "Tabular data"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "depositor",
+                      "value": "Tester, Archivematica"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "dateOfDeposit",
+                      "value": "2026-09-23"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "files": [
+            {
+              "path": "TabularDataFormats/drinks-spss.sav",
+              "description": "The drinks table as an SPSS system file",
+              "categories": [
+                "Data"
+              ]
+            },
+            {
+              "path": "TabularDataFormats/drinks-stata14.dta",
+              "description": "The drinks table as a Stata 14 data file",
+              "categories": [
+                "Data"
+              ]
+            },
+            {
+              "path": "TabularDataFormats/drinks-excel.xlsx",
+              "description": "The drinks table as an Excel workbook",
+              "categories": [
+                "Data"
+              ]
+            },
+            {
+              "path": "TabularDataFormats/drinks-r.RData",
+              "description": "The drinks table as an R data file",
+              "categories": [
+                "Data"
+              ]
+            }
+          ]
+        },
+        {
+          "directory": "XRayScansOfPolyodonSpathula",
+          "dataset": {
+            "datasetVersion": {
+              "license": "CC0",
+              "termsOfUse": "CC0 Waiver",
+              "metadataBlocks": {
+                "citation": {
+                  "fields": [
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "title",
+                      "value": "X-ray CT Scans of Polyodon spathula (Paddlefish) (TNHC 22770)"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "otherId",
+                      "value": [
+                        {
+                          "otherIdAgency": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "otherIdAgency",
+                            "value": "Texas Memorial Museum"
+                          },
+                          "otherIdValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "otherIdValue",
+                            "value": "TNHC 22770"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "author",
+                      "value": [
+                        {
+                          "authorAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorAffiliation",
+                            "value": "University of Texas at Austin"
+                          },
+                          "authorName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "authorName",
+                            "value": "The University of Texas High-Resolution X-ray CT Facility (UTCT)"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "datasetContact",
+                      "value": [
+                        {
+                          "datasetContactAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactAffiliation",
+                            "value": "Jackson School of Geosciences"
+                          },
+                          "datasetContactEmail": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactEmail",
+                            "value": "UTCT@utexas.edu"
+                          },
+                          "datasetContactName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "datasetContactName",
+                            "value": "UTCT"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "dsDescription",
+                      "value": [
+                        {
+                          "dsDescriptionValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "dsDescriptionValue",
+                            "value": "X-ray CT Scans of ,the head of Polyodon spathula (TNHC 22770; Federal Fish Hatchery, San Marcos, Texas; collected 19 August 1994) for Dr. Julian Humphries of the University of Texas at Austin and Dr. Timothy Rowe of the Department of Geological Sciences, The University of Texas at Austin. Scanned by Matthew Colbert 14 March 2003. Voxel size X and Y= 0.0381mm, Z=0.123mm.  Total slices = 975.\r\nPlease acknowledge The University of Texas High-Resolution X-ray CT Facility (UTCT)."
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "controlledVocabulary",
+                      "typeName": "subject",
+                      "value": [
+                        "Medicine, Health and Life Sciences"
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "keyword",
+                      "value": [
+                        {
+                          "keywordValue": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "keywordValue",
+                            "value": "X-ray CT Scan Data Computed Tomography"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "publication",
+                      "value": [
+                        {
+                          "publicationURL": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "publicationURL",
+                            "value": "http://digimorph.org/specimens/Polyodon_spathula/"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "notesText",
+                      "value": "1024x1024 16-bit TIFF images. II, 120 kV, 0.2 mA, no filter, empty\r\nwedge, no offset, slice thickness 3 lines (= 0.123 mm), S.O.D. 120 mm, 1000 views, 3 samples per view, inter-slice spacing 3 lines (= 0.123 mm), field of reconstruction 34 mm (maximum field of view 39 mm), reconstruction offset 5000, reconstruction scale 2300. Acquired with 9 slices per rotation. Driftremoval and ring-removal processing done by Rachel Racicot based on correction of raw sinogram data using IDL routines “RK_SinoDeDrift” with parameters DRIFTLENGTH = 21, then “RK_SinoRingProcSimul”, with default parameters.Total slices = 975. Deleted slices 976 to 981."
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "producer",
+                      "value": [
+                        {
+                          "producerAffiliation": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "producerAffiliation",
+                            "value": "Jackson School of Geosciences, University of Texas at Austin"
+                          },
+                          "producerName": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "producerName",
+                            "value": "UTCT"
+                          },
+                          "producerURL": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "producerURL",
+                            "value": "http://www.CTlab.geo.utexas.edu"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "productionDate",
+                      "value": "2003-03-14"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "productionPlace",
+                      "value": "University of Texas High-Resolution X-ray CT Facility"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "compound",
+                      "typeName": "grantNumber",
+                      "value": [
+                        {
+                          "grantNumberAgency": {
+                            "multiple": false,
+                            "typeClass": "primitive",
+                            "typeName": "grantNumberAgency",
+                            "value": "NSF"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "depositor",
+                      "value": "Zuker, Gary"
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "dateOfDeposit",
+                      "value": "2018-04-05"
+                    },
+                    {
+                      "multiple": true,
+                      "typeClass": "primitive",
+                      "typeName": "kindOfData",
+                      "value": [
+                        "X-ray CT Scan Data"
+                      ]
+                    },
+                    {
+                      "multiple": false,
+                      "typeClass": "primitive",
+                      "typeName": "accessToSources",
+                      "value": "Publish Digimorph 13-may-2009"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "files": [
+            {
+              "path": "XRayScansOfPolyodonSpathula/0-SampleImage.jpg"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/0-contents.pdf"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/0-specimen.jpg"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/8bitTIFF.zip",
+              "keepZipped": true
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/CorFlipHeadSkel.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/HorFlipHeadSkel.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/P1010006.JPG"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/P1010007.JPG"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/PitchSpinHeadSkel.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/PitchSpinHeadSkin.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/RollSpinHeadSkel.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/RollSpinHeadSkin.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/SagFlipHeadSkel.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/YawSpinHeadSkel.mp4"
+            },
+            {
+              "path": "XRayScansOfPolyodonSpathula/YawSpinHeadSkin.mp4"
+            }
+          ]
+        }
+      ]
+
+  # Original files of "A study of my afternoon drinks in tabular data
+  # formats": the drinks table of AStudyOfMyAfternoonDrinks/Drinks.csv written
+  # with R 4.4 (haven's write_sav(compress = "none") and
+  # write_dta(version = 14), and save(version = 2)) and with Python's openpyxl
+  # package, adding the row "spans" attributes the Dataverse 4.20 spreadsheet
+  # reader requires. Dataverse 4.20 labels these formats "SPSS Binary",
+  # "Stata 14 Binary", "MS Excel Spreadsheet" and "R Data". They are base64
+  # text because inline content must be text; the bootstrap decodes them
+  # unless the sampledata checkout has the files.
+  dataverse4-original-drinks-spss:
+    content: |
+      JEZMMkAoIykgU1BTUyBEQVRBIEZJTEUgLSBodHRwczovL2dpdGh1Yi5jb20vV2l6YXJkTWFjL1Jl
+      YWRTdGF0IAIAAAAFAAAAAAAAAAAAAAAHAAAAAAAAAAAAWUAyMyBTZXAgMjYxNDo1ODowMyAgICAg
+      ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+      ICAAAAACAAAACQAAAAAAAAAAAAAAAAkBAAAJAQBEQVkgICAgIAIAAAD/////AAAAAAAAAAABHQEA
+      AR0BACAgICAgICAgAgAAAAYAAAAAAAAAAAAAAAAGAQAABgEARklSU1RfRFICAAAABgAAAAAAAAAA
+      AAAAAAYBAAAGAQBTRUNPTkRfRAIAAAAGAAAAAAAAAAAAAAAABgEAAAYBAFRISVJEX0RSBwAAAAMA
+      AAAEAAAACAAAABQAAAAAAAAAAAAAAP////8BAAAAAQAAAAIAAADp/QAABwAAAAQAAAAIAAAAAwAA
+      AP///////+//////////73/+///////v/wcAAAALAAAABAAAAAwAAAABAAAACAAAAAAAAAABAAAA
+      CAAAAAAAAAABAAAACAAAAAAAAAABAAAACAAAAAAAAAAHAAAADQAAAAEAAABIAAAAREFZPURheQlG
+      SVJTVF9EUj1GaXJzdF9EcmluawlTRUNPTkRfRD1TZWNvbmRfRHJpbmsJVEhJUkRfRFI9VGhpcmRf
+      RHJpbmtzBwAAABAAAAAIAAAAAgAAAAEAAAAAAAAABwAAAAAAAADnAwAAAAAAAE1vbmRheSAgICAg
+      ICAgICBUZWEgICAgIFdhdGVyICAgV2F0ZXIgICBUdWVzZGF5ICAgICAgICAgV2F0ZXIgICBUZWEg
+      ICAgIFdhdGVyICAgV2VkbmVzZGF5ICAgICAgIFRlYSAgICAgQ29mZmVlICBXYXRlciAgIFRodXJz
+      ZGF5ICAgICAgICBDb2ZmZWUgIENvZmZlZSAgV2F0ZXIgICBGcmlkYXkgICAgICAgICAgVGVhICAg
+      ICBXYXRlciAgIFdhdGVyICAgU2F0dXJkYXkgICAgICAgIFdhdGVyICAgV2luZSAgICBTY290Y2gg
+      IFN1bmRheSAgICAgICAgICBXaW5lICAgIFdpbmUgICAgU2NvdGNoICA=
+  dataverse4-original-drinks-stata14:
+    content: |
+      PHN0YXRhX2R0YT48aGVhZGVyPjxyZWxlYXNlPjExODwvcmVsZWFzZT48Ynl0ZW9yZGVyPkxTRjwv
+      Ynl0ZW9yZGVyPjxLPgQAPC9LPjxOPgcAAAAAAAAAPC9OPjxsYWJlbD4AADwvbGFiZWw+PHRpbWVz
+      dGFtcD4RMjMgU2VwIDIwMjYgMTQ6NTg8L3RpbWVzdGFtcD48L2hlYWRlcj48bWFwPgAAAAAAAAAA
+      ngAAAAAAAAAZAQAAAAAAAEIBAAAAAAAAWwMAAAAAAAB6AwAAAAAAAHEEAAAAAAAAnAYAAAAAAADD
+      CwAAAAAAAOYLAAAAAAAAsAwAAAAAAAC/DAAAAAAAANwMAAAAAAAA6AwAAAAAAAA8L21hcD48dmFy
+      aWFibGVfdHlwZXM+CQAGAAYABgA8L3ZhcmlhYmxlX3R5cGVzPjx2YXJuYW1lcz5EYXkAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAABGaXJzdF9EcmluawAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAABTZWNvbmRfRHJpbmsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUaGlyZF9Ecmlua3MAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L3Zhcm5h
+      bWVzPjxzb3J0bGlzdD4AAAAAAAAAAAAAPC9zb3J0bGlzdD48Zm9ybWF0cz4lLTlzAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlLTlzAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlLTlzAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlLTlzAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L2Zvcm1hdHM+PHZh
+      bHVlX2xhYmVsX25hbWVzPgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAADwvdmFsdWVfbGFiZWxfbmFtZXM+PHZhcmlhYmxlX2xhYmVscz4A
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L3ZhcmlhYmxlX2xhYmVscz48Y2hhcmFjdGVy
+      aXN0aWNzPjwvY2hhcmFjdGVyaXN0aWNzPjxkYXRhPk1vbmRheQAAAFRlYQAAAFdhdGVyAFdhdGVy
+      AFR1ZXNkYXkAAFdhdGVyAFRlYQAAAFdhdGVyAFdlZG5lc2RheVRlYQAAAENvZmZlZVdhdGVyAFRo
+      dXJzZGF5AENvZmZlZUNvZmZlZVdhdGVyAEZyaWRheQAAAFRlYQAAAFdhdGVyAFdhdGVyAFNhdHVy
+      ZGF5AFdhdGVyAFdpbmUAAFNjb3RjaFN1bmRheQAAAFdpbmUAAFdpbmUAAFNjb3RjaDwvZGF0YT48
+      c3RybHM+PC9zdHJscz48dmFsdWVfbGFiZWxzPjwvdmFsdWVfbGFiZWxzPjwvc3RhdGFfZHRhPg==
+  dataverse4-original-drinks-excel:
+    content: |
+      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
+  dataverse4-original-drinks-r:
+    content: |
+      H4sIAAAAAAAAA51SwW6DMAz1IKWFbVKl/UcP+4Wh3noZSPQ2RWBEtC1ITlDV2357lzEzJRuwSq16
+      cJz3XuKXxHlO94/JPgGAAIQIIAh5yhngBgTEnKOKlH41AOHDIHGsOZZe3bW6kkeHlnmH5g/GBVZ6
+      TKzypqMRjrakRmombUcjNet+ak8dwxylmy4KaZH+89FTW9eIZzaIQmmcFb+s4hSdKHqhwTUgysrW
+      ls0MTVu20PIdjXMW/jbp78PebhUZ+5IOjXXUXYYld3LK5Y0iR5m5RfkmjbfwZFJJKzc1sftseUzt
+      YeNPdT/8tg8e+r7/5PQ1xDf80j4CiQIAAA==
+
+  # Storage Service script that registers the instance as a transfer source.
+  dataverse4-register-transfer-source:
+    content: |
+      #!/usr/bin/env python
+      """Register the development Dataverse 4 as a Storage Service transfer source.
+
+      Run it inside the Storage Service container of the Dataverse overlay:
+
+          docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml \\
+              exec archivematica-storage-service \\
+              python /etc/archivematica/dataverse4/register_transfer_source.py
+
+      It creates a Dataverse space for the dataverse4 service, or updates its
+      settings, with a transfer source location shared with every pipeline, and
+      prints the UUID of the location. Running it again is harmless.
+      """
+
+      import os
+      import sys
+
+      import django
+
+      django.setup()
+
+      from archivematica.storage_service.locations.models import Dataverse
+      from archivematica.storage_service.locations.models import Location
+      from archivematica.storage_service.locations.models import Pipeline
+      from archivematica.storage_service.locations.models import Space
+      from django.db import transaction
+
+      # PREMIS agent recorded for the files downloaded from this Dataverse.
+      AGENT_NAME = "Archivematica Dataverse 4"
+      AGENT_TYPE = "Dataverse"
+      STAGING_PATH = "/var/archivematica/storage_service"
+      # Every dataset in the instance. The Storage Service documentation describes
+      # the "Query:" and "Subtree:" filters.
+      RELATIVE_PATH = "Query: *"
+      DESCRIPTION = "Dataverse 4 (development)"
+
+
+      def main() -> int:
+          url = os.environ.get(
+              "ARCHIVEMATICA_DATAVERSE4_URL", "http://dataverse4.localhost:62084"
+          )
+          api_token = os.environ.get("ARCHIVEMATICA_DATAVERSE4_API_TOKEN", "")
+          if not api_token:
+              print("ARCHIVEMATICA_DATAVERSE4_API_TOKEN is not set.", file=sys.stderr)
+              return 1
+          pipelines = list(Pipeline.objects.all())
+          if not pipelines:
+              print(
+                  "No pipeline is registered yet. Bootstrap the environment first.",
+                  file=sys.stderr,
+              )
+              return 1
+
+          with transaction.atomic():
+              try:
+                  dataverse = Dataverse.objects.get(host=url)
+              except Dataverse.DoesNotExist:
+                  space = Space.objects.create(
+                      access_protocol=Space.DATAVERSE, path="", staging_path=STAGING_PATH
+                  )
+                  dataverse = Dataverse.objects.create(
+                      space=space,
+                      host=url,
+                      api_key=api_token,
+                      agent_name=AGENT_NAME,
+                      agent_type=AGENT_TYPE,
+                      agent_identifier=url,
+                  )
+                  action = "Created"
+              else:
+                  dataverse.api_key = api_token
+                  dataverse.agent_name = AGENT_NAME
+                  dataverse.agent_type = AGENT_TYPE
+                  dataverse.agent_identifier = url
+                  dataverse.save()
+                  action = "Updated"
+              location, _ = Location.objects.get_or_create(
+                  space=dataverse.space,
+                  purpose=Location.TRANSFER_SOURCE,
+                  defaults={
+                      "relative_path": RELATIVE_PATH,
+                      "description": DESCRIPTION,
+                      "enabled": True,
+                  },
+              )
+              location.pipeline.set(pipelines)
+
+          print(f"{action} the Dataverse space {dataverse.space.uuid} for {url}.")
+          print(f"Transfer source location: {location.uuid}")
+          return 0
+
+
+      if __name__ == "__main__":
+          sys.exit(main())
+
+  # Storage Service script that downloads the sample datasets as transfers.
+  dataverse4-export-sample-transfers:
+    content: |
+      #!/usr/bin/env python
+      """Export the sample datasets of the development Dataverse 4 as transfers.
+
+      Run it inside the Storage Service container of the Dataverse overlay:
+
+          docker compose -f docker-compose.yml -f docker-compose.dataverse-4.yml \\
+              exec archivematica-storage-service \\
+              python /etc/archivematica/dataverse4/export_sample_transfers.py
+
+      The dataset named by each manifest in datasets.json is fetched through the
+      Dataverse space of the Storage Service, exactly as a transfer receives it,
+      into the staging directory below. The script prints the exported directory
+      names, one per line, for the commands in docker-compose.dataverse-4.yml that
+      copy them into the sampledata checkout.
+      """
+
+      import json
+      import os
+      import pathlib
+      import shutil
+      import sys
+
+      import django
+
+      django.setup()
+
+      from archivematica.storage_service.locations.models import Dataverse
+
+      DATASETS_FILE = pathlib.Path(__file__).resolve().parent / "datasets.json"
+      EXPORT_DIR = pathlib.Path(
+          "/var/archivematica/storage_service/dataverse4-sample-transfers"
+      )
+
+
+      def dataset_directories() -> dict[str, str]:
+          """Map the title of each dataset of the manifests to its directory."""
+          directories: dict[str, str] = {}
+          for manifest in json.loads(DATASETS_FILE.read_text()):
+              fields = manifest["dataset"]["datasetVersion"]["metadataBlocks"][
+                  "citation"
+              ]["fields"]
+              titles = [field["value"] for field in fields if field["typeName"] == "title"]
+              if not titles:
+                  raise ValueError(f"{manifest['directory']} has no title field")
+              directories[str(titles[0])] = str(manifest["directory"])
+          return directories
+
+
+      def main() -> int:
+          url = os.environ.get(
+              "ARCHIVEMATICA_DATAVERSE4_URL", "http://dataverse4.localhost:62084"
+          )
+          try:
+              dataverse = Dataverse.objects.get(host=url)
+          except Dataverse.DoesNotExist:
+              print(
+                  f"No Dataverse space uses {url}. Run register_transfer_source.py first.",
+                  file=sys.stderr,
+              )
+              return 1
+          directories = dataset_directories()
+
+          listing = dataverse.browse("Query: *")
+          exported: set[str] = set()
+          for entity_id, properties in listing["properties"].items():
+              directory = directories.get(properties["verbose name"])
+              if directory is None:
+                  continue
+              destination = EXPORT_DIR / directory
+              shutil.rmtree(destination, ignore_errors=True)
+              dataverse.move_to_storage_service(entity_id, str(destination), dataverse.space)
+              exported.add(directory)
+              print(directory)
+
+          missing = sorted(set(directories.values()) - exported)
+          if missing:
+              print(f"Datasets not found in Dataverse: {', '.join(missing)}", file=sys.stderr)
+              return 1
+          return 0
+
+
+      if __name__ == "__main__":
+          sys.exit(main())
