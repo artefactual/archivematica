@@ -85,6 +85,43 @@ def get_db_objects(job, mets, transfer_uuid):
             logger.info(
                 "Multiple entries for `%s` found. Exception: %s", entry.path, err
             )
+        # After extraction, bundle files are recorded in the database
+        # under the .zip package path instead of the directory path in
+        # METS. Try looking up the file using the .zip-based path.
+        if file_entry is None:
+            parts = entry.path.split("/", 1)
+            if len(parts) == 2:
+                zip_path = os.path.join(
+                    transfer_objects_directory, parts[0] + ".zip", parts[1]
+                )
+                try:
+                    file_entry = File.objects.get(
+                        originallocation=zip_path.encode(),
+                        transfer_id=transfer_uuid,
+                    )
+                    logger.info(
+                        "Found file via .zip path: %s",
+                        file_entry.originallocation,
+                    )
+                except (File.DoesNotExist, ValidationError):
+                    logger.debug("Could not find file using .zip path: %s", zip_path)
+                except File.MultipleObjectsReturned as err:
+                    logger.info(
+                        "Multiple entries for `%s` found. Exception: %s",
+                        zip_path,
+                        err,
+                    )
+            if file_entry is not None and (
+                file_entry.currentlocation is None
+                and file_entry.removedtime is not None
+            ):
+                logger.info(
+                    "File: %s has been removed from the transfer, see "
+                    "previous microservice job outputs for details, e.g. "
+                    "Extract packages",
+                    file_entry.originallocation,
+                )
+                continue
         try:
             # Attempt to find the original location through just its filename
             # as it may be sitting in the root item/objects directory of the
