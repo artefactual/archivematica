@@ -53,6 +53,29 @@ def test_worker_metric_calls_are_queued(monkeypatch) -> None:
     ]
 
 
+def test_database_transaction_duration_is_queued_with_script_name(
+    monkeypatch,
+) -> None:
+    fake_queue = FakeQueue()
+    monkeypatch.setattr(metrics.settings, "PROMETHEUS_ENABLED", True)
+
+    metrics.configure_event_queue(fake_queue)
+    try:
+        with metrics.client_script_context("validatefile_v1.0"):
+            metrics.database_transaction_observed(1.5)
+    finally:
+        metrics.configure_event_queue(None)
+
+    assert fake_queue.items == [
+        metrics.MetricEvent(
+            "database_transaction_duration_histogram",
+            "observe",
+            (("script_name", "validatefile_v1.0"),),
+            1.5,
+        )
+    ]
+
+
 def test_worker_metric_queue_failures_are_logged_once(
     monkeypatch,
     caplog,
@@ -281,6 +304,7 @@ def test_registry_preserves_mcpclient_metric_contract(monkeypatch) -> None:
         "mcpclient_job_error_total": "counter",
         "mcpclient_job_error_timestamp": "gauge",
         "mcpclient_task_execution_time_seconds": "histogram",
+        "mcpclient_database_transaction_duration_seconds": "histogram",
         "mcpclient_transfer_started_total": "counter",
         "mcpclient_transfer_started_timestamp": "gauge",
         "mcpclient_transfer_completed_total": "counter",

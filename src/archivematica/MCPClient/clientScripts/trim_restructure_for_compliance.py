@@ -21,13 +21,12 @@ import django
 
 django.setup()
 
-from django.db import transaction
-
 from archivematica.archivematicaCommon import archivematicaFunctions
 from archivematica.archivematicaCommon import fileOperations
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     REQUIRED_DIRECTORIES,
 )
+from archivematica.MCPClient.client import transactions
 
 
 def restructureTRIMForComplianceFileUUIDsAssigned(
@@ -113,7 +112,7 @@ def restructureTRIMForComplianceFileUUIDsAssigned(
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 transferUUID = job.args[1]

@@ -2,11 +2,19 @@ import pathlib
 from unittest import mock
 
 import pytest
+from django.db import connection
 
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import identify_file_format
+
+
+@pytest.fixture(autouse=True)
+def mock_close_old_connections(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+    result = mock.Mock()
+    monkeypatch.setattr(identify_file_format, "close_old_connections", result)
+    return result
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -41,6 +49,46 @@ def job(sip_file: models.File, sip_file_path: pathlib.Path) -> mock.Mock:
         JobContext=mock.MagicMock(),
         spec=Job,
     )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_identification_limits_transaction_to_database_persistence(
+    job: mock.Mock,
+    format_version: fprmodels.FormatVersion,
+    idcommand: fprmodels.IDCommand,
+    mock_close_old_connections: mock.Mock,
+) -> None:
+    del idcommand
+    command_output = "fmt/111"
+    format_version.pronom_id = command_output
+    format_version.save()
+
+    def execute_rule(*args: object, **kwargs: object) -> tuple[int, str, str]:
+        assert connection.in_atomic_block is False
+        return 0, command_output, ""
+
+    def assert_in_transaction(*args: object, **kwargs: object) -> None:
+        assert connection.in_atomic_block is True
+
+    with (
+        mock.patch.object(
+            identify_file_format, "executeOrRun", side_effect=execute_rule
+        ),
+        mock.patch.object(
+            identify_file_format,
+            "write_identification_event",
+            side_effect=assert_in_transaction,
+        ),
+        mock.patch.object(
+            identify_file_format,
+            "write_file_id",
+            side_effect=assert_in_transaction,
+        ),
+    ):
+        identify_file_format.call([job])
+
+    mock_close_old_connections.assert_called_once_with()
+    job.set_status.assert_called_once_with(identify_file_format.SUCCESS)
 
 
 @pytest.mark.django_db

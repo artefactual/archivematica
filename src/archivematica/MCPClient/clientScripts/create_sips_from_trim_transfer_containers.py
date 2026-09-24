@@ -21,7 +21,8 @@ import sys
 import uuid
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -31,7 +32,7 @@ from archivematica.dashboard.main.models import File
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 objectsDirectory = job.args[1]

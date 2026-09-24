@@ -12,7 +12,6 @@ django.setup()
 
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 
@@ -24,6 +23,7 @@ from archivematica.dashboard.fpr.models import FPRule
 from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FileFormatVersion
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
@@ -210,7 +210,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> TranscribeFileArgs:
 def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 try:

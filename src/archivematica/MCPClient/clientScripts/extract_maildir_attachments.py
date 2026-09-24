@@ -26,12 +26,12 @@ from lxml import etree
 
 django.setup()
 from django.core.exceptions import ValidationError
-from django.db import transaction
 
 from archivematica.archivematicaCommon.externals.extractMaildirAttachments import parse
 from archivematica.archivematicaCommon.fileOperations import addFileToTransfer
 from archivematica.archivematicaCommon.fileOperations import updateSizeAndChecksum
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 
 
 class State:
@@ -267,7 +267,7 @@ def handle_job(job):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 handle_job(job)

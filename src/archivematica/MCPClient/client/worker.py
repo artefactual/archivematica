@@ -19,7 +19,8 @@ def run_task(task_name: str, job_module: ModuleType | None, jobs: list[Job]) -> 
             raise RuntimeError(
                 f"Cannot process task '{task_name}': no job module is registered for this task."
             )
-        job_module.call(jobs)
+        with metrics.client_script_context(task_name):
+            job_module.call(jobs)
     except Exception as err:
         logger.exception("*** TASK FAILED: %s***", task_name)
         Job.bulk_mark_failed(jobs, str(err))

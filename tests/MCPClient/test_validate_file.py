@@ -6,11 +6,20 @@ from unittest import mock
 
 import pytest
 import pytest_django
+from django.db import connection
 
+from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import validate_file
+
+
+@pytest.fixture(autouse=True)
+def mock_close_old_connections(monkeypatch: pytest.MonkeyPatch) -> mock.Mock:
+    result = mock.Mock()
+    monkeypatch.setattr(validate_file, "close_old_connections", result)
+    return result
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -63,6 +72,60 @@ def preservation_derivation(
             file_uuid=preservation_file, event_type="normalization"
         ),
     )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_validation_limits_transaction_to_event_write(
+    sip: models.SIP,
+    sip_file: models.File,
+    sip_file_format_version: models.FileFormatVersion,
+    fprule_validation: fprmodels.FPRule,
+    settings: pytest_django.Settings,
+    mock_close_old_connections: mock.Mock,
+) -> None:
+    del sip_file_format_version, fprule_validation
+    job = mock.Mock(
+        args=[
+            "archivematica.MCPClient.clientScripts.validate_file.py",
+            _decode_binary_path(sip_file.currentlocation),
+            str(sip_file.uuid),
+            str(sip.uuid),
+            str(settings.SHARED_DIRECTORY),
+            sip_file.filegrpuse,
+        ],
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+
+    def execute_rule(*args: object, **kwargs: object) -> tuple[int, str, str]:
+        assert connection.in_atomic_block is False
+        return (
+            0,
+            json.dumps(
+                {
+                    "eventOutcomeInformation": "pass",
+                    "eventOutcomeDetailNote": "a note",
+                }
+            ),
+            "",
+        )
+
+    def insert_event(*args: object, **kwargs: object) -> mock.Mock:
+        assert connection.in_atomic_block is True
+        return mock.Mock()
+
+    with (
+        mock.patch.object(validate_file, "executeOrRun", side_effect=execute_rule),
+        mock.patch.object(
+            databaseFunctions,
+            "insertIntoEvents",
+            side_effect=insert_event,
+        ),
+    ):
+        validate_file.call([job])
+
+    mock_close_old_connections.assert_called_once_with()
+    job.set_status.assert_called_once_with(validate_file.SUCCESS_CODE)
 
 
 @pytest.mark.django_db

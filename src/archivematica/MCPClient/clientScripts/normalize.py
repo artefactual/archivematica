@@ -19,7 +19,6 @@ from archivematica.MCPClient.clientScripts import transcoder
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
-from django.db import transaction
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.archivematicaCommon import fileOperations
@@ -29,6 +28,7 @@ from archivematica.dashboard.main.models import Derivation
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import FileFormatVersion
 from archivematica.dashboard.main.models import FileID
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.lib import setup_dicts
 
@@ -629,7 +629,7 @@ def parse_args(parser: argparse.ArgumentParser, job: Job) -> NormalizeArgs:
 def call(jobs: list[Job]) -> None:
     parser = get_parser()
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 opts = parse_args(parser, job)

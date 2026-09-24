@@ -20,12 +20,11 @@ import django
 
 django.setup()
 
-from django.db import transaction
-
 import archivematica.archivematicaCommon.storageService as storage_service
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.client import metrics
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 
 REJECTED = "reject"
@@ -92,7 +91,7 @@ def call(jobs: Sequence[Job]) -> None:
     parser.add_argument("transfer_path", help="%%SIPDirectory%%")
     parser.add_argument("--allow-missing-path", action="store_true")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 args = parser.parse_args(job.args[1:])

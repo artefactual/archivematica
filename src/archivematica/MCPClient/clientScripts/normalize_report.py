@@ -8,7 +8,6 @@ from django.conf import settings as mcpclient_settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.db import transaction
 from django.template import Context
 from django.template import Template
 
@@ -19,6 +18,7 @@ from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Job
 from archivematica.dashboard.main.models import Report
 from archivematica.dashboard.main.models import Task
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -199,7 +199,7 @@ def call(jobs):
     parser.add_argument("--uuid", required=True)
     parser.add_argument("--debug", action="store_true", default=False)
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

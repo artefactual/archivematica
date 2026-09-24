@@ -28,8 +28,6 @@ from dateutil.relativedelta import relativedelta
 from lxml import etree as etree
 
 django.setup()
-from django.db import transaction
-
 from archivematica.archivematicaCommon.fileOperations import getFileUUIDLike
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import (
@@ -39,6 +37,7 @@ from archivematica.dashboard.main.models import RightsStatementOtherRightsInform
 from archivematica.dashboard.main.models import RightsStatementRightsGranted
 from archivematica.dashboard.main.models import RightsStatementRightsGrantedNote
 from archivematica.dashboard.main.models import RightsStatementRightsGrantedRestriction
+from archivematica.MCPClient.client import transactions
 
 
 def callWithException(exception):
@@ -83,7 +82,7 @@ def getDateTimeFromDateClosed(job, dateClosed):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 # job.args[2] (transferName) is unused.

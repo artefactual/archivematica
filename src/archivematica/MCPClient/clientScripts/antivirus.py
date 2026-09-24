@@ -36,6 +36,7 @@ from archivematica.archivematicaCommon.databaseFunctions import EventInput
 from archivematica.archivematicaCommon.databaseFunctions import insert_events
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
+from archivematica.MCPClient.client import transactions
 from archivematica.MCPClient.client.job import Job
 
 logger = get_script_logger("archivematica.mcp.client.clamscan")
@@ -292,4 +293,5 @@ def call(jobs: list[Job]) -> None:
                 )
             )
 
-    insert_events(event_queue)
+    with transactions.atomic():
+        insert_events(event_queue)

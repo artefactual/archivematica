@@ -20,7 +20,8 @@ import os
 import uuid
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -238,7 +239,7 @@ def call(jobs):
 
             job.set_status(0)
 
-    with transaction.atomic():
+    with transactions.atomic():
         for file_uuid, file_info, args in state:
             file_path = file_info.pop("filePath")
             derivation = file_info.pop("derivation", None)

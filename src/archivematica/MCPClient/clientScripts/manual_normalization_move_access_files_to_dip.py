@@ -19,7 +19,8 @@ import os
 from optparse import OptionParser
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -145,7 +146,7 @@ def main(job):
 
 
 def call(jobs):
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 try:

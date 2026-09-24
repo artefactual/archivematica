@@ -20,7 +20,8 @@ import re
 from optparse import OptionParser
 
 import django
-from django.db import transaction
+
+from archivematica.MCPClient.client import transactions
 
 django.setup()
 
@@ -122,7 +123,7 @@ def call(jobs):
     )
     parser.add_option("-t", "--date", action="store", dest="date", default="")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext():
                 (opts, args) = parser.parse_args(job.args[1:])

@@ -36,7 +36,6 @@ import django
 django.setup()
 
 from django.core.exceptions import ValidationError
-from django.db import transaction
 
 from archivematica.archivematicaCommon.archivematicaFunctions import format_subdir_path
 from archivematica.archivematicaCommon.archivematicaFunctions import get_dir_uuids
@@ -44,6 +43,7 @@ from archivematica.archivematicaCommon.archivematicaFunctions import str2bool
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Transfer
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.assignUUIDsToDirectories")
 
@@ -143,7 +143,7 @@ def call(jobs):
         default="No",
     )
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])

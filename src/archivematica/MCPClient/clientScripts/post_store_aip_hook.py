@@ -10,7 +10,6 @@ import requests
 django.setup()
 from django.conf import settings as mcpclient_settings
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from django.db.models import Q
 
 from archivematica.archivematicaCommon import storageService as storage_service
@@ -19,6 +18,7 @@ from archivematica.archivematicaCommon.archivematicaFunctions import (
 )
 from archivematica.archivematicaCommon.custom_handlers import get_script_logger
 from archivematica.dashboard.main import models
+from archivematica.MCPClient.client import transactions
 
 logger = get_script_logger("archivematica.mcp.client.post_store_aip_hook")
 
@@ -206,7 +206,7 @@ def call(jobs):
     parser = argparse.ArgumentParser()
     parser.add_argument("sip_uuid", help="%%SIPUUID%%")
 
-    with transaction.atomic():
+    with transactions.atomic():
         for job in jobs:
             with job.JobContext(logger=logger):
                 args = parser.parse_args(job.args[1:])
