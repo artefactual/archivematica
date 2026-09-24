@@ -1,0 +1,270 @@
+---
+# Azure authentication
+# ====================
+#
+# Use this overlay to start entra-local (https://github.com/cmaneu/entra-local),
+# an emulator of Microsoft Entra ID (Azure AD), and enable OpenID Connect
+# authentication against it in the Dashboard and the Storage Service. The base
+# development environment must be installed and bootstrapped first as described
+# in the Installation section of the README:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.azure.yml up -d
+#
+# This is the emulator, app registration, token claims and user that the
+# authentication integration tests of both applications use (see
+# tests/integration/docker-compose.yml in each repository). Those tests set
+# AZURE_TENANT_ID, which derives the provider endpoints from
+# https://login.microsoftonline.com, and give the emulator that hostname as a
+# network alias with a self-signed certificate. A host browser cannot be
+# pointed at the emulator that way without hijacking the real hostname, so
+# this overlay sets the same endpoints explicitly through the OIDC_OP_*
+# variables, on the entra.localhost hostname and over plain HTTP. Everything
+# else is the same: the authorization, token and JWKS endpoints have the Azure
+# layout, the ID token is signed with RS256 and verified against the JWKS
+# endpoint, the username is the email address of the ID token and the first
+# and last names come from the given_name and family_name claims of the
+# access token. Both applications share the app registration
+# cccccccc-0000-0000-0000-000000000002, the only one of the emulator with a
+# known client secret.
+#
+# The Dashboard and the Storage Service request the openid and email scopes
+# only, so Microsoft Entra ID issues their access token for Microsoft Graph: a
+# v1.0 token that carries given_name, family_name and upn as basic claims
+# without the profile scope, although Microsoft treats the contents of Graph
+# tokens as opaque to clients. entra-local only mints v2.0 tokens, so the setup
+# service configures those claims on the registration, which GRAPH_RESOURCE_ID
+# names as the Graph resource (see the configs section at the end).
+#
+# This overlay is intended for local testing and demonstrations only: it uses
+# unencrypted HTTP, known passwords and a known client secret, and the admin
+# portal and API of the emulator at http://entra.localhost:62088 require no
+# authentication. The following users can log in with the "Log in with OpenID
+# Connect" links of the Dashboard (http://127.0.0.1:62080) and the Storage
+# Service (http://127.0.0.1:62081):
+#
+#   Username               Password     Name
+#   demo@example.com       demo         Demo User
+#   alice@entralocal.dev   Password1!   Alice Example
+#   bob@entralocal.dev     Password1!   Bob Example
+#
+# The Azure configuration of Archivematica does not map roles from the tokens:
+# the Microsoft Graph access token carries no group or role claims. Every login
+# therefore gets the regular Dashboard role and the Storage Service reader
+# role, and user editing is disabled in both applications while OIDC is
+# enabled. Promote an account from a Django shell if needed, for example:
+#
+#   make manage-dashboard ARG="shell -c \"from django.contrib.auth.models import User; User.objects.filter(email='demo@example.com').update(is_superuser=True)\""
+#
+# Logging out of either application ends its own session only, as with the
+# Azure settings, which define no logout endpoint: the next login is automatic
+# until the emulator session ends. To switch users, sign out of the emulator at
+# http://entra.localhost:62088/11111111-1111-1111-1111-111111111111/oauth2/v2.0/logout
+# or use a private browsing window.
+#
+# The emulator keeps its database, with the registration, the users and the
+# token signing key, in the entra_local_data volume, so they survive restarts
+# of the environment. The entra-local-setup service registers the redirect
+# URIs of both applications and creates the demo user through the admin API,
+# skipping the records that exist already, so it can run again after the
+# emulator is reset from its portal:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.azure.yml up entra-local-setup
+#
+# The Dashboard, the Storage Service and the browser all reach the emulator as
+# entra.localhost:62088. The hostname must resolve to the local host in the
+# browser, which is the standard behaviour for *.localhost names in modern
+# browsers and Linux distributions, and the overlay also sets it as a Docker
+# network alias so the containers can use the same URLs. If entra.localhost
+# does not resolve on your host, add the following entry to /etc/hosts:
+#
+#   127.0.0.1 entra.localhost
+#
+# Layout of this file
+# -------------------
+#
+# Everything the overlay needs is in this file. The health check and setup
+# scripts are Compose configs with inline content, listed in the configs
+# section at the end, that Compose copies into the containers each time `up`
+# or `run` starts them; a container that keeps running, or is merely
+# restarted, keeps the copy it started with. Compose interpolates ${VARIABLE}
+# references in every value of the file, inline content included, so the
+# scripts avoid the $ character.
+
+x-oidc-client-environment: &oidc-client-environment
+  # The seeded confidential app of entra-local is the only registration with
+  # a known client secret, so both applications use it (see the
+  # entra-local-setup config).
+  OIDC_RP_CLIENT_ID: "cccccccc-0000-0000-0000-000000000002"
+  OIDC_RP_CLIENT_SECRET: "daemon-app-secret"
+  # The endpoints AZURE_TENANT_ID would derive, on the emulator hostname.
+  OIDC_OP_AUTHORIZATION_ENDPOINT: "http://entra.localhost:62088/11111111-1111-1111-1111-111111111111/oauth2/v2.0/authorize"
+  OIDC_OP_TOKEN_ENDPOINT: "http://entra.localhost:62088/11111111-1111-1111-1111-111111111111/oauth2/v2.0/token"
+  OIDC_OP_USER_ENDPOINT: "http://entra.localhost:62088/graph/oidc/userinfo"
+  OIDC_OP_JWKS_ENDPOINT: "http://entra.localhost:62088/11111111-1111-1111-1111-111111111111/discovery/v2.0/keys"
+  OIDC_RP_SIGN_ALGO: "RS256"
+  OIDC_USE_PKCE: "true"
+  OIDC_PKCE_CODE_CHALLENGE_METHOD: "S256"
+
+services:
+
+  archivematica-dashboard:
+    environment:
+      <<: *oidc-client-environment
+      # Archivematica Dashboard qa/1.x OIDC switch.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTHENTICATION: "true"
+      # The callback from the emulator is a cross-site request.
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SAMESITE: "Lax"
+    depends_on:
+      entra-local:
+        condition: service_healthy
+      entra-local-setup:
+        condition: service_completed_successfully
+
+  archivematica-storage-service:
+    environment:
+      <<: *oidc-client-environment
+      # Archivematica Storage Service qa/0.x OIDC switch.
+      SS_OIDC_AUTHENTICATION: "true"
+      # The callback from the emulator is a cross-site request.
+      SESSION_COOKIE_SAMESITE: "Lax"
+    depends_on:
+      entra-local:
+        condition: service_healthy
+      entra-local-setup:
+        condition: service_completed_successfully
+
+  entra-local:
+    image: "ghcr.io/cmaneu/entra-local:0.1.1@sha256:70584ef110914d100409cb3d63a63548ccdde10ca780f9751755f1482dec5d7e"
+    environment:
+      PORT: "62088"
+      TENANT_ID: "11111111-1111-1111-1111-111111111111"
+      TLS_ENABLED: "false"
+      PUBLIC_ORIGIN: "http://entra.localhost:62088"
+      # entra-local adds the access-token claims configured on the app whose
+      # id is the audience of the token. An OpenID Connect sign-in requests
+      # no API scope, so the audience is the Graph resource: naming the
+      # Archivematica registration here makes its access tokens carry the
+      # name claims of a Microsoft Graph token (see the entra-local-setup
+      # config).
+      GRAPH_RESOURCE_ID: "cccccccc-0000-0000-0000-000000000002"
+      # Show the username and password form instead of the account picker.
+      REQUIRE_PASSWORD: "true"
+    ports:
+      - "127.0.0.1:62088:62088"
+    networks:
+      default:
+        aliases:
+          # This makes the OIDC_OP_* URLs resolvable from the Dashboard and
+          # Storage Service containers. The same hostname is also used by the
+          # host browser, so no /etc/hosts entry is needed.
+          - entra.localhost
+    volumes:
+      - "entra_local_data:/app/data"
+    configs:
+      - source: entra-local-healthcheck
+        target: /usr/local/bin/entra-local-healthcheck.js
+    healthcheck:
+      # The image health check probes HTTPS, which TLS_ENABLED disables.
+      test: ["CMD", "node", "/usr/local/bin/entra-local-healthcheck.js"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  entra-local-setup:
+    # One-shot service: registers the applications and the demo user through
+    # the admin API of entra-local (see the entra-local-setup config).
+    image: "ghcr.io/cmaneu/entra-local:0.1.1@sha256:70584ef110914d100409cb3d63a63548ccdde10ca780f9751755f1482dec5d7e"
+    command: ["node", "/usr/local/bin/entra-local-setup.mjs"]
+    environment:
+      ENTRA_LOCAL_ORIGIN: "http://entra.localhost:62088"
+      ENTRA_LOCAL_APP_ID: "cccccccc-0000-0000-0000-000000000002"
+      # The redirect URIs must match the ones the applications build from the
+      # address the browser uses, so both published hostnames are registered.
+      ENTRA_LOCAL_REDIRECT_URIS: >-
+        http://127.0.0.1:62080/oidc/callback/,
+        http://localhost:62080/oidc/callback/,
+        http://127.0.0.1:62081/oidc/callback/,
+        http://localhost:62081/oidc/callback/
+    configs:
+      - source: entra-local-setup
+        target: /usr/local/bin/entra-local-setup.mjs
+    depends_on:
+      entra-local:
+        condition: service_healthy
+
+volumes:
+  entra_local_data:
+
+configs:
+
+  entra-local-healthcheck:
+    # The entra-local image ships no curl or wget, so probe the health
+    # endpoint with Node.js.
+    content: |
+      const http = require("node:http");
+      const request = http.get(
+        { host: "127.0.0.1", port: process.env.PORT, path: "/health", timeout: 4000 },
+        (response) => process.exit(response.statusCode === 200 ? 0 : 1),
+      );
+      request.on("error", () => process.exit(1));
+      request.on("timeout", () => process.exit(1));
+
+  entra-local-setup:
+    # Registers the applications and the demo user in entra-local through its
+    # admin API. The origin, the app registration and the redirect URIs come
+    # from the environment of the entra-local-setup service. Existing records
+    # answer 409, so the script can run again on the persisted data volume.
+    content: |
+      const origin = process.env.ENTRA_LOCAL_ORIGIN;
+      const appId = process.env.ENTRA_LOCAL_APP_ID;
+      const redirectUris = process.env.ENTRA_LOCAL_REDIRECT_URIS.split(",")
+        .map((uri) => uri.trim())
+        .filter((uri) => uri.length > 0);
+
+      async function call(method, path, body) {
+        const response = await fetch(origin + "/admin/api" + path, {
+          method,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const text = await response.text();
+        if (!response.ok && response.status !== 409) {
+          throw new Error(method + " " + path + " failed: " + response.status + " " + text);
+        }
+        console.log(method, path, response.status);
+      }
+
+      // The seeded confidential app is the only registration with a known
+      // client secret (the admin API generates the secrets it creates), so it
+      // becomes the Archivematica registration.
+      //
+      // Archivematica maps the given_name and family_name claims of the
+      // access token to the first and last names of the user. It requests the
+      // openid and email scopes only, so Microsoft Entra ID issues the access
+      // token for Microsoft Graph: a v1.0 token that carries given_name,
+      // family_name and upn as basic claims, when the user has them, without
+      // the profile scope (v2.0 tokens need the profile scope and optional
+      // claims for them). Microsoft treats the contents of Graph tokens as
+      // opaque to clients, so that is an assumption Archivematica makes.
+      // entra-local only mints v2.0 tokens: configuring the claims on the
+      // registration that GRAPH_RESOURCE_ID names as the Graph resource
+      // reproduces the claim set of the v1.0 token.
+      await call("PATCH", "/apps/" + appId, {
+        displayName: "Archivematica",
+        optionalClaims: {
+          idToken: [],
+          accessToken: [{ name: "given_name" }, { name: "family_name" }, { name: "upn" }],
+        },
+      });
+      for (const uri of redirectUris) {
+        await call("POST", "/apps/" + appId + "/redirectUris", { uri, type: "web" });
+      }
+      await call("POST", "/users", {
+        userPrincipalName: "demo@example.com",
+        displayName: "Demo User",
+        givenName: "Demo",
+        surname: "User",
+        mail: "demo@example.com",
+        password: "demo",
+      });
