@@ -8,8 +8,12 @@ from unittest import mock
 
 import pytest
 import pytest_django
+from django.db import transaction
 
+from archivematica.archivematicaCommon import fileOperations
+from archivematica.archivematicaCommon.dicts import ReplacementDict
 from archivematica.dashboard.fpr import models as fprmodels
+from archivematica.dashboard.fpr.counters import DeferredFPRuleCounter
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import normalize
@@ -19,6 +23,73 @@ def _decode_binary_path(value: bytes | memoryview | None) -> str:
     assert isinstance(value, bytes)
 
     return value.decode()
+
+
+def _run_normalize_main(job: Job, opts: normalize.NormalizeArgs) -> int:
+    counter = DeferredFPRuleCounter()
+    result = normalize.main(job, opts, counter)
+    counter.flush()
+
+    return result
+
+
+@pytest.mark.django_db
+def test_normalization_command_string_matches_legacy_output(
+    fpcommand: fprmodels.FPCommand,
+    fptool: fprmodels.FPTool,
+) -> None:
+    verification_command = fprmodels.FPCommand.objects.create(
+        command="verify", script_type="bashScript", tool=fptool
+    )
+    fpcommand.command = "normalize"
+    fpcommand.script_type = "bashScript"
+    fpcommand.verification_command = verification_command
+
+    executor = normalize.NormalizationCommandExecutor(
+        mock.Mock(spec=Job), fpcommand, ReplacementDict()
+    )
+
+    assert str(executor) == (
+        f"[COMMAND] {fpcommand}\n"
+        "\tExecuting: normalize\n"
+        f"\tCommand: {executor.verification_command}\n"
+        "\tOutput location: None\n"
+    )
+
+
+@pytest.mark.django_db
+def test_once_normalized_validates_output_format_before_database_writes(
+    tmp_path: pathlib.Path,
+    fpcommand: fprmodels.FPCommand,
+) -> None:
+    output_path = tmp_path / "normalized.tif"
+    output_path.write_bytes(b"normalized file")
+    executor = mock.Mock(
+        output_location=str(output_path),
+        fpcommand=fpcommand,
+        event_detail_command=None,
+        spec=normalize.NormalizationCommandExecutor,
+    )
+
+    with (
+        mock.patch.object(fileOperations, "addFileToSIP") as add_file,
+        mock.patch.object(fileOperations, "updateSizeAndChecksum") as update_checksum,
+        mock.patch.object(normalize, "insert_derivation_event") as insert_derivation,
+        pytest.raises(
+            ValueError,
+            match=f"Normalization command {fpcommand.uuid} has no output format",
+        ),
+    ):
+        normalize.once_normalized(
+            mock.Mock(spec=Job),
+            executor,
+            mock.Mock(spec=normalize.NormalizeArgs),
+            ReplacementDict(),
+        )
+
+    add_file.assert_not_called()
+    update_checksum.assert_not_called()
+    insert_derivation.assert_not_called()
 
 
 @pytest.mark.django_db
@@ -51,7 +122,7 @@ def test_normalization_fails_if_original_file_does_not_exist() -> None:
     job = mock.Mock(spec=Job)
     opts = mock.Mock(file_uuid=file_uuid)
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.NO_RULE_FOUND
     job.print_error.assert_called_once_with(
@@ -73,7 +144,7 @@ def test_normalization_skips_submission_documentation_file_if_group_use_does_not
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
@@ -99,7 +170,7 @@ def test_normalization_skips_file_if_group_use_does_not_match(
         normalize_file_grp_use="access",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
@@ -188,7 +259,7 @@ def test_manual_normalization_creates_event_and_derivation(
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     assert job.print_output.mock_calls == [
@@ -262,7 +333,7 @@ def test_manual_normalization_fails_with_invalid_normalization_csv(
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.NO_RULE_FOUND
     assert job.print_error.mock_calls == [
@@ -311,7 +382,7 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     assert job.print_error.mock_calls == []
@@ -366,7 +437,7 @@ def test_manual_normalization_matches_from_multiple_filenames(
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     assert job.print_error.mock_calls == []
@@ -402,7 +473,7 @@ def default_preservation_rule(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.CommandLinker",
+    "archivematica.MCPClient.clientScripts.normalize.NormalizationCommandExecutor",
     return_value=mock.Mock(**{"execute.return_value": 0}),
 )
 def test_normalization_falls_back_to_default_rule(
@@ -432,7 +503,7 @@ def test_normalization_falls_back_to_default_rule(
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     command_linker.assert_called_once()
@@ -464,7 +535,7 @@ def test_normalization_falls_back_to_default_rule(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.CommandLinker",
+    "archivematica.MCPClient.clientScripts.normalize.NormalizationCommandExecutor",
     return_value=mock.Mock(**{"execute.return_value": 0}),
 )
 def test_normalization_finds_rule_by_file_format_version(
@@ -496,7 +567,7 @@ def test_normalization_finds_rule_by_file_format_version(
         normalize_file_grp_use="original",
     )
 
-    result = normalize.main(job, opts)
+    result = _run_normalize_main(job, opts)
 
     assert result == normalize.SUCCESS
     command_linker.assert_called_once()
@@ -523,7 +594,7 @@ def test_normalization_finds_rule_by_file_format_version(
 @pytest.mark.django_db
 @mock.patch("os.makedirs", side_effect=OSError("error!"))
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.CommandLinker",
+    "archivematica.MCPClient.clientScripts.normalize.NormalizationCommandExecutor",
     return_value=mock.Mock(**{"execute.return_value": 0}),
 )
 def test_normalization_fails_if_thumbnail_directory_cannot_be_created(
@@ -580,7 +651,7 @@ def fprule_thumbnail(fprule_thumbnail: fprmodels.FPRule) -> fprmodels.FPRule:
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.MCPClient.clientScripts.transcoder.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.normalize.executeOrRun")
 def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -675,6 +746,180 @@ def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory
     assert updated_fprule_thumbnail.count_not_okay == 0
 
 
+@pytest.mark.django_db
+@mock.patch("archivematica.MCPClient.clientScripts.normalize.executeOrRun")
+def test_normalization_aggregates_fprule_counts_across_jobs(
+    execute_or_run: mock.Mock,
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    task: models.Task,
+    sip_file_format_version: models.FileFormatVersion,
+    fprule_thumbnail: fprmodels.FPRule,
+    fpcommand_thumbnail: fprmodels.FPCommand,
+    settings: pytest_django.fixtures.SettingsWrapper,
+) -> None:
+    assert fpcommand_thumbnail.output_location is not None
+    expected_thumbnail_suffix = pathlib.Path(fpcommand_thumbnail.output_location).suffix
+    second_sip_file = models.File.objects.create(
+        transfer=sip_file.transfer,
+        sip=sip,
+        filegrpuse="original",
+        originallocation=b"%transferDirectory%objects/file2.mp3",
+        currentlocation=b"%SIPDirectory%objects/file2.mp3",
+    )
+    models.FileFormatVersion.objects.create(
+        file_uuid=second_sip_file,
+        format_version=sip_file_format_version.format_version,
+    )
+
+    def execute_or_run_side_effect(
+        type: str,
+        text: str,
+        stdIn: str = "",
+        printing: bool = True,
+        arguments: Optional[Sequence[str]] = None,
+        env_updates: Optional[Mapping[str, str]] = None,
+        capture_output: bool = True,
+    ) -> tuple[int, str, str]:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--output-directory", required=True)
+        parser.add_argument("--postfix", required=True)
+        args, _ = parser.parse_known_args(arguments)
+
+        thumbnail_path = pathlib.Path(args.output_directory, args.postfix).with_suffix(
+            expected_thumbnail_suffix
+        )
+        thumbnail_path.parent.mkdir(parents=True, exist_ok=True)
+        thumbnail_path.write_bytes(b"thumbnail image content")
+
+        return (0, "success!", "")
+
+    execute_or_run.side_effect = execute_or_run_side_effect
+
+    def normalize_args(file_: models.File, task_uuid: uuid.UUID) -> list[str]:
+        return [
+            "normalize.py",
+            "thumbnail",
+            str(file_.uuid),
+            "file_path_not_used",
+            str(sip_directory_path),
+            str(sip.uuid),
+            str(task_uuid),
+            "original",
+            "--thumbnail_mode=generate",
+        ]
+
+    job1 = mock.Mock(
+        args=normalize_args(sip_file, task.taskuuid),
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+    job2 = mock.Mock(
+        args=normalize_args(second_sip_file, uuid.uuid4()),
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+
+    normalize.call([job1, job2])
+
+    assert job1.print_error.mock_calls == []
+    assert job2.print_error.mock_calls == []
+    updated_fprule_thumbnail = fprmodels.FPRule.objects.get(uuid=fprule_thumbnail.uuid)
+    assert updated_fprule_thumbnail.count_attempts == 2
+    assert updated_fprule_thumbnail.count_okay == 2
+    assert updated_fprule_thumbnail.count_not_okay == 0
+    job1.set_status.assert_called_once_with(normalize.SUCCESS)
+    job2.set_status.assert_called_once_with(normalize.SUCCESS)
+
+
+@pytest.mark.django_db
+def test_normalization_keeps_execution_counts_when_batch_transaction_rolls_back(
+    fprule_thumbnail: fprmodels.FPRule,
+) -> None:
+    original_purpose = fprule_thumbnail.purpose
+    command_linker = mock.Mock()
+    command_linker.execute.return_value = normalize.SUCCESS
+    job = mock.Mock(
+        args=[
+            "normalize.py",
+            "thumbnail",
+            "file_uuid_not_used",
+            "file_path_not_used",
+            "sip_path_not_used",
+            "sip_uuid_not_used",
+            "task_uuid_not_used",
+            "original",
+        ],
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+
+    def run_and_roll_back(
+        job: Job,
+        opts: normalize.NormalizeArgs,
+        counter: DeferredFPRuleCounter,
+    ) -> int:
+        fprmodels.FPRule.objects.filter(pk=fprule_thumbnail.pk).update(purpose="access")
+        result = normalize.execute_rule_with_counter(
+            counter, fprule_thumbnail, command_linker
+        )
+        transaction.set_rollback(True)
+
+        return result
+
+    with mock.patch.object(normalize, "main", side_effect=run_and_roll_back):
+        normalize.call([job])
+
+    updated_rule = fprmodels.FPRule.objects.get(pk=fprule_thumbnail.pk)
+    assert updated_rule.purpose == original_purpose
+    assert updated_rule.count_attempts == 1
+    assert updated_rule.count_okay == 1
+    assert updated_rule.count_not_okay == 0
+    command_linker.execute.assert_called_once_with()
+    job.set_status.assert_called_once_with(normalize.SUCCESS)
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "archivematica.MCPClient.clientScripts.normalize.executeOrRun",
+    side_effect=RuntimeError("boom"),
+)
+def test_normalization_records_fprule_failure_when_command_raises(
+    execute_or_run: mock.Mock,
+    sip: models.SIP,
+    sip_directory_path: pathlib.Path,
+    sip_file: models.File,
+    task: models.Task,
+    sip_file_format_version: models.FileFormatVersion,
+    fprule_thumbnail: fprmodels.FPRule,
+    fpcommand_thumbnail: fprmodels.FPCommand,
+) -> None:
+    job = mock.Mock(
+        args=[
+            "normalize.py",
+            "thumbnail",
+            str(sip_file.uuid),
+            "file_path_not_used",
+            str(sip_directory_path),
+            str(sip.uuid),
+            str(task.taskuuid),
+            "original",
+            "--thumbnail_mode=generate",
+        ],
+        JobContext=mock.MagicMock(),
+        spec=Job,
+    )
+
+    normalize.call([job])
+
+    updated_fprule_thumbnail = fprmodels.FPRule.objects.get(uuid=fprule_thumbnail.uuid)
+    assert updated_fprule_thumbnail.count_attempts == 1
+    assert updated_fprule_thumbnail.count_okay == 0
+    assert updated_fprule_thumbnail.count_not_okay == 1
+    job.set_status.assert_called_once_with(1)
+
+
 FALLBACK_THUMBNAIL_COMMAND = "fallback"
 VERIFICATION_THUMBNAIL_COMMAND = "verification"
 EVENT_DETAIL_THUMBNAIL_COMMAND = "event detail"
@@ -707,7 +952,7 @@ def fprule_default_thumbnail(
 
 
 @pytest.mark.django_db
-@mock.patch("archivematica.MCPClient.clientScripts.transcoder.executeOrRun")
+@mock.patch("archivematica.MCPClient.clientScripts.normalize.executeOrRun")
 def test_normalization_fallbacks_to_default_thumbnail_rule_if_initial_command_fails(
     execute_or_run: mock.Mock,
     sip: models.SIP,
@@ -860,7 +1105,7 @@ def fpcommand_access(
 
 @pytest.mark.django_db
 @mock.patch(
-    "archivematica.MCPClient.clientScripts.transcoder.executeOrRun",
+    "archivematica.MCPClient.clientScripts.normalize.executeOrRun",
     return_value=(-1, "", "error!"),
 )
 def test_normalization_fails_if_fallback_default_rule_does_not_exist(
