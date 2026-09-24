@@ -11,12 +11,12 @@ while keeping the payload structure consistent across views.
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from collections.abc import Iterable
 from typing import Any
 from typing import TypedDict
 
 from django.http import HttpRequest
-from django.utils.text import Truncator
 
 PayloadRow = dict[str, Any]
 
@@ -134,31 +134,22 @@ def idcommand_list_payload(
 ) -> TablePayload:
     """Generate the list of identification commands used in format matching."""
 
-    is_superuser = request.user.is_superuser
     rows: list[PayloadRow] = []
     for command in idcommands:
+        command_type = command.script_type
+        if command.backend != command.Backend.LEGACY:
+            command_type = command.get_script_type_display()
         row: PayloadRow = {
             "id": str(command.uuid),
             "command": command.description,
-            "type": command.script_type,
+            "type": command_type,
             "tool": str(command.tool) if command.tool else "",
             "toolSlug": command.tool.slug if command.tool else None,
             "mode": command.config,
             "enabled": command.enabled,
             "actions": [_action("view", "default")],
         }
-        if is_superuser:
-            row["actions"].append(_action("replace", "default"))
-            row["actions"].append(
-                _action("disable" if command.enabled else "enable", "default")
-            )
         rows.append(row)
-
-    create: CreatePayload | None = None
-    if is_superuser:
-        create = {
-            "style": "primary",
-        }
 
     return _table_shell(
         "idcommand-list",
@@ -172,7 +163,7 @@ def idcommand_list_payload(
             {"key": "actions", "sortable": False},
         ],
         rows=rows,
-        create=create,
+        create=None,
     )
 
 
@@ -220,10 +211,13 @@ def fpcommand_list_payload(
     )
 
 
-def idtool_list_payload(request: HttpRequest, idtools: Iterable[Any]) -> TablePayload:
-    """Generate the list of identification tools available in the registry."""
+def idtool_list_payload(
+    request: HttpRequest,
+    idtools: Iterable[Any],
+    enabled_tool_ids: Collection[Any],
+) -> TablePayload:
+    """Generate identification tools and their current selection state."""
 
-    is_superuser = request.user.is_superuser
     rows: list[PayloadRow] = []
     for tool in idtools:
         row: PayloadRow = {
@@ -231,17 +225,10 @@ def idtool_list_payload(request: HttpRequest, idtools: Iterable[Any]) -> TablePa
             "description": tool.description,
             "toolSlug": tool.slug,
             "version": tool.version or "",
+            "enabled": tool.uuid in enabled_tool_ids,
             "actions": [_action("view")],
         }
-        if is_superuser:
-            row["actions"].append(_action("edit"))
         rows.append(row)
-
-    create: CreatePayload | None = None
-    if is_superuser:
-        create = {
-            "style": "primary",
-        }
 
     return _table_shell(
         "idtool-list",
@@ -249,10 +236,11 @@ def idtool_list_payload(request: HttpRequest, idtools: Iterable[Any]) -> TablePa
         columns=[
             {"key": "description"},
             {"key": "version"},
+            {"key": "enabled"},
             {"key": "actions", "sortable": False},
         ],
         rows=rows,
-        create=create,
+        create=None,
     )
 
 
@@ -333,7 +321,6 @@ def formatgroup_list_payload(
 def idrule_list_payload(request: HttpRequest, idrules: Iterable[Any]) -> TablePayload:
     """Generate the list of identification rules mapping outputs to formats."""
 
-    is_superuser = request.user.is_superuser
     rows: list[PayloadRow] = []
     for rule in idrules:
         command_tool = rule.command.tool
@@ -349,16 +336,7 @@ def idrule_list_payload(request: HttpRequest, idrules: Iterable[Any]) -> TablePa
             "enabled": rule.enabled,
             "actions": [_action("view")],
         }
-        if is_superuser:
-            row["actions"].append(_action("replace"))
-            row["actions"].append(_action("disable" if rule.enabled else "enable"))
         rows.append(row)
-
-    create: CreatePayload | None = None
-    if is_superuser:
-        create = {
-            "style": "primary",
-        }
 
     return _table_shell(
         "idrule-list",
@@ -372,7 +350,7 @@ def idrule_list_payload(request: HttpRequest, idrules: Iterable[Any]) -> TablePa
             {"key": "actions", "sortable": False},
         ],
         rows=rows,
-        create=create,
+        create=None,
     )
 
 
@@ -464,49 +442,6 @@ def format_detail_versions_payload(
             {"key": "pronomId"},
             {"key": "accessFormat"},
             {"key": "preservationFormat"},
-            {"key": "enabled"},
-            {"key": "actions", "sortable": False},
-        ],
-        rows=rows,
-        create=create,
-    )
-
-
-def idtool_detail_commands_payload(
-    request: HttpRequest, idtool: Any, idcommands: Iterable[Any]
-) -> TablePayload:
-    """Generate the identification-command table shown on a tool detail page."""
-
-    is_superuser = request.user.is_superuser
-    rows: list[PayloadRow] = []
-    for command in idcommands:
-        row: PayloadRow = {
-            "id": str(command.uuid),
-            "configuration": command.config,
-            "identifier": command.description,
-            "commandScript": Truncator(command.script).chars(100),
-            "enabled": command.enabled,
-            "actions": [_action("view")],
-        }
-        if is_superuser:
-            row["actions"].append(_action("replace"))
-            row["actions"].append(_action("disable"))
-        rows.append(row)
-
-    create: CreatePayload | None = None
-    if is_superuser:
-        create = {
-            "style": "primary",
-            "parentUuid": str(idtool.uuid),
-        }
-
-    return _table_shell(
-        "idtool-detail-commands",
-        request,
-        columns=[
-            {"key": "configuration"},
-            {"key": "identifier"},
-            {"key": "commandScript"},
             {"key": "enabled"},
             {"key": "actions", "sortable": False},
         ],

@@ -21,22 +21,21 @@
         <dd>{{ idtool.description }}</dd>
         <dt>{% trans "Version" %}</dt>
         <dd>{{ idtool.version }}</dd>
-        <dt>{% trans "Enabled" %}</dt>
-        <dd>{{ idtool.enabled|yesno:_('Yes,No') }}</dd>
+        <dt>{% trans "Selected for identification" %}</dt>
+        <dd>{{ selected|yesno:_('Yes,No') }}</dd>
       </dl>
     </div>
-    {% if request.user.is_superuser %}
+    {% if request.user.is_superuser and selectable_command and not selected %}
       <div class="well well-sm">
-        <a class="btn btn-default btn-sm" href="{% url 'fpr:idtool_edit' idtool.slug %}">{% trans "Edit" %}</a>
+        <form action="{% url 'fpr:idtool_select' idtool.slug %}" method="post">
+          {% csrf_token %}
+          <button class="btn btn-primary btn-sm" type="submit">{% trans "Use this tool for identification" %}</button>
+        </form>
+      </div>
+    {% elif request.user.is_superuser and not selectable_command %}
+      <div class="alert alert-warning">
+        {% trans "This tool cannot be selected because it does not have one unambiguous current implementation." %}
       </div>
     {% endif %}
-
-    <h3>{% trans "Commands" %}</h3>
-
-    <div
-      class="fpr-vue-table"
-      data-fpr-table-root
-      data-fpr-table-script-id="fpr-idtool-detail-commands-payload"></div>
-    {{ fpr_table_payload|json_script:"fpr-idtool-detail-commands-payload" }}
 
 {% endblock app_content %}

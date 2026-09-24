@@ -102,6 +102,13 @@ This is the full list of variables supported by MCPClient:
   - **Type:** `int`
   - **Default:** `10`
 
+- **`ARCHIVEMATICA_MCPCLIENT_IDENTIFICATION_WORKERS`**:
+  - **Description:** concurrency used inside batch format identification by
+    backends that support it, including Siegfried and Pygfried. If undefined,
+    it defaults to the number of CPUs available on the machine.
+  - **Config file example:** `MCPClient.identification_workers`
+  - **Type:** `int`
+
 - **`ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SHAREDDIRECTORYMOUNTED`**:
   - **Description:** location of the Archivematica Shared Directory.
   - **Config file example:** `MCPClient.sharedDirectoryMounted`
