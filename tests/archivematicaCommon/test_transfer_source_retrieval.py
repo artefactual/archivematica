@@ -5,6 +5,8 @@ from unittest import mock
 
 import pytest
 
+from archivematica.archivematicaCommon import transfer_publication
+from archivematica.archivematicaCommon import transfer_source_retrieval
 from archivematica.archivematicaCommon.transfer_source_retrieval import LocationPath
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
     TransferSourcePathPlan,
@@ -16,16 +18,7 @@ from archivematica.archivematicaCommon.transfer_source_retrieval import (
     build_transfer_source_copy_files,
 )
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
-    check_retrieved_path_exists,
-)
-from archivematica.archivematicaCommon.transfer_source_retrieval import (
     copy_transfer_source_files,
-)
-from archivematica.archivematicaCommon.transfer_source_retrieval import (
-    move_to_internal_shared_dir,
-)
-from archivematica.archivematicaCommon.transfer_source_retrieval import (
-    pad_destination_path_if_it_already_exists,
 )
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
     plan_transfer_source_paths,
@@ -97,6 +90,24 @@ def test_location_path_parts(path, expected):
 
 
 @pytest.mark.parametrize(
+    "name",
+    [
+        "DESTINATION_REFRESH_PREFIX",
+        "TransferSourceRetrievalError",
+        "TransferSourceRetrievalResult",
+        "check_retrieved_path_exists",
+        "is_destination_refresh_name",
+        "move_to_internal_shared_dir",
+        "pad_destination_path_if_it_already_exists",
+    ],
+)
+def test_publication_api_remains_reexported(name):
+    assert getattr(transfer_source_retrieval, name) is getattr(
+        transfer_publication, name
+    )
+
+
+@pytest.mark.parametrize(
     "name,path,tmpdir,shared_directory,expected",
     [
         (
@@ -127,6 +138,21 @@ def test_plan_transfer_source_paths(name, path, tmpdir, shared_directory, expect
     plan = plan_transfer_source_paths(name, path, tmpdir, shared_directory)
 
     assert plan == expected
+
+
+def test_plan_transfer_source_paths_rejects_reserved_destination_name():
+    marker = (
+        f"{transfer_source_retrieval.DESTINATION_REFRESH_PREFIX}"
+        f"{'0123456789abcdef' * 2}"
+    )
+
+    with pytest.raises(TransferSourceRetrievalError, match="is reserved"):
+        plan_transfer_source_paths(
+            marker,
+            "location-uuid:home/username/dir",
+            "/var/archivematica/sharedDirectory/tmp/tmp123",
+            "/var/archivematica/sharedDirectory/",
+        )
 
 
 def test_build_transfer_source_copy_files_groups_files_by_location():
@@ -216,62 +242,6 @@ def test_build_transfer_source_copy_files_rejects_unknown_location():
             {"path": "%sharedPath%currentlyProcessing/"},
             [{"uuid": "known", "path": "/transfer/source"}],
         )
-
-
-@pytest.mark.parametrize(
-    "path_name,create_path,expected",
-    [
-        ("", False, "No filepath provided."),
-        ("missing", False, "Filepath {path} does not exist."),
-        ("path..with-parent-reference", True, "Illegal path."),
-    ],
-)
-def test_check_retrieved_path_exists_rejects_invalid_paths(
-    tmp_path, path_name, create_path, expected
-):
-    path = "" if path_name == "" else tmp_path / path_name
-    if create_path:
-        path.mkdir()
-
-    assert check_retrieved_path_exists(path) == expected.format(path=path)
-
-
-@pytest.mark.parametrize(
-    "existing_paths,destination,expected",
-    [
-        ([], "transfer", "transfer"),
-        (["transfer/"], "transfer", "transfer_1"),
-        (["transfer/", "transfer_1/"], "transfer", "transfer_2"),
-        (["transfer.zip"], "transfer.zip", "transfer_1.zip"),
-    ],
-)
-def test_pad_destination_path_if_it_already_exists(
-    tmp_path, existing_paths, destination, expected
-):
-    for existing_path in existing_paths:
-        path = tmp_path / existing_path.rstrip("/")
-        if existing_path.endswith("/"):
-            path.mkdir()
-        else:
-            path.touch()
-
-    assert pad_destination_path_if_it_already_exists(tmp_path / destination) == (
-        tmp_path / expected
-    )
-
-
-def test_move_to_internal_shared_dir_moves_and_returns_db_location(retrieval_paths):
-    result = move_to_internal_shared_dir(
-        retrieval_paths.copied,
-        retrieval_paths.processing,
-        f"{retrieval_paths.shared}/",
-    )
-
-    final_path = retrieval_paths.processing / "transfer"
-    assert result.final_path == final_path.as_posix()
-    assert result.current_location == "%sharedPath%currentlyProcessing/transfer"
-    assert not retrieval_paths.copied.exists()
-    assert final_path.exists()
 
 
 def test_copy_transfer_source_files_copies_from_storage_service():

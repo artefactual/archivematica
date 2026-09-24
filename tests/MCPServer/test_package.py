@@ -408,9 +408,11 @@ def transfer():
 
 
 @pytest.fixture
-def processing_dir(tmp_path):
-    proc_dir = tmp_path / "processing"
-    proc_dir.mkdir()
+def processing_dir(tmp_path, settings):
+    shared_dir = tmp_path / "shared"
+    proc_dir = shared_dir / "processing"
+    proc_dir.mkdir(parents=True)
+    settings.SHARED_DIRECTORY = f"{shared_dir}/"
     return proc_dir
 
 
@@ -425,7 +427,7 @@ class TestMoveToInternalSharedDir:
         transfer.refresh_from_db()
         dest_path = processing_dir / "transfer"
         assert dest_path.is_dir()
-        assert Path(transfer.currentlocation) == dest_path
+        assert transfer.currentlocation == "%sharedPath%processing/transfer"
 
     def test_move_file(self, tmp_path, processing_dir, transfer):
         filepath = tmp_path / "transfer.zip"
@@ -437,7 +439,48 @@ class TestMoveToInternalSharedDir:
         assert dest_path.is_file()
 
         transfer.refresh_from_db()
-        assert Path(transfer.currentlocation) == dest_path
+        assert transfer.currentlocation == "%sharedPath%processing/transfer.zip"
+
+    def test_reserves_destination_before_publishing(
+        self, tmp_path, processing_dir, transfer
+    ):
+        filepath = tmp_path / "transfer"
+        filepath.mkdir()
+        rename = Path.rename
+
+        def assert_reserved_before_rename(source, destination):
+            transfer.refresh_from_db()
+            assert transfer.currentlocation == "%sharedPath%processing/transfer"
+            return rename(source, destination)
+
+        with mock.patch.object(Path, "rename", new=assert_reserved_before_rename):
+            _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
+
+        assert (processing_dir / "transfer").is_dir()
+
+    def test_rolls_back_destination_when_publication_fails(
+        self, tmp_path, processing_dir, transfer
+    ):
+        filepath = tmp_path / "transfer"
+        filepath.mkdir()
+        transfer.currentlocation = "%sharedPath%tmp/transfer"
+        transfer.save(update_fields=["currentlocation"])
+
+        def fail_after_reservation(source, destination):
+            transfer.refresh_from_db()
+            assert transfer.currentlocation == "%sharedPath%processing/transfer"
+            raise OSError("move failed")
+
+        with (
+            mock.patch.object(Path, "rename", new=fail_after_reservation),
+            pytest.raises(Exception, match="Error moving"),
+        ):
+            _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
+
+        transfer.refresh_from_db()
+        assert transfer.currentlocation == "%sharedPath%tmp/transfer"
+        assert filepath.is_dir()
+        assert not (processing_dir / "transfer").exists()
 
 
 @pytest.mark.parametrize(

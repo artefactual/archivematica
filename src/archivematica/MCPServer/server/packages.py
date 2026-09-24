@@ -17,14 +17,17 @@ from django.utils import timezone
 
 import archivematica.archivematicaCommon.storageService as storage_service
 from archivematica.archivematicaCommon.dbconns import auto_close_old_connections
-from archivematica.archivematicaCommon.transfer_source_retrieval import (
+from archivematica.archivematicaCommon.transfer_publication import (
     TransferSourceRetrievalError,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    TransferSourceRetrievalResult,
+)
+from archivematica.archivematicaCommon.transfer_publication import (
+    move_to_internal_shared_dir,
 )
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
     copy_transfer_source_files,
-)
-from archivematica.archivematicaCommon.transfer_source_retrieval import (
-    move_to_internal_shared_dir,
 )
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
     plan_transfer_source_paths,
@@ -188,24 +191,35 @@ def _copy_from_transfer_sources(paths, relative_destination):
         raise Exception(str(err))
 
 
+class _TransferPublicationMetadata:
+    """Persist a transfer's destination around filesystem publication."""
+
+    def __init__(self, transfer: models.Transfer) -> None:
+        self._transfer = transfer
+        self._previous_current_location = transfer.currentlocation
+
+    def reserve(self, result: TransferSourceRetrievalResult) -> None:
+        self._transfer.currentlocation = result.current_location
+        self._transfer.save(update_fields=["currentlocation"])
+
+    def rollback(self) -> None:
+        self._transfer.currentlocation = self._previous_current_location
+        self._transfer.save(update_fields=["currentlocation"])
+
+
 @auto_close_old_connections()
 def _move_to_internal_shared_dir(filepath, dest, transfer):
-    """Move package to an internal Archivematica directory.
+    """Move package to an internal Archivematica directory."""
 
-    The side effect of this function is to update the transfer object with the
-    final location. This is important so other components can continue the
-    processing. When relying on watched directories to start a transfer (see
-    _start_package_transfer), this also matters because Transfer is going
-    to look up the object in the database based on the location.
-    """
     try:
-        result = move_to_internal_shared_dir(
-            filepath, dest, _get_setting("SHARED_DIRECTORY")
+        move_to_internal_shared_dir(
+            filepath,
+            dest,
+            _get_setting("SHARED_DIRECTORY"),
+            metadata=_TransferPublicationMetadata(transfer),
         )
     except TransferSourceRetrievalError as err:
         raise Exception(str(err))
-    transfer.currentlocation = result.current_location
-    transfer.save()
 
 
 def _mark_transfer_failed(transfer: models.Transfer) -> None:
