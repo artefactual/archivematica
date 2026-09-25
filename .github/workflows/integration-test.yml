@@ -14,6 +14,7 @@ on:
           - "cas"
           - "ldap"
           - "shibboleth"
+          - "azure"
   pull_request:
     paths:
       - ".github/workflows/integration-test.yml"
@@ -76,6 +77,11 @@ jobs:
                           name: "Shibboleth",
                           label: "shibboleth",
                           service: "archivematica-dashboard-shibboleth"
+                      },
+                      {
+                          name: "Azure",
+                          label: "azure",
+                          service: "archivematica-dashboard-azure"
                       }
                   ]
                   | if $selected == "all"
