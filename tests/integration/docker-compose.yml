@@ -63,6 +63,84 @@ configs:
         -D "$$LDAP_INIT_ROOT_USER_DN" -w "$$LDAP_INIT_ROOT_USER_PW" \
         -b "$$LDAP_INIT_ORG_DN" -s base '(objectClass=*)' dn
 
+  entra-local-healthcheck:
+    # The entra-local image ships no curl or wget, so probe the health
+    # endpoint with Node.js. The certificate is self-signed, so the probe
+    # skips its verification.
+    content: |
+      const https = require("node:https");
+      const request = https.get(
+        {
+          host: "127.0.0.1",
+          port: process.env.PORT,
+          path: "/health",
+          rejectUnauthorized: false,
+          timeout: 4000,
+        },
+        (response) => process.exit(response.statusCode === 200 ? 0 : 1),
+      );
+      request.on("error", () => process.exit(1));
+      request.on("timeout", () => process.exit(1));
+
+  entra-local-setup:
+    # Registers the application and the test user in entra-local through its
+    # admin API. The origin, the app registration and the redirect URIs come
+    # from the environment of the entra-local-setup service. Existing records
+    # answer 409, so the script can run again on a persisted data volume.
+    content: |
+      const origin = process.env.ENTRA_LOCAL_ORIGIN;
+      const appId = process.env.ENTRA_LOCAL_APP_ID;
+      const redirectUris = process.env.ENTRA_LOCAL_REDIRECT_URIS.split(",")
+        .map((uri) => uri.trim())
+        .filter((uri) => uri.length > 0);
+
+      async function call(method, path, body) {
+        const response = await fetch(origin + "/admin/api" + path, {
+          method,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const text = await response.text();
+        if (!response.ok && response.status !== 409) {
+          throw new Error(method + " " + path + " failed: " + response.status + " " + text);
+        }
+        console.log(method, path, response.status);
+      }
+
+      // The seeded confidential app is the only registration with a known
+      // client secret (the admin API generates the secrets it creates), so it
+      // becomes the Archivematica registration.
+      //
+      // Archivematica maps the given_name and family_name claims of the
+      // access token to the first and last names of the user. It requests the
+      // openid and email scopes only, so Microsoft Entra ID issues the access
+      // token for Microsoft Graph: a v1.0 token that carries given_name,
+      // family_name and upn as basic claims, when the user has them, without
+      // the profile scope (v2.0 tokens need the profile scope and optional
+      // claims for them). Microsoft treats the contents of Graph tokens as
+      // opaque to clients, so that is an assumption Archivematica makes.
+      // entra-local only mints v2.0 tokens: configuring the claims on the
+      // registration that GRAPH_RESOURCE_ID names as the Graph resource
+      // reproduces the claim set of the v1.0 token.
+      await call("PATCH", "/apps/" + appId, {
+        displayName: "Archivematica",
+        optionalClaims: {
+          idToken: [],
+          accessToken: [{ name: "given_name" }, { name: "family_name" }, { name: "upn" }],
+        },
+      });
+      for (const uri of redirectUris) {
+        await call("POST", "/apps/" + appId + "/redirectUris", { uri, type: "web" });
+      }
+      await call("POST", "/users", {
+        userPrincipalName: "demo@example.com",
+        displayName: "Demo User",
+        givenName: "Demo",
+        surname: "User",
+        mail: "demo@example.com",
+        password: "demo",
+      });
+
 services:
 
   mysql:
@@ -197,6 +275,38 @@ services:
       shibboleth-sp:
         condition: service_healthy
 
+  archivematica-dashboard-azure:
+    image: "archivematica-dashboard-integration-tests:latest"
+    entrypoint: ""
+    working_dir: "/src"
+    command: ["pytest", "--browser", "firefox", "/src/tests/integration/test_azure_auth.py"]
+    hostname: "archivematica-dashboard"
+    environment:
+      <<: *dashboard-environment
+      ARCHIVEMATICA_DASHBOARD_DASHBOARD_OIDC_AUTHENTICATION: "true"
+      # The tenant derives the provider endpoints from
+      # https://login.microsoftonline.com, an alias of the entra-local service
+      # in this network.
+      AZURE_TENANT_ID: "11111111-1111-1111-1111-111111111111"
+      OIDC_RP_CLIENT_ID: "cccccccc-0000-0000-0000-000000000002"
+      OIDC_RP_CLIENT_SECRET: "daemon-app-secret"
+      OIDC_RP_SIGN_ALGO: "RS256"
+      OIDC_USE_PKCE: "true"
+      OIDC_PKCE_CODE_CHALLENGE_METHOD: "S256"
+      # entra-local serves a self-signed certificate. The tokens and the
+      # signing keys are fetched with requests, which trusts this bundle.
+      REQUESTS_CA_BUNDLE: "/etc/entra-local/tls/cert.pem"
+    volumes:
+      - "../../:/src"
+      - "entra_local_data:/etc/entra-local:ro"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      entra-local:
+        condition: service_healthy
+      entra-local-setup:
+        condition: service_completed_successfully
+
   keycloak:
     image: "quay.io/keycloak/keycloak:26.7.4-0"
     command: ["start-dev", "--import-realm"]
@@ -306,3 +416,64 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
+
+  entra-local:
+    # Emulator of Microsoft Entra ID (https://github.com/cmaneu/entra-local).
+    # The Dashboard derives the Azure endpoints from
+    # https://login.microsoftonline.com when AZURE_TENANT_ID is set, so the
+    # emulator listens on port 443, gets that hostname as a network alias and
+    # advertises it as its public origin: its token issuer becomes
+    # https://login.microsoftonline.com/<tenant>/v2.0, like Entra ID.
+    image: "ghcr.io/cmaneu/entra-local:0.1.1@sha256:70584ef110914d100409cb3d63a63548ccdde10ca780f9751755f1482dec5d7e"
+    environment:
+      PORT: "443"
+      TENANT_ID: "11111111-1111-1111-1111-111111111111"
+      PUBLIC_ORIGIN: "https://login.microsoftonline.com"
+      # entra-local adds the access-token claims configured on the app whose
+      # id is the audience of the token. An OpenID Connect sign-in requests
+      # no API scope, so the audience is the Graph resource: naming the
+      # Archivematica registration here makes its access tokens carry the
+      # name claims of a Microsoft Graph token (see the entra-local-setup
+      # config).
+      GRAPH_RESOURCE_ID: "cccccccc-0000-0000-0000-000000000002"
+      # Show the username and password form instead of the account picker.
+      REQUIRE_PASSWORD: "true"
+    networks:
+      default:
+        aliases:
+          - login.microsoftonline.com
+    volumes:
+      # Holds the SQLite database and the self-signed certificate, which the
+      # other services mount to trust it.
+      - "entra_local_data:/app/data"
+    configs:
+      - source: entra-local-healthcheck
+        target: /usr/local/bin/entra-local-healthcheck.js
+    healthcheck:
+      test: ["CMD", "node", "/usr/local/bin/entra-local-healthcheck.js"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  entra-local-setup:
+    # One-shot service: registers the Dashboard and the test user through
+    # the admin API of entra-local (see the entra-local-setup config).
+    image: "ghcr.io/cmaneu/entra-local:0.1.1@sha256:70584ef110914d100409cb3d63a63548ccdde10ca780f9751755f1482dec5d7e"
+    command: ["node", "/usr/local/bin/entra-local-setup.mjs"]
+    environment:
+      ENTRA_LOCAL_ORIGIN: "https://login.microsoftonline.com"
+      ENTRA_LOCAL_APP_ID: "cccccccc-0000-0000-0000-000000000002"
+      ENTRA_LOCAL_REDIRECT_URIS: "http://archivematica-dashboard:8000/oidc/callback/"
+      NODE_EXTRA_CA_CERTS: "/etc/entra-local/tls/cert.pem"
+    volumes:
+      - "entra_local_data:/etc/entra-local:ro"
+    configs:
+      - source: entra-local-setup
+        target: /usr/local/bin/entra-local-setup.mjs
+    depends_on:
+      entra-local:
+        condition: service_healthy
+
+volumes:
+  entra_local_data:

@@ -22,6 +22,11 @@ if [ -z "${SKIP_DOCKER_BUILD}" ]; then
             # The Shibboleth service reuses the image built by the default service.
             docker compose build archivematica-dashboard shibboleth-sp
             ;;
+        archivematica-dashboard-azure)
+            # The Azure service reuses the image built by the default service
+            # and pulls the entra-local image.
+            docker compose build archivematica-dashboard
+            ;;
         *)
             docker compose build "${INTEGRATION_SERVICE}"
             ;;
