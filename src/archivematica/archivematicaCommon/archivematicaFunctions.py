@@ -597,6 +597,11 @@ def get_oidc_secondary_providers(
                 "OIDC_ROLE_CLAIM_ADMIN": role_claim_admin,
                 "OIDC_ROLE_CLAIM_DEFAULT": role_claim_default,
             }
+            # The application's name for mozilla-django-oidc's OIDC_CREATE_USER;
+            # only a provider that sets it overrides the global setting.
+            create_user = os.environ.get(f"OIDC_AUTO_CREATE_USER_{provider_name}")
+            if create_user is not None:
+                provider_config["OIDC_CREATE_USER"] = is_true(create_user)
             providers[provider_name] = provider_config
 
     return providers
