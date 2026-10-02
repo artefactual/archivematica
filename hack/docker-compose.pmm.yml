@@ -1,10 +1,20 @@
 ---
 
+configs:
+
+  pmm-client-prerun:
+    # Run by the client's entrypoint once the node is registered, while
+    # pmm-agent runs in the background: adds the mysql service with
+    # performance schema query analytics.
+    content: |
+      #!/bin/sh
+      set -eu
+      pmm-admin status --wait=10s
+      pmm-admin add mysql --query-source=perfschema --username=root \
+        --password=12345 --host=mysql --port=3306 --skip-connection-check mysql
+
 volumes:
-  pmm_prometheus_data:
-  pmm_consul_data:
-  pmm_mysql_lib:
-  pmm_grafana_lib:
+  pmm_data:
 
 services:
 
@@ -13,26 +23,37 @@ services:
       - ./etc/mysql/pmm.cnf:/etc/my.cnf.d/pmm.cnf:ro
 
   pmm_server:
-    image: percona/pmm-server
+    image: "percona/pmm-server:3.9.1"
     volumes:
-      - pmm_prometheus_data:/opt/prometheus/data
-      - pmm_consul_data:/opt/consul-data
-      - pmm_mysql_lib:/var/lib/mysql
-      - pmm_grafana_lib:/var/lib/grafana
+      - "pmm_data:/srv"
     ports:
-      - "127.0.0.1:62007:80"
-    environment:
-      - SERVER_USER=pmm
-      - SERVER_PASSWORD=pmm
+      - "127.0.0.1:62007:8080"
 
   pmm_client:
-    image: perconalab/pmm-client
+    image: "percona/pmm-client:3.9.1"
     environment:
-      - PMM_SERVER=pmm_server
-      - PMM_USER=pmm
-      - PMM_PASSWORD=pmm
-      - DB_TYPE=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=12345
+      PMM_AGENT_SERVER_ADDRESS: "pmm_server:8443"
+      PMM_AGENT_SERVER_USERNAME: "admin"
+      PMM_AGENT_SERVER_PASSWORD: "admin"
+      PMM_AGENT_SERVER_INSECURE_TLS: "1"
+      PMM_AGENT_CONFIG_FILE: "config/pmm-agent.yaml"
+      PMM_AGENT_SETUP: "1"
+      # The client registers its node every time the container starts, and
+      # the container's hostname changes when it is recreated: a fixed node
+      # name with PMM_AGENT_SETUP_FORCE replaces the node and its services
+      # instead of adding another node, so the prerun script can add the
+      # mysql service again.
+      PMM_AGENT_SETUP_NODE_NAME: "archivematica"
+      PMM_AGENT_SETUP_FORCE: "1"
+      # The entrypoint executes the file itself, hence the shebang of the
+      # script and the mode of the config.
+      PMM_AGENT_PRERUN_FILE: "/usr/local/bin/pmm-client-prerun.sh"
+    configs:
+      - source: pmm-client-prerun
+        target: /usr/local/bin/pmm-client-prerun.sh
+        mode: 0555
+    depends_on:
+      pmm_server:
+        condition: service_healthy
+      mysql:
+        condition: service_started
