@@ -33,7 +33,6 @@
 - [Troubleshooting](#troubleshooting)
   - [Nginx returns 502 Bad Gateway](#nginx-returns-502-bad-gateway)
   - [Bootstrap seems to run but the Dashboard and Elasticsearch are still down](#bootstrap-seems-to-run-but-the-dashboard-and-elasticsearch-are-still-down)
-  - [PMM client service doesn't start](#pmm-client-service-doesnt-start)
   - [My environment is still broken](#my-environment-is-still-broken)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -844,7 +843,7 @@ To access the PMM server interface, visit <http://127.0.0.1:62007>:
 - Username: ``admin``
 - Password: ``admin``
 
-[instrumentation-4]: https://www.percona.com/doc/percona-monitoring-and-management
+[instrumentation-4]: https://docs.percona.com/percona-monitoring-and-management/3/
 
 ## Troubleshooting
 
@@ -913,22 +912,6 @@ Elasticsearch, as discussed in the section [Elasticsearch container][es-0]
 above.
 
 [es-0]: #elasticsearch-container
-
-### PMM client service doesn't start
-
-In some cases the `pmm_client` service fails to start reporting the following
-error:
-
-```console
-[main] app already is running, exiting
-```
-
-You'll need to fully recreate the container to make it work:
-
-```shell
-docker compose -f docker-compose.yml -f docker-compose.pmm.yml rm pmm_client
-docker compose -f docker-compose.yml -f docker-compose.pmm.yml up -d
-```
 
 ### My environment is still broken
 
