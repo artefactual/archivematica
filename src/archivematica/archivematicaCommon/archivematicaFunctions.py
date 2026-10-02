@@ -85,6 +85,11 @@ def get_setting(setting, default=""):
         return default
 
 
+def is_true(value: str) -> bool:
+    """Whether a setting's text means true: ``true``, ``yes``, ``on`` or ``1``, in any case."""
+    return value.lower() in ("true", "yes", "on", "1")
+
+
 def get_dashboard_uuid():
     """Get Dashboard uuid via the Dashboard database mode."""
     return get_setting("dashboard_uuid", default=None)
@@ -555,13 +560,8 @@ def get_oidc_secondary_providers(
         user_endpoint = os.environ.get(f"OIDC_OP_USER_ENDPOINT_{provider_name}", "")
         jwks_endpoint = os.environ.get(f"OIDC_OP_JWKS_ENDPOINT_{provider_name}", "")
         logout_endpoint = os.environ.get(f"OIDC_OP_LOGOUT_ENDPOINT_{provider_name}", "")
-        set_roles_from_claims = os.environ.get(
-            f"OIDC_OP_SET_ROLES_FROM_CLAIMS_{provider_name}", ""
-        ).lower() in (
-            "true",
-            "yes",
-            "on",
-            "1",
+        set_roles_from_claims = is_true(
+            os.environ.get(f"OIDC_OP_SET_ROLES_FROM_CLAIMS_{provider_name}", "")
         )
         role_claim_path = os.environ.get(
             f"OIDC_OP_ROLE_CLAIM_PATH_{provider_name}", "realm_access.roles"

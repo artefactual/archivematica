@@ -36,6 +36,7 @@ import archivematica.archivematicaCommon.storageService as storage_service
 import archivematica.dashboard.components.administration.views_processing as processing_views
 import archivematica.dashboard.components.decorators as decorators
 import archivematica.dashboard.components.helpers as helpers
+from archivematica.archivematicaCommon.archivematicaFunctions import is_true
 from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.archivematicaCommon.version import get_preservation_system_identifier
 from archivematica.dashboard.components.administration.forms import AgentForm
@@ -163,7 +164,7 @@ def usage(request):
     the shared path.
     """
     calculate = request.GET.get("calculate", "")
-    calculate_usage = calculate.lower() in ["true", "yes", "on", "1"]
+    calculate_usage = is_true(calculate)
     if calculate_usage:
         root_path = _get_mount_point_path(django_settings.SHARED_DIRECTORY)
         root = {

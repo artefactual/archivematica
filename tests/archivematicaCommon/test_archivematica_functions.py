@@ -235,3 +235,21 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
             "OIDC_ROLE_CLAIM_DEFAULT": "default",
         },
     }
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("true", True),
+        ("TRUE", True),
+        ("yes", True),
+        ("On", True),
+        ("1", True),
+        ("false", False),
+        ("no", False),
+        ("0", False),
+        ("", False),
+    ],
+)
+def test_is_true(value: str, expected: bool) -> None:
+    assert am.is_true(value) is expected
