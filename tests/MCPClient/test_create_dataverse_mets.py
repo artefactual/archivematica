@@ -329,3 +329,59 @@ class TestDataverseExample:
             )
         assert len(authors) == fixture.author_count
         assert auth_list == fixture.author_list
+
+
+@pytest.mark.parametrize(
+    "original_format_label, tabfile_name, original_file_name",
+    [
+        ("SPSS Binary", "example.tab", "example.sav"),
+        (
+            "MS Excel Spreadsheet",
+            "originalFormatXlsx-2.tab",
+            "originalFormatXlsx-2.xlsx",
+        ),
+        ("Stata 14 Binary", "stata14.tab", "stata14.dta"),
+    ],
+)
+def test_create_bundle_prefers_original_file_name(
+    original_format_label, tabfile_name, original_file_name
+):
+    job = Job("stub", "stub", ["", ""])
+    file_json = {
+        "label": tabfile_name,
+        "dataFile": {
+            "filename": tabfile_name,
+            "originalFileName": original_file_name,
+            "originalFormatLabel": original_format_label,
+            "md5": "80f0cfe73c4d0b55b3dd9a71e8be0ef2",
+        },
+    }
+
+    bundle = convert_dataverse_structure.create_bundle(job, file_json)
+
+    assert bundle is not None
+    paths = {child.path: child for child in bundle.children}
+    base_name = tabfile_name[:-4]
+    original_path = f"{base_name}/{original_file_name}"
+    tab_path = f"{base_name}/{tabfile_name}"
+
+    assert original_path in paths
+    assert paths[original_path].use == "original"
+    assert tab_path in paths
+    assert paths[tab_path].use == "derivative"
+
+
+def test_create_bundle_falls_back_without_original_file_name():
+    job = Job("stub", "stub", ["", ""])
+    file_json = {
+        "label": "example.tab",
+        "dataFile": {
+            "filename": "example.tab",
+            "originalFormatLabel": "Comma Separated Values",
+            "md5": "80f0cfe73c4d0b55b3dd9a71e8be0ef2",
+        },
+    }
+    bundle = convert_dataverse_structure.create_bundle(job, file_json)
+    assert bundle is not None
+    paths = {child.path for child in bundle.children}
+    assert "example/example.csv" in paths
