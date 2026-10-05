@@ -283,7 +283,7 @@ services:
     # Upstream publishes versioned tags, but may rebuild them to pick up
     # base-image security updates. Keep the version tag for readability and
     # pin the exact build by digest; Dependabot keeps both up to date.
-    image: "vegardit/openldap:2.6.10@sha256:b81f6c360830b21b9e6d8878563e3e11bd81e243693c83fa371efeee34556ce9"
+    image: "vegardit/openldap:2.6.10@sha256:ffe216e09673d9b3f561a6b02e691bab44a2f9849f7d3bb8be16957f6f826dae"
     environment:
       LDAP_INIT_ORG_DN: "dc=archivematica,dc=org"
       LDAP_INIT_ORG_NAME: "Archivematica integration tests"
