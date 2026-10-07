@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from archivematica.archivematicaCommon import email_settings
 from archivematica.archivematicaCommon.appconfig import Config
 from archivematica.archivematicaCommon.appconfig import process_search_enabled
+from archivematica.archivematicaCommon.archivematicaFunctions import is_true
 
 django_stubs_ext.monkeypatch()
 
@@ -725,13 +726,8 @@ if OIDC_AUTHENTICATION:
         "archivematica.dashboard.middleware.common.OidcCaptureQueryParamMiddleware",
     )
 
-    OIDC_USE_SESSION_REFRESH_MIDDLEWARE = os.environ.get(
-        "OIDC_USE_SESSION_REFRESH_MIDDLEWARE", "false"
-    ).lower() in (
-        "true",
-        "yes",
-        "on",
-        "1",
+    OIDC_USE_SESSION_REFRESH_MIDDLEWARE = is_true(
+        os.environ.get("OIDC_USE_SESSION_REFRESH_MIDDLEWARE", "false")
     )
 
     if OIDC_USE_SESSION_REFRESH_MIDDLEWARE:

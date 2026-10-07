@@ -235,3 +235,53 @@ def test_get_oidc_secondary_providers_capitalizes_provider_names(
             "OIDC_ROLE_CLAIM_DEFAULT": "default",
         },
     }
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("true", True),
+        ("TRUE", True),
+        ("yes", True),
+        ("On", True),
+        ("1", True),
+        ("false", False),
+        ("no", False),
+        ("0", False),
+        ("", False),
+    ],
+)
+def test_is_true(value: str, expected: bool) -> None:
+    assert am.is_true(value) is expected
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [("false", False), ("no", False), ("true", True), ("yes", True), ("1", True)],
+)
+def test_get_oidc_secondary_providers_reads_the_auto_create_user_setting(
+    monkeypatch: pytest.MonkeyPatch, value: str, expected: bool
+) -> None:
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_FOO", "foo-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_FOO", "foo-client-secret")
+    monkeypatch.setenv("OIDC_AUTO_CREATE_USER_FOO", value)
+
+    providers = am.get_oidc_secondary_providers(
+        ["FOO"], {"given_name": "first_name", "family_name": "last_name"}
+    )
+
+    assert providers["FOO"]["OIDC_CREATE_USER"] is expected
+
+
+def test_get_oidc_secondary_providers_leaves_user_creation_to_the_global_setting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OIDC_RP_CLIENT_ID_FOO", "foo-client-id")
+    monkeypatch.setenv("OIDC_RP_CLIENT_SECRET_FOO", "foo-client-secret")
+    monkeypatch.delenv("OIDC_AUTO_CREATE_USER_FOO", raising=False)
+
+    providers = am.get_oidc_secondary_providers(
+        ["FOO"], {"given_name": "first_name", "family_name": "last_name"}
+    )
+
+    assert "OIDC_CREATE_USER" not in providers["FOO"]

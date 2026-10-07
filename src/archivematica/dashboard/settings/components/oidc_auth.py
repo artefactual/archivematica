@@ -4,6 +4,7 @@ import os
 from archivematica.archivematicaCommon.archivematicaFunctions import (
     get_oidc_secondary_providers,
 )
+from archivematica.archivematicaCommon.archivematicaFunctions import is_true
 
 # mozilla-django-oidc 5.0.2 calls resolve_url(LOGOUT_REDIRECT_URL); Django
 # defaults it to None, so we set '/' (the library's intended default) to avoid
@@ -42,13 +43,8 @@ else:
     OIDC_OP_JWKS_ENDPOINT = os.environ.get("OIDC_OP_JWKS_ENDPOINT", "")
     OIDC_OP_LOGOUT_ENDPOINT = os.environ.get("OIDC_OP_LOGOUT_ENDPOINT", "")
 
-OIDC_OP_SET_ROLES_FROM_CLAIMS = os.environ.get(
-    "OIDC_OP_SET_ROLES_FROM_CLAIMS", ""
-).lower() in (
-    "true",
-    "yes",
-    "on",
-    "1",
+OIDC_OP_SET_ROLES_FROM_CLAIMS = is_true(
+    os.environ.get("OIDC_OP_SET_ROLES_FROM_CLAIMS", "")
 )
 OIDC_OP_ROLE_CLAIM_PATH = os.environ.get(
     "OIDC_OP_ROLE_CLAIM_PATH", "realm_access.roles"
@@ -75,12 +71,7 @@ if OIDC_OP_LOGOUT_ENDPOINT:
 
 OIDC_RP_SIGN_ALGO = os.environ.get("OIDC_RP_SIGN_ALGO", "HS256")
 
-OIDC_USE_PKCE = os.environ.get("OIDC_USE_PKCE", "false").lower() in (
-    "true",
-    "yes",
-    "on",
-    "1",
-)
+OIDC_USE_PKCE = is_true(os.environ.get("OIDC_USE_PKCE", "false"))
 
 OIDC_PKCE_CODE_CHALLENGE_METHOD = os.environ.get(
     "OIDC_PKCE_CODE_CHALLENGE_METHOD", "S256"

@@ -1,6 +1,8 @@
 import pytest
 import pytest_django
 from django.contrib.auth.models import User
+from django.contrib.sessions.backends.db import SessionStore
+from django.test import RequestFactory
 
 from archivematica.dashboard.components.accounts.backends import CustomOIDCBackend
 
@@ -343,3 +345,94 @@ def test_get_or_create_user_returns_existing_user_when_creation_disabled(
 
     assert user == existing_user
     assert User.objects.count() == 1
+
+
+def backend_for_provider(
+    rf: RequestFactory, provider_name: str | None
+) -> CustomOIDCBackend:
+    """A backend authenticating a login through the named secondary provider.
+
+    Without a name the login goes through the primary provider.
+    """
+    backend = CustomOIDCBackend()
+    request = rf.get("/")
+    request.session = SessionStore()
+    if provider_name is not None:
+        request.session["providername"] = provider_name
+    backend.request = request
+    return backend
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "global_setting,provider_setting,created",
+    [
+        (True, False, False),
+        (False, True, True),
+        (False, None, False),
+        (True, None, True),
+    ],
+    ids=[
+        "provider_disables_creation",
+        "provider_enables_creation",
+        "provider_follows_disabled_global_setting",
+        "provider_follows_enabled_global_setting",
+    ],
+)
+def test_get_or_create_user_applies_the_provider_create_user_setting(
+    settings: pytest_django.Settings,
+    rf: RequestFactory,
+    monkeypatch: pytest.MonkeyPatch,
+    global_setting: bool,
+    provider_setting: bool | None,
+    created: bool,
+) -> None:
+    settings.OIDC_CREATE_USER = global_setting
+    provider: dict[str, object] = {}
+    if provider_setting is not None:
+        provider["OIDC_CREATE_USER"] = provider_setting
+    settings.OIDC_PROVIDERS = {"SECONDARY": provider}
+    backend = backend_for_provider(rf, "SECONDARY")
+    monkeypatch.setattr(
+        backend,
+        "get_userinfo",
+        lambda access_token, id_token, payload: {"email": "new@example.com"},
+    )
+
+    user = backend.get_or_create_user(
+        access_token="access-token",
+        id_token="id-token",
+        payload={"sub": "test"},
+    )
+
+    if created:
+        assert user is not None
+        assert user.email == "new@example.com"
+    else:
+        assert user is None
+    assert User.objects.filter(email="new@example.com").exists() is created
+
+
+@pytest.mark.django_db
+def test_get_or_create_user_ignores_the_create_user_setting_of_other_providers(
+    settings: pytest_django.Settings,
+    rf: RequestFactory,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings.OIDC_CREATE_USER = False
+    settings.OIDC_PROVIDERS = {"SECONDARY": {"OIDC_CREATE_USER": True}}
+    backend = backend_for_provider(rf, None)
+    monkeypatch.setattr(
+        backend,
+        "get_userinfo",
+        lambda access_token, id_token, payload: {"email": "new@example.com"},
+    )
+
+    user = backend.get_or_create_user(
+        access_token="access-token",
+        id_token="id-token",
+        payload={"sub": "test"},
+    )
+
+    assert user is None
+    assert User.objects.count() == 0
