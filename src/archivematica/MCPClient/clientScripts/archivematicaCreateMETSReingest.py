@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import copy
+import hashlib
 import os
 
 import metsrw
@@ -404,6 +405,40 @@ def add_events(job, mets, sip_uuid):
     return mets
 
 
+def _compute_checksum(path, algorithm="SHA-256"):
+    """Return the hex digest of a file on disk using the given algorithm."""
+    algo = (algorithm or "SHA-256").lower().replace("-", "")
+    hasher = hashlib.new(algo)
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _get_fsentry_fixity(fsentry):
+    """Extract the stored fixity (algorithm, digest) from a METS fsentry."""
+    for amdsec in getattr(fsentry, "amdsecs", []):
+        doc = amdsec.serialize()
+        algo_el = doc.find(".//premis:messageDigestAlgorithm", namespaces=ns.NSMAP)
+        digest_el = doc.find(".//premis:messageDigest", namespaces=ns.NSMAP)
+        if digest_el is not None:
+            algo = algo_el.text if algo_el is not None else None
+            return algo, digest_el.text
+    return None, None
+
+
+def _metadata_csv_changed(fsentry, file_obj, sip_dir):
+    """Return True if on-disk metadata.csv differs from what METS records."""
+    algo, stored_digest = _get_fsentry_fixity(fsentry)
+    current_path = file_obj.currentlocation.decode().replace(
+        "%SIPDirectory%", sip_dir, 1
+    )
+    current_digest = _compute_checksum(current_path, algorithm=algo)
+    if stored_digest is None:
+        return True
+    return current_digest != stored_digest
+
+
 def add_new_files(job, mets, sip_uuid, sip_dir):
     """
     Add new files to structMap, fileSec.
@@ -412,13 +447,12 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
 
     If a new file is a metadata.csv, parse it to create dmdSecs.
     """
-    # Find new files
-    # How tell new file from old with same name? Check hash?
-    # QUESTION should the metadata.csv be parsed and only updated if different
-    # even if one already existed?
+    # Find new files and detect metadata.csv changes even when METS already
+    # contains the path.
     new_files = []
     old_mets_rel_path = _get_old_mets_rel_path(sip_uuid)
     metadata_csv = None
+    metadata_csv_path = "objects/metadata/metadata.csv"
     objects_dir = os.path.join(sip_dir, "objects")
     for dirpath, _, filenames in os.walk(objects_dir):
         for filename in filenames:
@@ -438,12 +472,23 @@ def add_new_files(job, mets, sip_uuid, sip_dir):
                         currentlocation=current_loc.encode(), sip_id=str(sip_uuid)
                     )
                     new_files.append(f)
-                    if rel_path == "objects/metadata/metadata.csv":
+                    if rel_path == metadata_csv_path:
                         metadata_csv = f
             else:
+                if rel_path == metadata_csv_path:
+                    file_obj = models.File.objects.filter(
+                        currentlocation=current_loc.encode(), sip_id=str(sip_uuid)
+                    ).first()
+                    if file_obj and _metadata_csv_changed(fsentry, file_obj, sip_dir):
+                        metadata_csv = file_obj
+                        job.pyprint(
+                            rel_path,
+                            "found in METS with changed content, will reprocess",
+                        )
+                        continue
                 job.pyprint(rel_path, "found in METS, no further work needed")
 
-    if not new_files:
+    if not new_files and metadata_csv is None:
         return mets
 
     # Set global counters so getAMDSec will work
