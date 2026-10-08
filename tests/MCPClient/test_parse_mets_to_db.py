@@ -1,693 +1,657 @@
 import os
-import uuid
+from typing import TypedDict
 from unittest import mock
 
 import pytest
-from django.test import TestCase
+from django.core.management import call_command
 from lxml import etree
 
-from archivematica.dashboard import fpr
+from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import parse_mets_to_db
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# This uses the same name as the pytest fixture in conftest and it can be
-# removed when these TestCase subclasses are converted into pytest tests.
-mcp_job = Job("stub", "stub", [])
+FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
 
-class TestParseDublinCore(TestCase):
-    """Test parsing SIP-level DublinCore from a METS file into the DB."""
+class FileInfo(TypedDict):
+    """File information parsed from the METS file."""
 
-    fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    uuid: str
+    original_path: str
+    current_path: str
+    use: str
+    checksum: str
+    checksumtype: str
+    size: str
+    format_version: fprmodels.FormatVersion | None
+    derivation: str | None
+    derivation_event: str | None
 
-    def test_none_found(self):
-        """It should parse no DC if none is found."""
-        sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_no_metadata.xml"))
-        dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
-        assert dc is None
-        assert (
-            models.DublinCore.objects.filter(
-                metadataappliestoidentifier=sip_uuid
-            ).exists()
-            is False
-        )
 
-    def test_no_sip_dc(self):
-        """It should ignore file-level DC."""
-        sip_uuid = "f35d2530-45eb-4eb1-aa09-fb30661e7dcd"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_only_file_dc.xml"))
-        dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
-        assert dc is None
-        assert (
-            models.DublinCore.objects.filter(
-                metadataappliestoidentifier=sip_uuid
-            ).exists()
-            is False
-        )
+def load_fixtures(*fixture_files: str) -> None:
+    call_command(
+        "loaddata",
+        *(os.path.join(FIXTURES_DIR, fixture_file) for fixture_file in fixture_files),
+        verbosity=0,
+    )
 
-    def test_only_original(self):
-        """It should parse a SIP-level DC if found."""
-        sip_uuid = "eacbf65f-2528-4be0-8cb3-532f45fcdff8"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_sip_dc.xml"))
-        dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
-        assert dc
-        assert models.DublinCore.objects.filter(
+
+@pytest.fixture
+def dublincore_fixtures(db: None) -> None:
+    load_fixtures("metadata_applies_to_type.json", "dublincore.json")
+
+
+@pytest.fixture
+def formats_fixtures(db: None) -> None:
+    load_fixtures("formats.json")
+
+
+@pytest.fixture
+def orig_info(formats_fixtures: None) -> FileInfo:
+    return {
+        "uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
+        "original_path": "%SIPDirectory%objects/evelyn's photo.jpg",
+        "current_path": "%SIPDirectory%objects/evelyn_s_photo.jpg",
+        "use": "original",
+        "checksum": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        "checksumtype": "sha256",
+        "size": "158131",
+        "format_version": fprmodels.FormatVersion.objects.get(
+            uuid="01fac958-274d-41ef-978f-d9cf711b3c4a"
+        ),
+        "derivation": "8140ebe5-295c-490b-a34a-83955b7c844e",
+        "derivation_event": "0ce13092-911f-4a89-b9e1-0e61921a03d4",
+    }
+
+
+@pytest.fixture
+def pres_info() -> FileInfo:
+    return {
+        "uuid": "8140ebe5-295c-490b-a34a-83955b7c844e",
+        "original_path": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+        "current_path": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+        "use": "preservation",
+        "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        "checksumtype": "sha256",
+        "size": "1446772",
+        "format_version": None,
+        "derivation": None,
+        "derivation_event": None,
+    }
+
+
+@pytest.fixture
+def mets_info(formats_fixtures: None) -> FileInfo:
+    return {
+        "uuid": "590bd882-7521-498c-8f89-0958218f779d",
+        "original_path": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
+        "current_path": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
+        "use": "submissionDocumentation",
+        "checksum": "d41d8cd98f00b204e9800998ecf8427e",
+        "checksumtype": "md5",
+        "size": "12222",
+        "format_version": fprmodels.FormatVersion.objects.get(
+            uuid="d60e5243-692e-4af7-90cd-40c53cb8dc7d"
+        ),
+        "derivation": None,
+        "derivation_event": None,
+    }
+
+
+@pytest.mark.django_db
+def test_parse_dc_none_found(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse no DC if none is found."""
+    sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_no_metadata.xml"))
+    dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
+    assert dc is None
+    assert (
+        models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists()
+        is False
+    )
+
+
+@pytest.mark.django_db
+def test_no_sip_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should ignore file-level DC."""
+    sip_uuid = "f35d2530-45eb-4eb1-aa09-fb30661e7dcd"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_only_file_dc.xml"))
+    dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
+    assert dc is None
+    assert (
+        models.DublinCore.objects.filter(metadataappliestoidentifier=sip_uuid).exists()
+        is False
+    )
+
+
+@pytest.mark.django_db
+def test_only_original(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse a SIP-level DC if found."""
+    sip_uuid = "eacbf65f-2528-4be0-8cb3-532f45fcdff8"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_sip_dc.xml"))
+    dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
+    assert dc
+    assert models.DublinCore.objects.filter(
+        metadataappliestoidentifier=sip_uuid
+    ).exists()
+    assert dc.title == "Yamani Weapons"
+    assert dc.creator == "Keladry of Mindelan"
+    assert dc.subject == "Glaives"
+    assert dc.description == "Glaives are cool"
+    assert dc.publisher == "Tortall Press"
+    assert dc.contributor == "Yuki"
+    assert dc.date == "2014"
+    assert dc.type == "Archival Information Package"
+    assert dc.format == "parchement"
+    assert dc.identifier == "42/1"
+    assert dc.source == "Numair's library"
+    assert dc.relation == "None"
+    assert dc.language == "en"
+    assert dc.rights == "Public Domain"
+    assert dc.is_part_of == "AIC#43"
+
+
+@pytest.mark.django_db
+def test_dublin_core_non_core_properties(dublincore_fixtures: None) -> None:
+    """It should parse a SIP-level DC if contains non-core properties."""
+    sip_uuid = "dbe62094-17af-427b-b6e7-0ac5799ee4e9"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_non_core_dc.xml"))
+    job = mock.Mock(spec=Job)
+
+    dc = parse_mets_to_db.parse_dc(job, sip_uuid, root)
+
+    # Verify the Dublin Core core properties were populated.
+    assert dc
+    assert models.DublinCore.objects.filter(
+        metadataappliestoidentifier=sip_uuid
+    ).exists()
+    assert dc.title == "Objects dir"
+
+    # Verify the job prints the parsed Dublin Core core properties.
+    assert job.pyprint.mock_calls == [
+        mock.call("Dublin Core:"),
+        mock.call("title", "Objects dir"),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_sip_dc_ignore_file_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse a SIP-level DC even if file-level DC is also present."""
+    sip_uuid = "55972e97-8d35-4b07-abaa-ae260c32d261"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_sip_and_file_dc.xml"))
+    dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
+    assert dc
+    assert models.DublinCore.objects.filter(
+        metadataappliestoidentifier=sip_uuid
+    ).exists()
+    assert dc.title == "Yamani Weapons"
+    assert dc.creator == "Keladry of Mindelan"
+    assert dc.subject == "Glaives"
+    assert dc.description == "Glaives are cool"
+    assert dc.publisher == "Tortall Press"
+    assert dc.contributor == "Yuki"
+    assert dc.date == "2014"
+    assert dc.type == "Archival Information Package"
+    assert dc.format == "parchement"
+    assert dc.identifier == "42/1"
+    assert dc.source == "Numair's library"
+    assert dc.relation == "None"
+    assert dc.language == "en"
+    assert dc.rights == "Public Domain"
+    assert dc.is_part_of == "AIC#43"
+
+
+@pytest.mark.django_db
+def test_multiple_sip_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse the most recent SIP DC if multiple exist."""
+    sip_uuid = "eacbf65f-2528-4be0-8cb3-532f45fcdff8"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_multiple_sip_dc.xml"))
+    dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
+    assert dc
+    assert models.DublinCore.objects.filter(
+        metadataappliestoidentifier=sip_uuid
+    ).exists()
+    assert dc.title == "Yamani Weapons"
+    assert dc.creator == "Keladry of Mindelan"
+    assert dc.subject == "Glaives"
+    assert dc.description == "Glaives are awesome"
+    assert dc.publisher == "Tortall Press"
+    assert dc.contributor == "Yuki"
+    assert dc.date == "2014"
+    assert dc.type == "Archival Information Package"
+    assert dc.format == "palimpsest"
+    assert dc.identifier == "42/1"
+    assert dc.source == ""
+    assert dc.relation == "Everyone!"
+    assert dc.language == "en"
+    assert dc.rights == "Public Domain"
+    assert dc.is_part_of == "AIC#43"
+
+
+@pytest.mark.django_db
+def test_parse_rights_none_found(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse no rights if none found."""
+    sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_no_metadata.xml"))
+    rights = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights == []
+    assert (
+        models.RightsStatement.objects.filter(
             metadataappliestoidentifier=sip_uuid
         ).exists()
-        assert dc.title == "Yamani Weapons"
-        assert dc.creator == "Keladry of Mindelan"
-        assert dc.subject == "Glaives"
-        assert dc.description == "Glaives are cool"
-        assert dc.publisher == "Tortall Press"
-        assert dc.contributor == "Yuki"
-        assert dc.date == "2014"
-        assert dc.type == "Archival Information Package"
-        assert dc.format == "parchement"
-        assert dc.identifier == "42/1"
-        assert dc.source == "Numair's library"
-        assert dc.relation == "None"
-        assert dc.language == "en"
-        assert dc.rights == "Public Domain"
-        assert dc.is_part_of == "AIC#43"
-
-    def test_dublin_core_non_core_properties(self):
-        """It should parse a SIP-level DC if contains non-core properties."""
-        sip_uuid = "dbe62094-17af-427b-b6e7-0ac5799ee4e9"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_non_core_dc.xml"))
-        job = mock.Mock(spec=Job)
-
-        dc = parse_mets_to_db.parse_dc(job, sip_uuid, root)
-
-        # Verify the Dublin Core core properties were populated.
-        assert dc
-        assert models.DublinCore.objects.filter(
-            metadataappliestoidentifier=sip_uuid
-        ).exists()
-        assert dc.title == "Objects dir"
-
-        # Verify the job prints the parsed Dublin Core core properties.
-        assert job.pyprint.mock_calls == [
-            mock.call("Dublin Core:"),
-            mock.call("title", "Objects dir"),
-        ]
-
-    def test_get_sip_dc_ignore_file_dc(self):
-        """It should parse a SIP-level DC even if file-level DC is also present."""
-        sip_uuid = "55972e97-8d35-4b07-abaa-ae260c32d261"
-        root = etree.parse(
-            os.path.join(THIS_DIR, "fixtures", "mets_sip_and_file_dc.xml")
-        )
-        dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
-        assert dc
-        assert models.DublinCore.objects.filter(
-            metadataappliestoidentifier=sip_uuid
-        ).exists()
-        assert dc.title == "Yamani Weapons"
-        assert dc.creator == "Keladry of Mindelan"
-        assert dc.subject == "Glaives"
-        assert dc.description == "Glaives are cool"
-        assert dc.publisher == "Tortall Press"
-        assert dc.contributor == "Yuki"
-        assert dc.date == "2014"
-        assert dc.type == "Archival Information Package"
-        assert dc.format == "parchement"
-        assert dc.identifier == "42/1"
-        assert dc.source == "Numair's library"
-        assert dc.relation == "None"
-        assert dc.language == "en"
-        assert dc.rights == "Public Domain"
-        assert dc.is_part_of == "AIC#43"
-
-    def test_multiple_sip_dc(self):
-        """It should parse the most recent SIP DC if multiple exist."""
-        sip_uuid = "eacbf65f-2528-4be0-8cb3-532f45fcdff8"
-        root = etree.parse(
-            os.path.join(THIS_DIR, "fixtures", "mets_multiple_sip_dc.xml")
-        )
-        dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
-        assert dc
-        assert models.DublinCore.objects.filter(
-            metadataappliestoidentifier=sip_uuid
-        ).exists()
-        assert dc.title == "Yamani Weapons"
-        assert dc.creator == "Keladry of Mindelan"
-        assert dc.subject == "Glaives"
-        assert dc.description == "Glaives are awesome"
-        assert dc.publisher == "Tortall Press"
-        assert dc.contributor == "Yuki"
-        assert dc.date == "2014"
-        assert dc.type == "Archival Information Package"
-        assert dc.format == "palimpsest"
-        assert dc.identifier == "42/1"
-        assert dc.source == ""
-        assert dc.relation == "Everyone!"
-        assert dc.language == "en"
-        assert dc.rights == "Public Domain"
-        assert dc.is_part_of == "AIC#43"
+        is False
+    )
 
 
-class TestParsePremisRights(TestCase):
-    """Test parsing PREMIS:RIGHTS from a METS file into the DB."""
-
-    fixture_files = ["metadata_applies_to_type.json", "dublincore.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
-
-    def test_none_found(self):
-        """It should parse no rights if none found."""
-        sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_no_metadata.xml"))
-        rights = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights == []
-        assert (
-            models.RightsStatement.objects.filter(
-                metadataappliestoidentifier=sip_uuid
-            ).exists()
-            is False
-        )
-
-    def test_parse_copyright(self):
-        """
-        It should parse copyright rights.
-        It should parse multiple rightsGranted.
-        """
-        sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
-        rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights_list
-        rights = models.RightsStatement.objects.get(
-            metadataappliestoidentifier=sip_uuid, rightsbasis="Copyright"
-        )
-        assert rights.rightsstatementidentifiertype == ""
-        assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsbasis == "Copyright"
-        assert rights.status == "REINGEST"
-        cr = models.RightsStatementCopyright.objects.get(rightsstatement=rights)
-        assert cr.copyrightstatus == "Under copyright"
-        assert cr.copyrightjurisdiction == "CA"
-        assert cr.copyrightstatusdeterminationdate == "2015"
-        assert cr.copyrightapplicablestartdate == "1990"
-        assert cr.copyrightapplicableenddate is None
-        assert cr.copyrightenddateopen is True
-        di = models.RightsStatementCopyrightDocumentationIdentifier.objects.get(
-            rightscopyright=cr
-        )
-        assert di.copyrightdocumentationidentifiertype == ""
-        assert di.copyrightdocumentationidentifiervalue == ""
-        assert di.copyrightdocumentationidentifierrole == ""
-        note = models.RightsStatementCopyrightNote.objects.get(rightscopyright=cr)
-        assert note.copyrightnote == "Copyright expires 2010"
-        rg = models.RightsStatementRightsGranted.objects.filter(rightsstatement=rights)
-        assert len(rg) == 2
-        assert rg[0].act == "Disseminate"
-        assert rg[0].startdate == "2000"
-        assert rg[0].enddate is None
-        assert rg[0].enddateopen is True
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(
-            rightsgranted=rg[0]
-        )
-        assert rgnote.rightsgrantednote == "Attribution required"
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg[0]
-        )
-        assert rgrestriction.restriction == "Allow"
-        assert rg[1].act == "Access"
-        assert rg[1].startdate == "1999"
-        assert rg[1].enddate is None
-        assert rg[1].enddateopen is True
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(
-            rightsgranted=rg[1]
-        )
-        assert rgnote.rightsgrantednote == "Access one year before dissemination"
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg[1]
-        )
-        assert rgrestriction.restriction == "Allow"
-
-    def test_parse_license(self):
-        """It should parse license rights."""
-        sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
-        rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights_list
-        rights = models.RightsStatement.objects.get(
-            metadataappliestoidentifier=sip_uuid, rightsbasis="License"
-        )
-        assert rights.rightsstatementidentifiertype == ""
-        assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsbasis == "License"
-        assert rights.status == "REINGEST"
-        li = models.RightsStatementLicense.objects.get(rightsstatement=rights)
-        assert li.licenseterms == "CC-BY-SA"
-        assert li.licenseapplicablestartdate == "2015"
-        assert li.licenseapplicableenddate is None
-        assert li.licenseenddateopen is True
-        di = models.RightsStatementLicenseDocumentationIdentifier.objects.get(
-            rightsstatementlicense=li
-        )
-        assert di.licensedocumentationidentifiertype == ""
-        assert di.licensedocumentationidentifiervalue == ""
-        assert di.licensedocumentationidentifierrole == ""
-        note = models.RightsStatementLicenseNote.objects.get(rightsstatementlicense=li)
-        assert note.licensenote == ""
-        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
-        assert rg.act == "Disseminate"
-        assert rg.startdate == "2015"
-        assert rg.enddate is None
-        assert rg.enddateopen is True
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
-        assert rgnote.rightsgrantednote == "Attribution required"
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg
-        )
-        assert rgrestriction.restriction == "Allow"
-
-    def test_parse_statute(self):
-        """It should parse statute rights."""
-        sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
-        rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights_list
-        rights = models.RightsStatement.objects.get(
-            metadataappliestoidentifier=sip_uuid, rightsbasis="Statute"
-        )
-        assert rights.rightsstatementidentifiertype == ""
-        assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsbasis == "Statute"
-        assert rights.status == "REINGEST"
-        st = models.RightsStatementStatuteInformation.objects.get(
-            rightsstatement=rights
-        )
-        assert st.statutejurisdiction == "BC, Canada"
-        assert st.statutecitation == "Freedom of Information Act"
-        assert st.statutedeterminationdate == "2011"
-        assert st.statuteapplicablestartdate == "1994"
-        assert st.statuteapplicableenddate == "2094"
-        assert st.statuteenddateopen is False
-        di = models.RightsStatementStatuteDocumentationIdentifier.objects.get(
-            rightsstatementstatute=st
-        )
-        assert di.statutedocumentationidentifiertype == ""
-        assert di.statutedocumentationidentifiervalue == ""
-        assert di.statutedocumentationidentifierrole == ""
-        note = models.RightsStatementStatuteInformationNote.objects.get(
-            rightsstatementstatute=st
-        )
-        assert note.statutenote == "SIN & health numbers"
-        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
-        assert rg.act == "Disseminate"
-        assert rg.startdate == "1994"
-        assert rg.enddate == "2094"
-        assert rg.enddateopen is False
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
-        assert rgnote.rightsgrantednote == ""
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg
-        )
-        assert rgrestriction.restriction == "Disallow"
-
-    def test_parse_policy(self):
-        """It should parse policy rights."""
-        pass
-        sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
-        rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights_list
-        rights = models.RightsStatement.objects.get(
-            metadataappliestoidentifier=sip_uuid, rightsbasis="Policy"
-        )
-        assert rights.rightsstatementidentifiertype == ""
-        assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsbasis == "Policy"
-        assert rights.status == "REINGEST"
-        other = models.RightsStatementOtherRightsInformation.objects.get(
-            rightsstatement=rights
-        )
-        assert other.otherrightsbasis == "Policy"
-        assert other.otherrightsapplicablestartdate == "1989"
-        assert other.otherrightsapplicableenddate is None
-        assert other.otherrightsenddateopen is True
-        di = models.RightsStatementOtherRightsDocumentationIdentifier.objects.get(
-            rightsstatementotherrights=other
-        )
-        assert di.otherrightsdocumentationidentifiertype == ""
-        assert di.otherrightsdocumentationidentifiervalue == ""
-        assert di.otherrightsdocumentationidentifierrole == ""
-        note = models.RightsStatementOtherRightsInformationNote.objects.get(
-            rightsstatementotherrights=other
-        )
-        assert note.otherrightsnote == "Pubic relations office only"
-        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
-        assert rg.act == "Disseminate"
-        assert rg.startdate == "1989-01-01"
-        assert rg.enddate is None
-        assert rg.enddateopen is True
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
-        assert rgnote.rightsgrantednote == ""
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg
-        )
-        assert rgrestriction.restriction == "Conditional"
-
-    def test_parse_donor(self):
-        """It should parse donor rights."""
-        pass
-        sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_all_rights.xml"))
-        rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights_list
-        rights = models.RightsStatement.objects.get(
-            metadataappliestoidentifier=sip_uuid, rightsbasis="Donor"
-        )
-        assert rights.rightsstatementidentifiertype == ""
-        assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsbasis == "Donor"
-        assert rights.status == "REINGEST"
-        other = models.RightsStatementOtherRightsInformation.objects.get(
-            rightsstatement=rights
-        )
-        assert other.otherrightsbasis == "Donor"
-        assert other.otherrightsapplicablestartdate == "2000-01-01"
-        assert other.otherrightsapplicableenddate == "2020-01-01"
-        assert other.otherrightsenddateopen is False
-        di = models.RightsStatementOtherRightsDocumentationIdentifier.objects.get(
-            rightsstatementotherrights=other
-        )
-        assert di.otherrightsdocumentationidentifiertype == "DID"
-        assert di.otherrightsdocumentationidentifiervalue == "1"
-        assert di.otherrightsdocumentationidentifierrole == "-"
-        note = models.RightsStatementOtherRightsInformationNote.objects.get(
-            rightsstatementotherrights=other
-        )
-        assert note.otherrightsnote == "Contact in 2010 for earlier"
-        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
-        assert rg.act == "Publish"
-        assert rg.startdate == "2000-01-01"
-        assert rg.enddate == "2020-01-01"
-        assert rg.enddateopen is False
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
-        assert rgnote.rightsgrantednote == ""
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg
-        )
-        assert rgrestriction.restriction == "Conditional"
-
-    def test_parse_multiple_rights(self):
-        """It should only parse the most recent rights."""
-        sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
-        root = etree.parse(
-            os.path.join(THIS_DIR, "fixtures", "mets_updated_rights.xml")
-        )
-        rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
-        assert rights_list
-        rights = models.RightsStatement.objects.get(
-            metadataappliestoidentifier=sip_uuid, rightsbasis="Statute"
-        )
-        assert rights.rightsstatementidentifiertype == ""
-        assert rights.rightsstatementidentifiervalue == ""
-        assert rights.rightsbasis == "Statute"
-        assert rights.status == "REINGEST"
-        st = models.RightsStatementStatuteInformation.objects.get(
-            rightsstatement=rights
-        )
-        assert st.statutejurisdiction == "British Columbia, Canada"
-        assert (
-            st.statutecitation
-            == "Freedom of Information Act and Protection of Privacy Act"
-        )
-        assert st.statutedeterminationdate == "2015"
-        assert st.statuteapplicablestartdate == "2000"
-        assert st.statuteapplicableenddate is None
-        assert st.statuteenddateopen is True
-        di = models.RightsStatementStatuteDocumentationIdentifier.objects.get(
-            rightsstatementstatute=st
-        )
-        assert di.statutedocumentationidentifiertype == "Doc"
-        assert di.statutedocumentationidentifiervalue == "1"
-        assert di.statutedocumentationidentifierrole == "-"
-        note = models.RightsStatementStatuteInformationNote.objects.get(
-            rightsstatementstatute=st
-        )
-        assert note.statutenote == "SIN and health numbers"
-        rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
-        assert rg.act == "Disseminate"
-        assert rg.startdate == "2000"
-        assert rg.enddate is None
-        assert rg.enddateopen is True
-        rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
-        assert rgnote.rightsgrantednote == ""
-        rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
-            rightsgranted=rg
-        )
-        assert rgrestriction.restriction == "Disallow"
+@pytest.mark.django_db
+def test_parse_copyright(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """
+    It should parse copyright rights.
+    It should parse multiple rightsGranted.
+    """
+    sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_all_rights.xml"))
+    rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights_list
+    rights = models.RightsStatement.objects.get(
+        metadataappliestoidentifier=sip_uuid, rightsbasis="Copyright"
+    )
+    assert rights.rightsstatementidentifiertype == ""
+    assert rights.rightsstatementidentifiervalue == ""
+    assert rights.rightsbasis == "Copyright"
+    assert rights.status == "REINGEST"
+    cr = models.RightsStatementCopyright.objects.get(rightsstatement=rights)
+    assert cr.copyrightstatus == "Under copyright"
+    assert cr.copyrightjurisdiction == "CA"
+    assert cr.copyrightstatusdeterminationdate == "2015"
+    assert cr.copyrightapplicablestartdate == "1990"
+    assert cr.copyrightapplicableenddate is None
+    assert cr.copyrightenddateopen is True
+    di = models.RightsStatementCopyrightDocumentationIdentifier.objects.get(
+        rightscopyright=cr
+    )
+    assert di.copyrightdocumentationidentifiertype == ""
+    assert di.copyrightdocumentationidentifiervalue == ""
+    assert di.copyrightdocumentationidentifierrole == ""
+    note = models.RightsStatementCopyrightNote.objects.get(rightscopyright=cr)
+    assert note.copyrightnote == "Copyright expires 2010"
+    rg = models.RightsStatementRightsGranted.objects.filter(rightsstatement=rights)
+    assert len(rg) == 2
+    assert rg[0].act == "Disseminate"
+    assert rg[0].startdate == "2000"
+    assert rg[0].enddate is None
+    assert rg[0].enddateopen is True
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg[0])
+    assert rgnote.rightsgrantednote == "Attribution required"
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg[0]
+    )
+    assert rgrestriction.restriction == "Allow"
+    assert rg[1].act == "Access"
+    assert rg[1].startdate == "1999"
+    assert rg[1].enddate is None
+    assert rg[1].enddateopen is True
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg[1])
+    assert rgnote.rightsgrantednote == "Access one year before dissemination"
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg[1]
+    )
+    assert rgrestriction.restriction == "Allow"
 
 
-class TestParseFiles(TestCase):
-    """Test parsing file information from a METS file to the DB."""
+@pytest.mark.django_db
+def test_parse_license(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse license rights."""
+    sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_all_rights.xml"))
+    rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights_list
+    rights = models.RightsStatement.objects.get(
+        metadataappliestoidentifier=sip_uuid, rightsbasis="License"
+    )
+    assert rights.rightsstatementidentifiertype == ""
+    assert rights.rightsstatementidentifiervalue == ""
+    assert rights.rightsbasis == "License"
+    assert rights.status == "REINGEST"
+    li = models.RightsStatementLicense.objects.get(rightsstatement=rights)
+    assert li.licenseterms == "CC-BY-SA"
+    assert li.licenseapplicablestartdate == "2015"
+    assert li.licenseapplicableenddate is None
+    assert li.licenseenddateopen is True
+    di = models.RightsStatementLicenseDocumentationIdentifier.objects.get(
+        rightsstatementlicense=li
+    )
+    assert di.licensedocumentationidentifiertype == ""
+    assert di.licensedocumentationidentifiervalue == ""
+    assert di.licensedocumentationidentifierrole == ""
+    note = models.RightsStatementLicenseNote.objects.get(rightsstatementlicense=li)
+    assert note.licensenote == ""
+    rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+    assert rg.act == "Disseminate"
+    assert rg.startdate == "2015"
+    assert rg.enddate is None
+    assert rg.enddateopen is True
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+    assert rgnote.rightsgrantednote == "Attribution required"
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg
+    )
+    assert rgrestriction.restriction == "Allow"
 
-    fixture_files = ["formats.json"]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
 
-    @pytest.fixture(autouse=True)
-    def set_sip_uuid(self, sip):
-        self.SIP_UUID = str(sip.uuid)
+@pytest.mark.django_db
+def test_parse_statute(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse statute rights."""
+    sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_all_rights.xml"))
+    rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights_list
+    rights = models.RightsStatement.objects.get(
+        metadataappliestoidentifier=sip_uuid, rightsbasis="Statute"
+    )
+    assert rights.rightsstatementidentifiertype == ""
+    assert rights.rightsstatementidentifiervalue == ""
+    assert rights.rightsbasis == "Statute"
+    assert rights.status == "REINGEST"
+    st = models.RightsStatementStatuteInformation.objects.get(rightsstatement=rights)
+    assert st.statutejurisdiction == "BC, Canada"
+    assert st.statutecitation == "Freedom of Information Act"
+    assert st.statutedeterminationdate == "2011"
+    assert st.statuteapplicablestartdate == "1994"
+    assert st.statuteapplicableenddate == "2094"
+    assert st.statuteenddateopen is False
+    di = models.RightsStatementStatuteDocumentationIdentifier.objects.get(
+        rightsstatementstatute=st
+    )
+    assert di.statutedocumentationidentifiertype == ""
+    assert di.statutedocumentationidentifiervalue == ""
+    assert di.statutedocumentationidentifierrole == ""
+    note = models.RightsStatementStatuteInformationNote.objects.get(
+        rightsstatementstatute=st
+    )
+    assert note.statutenote == "SIN & health numbers"
+    rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+    assert rg.act == "Disseminate"
+    assert rg.startdate == "1994"
+    assert rg.enddate == "2094"
+    assert rg.enddateopen is False
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+    assert rgnote.rightsgrantednote == ""
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg
+    )
+    assert rgrestriction.restriction == "Disallow"
 
-    def setUp(self):
-        self.ORIG_INFO = {
-            "uuid": "ae8d4290-fe52-4954-b72a-0f591bee2e2f",
-            "original_path": "%SIPDirectory%objects/evelyn's photo.jpg",
-            "current_path": "%SIPDirectory%objects/evelyn_s_photo.jpg",
-            "use": "original",
-            "checksum": "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
-            "checksumtype": "sha256",
-            "size": "158131",
-            "format_version": fpr.models.FormatVersion.objects.get(
-                uuid="01fac958-274d-41ef-978f-d9cf711b3c4a"
-            ),
-            "derivation": "8140ebe5-295c-490b-a34a-83955b7c844e",
-            "derivation_event": "0ce13092-911f-4a89-b9e1-0e61921a03d4",
-        }
-        self.PRES_INFO = {
-            "uuid": "8140ebe5-295c-490b-a34a-83955b7c844e",
-            "original_path": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
-            "current_path": "%SIPDirectory%objects/evelyn_s_photo-6383b731-99e0-432d-a911-a0d2dfd1ce76.tif",
+
+@pytest.mark.django_db
+def test_parse_policy(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse policy rights."""
+    pass
+    sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_all_rights.xml"))
+    rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights_list
+    rights = models.RightsStatement.objects.get(
+        metadataappliestoidentifier=sip_uuid, rightsbasis="Policy"
+    )
+    assert rights.rightsstatementidentifiertype == ""
+    assert rights.rightsstatementidentifiervalue == ""
+    assert rights.rightsbasis == "Policy"
+    assert rights.status == "REINGEST"
+    other = models.RightsStatementOtherRightsInformation.objects.get(
+        rightsstatement=rights
+    )
+    assert other.otherrightsbasis == "Policy"
+    assert other.otherrightsapplicablestartdate == "1989"
+    assert other.otherrightsapplicableenddate is None
+    assert other.otherrightsenddateopen is True
+    di = models.RightsStatementOtherRightsDocumentationIdentifier.objects.get(
+        rightsstatementotherrights=other
+    )
+    assert di.otherrightsdocumentationidentifiertype == ""
+    assert di.otherrightsdocumentationidentifiervalue == ""
+    assert di.otherrightsdocumentationidentifierrole == ""
+    note = models.RightsStatementOtherRightsInformationNote.objects.get(
+        rightsstatementotherrights=other
+    )
+    assert note.otherrightsnote == "Pubic relations office only"
+    rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+    assert rg.act == "Disseminate"
+    assert rg.startdate == "1989-01-01"
+    assert rg.enddate is None
+    assert rg.enddateopen is True
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+    assert rgnote.rightsgrantednote == ""
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg
+    )
+    assert rgrestriction.restriction == "Conditional"
+
+
+@pytest.mark.django_db
+def test_parse_donor(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should parse donor rights."""
+    pass
+    sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_all_rights.xml"))
+    rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights_list
+    rights = models.RightsStatement.objects.get(
+        metadataappliestoidentifier=sip_uuid, rightsbasis="Donor"
+    )
+    assert rights.rightsstatementidentifiertype == ""
+    assert rights.rightsstatementidentifiervalue == ""
+    assert rights.rightsbasis == "Donor"
+    assert rights.status == "REINGEST"
+    other = models.RightsStatementOtherRightsInformation.objects.get(
+        rightsstatement=rights
+    )
+    assert other.otherrightsbasis == "Donor"
+    assert other.otherrightsapplicablestartdate == "2000-01-01"
+    assert other.otherrightsapplicableenddate == "2020-01-01"
+    assert other.otherrightsenddateopen is False
+    di = models.RightsStatementOtherRightsDocumentationIdentifier.objects.get(
+        rightsstatementotherrights=other
+    )
+    assert di.otherrightsdocumentationidentifiertype == "DID"
+    assert di.otherrightsdocumentationidentifiervalue == "1"
+    assert di.otherrightsdocumentationidentifierrole == "-"
+    note = models.RightsStatementOtherRightsInformationNote.objects.get(
+        rightsstatementotherrights=other
+    )
+    assert note.otherrightsnote == "Contact in 2010 for earlier"
+    rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+    assert rg.act == "Publish"
+    assert rg.startdate == "2000-01-01"
+    assert rg.enddate == "2020-01-01"
+    assert rg.enddateopen is False
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+    assert rgnote.rightsgrantednote == ""
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg
+    )
+    assert rgrestriction.restriction == "Conditional"
+
+
+@pytest.mark.django_db
+def test_parse_multiple_rights(mcp_job: Job, dublincore_fixtures: None) -> None:
+    """It should only parse the most recent rights."""
+    sip_uuid = "50d65db1-86cd-4579-80af-8d9c0dbd7fca"
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_updated_rights.xml"))
+    rights_list = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
+    assert rights_list
+    rights = models.RightsStatement.objects.get(
+        metadataappliestoidentifier=sip_uuid, rightsbasis="Statute"
+    )
+    assert rights.rightsstatementidentifiertype == ""
+    assert rights.rightsstatementidentifiervalue == ""
+    assert rights.rightsbasis == "Statute"
+    assert rights.status == "REINGEST"
+    st = models.RightsStatementStatuteInformation.objects.get(rightsstatement=rights)
+    assert st.statutejurisdiction == "British Columbia, Canada"
+    assert (
+        st.statutecitation == "Freedom of Information Act and Protection of Privacy Act"
+    )
+    assert st.statutedeterminationdate == "2015"
+    assert st.statuteapplicablestartdate == "2000"
+    assert st.statuteapplicableenddate is None
+    assert st.statuteenddateopen is True
+    di = models.RightsStatementStatuteDocumentationIdentifier.objects.get(
+        rightsstatementstatute=st
+    )
+    assert di.statutedocumentationidentifiertype == "Doc"
+    assert di.statutedocumentationidentifiervalue == "1"
+    assert di.statutedocumentationidentifierrole == "-"
+    note = models.RightsStatementStatuteInformationNote.objects.get(
+        rightsstatementstatute=st
+    )
+    assert note.statutenote == "SIN and health numbers"
+    rg = models.RightsStatementRightsGranted.objects.get(rightsstatement=rights)
+    assert rg.act == "Disseminate"
+    assert rg.startdate == "2000"
+    assert rg.enddate is None
+    assert rg.enddateopen is True
+    rgnote = models.RightsStatementRightsGrantedNote.objects.get(rightsgranted=rg)
+    assert rgnote.rightsgrantednote == ""
+    rgrestriction = models.RightsStatementRightsGrantedRestriction.objects.get(
+        rightsgranted=rg
+    )
+    assert rgrestriction.restriction == "Disallow"
+
+
+@pytest.mark.django_db
+def test_parse_file_info(
+    mcp_job: Job, orig_info: FileInfo, mets_info: FileInfo, pres_info: FileInfo
+) -> None:
+    """
+    It should parse file info into a dict.
+    It should attach derivation information to the original file.
+    """
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_no_metadata.xml"))
+    files = parse_mets_to_db.parse_files(mcp_job, root)
+    assert files == [orig_info, mets_info, pres_info]
+
+
+@pytest.mark.django_db
+def test_parse_file_info_ignores_deleted_files_without_flocat(
+    mcp_job: Job, formats_fixtures: None
+) -> None:
+    """It should ignore deleted file entries that have no physical location.
+
+    Reingest retains deleted entries in the METS as provenance tombstones after
+    their files have been removed from the AIP. They therefore have no FLocat
+    and should not be loaded into the database as files to process again.
+    """
+    root = etree.parse(
+        os.path.join(FIXTURES_DIR, "mets_deleted_file_without_flocat.xml")
+    )
+
+    files = parse_mets_to_db.parse_files(mcp_job, root)
+
+    assert files == [
+        {
+            "uuid": "85aa559e-5a38-4be7-a814-708f738fd40c",
+            "original_path": "%SIPDirectory%objects/preserved.txt",
+            "current_path": "%SIPDirectory%objects/preserved.txt",
             "use": "preservation",
-            "checksum": "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+            "checksum": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
             "checksumtype": "sha256",
-            "size": "1446772",
-            "format_version": None,
-            "derivation": None,
-            "derivation_event": None,
-        }
-        self.METS_INFO = {
-            "uuid": "590bd882-7521-498c-8f89-0958218f779d",
-            "original_path": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
-            "current_path": "%SIPDirectory%objects/submissionDocumentation/transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
-            "use": "submissionDocumentation",
-            "checksum": "d41d8cd98f00b204e9800998ecf8427e",
-            "checksumtype": "md5",
-            "size": "12222",
-            "format_version": fpr.models.FormatVersion.objects.get(
-                uuid="d60e5243-692e-4af7-90cd-40c53cb8dc7d"
+            "size": "11",
+            "format_version": fprmodels.FormatVersion.objects.get(
+                uuid="61c8d737-e809-47a1-b89f-83c1239dae99"
             ),
             "derivation": None,
             "derivation_event": None,
         }
+    ]
 
-    def test_parse_file_info(self):
-        """
-        It should parse file info into a dict.
-        It should attach derivation information to the original file.
-        """
-        root = etree.parse(os.path.join(THIS_DIR, "fixtures", "mets_no_metadata.xml"))
-        files = parse_mets_to_db.parse_files(mcp_job, root)
-        assert len(files) == 3
-        orig = files[0]
-        assert orig["uuid"] == self.ORIG_INFO["uuid"]
-        assert orig["original_path"] == self.ORIG_INFO["original_path"]
-        assert orig["current_path"] == self.ORIG_INFO["current_path"]
-        assert orig["use"] == self.ORIG_INFO["use"]
-        assert orig["checksum"] == self.ORIG_INFO["checksum"]
-        assert orig["checksumtype"] == self.ORIG_INFO["checksumtype"]
-        assert orig["size"] == self.ORIG_INFO["size"]
-        assert orig["format_version"] == self.ORIG_INFO["format_version"]
-        assert orig["derivation"] == self.ORIG_INFO["derivation"]
-        assert orig["derivation_event"] == self.ORIG_INFO["derivation_event"]
-        mets = files[1]
-        assert mets["uuid"] == self.METS_INFO["uuid"]
-        assert mets["original_path"] == self.METS_INFO["original_path"]
-        assert mets["current_path"] == self.METS_INFO["current_path"]
-        assert mets["use"] == self.METS_INFO["use"]
-        assert mets["checksum"] == self.METS_INFO["checksum"]
-        assert mets["checksumtype"] == self.METS_INFO["checksumtype"]
-        assert mets["size"] == self.METS_INFO["size"]
-        assert mets["format_version"] == self.METS_INFO["format_version"]
-        assert mets["derivation"] == self.METS_INFO["derivation"]
-        assert mets["derivation_event"] == self.METS_INFO["derivation_event"]
-        pres = files[2]
-        assert pres["uuid"] == self.PRES_INFO["uuid"]
-        assert pres["original_path"] == self.PRES_INFO["original_path"]
-        assert pres["current_path"] == self.PRES_INFO["current_path"]
-        assert pres["use"] == self.PRES_INFO["use"]
-        assert pres["checksum"] == self.PRES_INFO["checksum"]
-        assert pres["checksumtype"] == self.PRES_INFO["checksumtype"]
-        assert pres["size"] == self.PRES_INFO["size"]
-        assert pres["format_version"] == self.PRES_INFO["format_version"]
-        assert pres["derivation"] == self.PRES_INFO["derivation"]
-        assert pres["derivation_event"] == self.PRES_INFO["derivation_event"]
 
-    def test_parse_file_info_ignores_deleted_files_without_flocat(self):
-        """It should ignore deleted file entries that have no physical location.
+@pytest.mark.django_db
+def test_parse_file_info_reingest(
+    mcp_job: Job, orig_info: FileInfo, mets_info: FileInfo, pres_info: FileInfo
+) -> None:
+    """
+    It should parse the correct techMD in the amdSec.
+    """
+    root = etree.parse(os.path.join(FIXTURES_DIR, "mets_superseded_techmd.xml"))
+    files = parse_mets_to_db.parse_files(mcp_job, root)
+    assert files == [orig_info, mets_info, pres_info]
 
-        Reingest retains deleted entries in the METS as provenance tombstones after
-        their files have been removed from the AIP. They therefore have no FLocat
-        and should not be loaded into the database as files to process again.
-        """
-        root = etree.parse(
-            os.path.join(THIS_DIR, "fixtures", "mets_deleted_file_without_flocat.xml")
-        )
 
-        files = parse_mets_to_db.parse_files(mcp_job, root)
-
-        assert files == [
-            {
-                "uuid": "85aa559e-5a38-4be7-a814-708f738fd40c",
-                "original_path": "%SIPDirectory%objects/preserved.txt",
-                "current_path": "%SIPDirectory%objects/preserved.txt",
-                "use": "preservation",
-                "checksum": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
-                "checksumtype": "sha256",
-                "size": "11",
-                "format_version": fpr.models.FormatVersion.objects.get(
-                    uuid="61c8d737-e809-47a1-b89f-83c1239dae99"
-                ),
-                "derivation": None,
-                "derivation_event": None,
-            }
-        ]
-
-    def test_parse_file_info_reingest(self):
-        """
-        It should parse the correct techMD in the amdSec.
-        """
-        root = etree.parse(
-            os.path.join(THIS_DIR, "fixtures", "mets_superseded_techmd.xml")
-        )
-        files = parse_mets_to_db.parse_files(mcp_job, root)
-        assert len(files) == 3
-        orig = files[0]
-        assert orig["uuid"] == self.ORIG_INFO["uuid"]
-        assert orig["original_path"] == self.ORIG_INFO["original_path"]
-        assert orig["current_path"] == self.ORIG_INFO["current_path"]
-        assert orig["use"] == self.ORIG_INFO["use"]
-        assert orig["checksum"] == self.ORIG_INFO["checksum"]
-        assert orig["checksumtype"] == self.ORIG_INFO["checksumtype"]
-        assert orig["size"] == self.ORIG_INFO["size"]
-        assert orig["format_version"] == self.ORIG_INFO["format_version"]
-        assert orig["derivation"] == self.ORIG_INFO["derivation"]
-        assert orig["derivation_event"] == self.ORIG_INFO["derivation_event"]
-        mets = files[1]
-        assert mets["uuid"] == self.METS_INFO["uuid"]
-        assert mets["original_path"] == self.METS_INFO["original_path"]
-        assert mets["current_path"] == self.METS_INFO["current_path"]
-        assert mets["use"] == self.METS_INFO["use"]
-        assert mets["checksum"] == self.METS_INFO["checksum"]
-        assert mets["checksumtype"] == self.METS_INFO["checksumtype"]
-        assert mets["size"] == self.METS_INFO["size"]
-        assert mets["format_version"] == self.METS_INFO["format_version"]
-        assert mets["derivation"] == self.METS_INFO["derivation"]
-        assert mets["derivation_event"] == self.METS_INFO["derivation_event"]
-        pres = files[2]
-        assert pres["uuid"] == self.PRES_INFO["uuid"]
-        assert pres["original_path"] == self.PRES_INFO["original_path"]
-        assert pres["current_path"] == self.PRES_INFO["current_path"]
-        assert pres["use"] == self.PRES_INFO["use"]
-        assert pres["checksum"] == self.PRES_INFO["checksum"]
-        assert pres["checksumtype"] == self.PRES_INFO["checksumtype"]
-        assert pres["size"] == self.PRES_INFO["size"]
-        assert pres["format_version"] == self.PRES_INFO["format_version"]
-        assert pres["derivation"] == self.PRES_INFO["derivation"]
-        assert pres["derivation_event"] == self.PRES_INFO["derivation_event"]
-
-    def test_insert_file_info(self):
-        """It should insert file info into the DB."""
-        files = [self.METS_INFO, self.PRES_INFO, self.ORIG_INFO]
-        parse_mets_to_db.update_files(self.SIP_UUID, files)
-        # Verify original file
-        orig = models.File.objects.get(uuid=self.ORIG_INFO["uuid"])
-        assert orig.sip_id == uuid.UUID(self.SIP_UUID)
-        assert orig.transfer is None
-        assert orig.originallocation.decode() == self.ORIG_INFO["original_path"]
-        assert orig.currentlocation.decode() == self.ORIG_INFO["current_path"]
-        assert orig.filegrpuse == self.ORIG_INFO["use"]
-        assert orig.filegrpuuid == ""
-        assert orig.checksum == self.ORIG_INFO["checksum"]
-        assert orig.checksumtype == self.ORIG_INFO["checksumtype"]
-        assert orig.size == int(self.ORIG_INFO["size"])
-        assert models.Event.objects.get(
-            file_uuid_id=self.ORIG_INFO["uuid"], event_type="reingestion"
-        )
-        assert models.FileFormatVersion.objects.get(
-            file_uuid_id=self.ORIG_INFO["uuid"],
-            format_version=self.ORIG_INFO["format_version"],
-        )
-        assert models.Derivation.objects.get(
-            source_file_id=self.ORIG_INFO["uuid"], derived_file=self.PRES_INFO["uuid"]
-        )
-        # Verify preservation file
-        pres = models.File.objects.get(uuid=self.PRES_INFO["uuid"])
-        assert pres.sip_id == uuid.UUID(self.SIP_UUID)
-        assert pres.transfer is None
-        assert pres.originallocation.decode() == self.PRES_INFO["original_path"]
-        assert pres.currentlocation.decode() == self.PRES_INFO["current_path"]
-        assert pres.filegrpuse == self.PRES_INFO["use"]
-        assert pres.filegrpuuid == ""
-        assert pres.checksum == self.PRES_INFO["checksum"]
-        assert pres.checksumtype == self.PRES_INFO["checksumtype"]
-        assert pres.size == int(self.PRES_INFO["size"])
-        assert models.Event.objects.get(
-            file_uuid_id=self.PRES_INFO["uuid"], event_type="reingestion"
-        )
-        assert (
-            models.FileFormatVersion.objects.filter(
-                file_uuid_id=self.PRES_INFO["uuid"]
-            ).exists()
-            is False
-        )
-        # Verify original file
-        mets = models.File.objects.get(uuid=self.METS_INFO["uuid"])
-        assert mets.sip_id == uuid.UUID(self.SIP_UUID)
-        assert mets.transfer is None
-        assert mets.originallocation.decode() == self.METS_INFO["original_path"]
-        assert mets.currentlocation.decode() == self.METS_INFO["current_path"]
-        assert mets.filegrpuse == self.METS_INFO["use"]
-        assert mets.filegrpuuid == ""
-        assert mets.checksum == self.METS_INFO["checksum"]
-        assert mets.checksumtype == self.METS_INFO["checksumtype"]
-        assert mets.size == int(self.METS_INFO["size"])
-        assert models.Event.objects.get(
-            file_uuid_id=self.METS_INFO["uuid"], event_type="reingestion"
-        )
-        assert models.FileFormatVersion.objects.get(
-            file_uuid_id=self.METS_INFO["uuid"],
-            format_version=self.METS_INFO["format_version"],
-        )
-        assert (
-            models.Derivation.objects.filter(
-                source_file_id=self.METS_INFO["uuid"]
-            ).exists()
-            is False
-        )
-        assert (
-            models.Derivation.objects.filter(
-                derived_file=self.METS_INFO["uuid"]
-            ).exists()
-            is False
-        )
+@pytest.mark.django_db
+def test_insert_file_info(
+    sip: models.SIP, orig_info: FileInfo, mets_info: FileInfo, pres_info: FileInfo
+) -> None:
+    """It should insert file info into the DB."""
+    files = [mets_info, pres_info, orig_info]
+    parse_mets_to_db.update_files(str(sip.uuid), files)
+    # Verify original file
+    orig = models.File.objects.get(uuid=orig_info["uuid"])
+    assert orig.sip_id == sip.uuid
+    assert orig.transfer is None
+    assert orig.originallocation.decode() == orig_info["original_path"]
+    assert orig.currentlocation.decode() == orig_info["current_path"]
+    assert orig.filegrpuse == orig_info["use"]
+    assert orig.filegrpuuid == ""
+    assert orig.checksum == orig_info["checksum"]
+    assert orig.checksumtype == orig_info["checksumtype"]
+    assert orig.size == int(orig_info["size"])
+    assert models.Event.objects.get(
+        file_uuid_id=orig_info["uuid"], event_type="reingestion"
+    )
+    assert models.FileFormatVersion.objects.get(
+        file_uuid_id=orig_info["uuid"],
+        format_version=orig_info["format_version"],
+    )
+    assert models.Derivation.objects.get(
+        source_file_id=orig_info["uuid"], derived_file=pres_info["uuid"]
+    )
+    # Verify preservation file
+    pres = models.File.objects.get(uuid=pres_info["uuid"])
+    assert pres.sip_id == sip.uuid
+    assert pres.transfer is None
+    assert pres.originallocation.decode() == pres_info["original_path"]
+    assert pres.currentlocation.decode() == pres_info["current_path"]
+    assert pres.filegrpuse == pres_info["use"]
+    assert pres.filegrpuuid == ""
+    assert pres.checksum == pres_info["checksum"]
+    assert pres.checksumtype == pres_info["checksumtype"]
+    assert pres.size == int(pres_info["size"])
+    assert models.Event.objects.get(
+        file_uuid_id=pres_info["uuid"], event_type="reingestion"
+    )
+    assert (
+        models.FileFormatVersion.objects.filter(file_uuid_id=pres_info["uuid"]).exists()
+        is False
+    )
+    # Verify original file
+    mets = models.File.objects.get(uuid=mets_info["uuid"])
+    assert mets.sip_id == sip.uuid
+    assert mets.transfer is None
+    assert mets.originallocation.decode() == mets_info["original_path"]
+    assert mets.currentlocation.decode() == mets_info["current_path"]
+    assert mets.filegrpuse == mets_info["use"]
+    assert mets.filegrpuuid == ""
+    assert mets.checksum == mets_info["checksum"]
+    assert mets.checksumtype == mets_info["checksumtype"]
+    assert mets.size == int(mets_info["size"])
+    assert models.Event.objects.get(
+        file_uuid_id=mets_info["uuid"], event_type="reingestion"
+    )
+    assert models.FileFormatVersion.objects.get(
+        file_uuid_id=mets_info["uuid"],
+        format_version=mets_info["format_version"],
+    )
+    assert (
+        models.Derivation.objects.filter(source_file_id=mets_info["uuid"]).exists()
+        is False
+    )
+    assert (
+        models.Derivation.objects.filter(derived_file=mets_info["uuid"]).exists()
+        is False
+    )
 
 
 @pytest.mark.django_db

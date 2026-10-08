@@ -415,29 +415,30 @@ def processing_dir(tmp_path):
 
 
 @pytest.mark.django_db(transaction=True)
-class TestMoveToInternalSharedDir:
-    def test_move_dir(self, tmp_path, processing_dir, transfer):
-        filepath = tmp_path / "transfer"
-        filepath.mkdir()
+def test_move_dir(tmp_path, processing_dir, transfer):
+    filepath = tmp_path / "transfer"
+    filepath.mkdir()
 
-        _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
+    _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
 
-        transfer.refresh_from_db()
-        dest_path = processing_dir / "transfer"
-        assert dest_path.is_dir()
-        assert Path(transfer.currentlocation) == dest_path
+    transfer.refresh_from_db()
+    dest_path = processing_dir / "transfer"
+    assert dest_path.is_dir()
+    assert Path(transfer.currentlocation) == dest_path
 
-    def test_move_file(self, tmp_path, processing_dir, transfer):
-        filepath = tmp_path / "transfer.zip"
-        filepath.touch()
 
-        _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
+@pytest.mark.django_db(transaction=True)
+def test_move_file(tmp_path, processing_dir, transfer):
+    filepath = tmp_path / "transfer.zip"
+    filepath.touch()
 
-        dest_path = processing_dir / "transfer.zip"
-        assert dest_path.is_file()
+    _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
 
-        transfer.refresh_from_db()
-        assert Path(transfer.currentlocation) == dest_path
+    dest_path = processing_dir / "transfer.zip"
+    assert dest_path.is_file()
+
+    transfer.refresh_from_db()
+    assert Path(transfer.currentlocation) == dest_path
 
 
 @pytest.mark.parametrize(

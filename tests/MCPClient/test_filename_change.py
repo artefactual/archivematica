@@ -1,12 +1,13 @@
 import os
-import shutil
+import pathlib
 import uuid
 
 import pytest
-from django.test import TestCase
-from pytest_django.asserts import assertQuerySetEqual
+from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from archivematica.archivematicaCommon.version import get_full_version
+from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
@@ -18,10 +19,10 @@ from archivematica.MCPClient.clientScripts import change_names
 from archivematica.MCPClient.clientScripts import change_object_names
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
-# This uses the same name as the pytest fixture in conftest and it can be
-# removed when these TestCase subclasses are converted into pytest tests.
-mcp_job = Job("stub", "stub", [])
+# UUID of the transfer created by the transfer.json fixture.
+TRANSFER_UUID = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
 
 
 @pytest.fixture()
@@ -139,171 +140,150 @@ def is_uuid(uuid_):
     return True
 
 
-def verify_event_details(event):
-    assert (
-        event.event_detail
-        == f'prohibited characters removed: program="change_names"; version="{get_full_version()}"'
+def event_details(event: Event) -> tuple[str, list[str]]:
+    """The detail and the agents of a filename change event."""
+    return event.event_detail, sorted(repr(agent) for agent in event.agents.all())
+
+
+EXPECTED_EVENT_DETAILS = (
+    f'prohibited characters removed: program="change_names"; version="{get_full_version()}"',
+    [
+        '<Agent: Archivematica user; Archivematica user pk: 1; username="kmindelan", first_name="Keladry", last_name="Mindelan">',
+        "<Agent: organization; repository code: ORG; Your Organization Name Here>",
+    ],
+)
+
+
+@pytest.fixture
+def admin_agent(user: User) -> Agent:
+    return Agent.objects.create(
+        agenttype="Archivematica user",
+        identifiervalue=str(user.pk),
+        name=f'username="{user.username}", first_name="{user.first_name}", last_name="{user.last_name}"',
+        identifiertype="Archivematica user pk",
     )
-    assertQuerySetEqual(
-        event.agents.all(),
-        [
-            "<Agent: organization; repository code: ORG; Your Organization Name Here>",
-            '<Agent: Archivematica user; Archivematica user pk: 1; username="kmindelan", first_name="Keladry", last_name="Mindelan">',
-        ],
-        transform=repr,
-        ordered=False,
+
+
+@pytest.fixture
+def unicode_transfer(db: None, admin_agent: Agent) -> Transfer:
+    """The transfer with unicode file names of the fixture files."""
+    call_command(
+        "loaddata",
+        os.path.join(FIXTURES_DIR, "transfer.json"),
+        os.path.join(FIXTURES_DIR, "files-transfer-unicode.json"),
+        verbosity=0,
+    )
+    UnitVariable.objects.create(
+        unituuid=TRANSFER_UUID,
+        unittype="Transfer",
+        variablevalue=str(admin_agent.pk),
+        variable="activeAgent",
     )
 
+    return Transfer.objects.get(uuid=TRANSFER_UUID)
 
-class TestFilenameChange(TestCase):
-    """Test change_names, change_object_names & change_sip_name."""
 
-    fixture_files = [
-        "transfer.json",
-        "files-transfer-unicode.json",
-    ]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+@pytest.mark.django_db
+def test_change_object_names(
+    mcp_job: Job,
+    tmp_path: pathlib.Path,
+    unicode_transfer: Transfer,
+    organization_agent: Agent,
+) -> None:
+    """Test change_object_names.
 
-    transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
+    It should change filenames.
+    It should change directory names & update the files in it.
+    It should handle unicode unit names.
+    It should not change a name that is already changed.
+    Event and Event Agent details should be written correctly.
+    """
 
-    @pytest.fixture(autouse=True)
-    def tmp_dir(self, tmp_path):
-        tmpdir = tmp_path / "tmp"
-        tmpdir.mkdir()
-        self.tmpdir = tmpdir
-
-    @pytest.fixture(autouse=True)
-    def admin_agent(self, user):
-        return Agent.objects.create(
-            agenttype="Archivematica user",
-            identifiervalue=str(user.pk),
-            name=f'username="{user.username}", first_name="{user.first_name}", last_name="{user.last_name}"',
-            identifiertype="Archivematica user pk",
+    # Create files
+    transfer_path = unicode_transfer.currentlocation.replace(
+        "%sharedPath%currentlyProcessing", str(tmp_path)
+    )
+    for file_ in File.objects.filter(transfer=unicode_transfer):
+        path = file_.currentlocation.decode().replace(
+            "%transferDirectory%", transfer_path
         )
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            f.write(str(path))
 
-    @pytest.fixture(autouse=True)
-    def organization_agent(self):
-        return Agent.objects.get_or_create(
-            pk=2,
-            agenttype="organization",
-            identifiervalue="ORG",
-            name="Your Organization Name Here",
-            identifiertype="repository code",
+    # Change names
+    name_changer = change_object_names.NameChanger(
+        mcp_job,
+        os.path.join(transfer_path, "objects", "").encode("utf8"),
+        TRANSFER_UUID,
+        "2017-01-04 19:35:22",
+        "%transferDirectory%",
+        "transfer_id",
+        os.path.join(transfer_path, "").encode("utf8"),
+    )
+    name_changer.change_objects()
+    # Assert files have expected name
+    # Assert DB has been updated
+    # Assert events created
+    assert os.path.exists(
+        os.path.join(
+            transfer_path,
+            "objects",
+            "takusan_directories",
+            "need_name_change",
+            "checking_here",
+            "evelyn_s_photo.jpg",
         )
+    )
+    assert File.objects.get(
+        currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/evelyn_s_photo.jpg"
+    )
+    event = Event.objects.get(
+        file_uuid="47813453-6872-442b-9d65-6515be3c5aa1",
+        event_type="filename change",
+    )
 
-    @pytest.fixture(autouse=True)
-    def microservice_unitvars(self, admin_agent):
-        UnitVariable.objects.create(
-            unituuid=self.transfer_uuid,
-            unittype="Transfer",
-            variablevalue=str(admin_agent.pk),
-            variable="activeAgent",
+    assert event_details(event) == EXPECTED_EVENT_DETAILS
+
+    assert os.path.exists(
+        os.path.join(transfer_path, "objects", "no_name_change/needed_here/lion.svg")
+    )
+    assert File.objects.get(
+        currentlocation=b"%transferDirectory%objects/no_name_change/needed_here/lion.svg"
+    )
+    assert not Event.objects.filter(
+        file_uuid="60e5c61b-14ef-4e92-89ec-9b9201e68adb",
+        event_type="filename change",
+    ).exists()
+
+    assert os.path.exists(
+        os.path.join(
+            transfer_path,
+            "objects",
+            "takusan_directories",
+            "need_name_change",
+            "checking_here",
+            "lionXie_Zhen_.svg",
         )
+    )
+    assert File.objects.get(
+        currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/lionXie_Zhen_.svg"
+    )
+    assert Event.objects.filter(
+        file_uuid="791e07ea-ad44-4315-b55b-44ec771e95cf",
+        event_type="filename change",
+    ).exists()
 
-    def test_change_object_names(self):
-        """Test change_object_names.
-
-        It should change filenames.
-        It should change directory names & update the files in it.
-        It should handle unicode unit names.
-        It should not change a name that is already changed.
-        Event and Event Agent details should be written correctly.
-        """
-
-        # Create files
-        transfer = Transfer.objects.get(uuid=self.transfer_uuid)
-        transfer_path = transfer.currentlocation.replace(
-            "%sharedPath%currentlyProcessing", str(self.tmpdir)
-        )
-        for f in File.objects.filter(transfer_id=self.transfer_uuid):
-            path = f.currentlocation.decode().replace(
-                "%transferDirectory%", transfer_path
-            )
-            dirname = os.path.dirname(path)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-            with open(path, "w") as f:
-                f.write(str(path))
-
-        try:
-            # Change names
-            name_changer = change_object_names.NameChanger(
-                mcp_job,
-                os.path.join(transfer_path, "objects", "").encode("utf8"),
-                self.transfer_uuid,
-                "2017-01-04 19:35:22",
-                "%transferDirectory%",
-                "transfer_id",
-                os.path.join(transfer_path, "").encode("utf8"),
-            )
-            name_changer.change_objects()
-            # Assert files have expected name
-            # Assert DB has been updated
-            # Assert events created
-            assert os.path.exists(
-                os.path.join(
-                    transfer_path,
-                    "objects",
-                    "takusan_directories",
-                    "need_name_change",
-                    "checking_here",
-                    "evelyn_s_photo.jpg",
-                )
-            )
-            assert File.objects.get(
-                currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/evelyn_s_photo.jpg"
-            )
-            event = Event.objects.get(
-                file_uuid="47813453-6872-442b-9d65-6515be3c5aa1",
-                event_type="filename change",
-            )
-
-            verify_event_details(event)
-
-            assert os.path.exists(
-                os.path.join(
-                    transfer_path, "objects", "no_name_change/needed_here/lion.svg"
-                )
-            )
-            assert File.objects.get(
-                currentlocation=b"%transferDirectory%objects/no_name_change/needed_here/lion.svg"
-            )
-            assert not Event.objects.filter(
-                file_uuid="60e5c61b-14ef-4e92-89ec-9b9201e68adb",
-                event_type="filename change",
-            ).exists()
-
-            assert os.path.exists(
-                os.path.join(
-                    transfer_path,
-                    "objects",
-                    "takusan_directories",
-                    "need_name_change",
-                    "checking_here",
-                    "lionXie_Zhen_.svg",
-                )
-            )
-            assert File.objects.get(
-                currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/lionXie_Zhen_.svg"
-            )
-            assert Event.objects.filter(
-                file_uuid="791e07ea-ad44-4315-b55b-44ec771e95cf",
-                event_type="filename change",
-            ).exists()
-
-            assert os.path.exists(
-                os.path.join(transfer_path, "objects", "has_space", "lion.svg")
-            )
-            assert File.objects.get(
-                currentlocation=b"%transferDirectory%objects/has_space/lion.svg"
-            )
-            assert Event.objects.filter(
-                file_uuid="8a1f0b59-cf94-47ef-8078-647b77c8a147",
-                event_type="filename change",
-            ).exists()
-        finally:
-            # Delete files
-            shutil.rmtree(transfer_path)
+    assert os.path.exists(
+        os.path.join(transfer_path, "objects", "has_space", "lion.svg")
+    )
+    assert File.objects.get(
+        currentlocation=b"%transferDirectory%objects/has_space/lion.svg"
+    )
+    assert Event.objects.filter(
+        file_uuid="8a1f0b59-cf94-47ef-8078-647b77c8a147",
+        event_type="filename change",
+    ).exists()
 
 
 @pytest.mark.parametrize(
@@ -325,8 +305,8 @@ def test_change_name_raises_valueerror_on_empty_string():
 
 
 @pytest.fixture
-def organization_agent():
-    return Agent.objects.get_or_create(
+def organization_agent() -> Agent:
+    agent, _ = Agent.objects.get_or_create(
         pk=2,
         agenttype="organization",
         identifiervalue="ORG",
@@ -334,16 +314,19 @@ def organization_agent():
         identifiertype="repository code",
     )
 
+    return agent
+
 
 @pytest.mark.django_db
 def test_change_transfer_with_multiple_files(
-    monkeypatch,
-    tmp_path,
-    transfer,
-    subdir_path,
-    multiple_transfer_file_objs,
-    organization_agent,
-):
+    mcp_job: Job,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    transfer: Transfer,
+    subdir_path: pathlib.Path,
+    multiple_transfer_file_objs: list[File],
+    organization_agent: Agent,
+) -> None:
     monkeypatch.setattr(change_object_names.NameChanger, "BATCH_SIZE", 10)
 
     name_changer = change_object_names.NameChanger(
@@ -358,22 +341,33 @@ def test_change_transfer_with_multiple_files(
     name_changer.change_objects()
 
     assert multiple_transfer_file_objs, "File objects structure is empty"
-    for file_obj in multiple_transfer_file_objs:
-        original_location = file_obj.currentlocation
-        file_obj.refresh_from_db()
-
-        assert file_obj.currentlocation.decode() != original_location
-        assert subdir_path.as_posix() not in file_obj.currentlocation.decode()
-        assert "bulk-file" in file_obj.currentlocation.decode()
-        verify_event_details(
-            Event.objects.get(file_uuid=file_obj.uuid, event_type="filename change")
+    file_uuids = [file_obj.uuid for file_obj in multiple_transfer_file_objs]
+    # The prohibited characters are removed from the file names. The directory
+    # that contains them is the objects directory, which keeps its name.
+    subdir = subdir_path.relative_to(tmp_path).as_posix()
+    assert sorted(
+        file_obj.currentlocation.decode()
+        for file_obj in File.objects.filter(uuid__in=file_uuids)
+    ) == sorted(
+        f"{transfer.currentlocation}{subdir}/bulk-file{x}"
+        for x in range(len(file_uuids))
+    )
+    assert sorted(
+        (event.file_uuid_id, event_details(event))
+        for event in Event.objects.filter(
+            file_uuid__in=file_uuids, event_type="filename change"
         )
+    ) == sorted((file_uuid, EXPECTED_EVENT_DETAILS) for file_uuid in file_uuids)
 
 
 @pytest.mark.django_db
 def test_change_transfer_with_directory_uuids(
-    tmp_path, transfer, subdir_path, transfer_dir_obj
-):
+    mcp_job: Job,
+    tmp_path: pathlib.Path,
+    transfer: Transfer,
+    subdir_path: pathlib.Path,
+    transfer_dir_obj: Directory,
+) -> None:
     name_changer = change_object_names.NameChanger(
         mcp_job,
         os.path.join(tmp_path.as_posix(), ""),
@@ -393,7 +387,14 @@ def test_change_transfer_with_directory_uuids(
 
 
 @pytest.mark.django_db
-def test_change_sip(tmp_path, sip, subdir_path, sip_dir_obj, sip_file_obj):
+def test_change_sip(
+    mcp_job: Job,
+    tmp_path: pathlib.Path,
+    sip: SIP,
+    subdir_path: pathlib.Path,
+    sip_dir_obj: Directory,
+    sip_file_obj: File,
+) -> None:
     name_changer = change_object_names.NameChanger(
         mcp_job,
         os.path.join(tmp_path.as_posix(), ""),
