@@ -1,5 +1,4 @@
 import pytest
-from django.test import TestCase
 
 from archivematica.archivematicaCommon import bindpid
 
@@ -100,21 +99,24 @@ INVALID_ARG_DICT = {
 }
 
 
-class TestBindPID(TestCase):
-    def test__validate(self):
-        """Test the _validate function"""
-
-        with pytest.raises(bindpid.BindPIDException) as excinfo:
-            bindpid._validate(INVALID_ET_REQUIRED_ARG_DICT)
-        assert (
+def test_validate_requires_resolve_url_template_file_for_files() -> None:
+    with pytest.raises(
+        bindpid.BindPIDException,
+        match=(
             "To request a PID for a file, you must also supply a value for"
-            " resolve_url_template_file" in str(excinfo.value)
-        )
+            " resolve_url_template_file"
+        ),
+    ):
+        bindpid._validate(INVALID_ET_REQUIRED_ARG_DICT)
 
-        with pytest.raises(bindpid.BindPIDException) as excinfo:
-            bindpid._validate(INVALID_ARG_DICT)
-        assert "The value for parameter entity_type must be one of" in str(
-            excinfo.value
-        )
 
-        assert bindpid._validate(VALID_ARG_DICT) is None
+def test_validate_rejects_unknown_entity_type() -> None:
+    with pytest.raises(
+        bindpid.BindPIDException,
+        match="The value for parameter entity_type must be one of",
+    ):
+        bindpid._validate(INVALID_ARG_DICT)
+
+
+def test_validate_accepts_valid_params() -> None:
+    assert bindpid._validate(VALID_ARG_DICT) is None
