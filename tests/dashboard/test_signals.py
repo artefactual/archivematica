@@ -1,24 +1,27 @@
-import pathlib
-
 import pytest
-from django.core.management import call_command
 
 from archivematica.dashboard.main import models
 
-FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
-
 
 @pytest.fixture
-def rights_statement(db: None) -> models.RightsStatement:
-    """The rights statement with two rights granted of the rights.json fixture."""
-    call_command(
-        "loaddata",
-        FIXTURES_DIR / "metadata_type.json",
-        FIXTURES_DIR / "rights.json",
-        verbosity=0,
+def rights_statement(
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+) -> models.RightsStatement:
+    """A copyright statement of a SIP with two rights granted."""
+    result = models.RightsStatement.objects.create(
+        metadataappliestotype=metadata_applies_to_types["sip"],
+        metadataappliestoidentifier="d64b0f43-f6d3-42ac-9821-c559dca13786",
+        rightsbasis="Copyright",
+        status="ORIGINAL",
+    )
+    models.RightsStatementRightsGranted.objects.create(
+        rightsstatement=result, act="Disseminate", startdate="2000", enddateopen=True
+    )
+    models.RightsStatementRightsGranted.objects.create(
+        rightsstatement=result, act="Access", startdate="2016", enddate=""
     )
 
-    return models.RightsStatement.objects.get(pk=1)
+    return result
 
 
 def test_delete_rights_statement(rights_statement: models.RightsStatement) -> None:
@@ -36,16 +39,17 @@ def test_delete_rights_granted(rights_statement: models.RightsStatement) -> None
     """It should delete RightsStatements with no RightsGranted."""
     assert models.RightsStatement.objects.count() == 1
     assert models.RightsStatementRightsGranted.objects.count() == 2
+    first, last = rights_statement.rightsstatementrightsgranted_set.order_by("pk")
 
     # Delete the first RightsGranted
-    models.RightsStatementRightsGranted.objects.filter(pk=1).delete()
+    first.delete()
 
     # The statement still exists
     assert models.RightsStatement.objects.count() == 1
     assert models.RightsStatementRightsGranted.objects.count() == 1
 
     # Delete the last RightsGranted
-    models.RightsStatementRightsGranted.objects.filter(pk=2).delete()
+    last.delete()
 
     # The statement is deleted too
     assert models.RightsStatement.objects.count() == 0

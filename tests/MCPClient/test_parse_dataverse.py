@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 """Tests for the parse Dataverse functionality in Archivematica."""
 
+import datetime
 import os
+import uuid
 
 import metsrw
 import pytest
-from django.core.management import call_command
 
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
@@ -16,7 +17,7 @@ from archivematica.MCPClient.clientScripts import (
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
-# UUID of the transfer created by the dataverse_sip.json fixture.
+# UUID of the transfer of the dataverse_transfer fixture.
 TRANSFER_UUID = "6741c782-f22b-47b3-8bcf-72fd0c94e195"
 
 # Transfer location is repeated throughout.
@@ -33,10 +34,148 @@ def load_mets(filename: str) -> metsrw.METSDocument:
 
 
 @pytest.fixture
-def dataverse_fixtures(db: None) -> None:
-    call_command(
-        "loaddata", os.path.join(FIXTURES_DIR, "dataverse_sip.json"), verbosity=0
+def dataverse_transfer(db: None) -> models.Transfer:
+    """The Dataverse transfer described by the METS fixtures."""
+    return models.Transfer.objects.create(
+        uuid=uuid.UUID(TRANSFER_UUID),
+        type="Dataverse",
+        currentlocation=(
+            "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/"
+            f"90-{TRANSFER_UUID}/"
+        ),
     )
+
+
+@pytest.fixture
+def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
+    """The files of the Dataverse transfer, including two that were removed."""
+    weather_checksum = (
+        "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e"
+    )
+    result = []
+    for file_uuid, original_path, current_path, size, checksum, removedtime in [
+        (
+            "22fade0b-d2fc-4835-b669-970c8fdd9b76",
+            "chelan 052.jpg",
+            "chelan_052.jpg",
+            76934,
+            "ab61f03d25ddd0e638f1ff2a823336dc38dd0c7235ee4b6ab2ec671880f822ea",
+            None,
+        ),
+        (
+            "5518a927-bae9-497c-8a16-caa072e6ef7e",
+            "Weather_data/Weather_data.tab",
+            "Weather_data/Weather_data.tab",
+            563285,
+            weather_checksum,
+            None,
+        ),
+        (
+            "b9d81d97-9a62-47f9-a62a-adf354856540",
+            "Weather_data.zip",
+            None,
+            180399,
+            "1d2323c179066fc7c5d1cfbfa7271f77f7633a63838615708a9b704e38e8b85e",
+            datetime.datetime(2015, 11, 5, 22, 6, 49, tzinfo=datetime.timezone.utc),
+        ),
+        (
+            "baf55a65-bb6a-482e-abbb-7a87cf015b81",
+            "Weather_data/Weather_datacitation-ris.ris",
+            "Weather_data/Weather_datacitation-ris.ris",
+            325,
+            "21b90f678beb353417f0f0d0e93bc7259c3575b336f8dd590ea6d4f8f2acfce8",
+            None,
+        ),
+        (
+            "bf1dada7-d515-4f97-b636-613163c3692f",
+            "dataset.json",
+            "dataset.json",
+            2832,
+            "9ed70885977815b701eb325062fe1360cc8985398e9d4d536e16a0cf53293377",
+            None,
+        ),
+        (
+            "d4393889-ba1a-49f3-9177-5ad7dd9fae8c",
+            "Weather_data/Weather_data-ddi.xml",
+            "Weather_data/Weather_data-ddi.xml",
+            15337,
+            "c3fceee71ab02901f01034cfc3b50e611378e04d8e823aa564405360f3913e3a",
+            None,
+        ),
+        (
+            "e7383616-1603-44b9-a251-8524362ff2f1",
+            "Weather_data/Weather_datacitation-endnote.xml",
+            "Weather_data/Weather_datacitation-endnote.xml",
+            619,
+            "ba57d36d8721b925117ff475a81f03180cfea0e7f9f20d22efbd0ba76ed639ef",
+            None,
+        ),
+        (
+            "071e6af9-f676-40fa-a5ab-754ca6b653e0",
+            "Weather_data/Weather_data.RData",
+            "Weather_data/Weather_data.RData",
+            563285,
+            weather_checksum,
+            None,
+        ),
+        (
+            "e2834eed-4178-469a-9a4e-c8f1490bb804",
+            "Weather_data/Weather_data.sav",
+            "Weather_data/Weather_data.sav",
+            563285,
+            weather_checksum,
+            None,
+        ),
+        (
+            "3e91412f-cd37-4215-afbc-a7197868e794",
+            "Weather_data/i_am_a_duplicate.original",
+            "Weather_data/i_am_a_duplicate.original",
+            563285,
+            weather_checksum,
+            None,
+        ),
+        (
+            "fa8496ab-a523-4493-a89d-026d91fc5311",
+            "Weather_data/i_am_a_duplicate.original",
+            "Weather_data/i_am_a_duplicate.original",
+            563285,
+            weather_checksum,
+            None,
+        ),
+        (
+            "d6e0cc66-0ecc-4b60-8e2e-ffcf47196355",
+            "Weather_data/i_have_been_removed",
+            None,
+            563285,
+            weather_checksum,
+            datetime.datetime(2019, 1, 15, 23, 13, tzinfo=datetime.timezone.utc),
+        ),
+    ]:
+        result.append(
+            models.File.objects.create(
+                uuid=uuid.UUID(file_uuid),
+                transfer=dataverse_transfer,
+                filegrpuse="original",
+                originallocation=f"{TRANSFER_LOCATION}/{original_path}".encode(),
+                currentlocation=(
+                    None
+                    if current_path is None
+                    else f"{TRANSFER_LOCATION}/{current_path}".encode()
+                ),
+                size=size,
+                checksum=checksum,
+                removedtime=removedtime,
+            )
+        )
+
+    return result
+
+
+@pytest.fixture
+def no_agents(db: None) -> None:
+    """Remove the agents of the data migrations, so the Dataverse agent is the
+    only one that the parser can find or add.
+    """
     models.Agent.objects.all().delete()
 
 
@@ -50,7 +189,7 @@ def mets() -> metsrw.METSDocument:
 
 @pytest.mark.django_db
 def test_mapping(
-    mcp_job: Job, mets: metsrw.METSDocument, dataverse_fixtures: None
+    mcp_job: Job, mets: metsrw.METSDocument, dataverse_files: list[models.File]
 ) -> None:
     """The first test in is to find the Dataverse objects in the Database
     and ensure they are there as expected.
@@ -78,7 +217,7 @@ def test_mapping(
 
 @pytest.mark.django_db
 def test_set_filegroups(
-    mcp_job: Job, mets: metsrw.METSDocument, dataverse_fixtures: None
+    mcp_job: Job, mets: metsrw.METSDocument, dataverse_files: list[models.File]
 ) -> None:
     """
     It should set the same filegroup for all files in the bundle.
@@ -110,7 +249,7 @@ def test_set_filegroups(
 
 
 @pytest.mark.django_db
-def test_parse_agent(mcp_job: Job, dataverse_fixtures: None) -> None:
+def test_parse_agent(mcp_job: Job, no_agents: None) -> None:
     """
     It should add a Dataverse agent.
     """
@@ -126,7 +265,7 @@ def test_parse_agent(mcp_job: Job, dataverse_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_parse_agent_already_exists(mcp_job: Job, dataverse_fixtures: None) -> None:
+def test_parse_agent_already_exists(mcp_job: Job, no_agents: None) -> None:
     """
     It should not add a duplicate agent.
     """
@@ -148,7 +287,7 @@ def test_parse_agent_already_exists(mcp_job: Job, dataverse_fixtures: None) -> N
 
 
 @pytest.mark.django_db
-def test_parse_agent_no_agents(mcp_job: Job, dataverse_fixtures: None) -> None:
+def test_parse_agent_no_agents(mcp_job: Job, no_agents: None) -> None:
     """
     It should return None
     """
@@ -162,7 +301,10 @@ def test_parse_agent_no_agents(mcp_job: Job, dataverse_fixtures: None) -> None:
 
 @pytest.mark.django_db
 def test_parse_derivative(
-    mcp_job: Job, mets: metsrw.METSDocument, dataverse_fixtures: None
+    mcp_job: Job,
+    mets: metsrw.METSDocument,
+    dataverse_files: list[models.File],
+    no_agents: None,
 ) -> None:
     """
     It should create a Derivation for the tabfile and related.
@@ -187,7 +329,10 @@ def test_parse_derivative(
 
 @pytest.mark.django_db
 def test_validate_checksums(
-    mcp_job: Job, mets: metsrw.METSDocument, dataverse_fixtures: None
+    mcp_job: Job,
+    mets: metsrw.METSDocument,
+    dataverse_files: list[models.File],
+    no_agents: None,
 ) -> None:
     """
     It should do something with checksums to validate them??
@@ -219,7 +364,9 @@ def test_validate_checksums(
 
 
 @pytest.mark.django_db
-def test_get_db_objects_returns(mcp_job: Job, dataverse_fixtures: None) -> None:
+def test_get_db_objects_returns(
+    mcp_job: Job, dataverse_files: list[models.File]
+) -> None:
     """The get_db_objects(...) function performs the task of returning
     the objects associated with a Dataverse transfer. Because the
     population of the model is currently done via metadata and not the

@@ -1,8 +1,8 @@
 import os
 import pathlib
+import uuid
 
 import pytest
-from django.core.management import call_command
 
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
@@ -11,34 +11,33 @@ from archivematica.MCPClient.clientScripts import rights_from_csv
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
-# UUID of the transfer created by the transfer.json fixture.
-TRANSFER_UUID = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
-# UUIDs of the first two files created by the files-transfer.json and
-# files-transfer-unicode.json fixtures.
+# UUIDs of the first two files of the transfer_files and unicode_transfer_files
+# fixtures, the files referenced by the rights CSV fixtures.
 FILE_1_UUID = "47813453-6872-442b-9d65-6515be3c5aa1"
 FILE_2_UUID = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"
 
 
-def load_fixtures(*fixture_files: str) -> None:
-    call_command(
-        "loaddata",
-        *(os.path.join(FIXTURES_DIR, fixture_file) for fixture_file in fixture_files),
-        verbosity=0,
-    )
-
-
 @pytest.fixture
-def transfer_fixtures(db: None) -> None:
-    load_fixtures(
-        "metadata_applies_to_type.json", "transfer.json", "files-transfer.json"
-    )
+def transfer_files(unicode_transfer: models.Transfer) -> list[models.File]:
+    """The original files of the transfer referenced by the rights CSV fixture."""
+    result = []
+    for file_uuid, path, size in [
+        (FILE_1_UUID, "G31DS.TIF", 125968),
+        (FILE_2_UUID, "lion.svg", 18324),
+    ]:
+        location = f"%transferDirectory%objects/{path}".encode()
+        result.append(
+            models.File.objects.create(
+                uuid=uuid.UUID(file_uuid),
+                transfer=unicode_transfer,
+                filegrpuse="original",
+                originallocation=location,
+                currentlocation=location,
+                size=size,
+            )
+        )
 
-
-@pytest.fixture
-def unicode_transfer_fixtures(db: None) -> None:
-    load_fixtures(
-        "metadata_applies_to_type.json", "transfer.json", "files-transfer-unicode.json"
-    )
+    return result
 
 
 def license_statement(statement: models.RightsStatement) -> dict[str, object]:
@@ -74,7 +73,10 @@ def mixed_scope_rights_csv(
 
 @pytest.mark.django_db
 def test_rows_processed_and_database_content(
-    mcp_job: Job, transfer_fixtures: None
+    mcp_job: Job,
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    unicode_transfer: models.Transfer,
+    transfer_files: list[models.File],
 ) -> None:
     """Test CSV import using the RightsReader class.
 
@@ -82,9 +84,11 @@ def test_rows_processed_and_database_content(
     It should skip the third row data as basis/act is duplicate of earlier row.
     It should populate the rights-related models using data from the CSV file.
     """
-    file_type = models.MetadataAppliesToType.objects.get(description="File")
+    file_type = metadata_applies_to_types["file"]
     rights_csv_filepath = os.path.join(FIXTURES_DIR, "rights.csv")
-    parser = rights_from_csv.RightCsvReader(mcp_job, TRANSFER_UUID, rights_csv_filepath)
+    parser = rights_from_csv.RightCsvReader(
+        mcp_job, str(unicode_transfer.uuid), rights_csv_filepath
+    )
     rows_processed = parser.parse()
 
     # Test rows processed and model intance counts
@@ -532,18 +536,21 @@ def test_unmatched_path_fails_job_without_processing_later_rows(
 
 @pytest.mark.django_db
 def test_rows_processed_and_database_content_with_unicode_filepath(
-    mcp_job: Job, unicode_transfer_fixtures: None
+    mcp_job: Job,
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    unicode_transfer: models.Transfer,
+    unicode_transfer_files: list[models.File],
 ) -> None:
     """Test CSV import using the RightsReader class when file paths have unicode characters in them.
 
     It should process all rows of the CSV file even if file paths have unicode characters in them.
     It should populate the rights-related models using data from the CSV file.
     """
-    models.File.objects.get(pk="47813453-6872-442b-9d65-6515be3c5aa1")
-
-    file_type = models.MetadataAppliesToType.objects.get(description="File")
+    file_type = metadata_applies_to_types["file"]
     rights_csv_filepath = os.path.join(FIXTURES_DIR, "rights-unicode-filepath.csv")
-    parser = rights_from_csv.RightCsvReader(mcp_job, TRANSFER_UUID, rights_csv_filepath)
+    parser = rights_from_csv.RightCsvReader(
+        mcp_job, str(unicode_transfer.uuid), rights_csv_filepath
+    )
     rows_processed = parser.parse()
 
     assert rows_processed == 1

@@ -1,12 +1,11 @@
+import datetime
 import json
 import logging
-import pathlib
 import uuid
 from unittest import mock
 
 import pytest
 from agentarchives.archivesspace import ArchivesSpaceError
-from django.core.management import call_command
 from django.test import Client
 from django.urls import reverse
 
@@ -19,23 +18,62 @@ from archivematica.dashboard.main.models import Access
 from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
 from archivematica.dashboard.main.models import DashboardSetting
 
-FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
-
-# UUID of the SIP created by the sip.json fixture.
+# UUID of the SIP of the sip fixture.
 SIP_UUID = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
 
 
 @pytest.fixture
 def sip(db: None) -> models.SIP:
-    call_command("loaddata", FIXTURES_DIR / "sip.json", verbosity=0)
-
-    return models.SIP.objects.get(uuid=SIP_UUID)
+    """A SIP named "test" waiting for the metadata reminder decision."""
+    return models.SIP.objects.create(
+        uuid=uuid.UUID(SIP_UUID),
+        sip_type="AIP",
+        currentpath=(
+            "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/"
+            f"test-{SIP_UUID}/"
+        ),
+    )
 
 
 @pytest.fixture
 def completed_sip(sip: models.SIP) -> models.SIP:
     """The SIP with the jobs of its completed ingest, which name it "test"."""
-    call_command("loaddata", FIXTURES_DIR / "jobs-sip-complete.json", verbosity=0)
+    started = datetime.datetime(2016, 10, 4, 23, 5, 56, tzinfo=datetime.timezone.utc)
+    for seconds, microservicegroup, jobtype, directory in [
+        (
+            0,
+            "Verify SIP compliance",
+            "Move to processing directory",
+            "%sharedPath%watchedDirectories/system/autoProcessSIP/test/",
+        ),
+        (
+            1,
+            "Rename SIP directory with SIP UUID",
+            "Rename SIP directory with SIP UUID",
+            "%sharedPath%currentlyProcessing/test/",
+        ),
+        (
+            2,
+            "Normalize",
+            "Normalize for preservation",
+            f"%sharedPath%currentlyProcessing/test-{SIP_UUID}/",
+        ),
+        (
+            3,
+            "Store AIP",
+            "Remove the processing directory",
+            f"%sharedPath%currentlyProcessing/test-{SIP_UUID}/",
+        ),
+    ]:
+        models.Job.objects.create(
+            sipuuid=sip.uuid,
+            unittype="unitSIP",
+            currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+            createdtime=started + datetime.timedelta(seconds=seconds),
+            microservicegroup=microservicegroup,
+            jobtype=jobtype,
+            directory=directory,
+        )
 
     return sip
 
@@ -117,8 +155,12 @@ def test_add_metadata_files_view(
     return_value=[],
 )
 def test_add_metadata_files_view_uses_unnamed_when_sip_has_no_jobs(
-    get_location: mock.MagicMock, admin_client: Client, dashboard_uuid: uuid.UUID
+    get_location: mock.MagicMock,
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    completed_sip: models.SIP,
 ) -> None:
+    """The jobs of another SIP in the table do not name this one."""
     sip_uuid = str(uuid.uuid4())
 
     response = admin_client.get(

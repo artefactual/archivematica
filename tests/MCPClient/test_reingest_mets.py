@@ -1,15 +1,16 @@
 import os
 import pathlib
 import shutil
+import uuid
 
 import metsrw
 import pytest
-from django.core.management import call_command
 from lxml import etree
 
 from archivematica.archivematicaCommon.namespaces import NSMAP
 from archivematica.archivematicaCommon.namespaces import nsmap_for_premis2
 from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSReingest
@@ -19,18 +20,18 @@ FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
 REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)
 
-# UUID of the SIP created by the sip-reingest.json fixture.
+# UUID of the AIP of the aip fixture, described by the METS fixtures.
 SIP_UUID = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
 
 # UUID of a SIP that has no metadata in the database.
 SIP_UUID_NONE = "dnedne7c-5bd2-4249-84a1-2f00f725b981"
 
-# UUIDs of the SIPs with Dublin Core metadata in the dublincore.json fixture.
+# UUIDs of the SIPs with Dublin Core metadata of the dublincore fixture.
 DC_SIP_UUID_ORIGINAL = "8b891d7c-5bd2-4249-84a1-2f00f725b981"
 DC_SIP_UUID_REINGEST = "87d30df4-63f5-434b-9da6-25aa995de6fe"
 DC_SIP_UUID_UPDATED = "5d78a2a5-57a6-430f-87b2-b89fb3ccb050"
 
-# UUIDs of the SIPs with rights statements in the rights.json fixture.
+# UUIDs of the SIPs with rights statements of the rights_statements fixture.
 RIGHTS_SIP_UUID_ORIGINAL = "a4a5480c-9f51-4119-8dcb-d3f12e647c14"
 RIGHTS_SIP_UUID_REINGEST = "10d57d98-29e5-4b2c-9f9f-d163e632eb31"
 RIGHTS_SIP_UUID_UPDATED = "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0"
@@ -38,47 +39,558 @@ RIGHTS_SIP_UUID_UPDATED = "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0"
 METADATA_CSV_SIP_DIR = os.path.join(FIXTURES_DIR, "metadata_csv_sip", "")
 
 
-def load_fixtures(*fixture_files: str) -> None:
-    call_command(
-        "loaddata",
-        *(os.path.join(FIXTURES_DIR, fixture_file) for fixture_file in fixture_files),
-        verbosity=0,
+@pytest.fixture
+def aip(db: None) -> models.SIP:
+    """The reingested AIP described by the METS fixtures."""
+    return models.SIP.objects.create(
+        uuid=uuid.UUID(SIP_UUID),
+        sip_type="AIP-REIN",
+        currentpath=(
+            "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/"
+            f"no-metadata-{SIP_UUID}/"
+        ),
     )
 
 
 @pytest.fixture
-def reingest_fixtures(db: None) -> None:
-    load_fixtures(
-        "agents.json", "sip-reingest.json", "files.json", "events-reingest.json"
+def original_file(aip: models.SIP) -> models.File:
+    """The original JPEG of the AIP, renamed during its transfer."""
+    return models.File.objects.create(
+        uuid=uuid.UUID("ae8d4290-fe52-4954-b72a-0f591bee2e2f"),
+        sip=aip,
+        filegrpuse="original",
+        originallocation=b"%SIPDirectory%objects/evelyn's photo.jpg",
+        currentlocation=b"%SIPDirectory%objects/evelyn_s_photo.jpg",
+        checksum="d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        size=158131,
     )
 
 
 @pytest.fixture
-def dublincore_fixtures(db: None) -> None:
-    load_fixtures("metadata_applies_to_type.json", "dublincore.json")
-
-
-@pytest.fixture
-def rights_fixtures(db: None) -> None:
-    load_fixtures("metadata_applies_to_type.json", "rights.json")
-
-
-@pytest.fixture
-def new_files_fixtures(db: None) -> None:
-    load_fixtures(
-        "sip-reingest.json", "files.json", "reingest-preservation.json", "agents.json"
+def preservation_derivative(aip: models.SIP) -> models.File:
+    """The TIFF derivative of the original JPEG."""
+    location = (
+        b"%SIPDirectory%objects/evelyn_s_photo-8140ebe5-295c-490b-a34a-83955b7c844e.tif"
+    )
+    return models.File.objects.create(
+        uuid=uuid.UUID("8140ebe5-295c-490b-a34a-83955b7c844e"),
+        sip=aip,
+        filegrpuse="preservation",
+        originallocation=location,
+        currentlocation=location,
+        checksum="d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        size=1446772,
     )
 
 
 @pytest.fixture
-def csv_file(db: None) -> models.File:
-    load_fixtures("sip-reingest.json", "files.json")
+def transfer_mets_file(aip: models.SIP) -> models.File:
+    """The METS file of the transfer, kept as submission documentation."""
+    location = (
+        b"%SIPDirectory%objects/submissionDocumentation/"
+        b"transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml"
+    )
+    return models.File.objects.create(
+        uuid=uuid.UUID("590bd882-7521-498c-8f89-0958218f779d"),
+        sip=aip,
+        filegrpuse="submissionDocumentation",
+        originallocation=location,
+        currentlocation=location,
+        checksum="51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a",
+        size=12222,
+    )
 
-    return models.File.objects.get(uuid="66370f14-2f64-4750-9d50-547614be40e8")
+
+@pytest.fixture
+def metadata_csv_file(aip: models.SIP) -> models.File:
+    """The metadata.csv file added to the AIP during the reingest."""
+    return models.File.objects.create(
+        uuid=uuid.UUID("66370f14-2f64-4750-9d50-547614be40e8"),
+        sip=aip,
+        filegrpuse="metadata",
+        originallocation=b"%SIPDirectory%metadata/metadata.csv",
+        currentlocation=b"%SIPDirectory%objects/metadata/metadata.csv",
+        checksum="e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c",
+        size=154,
+    )
+
+
+@pytest.fixture
+def metadata_text_file(aip: models.SIP) -> models.File:
+    """A metadata file in a subdirectory, added to the AIP during the reingest."""
+    return models.File.objects.create(
+        uuid=uuid.UUID("950253b2-e5b1-4222-bb86-4eb436af5713"),
+        sip=aip,
+        filegrpuse="metadata",
+        originallocation=b"%SIPDirectory%metadata/foo/foo.txt",
+        currentlocation=b"%SIPDirectory%objects/metadata/foo/foo.txt",
+        size=154,
+    )
+
+
+@pytest.fixture
+def aip_files(
+    original_file: models.File,
+    preservation_derivative: models.File,
+    transfer_mets_file: models.File,
+    metadata_csv_file: models.File,
+    metadata_text_file: models.File,
+) -> list[models.File]:
+    """All the files of the AIP."""
+    return [
+        original_file,
+        preservation_derivative,
+        transfer_mets_file,
+        metadata_csv_file,
+        metadata_text_file,
+    ]
+
+
+@pytest.fixture
+def unrelated_agent(db: None) -> models.Agent:
+    """An organization agent that is not linked to any event."""
+    return models.Agent.objects.create(
+        agenttype="organization",
+        identifiertype="repository code",
+        identifiervalue="Unrelated Agent",
+        name="Unrelated Agent",
+    )
+
+
+@pytest.fixture
+def reingest_events(
+    original_file: models.File,
+    preservation_derivative: models.File,
+    transfer_mets_file: models.File,
+    demo_organization_agent: models.Agent,
+    user_agent: models.Agent,
+) -> list[models.Event]:
+    """The events of the reingest: the files of the METS are reingested, the
+    preservation derivative is deleted and the fixity of the original is checked.
+    """
+    result = []
+    for file_, event_type, event_detail, event_outcome, event_outcome_detail in [
+        (original_file, "reingestion", "", "", ""),
+        (transfer_mets_file, "reingestion", "", "", ""),
+        (preservation_derivative, "reingestion", "", "", ""),
+        (preservation_derivative, "deletion", "", "", ""),
+        (
+            original_file,
+            "fixity check",
+            'program="python"; module="hashlib.sha256()"',
+            "Pass",
+            "91a5ddca3637590c2ddb50da5feb73ff0b8a98cd09a98afb79adc2cf70bc6220 verified",
+        ),
+    ]:
+        event = models.Event.objects.create(
+            file_uuid=file_,
+            event_type=event_type,
+            event_detail=event_detail,
+            event_outcome=event_outcome,
+            event_outcome_detail=event_outcome_detail,
+        )
+        event.agents.add(demo_organization_agent, user_agent)
+        result.append(event)
+
+    return result
+
+
+@pytest.fixture
+def recalculated_checksum(
+    original_file: models.File,
+    demo_organization_agent: models.Agent,
+    user_agent: models.Agent,
+) -> models.Event:
+    """The MD5 checksum of the original file, calculated during the reingest."""
+    original_file.checksum = "ac63a92ba5a94c337e740d6f189200d0"
+    original_file.checksumtype = "md5"
+    original_file.save()
+    result = models.Event.objects.create(
+        file_uuid=original_file,
+        event_type="message digest calculation",
+        event_detail='program="python"; module="hashlib.md5()"',
+        event_outcome_detail="ac63a92ba5a94c337e740d6f189200d0",
+    )
+    result.agents.add(demo_organization_agent, user_agent)
+
+    return result
+
+
+@pytest.fixture
+def new_file_id(
+    original_file: models.File,
+    demo_organization_agent: models.Agent,
+    user_agent: models.Agent,
+) -> models.FileID:
+    """The format of the original file, identified again during the reingest."""
+    event = models.Event.objects.create(
+        file_uuid=original_file,
+        event_type="format identification",
+        event_detail='program="Fido"; version="1.2"',
+        event_outcome="Positive",
+        event_outcome_detail="fmt/9000",
+    )
+    event.agents.add(demo_organization_agent, user_agent)
+
+    return models.FileID.objects.create(
+        file=original_file,
+        format_name="Newer fancier JPEG",
+        format_version="9001",
+        format_registry_name="PRONOM",
+        format_registry_key="fmt/9000",
+    )
+
+
+@pytest.fixture
+def new_characterization(
+    original_file: models.File, format_version: fprmodels.FormatVersion
+) -> list[models.FPCommandOutput]:
+    """The output of the characterization commands run during the reingest."""
+    result = []
+    for tool, version, command, content in [
+        (
+            "FFprobe",
+            "2.2.0",
+            'ffprobe -i "%fileFullName%" -show_data -show_format -show_error -show_streams -show_chapters -show_private_data -show_versions -print_format xml',
+            '<?xml version="1.0" encoding="UTF-8"?>\n<ffprobe>Stub ffprobe output</ffprobe>\n',
+        ),
+        (
+            "MediaInfo",
+            "0.7.52",
+            'mediainfo --Language=Raw -f --Output=XML "%fileFullName%"',
+            '<?xml version="1.0" encoding="UTF-8"?>\n<Mediainfo version="0.7.67">Stub MediaInfo output</Mediainfo>\n',
+        ),
+    ]:
+        rule = fprmodels.FPRule.objects.create(
+            purpose=fprmodels.FPRule.CHARACTERIZATION,
+            format=format_version,
+            command=fprmodels.FPCommand.objects.create(
+                tool=fprmodels.FPTool.objects.create(description=tool, version=version),
+                description=tool,
+                command=command,
+                script_type="bashScript",
+                command_usage="characterization",
+            ),
+        )
+        result.append(
+            models.FPCommandOutput.objects.create(
+                file=original_file, rule=rule, content=content
+            )
+        )
+
+    return result
+
+
+@pytest.fixture
+def new_preservation_derivative(
+    aip: models.SIP,
+    original_file: models.File,
+    demo_organization_agent: models.Agent,
+    user_agent: models.Agent,
+) -> models.File:
+    """A TIFF derivative of the original JPEG, normalized during the reingest."""
+    location = (
+        b"%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif"
+    )
+    result = models.File.objects.create(
+        uuid=uuid.UUID("d8cc7af7-284a-42f5-b7f4-e181a0efc35f"),
+        sip=aip,
+        filegrpuse="preservation",
+        originallocation=location,
+        currentlocation=location,
+        checksum="d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        checksumtype="sha256",
+        size=1446772,
+    )
+    models.FileID.objects.create(file=result, format_name="TIFF")
+    normalization = models.Event.objects.create(
+        file_uuid=original_file,
+        event_id=uuid.UUID("291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"),
+        event_type="normalization",
+        event_detail=(
+            'ArchivematicaFPRCommandID="a34ddc9b-c922-4bb6-8037-bbe713332175"; '
+            'program="convert"; version="Version: ImageMagick 6.7.7-10 2014-03-06 '
+            'Q16 http://www.imagemagick.org"\n'
+        ),
+        event_outcome_detail=location.decode(),
+    )
+    models.Derivation.objects.create(
+        source_file=original_file, derived_file=result, event=normalization
+    )
+    events = [normalization]
+    for event_type, event_detail, event_outcome, event_outcome_detail in [
+        ("creation", "", "", ""),
+        (
+            "message digest calculation",
+            'program="python"; module="hashlib.sha256()"',
+            "",
+            "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
+        ),
+        (
+            "fixity check",
+            'program="python"; module="hashlib.sha256()"',
+            "Pass",
+            "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9 verified",
+        ),
+    ]:
+        events.append(
+            models.Event.objects.create(
+                file_uuid=result,
+                event_type=event_type,
+                event_detail=event_detail,
+                event_outcome=event_outcome,
+                event_outcome_detail=event_outcome_detail,
+            )
+        )
+    for event in events:
+        event.agents.add(demo_organization_agent, user_agent)
+
+    return result
+
+
+@pytest.fixture
+def dublincore(
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+) -> list[models.DublinCore]:
+    """The Dublin Core metadata of three SIPs: as ingested, as reingested without
+    changes and as updated during the reingest.
+    """
+    result = []
+    for sip_uuid, status in [
+        (DC_SIP_UUID_ORIGINAL, "ORIGINAL"),
+        (DC_SIP_UUID_REINGEST, "REINGEST"),
+    ]:
+        result.append(
+            models.DublinCore.objects.create(
+                metadataappliestotype=metadata_applies_to_types["sip"],
+                metadataappliestoidentifier=sip_uuid,
+                status=status,
+                title="Yamani Weapons",
+                creator="Keladry of Mindelan",
+                subject="Glaives",
+                description="Glaives are cool",
+                publisher="Tortall Press",
+                contributor="Yuki",
+                date="2015",
+                type="Archival Information Package",
+                format="parchement",
+                identifier="42/1",
+                source="Numair's library",
+                relation="None",
+                language="en",
+                rights="Public Domain",
+                is_part_of="AIC#42",
+            )
+        )
+    result.append(
+        models.DublinCore.objects.create(
+            metadataappliestotype=metadata_applies_to_types["sip"],
+            metadataappliestoidentifier=DC_SIP_UUID_UPDATED,
+            status="UPDATED",
+            title="Yamani Weapons",
+            creator="Keladry of Mindelan",
+            subject="Glaives",
+            description="Glaives are awesome",
+            publisher="Tortall Press",
+            contributor="Yuki, Neal",
+            type="Archival Information Package",
+            format="palimpsest",
+            identifier="42/1",
+            language="en",
+            coverage="Partial",
+            rights="Public Domain",
+        )
+    )
+
+    return result
+
+
+def grant_rights(
+    statement: models.RightsStatement,
+    act: str,
+    startdate: str,
+    enddate: str,
+    enddateopen: bool,
+    restriction: str,
+    note: str | None = None,
+) -> models.RightsStatementRightsGranted:
+    """Add a rights granted with a restriction and an optional note to a statement."""
+    result = models.RightsStatementRightsGranted.objects.create(
+        rightsstatement=statement,
+        act=act,
+        startdate=startdate,
+        enddate=enddate,
+        enddateopen=enddateopen,
+    )
+    models.RightsStatementRightsGrantedRestriction.objects.create(
+        rightsgranted=result, restriction=restriction
+    )
+    if note is not None:
+        models.RightsStatementRightsGrantedNote.objects.create(
+            rightsgranted=result, rightsgrantednote=note
+        )
+
+    return result
+
+
+def add_copyright_information(statement: models.RightsStatement) -> None:
+    """Describe an open-ended Canadian copyright in a statement."""
+    copyright_information = models.RightsStatementCopyright.objects.create(
+        rightsstatement=statement,
+        copyrightstatus="Under copyright",
+        copyrightjurisdiction="Canada",
+        copyrightstatusdeterminationdate="2015",
+        copyrightapplicablestartdate="1990",
+        copyrightapplicableenddate="",
+        copyrightenddateopen=True,
+    )
+    models.RightsStatementCopyrightNote.objects.create(
+        rightscopyright=copyright_information, copyrightnote="Copyright expires 2010"
+    )
+
+
+def add_statute_information(
+    statement: models.RightsStatement, enddate: str, note: str
+) -> None:
+    """Describe the Freedom of Information Act statute in a statement."""
+    statute_information = models.RightsStatementStatuteInformation.objects.create(
+        rightsstatement=statement,
+        statutejurisdiction="BC, Canada",
+        statutecitation="Freedom of Information Act",
+        statutedeterminationdate="2011",
+        statuteapplicablestartdate="1994",
+        statuteapplicableenddate=enddate,
+        statuteenddateopen=False,
+    )
+    models.RightsStatementStatuteInformationNote.objects.create(
+        rightsstatementstatute=statute_information, statutenote=note
+    )
+
+
+@pytest.fixture
+def rights_statements(
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+) -> list[models.RightsStatement]:
+    """The rights statements of three SIPs: as ingested, as reingested without
+    changes and as updated during the reingest.
+    """
+
+    def create_statement(
+        sip_uuid: str, rightsbasis: str, status: str
+    ) -> models.RightsStatement:
+        return models.RightsStatement.objects.create(
+            metadataappliestotype=metadata_applies_to_types["sip"],
+            metadataappliestoidentifier=sip_uuid,
+            rightsbasis=rightsbasis,
+            status=status,
+        )
+
+    copyright_statement = create_statement(
+        RIGHTS_SIP_UUID_ORIGINAL, "Copyright", "ORIGINAL"
+    )
+    add_copyright_information(copyright_statement)
+    grant_rights(
+        copyright_statement,
+        "Disseminate",
+        "2000",
+        "",
+        True,
+        "Allow",
+        "Attribution required",
+    )
+
+    statute_statement = create_statement(
+        RIGHTS_SIP_UUID_ORIGINAL, "Statute", "ORIGINAL"
+    )
+    add_statute_information(statute_statement, "2094", "SIN & health numbers")
+    grant_rights(statute_statement, "Disseminate", "1994", "2094", False, "Disallow")
+
+    license_statement = create_statement(
+        RIGHTS_SIP_UUID_ORIGINAL, "License", "ORIGINAL"
+    )
+    license_information = models.RightsStatementLicense.objects.create(
+        rightsstatement=license_statement,
+        licenseterms="CC-BY-SA",
+        licenseapplicablestartdate="2015",
+        licenseapplicableenddate="",
+        licenseenddateopen=True,
+    )
+    models.RightsStatementLicenseNote.objects.create(
+        rightsstatementlicense=license_information,
+        licensenote="Creative Commons Attribution Share Alike",
+    )
+    grant_rights(
+        license_statement,
+        "Disseminate",
+        "2015",
+        "",
+        True,
+        "Allow",
+        "Attribution Required",
+    )
+
+    donor_statement = create_statement(RIGHTS_SIP_UUID_ORIGINAL, "Donor", "ORIGINAL")
+    other_rights_information = (
+        models.RightsStatementOtherRightsInformation.objects.create(
+            rightsstatement=donor_statement,
+            otherrightsbasis="Other",
+            otherrightsapplicablestartdate="2000-01-01",
+            otherrightsapplicableenddate="2100-01-01",
+            otherrightsenddateopen=False,
+        )
+    )
+    models.RightsStatementOtherRightsDocumentationIdentifier.objects.create(
+        rightsstatementotherrights=other_rights_information,
+        otherrightsdocumentationidentifiertype="DID",
+        otherrightsdocumentationidentifiervalue="1",
+        otherrightsdocumentationidentifierrole="-",
+    )
+    models.RightsStatementOtherRightsInformationNote.objects.create(
+        rightsstatementotherrights=other_rights_information,
+        otherrightsnote="Contact in 2010 for earlier release.",
+    )
+    grant_rights(
+        donor_statement, "Publish", "2000-01-01", "2100-01-01", False, "Conditional"
+    )
+
+    reingested_copyright_statement = create_statement(
+        RIGHTS_SIP_UUID_REINGEST, "Copyright", "REINGEST"
+    )
+    add_copyright_information(reingested_copyright_statement)
+    grant_rights(
+        reingested_copyright_statement,
+        "Disseminate",
+        "2000",
+        "",
+        True,
+        "Allow",
+        "Attribution required",
+    )
+
+    updated_statute_statement = create_statement(
+        RIGHTS_SIP_UUID_UPDATED, "Statute", "UPDATED"
+    )
+    add_statute_information(updated_statute_statement, "2054", "SIN")
+    grant_rights(
+        updated_statute_statement, "Disseminate", "1994", "2054", False, "Disallow"
+    )
+
+    return [
+        copyright_statement,
+        statute_statement,
+        license_statement,
+        donor_statement,
+        reingested_copyright_statement,
+        updated_statute_statement,
+        *(
+            create_statement(RIGHTS_SIP_UUID_UPDATED, rightsbasis, "REINGEST")
+            for rightsbasis in ["Copyright", "License", "Donor", "Policy"]
+        ),
+    ]
 
 
 @pytest.mark.django_db
-def test_object_not_updated(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_object_not_updated(mcp_job: Job, reingest_events: list[models.Event]) -> None:
     """It should do nothing if the object has not been updated."""
     # Verify METS state
     mets = metsrw.METSDocument.fromfile(
@@ -109,13 +621,12 @@ def test_object_not_updated(mcp_job: Job, reingest_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_checksum_type(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_update_checksum_type(
+    mcp_job: Job,
+    reingest_events: list[models.Event],
+    recalculated_checksum: models.Event,
+) -> None:
     """It should add a new techMD with the new checksum & checksumtype."""
-    # Set checksumtype values
-    load_fixtures("reingest-checksum.json")
-    models.File.objects.filter(uuid="ae8d4290-fe52-4954-b72a-0f591bee2e2f").update(
-        checksumtype="md5", checksum="ac63a92ba5a94c337e740d6f189200d0"
-    )
     # Verify METS state
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -186,10 +697,10 @@ def test_update_checksum_type(mcp_job: Job, reingest_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_file_id(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_update_file_id(
+    mcp_job: Job, reingest_events: list[models.Event], new_file_id: models.FileID
+) -> None:
     """It should add a new techMD with the new file ID."""
-    # Load fixture
-    load_fixtures("reingest-file-id.json")
     # Verify METS state
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -263,10 +774,12 @@ def test_update_file_id(mcp_job: Job, reingest_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_characterization(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_update_characterization(
+    mcp_job: Job,
+    reingest_events: list[models.Event],
+    new_characterization: list[models.FPCommandOutput],
+) -> None:
     """It should add a new techMD with the new characterization."""
-    # Load fixture
-    load_fixtures("reingest-characterization.json", "fpr-reingest.json")
     # Verify METS state
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -341,10 +854,12 @@ def test_update_characterization(mcp_job: Job, reingest_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_preservation_derivative(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_update_preservation_derivative(
+    mcp_job: Job,
+    reingest_events: list[models.Event],
+    new_preservation_derivative: models.File,
+) -> None:
     """It should add a new techMD with the new relationship."""
-    # Load fixture
-    load_fixtures("reingest-preservation.json")
     # Verify METS state
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -419,24 +934,20 @@ def test_update_preservation_derivative(mcp_job: Job, reingest_fixtures: None) -
 
 
 @pytest.mark.django_db
-def test_update_all(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_update_all(
+    mcp_job: Job,
+    reingest_events: list[models.Event],
+    recalculated_checksum: models.Event,
+    new_file_id: models.FileID,
+    new_characterization: list[models.FPCommandOutput],
+    new_preservation_derivative: models.File,
+) -> None:
     """
     It should add new updated object and mark the old one as superseded.
     It should add after the last techMD.
     It should not modify other objects.
     It should have a new format identification event.
     """
-    # Load fixture
-    load_fixtures(
-        "reingest-checksum.json",
-        "reingest-file-id.json",
-        "reingest-characterization.json",
-        "fpr-reingest.json",
-        "reingest-preservation.json",
-    )
-    models.File.objects.filter(uuid="ae8d4290-fe52-4954-b72a-0f591bee2e2f").update(
-        checksumtype="md5", checksum="ac63a92ba5a94c337e740d6f189200d0"
-    )
     # Verify METS state
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -558,7 +1069,7 @@ def test__update_premis_object(techmd_id: str) -> None:
 
 
 @pytest.mark.django_db
-def test_no_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_no_dc(mcp_job: Job, dublincore: list[models.DublinCore]) -> None:
     """It should do nothing if there is no DC entry."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -577,7 +1088,7 @@ def test_no_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_dc_not_updated(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_dc_not_updated(mcp_job: Job, dublincore: list[models.DublinCore]) -> None:
     """It should do nothing if the DC has not been modified."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -596,7 +1107,7 @@ def test_dc_not_updated(mcp_job: Job, dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_new_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_new_dc(mcp_job: Job, dublincore: list[models.DublinCore]) -> None:
     """
     It should add a new DC if there was none before.
     It should add after the metsHdr if no dmdSecs exist.
@@ -664,7 +1175,7 @@ def test_new_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_existing_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_update_existing_dc(mcp_job: Job, dublincore: list[models.DublinCore]) -> None:
     """
     It should add a new updated DC and mark the old one as original.
     It should ignore file-level DC.
@@ -754,7 +1265,9 @@ def test_update_existing_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_reingested_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_update_reingested_dc(
+    mcp_job: Job, dublincore: list[models.DublinCore]
+) -> None:
     """
     It should add a new DC if old ones exist.
     It should not mark other reingested DC as original.
@@ -843,7 +1356,7 @@ def test_update_reingested_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_delete_dc(mcp_job: Job, dublincore: list[models.DublinCore]) -> None:
     """It should create a new dmdSec with no values."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_multiple_sip_dc.xml")
@@ -876,7 +1389,9 @@ def test_delete_dc(mcp_job: Job, dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_no_rights(mcp_job: Job, rights_fixtures: None) -> None:
+def test_no_rights(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """It should do nothing if there are no rights entries."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -891,7 +1406,9 @@ def test_no_rights(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_rights_not_updated(mcp_job: Job, rights_fixtures: None) -> None:
+def test_rights_not_updated(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """It should do nothing if the rights have not been modified."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -906,7 +1423,9 @@ def test_rights_not_updated(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_new_rights(mcp_job: Job, rights_fixtures: None) -> None:
+def test_new_rights(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """
     It should add a new rights if there were none before.
     It should add after the last techMD.
@@ -950,7 +1469,9 @@ def test_new_rights(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_existing_rights(mcp_job: Job, rights_fixtures: None) -> None:
+def test_update_existing_rights(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """
     It should add new updated rights and mark the old ones as superseded.
     It should add after the last rightsMD.
@@ -1025,7 +1546,9 @@ def test_update_existing_rights(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_update_reingested_rights(mcp_job: Job, rights_fixtures: None) -> None:
+def test_update_reingested_rights(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """
     It should add new updated rights and mark all the old ones as superseded.
     It should add after the last rightsMD.
@@ -1081,7 +1604,9 @@ def test_update_reingested_rights(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_rights(mcp_job: Job, rights_fixtures: None) -> None:
+def test_delete_rights(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """It should mark the original rightsMD as obsolete."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_all_rights.xml")
@@ -1105,7 +1630,9 @@ def test_delete_rights(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_and_add(mcp_job: Job, rights_fixtures: None) -> None:
+def test_delete_and_add(
+    mcp_job: Job, rights_statements: list[models.RightsStatement]
+) -> None:
     """
     Use case: Entire rights basis deleted, new one added
     Solution: Mark original rightsMD as superseded. New rightsMD marked as current.
@@ -1160,7 +1687,9 @@ def test_delete_and_add(mcp_job: Job, rights_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_all_files_get_events(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_all_files_get_events(
+    mcp_job: Job, reingest_events: list[models.Event]
+) -> None:
     """
     It should add reingestion events to all files.
     It should add deletion events only to deleted files.
@@ -1255,7 +1784,9 @@ def test_all_files_get_events(mcp_job: Job, reingest_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_agent_not_in_mets(mcp_job: Job, reingest_fixtures: None) -> None:
+def test_agent_not_in_mets(
+    mcp_job: Job, reingest_events: list[models.Event], unrelated_agent: models.Agent
+) -> None:
     """
     It should add a new Agent if it doesn't already exist.
     It should only add one new Agent even if multiple Events are added.
@@ -1416,7 +1947,10 @@ def test_agent_not_in_mets(mcp_job: Job, reingest_fixtures: None) -> None:
 
 @pytest.mark.django_db
 def test_no_new_files(
-    mcp_job: Job, tmp_path: pathlib.Path, new_files_fixtures: None
+    mcp_job: Job,
+    tmp_path: pathlib.Path,
+    aip_files: list[models.File],
+    new_preservation_derivative: models.File,
 ) -> None:
     """It should not modify the fileSec or structMap if there are no new files."""
     sip_dir = tmp_path / "emptysip"
@@ -1468,7 +2002,11 @@ def test_no_new_files(
 
 
 @pytest.mark.django_db
-def test_add_metadata_csv(mcp_job: Job, new_files_fixtures: None) -> None:
+def test_add_metadata_csv(
+    mcp_job: Job,
+    aip_files: list[models.File],
+    new_preservation_derivative: models.File,
+) -> None:
     """
     It should add a metadata file to the fileSec, structMap & amdSec.
     It should add a dmdSec, whose contents the metadata CSV tests cover.
@@ -1544,7 +2082,11 @@ def test_add_metadata_csv(mcp_job: Job, new_files_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_new_metadata_file_in_subdir(mcp_job: Job, new_files_fixtures: None) -> None:
+def test_new_metadata_file_in_subdir(
+    mcp_job: Job,
+    aip_files: list[models.File],
+    new_preservation_derivative: models.File,
+) -> None:
     """It should add the new subdirs to the structMap."""
     sip_dir = os.path.join(FIXTURES_DIR, "metadata_file_in_subdir_sip", "")
     mets = metsrw.METSDocument.fromfile(
@@ -1616,7 +2158,11 @@ def test_new_metadata_file_in_subdir(mcp_job: Job, new_files_fixtures: None) -> 
 
 
 @pytest.mark.django_db
-def test_new_preservation_file(mcp_job: Job, new_files_fixtures: None) -> None:
+def test_new_preservation_file(
+    mcp_job: Job,
+    aip_files: list[models.File],
+    new_preservation_derivative: models.File,
+) -> None:
     """
     It should add an amdSec for the new file.
     It should not have a reingestion event.
@@ -1770,7 +2316,7 @@ def test_new_preservation_file(mcp_job: Job, new_files_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_file(reingest_fixtures: None) -> None:
+def test_delete_file(reingest_events: list[models.Event]) -> None:
     """
     It should change the fileGrp USE to deleted.
     It should remove the FLocat from the fileSec.
@@ -1832,7 +2378,9 @@ def test_delete_file(reingest_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_new_dmdsecs(mcp_job: Job, csv_file: models.File) -> None:
+def test_new_dmdsecs(
+    mcp_job: Job, aip_files: list[models.File], metadata_csv_file: models.File
+) -> None:
     """It should add file-level dmdSecs."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -1842,7 +2390,7 @@ def test_new_dmdsecs(mcp_job: Job, csv_file: models.File) -> None:
     mets = archivematicaCreateMETSReingest.update_metadata_csv(
         mcp_job,
         mets,
-        csv_file,
+        metadata_csv_file,
         SIP_UUID,
         METADATA_CSV_SIP_DIR,
         state,
@@ -1860,7 +2408,9 @@ def test_new_dmdsecs(mcp_job: Job, csv_file: models.File) -> None:
 
 
 @pytest.mark.django_db
-def test_new_dmdsecs_for_directories(mcp_job: Job, csv_file: models.File) -> None:
+def test_new_dmdsecs_for_directories(
+    mcp_job: Job, aip_files: list[models.File], metadata_csv_file: models.File
+) -> None:
     """It should add directory-level dmdSecs."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_sip_and_file_dc.xml")
@@ -1871,7 +2421,7 @@ def test_new_dmdsecs_for_directories(mcp_job: Job, csv_file: models.File) -> Non
     state = archivematicaCreateMETSReingest.createmets2.MetsState()
     sip_dir = os.path.join(FIXTURES_DIR, "metadata_csv_directories", "")
     mets = archivematicaCreateMETSReingest.update_metadata_csv(
-        mcp_job, mets, csv_file, SIP_UUID, sip_dir, state
+        mcp_job, mets, metadata_csv_file, SIP_UUID, sip_dir, state
     )
     # Verify the new dmdSec for the Landing_zone directory
     assert len(mets.get_file(label="Landing_zone", type="Directory").dmdsecs) == 1
@@ -1885,7 +2435,9 @@ def test_new_dmdsecs_for_directories(mcp_job: Job, csv_file: models.File) -> Non
 
 
 @pytest.mark.django_db
-def test_update_existing(mcp_job: Job, csv_file: models.File) -> None:
+def test_update_existing(
+    mcp_job: Job, aip_files: list[models.File], metadata_csv_file: models.File
+) -> None:
     """
     It should add new dmdSecs.
     It should updated the existing dmdSec as original.
@@ -1896,7 +2448,7 @@ def test_update_existing(mcp_job: Job, csv_file: models.File) -> None:
     mets = archivematicaCreateMETSReingest.update_metadata_csv(
         mcp_job,
         mets,
-        csv_file,
+        metadata_csv_file,
         SIP_UUID,
         METADATA_CSV_SIP_DIR,
         state,
@@ -1916,7 +2468,9 @@ def test_update_existing(mcp_job: Job, csv_file: models.File) -> None:
 
 
 @pytest.mark.django_db
-def test_update_reingest(mcp_job: Job, csv_file: models.File) -> None:
+def test_update_reingest(
+    mcp_job: Job, aip_files: list[models.File], metadata_csv_file: models.File
+) -> None:
     """
     It should add new dmdSecs.
     It should not updated the already updated dmdSecs.
@@ -1929,7 +2483,7 @@ def test_update_reingest(mcp_job: Job, csv_file: models.File) -> None:
     mets = archivematicaCreateMETSReingest.update_metadata_csv(
         mcp_job,
         mets,
-        csv_file,
+        metadata_csv_file,
         SIP_UUID,
         METADATA_CSV_SIP_DIR,
         state,
@@ -1951,7 +2505,9 @@ def test_update_reingest(mcp_job: Job, csv_file: models.File) -> None:
 
 
 @pytest.mark.django_db
-def test_non_dublincore_dmdsecs(mcp_job: Job, csv_file: models.File) -> None:
+def test_non_dublincore_dmdsecs(
+    mcp_job: Job, aip_files: list[models.File], metadata_csv_file: models.File
+) -> None:
     """It should add file-level dmdSecs for non DC metadata."""
     mets = metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "mets_no_metadata.xml")
@@ -1962,7 +2518,7 @@ def test_non_dublincore_dmdsecs(mcp_job: Job, csv_file: models.File) -> None:
     state = archivematicaCreateMETSReingest.createmets2.MetsState()
     sip_dir = os.path.join(FIXTURES_DIR, "metadata_csv_nondc", "")
     mets = archivematicaCreateMETSReingest.update_metadata_csv(
-        mcp_job, mets, csv_file, SIP_UUID, sip_dir, state
+        mcp_job, mets, metadata_csv_file, SIP_UUID, sip_dir, state
     )
     # Verify the new dmdSecs for the objects/evelyn_s_photo.jpg file
     assert (

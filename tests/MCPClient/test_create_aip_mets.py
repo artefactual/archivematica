@@ -4,14 +4,23 @@ import importlib.resources
 import os
 import pathlib
 import shutil
+import uuid
 
 import pytest
-from django.core.management import call_command
 from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
 from archivematica.archivematicaCommon.version import get_preservation_system_identifier
+from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Agent
+from archivematica.dashboard.main.models import DublinCore
+from archivematica.dashboard.main.models import Event
+from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
+from archivematica.dashboard.main.models import RightsStatementRightsGranted
+from archivematica.dashboard.main.models import RightsStatementRightsGrantedNote
+from archivematica.dashboard.main.models import RightsStatementRightsGrantedRestriction
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataCSV
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSRights
@@ -20,18 +29,20 @@ from archivematica.MCPClient.clientScripts import create_mets_v2
 THIS_DIR = pathlib.Path(__file__).parent
 FIXTURES_DIR = THIS_DIR / "fixtures"
 
-# UUID of a SIP with Dublin Core metadata in the dublincore.json fixture.
+# UUID of the SIP with Dublin Core metadata of the dublincore fixture.
 SIP_UUID = "8b891d7c-5bd2-4249-84a1-2f00f725b981"
-# UUID of the SIP metadata type in the metadata_applies_to_type.json fixture.
-SIP_TYPE_UUID = "3e48343d-e2d2-4956-aaa3-b54d26eb9761"
+# UUID of the SIP metadata type.
+SIP_TYPE_UUID = MetadataAppliesToType.SIP_TYPE
 # UUID of a SIP without Dublin Core metadata.
 BAD_SIP_UUID = "dnednedn-5bd2-4249-84a1-2f00f725b981"
 
-# Transfer with custom structMaps and its objects directory.
+# Transfer with custom structMaps, the SIP created from it and its objects
+# directory.
+CUSTOM_STRUCTMAP_SIP_UUID = "3a915449-d1bb-4920-b274-c917c7bb5929"
 TRANSFER_DIR = os.path.join(
     FIXTURES_DIR,
     "custom_structmaps",
-    "custom-structmap-3a915449-d1bb-4920-b274-c917c7bb5929",
+    f"custom-structmap-{CUSTOM_STRUCTMAP_SIP_UUID}",
     "",
 )
 OBJECTS_DIR = os.path.join(TRANSFER_DIR, "objects")
@@ -49,41 +60,183 @@ METS_XSD_PATH = (
 )
 
 
-def load_fixtures(*fixture_files: str) -> None:
-    call_command(
-        "loaddata",
-        *(os.path.join(FIXTURES_DIR, fixture_file) for fixture_file in fixture_files),
-        verbosity=0,
+@pytest.fixture
+def dublincore(
+    metadata_applies_to_types: dict[str, MetadataAppliesToType],
+) -> DublinCore:
+    """The Dublin Core metadata of the SIP."""
+    return DublinCore.objects.create(
+        metadataappliestotype=metadata_applies_to_types["sip"],
+        metadataappliestoidentifier=SIP_UUID,
+        status="ORIGINAL",
+        title="Yamani Weapons",
+        creator="Keladry of Mindelan",
+        subject="Glaives",
+        description="Glaives are cool",
+        publisher="Tortall Press",
+        contributor="Yuki",
+        date="2015",
+        type="Archival Information Package",
+        format="parchement",
+        identifier="42/1",
+        source="Numair's library",
+        relation="None",
+        language="en",
+        rights="Public Domain",
+        is_part_of="AIC#42",
     )
 
 
 @pytest.fixture
-def dublincore_fixtures(db: None) -> None:
-    load_fixtures("metadata_applies_to_type.json", "dublincore.json")
-
-
-@pytest.fixture
-def events_fixtures(db: None) -> None:
-    load_fixtures(
-        "metadata_applies_to_type.json",
-        "agents.json",
-        "sip.json",
-        "files.json",
-        "events-transfer.json",
+def original_file(sip: SIP) -> File:
+    """An original JPEG of the SIP, renamed during its transfer."""
+    return File.objects.create(
+        sip=sip,
+        filegrpuse="original",
+        originallocation=b"%SIPDirectory%objects/evelyn's photo.jpg",
+        currentlocation=b"%SIPDirectory%objects/evelyn_s_photo.jpg",
+        checksum="d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        checksumtype="sha256",
+        size=158131,
     )
 
 
 @pytest.fixture
-def rights_fixtures(db: None) -> None:
-    load_fixtures("rights.json")
+def transfer_events(
+    original_file: File, demo_organization_agent: Agent, user_agent: Agent
+) -> list[Event]:
+    """The events of the original file during its transfer."""
+    result = []
+    for event_type, event_detail, event_outcome, event_outcome_detail in [
+        ("ingestion", "", "", ""),
+        (
+            "message digest calculation",
+            'program="python"; module="hashlib.sha256()"',
+            "",
+            "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+        ),
+        (
+            "virus check",
+            'program="Clam AV"; version="ClamAV 0.98.7"; virusDefinitions="21117/Mon Nov 30 09:32:13 2015\n"',
+            "Pass",
+            "",
+        ),
+        (
+            "filename change",
+            'prohibited characters removed:program="changeNames"; version="1.10.9529a554732f6b96a561fd0adcf2711bb233166b"',
+            "",
+            'Original name="%transferDirectory%objects/evelyn\'s photo.jpg"; new name="%transferDirectory%objects/evelyn_s_photo.jpg"',
+        ),
+        ("format identification", 'program="Fido"; version="1"', "Positive", "fmt/44"),
+        (
+            "validation",
+            'program="JHOVE"; version="1.6"',
+            "pass",
+            'format="JPEG"; version="1.02"; result="Well-Formed and valid"',
+        ),
+    ]:
+        event = Event.objects.create(
+            file_uuid=original_file,
+            event_type=event_type,
+            event_detail=event_detail,
+            event_outcome=event_outcome,
+            event_outcome_detail=event_outcome_detail,
+        )
+        event.agents.add(demo_organization_agent, user_agent)
+        result.append(event)
+
+    return result
 
 
 @pytest.fixture
-def custom_structmap_fixtures(db: None) -> None:
-    load_fixtures(
-        os.path.join("custom_structmaps", "model", "sip.json"),
-        os.path.join("custom_structmaps", "model", "files.json"),
+def rights_statement(
+    metadata_applies_to_types: dict[str, MetadataAppliesToType],
+) -> RightsStatement:
+    """A copyright statement of a SIP that grants an open-ended dissemination."""
+    result = RightsStatement.objects.create(
+        metadataappliestotype=metadata_applies_to_types["sip"],
+        metadataappliestoidentifier="a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+        rightsbasis="Copyright",
+        status="ORIGINAL",
     )
+    rights_granted = RightsStatementRightsGranted.objects.create(
+        rightsstatement=result,
+        act="Disseminate",
+        startdate="2000",
+        enddate="",
+        enddateopen=True,
+    )
+    RightsStatementRightsGrantedRestriction.objects.create(
+        rightsgranted=rights_granted, restriction="Allow"
+    )
+    RightsStatementRightsGrantedNote.objects.create(
+        rightsgranted=rights_granted, rightsgrantednote="Attribution required"
+    )
+
+    return result
+
+
+@pytest.fixture
+def custom_structmap_sip(db: None) -> SIP:
+    """The SIP created from the transfer with custom structMaps."""
+    return SIP.objects.create(
+        uuid=uuid.UUID(CUSTOM_STRUCTMAP_SIP_UUID),
+        sip_type="AIP",
+        currentpath=(
+            "%sharedPath%watchedDirectories/workFlowDecisions/metadataReminder/"
+            f"custom-structmap-{CUSTOM_STRUCTMAP_SIP_UUID}/"
+        ),
+    )
+
+
+@pytest.fixture
+def custom_structmap_files(custom_structmap_sip: SIP) -> list[File]:
+    """A file of the SIP for each object of the transfer with custom structMaps."""
+    structmaps_dir = (
+        "metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51"
+    )
+    originals = [
+        "test_file.flac",
+        "test_file.mp3",
+        "test_file.jpg",
+        "test_file.png",
+        "nested_dir/nested_file.rdata",
+        "página_de_prueba.png",
+        "página_de_prueba.jpg",
+        "duplicate_file_name.png",
+        "nested_dir/duplicate_file_name.png",
+        "dir-with-dashes/file with spaces.bin",
+    ]
+    structmaps = [
+        "mets_structmap.xml",
+        "simple_book_structmap.xml",
+        "mets_area_structmap.xml",
+        "unicode_simple_book_structmap.xml",
+        "nested_file_structmap.xml",
+        "path_with_spaces_structmap.xml",
+        "complex_book_structmap.xml",
+        "broken_structmap.xml",
+        "no-contentids.xml",
+        "file_does_not_exist.xml",
+        "empty_filenames.xml",
+        "missing_contentid.xml",
+    ]
+    result = []
+    for filegrpuse, path in [("original", path) for path in originals] + [
+        ("metadata", f"{structmaps_dir}/{path}") for path in structmaps
+    ]:
+        location = f"%SIPDirectory%objects/{path}".encode()
+        result.append(
+            File.objects.create(
+                sip=custom_structmap_sip,
+                filegrpuse=filegrpuse,
+                originallocation=location,
+                currentlocation=location,
+                size=2600,
+            )
+        )
+
+    return result
 
 
 @pytest.fixture
@@ -108,7 +261,7 @@ def mets_state() -> create_mets_v2.MetsState:
 @pytest.fixture
 def structmap_div(
     mcp_job: Job,
-    custom_structmap_fixtures: None,
+    custom_structmap_files: list[File],
     mets_state: create_mets_v2.MetsState,
 ) -> etree._Element:
     """Generate the fileSec of the transfer with custom structMaps.
@@ -140,7 +293,7 @@ def structmap_div(
         directoryPath=OBJECTS_DIR,
         parentDiv=structMapDiv,
         baseDirectoryPath=TRANSFER_DIR,
-        sipUUID="3a915449-d1bb-4920-b274-c917c7bb5929",
+        sipUUID=CUSTOM_STRUCTMAP_SIP_UUID,
         directories={},
         state=mets_state,
         includeAmdSec=True,
@@ -200,7 +353,7 @@ def test_normative_structmap_creation(sip_dir: pathlib.Path) -> None:
 
 
 @pytest.mark.django_db
-def test_get_dublincore(dublincore_fixtures: None) -> None:
+def test_get_dublincore(dublincore: DublinCore) -> None:
     """It should create a Dublin Core element from the database info."""
     # Generate DC element from DB
     dc_elem = create_mets_v2.getDublinCore(SIP_TYPE_UUID, SIP_UUID)
@@ -242,14 +395,14 @@ def test_get_dublincore(dublincore_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_get_dublincore_none_found(dublincore_fixtures: None) -> None:
+def test_get_dublincore_none_found(dublincore: DublinCore) -> None:
     """It should not create a Dublin Core element if no info found."""
     dc_elem = create_mets_v2.getDublinCore(SIP_TYPE_UUID, BAD_SIP_UUID)
     assert dc_elem is None
 
 
 @pytest.mark.django_db
-def test_create_dc_dmdsec_dc_exists(mcp_job: Job, dublincore_fixtures: None) -> None:
+def test_create_dc_dmdsec_dc_exists(mcp_job: Job, dublincore: DublinCore) -> None:
     """It should create a dmdSec if DC information exists."""
     # Generate dmdSec if DC exists
     state = create_mets_v2.MetsState()
@@ -273,7 +426,7 @@ def test_create_dc_dmdsec_dc_exists(mcp_job: Job, dublincore_fixtures: None) -> 
 
 @pytest.mark.django_db
 def test_create_dc_dmdsec_no_dc_no_transfers_dir(
-    mcp_job: Job, dublincore_fixtures: None
+    mcp_job: Job, dublincore: DublinCore
 ) -> None:
     """It should not fail if no transfers directory exists."""
     state = create_mets_v2.MetsState()
@@ -286,7 +439,7 @@ def test_create_dc_dmdsec_no_dc_no_transfers_dir(
 
 @pytest.mark.django_db
 def test_create_dc_dmdsec_no_dc_no_transfers(
-    mcp_job: Job, dublincore_fixtures: None, tmp_path: pathlib.Path
+    mcp_job: Job, dublincore: DublinCore, tmp_path: pathlib.Path
 ) -> None:
     """It should not fail if no dublincore.xml exists from transfers."""
     sip_dir = tmp_path / "emptysip"
@@ -673,7 +826,7 @@ def test_parse_metadata_csv_blank_rows(
 
 
 @pytest.mark.django_db
-def test_creates_events(events_fixtures: None) -> None:
+def test_creates_events(original_file: File, transfer_events: list[Event]) -> None:
     """
     It should create Events
     It should create Agents
@@ -681,7 +834,7 @@ def test_creates_events(events_fixtures: None) -> None:
     It should only include Agents used by that file
     """
     state = create_mets_v2.MetsState()
-    ret = create_mets_v2.createDigiprovMD("ae8d4290-fe52-4954-b72a-0f591bee2e2f", state)
+    ret = create_mets_v2.createDigiprovMD(str(original_file.uuid), state)
     assert len(ret) == 9
     # Events
     assert ret[0][0].attrib["MDTYPE"] == "PREMIS:EVENT"
@@ -780,16 +933,17 @@ def test_creates_events(events_fixtures: None) -> None:
 
 
 @pytest.mark.django_db
-def test_create_rights_granted(mcp_job: Job, rights_fixtures: None) -> None:
+def test_create_rights_granted(mcp_job: Job, rights_statement: RightsStatement) -> None:
     # Setup
     elem = etree.Element(
         "{http://www.loc.gov/premis/v3}rightsStatement",
         nsmap={"premis": ns.NSMAP["premis"]},
     )
-    statement = RightsStatement.objects.get(id=1)
     # Test
     state = create_mets_v2.MetsState()
-    archivematicaCreateMETSRights.getrightsGranted(mcp_job, statement, elem, state)
+    archivematicaCreateMETSRights.getrightsGranted(
+        mcp_job, rights_statement, elem, state
+    )
     # Verify
     assert len(elem) == 1
     rightsgranted = elem[0]

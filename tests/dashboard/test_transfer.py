@@ -1,8 +1,6 @@
-import pathlib
 import uuid
 
 import pytest
-from django.core.management import call_command
 from django.test import Client
 from django.urls import reverse
 from pytest_django.asserts import assertRedirects
@@ -15,17 +13,21 @@ from archivematica.dashboard.main.models import Transfer
 from archivematica.dashboard.main.models import TransferMetadataField
 from archivematica.dashboard.main.models import TransferMetadataFieldValue
 
-FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
-
-# UUID of the transfer created by the transfer.json fixture.
+# UUID of the transfer of the transfer fixture.
 TRANSFER_UUID = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
 
 
 @pytest.fixture
 def transfer(db: None) -> Transfer:
-    call_command("loaddata", FIXTURES_DIR / "transfer.json", verbosity=0)
-
-    return Transfer.objects.get(uuid=TRANSFER_UUID)
+    """A completed standard transfer named "test"."""
+    return Transfer.objects.create(
+        uuid=uuid.UUID(TRANSFER_UUID),
+        type="Standard",
+        currentlocation=(
+            "%sharedPath%watchedDirectories/SIPCreation/completedTransfers/"
+            f"test-{TRANSFER_UUID}/"
+        ),
+    )
 
 
 def test_metadata_edit(

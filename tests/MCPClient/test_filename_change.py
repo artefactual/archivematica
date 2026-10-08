@@ -4,7 +4,6 @@ import uuid
 
 import pytest
 from django.contrib.auth.models import User
-from django.core.management import call_command
 
 from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.dashboard.main.models import SIP
@@ -13,16 +12,9 @@ from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Transfer
-from archivematica.dashboard.main.models import UnitVariable
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import change_names
 from archivematica.MCPClient.clientScripts import change_object_names
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
-
-# UUID of the transfer created by the transfer.json fixture.
-TRANSFER_UUID = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"
 
 
 @pytest.fixture()
@@ -155,32 +147,13 @@ EXPECTED_EVENT_DETAILS = (
 
 
 @pytest.fixture
-def admin_agent(user: User) -> Agent:
-    return Agent.objects.create(
-        agenttype="Archivematica user",
-        identifiervalue=str(user.pk),
-        name=f'username="{user.username}", first_name="{user.first_name}", last_name="{user.last_name}"',
-        identifiertype="Archivematica user pk",
-    )
+def unicode_transfer_agent(
+    unicode_transfer: Transfer, user: User, user_agent: Agent
+) -> Agent:
+    """The agent of the user, set as the active agent of the unicode transfer."""
+    unicode_transfer.update_active_agent(user.id)
 
-
-@pytest.fixture
-def unicode_transfer(db: None, admin_agent: Agent) -> Transfer:
-    """The transfer with unicode file names of the fixture files."""
-    call_command(
-        "loaddata",
-        os.path.join(FIXTURES_DIR, "transfer.json"),
-        os.path.join(FIXTURES_DIR, "files-transfer-unicode.json"),
-        verbosity=0,
-    )
-    UnitVariable.objects.create(
-        unituuid=TRANSFER_UUID,
-        unittype="Transfer",
-        variablevalue=str(admin_agent.pk),
-        variable="activeAgent",
-    )
-
-    return Transfer.objects.get(uuid=TRANSFER_UUID)
+    return user_agent
 
 
 @pytest.mark.django_db
@@ -188,6 +161,8 @@ def test_change_object_names(
     mcp_job: Job,
     tmp_path: pathlib.Path,
     unicode_transfer: Transfer,
+    unicode_transfer_files: list[File],
+    unicode_transfer_agent: Agent,
     organization_agent: Agent,
 ) -> None:
     """Test change_object_names.
@@ -203,7 +178,7 @@ def test_change_object_names(
     transfer_path = unicode_transfer.currentlocation.replace(
         "%sharedPath%currentlyProcessing", str(tmp_path)
     )
-    for file_ in File.objects.filter(transfer=unicode_transfer):
+    for file_ in unicode_transfer_files:
         path = file_.currentlocation.decode().replace(
             "%transferDirectory%", transfer_path
         )
@@ -215,7 +190,7 @@ def test_change_object_names(
     name_changer = change_object_names.NameChanger(
         mcp_job,
         os.path.join(transfer_path, "objects", "").encode("utf8"),
-        TRANSFER_UUID,
+        str(unicode_transfer.uuid),
         "2017-01-04 19:35:22",
         "%transferDirectory%",
         "transfer_id",
@@ -302,19 +277,6 @@ def test_change_name(basename, expected_name):
 def test_change_name_raises_valueerror_on_empty_string():
     with pytest.raises(ValueError):
         change_names.change_name("")
-
-
-@pytest.fixture
-def organization_agent() -> Agent:
-    agent, _ = Agent.objects.get_or_create(
-        pk=2,
-        agenttype="organization",
-        identifiervalue="ORG",
-        name="Your Organization Name Here",
-        identifiertype="repository code",
-    )
-
-    return agent
 
 
 @pytest.mark.django_db

@@ -1,36 +1,18 @@
-import pathlib
 import uuid
 
 import pytest
 import pytest_django
-from django.core.management import call_command
 from django.db import IntegrityError
 
 from archivematica.archivematicaCommon import databaseFunctions
 from archivematica.dashboard.main.models import SIP
+from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Identifier
-
-FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
-
-# Agents in the agents.json fixture.
-ORGANIZATION_AGENT_ID = 2
-SIP_AGENT_ID = 5
-TRANSFER_AGENT_ID = 10
-SOFTWARE_AGENT_ID = 11
-
-# Files in the test_database_functions.json fixture. The active agent of a
-# file comes from the "activeAgent" unit variable of its SIP or transfer.
-FILE_WITH_SIP_AGENT_UUID = "88c8f115-80bc-4da4-a1e6-0158f5df13b9"
-FILE_WITH_TRANSFER_AGENT_UUID = "1f4af873-8d60-4907-a92e-d1889e643524"
-FILE_WITH_SIP_AND_TRANSFER_AGENTS_UUID = "dc569efe-c88f-4be3-94d3-d9eac0c5d410"
-FILE_WITHOUT_ACTIVE_AGENT_UUID = "d4e599bd-f9ab-48d4-9ae7-9e87d4ac1619"
-
-# SIPs in the test_database_functions.json fixture.
-SIP_WITHOUT_FILES_UUID = "0049fa6c-152f-44a0-93b0-c5e856a02292"
-SIP_WITHOUT_ACTIVE_AGENT_UUID = "01cf9fb8-bc01-40b4-b830-feb66e912f40"
+from archivematica.dashboard.main.models import Transfer
+from archivematica.dashboard.main.models import UnitVariable
 
 # Current path of a file set during the extract contents microservice (the file
 # name contains underscores from normalization) and the original location of the
@@ -44,27 +26,123 @@ EXTRACTED_FILE_ORIGINAL_LOCATION = (
 
 
 @pytest.fixture
-def files_and_agents_fixtures(db: None) -> None:
-    call_command(
-        "loaddata",
-        FIXTURES_DIR / "agents.json",
-        FIXTURES_DIR / "test_database_functions.json",
-        verbosity=0,
+def organization_agent(db: None) -> Agent:
+    """The default organization agent, linked to the events of every file."""
+    result, _ = Agent.objects.get_or_create(
+        pk=Agent.objects.DEFAULT_ORGANIZATION_AGENT_PK,
+        defaults={
+            "agenttype": "organization",
+            "identifiertype": "repository code",
+            "identifiervalue": "ORG",
+            "name": "Your Organization Name Here",
+        },
+    )
+
+    return result
+
+
+@pytest.fixture
+def sip_agent(db: None) -> Agent:
+    """The agent of the user who processes SIPs."""
+    return Agent.objects.create(
+        agenttype="Archivematica user",
+        identifiertype="Archivematica user pk",
+        identifiervalue="2",
+        name="SIP Agent",
+    )
+
+
+@pytest.fixture
+def transfer_agent(db: None) -> Agent:
+    """The agent of the user who processes transfers."""
+    return Agent.objects.create(
+        agenttype="Archivematica user",
+        identifiertype="Archivematica user pk",
+        identifiervalue="2",
+        name="Transfer Agent",
+    )
+
+
+@pytest.fixture
+def software_agent(db: None) -> Agent:
+    """A preservation system agent other than Archivematica."""
+    return Agent.objects.create(
+        agenttype="software",
+        identifiertype="preservation system",
+        identifiervalue="Other-Software-1.0",
+        name="Other Software",
+    )
+
+
+def set_active_agent(unit: SIP | Transfer, agent: Agent) -> None:
+    """Record the agent as the active agent of the SIP or transfer."""
+    UnitVariable.objects.update_variable(
+        "SIP" if isinstance(unit, SIP) else "Transfer",
+        unit.uuid,
+        "activeAgent",
+        str(agent.pk),
+    )
+
+
+@pytest.fixture
+def empty_sip(db: None) -> SIP:
+    """A SIP without files."""
+    return SIP.objects.create(currentpath="%path%")
+
+
+@pytest.fixture
+def file_with_sip_agent(sip_agent: Agent) -> File:
+    """A file of a SIP whose active agent is the SIP agent."""
+    sip = SIP.objects.create(currentpath="%path%")
+    set_active_agent(sip, sip_agent)
+
+    return File.objects.create(sip=sip, currentlocation=b"file_with_sip_agent")
+
+
+@pytest.fixture
+def file_with_transfer_agent(transfer_agent: Agent) -> File:
+    """A file of a transfer whose active agent is the transfer agent."""
+    transfer = Transfer.objects.create(currentlocation="%path%")
+    set_active_agent(transfer, transfer_agent)
+
+    return File.objects.create(
+        transfer=transfer, currentlocation=b"file_with_transfer_agent"
+    )
+
+
+@pytest.fixture
+def file_with_sip_and_transfer_agents(sip_agent: Agent, transfer_agent: Agent) -> File:
+    """A file of a SIP and a transfer with different active agents."""
+    sip = SIP.objects.create(currentpath="%path%")
+    set_active_agent(sip, sip_agent)
+    transfer = Transfer.objects.create(currentlocation="%path%")
+    set_active_agent(transfer, transfer_agent)
+
+    return File.objects.create(
+        sip=sip, transfer=transfer, currentlocation=b"file_with_sip_agent"
+    )
+
+
+@pytest.fixture
+def file_without_active_agent(db: None) -> File:
+    """A file of a SIP without an active agent."""
+    return File.objects.create(
+        sip=SIP.objects.create(currentpath="%path%"),
+        currentlocation=b"file_with_no_unit_var",
     )
 
 
 # insertIntoFiles
 
 
-@pytest.mark.django_db
-def test_insert_into_files_with_sip(files_and_agents_fixtures: None) -> None:
+def test_insert_into_files_with_sip(empty_sip: SIP) -> None:
     path = "%sharedDirectory%/"
     assert File.objects.filter(currentlocation=path.encode()).count() == 0
 
     databaseFunctions.insertIntoFiles(
         "690c2fb5-7fee-4c29-a8b2-e3758ab9871e",
         path,
-        sipUUID=SIP_WITHOUT_FILES_UUID,
+        sipUUID=str(empty_sip.uuid),
     )
     assert File.objects.filter(currentlocation=path.encode()).count() == 1
 
@@ -81,16 +159,13 @@ def test_insert_into_files_raises_if_both_sip_and_transfer_provided() -> None:
         )
 
 
-@pytest.mark.django_db
-def test_insert_into_files_records_original_location(
-    files_and_agents_fixtures: None,
-) -> None:
+def test_insert_into_files_records_original_location(empty_sip: SIP) -> None:
     file_uuid = "e0a1fdc4-605a-4104-bf59-039859ee8238"
 
     databaseFunctions.insertIntoFiles(
         fileUUID=file_uuid,
         filePath=EXTRACTED_FILE_PATH,
-        sipUUID=SIP_WITHOUT_FILES_UUID,
+        sipUUID=str(empty_sip.uuid),
         originalLocation=EXTRACTED_FILE_ORIGINAL_LOCATION,
     )
 
@@ -99,16 +174,15 @@ def test_insert_into_files_records_original_location(
     assert created_file.currentlocation == EXTRACTED_FILE_PATH.encode()
 
 
-@pytest.mark.django_db
 def test_insert_into_files_defaults_original_location_to_file_path(
-    files_and_agents_fixtures: None,
+    empty_sip: SIP,
 ) -> None:
     file_uuid = "554661f1-b331-452c-a583-0c582ebcb298"
 
     databaseFunctions.insertIntoFiles(
         fileUUID=file_uuid,
         filePath=EXTRACTED_FILE_PATH,
-        sipUUID=SIP_WITHOUT_FILES_UUID,
+        sipUUID=str(empty_sip.uuid),
         originalLocation=None,
     )
 
@@ -122,12 +196,12 @@ def test_insert_into_files_defaults_original_location_to_file_path(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "file_uuid, expected_agent_ids",
+    "file_fixture, expected_agent_fixtures",
     [
-        (FILE_WITH_SIP_AGENT_UUID, {ORGANIZATION_AGENT_ID, SIP_AGENT_ID}),
-        (FILE_WITH_TRANSFER_AGENT_UUID, {ORGANIZATION_AGENT_ID, TRANSFER_AGENT_ID}),
-        (FILE_WITH_SIP_AND_TRANSFER_AGENTS_UUID, {ORGANIZATION_AGENT_ID, SIP_AGENT_ID}),
-        (FILE_WITHOUT_ACTIVE_AGENT_UUID, {ORGANIZATION_AGENT_ID}),
+        ("file_with_sip_agent", ["organization_agent", "sip_agent"]),
+        ("file_with_transfer_agent", ["organization_agent", "transfer_agent"]),
+        ("file_with_sip_and_transfer_agents", ["organization_agent", "sip_agent"]),
+        ("file_without_active_agent", ["organization_agent"]),
     ],
     ids=[
         "sip-agent",
@@ -137,9 +211,19 @@ def test_insert_into_files_defaults_original_location_to_file_path(
     ],
 )
 def test_get_agents_for_file(
-    files_and_agents_fixtures: None, file_uuid: str, expected_agent_ids: set[int]
+    request: pytest.FixtureRequest,
+    file_fixture: str,
+    expected_agent_fixtures: list[str],
 ) -> None:
-    assert set(databaseFunctions.getAMAgentsForFile(file_uuid)) == expected_agent_ids
+    file_: File = request.getfixturevalue(file_fixture)
+    expected_agent_ids = {
+        request.getfixturevalue(agent_fixture).pk
+        for agent_fixture in expected_agent_fixtures
+    }
+
+    assert (
+        set(databaseFunctions.getAMAgentsForFile(str(file_.uuid))) == expected_agent_ids
+    )
 
 
 @pytest.mark.django_db
@@ -150,51 +234,52 @@ def test_get_agents_for_file_returns_empty_list_for_unknown_file() -> None:
 # insertIntoEvents
 
 
-@pytest.mark.django_db
-def test_insert_into_events(files_and_agents_fixtures: None) -> None:
+def test_insert_into_events(file_with_sip_agent: File) -> None:
     event_id = "15a3467d-4c7f-45a5-b879-401b73b7cf7a"
     assert Event.objects.filter(event_id=event_id).count() == 0
 
     databaseFunctions.insertIntoEvents(
-        fileUUID=FILE_WITH_SIP_AGENT_UUID,
+        fileUUID=str(file_with_sip_agent.uuid),
         eventIdentifierUUID=event_id,
     )
     assert Event.objects.filter(event_id=event_id).count() == 1
 
 
-@pytest.mark.django_db
 def test_insert_into_event_fetches_correct_agent_from_file(
-    files_and_agents_fixtures: None,
+    file_with_sip_agent: File, organization_agent: Agent, sip_agent: Agent
 ) -> None:
     event_id = "fdbf54da-2b21-4364-be3a-a99ad788cdb6"
 
     databaseFunctions.insertIntoEvents(
-        fileUUID=FILE_WITH_SIP_AGENT_UUID,
+        fileUUID=str(file_with_sip_agent.uuid),
         eventIdentifierUUID=event_id,
     )
     agent_ids = Event.objects.get(event_id=event_id).agents.values_list("pk", flat=True)
-    assert set(agent_ids) == {ORGANIZATION_AGENT_ID, SIP_AGENT_ID}
+    assert set(agent_ids) == {organization_agent.pk, sip_agent.pk}
 
 
 # insert_events
 
 
-@pytest.mark.django_db
 def test_insert_events_batches_writes_and_preserves_agents(
-    files_and_agents_fixtures: None,
+    file_with_sip_agent: File,
+    file_with_transfer_agent: File,
+    organization_agent: Agent,
+    sip_agent: Agent,
+    transfer_agent: Agent,
     django_assert_num_queries: pytest_django.DjangoAssertNumQueries,
 ) -> None:
     event_ids = [uuid.uuid4(), uuid.uuid4()]
     event_inputs = [
         databaseFunctions.EventInput(
-            file_uuid=FILE_WITH_SIP_AGENT_UUID,
+            file_uuid=file_with_sip_agent.uuid,
             event_id=event_ids[0],
             event_type="virus check",
             event_detail="SIP detail",
             event_outcome="Pass",
         ),
         databaseFunctions.EventInput(
-            file_uuid=FILE_WITH_TRANSFER_AGENT_UUID,
+            file_uuid=file_with_transfer_agent.uuid,
             event_id=event_ids[1],
             event_type="virus check",
             event_detail="transfer detail",
@@ -221,36 +306,39 @@ def test_insert_events_batches_writes_and_preserves_agents(
     assert events[str(event_ids[0])].event_detail == "SIP detail"
     assert events[str(event_ids[0])].event_outcome == "Pass"
     assert set(events[str(event_ids[0])].agents.values_list("pk", flat=True)) == {
-        ORGANIZATION_AGENT_ID,
-        SIP_AGENT_ID,
+        organization_agent.pk,
+        sip_agent.pk,
     }
     assert events[str(event_ids[1])].event_detail == "transfer detail"
     assert events[str(event_ids[1])].event_outcome == "Fail"
     assert set(events[str(event_ids[1])].agents.values_list("pk", flat=True)) == {
-        ORGANIZATION_AGENT_ID,
-        TRANSFER_AGENT_ID,
+        organization_agent.pk,
+        transfer_agent.pk,
     }
 
 
-@pytest.mark.django_db
 def test_insert_events_prefers_sip_agents_and_supports_explicit_agents(
-    files_and_agents_fixtures: None,
+    file_with_sip_and_transfer_agents: File,
+    file_without_active_agent: File,
+    organization_agent: Agent,
+    sip_agent: Agent,
+    software_agent: Agent,
 ) -> None:
     event_ids = [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]
 
     databaseFunctions.insert_events(
         [
             databaseFunctions.EventInput(
-                file_uuid=FILE_WITH_SIP_AND_TRANSFER_AGENTS_UUID,
+                file_uuid=file_with_sip_and_transfer_agents.uuid,
                 event_id=event_ids[0],
             ),
             databaseFunctions.EventInput(
-                file_uuid=FILE_WITHOUT_ACTIVE_AGENT_UUID,
+                file_uuid=file_without_active_agent.uuid,
                 event_id=event_ids[1],
-                agent_ids={SOFTWARE_AGENT_ID},
+                agent_ids={software_agent.pk},
             ),
             databaseFunctions.EventInput(
-                file_uuid=FILE_WITHOUT_ACTIVE_AGENT_UUID,
+                file_uuid=file_without_active_agent.uuid,
                 event_id=event_ids[2],
                 agent_ids=set(),
             ),
@@ -262,19 +350,20 @@ def test_insert_events_prefers_sip_agents_and_supports_explicit_agents(
         for event in Event.objects.filter(event_id__in=event_ids)
     }
     assert set(events[str(event_ids[0])].agents.values_list("pk", flat=True)) == {
-        ORGANIZATION_AGENT_ID,
-        SIP_AGENT_ID,
+        organization_agent.pk,
+        sip_agent.pk,
     }
     assert set(events[str(event_ids[1])].agents.values_list("pk", flat=True)) == {
-        SOFTWARE_AGENT_ID
+        software_agent.pk
     }
     assert not events[str(event_ids[2])].agents.exists()
 
 
-@pytest.mark.django_db
-def test_insert_events_generates_defaults(files_and_agents_fixtures: None) -> None:
+def test_insert_events_generates_defaults(
+    file_without_active_agent: File, organization_agent: Agent
+) -> None:
     (event,) = databaseFunctions.insert_events(
-        iter([databaseFunctions.EventInput(file_uuid=FILE_WITHOUT_ACTIVE_AGENT_UUID)])
+        iter([databaseFunctions.EventInput(file_uuid=file_without_active_agent.uuid)])
     )
 
     saved_event = Event.objects.get(pk=event.pk)
@@ -285,24 +374,25 @@ def test_insert_events_generates_defaults(files_and_agents_fixtures: None) -> No
     assert saved_event.event_outcome == ""
     assert saved_event.event_outcome_detail == ""
     assert set(saved_event.agents.values_list("pk", flat=True)) == {
-        ORGANIZATION_AGENT_ID
+        organization_agent.pk
     }
 
 
-@pytest.mark.django_db
-def test_insert_events_is_atomic(files_and_agents_fixtures: None) -> None:
+def test_insert_events_is_atomic(
+    file_without_active_agent: File, software_agent: Agent
+) -> None:
     event_ids = [uuid.uuid4(), uuid.uuid4()]
 
     with pytest.raises(IntegrityError):
         databaseFunctions.insert_events(
             [
                 databaseFunctions.EventInput(
-                    file_uuid=FILE_WITHOUT_ACTIVE_AGENT_UUID,
+                    file_uuid=file_without_active_agent.uuid,
                     event_id=event_ids[0],
-                    agent_ids={SOFTWARE_AGENT_ID},
+                    agent_ids={software_agent.pk},
                 ),
                 databaseFunctions.EventInput(
-                    file_uuid=FILE_WITHOUT_ACTIVE_AGENT_UUID,
+                    file_uuid=file_without_active_agent.uuid,
                     event_id=event_ids[1],
                     agent_ids={999999},
                 ),

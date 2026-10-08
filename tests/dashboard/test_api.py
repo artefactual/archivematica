@@ -4,7 +4,6 @@ import uuid
 from unittest import mock
 
 import pytest
-from django.core.management import call_command
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
@@ -24,10 +23,6 @@ from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Task
 from archivematica.dashboard.main.models import Transfer
-
-
-def load_fixture(fixtures):
-    call_command("loaddata", *fixtures, **{"verbosity": 0})
 
 
 @pytest.fixture
