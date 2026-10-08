@@ -125,7 +125,7 @@ def test_fpcommand_edit(dashboard_uuid: uuid.UUID, admin_client: Client) -> None
     assert not fpcommand.enabled
 
     # And replaced by a new fpcommand.
-    fpcommand = models.FPCommand.active.get(replaces_id=fpcommand_id)
+    fpcommand = models.FPCommand.active.get(replaces=fpcommand)
     assert fpcommand.description == "new description"
 
 

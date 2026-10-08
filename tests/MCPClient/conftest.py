@@ -68,13 +68,12 @@ def user() -> User:
 @pytest.fixture
 def user_agent(user: User) -> models.Agent:
     """The agent that represents the user in PREMIS events."""
-    return models.UserProfile.objects.get(user=user).agent
+    return models.Agent.objects.get(userprofile__user=user)
 
 
 @pytest.fixture
 def organization_agent(db: None) -> models.Agent:
     """The default organization agent, linked to the events of every file."""
-    result: models.Agent
     result, _ = models.Agent.objects.get_or_create(
         pk=models.Agent.objects.DEFAULT_ORGANIZATION_AGENT_PK,
         defaults={

@@ -59,7 +59,7 @@ def main(job: Job, file_uuid: uuid.UUID, sip_uuid: uuid.UUID) -> int:
         rules = format = None
 
     if format:
-        rules = FPRule.active.filter(format=format.uuid, purpose="characterization")
+        rules = FPRule.active.filter(format=format, purpose="characterization")
 
     # Characterization always occurs - if nothing is specified, get one or more
     # defaults specified in the FPR.

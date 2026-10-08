@@ -244,12 +244,22 @@ class PolicyChecker:
         file_uuid: str | uuid.UUID | None = self.file_uuid
         if self.is_manually_normalized_access_derivative:
             file_uuid = self._get_manually_normalized_access_derivative_file_uuid()
+        rules = fmt = None
         try:
-            fmt = FormatVersion.active.get(fileformatversion__file_uuid=file_uuid)
+            if file_uuid is None:
+                # A missing UUID matches the format versions that no file
+                # identification references, as the lookup of None does.
+                fmt = FormatVersion.active.get(
+                    fileformatversion__file_uuid__isnull=True
+                )
+            else:
+                fmt = FormatVersion.active.get(
+                    fileformatversion__file_uuid__pk=file_uuid
+                )
         except (FormatVersion.DoesNotExist, ValidationError):
-            rules = fmt = None
+            pass
         if fmt:
-            rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
+            rules = FPRule.active.filter(format=fmt, purpose=self.purpose)
         # Check for default rules.
         if not rules:
             rules = FPRule.active.filter(purpose=f"default_{self.purpose}")
