@@ -3,7 +3,6 @@ import pathlib
 from unittest import mock
 
 import pytest
-import pytest_django
 from django.http import HttpResponse
 from django.test import Client
 
@@ -12,19 +11,6 @@ from archivematica.archivematicaCommon.processing import DEFAULT_PROCESSING_CONF
 from archivematica.dashboard.components import helpers
 
 pytestmark = pytest.mark.usefixtures("dashboard_uuid")
-
-
-@pytest.fixture
-def shared_directory(
-    settings: pytest_django.Settings, tmp_path: pathlib.Path
-) -> pathlib.Path:
-    shared_dir = tmp_path / "sharedDirectory"
-    (shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs").mkdir(
-        parents=True
-    )
-    settings.SHARED_DIRECTORY = str(shared_dir)
-
-    return shared_dir
 
 
 @mock.patch(
@@ -148,7 +134,7 @@ def test_name_field_is_validated(
 
 
 def test_reset_default_processing_config(
-    admin_client: Client, shared_directory: pathlib.Path
+    admin_client: Client, processing_configurations_path: pathlib.Path
 ) -> None:
     response = admin_client.get("/administration/processing/reset/default/")
 
@@ -161,7 +147,7 @@ def test_reset_default_processing_config(
 
 
 def test_reset_automated_processing_config(
-    admin_client: Client, shared_directory: pathlib.Path
+    admin_client: Client, processing_configurations_path: pathlib.Path
 ) -> None:
     response = admin_client.get("/administration/processing/reset/automated/")
 

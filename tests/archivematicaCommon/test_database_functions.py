@@ -26,22 +26,6 @@ EXTRACTED_FILE_ORIGINAL_LOCATION = (
 
 
 @pytest.fixture
-def organization_agent(db: None) -> Agent:
-    """The default organization agent, linked to the events of every file."""
-    result, _ = Agent.objects.get_or_create(
-        pk=Agent.objects.DEFAULT_ORGANIZATION_AGENT_PK,
-        defaults={
-            "agenttype": "organization",
-            "identifiertype": "repository code",
-            "identifiervalue": "ORG",
-            "name": "Your Organization Name Here",
-        },
-    )
-
-    return result
-
-
-@pytest.fixture
 def sip_agent(db: None) -> Agent:
     """The agent of the user who processes SIPs."""
     return Agent.objects.create(
@@ -82,12 +66,6 @@ def set_active_agent(unit: SIP | Transfer, agent: Agent) -> None:
         "activeAgent",
         str(agent.pk),
     )
-
-
-@pytest.fixture
-def empty_sip(db: None) -> SIP:
-    """A SIP without files."""
-    return SIP.objects.create(currentpath="%path%")
 
 
 @pytest.fixture
@@ -135,14 +113,14 @@ def file_without_active_agent(db: None) -> File:
 # insertIntoFiles
 
 
-def test_insert_into_files_with_sip(empty_sip: SIP) -> None:
+def test_insert_into_files_with_sip(sip: SIP) -> None:
     path = "%sharedDirectory%/"
     assert File.objects.filter(currentlocation=path.encode()).count() == 0
 
     databaseFunctions.insertIntoFiles(
         "690c2fb5-7fee-4c29-a8b2-e3758ab9871e",
         path,
-        sipUUID=str(empty_sip.uuid),
+        sipUUID=str(sip.uuid),
     )
     assert File.objects.filter(currentlocation=path.encode()).count() == 1
 
@@ -159,13 +137,13 @@ def test_insert_into_files_raises_if_both_sip_and_transfer_provided() -> None:
         )
 
 
-def test_insert_into_files_records_original_location(empty_sip: SIP) -> None:
+def test_insert_into_files_records_original_location(sip: SIP) -> None:
     file_uuid = "e0a1fdc4-605a-4104-bf59-039859ee8238"
 
     databaseFunctions.insertIntoFiles(
         fileUUID=file_uuid,
         filePath=EXTRACTED_FILE_PATH,
-        sipUUID=str(empty_sip.uuid),
+        sipUUID=str(sip.uuid),
         originalLocation=EXTRACTED_FILE_ORIGINAL_LOCATION,
     )
 
@@ -175,14 +153,14 @@ def test_insert_into_files_records_original_location(empty_sip: SIP) -> None:
 
 
 def test_insert_into_files_defaults_original_location_to_file_path(
-    empty_sip: SIP,
+    sip: SIP,
 ) -> None:
     file_uuid = "554661f1-b331-452c-a583-0c582ebcb298"
 
     databaseFunctions.insertIntoFiles(
         fileUUID=file_uuid,
         filePath=EXTRACTED_FILE_PATH,
-        sipUUID=str(empty_sip.uuid),
+        sipUUID=str(sip.uuid),
         originalLocation=None,
     )
 
@@ -411,9 +389,10 @@ def test_insert_events_rejects_invalid_batch_size() -> None:
 
 
 @pytest.fixture
-def sip(db: None) -> SIP:
-    sip = SIP.objects.create(uuid="f663fd87-5ce4-4114-886e-4856371cf0d6")
+def sip(sip: SIP) -> SIP:
+    """The SIP with an identifier."""
     sip.identifiers.add(Identifier.objects.create(value="sip_identifier"))
+
     return sip
 
 

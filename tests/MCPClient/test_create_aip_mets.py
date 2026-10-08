@@ -826,7 +826,9 @@ def test_parse_metadata_csv_blank_rows(
 
 
 @pytest.mark.django_db
-def test_creates_events(original_file: File, transfer_events: list[Event]) -> None:
+def test_creates_events(
+    original_file: File, transfer_events: list[Event], user_agent: Agent
+) -> None:
     """
     It should create Events
     It should create Agents
@@ -920,7 +922,8 @@ def test_creates_events(original_file: File, transfer_events: list[Event]) -> No
         == "Archivematica user pk"
     )
     assert (
-        ret[8].find(".//{http://www.loc.gov/premis/v3}agentIdentifierValue").text == "1"
+        ret[8].find(".//{http://www.loc.gov/premis/v3}agentIdentifierValue").text
+        == user_agent.identifiervalue
     )
     assert (
         ret[8].find(".//{http://www.loc.gov/premis/v3}agentName").text

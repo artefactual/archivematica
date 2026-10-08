@@ -93,13 +93,11 @@ def metadata_csv(
 
 
 @pytest.fixture()
-def sip_dublincore(sip: SIP) -> DublinCore:
-    MetadataAppliesToType.objects.get_or_create(
-        pk="3e48343d-e2d2-4956-aaa3-b54d26eb9761", description="SIP"
-    )
-
+def sip_dublincore(
+    sip: SIP, metadata_applies_to_types: dict[str, MetadataAppliesToType]
+) -> DublinCore:
     return DublinCore.objects.create(
-        metadataappliestotype_id=MetadataAppliesToType.SIP_TYPE,
+        metadataappliestotype=metadata_applies_to_types["sip"],
         metadataappliestoidentifier=str(sip.pk),
         title="Hello World Contents",
         is_part_of="23456",

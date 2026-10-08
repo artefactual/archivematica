@@ -137,13 +137,12 @@ def event_details(event: Event) -> tuple[str, list[str]]:
     return event.event_detail, sorted(repr(agent) for agent in event.agents.all())
 
 
-EXPECTED_EVENT_DETAILS = (
-    f'prohibited characters removed: program="change_names"; version="{get_full_version()}"',
-    [
-        '<Agent: Archivematica user; Archivematica user pk: 1; username="kmindelan", first_name="Keladry", last_name="Mindelan">',
-        "<Agent: organization; repository code: ORG; Your Organization Name Here>",
-    ],
-)
+def expected_event_details(*agents: Agent) -> tuple[str, list[str]]:
+    """The detail and the agents of the filename change event of a file."""
+    return (
+        f'prohibited characters removed: program="change_names"; version="{get_full_version()}"',
+        sorted(repr(agent) for agent in agents),
+    )
 
 
 @pytest.fixture
@@ -218,7 +217,9 @@ def test_change_object_names(
         event_type="filename change",
     )
 
-    assert event_details(event) == EXPECTED_EVENT_DETAILS
+    assert event_details(event) == expected_event_details(
+        unicode_transfer_agent, organization_agent
+    )
 
     assert os.path.exists(
         os.path.join(transfer_path, "objects", "no_name_change/needed_here/lion.svg")
@@ -288,6 +289,7 @@ def test_change_transfer_with_multiple_files(
     subdir_path: pathlib.Path,
     multiple_transfer_file_objs: list[File],
     organization_agent: Agent,
+    user_agent: Agent,
 ) -> None:
     monkeypatch.setattr(change_object_names.NameChanger, "BATCH_SIZE", 10)
 
@@ -319,7 +321,10 @@ def test_change_transfer_with_multiple_files(
         for event in Event.objects.filter(
             file_uuid__in=file_uuids, event_type="filename change"
         )
-    ) == sorted((file_uuid, EXPECTED_EVENT_DETAILS) for file_uuid in file_uuids)
+    ) == sorted(
+        (file_uuid, expected_event_details(user_agent, organization_agent))
+        for file_uuid in file_uuids
+    )
 
 
 @pytest.mark.django_db

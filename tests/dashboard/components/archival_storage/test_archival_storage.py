@@ -16,6 +16,7 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import os
+import pathlib
 import uuid
 from io import StringIO
 from unittest import mock
@@ -81,15 +82,6 @@ def test_load_premis(mets_document):
         "format_registry_name": "PRONOM",
         "size": "999999",
     }
-
-
-@pytest.fixture
-def mets_hdr():
-    return """<?xml version='1.0' encoding='UTF-8'?>
-    <mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
-        <mets:metsHdr CREATEDATE="2020-01-20T15:22:15"/>
-    </mets:mets>
-    """
 
 
 def get_streaming_response(streaming_content):
@@ -686,9 +678,11 @@ def test_create_aic_creates_temporary_files(
 
 
 @pytest.fixture
-def processing_configurations_dir(tmp_path):
-    result = tmp_path / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs"
-    result.mkdir(parents=True)
+def processing_configurations_dir(
+    processing_configurations_path: pathlib.Path,
+) -> pathlib.Path:
+    """The processing configurations directory with three configurations."""
+    result = processing_configurations_path
 
     (result / "defaultProcessingMCP.xml").touch()
     (result / "automatedProcessingMCP.xml").touch()

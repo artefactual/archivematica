@@ -40,6 +40,15 @@ METADATA_CSV_SIP_DIR = os.path.join(FIXTURES_DIR, "metadata_csv_sip", "")
 
 
 @pytest.fixture
+def user_agent(user_agent: models.Agent) -> models.Agent:
+    """The user agent as the METS fixtures identify it, by the user pk 1."""
+    user_agent.identifiervalue = "1"
+    user_agent.save()
+
+    return user_agent
+
+
+@pytest.fixture
 def aip(db: None) -> models.SIP:
     """The reingested AIP described by the METS fixtures."""
     return models.SIP.objects.create(

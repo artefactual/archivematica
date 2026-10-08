@@ -26,10 +26,12 @@ import subprocess
 from unittest import mock
 
 import pytest
+from django.contrib.auth.models import User
 
 from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.verify_checksum import Hashsum
 from archivematica.MCPClient.clientScripts.verify_checksum import NoHashCommandAvailable
@@ -267,18 +269,15 @@ def test_decode_and_version_string():
 
 
 @pytest.mark.django_db
-def test_write_premis_event_to_db(transfer, transfer_file):
+def test_write_premis_event_to_db(
+    organization_agent: Agent,
+    user: User,
+    transfer: Transfer,
+    transfer_file: File,
+) -> None:
     """Test that the microservice job connects to the database as
     anticipated, writes its data, and that data can then be retrieved.
     """
-    Agent.objects.get_or_create(
-        pk=2,
-        agenttype="organization",
-        identifiervalue="ORG",
-        name="Your Organization Name Here",
-        identifiertype="repository code",
-    )
-
     # Values the job will write.
     algorithms = ["md5", "sha512", "sha1"]
     event_type = "fixity check"
@@ -288,7 +287,7 @@ def test_write_premis_event_to_db(transfer, transfer_file):
     number_of_expected_agents = 2
     # Agent values we can test against. Three agents, which should be,
     # preservation system, repository, and user.
-    identifier_values = ["1", "ORG"]
+    identifier_values = [str(user.pk), "ORG"]
 
     identifier_types = [
         "repository code",

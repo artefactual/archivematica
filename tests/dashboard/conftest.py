@@ -1,7 +1,5 @@
 import pytest
 
-from archivematica.dashboard.main.models import MetadataAppliesToType
-
 
 @pytest.fixture
 def migrate_apps(transactional_db):
@@ -24,10 +22,10 @@ def migrate_apps(transactional_db):
 
 
 @pytest.fixture
-def metadata_applies_to_types(db):
-    sip_type, _ = MetadataAppliesToType.objects.get_or_create(description="SIP")
-    transfer_type, _ = MetadataAppliesToType.objects.get_or_create(
-        description="Transfer"
-    )
-    file_type, _ = MetadataAppliesToType.objects.get_or_create(description="File")
-    return {"sip": sip_type, "transfer": transfer_type, "file": file_type}
+def mets_hdr() -> str:
+    """A METS document with a header only, as streamed from the Storage Service."""
+    return """<?xml version='1.0' encoding='UTF-8'?>
+    <mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
+        <mets:metsHdr CREATEDATE="2020-01-20T15:22:15"/>
+    </mets:mets>
+    """

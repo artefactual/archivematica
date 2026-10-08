@@ -1,4 +1,3 @@
-import uuid
 from unittest import mock
 
 import pytest
@@ -10,12 +9,12 @@ from archivematica.dashboard.main import models
 
 
 @pytest.fixture()
-def transfer(db):
-    return models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
-        currentlocation=r"%transferDirectory%",
-        status=models.PACKAGE_STATUS_DONE,
-    )
+def transfer(transfer: models.Transfer) -> models.Transfer:
+    """The transfer once its processing is done."""
+    transfer.status = models.PACKAGE_STATUS_DONE
+    transfer.save()
+
+    return transfer
 
 
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")

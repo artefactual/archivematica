@@ -16,11 +16,6 @@ pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 API_URL_NAMES = ["api:completed_transfers", "api:completed_ingests"]
 
 
-@pytest.fixture
-def user(django_user_model: type[User]) -> User:
-    return django_user_model.objects.create_superuser(username="test", password="test")
-
-
 @pytest.mark.parametrize(
     "url",
     [
@@ -46,8 +41,10 @@ def test_site_requires_auth(client: Client, url: str) -> None:
     "url_name",
     ["transfer:transfer_index", "ingest:ingest_index", "administration:api"],
 )
-def test_site_performs_session_auth(client: Client, user: User, url_name: str) -> None:
-    assert client.login(username="test", password="test")
+def test_site_performs_session_auth(
+    client: Client, admin_user: User, url_name: str
+) -> None:
+    assert client.login(username=admin_user.username, password="password")
 
     response = client.get(reverse(url_name), follow=False)
 
@@ -65,13 +62,15 @@ def test_api_requires_auth(client: Client, url_name: str) -> None:
 
 
 @pytest.mark.parametrize("url_name", API_URL_NAMES)
-def test_api_authenticates_via_key(client: Client, user: User, url_name: str) -> None:
-    generate_api_key(user)
-    key = ApiKey.objects.get(user=user).key
+def test_api_authenticates_via_key(
+    client: Client, admin_user: User, url_name: str
+) -> None:
+    generate_api_key(admin_user)
+    key = ApiKey.objects.get(user=admin_user).key
 
     response = client.get(
         reverse(url_name),
-        headers={"authorization": f"ApiKey {user.username}:{key}"},
+        headers={"authorization": f"ApiKey {admin_user.username}:{key}"},
         follow=False,
     )
 
@@ -80,9 +79,9 @@ def test_api_authenticates_via_key(client: Client, user: User, url_name: str) ->
 
 @pytest.mark.parametrize("url_name", API_URL_NAMES)
 def test_api_authenticates_via_session(
-    client: Client, user: User, url_name: str
+    client: Client, admin_user: User, url_name: str
 ) -> None:
-    assert client.login(username="test", password="test")
+    assert client.login(username=admin_user.username, password="password")
 
     response = client.get(reverse(url_name), follow=False)
 

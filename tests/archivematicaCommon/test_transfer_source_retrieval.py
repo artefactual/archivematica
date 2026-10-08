@@ -1,5 +1,6 @@
 """Unit tests for transfer-source path planning and materialization."""
 
+import pathlib
 from types import SimpleNamespace
 from unittest import mock
 
@@ -74,15 +75,16 @@ class FakeStorageService:
 
 
 @pytest.fixture
-def retrieval_paths(tmp_path):
-    """Create the staging and processing layout used by retrieval helpers."""
-    shared = tmp_path / "sharedDirectory"
-    processing = shared / "currentlyProcessing"
-    copied = shared / "tmp" / "tmp123" / "transfer"
+def retrieval_paths(shared_directory_path: pathlib.Path) -> SimpleNamespace:
+    """The shared directory with a transfer copied to its staging directory."""
+    copied = shared_directory_path / "tmp" / "tmp123" / "transfer"
     copied.mkdir(parents=True)
-    processing.mkdir()
 
-    return SimpleNamespace(shared=shared, processing=processing, copied=copied)
+    return SimpleNamespace(
+        shared=shared_directory_path,
+        processing=shared_directory_path / "currentlyProcessing",
+        copied=copied,
+    )
 
 
 @pytest.mark.parametrize(

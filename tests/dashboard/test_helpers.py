@@ -1,7 +1,6 @@
 import json
 from unittest import mock
 
-import pytest
 import requests
 
 from archivematica.dashboard.components import helpers
@@ -21,15 +20,6 @@ RESPONSE_503 = 503
 
 SUCCESS = "success"
 MESSAGE = "message"
-
-
-@pytest.fixture
-def mets_hdr():
-    return """<?xml version='1.0' encoding='UTF-8'?>
-    <mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
-        <mets:metsHdr CREATEDATE="2020-01-21T15:43:07"/>
-    </mets:mets>
-    """
 
 
 def setup_ptr_info(sip_uuid):

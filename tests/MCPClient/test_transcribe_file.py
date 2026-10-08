@@ -50,24 +50,6 @@ def fpcommand(
     return fpcommand
 
 
-@pytest.fixture
-def derivation(
-    sip_file: models.File, preservation_file: models.File
-) -> models.Derivation:
-    return models.Derivation.objects.create(
-        source_file=sip_file, derived_file=preservation_file
-    )
-
-
-@pytest.fixture
-def preservation_file_format_version(
-    preservation_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=preservation_file, format_version=format_version
-    )
-
-
 @pytest.mark.django_db
 @mock.patch(
     "archivematica.MCPClient.clientScripts.transcribe_file.executeOrRun",
@@ -173,12 +155,12 @@ def test_main_if_no_rules_exist(
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
-    derivation: models.Derivation,
+    preservation_derivation: models.Derivation,
     fprule_transcription: fprmodels.FPRule,
     sip_file_format_version: models.FileFormatVersion,
 ) -> None:
     file, rules = transcribe_file.fetch_rules_for_derivatives(
-        file_=derivation.source_file
+        file_=preservation_derivation.source_file
     )
 
     assert file is None
@@ -187,12 +169,12 @@ def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives(
-    derivation: models.Derivation,
+    preservation_derivation: models.Derivation,
     fprule_transcription: fprmodels.FPRule,
     preservation_file_format_version: models.FileFormatVersion,
 ) -> None:
     derived_file, rules_of_derived_file = transcribe_file.fetch_rules_for_derivatives(
-        file_=derivation.source_file
+        file_=preservation_derivation.source_file
     )
     assert derived_file is not None
 
@@ -202,7 +184,7 @@ def test_fetch_rules_for_derivatives(
         models.Derivation.objects.filter(
             derived_file__filegrpuse="preservation",
             derived_file_id=derived_file.uuid,
-            source_file_id=derivation.source_file.uuid,
+            source_file_id=preservation_derivation.source_file.uuid,
         ).count()
         == 1
     )

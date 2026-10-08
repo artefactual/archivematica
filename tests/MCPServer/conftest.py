@@ -1,7 +1,9 @@
 import importlib.resources
+import pathlib
 from types import SimpleNamespace
 
 import pytest
+import pytest_django
 
 from archivematica.MCPServer.server import workflow
 
@@ -20,18 +22,12 @@ def wf():
 
 
 @pytest.fixture
-def retrieval_directories(tmp_path, settings):
-    """Configure the shared staging and processing directories for retrieval."""
-    shared = tmp_path / "shared"
-    staging = shared / "tmp"
-    processing = shared / "currentlyProcessing"
-    staging.mkdir(parents=True)
-    processing.mkdir()
-    settings.SHARED_DIRECTORY = str(shared)
-    settings.PROCESSING_DIRECTORY = f"{processing}/"
-
+def retrieval_directories(
+    settings: pytest_django.Settings, shared_directory_path: pathlib.Path
+) -> SimpleNamespace:
+    """The shared, staging and processing directories of transfer retrieval."""
     return SimpleNamespace(
-        shared=shared,
-        staging=staging,
-        processing=processing,
+        shared=shared_directory_path,
+        staging=shared_directory_path / "tmp",
+        processing=shared_directory_path / "currentlyProcessing",
     )

@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 import pytest
+import pytest_django
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -402,9 +403,22 @@ def test_package_files_with_non_ascii_names(tmp_path):
     assert result[0]["%fileGrpUse%"] == kwargs["filegrpuse"]
 
 
-@pytest.fixture
-def transfer():
-    return models.Transfer.objects.create()
+@pytest.mark.parametrize(
+    "shared_directory",
+    ["/var/archivematica/sharedDirectory/", "/var/archivematica/sharedDirectory"],
+    ids=["trailing separator", "no trailing separator"],
+)
+def test_shared_path_location_replaces_the_shared_directory(
+    settings: pytest_django.Settings, shared_directory: str
+) -> None:
+    settings.SHARED_DIRECTORY = shared_directory
+
+    assert (
+        packages._shared_path_location(
+            "/var/archivematica/sharedDirectory/tmp/transfer"
+        )
+        == "%sharedPath%tmp/transfer"
+    )
 
 
 @pytest.fixture
@@ -871,7 +885,7 @@ def test_concurrent_idempotent_submission_is_not_replayed_before_handoff(
 )
 @pytest.mark.django_db(transaction=True)
 def test_auto_approved_package_schedules_retrieval_workflow(
-    starting_point, wf, retrieval_directories
+    settings, starting_point, wf, retrieval_directories
 ):
     """Every supported transfer type records its post-retrieval continuation."""
     transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
@@ -909,15 +923,13 @@ def test_auto_approved_package_schedules_retrieval_workflow(
         f"{source_path}/."
     )
     assert scheduled_job.job_chain.context[r"%transferSourceDestination%"] == (
-        "/tmp/tmp123/TransferName"
+        "tmp/tmp123/TransferName"
     )
     assert (
         scheduled_job.job_chain.context[r"%transferSourceCopiedPath%"]
         == expected_copied_path
     )
-    assert scheduled_job.job_chain.context[r"%sharedPath%"] == str(
-        retrieval_directories.shared
-    )
+    assert scheduled_job.job_chain.context[r"%sharedPath%"] == settings.SHARED_DIRECTORY
 
 
 @pytest.mark.django_db(transaction=True)
@@ -973,7 +985,7 @@ def test_non_auto_approved_package_still_uses_watched_directory_copy(
 
     copy_from_transfer_sources.assert_called_once_with(
         ["home/username/transfer/."],
-        "/tmp/tmp123/TransferName",
+        "tmp/tmp123/TransferName",
     )
     move_to_internal_shared_dir.assert_called_once_with(
         str(retrieval_directories.staging / "tmp123" / "TransferName"),

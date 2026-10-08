@@ -1,9 +1,11 @@
 import datetime
 import json
+import pathlib
 import uuid
 from unittest import mock
 
 import pytest
+import pytest_django
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
@@ -17,27 +19,11 @@ from archivematica.dashboard.main.models import PACKAGE_STATUS_FAILED
 from archivematica.dashboard.main.models import PACKAGE_STATUS_PROCESSING
 from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DublinCore
-from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Job
 from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Task
 from archivematica.dashboard.main.models import Transfer
-
-
-@pytest.fixture
-def transfer(db):
-    return Transfer.objects.create()
-
-
-@pytest.fixture
-def sip(db):
-    return SIP.objects.create()
-
-
-@pytest.fixture
-def files(db, transfer, sip):
-    return [File.objects.create(transfer=transfer, sip=sip)]
 
 
 @pytest.fixture
@@ -272,7 +258,7 @@ def test_get_unit_status_rejected(jobs_processing, jobs_rejected, transfer):
 
 @pytest.mark.django_db
 def test_get_unit_status_completed_transfer(
-    jobs_processing, jobs_transfer_complete, transfer, sip, files
+    jobs_processing, jobs_transfer_complete, transfer, sip, sip_file
 ):
     """It should return COMPLETE and the new SIP UUID."""
     status = views.get_unit_status(transfer.uuid, "unitTransfer")
@@ -304,7 +290,7 @@ def test_get_unit_status_backlog(jobs_processing, jobs_transfer_backlog, transfe
 
 @pytest.mark.django_db
 def test_get_unit_status_completed_sip(
-    transfer, sip, jobs_processing, jobs_transfer_complete, jobs_sip_complete, files
+    transfer, sip, jobs_processing, jobs_transfer_complete, jobs_sip_complete, sip_file
 ):
     """It should return COMPLETE."""
     status = views.get_unit_status(sip.uuid, "unitSIP")
@@ -326,7 +312,7 @@ def test_get_unit_status_completed_sip_issue_262_workaround(
     jobs_transfer_complete,
     jobs_sip_complete,
     jobs_sip_complete_cleanup_last,
-    files,
+    sip_file,
 ):
     """Test get unit status for a completed SIP when the job with the latest
     created time is not the last in the microservice chain
@@ -346,7 +332,7 @@ def test_get_unit_status_completed_sip_issue_262_workaround(
 
 @pytest.mark.django_db
 def test_status(
-    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
+    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, sip_file
 ):
     resp = admin_client.get(
         reverse("api:transfer_status", args=[transfer.uuid]),
@@ -470,13 +456,15 @@ def test_status_with_bogus_unit(admin_client, dashboard_uuid):
 
 
 @pytest.mark.django_db
-def test_completed_units(transfer, sip, jobs_transfer_complete, files):
+def test_completed_units(transfer, sip, jobs_transfer_complete, sip_file):
     completed = views._completed_units()
     assert completed == [str(transfer.uuid)]
 
 
 @pytest.mark.django_db
-def test_completed_units_with_bogus_unit(transfer, sip, jobs_transfer_complete, files):
+def test_completed_units_with_bogus_unit(
+    transfer, sip, jobs_transfer_complete, sip_file
+):
     """Bogus units should be excluded and handled gracefully."""
     Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
     completed = views._completed_units()
@@ -485,7 +473,7 @@ def test_completed_units_with_bogus_unit(transfer, sip, jobs_transfer_complete, 
 
 @pytest.mark.django_db
 def test_completed_transfers(
-    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
+    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, sip_file
 ):
     resp = admin_client.get(reverse("api:completed_transfers"))
     assert resp.status_code == 200
@@ -498,7 +486,7 @@ def test_completed_transfers(
 
 @pytest.mark.django_db
 def test_completed_transfers_with_bogus_transfer(
-    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
+    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, sip_file
 ):
     """Bogus transfers should be excluded and handled gracefully."""
     Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
@@ -778,22 +766,19 @@ def test_task(admin_client, dashboard_uuid, jobs_transfer_complete):
 
 
 @pytest.fixture
-def shared_dir(tmp_path, settings):
-    shared_dir = tmp_path / "shared_dir"
-    shared_dir.mkdir()
-
-    (shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs").mkdir(
-        parents=True
-    )
-
-    settings.SHARED_DIRECTORY = shared_dir.as_posix()
+def builtin_processing_configurations(
+    processing_configurations_path: pathlib.Path,
+) -> pathlib.Path:
+    """The processing configurations directory with the built-in configurations."""
     install_builtin_config("default")
     install_builtin_config("automated")
 
-    return shared_dir
+    return processing_configurations_path
 
 
-def test_list_processing_configs(admin_client, dashboard_uuid, shared_dir):
+def test_list_processing_configs(
+    admin_client, dashboard_uuid, builtin_processing_configurations
+):
     expected_names = sorted(["default", "automated"])
     response = admin_client.get(reverse("api:processing_configuration_list"))
     assert response.status_code == 200
@@ -805,7 +790,9 @@ def test_list_processing_configs(admin_client, dashboard_uuid, shared_dir):
     )
 
 
-def test_get_existing_processing_config(admin_client, dashboard_uuid, shared_dir):
+def test_get_existing_processing_config(
+    admin_client, dashboard_uuid, builtin_processing_configurations
+):
     response = admin_client.get(
         reverse("api:processing_configuration", args=["default"]),
         HTTP_ACCEPT="xml",
@@ -814,10 +801,10 @@ def test_get_existing_processing_config(admin_client, dashboard_uuid, shared_dir
     assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
 
 
-def test_delete_and_regenerate(admin_client, dashboard_uuid, shared_dir):
-    processing_configs = (
-        shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs"
-    )
+def test_delete_and_regenerate(
+    admin_client, dashboard_uuid, builtin_processing_configurations
+):
+    processing_configs = builtin_processing_configurations
 
     response = admin_client.delete(
         reverse("api:processing_configuration", args=["default"])
@@ -834,7 +821,9 @@ def test_delete_and_regenerate(admin_client, dashboard_uuid, shared_dir):
     assert (processing_configs / "defaultProcessingMCP.xml").exists()
 
 
-def test_404_for_non_existent_config(admin_client, dashboard_uuid, shared_dir):
+def test_404_for_non_existent_config(
+    admin_client, dashboard_uuid, builtin_processing_configurations
+):
     response = admin_client.get(
         reverse("api:processing_configuration", args=["nonexistent"]),
         HTTP_ACCEPT="xml",
@@ -842,7 +831,9 @@ def test_404_for_non_existent_config(admin_client, dashboard_uuid, shared_dir):
     assert response.status_code == 404
 
 
-def test_404_for_delete_non_existent_config(admin_client, dashboard_uuid, shared_dir):
+def test_404_for_delete_non_existent_config(
+    admin_client, dashboard_uuid, builtin_processing_configurations
+):
     response = admin_client.delete(
         reverse("api:processing_configuration", args=["nonexistent"])
     )
@@ -1134,33 +1125,30 @@ def test_reingest_fails_with_missing_parameters(admin_client, dashboard_uuid):
 
 
 @pytest.fixture
-def sip_path(tmp_path):
-    shared_dir = tmp_path / "dir"
-    shared_dir.mkdir()
+def sip_path(
+    settings: pytest_django.Settings, shared_directory_path: pathlib.Path
+) -> pathlib.Path:
+    """A transfer in the temporary directory of the shared directory, which has
+    the watched directories of a reingest.
+    """
+    for directory in [
+        ("watchedDirectories", "activeTransfers", "standardTransfer"),
+        ("watchedDirectories", "system", "reingestAIP"),
+    ]:
+        shared_directory_path.joinpath(*directory).mkdir(parents=True)
 
-    (shared_dir / "watchedDirectories" / "activeTransfers" / "standardTransfer").mkdir(
-        parents=True
-    )
-    (shared_dir / "watchedDirectories" / "system" / "reingestAIP").mkdir(parents=True)
+    result = shared_directory_path / "tmp" / f"mytransfer-{uuid.uuid4()}"
+    result.mkdir()
+    (result / "myfile.txt").write_text("my file")
 
-    tmp_dir = shared_dir / "tmp"
-    tmp_dir.mkdir()
-
-    sip_dir = tmp_dir / f"mytransfer-{uuid.uuid4()}"
-    sip_dir.mkdir()
-    (sip_dir / "myfile.txt").write_text("my file")
-
-    return sip_dir
+    return result
 
 
 @pytest.mark.django_db
 def test_reingest_deletes_existing_models_related_to_sip(
-    sip_path, settings, admin_client, dashboard_uuid
+    sip_path, admin_client, dashboard_uuid
 ):
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
-    shared_directory = sip_path.parent.parent
     transfer_uuid = sip_path.name[-36:]
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # Create a Transfer and related models.
     transfer = Transfer.objects.create(uuid=transfer_uuid)
@@ -1198,13 +1186,11 @@ def test_reingest_deletes_existing_models_related_to_sip(
 
 
 @pytest.mark.django_db
-def test_reingest_full(sip_path, settings, admin_client, dashboard_uuid):
+def test_reingest_full(sip_path, admin_client, dashboard_uuid):
     # Fake UUID generation from the endpoint for a new Transfer.
     transfer_uuid = uuid.uuid4()
 
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
     shared_directory = sip_path.parent.parent
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # There are no existing Transfers initially.
     assert Transfer.objects.count() == 0
@@ -1226,7 +1212,7 @@ def test_reingest_full(sip_path, settings, admin_client, dashboard_uuid):
     # Verify a Transfer model was created.
     assert (
         Transfer.objects.filter(
-            currentlocation=f"%sharedPath%/watchedDirectories/activeTransfers/standardTransfer/mytransfer-{transfer_uuid}/",
+            currentlocation=f"%sharedPath%watchedDirectories/activeTransfers/standardTransfer/mytransfer-{transfer_uuid}/",
             type=Transfer.ARCHIVEMATICA_AIP,
         ).count()
         == 1
@@ -1246,14 +1232,12 @@ def test_reingest_full(sip_path, settings, admin_client, dashboard_uuid):
 
 @pytest.mark.django_db
 def test_reingest_full_fails_if_target_directory_already_exists(
-    sip_path, settings, admin_client, dashboard_uuid
+    sip_path, admin_client, dashboard_uuid
 ):
     # Fake UUID generation from the endpoint for a new Transfer.
     transfer_uuid = uuid.uuid4()
 
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
     shared_directory = sip_path.parent.parent
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # Create a directory with the same transfer name under active transfers.
     active_transfers_path = (
@@ -1276,10 +1260,8 @@ def test_reingest_full_fails_if_target_directory_already_exists(
 
 
 @pytest.mark.django_db
-def test_reingest_partial(sip_path, settings, admin_client, dashboard_uuid):
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
+def test_reingest_partial(sip_path, admin_client, dashboard_uuid):
     shared_directory = sip_path.parent.parent
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # A partial reingest reuses the SIP UUID in the response.
     reingest_uuid = sip_path.name[-36:]

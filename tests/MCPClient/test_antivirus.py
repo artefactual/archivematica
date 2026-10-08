@@ -295,20 +295,6 @@ def test_call_reuses_scanner_and_batch_data(
     assert [event.file_uuid for event in event_queue] == file_uuids
 
 
-@pytest.fixture
-def organization_agent() -> models.Agent:
-    agent, _ = models.Agent.objects.get_or_create(
-        pk=models.Agent.objects.DEFAULT_ORGANIZATION_AGENT_PK,
-        defaults={
-            "agenttype": "organization",
-            "identifiervalue": "ORG",
-            "name": "Your Organization Name Here",
-            "identifiertype": "repository code",
-        },
-    )
-    return agent
-
-
 @pytest.mark.django_db
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
 def test_call_preserves_scan_and_event_behavior(

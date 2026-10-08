@@ -5,11 +5,8 @@ from unittest import mock
 import pytest
 import pytest_django
 
-from archivematica.dashboard.components import helpers
 from archivematica.dashboard.main import models
-from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import File
-from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import post_store_aip_hook
 
@@ -135,14 +132,6 @@ def test_post_store_hook_deletes_transfer_directory(
     assert not transfer_path.exists()
 
 
-@pytest.fixture
-def storage_service_url() -> str:
-    value = "https://ss.example.com"
-    helpers.set_setting("storage_service_url", value)
-
-    return value
-
-
 @pytest.mark.django_db
 @mock.patch("requests.Session.request")
 def test_call_updates_storage_service_content(
@@ -199,43 +188,21 @@ def test_call_updates_storage_service_content(
     )
 
 
-@pytest.fixture
-def test_transfer() -> Transfer:
-    transfer_id = str(uuid.uuid4())
-    return Transfer.objects.create(uuid=transfer_id, currentlocation="")
-
-
-@pytest.fixture
-def test_sip() -> SIP:
-    sip_id = str(uuid.uuid4())
-    return SIP.objects.create(uuid=sip_id, currentpath="")
-
-
-@pytest.fixture
-def test_file(test_transfer: Transfer, test_sip: SIP) -> File:
-    return File.objects.create(
-        transfer_id=test_transfer.uuid,
-        sip_id=test_sip.uuid,
-        currentlocation=b"test/location",
-        originallocation=b"test/original",
-    )
-
-
 @pytest.mark.django_db
 def test_find_transfer_ids_by_unit_uuid_returns_transfer_ids_when_given_sip_uuid(
-    test_file: File,
+    sip_file: File,
 ) -> None:
-    result = post_store_aip_hook.find_transfer_ids_by_unit_uuid(str(test_file.sip_id))
+    result = post_store_aip_hook.find_transfer_ids_by_unit_uuid(str(sip_file.sip_id))
     result_strs = {str(r) for r in result}
-    assert result_strs == {str(test_file.transfer_id)}
+    assert result_strs == {str(sip_file.transfer_id)}
 
 
 @pytest.mark.django_db
 def test_find_transfer_ids_by_unit_uuid_returns_transfer_ids_when_given_transfer_uuid(
-    test_file: File,
+    sip_file: File,
 ) -> None:
     result = post_store_aip_hook.find_transfer_ids_by_unit_uuid(
-        str(test_file.transfer_id)
+        str(sip_file.transfer_id)
     )
     result_strs = {str(r) for r in result}
-    assert result_strs == {str(test_file.transfer_id)}
+    assert result_strs == {str(sip_file.transfer_id)}

@@ -5,13 +5,16 @@ from archivematica.dashboard.main import models
 
 
 @pytest.fixture
-def waiting_transfer(db):
-    transfer = models.Transfer.objects.create(
-        currentlocation="%sharedPath%watchedDirectories/standardTransfer/Waiting/",
-        type="standard",
-        status=models.PACKAGE_STATUS_PROCESSING,
+def waiting_transfer(transfer: models.Transfer) -> models.Transfer:
+    """The transfer waiting in a watched directory, before its first job."""
+    transfer.currentlocation = (
+        "%sharedPath%watchedDirectories/standardTransfer/Waiting/"
     )
+    transfer.type = "standard"
+    transfer.status = models.PACKAGE_STATUS_PROCESSING
+    transfer.save()
     assert not models.Job.objects.filter(sipuuid=transfer.pk).exists()
+
     return transfer
 
 

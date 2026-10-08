@@ -51,46 +51,6 @@ def test_failure_report(dashboard_uuid: uuid.UUID, admin_client: Client) -> None
     assert reverse("administration:failure_report", args=[report.pk]) in content
 
 
-@pytest.fixture
-def site_url() -> str:
-    value = "https://example.com/"
-    helpers.set_setting("site_url", value)
-
-    return value
-
-
-@pytest.fixture
-def storage_service_url() -> str:
-    value = "https://ss.example.com/"
-    helpers.set_setting("storage_service_url", value)
-
-    return value
-
-
-@pytest.fixture
-def storage_service_user() -> str:
-    value = "test"
-    helpers.set_setting("storage_service_user", value)
-
-    return value
-
-
-@pytest.fixture
-def storage_service_apikey() -> str:
-    value = "api-key"
-    helpers.set_setting("storage_service_apikey", value)
-
-    return value
-
-
-@pytest.fixture
-def checksum_type() -> str:
-    value = "md5"
-    helpers.set_setting("checksum_type", value)
-
-    return value
-
-
 @pytest.mark.django_db
 @mock.patch(
     "requests.Session.get",
@@ -228,7 +188,7 @@ def test_general_view_registers_pipeline_in_storage_service(
         r.message for r in caplog.records
     ]
     post.assert_called_once_with(
-        f"{storage_service_url}api/v2/pipeline/",
+        f"{storage_service_url}/api/v2/pipeline/",
         json={
             "uuid": str(dashboard_uuid),
             "description": f"Archivematica on {hostname}",
