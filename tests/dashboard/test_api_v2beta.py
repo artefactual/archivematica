@@ -1,10 +1,9 @@
 import json
-import pathlib
+import uuid
 from unittest import mock
 
 import pytest
 from django.test import Client
-from django.test import TestCase
 from django.urls import reverse
 
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
@@ -12,335 +11,335 @@ from archivematica.archivematicaCommon.version import get_full_version
 from archivematica.dashboard.components.api import validators
 from archivematica.dashboard.contrib.mcp.client import RPCServerError
 
-TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 
 
-class MCPClientMock:
-    def __init__(self, fails=False):
-        self.fails = fails
+PACKAGE_URL = "/api/v2beta/package/"
 
-    def create_package(
-        self,
-        name,
-        type_,
-        accession,
-        access_system_id,
-        path,
-        metadata_set_id,
+# Transfer source location and relative path of the package to create. The API
+# expects it base64 encoded in the "path" attribute of the request payload.
+PACKAGE_PATH = "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg"
+ENCODED_PACKAGE_PATH = b64encode_string(PACKAGE_PATH)
+
+TRANSFER_UUID = "59402c61-3aba-4af7-966a-996073c0601d"
+
+
+def test_headers(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
+    resp = admin_client.get(PACKAGE_URL)
+
+    assert resp.get("X-Archivematica-Version") == get_full_version()
+    assert resp.get("X-Archivematica-ID") == str(dashboard_uuid)
+
+
+def test_package_list(admin_client: Client) -> None:
+    resp = admin_client.get(PACKAGE_URL)
+
+    assert resp.status_code == 501  # Not implemented yet.
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        pytest.param(json.dumps({}), id="missing-path"),
+        pytest.param("INVALID-JSON", id="invalid-document"),
+        pytest.param(json.dumps({"path": "invalid"}), id="invalid-path"),
+    ],
+)
+def test_package_create_with_errors(admin_client: Client, payload: str) -> None:
+    resp = admin_client.post(PACKAGE_URL, payload, content_type="application/json")
+
+    assert resp.status_code == 400
+
+
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_mcpclient_ok(
+    mcp_client_cls: mock.MagicMock, admin_client: Client
+) -> None:
+    mcp_client = mcp_client_cls.return_value
+    mcp_client.create_package.return_value = TRANSFER_UUID
+
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 202
+    assert resp.content.decode() == json.dumps({"id": TRANSFER_UUID})
+    mcp_client.create_package.assert_called_once_with(
+        None,
+        None,
+        None,
+        None,
+        PACKAGE_PATH,
+        None,
         auto_approve=True,
         wait_until_complete=False,
-        processing_config=None,
-        idempotency_key=None,
-    ):
-        if self.fails:
-            raise Exception("Something bad happened!")
-        return "59402c61-3aba-4af7-966a-996073c0601d"
-
-
-class TestAPIv2(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
-
-    # This is valid path value that we're going to pass to the API server.
-    path = b64encode_string(
-        "{location_uuid}:{relative_path}".format(
-            **{
-                "location_uuid": "671643e1-5bec-4a5f-b244-abb76fedb0c4",
-                "relative_path": "foo/bar.jpg",
-            }
-        )
     )
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        self.dashboard_uuid = dashboard_uuid
 
-        return dashboard_uuid
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_preserves_auto_approve_false(
+    mcp_client_cls: mock.MagicMock, admin_client: Client
+) -> None:
+    mcp_client = mcp_client_cls.return_value
+    mcp_client.create_package.return_value = TRANSFER_UUID
 
-    def setUp(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
-
-    def test_headers(self):
-        resp = self.client.get("/api/v2beta/package/")
-        assert resp.get("X-Archivematica-Version") == get_full_version()
-        assert resp.get("X-Archivematica-ID") == str(self.dashboard_uuid)
-
-    def test_package_list(self):
-        resp = self.client.get("/api/v2beta/package/")
-        assert resp.status_code == 501  # Not implemented yet.
-
-    def test_package_create_with_errors(self):
-        # Missing payload
-        resp = self.client.post("/api/v2beta/package/", content_type="application/json")
-        assert resp.status_code == 400
-
-        # Invalid document
-        resp = self.client.post(
-            "/api/v2beta/package/", "INVALID-JSON", content_type="application/json"
-        )
-        assert resp.status_code == 400
-
-        # Invalid path
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": "invalid"}),
-            content_type="application/json",
-        )
-        assert resp.status_code == 400
-
-    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
-    def test_package_create_mcpclient_ok(self, mcp_client_cls):
-        mcp_client = mcp_client_cls.return_value
-        mcp_client.create_package.return_value = "59402c61-3aba-4af7-966a-996073c0601d"
-
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": self.path}),
-            content_type="application/json",
-        )
-        assert resp.status_code == 202
-        assert resp.content.decode() == json.dumps(
-            {"id": "59402c61-3aba-4af7-966a-996073c0601d"}
-        )
-        mcp_client.create_package.assert_called_once_with(
-            None,
-            None,
-            None,
-            None,
-            "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg",
-            None,
-            auto_approve=True,
-            wait_until_complete=False,
-        )
-
-    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
-    def test_package_create_preserves_auto_approve_false(self, mcp_client_cls):
-        mcp_client = mcp_client_cls.return_value
-        mcp_client.create_package.return_value = "59402c61-3aba-4af7-966a-996073c0601d"
-
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": self.path, "auto_approve": False}),
-            content_type="application/json",
-        )
-
-        assert resp.status_code == 202
-        mcp_client.create_package.assert_called_once_with(
-            None,
-            None,
-            None,
-            None,
-            "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg",
-            None,
-            auto_approve=False,
-            wait_until_complete=False,
-        )
-
-    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
-    def test_package_create_forwards_idempotency_key(self, mcp_client_cls):
-        mcp_client = mcp_client_cls.return_value
-        transfer_uuid = "59402c61-3aba-4af7-966a-996073c0601d"
-        mcp_client.create_package.return_value = transfer_uuid
-
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": self.path}),
-            content_type="application/json",
-            headers={"Idempotency-Key": "transfer-submission-123"},
-        )
-
-        assert resp.status_code == 202
-        assert json.loads(resp.content) == {"id": transfer_uuid}
-        mcp_client.create_package.assert_called_once_with(
-            None,
-            None,
-            None,
-            None,
-            "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg",
-            None,
-            auto_approve=True,
-            wait_until_complete=False,
-            idempotency_key="transfer-submission-123",
-        )
-
-    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
-    def test_package_create_rejects_invalid_idempotency_key(self, mcp_client_cls):
-        for idempotency_key in (
-            "",
-            "contains whitespace",
-            "a" * 256,
-            "contains\x00control",
-        ):
-            with self.subTest(idempotency_key=idempotency_key):
-                resp = self.client.post(
-                    "/api/v2beta/package/",
-                    json.dumps({"path": self.path}),
-                    content_type="application/json",
-                    headers={"Idempotency-Key": idempotency_key},
-                )
-
-                assert resp.status_code == 400
-                assert json.loads(resp.content) == {
-                    "error": True,
-                    "message": (
-                        "Idempotency-Key must contain 1-255 visible ASCII "
-                        "characters without whitespace."
-                    ),
-                }
-        mcp_client_cls.assert_not_called()
-
-    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
-    def test_package_create_returns_conflict_for_reused_idempotency_key(
-        self, mcp_client_cls
-    ):
-        message = "Idempotency key has already been used with a different request."
-        mcp_client_cls.return_value.create_package.side_effect = RPCServerError(
-            {
-                "error": True,
-                "message": message,
-                "status_code": 422,
-                "code": "idempotency_key_reused",
-            }
-        )
-
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": self.path}),
-            content_type="application/json",
-            headers={"Idempotency-Key": "transfer-submission-123"},
-        )
-
-        assert resp.status_code == 422
-        assert json.loads(resp.content) == {"error": True, "message": message}
-
-    @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
-    def test_package_create_returns_conflict_while_request_is_in_progress(
-        self, mcp_client_cls
-    ):
-        message = "A request with this idempotency key is still in progress."
-        mcp_client_cls.return_value.create_package.side_effect = RPCServerError(
-            {
-                "error": True,
-                "message": message,
-                "status_code": 409,
-                "code": "idempotency_key_in_progress",
-            }
-        )
-
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": self.path}),
-            content_type="application/json",
-            headers={"Idempotency-Key": "transfer-submission-123"},
-        )
-
-        assert resp.status_code == 409
-        assert json.loads(resp.content) == {"error": True, "message": message}
-
-    @mock.patch(
-        "archivematica.dashboard.components.api.views.MCPClient",
-        return_value=MCPClientMock(fails=True),
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH, "auto_approve": False}),
+        content_type="application/json",
     )
-    def test_package_create_mcpclient_fails(self, patcher):
-        resp = self.client.post(
-            "/api/v2beta/package/",
-            json.dumps({"path": self.path}),
-            content_type="application/json",
-        )
-        assert resp.status_code == 500
-        payload = json.loads(resp.content.decode())
-        assert payload["error"] is True
-        assert payload["message"] == "Package cannot be created"
+
+    assert resp.status_code == 202
+    mcp_client.create_package.assert_called_once_with(
+        None,
+        None,
+        None,
+        None,
+        PACKAGE_PATH,
+        None,
+        auto_approve=False,
+        wait_until_complete=False,
+    )
 
 
-class TestValidate(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_forwards_idempotency_key(
+    mcp_client_cls: mock.MagicMock, admin_client: Client
+) -> None:
+    mcp_client = mcp_client_cls.return_value
+    mcp_client.create_package.return_value = TRANSFER_UUID
 
-    VALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH}),
+        content_type="application/json",
+        headers={"Idempotency-Key": "transfer-submission-123"},
+    )
+
+    assert resp.status_code == 202
+    assert json.loads(resp.content) == {"id": TRANSFER_UUID}
+    mcp_client.create_package.assert_called_once_with(
+        None,
+        None,
+        None,
+        None,
+        PACKAGE_PATH,
+        None,
+        auto_approve=True,
+        wait_until_complete=False,
+        idempotency_key="transfer-submission-123",
+    )
+
+
+@pytest.mark.parametrize(
+    "idempotency_key",
+    [
+        pytest.param("", id="empty"),
+        pytest.param("contains whitespace", id="whitespace"),
+        pytest.param("a" * 256, id="too-long"),
+        pytest.param("contains\x00control", id="control-character"),
+    ],
+)
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_rejects_invalid_idempotency_key(
+    mcp_client_cls: mock.MagicMock,
+    admin_client: Client,
+    idempotency_key: str,
+) -> None:
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH}),
+        content_type="application/json",
+        headers={"Idempotency-Key": idempotency_key},
+    )
+
+    assert resp.status_code == 400
+    assert json.loads(resp.content) == {
+        "error": True,
+        "message": (
+            "Idempotency-Key must contain 1-255 visible ASCII "
+            "characters without whitespace."
+        ),
+    }
+    mcp_client_cls.assert_not_called()
+
+
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_returns_conflict_for_reused_idempotency_key(
+    mcp_client_cls: mock.MagicMock, admin_client: Client
+) -> None:
+    message = "Idempotency key has already been used with a different request."
+    mcp_client_cls.return_value.create_package.side_effect = RPCServerError(
+        {
+            "error": True,
+            "message": message,
+            "status_code": 422,
+            "code": "idempotency_key_reused",
+        }
+    )
+
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH}),
+        content_type="application/json",
+        headers={"Idempotency-Key": "transfer-submission-123"},
+    )
+
+    assert resp.status_code == 422
+    assert json.loads(resp.content) == {"error": True, "message": message}
+
+
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_returns_conflict_while_request_is_in_progress(
+    mcp_client_cls: mock.MagicMock, admin_client: Client
+) -> None:
+    message = "A request with this idempotency key is still in progress."
+    mcp_client_cls.return_value.create_package.side_effect = RPCServerError(
+        {
+            "error": True,
+            "message": message,
+            "status_code": 409,
+            "code": "idempotency_key_in_progress",
+        }
+    )
+
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH}),
+        content_type="application/json",
+        headers={"Idempotency-Key": "transfer-submission-123"},
+    )
+
+    assert resp.status_code == 409
+    assert json.loads(resp.content) == {"error": True, "message": message}
+
+
+@mock.patch("archivematica.dashboard.components.api.views.MCPClient")
+def test_package_create_mcpclient_fails(
+    mcp_client_cls: mock.MagicMock, admin_client: Client
+) -> None:
+    mcp_client_cls.return_value.create_package.side_effect = Exception(
+        "Something bad happened!"
+    )
+
+    resp = admin_client.post(
+        PACKAGE_URL,
+        json.dumps({"path": ENCODED_PACKAGE_PATH}),
+        content_type="application/json",
+    )
+
+    assert resp.status_code == 500
+    payload = json.loads(resp.content.decode())
+    assert payload["error"] is True
+    assert payload["message"] == "Package cannot be created"
+
+
+# Validators
+
+CSV_CONTENT_TYPE = "text/csv; charset=utf-8"
+
+VALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
 Bibliographic ID,Bibliographic ID Label,Title,Creator,Contributor,Contributor,Contributor,Contributor,Contributor,Publisher,Date Created,Date Issued,Abstract,Topical Subject,Topical Subject,Publish,File,Skip Transcoding,Label,File,Skip Transcoding,Label,Note Type,Note
 ,,Symphony no. 3,"Mahler, Gustav, 1860-1911",,,,,,,,1996,,,,yes,assets/agz3068a.wav,no,CD 1,,,,local,This was batch ingested without skip transcoding
 ,,Féte (Excerpt),"Langlais, Jean, 1907-1991","Young, Christopher C. (Christopher Clark)",,,,,William and Gayle Cook Music Library,,2010,"Recorded on May 2, 2010, Auer Concert Hall, Indiana University, Bloomington.",Organ music,,yes,assets/OrganClip.mp4,yes,,,,,local,This was batch ingested with multiple quality level skip transcoding
 ,,Beginning Responsibility: Lunchroom Manners,Coronet Films,,,,,,Coronet Films,,1959,"The rude, clumsy puppet Mr. Bungle shows kids how to behave in the school cafeteria - the assumption being that kids actually want to behave during lunch. This film has a cult following since it appeared on a Pee Wee Herman HBO special.",Social engineering,Puppet theater,yes,assets/lunchroom_manners_512kb.high.mp4,yes,Lunchroom 1,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom Again,local,This was batch ingested with skip transcoding and with structure
 """
 
-    INVALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
+INVALID_AVALON_CSV = """Avalon Demo Batch,archivist1@example.com,,,,,,,,,,,,,,,,,,,,,,
 Bibliographic ID,Bibliographic ID Lbl,Title,Creator,Contributor,Contributor,Contributor,Contributor,Contributor,Publisher,Date Created,Date Issued,Abstract,Topical Subject,Topical Subject,Publish,File,Skip Transcoding,Label,File,Skip Transcoding,Label,Note Type,Note
 ,,Symphony no. 3,"Mahler, Gustav, 1860-1911",,,,,,,,1996,,,,Yes,assets/agz3068a.wav,no,CD 1,,,,local,This was batch ingested without skip transcoding
 ,,Féte (Excerpt),"Langlais, Jean, 1907-1991","Young, Christopher C. (Christopher Clark)",,,,,William and Gayle Cook Music Library,,2010,"Recorded on May 2, 2010, Auer Concert Hall, Indiana University, Bloomington.",Organ music,,Yes,assets/OrganClip.mp4,yes,,,,,local,This was batch ingested with multiple quality level skip transcoding
 ,,Beginning Responsibility: Lunchroom Manners,Coronet Films,,,,,,Coronet Films,,1959,"The rude, clumsy puppet Mr. Bungle shows kids how to behave in the school cafeteria - the assumption being that kids actually want to behave during lunch. This film has a cult following since it appeared on a Pee Wee Herman HBO special.",Social engineering,Puppet theater,Yes,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom 1,assets/lunchroom_manners_512kb.mp4,yes,Lunchroom Again,local,This was batch ingested with skip transcoding and with structure
 """
 
-    VALID_RIGHTS_CSV = """file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+VALID_RIGHTS_CSV = """file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
 objects/45212966d0256a6ac70d81db_008.tif,copyright,copyrighted,2013-08-03,us,1964-01-01,2084-01-01,,,Work for hire - copyright term 120 years from date of creation. Copyright held by the Village Green Preservation Society.,,,,,,,,
 objects/45212966d0256a6ac70d81db_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,allow,2014-01-01,open,,,,
 """
 
-    INVALID_RIGHTS_CSV = """file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
+INVALID_RIGHTS_CSV = """file,basis,status,determination_date,jurisdiction,start_date,end_date,terms,citation,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note,doc_id_type,doc_id_value,doc_id_role
 objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,copyright,copyrighted,2013-08-03,us,1964-01-01,2084-01-01,,,Work for hire - copyright term 120 years from date of creation. Copyright held by the Village Green Preservation Society.,,,,,,,,
 objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,policy,,,,1974-01-01,open,,,Village Green Preservation Society records are open.,disseminate,,2014-01-01,open,,,,
 """
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
 
-    def setUp(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
+def test_unknown_validator(admin_client: Client) -> None:
+    resp = admin_client.post(
+        reverse("api:v2beta_validate", args=["unknown-validator"]),
+        b"...",
+        content_type=CSV_CONTENT_TYPE,
+    )
 
-    def _post(self, validator_name, payload, content_type="text/csv; charset=utf-8"):
-        return self.client.post(
-            reverse("api:v2beta_validate", args=[validator_name]),
-            payload,
-            content_type=content_type,
-        )
+    assert resp.status_code == 404
+    assert json.loads(resp.content.decode()) == {
+        "message": "Unknown validator. Accepted values: {}".format(
+            ",".join(list(validators._VALIDATORS.keys()))
+        ),
+        "error": True,
+    }
 
-    def test_unknown_validator(self):
-        resp = self._post("unknown-validator", b"...")
 
-        assert resp.status_code == 404
-        assert json.loads(resp.content.decode()) == {
-            "message": "Unknown validator. Accepted values: {}".format(
-                ",".join(list(validators._VALIDATORS.keys()))
-            ),
-            "error": True,
-        }
+def test_unaccepted_content_type(admin_client: Client) -> None:
+    resp = admin_client.post(
+        reverse("api:v2beta_validate", args=["avalon"]),
+        b"...",
+        content_type="text/plain",
+    )
 
-    def test_unaccepted_content_type(self):
-        resp = self._post("avalon", b"...", content_type="text/plain")
+    assert resp.status_code == 400
+    assert json.loads(resp.content.decode()) == {
+        "message": 'Content type should be "text/csv; charset=utf-8"',
+        "error": True,
+    }
 
-        assert resp.status_code == 400
-        assert json.loads(resp.content.decode()) == {
-            "message": 'Content type should be "text/csv; charset=utf-8"',
-            "error": True,
-        }
 
-    def test_avalon_pass(self):
-        resp = self._post("avalon", self.VALID_AVALON_CSV)
+def test_avalon_pass(admin_client: Client) -> None:
+    resp = admin_client.post(
+        reverse("api:v2beta_validate", args=["avalon"]),
+        VALID_AVALON_CSV,
+        content_type=CSV_CONTENT_TYPE,
+    )
 
-        assert resp.status_code == 200
-        assert json.loads(resp.content.decode()) == {"valid": True}
+    assert resp.status_code == 200
+    assert json.loads(resp.content.decode()) == {"valid": True}
 
-    def test_avalon_err(self):
-        resp = self._post("avalon", self.INVALID_AVALON_CSV)
 
-        assert resp.status_code == 400
-        assert json.loads(resp.content.decode()) == {
-            "valid": False,
-            "reason": "Manifest includes invalid metadata field(s). Invalid field(s): Bibliographic ID Lbl",
-        }
+def test_avalon_err(admin_client: Client) -> None:
+    resp = admin_client.post(
+        reverse("api:v2beta_validate", args=["avalon"]),
+        INVALID_AVALON_CSV,
+        content_type=CSV_CONTENT_TYPE,
+    )
 
-    def test_rights_pass(self):
-        resp = self._post("rights", self.VALID_RIGHTS_CSV)
+    assert resp.status_code == 400
+    assert json.loads(resp.content.decode()) == {
+        "valid": False,
+        "reason": "Manifest includes invalid metadata field(s). Invalid field(s): Bibliographic ID Lbl",
+    }
 
-        assert json.loads(resp.content.decode()) == {"valid": True}
-        assert resp.status_code == 200
 
-    def test_rights_err(self):
-        resp = self._post("rights", self.INVALID_RIGHTS_CSV)
+def test_rights_pass(admin_client: Client) -> None:
+    resp = admin_client.post(
+        reverse("api:v2beta_validate", args=["rights"]),
+        VALID_RIGHTS_CSV,
+        content_type=CSV_CONTENT_TYPE,
+    )
 
-        assert resp.status_code == 400
-        assert json.loads(resp.content.decode()) == {
-            "valid": False,
-            "reason": "No restriction specified.",
-        }
+    assert resp.status_code == 200
+    assert json.loads(resp.content.decode()) == {"valid": True}
+
+
+def test_rights_err(admin_client: Client) -> None:
+    resp = admin_client.post(
+        reverse("api:v2beta_validate", args=["rights"]),
+        INVALID_RIGHTS_CSV,
+        content_type=CSV_CONTENT_TYPE,
+    )
+
+    assert resp.status_code == 400
+    assert json.loads(resp.content.decode()) == {
+        "valid": False,
+        "reason": "No restriction specified.",
+    }

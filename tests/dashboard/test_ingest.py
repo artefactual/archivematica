@@ -6,8 +6,8 @@ from unittest import mock
 
 import pytest
 from agentarchives.archivesspace import ArchivesSpaceError
-from django.test import TestCase
-from django.test.client import Client
+from django.core.management import call_command
+from django.test import Client
 from django.urls import reverse
 
 from archivematica.dashboard.components.ingest.pair_matcher import (
@@ -19,181 +19,204 @@ from archivematica.dashboard.main.models import Access
 from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
 from archivematica.dashboard.main.models import DashboardSetting
 
-TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
-SIP_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "sip.json"
-JOBS_SIP_COMPLETE_FIXTURE = (
-    pathlib.Path(__file__).parent / "fixtures" / "jobs-sip-complete.json"
-)
+FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
+
+# UUID of the SIP created by the sip.json fixture.
+SIP_UUID = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
 
 
-class TestIngest(TestCase):
-    fixtures = [TEST_USER_FIXTURE, SIP_FIXTURE, JOBS_SIP_COMPLETE_FIXTURE]
+@pytest.fixture
+def sip(db: None) -> models.SIP:
+    call_command("loaddata", FIXTURES_DIR / "sip.json", verbosity=0)
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
+    return models.SIP.objects.get(uuid=SIP_UUID)
 
-    def setUp(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
 
-    @mock.patch("agentarchives.archivesspace.ArchivesSpaceClient._login")
-    def test_get_as_system_client(self, __):
-        DashboardSetting.objects.set_dict(
-            "upload-archivesspace_v0.0",
-            {
-                "base_url": "http://foobar.tld",
-                "user": "user",
-                "passwd": "12345",
-                "repository": "5",
-            },
-        )
-        client = get_as_system_client()
-        assert client.base_url == "http://foobar.tld"
-        assert client.user == "user"
-        assert client.passwd == "12345"
-        assert client.repository == "/repositories/5"
+@pytest.fixture
+def completed_sip(sip: models.SIP) -> models.SIP:
+    """The SIP with the jobs of its completed ingest, which name it "test"."""
+    call_command("loaddata", FIXTURES_DIR / "jobs-sip-complete.json", verbosity=0)
 
-        # It raises error when "base_url" is missing.
-        DashboardSetting.objects.set_dict(
-            "upload-archivesspace_v0.0",
+    return sip
+
+
+@pytest.mark.django_db
+@mock.patch("agentarchives.archivesspace.ArchivesSpaceClient._login")
+def test_get_as_system_client(login: mock.MagicMock) -> None:
+    DashboardSetting.objects.set_dict(
+        "upload-archivesspace_v0.0",
+        {
+            "base_url": "http://foobar.tld",
+            "user": "user",
+            "passwd": "12345",
+            "repository": "5",
+        },
+    )
+
+    client = get_as_system_client()
+
+    assert client.base_url == "http://foobar.tld"
+    assert client.user == "user"
+    assert client.passwd == "12345"
+    assert client.repository == "/repositories/5"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "config",
+    [
+        pytest.param(
             {"user": "user", "passwd": "12345", "repository": "5"},
-        )
-        with pytest.raises(ArchivesSpaceError):
-            client = get_as_system_client()
-
-        # It raises error when "base_url" is empty.
-        DashboardSetting.objects.set_dict(
-            "upload-archivesspace_v0.0",
+            id="missing-base-url",
+        ),
+        pytest.param(
             {"base_url": "", "user": "user", "passwd": "12345", "repository": "5"},
-        )
-        with pytest.raises(ArchivesSpaceError):
-            client = get_as_system_client()
+            id="empty-base-url",
+        ),
+    ],
+)
+def test_get_as_system_client_requires_base_url(config: dict[str, str]) -> None:
+    DashboardSetting.objects.set_dict("upload-archivesspace_v0.0", config)
 
-    def test_normalization_event_detail_view(self):
-        """Test the 'Manual normalization event detail' view of a SIP"""
-        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        url = reverse("ingest:ingest_metadata_event_detail", args=[sip_uuid])
-        response = self.client.get(url)
-        assert response.status_code == 200
-        title = "".join(
-            ["<h1>Normalization Event Detail<br />", "<small>test</small>", "</h1>"]
-        )
-        assert title in response.content.decode("utf8")
+    with pytest.raises(ArchivesSpaceError):
+        get_as_system_client()
 
-    def test_add_metadata_files_view(self):
-        """Test the 'Add metadata files' view of a SIP"""
-        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        url = reverse("ingest:ingest_metadata_add_files", args=[sip_uuid])
-        response = self.client.get(url)
-        assert response.status_code == 200
-        title = "\n    ".join(
-            ["<h1>", "  Add metadata files<br />", "  <small>test</small>", "</h1>"]
-        )
-        assert title in response.content.decode("utf8")
 
-    @mock.patch(
-        "archivematica.dashboard.components.ingest.views.storage_service.get_location"
+def test_normalization_event_detail_view(
+    admin_client: Client, dashboard_uuid: uuid.UUID, completed_sip: models.SIP
+) -> None:
+    """Test the 'Manual normalization event detail' view of a SIP"""
+    response = admin_client.get(
+        reverse("ingest:ingest_metadata_event_detail", args=[completed_sip.uuid])
     )
-    def test_add_metadata_files_view_uses_unnamed_when_sip_has_no_jobs(
-        self, mocked_get_location
-    ):
-        mocked_get_location.return_value = []
-        sip_uuid = str(uuid.uuid4())
-        url = reverse("ingest:ingest_metadata_add_files", args=[sip_uuid])
 
-        response = self.client.get(url)
-
-        assert response.status_code == 200
-        assert response.context["name"] == "(Unnamed)"
-        assert "(Unnamed)" in response.content.decode("utf8")
-        mocked_get_location.assert_called_once_with(purpose="TS")
-
-    @mock.patch(
-        "archivematica.dashboard.components.ingest.views.storage_service.get_location"
+    assert response.status_code == 200
+    title = "".join(
+        ["<h1>Normalization Event Detail<br />", "<small>test</small>", "</h1>"]
     )
-    def test_add_metadata_files_view_includes_editor_payload_for_valid_source_directories(
-        self, mocked_get_location
-    ):
-        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        mocked_get_location.return_value = [
-            {"uuid": "source-a", "path": "/var/archivematica/source-a"},
-            {"uuid": "source-b", "path": "/var/archivematica/source-b"},
-        ]
+    assert title in response.content.decode("utf8")
 
-        response = self.client.get(
-            reverse("ingest:ingest_metadata_add_files", args=[sip_uuid]),
-        )
 
-        assert response.status_code == 200
-        assert response.context["editor_payload"] == {
-            "sipUUID": sip_uuid,
-            "sourceDirectories": {
-                "source-a": "/var/archivematica/source-a",
-                "source-b": "/var/archivematica/source-b",
-            },
-        }
-        content = response.content.decode("utf8")
-        assert '<div id="md-editor"></div>' in content
-        assert 'id="md-editor-data"' in content
-
-    @mock.patch(
-        "archivematica.dashboard.components.ingest.views.storage_service.get_location"
+def test_add_metadata_files_view(
+    admin_client: Client, dashboard_uuid: uuid.UUID, completed_sip: models.SIP
+) -> None:
+    """Test the 'Add metadata files' view of a SIP"""
+    response = admin_client.get(
+        reverse("ingest:ingest_metadata_add_files", args=[completed_sip.uuid])
     )
-    def test_add_metadata_files_view_ignores_invalid_source_directory_entries(
-        self, mocked_get_location
-    ):
-        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        mocked_get_location.return_value = [
-            {"uuid": "missing-path"},
-            {"path": "/var/archivematica/missing-uuid"},
-            {"uuid": "", "path": "/var/archivematica/empty-uuid"},
-            {"uuid": "source-c", "path": ""},
-        ]
 
-        response = self.client.get(
-            reverse("ingest:ingest_metadata_add_files", args=[sip_uuid]),
-        )
+    assert response.status_code == 200
+    title = "\n    ".join(
+        ["<h1>", "  Add metadata files<br />", "  <small>test</small>", "</h1>"]
+    )
+    assert title in response.content.decode("utf8")
 
-        assert response.status_code == 200
-        assert response.context["editor_payload"] is None
-        content = response.content.decode("utf8")
-        assert '<div id="md-editor"></div>' not in content
-        assert 'id="md-editor-data"' not in content
 
-    def test_ingest_upload_get(self):
-        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        access_target = "description-slug"
-        Access.objects.create(
-            sipuuid=sip_uuid,
-            target=access_target,
-        )
+@mock.patch(
+    "archivematica.dashboard.components.ingest.views.storage_service.get_location",
+    return_value=[],
+)
+def test_add_metadata_files_view_uses_unnamed_when_sip_has_no_jobs(
+    get_location: mock.MagicMock, admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
+    sip_uuid = str(uuid.uuid4())
 
-        response = self.client.get(
-            reverse("ingest:ingest_upload", args=[sip_uuid]),
-        )
+    response = admin_client.get(
+        reverse("ingest:ingest_metadata_add_files", args=[sip_uuid])
+    )
 
-        assert response.status_code == 200
-        assert json.loads(response.content)["target"] == access_target
+    assert response.status_code == 200
+    assert response.context["name"] == "(Unnamed)"
+    assert "(Unnamed)" in response.content.decode("utf8")
+    get_location.assert_called_once_with(purpose="TS")
 
-    def test_ingest_upload_post(self):
-        sip_uuid = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
-        access_target = "description-slug"
 
-        # Check there is no Access object associated with the SIP yet.
-        assert Access.objects.filter(sipuuid=sip_uuid).count() == 0
+@mock.patch(
+    "archivematica.dashboard.components.ingest.views.storage_service.get_location",
+    return_value=[
+        {"uuid": "source-a", "path": "/var/archivematica/source-a"},
+        {"uuid": "source-b", "path": "/var/archivematica/source-b"},
+    ],
+)
+def test_add_metadata_files_view_includes_editor_payload_for_valid_source_directories(
+    get_location: mock.MagicMock,
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    completed_sip: models.SIP,
+) -> None:
+    response = admin_client.get(
+        reverse("ingest:ingest_metadata_add_files", args=[completed_sip.uuid]),
+    )
 
-        response = self.client.post(
-            reverse("ingest:ingest_upload", args=[sip_uuid]),
-            data={"target": access_target},
-        )
-        assert response.status_code == 200
-        assert json.loads(response.content) == {"ready": True}
+    assert response.status_code == 200
+    assert response.context["editor_payload"] == {
+        "sipUUID": str(completed_sip.uuid),
+        "sourceDirectories": {
+            "source-a": "/var/archivematica/source-a",
+            "source-b": "/var/archivematica/source-b",
+        },
+    }
+    content = response.content.decode("utf8")
+    assert '<div id="md-editor"></div>' in content
+    assert 'id="md-editor-data"' in content
 
-        # An Access object was created for the SIP with the right target.
-        assert (
-            Access.objects.filter(sipuuid=sip_uuid, target=access_target).count() == 1
-        )
+
+@mock.patch(
+    "archivematica.dashboard.components.ingest.views.storage_service.get_location",
+    return_value=[
+        {"uuid": "missing-path"},
+        {"path": "/var/archivematica/missing-uuid"},
+        {"uuid": "", "path": "/var/archivematica/empty-uuid"},
+        {"uuid": "source-c", "path": ""},
+    ],
+)
+def test_add_metadata_files_view_ignores_invalid_source_directory_entries(
+    get_location: mock.MagicMock,
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    completed_sip: models.SIP,
+) -> None:
+    response = admin_client.get(
+        reverse("ingest:ingest_metadata_add_files", args=[completed_sip.uuid]),
+    )
+
+    assert response.status_code == 200
+    assert response.context["editor_payload"] is None
+    content = response.content.decode("utf8")
+    assert '<div id="md-editor"></div>' not in content
+    assert 'id="md-editor-data"' not in content
+
+
+def test_ingest_upload_get(
+    admin_client: Client, dashboard_uuid: uuid.UUID, sip: models.SIP
+) -> None:
+    access_target = "description-slug"
+    Access.objects.create(sipuuid=sip.uuid, target=access_target)
+
+    response = admin_client.get(
+        reverse("ingest:ingest_upload", args=[sip.uuid]),
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content)["target"] == access_target
+
+
+def test_ingest_upload_post(
+    admin_client: Client, dashboard_uuid: uuid.UUID, sip: models.SIP
+) -> None:
+    access_target = "description-slug"
+    # Check there is no Access object associated with the SIP yet.
+    assert Access.objects.filter(sipuuid=sip.uuid).count() == 0
+
+    response = admin_client.post(
+        reverse("ingest:ingest_upload", args=[sip.uuid]),
+        data={"target": access_target},
+    )
+
+    assert response.status_code == 200
+    assert json.loads(response.content) == {"ready": True}
+    # An Access object was created for the SIP with the right target.
+    assert Access.objects.filter(sipuuid=sip.uuid, target=access_target).count() == 1
 
 
 def test_ingest_upload_as_match_shows_deleted_rows(

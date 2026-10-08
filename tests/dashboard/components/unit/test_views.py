@@ -18,274 +18,288 @@ def transfer(db):
     )
 
 
-@pytest.mark.django_db()
-class TestProcessingMonitorViews:
-    @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_transfer_list_returns_rpc_summaries(
-        self, mcp_client_cls, dashboard_uuid, admin_client
-    ):
-        summary = {
-            "uuid": "59402c61-3aba-4af7-966a-996073c0601d",
-            "directory": "transfer",
-            "timestamp": 1.0,
-            "started_at": 1.0,
-            "active": True,
-            "status": {
-                "currentstep": 3,
-                "type": "Job",
-                "microservicegroup": "Microservice",
-            },
-            "has_awaiting_decision": False,
-            "awaiting_job_uuids": [],
-        }
-        mcp_client_cls.return_value.get_units_summary.return_value = [summary]
-        url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
+@mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
+def test_transfer_list_returns_rpc_summaries(
+    mcp_client_cls, dashboard_uuid, admin_client
+):
+    summary = {
+        "uuid": "59402c61-3aba-4af7-966a-996073c0601d",
+        "directory": "transfer",
+        "timestamp": 1.0,
+        "started_at": 1.0,
+        "active": True,
+        "status": {
+            "currentstep": 3,
+            "type": "Job",
+            "microservicegroup": "Microservice",
+        },
+        "has_awaiting_decision": False,
+        "awaiting_job_uuids": [],
+    }
+    mcp_client_cls.return_value.get_units_summary.return_value = [summary]
+    url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
 
-        response = admin_client.get(url)
+    response = admin_client.get(url)
 
-        assert response.status_code == 200
-        assert response.json() == {"results": [summary]}
-        mcp_client_cls.return_value.get_units_summary.assert_called_once_with(
-            "Transfer"
-        )
-
-    @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_ingest_list_uses_sip_rpc_type(
-        self, mcp_client_cls, dashboard_uuid, admin_client
-    ):
-        mcp_client_cls.return_value.get_units_summary.return_value = []
-        url = reverse("unit:processing_units", kwargs={"unit_type": "ingest"})
-
-        response = admin_client.get(url)
-
-        assert response.status_code == 200
-        assert response.json() == {"results": []}
-        mcp_client_cls.return_value.get_units_summary.assert_called_once_with("SIP")
-
-    def test_processing_list_requires_dashboard_authentication(
-        self, dashboard_uuid, client
-    ):
-        url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
-
-        response = client.get(url)
-
-        assert response.status_code == 302
-
-    def test_processing_list_rejects_non_get_verbs(self, dashboard_uuid, admin_client):
-        url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
-
-        response = admin_client.post(url)
-
-        assert response.status_code == 405
-
-    @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_processing_list_reports_rpc_failure(
-        self, mcp_client_cls, dashboard_uuid, admin_client
-    ):
-        mcp_client_cls.return_value.get_units_summary.side_effect = RPCServerError()
-        url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
-
-        response = admin_client.get(url)
-
-        assert response.status_code == 503
-        assert response.json() == {
-            "error": True,
-            "message": "Unable to fetch processing summaries.",
-        }
-
-    @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_job_groups_returns_rpc_results(
-        self, mcp_client_cls, dashboard_uuid, admin_client, transfer
-    ):
-        groups = [{"name": "Microservice", "jobs": []}]
-        mcp_client_cls.return_value.get_unit_job_groups.return_value = groups
-        url = reverse(
-            "unit:processing_unit_job_groups",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.uuid},
-        )
-
-        response = admin_client.get(url)
-
-        assert response.status_code == 200
-        assert response.json() == {"results": groups}
-        mcp_client_cls.return_value.get_unit_job_groups.assert_called_once_with(
-            "Transfer", str(transfer.uuid)
-        )
-
-    @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_job_groups_rejects_hidden_unit(
-        self, mcp_client_cls, dashboard_uuid, admin_client, transfer
-    ):
-        transfer.hidden = True
-        transfer.save()
-        url = reverse(
-            "unit:processing_unit_job_groups",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.uuid},
-        )
-
-        response = admin_client.get(url)
-
-        assert response.status_code == 404
-        mcp_client_cls.assert_not_called()
-
-    @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
-    def test_job_groups_rejects_malformed_uuid(
-        self, mcp_client_cls, dashboard_uuid, admin_client
-    ):
-        malformed_uuid = "zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz"
-        url = reverse(
-            "unit:processing_unit_job_groups",
-            kwargs={"unit_type": "transfer", "unit_uuid": malformed_uuid},
-        )
-
-        response = admin_client.get(url)
-
-        assert response.status_code == 404
-        assert response.json() == {
-            "error": True,
-            "message": f"Unit with UUID {malformed_uuid} does not exist",
-        }
-        mcp_client_cls.assert_not_called()
-
-    def test_public_processing_api_is_not_exposed(self, dashboard_uuid, admin_client):
-        response = admin_client.get("/api/v2beta/transfer/")
-
-        assert response.status_code == 404
+    assert response.status_code == 200
+    assert response.json() == {"results": [summary]}
+    mcp_client_cls.return_value.get_units_summary.assert_called_once_with("Transfer")
 
 
-@pytest.mark.django_db()
-class TestMarkHiddenView:
-    def test_it_rejects_non_admins(self, dashboard_uuid, client, transfer):
-        url = reverse(
-            "unit:mark_hidden",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
-        )
-        resp = client.delete(url)
+@mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
+def test_ingest_list_uses_sip_rpc_type(mcp_client_cls, dashboard_uuid, admin_client):
+    mcp_client_cls.return_value.get_units_summary.return_value = []
+    url = reverse("unit:processing_units", kwargs={"unit_type": "ingest"})
 
-        assert resp.status_code == 302
+    response = admin_client.get(url)
 
-    def test_it_rejects_non_delete_verbs(self, dashboard_uuid, admin_client, transfer):
-        url = reverse(
-            "unit:mark_hidden",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
-        )
-        resp = admin_client.post(url)
+    assert response.status_code == 200
+    assert response.json() == {"results": []}
+    mcp_client_cls.return_value.get_units_summary.assert_called_once_with("SIP")
 
-        assert resp.status_code == 405
 
-    def test_it_rejects_unknown_package_types(
-        self, dashboard_uuid, admin_client, transfer
-    ):
-        url = f"/tranfser/{transfer.pk}/delete/"
-        resp = admin_client.delete(url)
+def test_processing_list_requires_dashboard_authentication(dashboard_uuid, client):
+    url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
 
-        assert resp.status_code == 404
+    response = client.get(url)
 
-    def test_it_conflicts_on_active_packages(
-        self, dashboard_uuid, admin_client, transfer
-    ):
-        transfer.status = models.PACKAGE_STATUS_PROCESSING
-        transfer.save()
-        url = reverse(
-            "unit:mark_hidden",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
-        )
-        resp = admin_client.delete(url)
+    assert response.status_code == 302
 
-        assert resp.status_code == 409
-        assert resp.json() == {"removed": False}
 
-    @mock.patch(
-        "archivematica.dashboard.main.models.Transfer.objects.done",
-        side_effect=Exception(),
+def test_processing_list_rejects_non_get_verbs(dashboard_uuid, admin_client):
+    url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
+
+    response = admin_client.post(url)
+
+    assert response.status_code == 405
+
+
+@mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
+def test_processing_list_reports_rpc_failure(
+    mcp_client_cls, dashboard_uuid, admin_client
+):
+    mcp_client_cls.return_value.get_units_summary.side_effect = RPCServerError()
+    url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
+
+    response = admin_client.get(url)
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "error": True,
+        "message": "Unable to fetch processing summaries.",
+    }
+
+
+@mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
+def test_job_groups_returns_rpc_results(
+    mcp_client_cls, dashboard_uuid, admin_client, transfer
+):
+    groups = [{"name": "Microservice", "jobs": []}]
+    mcp_client_cls.return_value.get_unit_job_groups.return_value = groups
+    url = reverse(
+        "unit:processing_unit_job_groups",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.uuid},
     )
-    def test_it_handles_unknown_errors(
-        self, done, dashboard_uuid, admin_client, transfer
-    ):
-        url = reverse(
-            "unit:mark_hidden",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
-        )
-        resp = admin_client.delete(url)
 
-        assert resp.status_code == 500
-        assert resp.json() == {"removed": False}
+    response = admin_client.get(url)
 
-    def test_it_hides_done_packages(self, dashboard_uuid, admin_client, transfer):
-        url = reverse(
-            "unit:mark_hidden",
-            kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
-        )
-        resp = admin_client.delete(url)
-
-        assert resp.status_code == 200
-        assert resp.json() == {"removed": True}
-
-
-@pytest.mark.django_db()
-class TestMarkCompletedHiddenView:
-    def test_it_rejects_non_admins(self, dashboard_uuid, client, transfer):
-        url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-        resp = client.delete(url)
-
-        assert resp.status_code == 302
-
-    def test_it_rejects_non_delete_verbs(self, dashboard_uuid, admin_client, transfer):
-        url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-        resp = admin_client.post(url)
-
-        assert resp.status_code == 405
-
-    @mock.patch(
-        "archivematica.dashboard.components.helpers.completed_units_efficient",
-        side_effect=Exception(),
+    assert response.status_code == 200
+    assert response.json() == {"results": groups}
+    mcp_client_cls.return_value.get_unit_job_groups.assert_called_once_with(
+        "Transfer", str(transfer.uuid)
     )
-    def test_it_handles_unknown_errors(
-        self, completed_units_efficient, dashboard_uuid, admin_client, transfer
-    ):
-        url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-        resp = admin_client.delete(url)
 
-        assert resp.status_code == 500
-        assert resp.json() == {"removed": False}
 
-    def test_it_ignores_active_packages(self, dashboard_uuid, admin_client, transfer):
-        transfer.status = models.PACKAGE_STATUS_PROCESSING
-        transfer.save()
-        url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-        resp = admin_client.delete(url)
+@mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
+def test_job_groups_rejects_hidden_unit(
+    mcp_client_cls, dashboard_uuid, admin_client, transfer
+):
+    transfer.hidden = True
+    transfer.save()
+    url = reverse(
+        "unit:processing_unit_job_groups",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.uuid},
+    )
 
-        assert resp.status_code == 200
-        assert resp.json() == {"removed": []}
+    response = admin_client.get(url)
 
-    def test_it_hides_done_packages(self, dashboard_uuid, admin_client, transfer):
-        # mark_completed_hidden still relies on job objects.
-        models.Job.objects.create(
-            sipuuid=transfer.pk,
-            unittype="unitTransfer",
-            createdtime=timezone.now(),
-            currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-            jobtype="Create SIP from transfer objects",
-        )
+    assert response.status_code == 404
+    mcp_client_cls.assert_not_called()
 
-        url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-        resp = admin_client.delete(url)
 
-        assert resp.status_code == 200
-        assert resp.json() == {"removed": [str(transfer.pk)]}
+@mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
+def test_job_groups_rejects_malformed_uuid(
+    mcp_client_cls, dashboard_uuid, admin_client
+):
+    malformed_uuid = "zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz"
+    url = reverse(
+        "unit:processing_unit_job_groups",
+        kwargs={"unit_type": "transfer", "unit_uuid": malformed_uuid},
+    )
 
-    def test_it_hides_failed_packages(self, dashboard_uuid, admin_client, transfer):
-        # mark_completed_hidden still relies on job objects.
-        models.Job.objects.create(
-            sipuuid=transfer.pk,
-            unittype="unitTransfer",
-            createdtime=timezone.now(),
-            currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-            jobtype="Remove the processing directory",
-        )
+    response = admin_client.get(url)
 
-        url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-        resp = admin_client.delete(url)
+    assert response.status_code == 404
+    assert response.json() == {
+        "error": True,
+        "message": f"Unit with UUID {malformed_uuid} does not exist",
+    }
+    mcp_client_cls.assert_not_called()
 
-        assert resp.status_code == 200
-        assert resp.json() == {"removed": [str(transfer.pk)]}
+
+def test_public_processing_api_is_not_exposed(dashboard_uuid, admin_client):
+    response = admin_client.get("/api/v2beta/transfer/")
+
+    assert response.status_code == 404
+
+
+def test_mark_hidden_rejects_non_admins(dashboard_uuid, client, transfer):
+    url = reverse(
+        "unit:mark_hidden",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
+    )
+    resp = client.delete(url)
+
+    assert resp.status_code == 302
+
+
+def test_mark_hidden_rejects_non_delete_verbs(dashboard_uuid, admin_client, transfer):
+    url = reverse(
+        "unit:mark_hidden",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
+    )
+    resp = admin_client.post(url)
+
+    assert resp.status_code == 405
+
+
+def test_mark_hidden_rejects_unknown_package_types(
+    dashboard_uuid, admin_client, transfer
+):
+    url = f"/tranfser/{transfer.pk}/delete/"
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 404
+
+
+def test_mark_hidden_conflicts_on_active_packages(
+    dashboard_uuid, admin_client, transfer
+):
+    transfer.status = models.PACKAGE_STATUS_PROCESSING
+    transfer.save()
+    url = reverse(
+        "unit:mark_hidden",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
+    )
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 409
+    assert resp.json() == {"removed": False}
+
+
+@mock.patch(
+    "archivematica.dashboard.main.models.Transfer.objects.done",
+    side_effect=Exception(),
+)
+def test_mark_hidden_handles_unknown_errors(
+    done, dashboard_uuid, admin_client, transfer
+):
+    url = reverse(
+        "unit:mark_hidden",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
+    )
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 500
+    assert resp.json() == {"removed": False}
+
+
+def test_mark_hidden_hides_done_packages(dashboard_uuid, admin_client, transfer):
+    url = reverse(
+        "unit:mark_hidden",
+        kwargs={"unit_type": "transfer", "unit_uuid": transfer.pk},
+    )
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 200
+    assert resp.json() == {"removed": True}
+
+
+def test_mark_completed_hidden_rejects_non_admins(dashboard_uuid, client, transfer):
+    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
+    resp = client.delete(url)
+
+    assert resp.status_code == 302
+
+
+def test_mark_completed_hidden_rejects_non_delete_verbs(
+    dashboard_uuid, admin_client, transfer
+):
+    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
+    resp = admin_client.post(url)
+
+    assert resp.status_code == 405
+
+
+@mock.patch(
+    "archivematica.dashboard.components.helpers.completed_units_efficient",
+    side_effect=Exception(),
+)
+def test_mark_completed_hidden_handles_unknown_errors(
+    completed_units_efficient, dashboard_uuid, admin_client, transfer
+):
+    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 500
+    assert resp.json() == {"removed": False}
+
+
+def test_mark_completed_hidden_ignores_active_packages(
+    dashboard_uuid, admin_client, transfer
+):
+    transfer.status = models.PACKAGE_STATUS_PROCESSING
+    transfer.save()
+    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 200
+    assert resp.json() == {"removed": []}
+
+
+def test_mark_completed_hidden_hides_done_packages(
+    dashboard_uuid, admin_client, transfer
+):
+    # mark_completed_hidden still relies on job objects.
+    models.Job.objects.create(
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        createdtime=timezone.now(),
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        jobtype="Create SIP from transfer objects",
+    )
+
+    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 200
+    assert resp.json() == {"removed": [str(transfer.pk)]}
+
+
+def test_mark_completed_hidden_hides_failed_packages(
+    dashboard_uuid, admin_client, transfer
+):
+    # mark_completed_hidden still relies on job objects.
+    models.Job.objects.create(
+        sipuuid=transfer.pk,
+        unittype="unitTransfer",
+        createdtime=timezone.now(),
+        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+        jobtype="Remove the processing directory",
+    )
+
+    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
+    resp = admin_client.delete(url)
+
+    assert resp.status_code == 200
+    assert resp.json() == {"removed": [str(transfer.pk)]}

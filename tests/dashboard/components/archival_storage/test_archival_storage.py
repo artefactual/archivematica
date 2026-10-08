@@ -16,7 +16,6 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import os
-import pathlib
 import uuid
 from io import StringIO
 from unittest import mock
@@ -30,8 +29,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 from django.http import StreamingHttpResponse
 from django.template.defaultfilters import filesizeformat
-from django.test import TestCase
-from django.test.client import Client
+from django.test import Client
 from django.urls import reverse
 
 from archivematica.dashboard.components import helpers
@@ -44,10 +42,6 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
 CONTENT_TYPE = "Content-Type"
 JSON_MIME = "application/json"
-
-TEST_USER_FIXTURE = (
-    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
-)
 
 
 @pytest.fixture
@@ -470,49 +464,46 @@ def test_search_as_csv_invalid_route(
     assert json.loads(response.content) == expected_result
 
 
-class TestArchivalStorageDataTableState(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
+# Saved state of the AIPs DataTable, as sent by the browser.
+DATATABLE_STATE = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
 
-    def setUp(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
-        self.data = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
+def test_save_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
+    """Test ability to save DataTable state"""
+    response = admin_client.post(
+        "/archival-storage/save_state/aips/", DATATABLE_STATE, content_type=JSON_MIME
+    )
 
-    def test_save_datatable_state(self):
-        """Test ability to save DataTable state"""
-        response = self.client.post(
-            "/archival-storage/save_state/aips/", self.data, content_type=JSON_MIME
-        )
-        assert response.status_code == 200
-        saved_state = helpers.get_setting("aips_datatable_state")
-        assert json.dumps(self.data) == saved_state
+    assert response.status_code == 200
+    assert helpers.get_setting("aips_datatable_state") == json.dumps(DATATABLE_STATE)
 
-    def test_load_datatable_state(self):
-        """Test ability to load DataTable state"""
-        helpers.set_setting("aips_datatable_state", json.dumps(self.data))
-        # Retrieve data from view
-        response = self.client.get(
-            reverse("archival_storage:load_state", args=["aips"])
-        )
-        assert response.status_code == 200
-        payload = json.loads(response.content.decode("utf8"))
-        assert payload["time"] == 1588609847900
-        assert payload["columns"][0]["visible"] is True
-        assert payload["columns"][2]["visible"] is False
 
-    def test_load_datatable_state_404(self):
-        """Non-existent settings should return a 404"""
-        response = self.client.get(
-            reverse("archival_storage:load_state", args=["nonexistent"])
-        )
-        assert response.status_code == 404
-        payload = json.loads(response.content.decode("utf8"))
-        assert payload["error"] is True
-        assert payload["message"] == "Setting not found"
+def test_load_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
+    """Test ability to load DataTable state"""
+    helpers.set_setting("aips_datatable_state", json.dumps(DATATABLE_STATE))
+
+    # Retrieve data from view
+    response = admin_client.get(reverse("archival_storage:load_state", args=["aips"]))
+
+    assert response.status_code == 200
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["time"] == 1588609847900
+    assert payload["columns"][0]["visible"] is True
+    assert payload["columns"][2]["visible"] is False
+
+
+def test_load_datatable_state_404(
+    admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
+    """Non-existent settings should return a 404"""
+    response = admin_client.get(
+        reverse("archival_storage:load_state", args=["nonexistent"])
+    )
+
+    assert response.status_code == 404
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["error"] is True
+    assert payload["message"] == "Setting not found"
 
 
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
