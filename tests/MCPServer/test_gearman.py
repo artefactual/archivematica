@@ -372,7 +372,10 @@ def test_reset_task_backend_forgets_backend_when_shutdown_fails():
     assert not hasattr(backend_local, "task_backend")
 
 
-def test_client_script_job_resets_backend_without_masking_original_error(caplog):
+@pytest.mark.django_db
+def test_client_script_job_resets_backend_without_masking_original_error(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     package = mock.Mock()
     package.uuid = uuid.uuid4()
     package.get_replacement_mapping.return_value = {

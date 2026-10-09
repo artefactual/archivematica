@@ -1002,27 +1002,30 @@ def test_non_auto_approved_package_still_uses_watched_directory_copy(
     )
 
 
-def test_capture_transfer_failure_propagates_transfer_does_not_exist():
+@pytest.mark.django_db
+def test_capture_transfer_failure_propagates_transfer_does_not_exist() -> None:
     @_capture_transfer_failure
-    def fn():
+    def fn() -> None:
         raise models.Transfer.DoesNotExist
 
     with pytest.raises(models.Transfer.DoesNotExist):
         fn()
 
 
-def test_capture_transfer_failure_propagates_validation_error():
+@pytest.mark.django_db
+def test_capture_transfer_failure_propagates_validation_error() -> None:
     @_capture_transfer_failure
-    def fn():
+    def fn() -> None:
         raise ValidationError("invalid argument")
 
     with pytest.raises(ValidationError):
         fn()
 
 
-def test_capture_transfer_failure_logs_other_exceptions():
+@pytest.mark.django_db
+def test_capture_transfer_failure_logs_other_exceptions() -> None:
     @_capture_transfer_failure
-    def fn():
+    def fn() -> None:
         raise RuntimeError("something went wrong")
 
     with mock.patch("archivematica.MCPServer.server.packages.logger") as mock_logger:
