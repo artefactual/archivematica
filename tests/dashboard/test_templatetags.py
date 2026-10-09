@@ -1,3 +1,4 @@
+import pytest
 from django.contrib.auth.models import User
 from tastypie.models import ApiKey
 
@@ -5,10 +6,12 @@ from archivematica.dashboard.main.templatetags.user import api_key
 from archivematica.dashboard.main.templatetags.user import logout_link
 
 
+@pytest.mark.django_db
 def test_api_key_shows_message_when_no_api_key(admin_user: User) -> None:
     assert api_key(admin_user) == "<no API key generated>"
 
 
+@pytest.mark.django_db
 def test_api_key_shows_api_key_when_set(admin_user: User) -> None:
     ApiKey.objects.create(user=admin_user, key="my-api-key")
 

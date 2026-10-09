@@ -129,7 +129,7 @@ def file_obj2(
 
 
 @pytest.fixture()
-def dir_obj(db, transfer, tmp_path, subdir_path):
+def dir_obj(transfer, tmp_path, subdir_path):
     dir_obj_path = "".join(
         [transfer.currentlocation, str(subdir_path.relative_to(tmp_path)), os.path.sep]
     )
@@ -156,7 +156,7 @@ def event(make_event: EventFactory, file_obj: File) -> Event:
 
 
 @pytest.fixture()
-def fpcommand_output(db, fprule_characterization, file_obj):
+def fpcommand_output(fprule_characterization, file_obj):
     return FPCommandOutput.objects.create(
         file=file_obj,
         rule=fprule_characterization,
@@ -203,7 +203,7 @@ def transfer_rights_statement(
 
 
 @pytest.fixture()
-def copyright_rights(db, basic_rights_statement):
+def copyright_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "Copyright"
     basic_rights_statement.save()
 
@@ -230,7 +230,7 @@ def copyright_rights(db, basic_rights_statement):
 
 
 @pytest.fixture()
-def license_rights(db, basic_rights_statement):
+def license_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "License"
     basic_rights_statement.save()
 
@@ -252,7 +252,7 @@ def license_rights(db, basic_rights_statement):
 
 
 @pytest.fixture()
-def statute_rights(db, basic_rights_statement):
+def statute_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "Statute"
     basic_rights_statement.save()
 
@@ -276,7 +276,7 @@ def statute_rights(db, basic_rights_statement):
 
 
 @pytest.fixture()
-def other_rights(db, basic_rights_statement):
+def other_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "Other"
     basic_rights_statement.save()
 
@@ -1023,7 +1023,7 @@ def test_agent_to_premis_with_blank_fields():
 
 
 @pytest.fixture
-def empty_rights_statement(db):
+def empty_rights_statement():
     return RightsStatement.objects.create(
         metadataappliestotype=MetadataAppliesToType.objects.create()
     )

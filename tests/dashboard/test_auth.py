@@ -16,6 +16,7 @@ pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 API_URL_NAMES = ["api:completed_transfers", "api:completed_ingests"]
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "url",
     [
@@ -37,6 +38,7 @@ def test_site_requires_auth(client: Client, url: str) -> None:
     assertRedirects(response, settings.LOGIN_URL)
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "url_name",
     ["transfer:transfer_index", "ingest:ingest_index", "administration:api"],
@@ -51,6 +53,7 @@ def test_site_performs_session_auth(
     assert response.status_code == 200
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("url_name", API_URL_NAMES)
 def test_api_requires_auth(client: Client, url_name: str) -> None:
     response = client.get(reverse(url_name))
@@ -61,6 +64,7 @@ def test_api_requires_auth(client: Client, url_name: str) -> None:
     )
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("url_name", API_URL_NAMES)
 def test_api_authenticates_via_key(
     client: Client, admin_user: User, url_name: str
@@ -77,6 +81,7 @@ def test_api_authenticates_via_key(
     assert response.status_code == 200
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("url_name", API_URL_NAMES)
 def test_api_authenticates_via_session(
     client: Client, admin_user: User, url_name: str

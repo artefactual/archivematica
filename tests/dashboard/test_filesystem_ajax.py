@@ -66,7 +66,8 @@ def test_copy_metadata_files(
     )
 
 
-def test_contents_sorting(db, tmp_path, admin_client, dashboard_uuid):
+@pytest.mark.django_db
+def test_contents_sorting(tmp_path, admin_client, dashboard_uuid):
     (tmp_path / "1").mkdir()
     (tmp_path / "e").mkdir()
     (tmp_path / "a").mkdir()

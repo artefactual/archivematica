@@ -100,6 +100,7 @@ def locations() -> list[dict[str, object]]:
     ]
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.views.storage_service.get_location",
     side_effect=Exception(),
@@ -110,6 +111,7 @@ def test_ss_connection_fail(get_location: mock.MagicMock, admin_client: Client) 
     assert "Error retrieving locations" in response.content.decode("utf8")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.views.storage_service.get_location"
 )

@@ -55,7 +55,8 @@ def test_mets_cannot_parse(mcp_job, transfer_directory_path):
     assert exit_code == 0
 
 
-def test_mets_is_parsed(db, mcp_job, transfer_directory_path):
+@pytest.mark.django_db
+def test_mets_is_parsed(mcp_job, transfer_directory_path):
     models.MetadataAppliesToType.objects.get_or_create(
         pk="3e48343d-e2d2-4956-aaa3-b54d26eb9761", description="SIP"
     )

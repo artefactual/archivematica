@@ -46,6 +46,7 @@ MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT = f"""
 """
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 @mock.patch(
     "archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE",
@@ -80,6 +81,7 @@ def test_list(job_complete, gearman_client, rf, admin_user):
     assert response_unit_dict == FILE_FORMAT_IDENTIFICATION_CHOICES_DICT
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_execute_returns_plaintext_after_approval(
     gearman_client, admin_client, dashboard_uuid
@@ -98,6 +100,7 @@ def test_execute_returns_plaintext_after_approval(
     gearman_client.return_value.shutdown.assert_called_once_with()
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "state,payload",
     [
@@ -124,6 +127,7 @@ def test_execute_returns_unavailable_for_unsuccessful_approval(
     gearman_client.return_value.shutdown.assert_called_once_with()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_execute_returns_unavailable_for_transport_error(
     gearman_client, admin_client, dashboard_uuid
@@ -140,6 +144,7 @@ def test_execute_returns_unavailable_for_transport_error(
     gearman_client.return_value.shutdown.assert_called_once_with()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_execute_without_uuid_preserves_empty_response(
     gearman_client, admin_client, dashboard_uuid

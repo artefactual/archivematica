@@ -1,17 +1,29 @@
+from collections.abc import Callable
 from collections.abc import Iterator
 from unittest import mock
 
 import pytest
+from django.db.migrations.state import StateApps
 
 from archivematica.search.service import SearchService
 
 
 @pytest.fixture
-def migrate_apps(transactional_db):
+def migrate_apps(
+    request: pytest.FixtureRequest,
+) -> Iterator[Callable[[tuple[str, str]], StateApps]]:
+    """Migrate the database to a target and back to the latest migration after
+    the test, which must carry django_db(transaction=True): the migrations run
+    DDL, which MySQL commits regardless of the test transaction.
+    """
+    marker = request.node.get_closest_marker("django_db")
+    assert marker is not None and marker.kwargs.get("transaction"), (
+        "migrate_apps needs the django_db marker with transaction=True"
+    )
     from django.db import connection
     from django.db.migrations.executor import MigrationExecutor
 
-    def _migrate(target):
+    def _migrate(target: tuple[str, str]) -> StateApps:
         executor = MigrationExecutor(connection)
         executor.loader.build_graph()
         executor.migrate([target])

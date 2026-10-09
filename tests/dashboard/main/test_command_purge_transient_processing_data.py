@@ -25,7 +25,7 @@ def search_enabled(settings):
 
 
 @pytest.fixture
-def expired_idempotency_record(db: None) -> models.IdempotencyRecord:
+def expired_idempotency_record() -> models.IdempotencyRecord:
     """The record of a package creation request whose idempotency key expired."""
     return models.IdempotencyRecord.objects.create(
         user_id=1,

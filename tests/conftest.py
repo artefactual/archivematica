@@ -96,7 +96,7 @@ def _set_dashboard_setting(name: str, value: str) -> None:
 
 
 @pytest.fixture
-def dashboard_uuid(db: None) -> uuid.UUID:
+def dashboard_uuid() -> uuid.UUID:
     """The UUID of the dashboard, which identifies the pipeline."""
     result = uuid.uuid4()
     _set_dashboard_setting("dashboard_uuid", str(result))
@@ -105,7 +105,7 @@ def dashboard_uuid(db: None) -> uuid.UUID:
 
 
 @pytest.fixture
-def site_url(db: None) -> str:
+def site_url() -> str:
     value = "https://example.com/"
     _set_dashboard_setting("site_url", value)
 
@@ -113,7 +113,7 @@ def site_url(db: None) -> str:
 
 
 @pytest.fixture
-def storage_service_url(db: None) -> str:
+def storage_service_url() -> str:
     """The URL of the Storage Service, without the trailing slash that the
     API client adds.
     """
@@ -124,7 +124,7 @@ def storage_service_url(db: None) -> str:
 
 
 @pytest.fixture
-def storage_service_user(db: None) -> str:
+def storage_service_user() -> str:
     value = "test"
     _set_dashboard_setting("storage_service_user", value)
 
@@ -132,7 +132,7 @@ def storage_service_user(db: None) -> str:
 
 
 @pytest.fixture
-def storage_service_apikey(db: None) -> str:
+def storage_service_apikey() -> str:
     value = "api-key"
     _set_dashboard_setting("storage_service_apikey", value)
 
@@ -140,7 +140,7 @@ def storage_service_apikey(db: None) -> str:
 
 
 @pytest.fixture
-def checksum_type(db: None) -> str:
+def checksum_type() -> str:
     value = "md5"
     _set_dashboard_setting("checksum_type", value)
 
@@ -148,9 +148,7 @@ def checksum_type(db: None) -> str:
 
 
 @pytest.fixture
-def metadata_applies_to_types(
-    db: None,
-) -> dict[str, models.MetadataAppliesToType]:
+def metadata_applies_to_types() -> dict[str, models.MetadataAppliesToType]:
     file_type, _ = models.MetadataAppliesToType.objects.get_or_create(
         pk=uuid.UUID(models.MetadataAppliesToType.FILE_TYPE),
         description="File",
@@ -171,7 +169,7 @@ def metadata_applies_to_types(
 
 
 @pytest.fixture
-def user(db: None) -> User:
+def user() -> User:
     """A superuser; the user model signal creates the agent that represents it."""
     return User.objects.create(
         username="kmindelan",
@@ -191,7 +189,7 @@ def user_agent(user: User) -> models.Agent:
 
 
 @pytest.fixture
-def organization_agent(db: None) -> models.Agent:
+def organization_agent() -> models.Agent:
     """The default organization agent, linked to the events of every file."""
     result, _ = models.Agent.objects.get_or_create(
         pk=models.Agent.objects.DEFAULT_ORGANIZATION_AGENT_PK,
@@ -220,32 +218,32 @@ def demo_organization_agent(organization_agent: models.Agent) -> models.Agent:
 
 
 @pytest.fixture
-def make_transfer(db: None) -> TransferFactory:
+def make_transfer() -> TransferFactory:
     return TransferFactory()
 
 
 @pytest.fixture
-def make_sip(db: None) -> SIPFactory:
+def make_sip() -> SIPFactory:
     return SIPFactory()
 
 
 @pytest.fixture
-def make_file(db: None) -> FileFactory:
+def make_file() -> FileFactory:
     return FileFactory()
 
 
 @pytest.fixture
-def make_job(db: None) -> JobFactory:
+def make_job() -> JobFactory:
     return JobFactory()
 
 
 @pytest.fixture
-def make_task(db: None) -> TaskFactory:
+def make_task() -> TaskFactory:
     return TaskFactory()
 
 
 @pytest.fixture
-def make_event(db: None) -> EventFactory:
+def make_event() -> EventFactory:
     return EventFactory()
 
 
@@ -517,7 +515,7 @@ def invalid_normalization_csv(normalization_csv: pathlib.Path) -> pathlib.Path:
 
 
 @pytest.fixture
-def format_group(db: None) -> fprmodels.FormatGroup:
+def format_group() -> fprmodels.FormatGroup:
     return fprmodels.FormatGroup.objects.create()
 
 
@@ -532,12 +530,12 @@ def format_version(format: fprmodels.Format) -> fprmodels.FormatVersion:
 
 
 @pytest.fixture
-def fptool(db: None) -> fprmodels.FPTool:
+def fptool() -> fprmodels.FPTool:
     return fprmodels.FPTool.objects.create()
 
 
 @pytest.fixture
-def idtool(db: None) -> fprmodels.IDTool:
+def idtool() -> fprmodels.IDTool:
     return fprmodels.IDTool.objects.create()
 
 

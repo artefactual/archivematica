@@ -8,6 +8,7 @@ from archivematica.dashboard.main import models
 from tests.factories import TransferFactory
 
 
+@pytest.mark.django_db
 def test_transfer_update_active_agent(
     admin_user: User, make_transfer: TransferFactory
 ) -> None:
@@ -26,6 +27,7 @@ def test_transfer_update_active_agent(
     )
 
 
+@pytest.mark.django_db
 def test_sip_update_active_agent(admin_user: User, sip: models.SIP) -> None:
     sip.update_active_agent(admin_user.id)
 

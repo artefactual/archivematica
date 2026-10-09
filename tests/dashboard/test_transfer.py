@@ -31,6 +31,7 @@ def transfer(make_transfer: TransferFactory) -> Transfer:
     )
 
 
+@pytest.mark.django_db
 def test_metadata_edit(
     admin_client: Client,
     dashboard_uuid: uuid.UUID,
@@ -94,7 +95,7 @@ def test_component_get(admin_client, dashboard_uuid):
     assert "Serial number" in content
 
 
-# @pytest.mark.django_db
+@pytest.mark.django_db
 def test_component_post(admin_client, dashboard_uuid):
     # This TransferMetadataSet is going to be created in the view.
     transfer_uuid = str(uuid.uuid4())

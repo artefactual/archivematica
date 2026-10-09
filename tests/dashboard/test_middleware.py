@@ -25,6 +25,7 @@ OIDC_CAPTURE_QUERY_PARAM_MIDDLEWARE = (
 # ConfigurationCheckMiddleware of the installer
 
 
+@pytest.mark.django_db
 @pytest.mark.usefixtures("admin_user")
 def test_user_is_sent_to_installer(client: Client) -> None:
     response = client.get("/")
@@ -32,6 +33,7 @@ def test_user_is_sent_to_installer(client: Client) -> None:
     assertRedirects(response, reverse("installer:welcome"))
 
 
+@pytest.mark.django_db
 @pytest.mark.usefixtures("admin_user")
 def test_installer(client: Client) -> None:
     response = client.get(reverse("installer:welcome"))
@@ -50,6 +52,7 @@ def exempt_url() -> Iterator[str]:
     _load_exempt_urls()
 
 
+@pytest.mark.django_db
 def test_unauthenticated_user_can_access_exempt_url(
     client: Client, dashboard_uuid: uuid.UUID, exempt_url: str
 ) -> None:
@@ -58,6 +61,7 @@ def test_unauthenticated_user_can_access_exempt_url(
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 @pytest.mark.skipif(
     settings.CAS_AUTHENTICATION,
     reason="CAS authentication sends unauthenticated users to the CAS server",
@@ -70,6 +74,7 @@ def test_unauthenticated_user_is_sent_to_login_page(
     assertRedirects(response, settings.LOGIN_URL)
 
 
+@pytest.mark.django_db
 def test_authenticated_user_passes(
     admin_client: Client, dashboard_uuid: uuid.UUID
 ) -> None:
@@ -81,6 +86,7 @@ def test_authenticated_user_passes(
 # AuditLogMiddleware
 
 
+@pytest.mark.django_db
 def test_audit_log_middleware_adds_username(
     settings: pytest_django.Settings, client: Client, django_user_model: type[User]
 ) -> None:
@@ -112,6 +118,7 @@ def test_audit_log_middleware_unauthenticated(
 # OidcCaptureQueryParamMiddleware
 
 
+@pytest.mark.django_db
 def test_middleware_stores_provider_name_in_session(
     settings: pytest_django.Settings, client: Client, dashboard_uuid: uuid.UUID
 ) -> None:
@@ -143,6 +150,7 @@ def shibboleth_user(django_user_model: type[User]) -> User:
     return django_user_model.objects.create(username="demo@example.com")
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "entitlement, is_superuser",
     [
@@ -170,6 +178,7 @@ def test_make_profile_maps_admin_entitlement_to_superuser(
     assert shibboleth_user.is_superuser is is_superuser
 
 
+@pytest.mark.django_db
 def test_make_profile_revokes_superuser_without_admin_entitlement(
     shibboleth_middleware: CustomShibbolethRemoteUserMiddleware,
     shibboleth_user: User,

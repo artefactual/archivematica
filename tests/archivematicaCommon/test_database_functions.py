@@ -28,7 +28,7 @@ EXTRACTED_FILE_ORIGINAL_LOCATION = (
 
 
 @pytest.fixture
-def sip_agent(db: None) -> Agent:
+def sip_agent() -> Agent:
     """The agent of the user who processes SIPs."""
     return Agent.objects.create(
         agenttype="Archivematica user",
@@ -39,7 +39,7 @@ def sip_agent(db: None) -> Agent:
 
 
 @pytest.fixture
-def transfer_agent(db: None) -> Agent:
+def transfer_agent() -> Agent:
     """The agent of the user who processes transfers."""
     return Agent.objects.create(
         agenttype="Archivematica user",
@@ -50,7 +50,7 @@ def transfer_agent(db: None) -> Agent:
 
 
 @pytest.fixture
-def software_agent(db: None) -> Agent:
+def software_agent() -> Agent:
     """A preservation system agent other than Archivematica."""
     return Agent.objects.create(
         agenttype="software",
@@ -118,6 +118,7 @@ def file_without_active_agent(make_file: FileFactory, make_sip: SIPFactory) -> F
 # insertIntoFiles
 
 
+@pytest.mark.django_db
 def test_insert_into_files_with_sip(sip: SIP) -> None:
     path = "%sharedDirectory%/"
     assert File.objects.filter(currentlocation=path.encode()).count() == 0
@@ -142,6 +143,7 @@ def test_insert_into_files_raises_if_both_sip_and_transfer_provided() -> None:
         )
 
 
+@pytest.mark.django_db
 def test_insert_into_files_records_original_location(sip: SIP) -> None:
     file_uuid = str(uuid.uuid4())
 
@@ -157,6 +159,7 @@ def test_insert_into_files_records_original_location(sip: SIP) -> None:
     assert created_file.currentlocation == EXTRACTED_FILE_PATH.encode()
 
 
+@pytest.mark.django_db
 def test_insert_into_files_defaults_original_location_to_file_path(
     sip: SIP,
 ) -> None:
@@ -217,6 +220,7 @@ def test_get_agents_for_file_returns_empty_list_for_unknown_file() -> None:
 # insertIntoEvents
 
 
+@pytest.mark.django_db
 def test_insert_into_events(file_with_sip_agent: File) -> None:
     event_id = str(uuid.uuid4())
     assert Event.objects.filter(event_id=event_id).count() == 0
@@ -228,6 +232,7 @@ def test_insert_into_events(file_with_sip_agent: File) -> None:
     assert Event.objects.filter(event_id=event_id).count() == 1
 
 
+@pytest.mark.django_db
 def test_insert_into_event_fetches_correct_agent_from_file(
     file_with_sip_agent: File, organization_agent: Agent, sip_agent: Agent
 ) -> None:
@@ -244,6 +249,7 @@ def test_insert_into_event_fetches_correct_agent_from_file(
 # insert_events
 
 
+@pytest.mark.django_db
 def test_insert_events_batches_writes_and_preserves_agents(
     file_with_sip_agent: File,
     file_with_transfer_agent: File,
@@ -300,6 +306,7 @@ def test_insert_events_batches_writes_and_preserves_agents(
     }
 
 
+@pytest.mark.django_db
 def test_insert_events_prefers_sip_agents_and_supports_explicit_agents(
     file_with_sip_and_transfer_agents: File,
     file_without_active_agent: File,
@@ -342,6 +349,7 @@ def test_insert_events_prefers_sip_agents_and_supports_explicit_agents(
     assert not events[str(event_ids[2])].agents.exists()
 
 
+@pytest.mark.django_db
 def test_insert_events_generates_defaults(
     file_without_active_agent: File, organization_agent: Agent
 ) -> None:
@@ -361,6 +369,7 @@ def test_insert_events_generates_defaults(
     }
 
 
+@pytest.mark.django_db
 def test_insert_events_is_atomic(
     file_without_active_agent: File, software_agent: Agent
 ) -> None:
@@ -402,7 +411,7 @@ def sip(sip: SIP) -> SIP:
 
 
 @pytest.fixture
-def directories(db: None, sip: SIP) -> None:
+def directories(sip: SIP) -> None:
     # Two directories are created but only one is associated with the SIP
     dir1 = Directory.objects.create(sip=sip)
     dir1.identifiers.add(Identifier.objects.create(value="dir1"))
@@ -410,6 +419,7 @@ def directories(db: None, sip: SIP) -> None:
     dir2.identifiers.add(Identifier.objects.create(value="dir2"))
 
 
+@pytest.mark.django_db
 def test_get_sip_identifiers_returns_sip_and_directory_identifiers(
     sip: SIP, directories: None
 ) -> None:

@@ -27,7 +27,7 @@ def SIP():
 
 
 @pytest.fixture
-def FILE(db, TRANSFER):
+def FILE(TRANSFER):
     return models.File.objects.create(
         transfer=TRANSFER,
         originallocation=b"%sharedDirectory%orig",
@@ -51,6 +51,7 @@ def test_replacementdict_replace():
     assert d.replace("%PREFIX%/bin/") == ["/usr/local/bin/"]
 
 
+@pytest.mark.django_db
 def test_replacementdict_model_constructor_transfer(TRANSFER, FILE):
     rd = ReplacementDict.frommodel(sip=TRANSFER, file_=FILE, type_="transfer")
 
@@ -75,6 +76,7 @@ def test_replacementdict_model_constructor_transfer(TRANSFER, FILE):
     assert rd["%fileGrpUse%"] == FILE.filegrpuse
 
 
+@pytest.mark.django_db
 def test_replacementdict_model_constructor_sip(SIP, FILE):
     rd = ReplacementDict.frommodel(sip=SIP, file_=FILE, type_="sip")
 
@@ -96,6 +98,7 @@ def test_replacementdict_model_constructor_sip(SIP, FILE):
     assert rd["%fileGrpUse%"] == FILE.filegrpuse
 
 
+@pytest.mark.django_db
 def test_replacementdict_model_constructor_file_only(FILE):
     rd = ReplacementDict.frommodel(file_=FILE, type_="file")
 

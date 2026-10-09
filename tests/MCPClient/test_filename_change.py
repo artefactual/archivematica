@@ -27,7 +27,7 @@ def subdir_path(tmp_path):
 
 
 @pytest.fixture()
-def transfer_dir_obj(db, transfer, tmp_path, subdir_path):
+def transfer_dir_obj(transfer, tmp_path, subdir_path):
     dir_obj_path = "".join(
         [
             transfer.currentlocation,
@@ -46,7 +46,7 @@ def transfer_dir_obj(db, transfer, tmp_path, subdir_path):
 
 
 @pytest.fixture()
-def sip_dir_obj(db, sip, tmp_path, subdir_path):
+def sip_dir_obj(sip, tmp_path, subdir_path):
     dir_obj_path = "".join(
         [
             sip.currentpath,

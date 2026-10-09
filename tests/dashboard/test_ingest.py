@@ -126,6 +126,7 @@ def test_get_as_system_client_requires_base_url(config: dict[str, str]) -> None:
         get_as_system_client()
 
 
+@pytest.mark.django_db
 def test_normalization_event_detail_view(
     admin_client: Client, dashboard_uuid: uuid.UUID, completed_sip: models.SIP
 ) -> None:
@@ -141,6 +142,7 @@ def test_normalization_event_detail_view(
     assert title in response.content.decode("utf8")
 
 
+@pytest.mark.django_db
 def test_add_metadata_files_view(
     admin_client: Client, dashboard_uuid: uuid.UUID, completed_sip: models.SIP
 ) -> None:
@@ -156,6 +158,7 @@ def test_add_metadata_files_view(
     assert title in response.content.decode("utf8")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.ingest.views.storage_service.get_location",
     return_value=[],
@@ -179,6 +182,7 @@ def test_add_metadata_files_view_uses_unnamed_when_sip_has_no_jobs(
     get_location.assert_called_once_with(purpose="TS")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.ingest.views.storage_service.get_location",
     return_value=[
@@ -209,6 +213,7 @@ def test_add_metadata_files_view_includes_editor_payload_for_valid_source_direct
     assert 'id="md-editor-data"' in content
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.ingest.views.storage_service.get_location",
     return_value=[
@@ -235,6 +240,7 @@ def test_add_metadata_files_view_ignores_invalid_source_directory_entries(
     assert 'id="md-editor-data"' not in content
 
 
+@pytest.mark.django_db
 def test_ingest_upload_get(
     admin_client: Client, dashboard_uuid: uuid.UUID, sip: models.SIP
 ) -> None:
@@ -249,6 +255,7 @@ def test_ingest_upload_get(
     assert json.loads(response.content)["target"] == access_target
 
 
+@pytest.mark.django_db
 def test_ingest_upload_post(
     admin_client: Client, dashboard_uuid: uuid.UUID, sip: models.SIP
 ) -> None:
@@ -267,6 +274,7 @@ def test_ingest_upload_post(
     assert Access.objects.filter(sipuuid=sip.uuid, target=access_target).count() == 1
 
 
+@pytest.mark.django_db
 def test_ingest_upload_as_match_shows_deleted_rows(
     admin_client, dashboard_uuid, caplog
 ):
@@ -378,6 +386,7 @@ def dummy_as_client():
     return DummyASClient()
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.ingest.pair_matcher.ingest_upload_atk_get_dip_object_paths",
     return_value=[],
@@ -409,6 +418,7 @@ def test_ingest_upload_as_match_resource_component_serializes_existing_pair_file
     assert matches[0]["file_uuid"] == str(file_uuid)
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.ingest.pair_matcher.ingest_upload_atk_get_dip_object_paths",
     return_value=[],
@@ -440,6 +450,7 @@ def test_ingest_upload_as_match_resource_serializes_existing_pair_file_uuid(
     assert matches[0]["file_uuid"] == str(file_uuid)
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.ingest.views_as.get_as_system_client")
 def test_ingest_upload_as_review_matches_serializes_existing_pair_file_uuid(
     get_as_system_client_mock,

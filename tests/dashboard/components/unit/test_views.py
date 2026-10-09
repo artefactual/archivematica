@@ -19,6 +19,7 @@ def transfer(transfer: models.Transfer) -> models.Transfer:
     return transfer
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
 def test_transfer_list_returns_rpc_summaries(
     mcp_client_cls, dashboard_uuid, admin_client
@@ -47,6 +48,7 @@ def test_transfer_list_returns_rpc_summaries(
     mcp_client_cls.return_value.get_units_summary.assert_called_once_with("Transfer")
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
 def test_ingest_list_uses_sip_rpc_type(mcp_client_cls, dashboard_uuid, admin_client):
     mcp_client_cls.return_value.get_units_summary.return_value = []
@@ -59,6 +61,7 @@ def test_ingest_list_uses_sip_rpc_type(mcp_client_cls, dashboard_uuid, admin_cli
     mcp_client_cls.return_value.get_units_summary.assert_called_once_with("SIP")
 
 
+@pytest.mark.django_db
 def test_processing_list_requires_dashboard_authentication(dashboard_uuid, client):
     url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
 
@@ -67,6 +70,7 @@ def test_processing_list_requires_dashboard_authentication(dashboard_uuid, clien
     assert response.status_code == 302
 
 
+@pytest.mark.django_db
 def test_processing_list_rejects_non_get_verbs(dashboard_uuid, admin_client):
     url = reverse("unit:processing_units", kwargs={"unit_type": "transfer"})
 
@@ -75,6 +79,7 @@ def test_processing_list_rejects_non_get_verbs(dashboard_uuid, admin_client):
     assert response.status_code == 405
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
 def test_processing_list_reports_rpc_failure(
     mcp_client_cls, dashboard_uuid, admin_client
@@ -91,6 +96,7 @@ def test_processing_list_reports_rpc_failure(
     }
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
 def test_job_groups_returns_rpc_results(
     mcp_client_cls, dashboard_uuid, admin_client, transfer
@@ -111,6 +117,7 @@ def test_job_groups_returns_rpc_results(
     )
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
 def test_job_groups_rejects_hidden_unit(
     mcp_client_cls, dashboard_uuid, admin_client, transfer
@@ -128,6 +135,7 @@ def test_job_groups_rejects_hidden_unit(
     mcp_client_cls.assert_not_called()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.unit.views.MCPClient")
 def test_job_groups_rejects_malformed_uuid(
     mcp_client_cls, dashboard_uuid, admin_client
@@ -148,12 +156,14 @@ def test_job_groups_rejects_malformed_uuid(
     mcp_client_cls.assert_not_called()
 
 
+@pytest.mark.django_db
 def test_public_processing_api_is_not_exposed(dashboard_uuid, admin_client):
     response = admin_client.get("/api/v2beta/transfer/")
 
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 def test_mark_hidden_rejects_non_admins(dashboard_uuid, client, transfer):
     url = reverse(
         "unit:mark_hidden",
@@ -164,6 +174,7 @@ def test_mark_hidden_rejects_non_admins(dashboard_uuid, client, transfer):
     assert resp.status_code == 302
 
 
+@pytest.mark.django_db
 def test_mark_hidden_rejects_non_delete_verbs(dashboard_uuid, admin_client, transfer):
     url = reverse(
         "unit:mark_hidden",
@@ -174,6 +185,7 @@ def test_mark_hidden_rejects_non_delete_verbs(dashboard_uuid, admin_client, tran
     assert resp.status_code == 405
 
 
+@pytest.mark.django_db
 def test_mark_hidden_rejects_unknown_package_types(
     dashboard_uuid, admin_client, transfer
 ):
@@ -183,6 +195,7 @@ def test_mark_hidden_rejects_unknown_package_types(
     assert resp.status_code == 404
 
 
+@pytest.mark.django_db
 def test_mark_hidden_conflicts_on_active_packages(
     dashboard_uuid, admin_client, transfer
 ):
@@ -198,6 +211,7 @@ def test_mark_hidden_conflicts_on_active_packages(
     assert resp.json() == {"removed": False}
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.main.models.Transfer.objects.done",
     side_effect=Exception(),
@@ -215,6 +229,7 @@ def test_mark_hidden_handles_unknown_errors(
     assert resp.json() == {"removed": False}
 
 
+@pytest.mark.django_db
 def test_mark_hidden_hides_done_packages(dashboard_uuid, admin_client, transfer):
     url = reverse(
         "unit:mark_hidden",
@@ -226,6 +241,7 @@ def test_mark_hidden_hides_done_packages(dashboard_uuid, admin_client, transfer)
     assert resp.json() == {"removed": True}
 
 
+@pytest.mark.django_db
 def test_mark_completed_hidden_rejects_non_admins(dashboard_uuid, client, transfer):
     url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
     resp = client.delete(url)
@@ -233,6 +249,7 @@ def test_mark_completed_hidden_rejects_non_admins(dashboard_uuid, client, transf
     assert resp.status_code == 302
 
 
+@pytest.mark.django_db
 def test_mark_completed_hidden_rejects_non_delete_verbs(
     dashboard_uuid, admin_client, transfer
 ):
@@ -242,6 +259,7 @@ def test_mark_completed_hidden_rejects_non_delete_verbs(
     assert resp.status_code == 405
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.helpers.completed_units_efficient",
     side_effect=Exception(),
@@ -256,6 +274,7 @@ def test_mark_completed_hidden_handles_unknown_errors(
     assert resp.json() == {"removed": False}
 
 
+@pytest.mark.django_db
 def test_mark_completed_hidden_ignores_active_packages(
     dashboard_uuid, admin_client, transfer
 ):
@@ -268,6 +287,7 @@ def test_mark_completed_hidden_ignores_active_packages(
     assert resp.json() == {"removed": []}
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "last_job",
     [

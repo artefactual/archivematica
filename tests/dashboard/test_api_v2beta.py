@@ -24,6 +24,7 @@ ENCODED_PACKAGE_PATH = b64encode_string(PACKAGE_PATH)
 TRANSFER_UUID = str(uuid.uuid4())
 
 
+@pytest.mark.django_db
 def test_headers(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
     resp = admin_client.get(PACKAGE_URL)
 
@@ -31,12 +32,14 @@ def test_headers(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
     assert resp.get("X-Archivematica-ID") == str(dashboard_uuid)
 
 
+@pytest.mark.django_db
 def test_package_list(admin_client: Client) -> None:
     resp = admin_client.get(PACKAGE_URL)
 
     assert resp.status_code == 501  # Not implemented yet.
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "payload",
     [
@@ -51,6 +54,7 @@ def test_package_create_with_errors(admin_client: Client, payload: str) -> None:
     assert resp.status_code == 400
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
 def test_package_create_mcpclient_ok(
     mcp_client_cls: mock.MagicMock, admin_client: Client
@@ -78,6 +82,7 @@ def test_package_create_mcpclient_ok(
     )
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
 def test_package_create_preserves_auto_approve_false(
     mcp_client_cls: mock.MagicMock, admin_client: Client
@@ -104,6 +109,7 @@ def test_package_create_preserves_auto_approve_false(
     )
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
 def test_package_create_forwards_idempotency_key(
     mcp_client_cls: mock.MagicMock, admin_client: Client
@@ -133,6 +139,7 @@ def test_package_create_forwards_idempotency_key(
     )
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "idempotency_key",
     [
@@ -166,6 +173,7 @@ def test_package_create_rejects_invalid_idempotency_key(
     mcp_client_cls.assert_not_called()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
 def test_package_create_returns_conflict_for_reused_idempotency_key(
     mcp_client_cls: mock.MagicMock, admin_client: Client
@@ -191,6 +199,7 @@ def test_package_create_returns_conflict_for_reused_idempotency_key(
     assert json.loads(resp.content) == {"error": True, "message": message}
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
 def test_package_create_returns_conflict_while_request_is_in_progress(
     mcp_client_cls: mock.MagicMock, admin_client: Client
@@ -216,6 +225,7 @@ def test_package_create_returns_conflict_while_request_is_in_progress(
     assert json.loads(resp.content) == {"error": True, "message": message}
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.api.views.MCPClient")
 def test_package_create_mcpclient_fails(
     mcp_client_cls: mock.MagicMock, admin_client: Client
@@ -265,6 +275,7 @@ objects/8e758e7545212966d0256a6ac70d81db6a6d6a6d_008.tif,policy,,,,1974-01-01,op
 """
 
 
+@pytest.mark.django_db
 def test_unknown_validator(admin_client: Client) -> None:
     resp = admin_client.post(
         reverse("api:v2beta_validate", args=["unknown-validator"]),
@@ -281,6 +292,7 @@ def test_unknown_validator(admin_client: Client) -> None:
     }
 
 
+@pytest.mark.django_db
 def test_unaccepted_content_type(admin_client: Client) -> None:
     resp = admin_client.post(
         reverse("api:v2beta_validate", args=["avalon"]),
@@ -295,6 +307,7 @@ def test_unaccepted_content_type(admin_client: Client) -> None:
     }
 
 
+@pytest.mark.django_db
 def test_avalon_pass(admin_client: Client) -> None:
     resp = admin_client.post(
         reverse("api:v2beta_validate", args=["avalon"]),
@@ -306,6 +319,7 @@ def test_avalon_pass(admin_client: Client) -> None:
     assert json.loads(resp.content.decode()) == {"valid": True}
 
 
+@pytest.mark.django_db
 def test_avalon_err(admin_client: Client) -> None:
     resp = admin_client.post(
         reverse("api:v2beta_validate", args=["avalon"]),
@@ -320,6 +334,7 @@ def test_avalon_err(admin_client: Client) -> None:
     }
 
 
+@pytest.mark.django_db
 def test_rights_pass(admin_client: Client) -> None:
     resp = admin_client.post(
         reverse("api:v2beta_validate", args=["rights"]),
@@ -331,6 +346,7 @@ def test_rights_pass(admin_client: Client) -> None:
     assert json.loads(resp.content.decode()) == {"valid": True}
 
 
+@pytest.mark.django_db
 def test_rights_err(admin_client: Client) -> None:
     resp = admin_client.post(
         reverse("api:v2beta_validate", args=["rights"]),

@@ -8,6 +8,7 @@ from django.test import Client
 pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "query_string",
     [
@@ -28,6 +29,7 @@ def test_no_calculation(admin_client: Client, query_string: str) -> None:
     assert "Calculate disk usage" in content
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("calculate", ["true", "True", "ON", "yes", "1"])
 @mock.patch(
     "archivematica.dashboard.components.administration.views._usage_get_directory_used_bytes",
@@ -58,6 +60,7 @@ def test_calculation(
     assert get_directory_used_bytes.call_count == 7
 
 
+@pytest.mark.django_db
 @mock.patch(
     "subprocess.check_output",
     side_effect=[

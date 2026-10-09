@@ -39,7 +39,7 @@ DECLARED_IDENTIFIER_TYPES = (PID_EXID, PID_ULID)
 
 
 @pytest.fixture
-def settings(db):
+def settings():
     settings = [
         DashboardSetting(scope="handle", name=name, value=value)
         for name, value in (

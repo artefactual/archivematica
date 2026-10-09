@@ -21,8 +21,8 @@ def rights_statement(
     return statement
 
 
+@pytest.mark.django_db
 def test_archivematicaGetRights_with_non_ascii_copyright_jurisdiction(
-    db,
     mcp_job,
     sip_file,
     rights_statement,
@@ -44,8 +44,8 @@ def test_archivematicaGetRights_with_non_ascii_copyright_jurisdiction(
     )
 
 
+@pytest.mark.django_db
 def test_getAMDSec_combines_file_and_transfer_rights_for_original_file(
-    db: None,
     mcp_job: Job,
     make_rights_statement: RightsStatementFactory,
     rights_statement: models.RightsStatement,

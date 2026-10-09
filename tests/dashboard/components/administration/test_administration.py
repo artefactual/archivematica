@@ -25,7 +25,7 @@ def test_admin_set_language(dashboard_uuid: uuid.UUID, admin_client: Client) -> 
 
 
 @pytest.fixture
-def report(db: None) -> Report:
+def report() -> Report:
     """A failure report."""
     return Report.objects.create(content="my report")
 

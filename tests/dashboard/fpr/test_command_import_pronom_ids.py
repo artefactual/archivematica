@@ -27,7 +27,7 @@ def file_by_extension_command() -> IDCommand:
 
 
 @pytest.fixture()
-def format_group(db: None) -> FormatGroup:
+def format_group() -> FormatGroup:
     """The format group named after the PRONOM classification of the formats."""
     return FormatGroup.objects.create(description="My format group")
 

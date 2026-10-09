@@ -17,6 +17,7 @@ pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 # ArchivesSpace DIP upload configuration
 
 
+@pytest.mark.django_db
 def test_dips_as_get(admin_client: Client) -> None:
     response = admin_client.get(reverse("administration:dips_as"))
 
@@ -25,6 +26,7 @@ def test_dips_as_get(admin_client: Client) -> None:
     assert not response.context["form"].is_valid()
 
 
+@pytest.mark.django_db
 def test_dips_as_post_minimum_required(admin_client: Client) -> None:
     response = admin_client.post(
         reverse("administration:dips_as"),
@@ -52,6 +54,7 @@ def test_dips_as_post_minimum_required(admin_client: Client) -> None:
     assert len(config) == len(form.fields)
 
 
+@pytest.mark.django_db
 def test_dips_as_post_missing_fields(admin_client: Client) -> None:
     response = admin_client.post(
         reverse("administration:dips_as"), {"base_url": "http://aspace.test.org:8089"}
@@ -74,6 +77,7 @@ def test_dips_as_post_missing_fields(admin_client: Client) -> None:
 # AtoM DIP upload configuration
 
 
+@pytest.mark.django_db
 def test_dips_atom_get(admin_client: Client) -> None:
     response = admin_client.get(reverse("administration:dips_atom_index"))
 
@@ -82,6 +86,7 @@ def test_dips_atom_get(admin_client: Client) -> None:
     assert not response.context["form"].is_valid()
 
 
+@pytest.mark.django_db
 def test_dips_atom_post_minimum_required(admin_client: Client) -> None:
     response = admin_client.post(
         reverse("administration:dips_atom_index"),
@@ -109,6 +114,7 @@ def test_dips_atom_post_minimum_required(admin_client: Client) -> None:
     assert len(config) == len(form.fields)
 
 
+@pytest.mark.django_db
 def test_dips_atom_post_missing_fields(admin_client: Client) -> None:
     response = admin_client.post(
         reverse("administration:dips_atom_index"), {"url": "https://search.efimm.org"}

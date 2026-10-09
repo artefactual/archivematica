@@ -90,6 +90,7 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
+@pytest.mark.django_db
 def test_get_mets_unknown_mets(mock_search_service, dashboard_uuid, admin_client):
     mock_search_service.get_aip_data.side_effect = AIPNotFoundError("error")
     response = admin_client.get(
@@ -98,6 +99,7 @@ def test_get_mets_unknown_mets(mock_search_service, dashboard_uuid, admin_client
     assert isinstance(response, HttpResponseNotFound)
 
 
+@pytest.mark.django_db
 def test_send_thumbnail_allows_missing(
     mock_search_service, dashboard_uuid, admin_client
 ):
@@ -124,6 +126,7 @@ def test_send_thumbnail_allows_missing(
     mock_send_file.assert_called_once_with(mock.ANY, expected_path, allow_missing=True)
 
 
+@pytest.mark.django_db
 def test_send_thumbnail_existing_file(
     mock_search_service, dashboard_uuid, admin_client, settings, tmp_path
 ):
@@ -145,6 +148,7 @@ def test_send_thumbnail_existing_file(
     assert response["Content-Length"] == str(len(b"thumbnail-bytes"))
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_mets_from_storage_service"
 )
@@ -175,6 +179,7 @@ def test_get_mets_known_mets(
     assert response.get(CONTENT_DISPOSITION) == mock_content_disposition
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.archivematicaCommon.storageService.pointer_file_url")
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
@@ -203,6 +208,7 @@ def test_get_pointer_unknown_pointer(
     assert json.loads(response.content) == mock_error_message
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.archivematicaCommon.storageService.pointer_file_url")
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
@@ -235,6 +241,7 @@ def test_get_pointer_known_pointer(
     assert response.get(CONTENT_DISPOSITION) == content_disposition
 
 
+@pytest.mark.django_db
 def test_search_rejects_unsupported_file_mime(dashboard_uuid, admin_client):
     params = {"requestFile": "true", "file_mime": "application/json"}
     response = admin_client.get(
@@ -292,6 +299,7 @@ CSV_AIC_UUID = str(uuid.uuid4())
 CSV_AIP_UUID = str(uuid.uuid4())
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.search_augment_aip_results",
     return_value=[
@@ -404,6 +412,7 @@ def test_search_as_csv(
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.search_augment_aip_results"
 )
@@ -455,6 +464,7 @@ def test_search_as_csv_invalid_route(
 DATATABLE_STATE = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
 
 
+@pytest.mark.django_db
 def test_save_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
     """Test ability to save DataTable state"""
     response = admin_client.post(
@@ -465,6 +475,7 @@ def test_save_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -
     assert helpers.get_setting("aips_datatable_state") == json.dumps(DATATABLE_STATE)
 
 
+@pytest.mark.django_db
 def test_load_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
     """Test ability to load DataTable state"""
     helpers.set_setting("aips_datatable_state", json.dumps(DATATABLE_STATE))
@@ -479,6 +490,7 @@ def test_load_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -
     assert payload["columns"][2]["visible"] is False
 
 
+@pytest.mark.django_db
 def test_load_datatable_state_404(
     admin_client: Client, dashboard_uuid: uuid.UUID
 ) -> None:
@@ -493,6 +505,7 @@ def test_load_datatable_state_404(
     assert payload["message"] == "Setting not found"
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
 @mock.patch("archivematica.dashboard.components.archival_storage.forms.get_atom_client")
 def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
@@ -533,6 +546,7 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf"
 )
@@ -568,6 +582,7 @@ AIC_MEMBER_UUIDS = [str(uuid.uuid4()) for _ in range(2)]
 NEW_AIC_UUID = uuid.uuid4()
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf"
 )
@@ -690,6 +705,7 @@ def processing_configurations_dir(
     return result
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
 def test_view_aip_reingest_form_displays_processing_configurations_choices(
     processing_config_path,
@@ -723,6 +739,7 @@ def test_view_aip_reingest_form_displays_processing_configurations_choices(
     )
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "error,message", [(False, "success!"), (True, "error!")], ids=["success", "error"]
 )

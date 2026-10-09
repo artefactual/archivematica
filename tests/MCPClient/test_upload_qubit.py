@@ -20,18 +20,19 @@ def sip_job(job, sip, tmp_path):
 
 
 @pytest.fixture
-def access(db, sip):
+def access(sip):
     return models.Access.objects.create(
         sipuuid=sip.uuid,
         target="atom-description-id",
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "requests.request",
     return_value=mock.Mock(status_code=200, headers={"Location": "http://example.com"}),
 )
-def test_start_synchronously(request, db, mcp_job, sip, sip_job, access):
+def test_start_synchronously(request, mcp_job, sip, sip_job, access):
     opts = mock.Mock(
         uuid=sip.uuid,
         rsync_target=False,
@@ -53,11 +54,12 @@ def test_start_synchronously(request, db, mcp_job, sip, sip_job, access):
     assert access.target == "atom-description-id"
 
 
+@pytest.mark.django_db
 @mock.patch(
     "requests.request",
     return_value=mock.Mock(status_code=200, headers={"Location": "http://example.com"}),
 )
-def test_first_run(request, db, mcp_job, sip_job, sip, sip_file):
+def test_first_run(request, mcp_job, sip_job, sip, sip_file):
     opts = mock.Mock(
         uuid=sip.uuid,
         rsync_target=False,

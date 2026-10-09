@@ -190,7 +190,7 @@ def rights_statement_with_basis_other():
 
 
 @pytest.fixture()
-def file(db):
+def file():
     return File.objects.create(uuid=uuid.uuid4())
 
 

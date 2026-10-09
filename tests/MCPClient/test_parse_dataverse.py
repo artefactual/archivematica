@@ -41,7 +41,7 @@ def dataverse_file(location: str) -> models.File:
 
 
 @pytest.fixture
-def dataverse_transfer(db: None) -> models.Transfer:
+def dataverse_transfer() -> models.Transfer:
     """The Dataverse transfer described by the METS fixtures."""
     return models.Transfer.objects.create(
         uuid=uuid.UUID(TRANSFER_UUID),
@@ -166,7 +166,7 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
 
 
 @pytest.fixture
-def no_agents(db: None) -> None:
+def no_agents() -> None:
     """Remove the agents of the data migrations, so the Dataverse agent is the
     only one that the parser can find or add.
     """

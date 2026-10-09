@@ -114,9 +114,8 @@ def transfer(transfer, shared_directory_path):
     return transfer
 
 
-def test_post_store_hook_deletes_transfer_directory(
-    db, sip, transfer, sip_file, settings
-):
+@pytest.mark.django_db
+def test_post_store_hook_deletes_transfer_directory(sip, transfer, sip_file, settings):
     job = mock.Mock(spec=Job)
 
     # The transfer directory exists before calling the delete function

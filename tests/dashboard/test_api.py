@@ -832,6 +832,7 @@ def builtin_processing_configurations(
     return processing_configurations_path
 
 
+@pytest.mark.django_db
 def test_list_processing_configs(
     admin_client: Client,
     dashboard_uuid: uuid.UUID,
@@ -848,6 +849,7 @@ def test_list_processing_configs(
     )
 
 
+@pytest.mark.django_db
 def test_get_existing_processing_config(
     admin_client: Client,
     dashboard_uuid: uuid.UUID,
@@ -861,6 +863,7 @@ def test_get_existing_processing_config(
     assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
 
 
+@pytest.mark.django_db
 def test_delete_and_regenerate(
     admin_client: Client,
     dashboard_uuid: uuid.UUID,
@@ -883,6 +886,7 @@ def test_delete_and_regenerate(
     assert (processing_configs / "defaultProcessingMCP.xml").exists()
 
 
+@pytest.mark.django_db
 def test_404_for_non_existent_config(
     admin_client: Client,
     dashboard_uuid: uuid.UUID,
@@ -895,6 +899,7 @@ def test_404_for_non_existent_config(
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 def test_404_for_delete_non_existent_config(
     admin_client: Client,
     dashboard_uuid: uuid.UUID,
@@ -1002,6 +1007,7 @@ def test_copy_metadata_files_api(
     }
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.filesystem_ajax.views.start_transfer",
     return_value={},
@@ -1025,6 +1031,7 @@ def test_start_transfer_api_decodes_paths(
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE",
 )
@@ -1076,6 +1083,7 @@ def test_unapproved_transfers(
     }
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "post_data,expected_error",
     [
@@ -1107,6 +1115,7 @@ def test_approve_transfer_failures(
     assert payload == {"error": True, "message": expected_error}
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE")
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_approve_transfer(gearman_client, job_complete, admin_client, dashboard_uuid):
@@ -1157,6 +1166,7 @@ def test_waiting_for_user_input(
     }
 
 
+@pytest.mark.django_db
 def test_reingest_fails_with_missing_parameters(admin_client, dashboard_uuid):
     response = admin_client.post(
         reverse("api:transfer_reingest", kwargs={"target": "transfer"}), {}

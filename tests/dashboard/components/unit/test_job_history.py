@@ -53,6 +53,7 @@ def create_job(
     return JobFactory()(unit, **{**defaults, **fields})
 
 
+@pytest.mark.django_db
 def test_history_requires_a_dashboard_session(
     dashboard_uuid, client, transfer, link_uuid
 ):
@@ -61,6 +62,7 @@ def test_history_requires_a_dashboard_session(
     assert response.status_code == 302
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("method", ["post", "put", "patch", "delete"])
 def test_history_only_accepts_get(
     dashboard_uuid, admin_client, transfer, link_uuid, method
@@ -71,6 +73,7 @@ def test_history_only_accepts_get(
     assert response.headers["Allow"] == "GET"
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("missing", ["unit", "link", "hidden", "wrong_type"])
 def test_history_rejects_inaccessible_scope(
     dashboard_uuid, admin_client, transfer, link_uuid, missing
@@ -92,6 +95,7 @@ def test_history_rejects_inaccessible_scope(
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("segment", ["unit", "link"])
 def test_history_rejects_malformed_uuids(
     dashboard_uuid, admin_client, transfer, link_uuid, segment
@@ -104,6 +108,7 @@ def test_history_rejects_malformed_uuids(
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 def test_history_exposes_tasks_from_every_attempt_and_status(
     dashboard_uuid: uuid.UUID,
     admin_client: Client,
@@ -145,6 +150,7 @@ def test_history_exposes_tasks_from_every_attempt_and_status(
     assert "Output from attempt" not in content
 
 
+@pytest.mark.django_db
 def test_ingest_history_includes_sip_and_dip_jobs(
     dashboard_uuid: uuid.UUID,
     admin_client: Client,
@@ -162,6 +168,7 @@ def test_ingest_history_includes_sip_and_dip_jobs(
     assert "No tasks" in response.content.decode()
 
 
+@pytest.mark.django_db
 def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
     dashboard_uuid: uuid.UUID,
     admin_client: Client,
@@ -205,6 +212,7 @@ def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
     assert 'href="?page=1"' in response.content.decode()
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("page_number", ["invalid", "0", "999"])
 def test_history_handles_invalid_page_numbers(
     dashboard_uuid, admin_client, transfer, link_uuid, page_number

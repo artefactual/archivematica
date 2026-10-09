@@ -31,7 +31,7 @@ class FileInfo(TypedDict):
 
 
 @pytest.fixture
-def format_versions(db: None) -> dict[str, fprmodels.FormatVersion]:
+def format_versions() -> dict[str, fprmodels.FormatVersion]:
     """The format versions of the files of the METS fixtures, by PRONOM identifier.
 
     Any other format version with the same PRONOM identifier is disabled so

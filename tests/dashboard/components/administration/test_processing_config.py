@@ -13,6 +13,7 @@ from archivematica.dashboard.components import helpers
 pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.views_processing.os.path.isfile",
     return_value=False,
@@ -23,6 +24,7 @@ def test_download_404(is_file: mock.MagicMock, admin_client: Client) -> None:
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.helpers.send_file",
     return_value=HttpResponse("<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"),
@@ -41,6 +43,7 @@ def test_download_ok(
     assert response.content.decode("utf8") == "<!DOCTYPE _[<!ELEMENT _ EMPTY>]><_/>"
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
     return_value={},
@@ -55,6 +58,7 @@ def test_edit_new_config(
     assert "name" not in response.context["form"].initial
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
     return_value={},
@@ -74,6 +78,7 @@ def test_edit_not_found_config(
     load_config.assert_called_once_with("not_found_config")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
     return_value={},
@@ -92,6 +97,7 @@ def test_edit_found_config(
     load_config.assert_called_once_with("found_config")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
     return_value={},
@@ -111,6 +117,7 @@ def test_name_field_is_required(
     assert "This field is required." in response.content.decode("utf8")
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.administration.forms.MCPClient.get_processing_config_fields",
     return_value={},
@@ -133,6 +140,7 @@ def test_name_field_is_validated(
     )
 
 
+@pytest.mark.django_db
 def test_reset_default_processing_config(
     admin_client: Client, processing_configurations_path: pathlib.Path
 ) -> None:
@@ -146,6 +154,7 @@ def test_reset_default_processing_config(
         assert actual_file.read() == DEFAULT_PROCESSING_CONFIG
 
 
+@pytest.mark.django_db
 def test_reset_automated_processing_config(
     admin_client: Client, processing_configurations_path: pathlib.Path
 ) -> None:

@@ -20,6 +20,7 @@ def rights_statement(
     return result
 
 
+@pytest.mark.django_db
 def test_delete_rights_statement(rights_statement: models.RightsStatement) -> None:
     """It should delete all children."""
     assert models.RightsStatement.objects.count() == 1
@@ -31,6 +32,7 @@ def test_delete_rights_statement(rights_statement: models.RightsStatement) -> No
     assert models.RightsStatementRightsGranted.objects.count() == 0
 
 
+@pytest.mark.django_db
 def test_delete_rights_granted(rights_statement: models.RightsStatement) -> None:
     """It should delete RightsStatements with no RightsGranted."""
     assert models.RightsStatement.objects.count() == 1

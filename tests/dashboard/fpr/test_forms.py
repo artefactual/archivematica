@@ -21,6 +21,7 @@ def test_id_tool_form_rejects_duplicate_description_and_version() -> None:
     ]
 
 
+@pytest.mark.django_db
 def test_fprule_form_rejects_identical_rule(fprule_validation: FPRule) -> None:
     form = FPRuleForm(
         {
