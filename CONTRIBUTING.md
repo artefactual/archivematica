@@ -36,6 +36,8 @@ Archivematica itself.
     - [Working with legacy code](#working-with-legacy-code)
   - [Documentation](#documentation)
   - [Tests](#tests)
+    - [Fixtures and factories](#fixtures-and-factories)
+    - [Running the tests](#running-the-tests)
   - [Commit History](#commit-history)
     - [Commits should be specific and atomic](#commits-should-be-specific-and-atomic)
     - [Every commit should work](#every-commit-should-work)
@@ -306,17 +308,40 @@ be found on the Sphinx website.
 
 ### Tests
 
-New code should also have unit tests. Tests are written in [unittest] style
-and run with [py.test]. For tests requiring the Django ORM, we use the
-Django-provided[TestCase], which extends `unittest.TestCase`.
+New and changed code should come with tests. Tests are plain [pytest]
+functions in the `tests` package of the repository:
+`tests/<component>/test_foo.py` holds the tests of the `foo` module of that
+component. Write each test as a function that receives what it needs as
+arguments: the rows, paths and settings that several tests share come from
+[fixtures], and the variants of one check are the cases of a [parametrized]
+test, each reported on its own. A test then reads as given, when, then: the
+fixtures and parameters it was given, the call it makes, and what it asserts
+about the result.
 
-Tests are found in the `tests` directory, a sibling of the directory containing
-the code. `test_foo.py` contains tests for `foo.py`. For clarity, group tests
-for the same function and similar tests into the same class within that file.
-This will also allow you to share setup and teardown code.
+#### Fixtures and factories
 
-If you are testing code that makes HTTP requests, using [VCR.py] is highly
-recommended. It should already be a development dependency.
+Tests build the database rows they need, through the factories of
+`tests/factories.py` where one exists and through the model managers otherwise.
+Each factory is available to the tests as a `make_*` fixture that takes the
+fields to override, such as `make_transfer`, `make_file` or
+`make_rights_statement`. `tests/conftest.py` builds on the factories with the
+base rows of every suite, such as `transfer`, `sip`, `transfer_file` and the
+Format Policy Registry rules, and the `conftest.py` of each component adds the
+rows that only its suite needs. A fixture that a single module uses stays in
+that module.
+
+When sibling tests need the same rows, share the fixture and change the row in
+the test, or parametrize the test, instead of repeating the factory calls. A
+test that reaches the database carries the `pytest.mark.django_db` marker,
+also when only its fixtures touch it: the fixtures do not request the `db`
+fixture, so a test without the marker fails as soon as one of them does.
+
+#### Running the tests
+
+The `Makefile` of the development environment has a `make test-*` target for
+each suite, which runs it with MySQL in a container; the [tests section] of
+its README describes them. `PYTEST_ADDOPTS` passes options to pytest, for
+example to run a single module.
 
 ### Commit History
 
@@ -454,10 +479,10 @@ Further content comes after a blank line.
 [Sphinx-compatible docstrings]: http://pythonhosted.org/an_example_pypi_project/sphinx.html#function-definitions
 [examples]: http://sphinx-doc.org/domains.html#info-field-lists
 [attributes to use]: http://sphinx-doc.org/domains.html#the-python-domain
-[unittest]: https://docs.python.org/3/library/unittest.html
-[py.test]: http://pytest.org
-[TestCase]: https://docs.djangoproject.com/en/1.8/topics/testing/tools/#django.test.TestCase
-[VCR.py]: https://github.com/kevin1024/vcrpy
+[pytest]: https://docs.pytest.org
+[fixtures]: https://docs.pytest.org/en/stable/how-to/fixtures.html
+[parametrized]: https://docs.pytest.org/en/stable/how-to/parametrize.html
+[tests section]: https://github.com/artefactual/archivematica/blob/qa/1.x/hack/README.md#tests
 [How to Write a Git Commit Message]: https://chris.beams.io/posts/git-commit/
 [seven rules of a great Git commit message]: https://chris.beams.io/posts/git-commit/#seven-rules
 [imperative mood]: https://chris.beams.io/posts/git-commit/#imperative
