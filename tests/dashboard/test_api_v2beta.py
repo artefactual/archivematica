@@ -18,10 +18,10 @@ PACKAGE_URL = "/api/v2beta/package/"
 
 # Transfer source location and relative path of the package to create. The API
 # expects it base64 encoded in the "path" attribute of the request payload.
-PACKAGE_PATH = "671643e1-5bec-4a5f-b244-abb76fedb0c4:foo/bar.jpg"
+PACKAGE_PATH = f"{uuid.uuid4()}:foo/bar.jpg"
 ENCODED_PACKAGE_PATH = b64encode_string(PACKAGE_PATH)
 
-TRANSFER_UUID = "59402c61-3aba-4af7-966a-996073c0601d"
+TRANSFER_UUID = str(uuid.uuid4())
 
 
 def test_headers(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:

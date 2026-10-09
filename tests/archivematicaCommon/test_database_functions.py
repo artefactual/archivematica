@@ -123,7 +123,7 @@ def test_insert_into_files_with_sip(sip: SIP) -> None:
     assert File.objects.filter(currentlocation=path.encode()).count() == 0
 
     databaseFunctions.insertIntoFiles(
-        "690c2fb5-7fee-4c29-a8b2-e3758ab9871e",
+        str(uuid.uuid4()),
         path,
         sipUUID=str(sip.uuid),
     )
@@ -143,7 +143,7 @@ def test_insert_into_files_raises_if_both_sip_and_transfer_provided() -> None:
 
 
 def test_insert_into_files_records_original_location(sip: SIP) -> None:
-    file_uuid = "e0a1fdc4-605a-4104-bf59-039859ee8238"
+    file_uuid = str(uuid.uuid4())
 
     databaseFunctions.insertIntoFiles(
         fileUUID=file_uuid,
@@ -160,7 +160,7 @@ def test_insert_into_files_records_original_location(sip: SIP) -> None:
 def test_insert_into_files_defaults_original_location_to_file_path(
     sip: SIP,
 ) -> None:
-    file_uuid = "554661f1-b331-452c-a583-0c582ebcb298"
+    file_uuid = str(uuid.uuid4())
 
     databaseFunctions.insertIntoFiles(
         fileUUID=file_uuid,
@@ -218,7 +218,7 @@ def test_get_agents_for_file_returns_empty_list_for_unknown_file() -> None:
 
 
 def test_insert_into_events(file_with_sip_agent: File) -> None:
-    event_id = "15a3467d-4c7f-45a5-b879-401b73b7cf7a"
+    event_id = str(uuid.uuid4())
     assert Event.objects.filter(event_id=event_id).count() == 0
 
     databaseFunctions.insertIntoEvents(
@@ -231,7 +231,7 @@ def test_insert_into_events(file_with_sip_agent: File) -> None:
 def test_insert_into_event_fetches_correct_agent_from_file(
     file_with_sip_agent: File, organization_agent: Agent, sip_agent: Agent
 ) -> None:
-    event_id = "fdbf54da-2b21-4364-be3a-a99ad788cdb6"
+    event_id = str(uuid.uuid4())
 
     databaseFunctions.insertIntoEvents(
         fileUUID=str(file_with_sip_agent.uuid),
@@ -404,11 +404,9 @@ def sip(sip: SIP) -> SIP:
 @pytest.fixture
 def directories(db: None, sip: SIP) -> None:
     # Two directories are created but only one is associated with the SIP
-    dir1 = Directory.objects.create(
-        uuid="49fe38a0-c50a-4fdf-9353-04d61057220d", sip=sip
-    )
+    dir1 = Directory.objects.create(sip=sip)
     dir1.identifiers.add(Identifier.objects.create(value="dir1"))
-    dir2 = Directory.objects.create(uuid="58eaa39c-2a0b-47fd-9d81-52fbaa108abc")
+    dir2 = Directory.objects.create()
     dir2.identifiers.add(Identifier.objects.create(value="dir2"))
 
 

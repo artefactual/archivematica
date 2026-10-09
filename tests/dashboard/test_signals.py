@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from archivematica.dashboard.main import models
@@ -9,9 +11,7 @@ def rights_statement(
     make_rights_statement: RightsStatementFactory,
 ) -> models.RightsStatement:
     """A copyright statement of a SIP with two rights granted."""
-    result = make_rights_statement(
-        "sip", "d64b0f43-f6d3-42ac-9821-c559dca13786", rightsbasis="Copyright"
-    )
+    result = make_rights_statement("sip", uuid.uuid4(), rightsbasis="Copyright")
     make_rights_statement.grant(
         result, "Disseminate", startdate="2000", enddateopen=True
     )

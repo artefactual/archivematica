@@ -37,7 +37,7 @@ def mcp_job(make_mcp_job: MCPJobFactory) -> Job:
 @pytest.fixture
 def unicode_transfer(make_transfer: TransferFactory) -> models.Transfer:
     """A standard transfer whose directory name has non-ASCII characters."""
-    transfer_uuid = uuid.UUID("e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6")
+    transfer_uuid = uuid.uuid4()
 
     return make_transfer(
         uuid=transfer_uuid,
@@ -58,32 +58,27 @@ def unicode_transfer_files(
         make_file(
             f"objects/{path}",
             transfer=unicode_transfer,
-            uuid=uuid.UUID(file_uuid),
             size=size,
             checksum=checksum,
             checksumtype="sha256",
         )
-        for file_uuid, path, size, checksum in [
+        for path, size, checksum in [
             (
-                "47813453-6872-442b-9d65-6515be3c5aa1",
                 "たくさん directories/need name change/checking here/evélyn's photo.jpg",
                 158131,
                 photo_checksum,
             ),
             (
-                "60e5c61b-14ef-4e92-89ec-9b9201e68adb",
                 "no_name_change/needed_here/lion.svg",
                 18324,
                 lion_checksum,
             ),
             (
-                "791e07ea-ad44-4315-b55b-44ec771e95cf",
                 "たくさん directories/need name change/checking here/lion写真.svg",
                 18324,
                 lion_checksum,
             ),
             (
-                "8a1f0b59-cf94-47ef-8078-647b77c8a147",
                 "has space/lion.svg",
                 18324,
                 lion_checksum,

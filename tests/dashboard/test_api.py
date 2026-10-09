@@ -39,7 +39,6 @@ def jobs_processing(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
         make_job(
             transfer,
-            jobuuid="ee3b39f6-2d57-431d-bdd6-6d38f50de371",
             microservicegroup="Examine contents",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T22:50:56Z",
@@ -47,7 +46,6 @@ def jobs_processing(make_job: JobFactory, transfer: Transfer) -> list[Job]:
         ),
         make_job(
             transfer,
-            jobuuid="3ed5ec03-ee7d-4ddc-bdfc-3b1e07170c2b",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T22:50:57Z",
@@ -55,7 +53,6 @@ def jobs_processing(make_job: JobFactory, transfer: Transfer) -> list[Job]:
         ),
         make_job(
             transfer,
-            jobuuid="7bd82bc3-0694-4182-8f72-48fb13f0e8e8",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_EXECUTING_COMMANDS,
             createdtime="2016-10-04T22:50:57Z",
@@ -86,10 +83,9 @@ def jobs_user_input(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
         make_job(
             transfer,
-            jobuuid="b9390fbf-8c00-434c-ab4b-eb501ed2f490",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_AWAITING_DECISION,
-            createdtime="2016-10-04T22:50:57Z",
+            createdtime="2016-10-04T22:50:58Z",
             jobtype="Create SIP(s)",
         )
     ]
@@ -100,7 +96,6 @@ def jobs_failed(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
         make_job(
             transfer,
-            jobuuid="7d9ba893-08f1-4678-9fe9-294fdc729c55",
             microservicegroup="Failed transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-05T00:10:54Z",
@@ -114,7 +109,6 @@ def jobs_rejected(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
         make_job(
             transfer,
-            jobuuid="b7902aae-ec5f-4290-a3d7-c47f844e8774",
             microservicegroup="Reject transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:48:27Z",
@@ -128,7 +122,6 @@ def jobs_transfer_complete(make_job: JobFactory, transfer: Transfer) -> list[Job
     return [
         make_job(
             transfer,
-            jobuuid="d51f6915-ae7f-4c23-8a02-fcec49941168",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:05:55Z",
@@ -136,7 +129,6 @@ def jobs_transfer_complete(make_job: JobFactory, transfer: Transfer) -> list[Job
         ),
         make_job(
             transfer,
-            jobuuid="e7775bc2-613f-4fb7-abba-738dfa799c99",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:05:56Z",
@@ -150,7 +142,6 @@ def jobs_transfer_backlog(make_job: JobFactory, transfer: Transfer) -> list[Job]
     return [
         make_job(
             transfer,
-            jobuuid="a39d74e4-c42e-404b-8c29-dde873ca48ad",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:40:12Z",
@@ -158,7 +149,6 @@ def jobs_transfer_backlog(make_job: JobFactory, transfer: Transfer) -> list[Job]
         ),
         make_job(
             transfer,
-            jobuuid="bac0675d-44fe-4047-9713-f9ba9fe46eff",
             microservicegroup="Create SIP from Transfer",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:40:14Z",
@@ -172,7 +162,6 @@ def jobs_sip_complete(make_job: JobFactory, sip: SIP) -> list[Job]:
     return [
         make_job(
             sip,
-            jobuuid="299c727c-e72b-4070-ae0a-a78a5aa0cfd3",
             microservicegroup="Store AIP",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:18:46Z",
@@ -186,7 +175,6 @@ def jobs_sip_complete_cleanup_last(make_job: JobFactory, sip: SIP) -> list[Job]:
     return [
         make_job(
             sip,
-            jobuuid="c3e2f1de-5cd2-4543-89de-e49a75a54dc4",
             microservicegroup="Store AIP",
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:18:47Z",
@@ -580,7 +568,7 @@ def test_completed_ingests_with_bogus_sip(
 
 @pytest.mark.django_db
 def test_unit_jobs_with_bogus_unit_uuid(admin_client, dashboard_uuid):
-    bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+    bogus_unit_uuid = str(uuid.uuid4())
     resp = admin_client.get(reverse("api:v2beta_jobs", args=[bogus_unit_uuid]))
     assert resp.status_code == 400
     payload = json.loads(resp.content.decode("utf8"))
@@ -672,7 +660,7 @@ def test_unit_jobs_searching_for_microservice_with_prefix(
     payload = json.loads(resp.content.decode("utf8"))
     assert len(payload) == 1
     job = payload[0]
-    assert job["uuid"] == jobs_rejected[0].jobuuid
+    assert job["uuid"] == str(jobs_rejected[0].jobuuid)
 
 
 @pytest.mark.django_db
@@ -736,7 +724,7 @@ def test_unit_jobs_searching_for_name_with_prefix(
     payload = json.loads(resp.content.decode("utf8"))
     assert len(payload) == 1
     job = payload[0]
-    assert job["uuid"] == jobs_rejected[0].jobuuid
+    assert job["uuid"] == str(jobs_rejected[0].jobuuid)
 
 
 @pytest.mark.django_db
@@ -793,7 +781,7 @@ def test_unit_jobs_with_detailed_task_output(
 
 @pytest.mark.django_db
 def test_task_with_bogus_task_uuid(admin_client, dashboard_uuid):
-    bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+    bogus_task_uuid = str(uuid.uuid4())
     resp = admin_client.get(reverse("api:v2beta_task", args=[bogus_task_uuid]))
     assert resp.status_code == 400
     payload = json.loads(resp.content.decode("utf8"))

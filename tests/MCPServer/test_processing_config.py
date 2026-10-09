@@ -1,3 +1,4 @@
+import uuid
 from unittest import mock
 
 from archivematica.MCPServer.server.processing_config import ChainChoicesField
@@ -38,10 +39,12 @@ def test_get_processing_fields(get_location: mock.MagicMock, wf: Workflow) -> No
 )
 @mock.patch("archivematica.archivematicaCommon.storageService.get_location")
 def test_storage_location_field(get_location: mock.Mock, wf: Workflow) -> None:
+    location_uri = f"/api/v2/location/{uuid.uuid4()}/"
+
     def mocked_get_location(purpose):
         return [
             {
-                "resource_uri": "/api/v2/location/e1452470-a51c-4fd7-b2c1-b217b7dbfa11/",
+                "resource_uri": location_uri,
                 "relative_path": "mnt/disk1",
                 "description": "Description %s" % purpose,
             }
@@ -67,11 +70,11 @@ def test_storage_location_field(get_location: mock.Mock, wf: Workflow) -> None:
                     "applies_to": [
                         (
                             "b320ce81-9982-408a-9502-097d0daa48fa",
-                            "/api/v2/location/e1452470-a51c-4fd7-b2c1-b217b7dbfa11/",
+                            location_uri,
                             "Description AS",
                         )
                     ],
-                    "value": "/api/v2/location/e1452470-a51c-4fd7-b2c1-b217b7dbfa11/",
+                    "value": location_uri,
                     "label": "Description AS",
                 },
             ],
@@ -96,11 +99,11 @@ def test_storage_location_field(get_location: mock.Mock, wf: Workflow) -> None:
                     "applies_to": [
                         (
                             "cd844b6e-ab3c-4bc6-b34f-7103f88715de",
-                            "/api/v2/location/e1452470-a51c-4fd7-b2c1-b217b7dbfa11/",
+                            location_uri,
                             "Description DS",
                         )
                     ],
-                    "value": "/api/v2/location/e1452470-a51c-4fd7-b2c1-b217b7dbfa11/",
+                    "value": location_uri,
                     "label": "Description DS",
                 },
             ],

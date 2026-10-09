@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import patch
 
 import bagit
@@ -74,22 +75,23 @@ def test_get_bag_size_bag_missing_oxum(tmpdir):
         mock_os_path.getsize.assert_called()
 
 
-def test_package_name_from_path():
+def test_package_name_from_path() -> None:
     """Test that package_name_from_path returns expected results."""
+    package_uuid = uuid.uuid4()
     test_packages = [
         {
-            "current_path": "/dev/null/tar_gz_package-473a9398-0024-4804-81da-38946040c8af.tar.gz",
-            "package_name": "tar_gz_package-473a9398-0024-4804-81da-38946040c8af",
+            "current_path": f"/dev/null/tar_gz_package-{package_uuid}.tar.gz",
+            "package_name": f"tar_gz_package-{package_uuid}",
             "package_name_without_uuid": "tar_gz_package",
         },
         {
-            "current_path": "/dev/null/a.bz2.tricky.7z.package-473a9398-0024-4804-81da-38946040c8af.7z",
-            "package_name": "a.bz2.tricky.7z.package-473a9398-0024-4804-81da-38946040c8af",
+            "current_path": f"/dev/null/a.bz2.tricky.7z.package-{package_uuid}.7z",
+            "package_name": f"a.bz2.tricky.7z.package-{package_uuid}",
             "package_name_without_uuid": "a.bz2.tricky.7z.package",
         },
         {
-            "current_path": "/dev/null/uncompressed_package-3e0b3093-23ea-4937-9e2a-1fd806bb39b9",
-            "package_name": "uncompressed_package-3e0b3093-23ea-4937-9e2a-1fd806bb39b9",
+            "current_path": f"/dev/null/uncompressed_package-{package_uuid}",
+            "package_name": f"uncompressed_package-{package_uuid}",
             "package_name_without_uuid": "uncompressed_package",
         },
     ]

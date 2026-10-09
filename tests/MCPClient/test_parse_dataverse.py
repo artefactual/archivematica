@@ -18,7 +18,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
 # UUID of the transfer of the dataverse_transfer fixture.
-TRANSFER_UUID = "6741c782-f22b-47b3-8bcf-72fd0c94e195"
+TRANSFER_UUID = str(uuid.uuid4())
 
 # Transfer location is repeated throughout.
 TRANSFER_LOCATION = "%transferDirectory%objects"
@@ -30,6 +30,13 @@ UNIT_PATH = os.path.join(FIXTURES_DIR, "dataverse", "")
 def load_mets(filename: str) -> metsrw.METSDocument:
     return metsrw.METSDocument.fromfile(
         os.path.join(FIXTURES_DIR, "dataverse", "metadata", filename)
+    )
+
+
+def dataverse_file(location: str) -> models.File:
+    """The file of the Dataverse transfer at the location, relative to objects."""
+    return models.File.objects.get(
+        currentlocation=f"{TRANSFER_LOCATION}/{location}".encode()
     )
 
 
@@ -53,9 +60,8 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
         "c54c464c5efbdb4d6c903043c18d41b690653a38cbfcbc0cc31fabe6cda55a0e"
     )
     result = []
-    for file_uuid, original_path, current_path, size, checksum, removedtime in [
+    for original_path, current_path, size, checksum, removedtime in [
         (
-            "22fade0b-d2fc-4835-b669-970c8fdd9b76",
             "chelan 052.jpg",
             "chelan_052.jpg",
             76934,
@@ -63,7 +69,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "5518a927-bae9-497c-8a16-caa072e6ef7e",
             "Weather_data/Weather_data.tab",
             "Weather_data/Weather_data.tab",
             563285,
@@ -71,7 +76,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "b9d81d97-9a62-47f9-a62a-adf354856540",
             "Weather_data.zip",
             None,
             180399,
@@ -79,7 +83,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             datetime.datetime(2015, 11, 5, 22, 6, 49, tzinfo=datetime.timezone.utc),
         ),
         (
-            "baf55a65-bb6a-482e-abbb-7a87cf015b81",
             "Weather_data/Weather_datacitation-ris.ris",
             "Weather_data/Weather_datacitation-ris.ris",
             325,
@@ -87,7 +90,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "bf1dada7-d515-4f97-b636-613163c3692f",
             "dataset.json",
             "dataset.json",
             2832,
@@ -95,7 +97,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "d4393889-ba1a-49f3-9177-5ad7dd9fae8c",
             "Weather_data/Weather_data-ddi.xml",
             "Weather_data/Weather_data-ddi.xml",
             15337,
@@ -103,7 +104,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "e7383616-1603-44b9-a251-8524362ff2f1",
             "Weather_data/Weather_datacitation-endnote.xml",
             "Weather_data/Weather_datacitation-endnote.xml",
             619,
@@ -111,7 +111,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "071e6af9-f676-40fa-a5ab-754ca6b653e0",
             "Weather_data/Weather_data.RData",
             "Weather_data/Weather_data.RData",
             563285,
@@ -119,7 +118,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "e2834eed-4178-469a-9a4e-c8f1490bb804",
             "Weather_data/Weather_data.sav",
             "Weather_data/Weather_data.sav",
             563285,
@@ -127,7 +125,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "3e91412f-cd37-4215-afbc-a7197868e794",
             "Weather_data/i_am_a_duplicate.original",
             "Weather_data/i_am_a_duplicate.original",
             563285,
@@ -135,7 +132,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "fa8496ab-a523-4493-a89d-026d91fc5311",
             "Weather_data/i_am_a_duplicate.original",
             "Weather_data/i_am_a_duplicate.original",
             563285,
@@ -143,7 +139,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
         ),
         (
-            "d6e0cc66-0ecc-4b60-8e2e-ffcf47196355",
             "Weather_data/i_have_been_removed",
             None,
             563285,
@@ -153,7 +148,6 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
     ]:
         result.append(
             models.File.objects.create(
-                uuid=uuid.UUID(file_uuid),
                 transfer=dataverse_transfer,
                 filegrpuse="original",
                 originallocation=f"{TRANSFER_LOCATION}/{original_path}".encode(),
@@ -316,13 +310,13 @@ def test_parse_derivative(
     assert models.Event.objects.count() == 2
     assert models.Derivation.objects.count() == 2
     assert models.Derivation.objects.get(
-        source_file_id="e2834eed-4178-469a-9a4e-c8f1490bb804",
-        derived_file_id="071e6af9-f676-40fa-a5ab-754ca6b653e0",
+        source_file=dataverse_file("Weather_data/Weather_data.sav"),
+        derived_file=dataverse_file("Weather_data/Weather_data.RData"),
         event__isnull=False,
     )
     assert models.Derivation.objects.get(
-        source_file_id="e2834eed-4178-469a-9a4e-c8f1490bb804",
-        derived_file_id="5518a927-bae9-497c-8a16-caa072e6ef7e",
+        source_file=dataverse_file("Weather_data/Weather_data.sav"),
+        derived_file=dataverse_file("Weather_data/Weather_data.tab"),
         event__isnull=False,
     )
 
@@ -341,9 +335,7 @@ def test_validate_checksums(
     mapping = parse_dataverse.get_db_objects(mcp_job, mets, TRANSFER_UUID)
     parse_dataverse.validate_checksums(mcp_job, mapping, UNIT_PATH)
     assert models.Event.objects.count() == 2
-    events = models.Event.objects.get(
-        file_uuid_id="22fade0b-d2fc-4835-b669-970c8fdd9b76"
-    )
+    events = models.Event.objects.get(file_uuid=dataverse_file("chelan_052.jpg"))
     assert events.event_type == "fixity check"
     assert events.event_detail == 'program="python"; module="hashlib.md5()"'
     assert events.event_outcome == "Pass"
@@ -352,7 +344,7 @@ def test_validate_checksums(
         == "Dataverse checksum 7ede51390fe3f01fb13632c001d2499d verified"
     )
     events = models.Event.objects.get(
-        file_uuid_id="e2834eed-4178-469a-9a4e-c8f1490bb804"
+        file_uuid=dataverse_file("Weather_data/Weather_data.sav")
     )
     assert events.event_type == "fixity check"
     assert events.event_detail == 'program="python"; module="hashlib.md5()"'

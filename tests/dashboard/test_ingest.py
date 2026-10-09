@@ -24,7 +24,7 @@ from tests.factories import JobFactory
 from tests.factories import SIPFactory
 
 # UUID of the SIP of the sip fixture.
-SIP_UUID = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
+SIP_UUID = str(uuid.uuid4())
 
 
 @pytest.fixture

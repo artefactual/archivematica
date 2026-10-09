@@ -43,13 +43,16 @@ from tests.factories import TaskFactory
 # Static workflow contract asserted by package bootstrap tests.
 RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
 
+# UUID of the transfer source location of the paths that the tests plan.
+TRANSFER_SOURCE_LOCATION_UUID = uuid.uuid4()
+
 
 @pytest.mark.parametrize(
     "name,path,tmpdir,expected",
     [
         (
             "TransferName",
-            "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/archive.zip",
+            f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/archive.zip",
             "/tmp/tmp.WXA9V7LCy1",
             (
                 # copy_to
@@ -57,12 +60,12 @@ RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
                 # final_location
                 "/tmp/tmp.WXA9V7LCy1/archive.zip",
                 # copy_from
-                "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/archive.zip",
+                f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/archive.zip",
             ),
         ),
         (
             "TransferName",
-            "a00a29b6-7530-4f09-b3df-fd88d9e478b2:home/username/dir",
+            f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/dir",
             "/tmp/tmp.WXA9V7LCy2",
             (
                 # copy_to
@@ -70,10 +73,11 @@ RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
                 # final_location
                 "/tmp/tmp.WXA9V7LCy2/TransferName",
                 # copy_from
-                "a00a29b6-7530-4f09-b3df-fd88d9e478b2:home/username/dir/.",
+                f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/dir/.",
             ),
         ),
     ],
+    ids=["archive", "directory"],
 )
 @pytest.mark.django_db
 def test__determine_transfer_paths(name, path, tmpdir, expected):
@@ -343,11 +347,10 @@ def test_package_files_materializes_database_rows_in_batches(monkeypatch):
         def reload(self):
             raise NotImplementedError
 
-    file_objs = [
-        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000001")),
-        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000002")),
-        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000003")),
-    ]
+    file_objs = sorted(
+        (SimpleNamespace(uuid=uuid.uuid4()) for _ in range(3)),
+        key=lambda file_obj: file_obj.uuid,
+    )
     queryset = FakeQuerySet(file_objs)
 
     monkeypatch.setattr(packages, "auto_close_old_connections", nullcontext)
@@ -896,7 +899,7 @@ def test_auto_approved_package_schedules_retrieval_workflow(
 ) -> None:
     """Every supported transfer type records its post-retrieval continuation."""
     package_queue = mock.Mock(spec=PackageQueue)
-    source_path = "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/transfer"
+    source_path = f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/transfer"
 
     _start_package_transfer_with_auto_approval(
         transfer,

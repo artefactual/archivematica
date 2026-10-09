@@ -1,11 +1,15 @@
 import os
 import shutil
+import uuid
 
 import pytest
 
 from archivematica.MCPClient.clientScripts import restructure_dip_for_content_dm_upload
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# UUID of the AIP whose METS the DIP directory fixtures hold.
+AIP_UUID = str(uuid.uuid4())
 
 
 @pytest.fixture
@@ -16,7 +20,7 @@ def dip_directory_path(tmp_path):
 
     shutil.copy(
         os.path.join(THIS_DIR, "fixtures", "mets_sip_dc.xml"),
-        result / "METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml",
+        result / f"METS.{AIP_UUID}.xml",
     )
 
     return result
@@ -30,7 +34,7 @@ def dip_directory_with_optional_dc_columns_path(tmp_path):
 
     shutil.copy(
         os.path.join(THIS_DIR, "fixtures", "mets_sip_dc_with_optional_columns.xml"),
-        result / "METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml",
+        result / f"METS.{AIP_UUID}.xml",
     )
 
     return result
@@ -39,7 +43,7 @@ def dip_directory_with_optional_dc_columns_path(tmp_path):
 def test_restructure_dip_for_content_dm_upload(mcp_job, dip_directory_path):
     mcp_job.args = (
         None,
-        "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
+        f"--uuid={AIP_UUID}",
         f"--dipDir={dip_directory_path}",
     )
     jobs = [mcp_job]
@@ -59,7 +63,7 @@ def test_restructure_dip_for_content_dm_upload(mcp_job, dip_directory_path):
     )
     assert (
         csv_data[1]
-        == "objects	Yamani Weapons	Keladry of Mindelan	Glaives	Glaives are cool	Tortall Press	Yuki	2014	Archival Information Package	parchement	42/1; a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3	Numair's library	None	en	Public Domain	AIC#43	a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3	"
+        == f"objects	Yamani Weapons	Keladry of Mindelan	Glaives	Glaives are cool	Tortall Press	Yuki	2014	Archival Information Package	parchement	42/1; {AIP_UUID}	Numair's library	None	en	Public Domain	AIC#43	{AIP_UUID}	"
     )
 
 
@@ -68,7 +72,7 @@ def test_restructure_dip_for_content_dm_upload_with_optional_dc_columns(
 ):
     mcp_job.args = (
         None,
-        "--uuid=a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
+        f"--uuid={AIP_UUID}",
         f"--dipDir={dip_directory_with_optional_dc_columns_path}",
     )
     jobs = [mcp_job]
@@ -89,9 +93,9 @@ def test_restructure_dip_for_content_dm_upload_with_optional_dc_columns(
     )
     assert (
         csv_data[1]
-        == "Yamani Weapons\tKeladry of Mindelan\tGlaives; Swords; Blades\tGlaives are cool\tTortall Press\tYuki\t2014\tArchival Information Package\tparchement\t42/1; a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3\tNumair's library\tNone\ten\tPublic Domain\tAIC#43\t\ta2f1f249-7bd4-4f52-8f1a-84319cb1b6d3\t\tobjects"
+        == f"Yamani Weapons\tKeladry of Mindelan\tGlaives; Swords; Blades\tGlaives are cool\tTortall Press\tYuki\t2014\tArchival Information Package\tparchement\t42/1; {AIP_UUID}\tNumair's library\tNone\ten\tPublic Domain\tAIC#43\t\t{AIP_UUID}\t\tobjects"
     )
     assert (
         csv_data[2]
-        == "Evelyn's photo\tEvelyn\t\t\t\t\t\t\t\ta2f1f249-7bd4-4f52-8f1a-84319cb1b6d3\t\t\t\t\tAIC#43\tA photo with Evelyn in it\ta2f1f249-7bd4-4f52-8f1a-84319cb1b6d3\t6e3f5f63-8424-417e-8357-f0a1ea05af62\tevelyn_s_photo-4a4dfb4d-caa3-40ff-99c0-34ed176bb84b.tif"
+        == f"Evelyn's photo\tEvelyn\t\t\t\t\t\t\t\t{AIP_UUID}\t\t\t\t\tAIC#43\tA photo with Evelyn in it\t{AIP_UUID}\t6e3f5f63-8424-417e-8357-f0a1ea05af62\tevelyn_s_photo-4a4dfb4d-caa3-40ff-99c0-34ed176bb84b.tif"
     )

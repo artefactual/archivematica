@@ -23,6 +23,7 @@ debugging their preservation workflow.
 """
 
 import subprocess
+import uuid
 from unittest import mock
 
 import pytest
@@ -363,7 +364,7 @@ def test_get_file_obj_queryset(transfer, transfer_file):
     """
     package_uuid = str(transfer.uuid)
     assert get_file_queryset(package_uuid)
-    invalid_package_uuid = "badf00d1-9c84-45d5-a3ca-1b0b3f58d9b6"
+    invalid_package_uuid = str(uuid.uuid4())
     with pytest.raises(PREMISFailure):
         get_file_queryset(invalid_package_uuid)
         pytest.fail(

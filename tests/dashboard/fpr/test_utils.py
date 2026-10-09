@@ -8,7 +8,7 @@ from archivematica.dashboard.fpr.utils import get_revision_descendants
 
 @pytest.mark.django_db
 def test_get_revision_descendants_appends_replacing_revisions() -> None:
-    cmd1 = IDCommand.objects.create(uuid="37f3bd7c-bb24-4899-b7c4-785ff1c764ac")
+    cmd1 = IDCommand.objects.create()
     cmd2 = IDCommand(description="Foobar")
     cmd2.save(replacing=cmd1)
 
@@ -18,6 +18,4 @@ def test_get_revision_descendants_appends_replacing_revisions() -> None:
 @pytest.mark.django_db
 def test_get_revision_descendants_fails_for_unknown_revision() -> None:
     with pytest.raises(IDCommand.DoesNotExist):
-        get_revision_descendants(
-            IDCommand, uuid.UUID("aa5ccdbd-7ede-43f9-8752-56b5ce1c0bdb"), []
-        )
+        get_revision_descendants(IDCommand, uuid.uuid4(), [])

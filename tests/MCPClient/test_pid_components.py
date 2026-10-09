@@ -7,6 +7,7 @@ also limited unit testing in create_mets_v2 (AIP METS generation).
 """
 
 import os
+import uuid
 from itertools import chain
 from unittest import mock
 
@@ -72,7 +73,7 @@ def settings(db):
             ),
             (
                 "pid_web_service_key",
-                "84214c59-8694-48d5-89b5-d40a88cd7768",
+                str(uuid.uuid4()),
             ),
             (
                 "handle_archive_pid_source",
@@ -101,12 +102,11 @@ def settings(db):
 
 @pytest.fixture
 def files(make_file: FileFactory, transfer: Transfer, sip: SIP) -> list[File]:
-    transfer_name = "pid_tests-29460c83-957e-481f-9ca2-873bca42229a"
+    transfer_name = f"pid_tests-{uuid.uuid4()}"
     return [
         make_file(
             f"objects/metadata/transfers/{transfer_name}/directory_tree.txt",
             sip=sip,
-            uuid="06da9555-dc5b-425c-b967-6f30a740f1c3",
             checksum="012661d0de5ed60973e5cb0f123df74e95118734345b2bdf35432ac7442dd8c8",
             checksumtype="sha256",
             enteredsystem="2019-05-02T11:16:08.195Z",
@@ -118,7 +118,6 @@ def files(make_file: FileFactory, transfer: Transfer, sip: SIP) -> list[File]:
             "objects/images/image_001.jpg",
             transfer=transfer,
             sip=sip,
-            uuid="52e4900a-b096-4815-856a-81b3cbe0952d",
             checksum="cd2b6311b1552b32c9bed90209bb219ab8216fd777b12dd36ad06aba959cba6e",
             checksumtype="sha256",
             enteredsystem="2019-05-02T11:15:31.856Z",
@@ -129,7 +128,6 @@ def files(make_file: FileFactory, transfer: Transfer, sip: SIP) -> list[File]:
             "objects/documents/Document001.doc",
             transfer=transfer,
             sip=sip,
-            uuid="697c407f-7a43-43d2-b7e2-fefc956ea5fd",
             checksum="cd2b6311b1552b32c9bed90209bb219ab8216fd777b12dd36ad06aba959cba6e",
             checksumtype="sha256",
             enteredsystem="2019-05-02T11:15:31.869Z",
@@ -139,7 +137,6 @@ def files(make_file: FileFactory, transfer: Transfer, sip: SIP) -> list[File]:
         make_file(
             f"objects/submissionDocumentation/transfer-{transfer_name}/METS.xml",
             sip=sip,
-            uuid="c91d7725-f363-4e8a-bde1-0f5416b4f7f8",
             checksum="e4bdbed4732746727a013431d87126a43e99ee7350c4d7ba27eb4927d8d06f15",
             checksumtype="sha256",
             enteredsystem="2019-05-02T11:16:00.917Z",
@@ -150,7 +147,6 @@ def files(make_file: FileFactory, transfer: Transfer, sip: SIP) -> list[File]:
         make_file(
             f"objects/metadata/transfers/{transfer_name}/identifiers.json",
             sip=sip,
-            uuid="d94dbb6b-1082-4747-9d4c-4ddea8ce85b8",
             checksum="28045d295e79a3666bd4c9a09536e2b6c65e2f917972e15c46c6eb2cad1e5700",
             checksumtype="sha256",
             enteredsystem="2019-05-02T11:16:08.217Z",
@@ -166,21 +162,18 @@ def directories(transfer, sip):
     return Directory.objects.bulk_create(
         [
             Directory(
-                uuid="3cc124e1-4e5c-433b-8f15-a7831d70145a",
                 originallocation=b"%transferDirectory%metadata/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%metadata/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="41b3fcfd-36ed-4cf7-b5af-56127238b362",
                 originallocation=b"%transferDirectory%logs/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%logs/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="966755bd-0ae3-4f85-b4ec-b359fefeff33",
                 sip=sip,
                 originallocation=b"%transferDirectory%objects/images/",
                 transfer=transfer,
@@ -188,7 +181,6 @@ def directories(transfer, sip):
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="d298dd3f-c5d1-4445-99fe-09123fba8b30",
                 sip=sip,
                 originallocation=b"%transferDirectory%objects/documents/",
                 transfer=transfer,
@@ -196,14 +188,12 @@ def directories(transfer, sip):
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="e7ae9b01-4c07-4915-a7a0-1833b1078a5b",
                 originallocation=b"%transferDirectory%logs/fileMeta/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%logs/fileMeta/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="f9e8c91a-bfbc-48f0-8ff0-eed210ff6fde",
                 originallocation=b"%transferDirectory%metadata/submissionDocumentation/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%metadata/submissionDocumentation/",
@@ -511,9 +501,7 @@ def test_pid_declaration_exceptions(
     """
     # Test behavior when there isn't an identifiers.json file, e.g. we
     # simulate this by passing an incorrect Unit UUID.
-    DeclarePIDs(mcp_job).pid_declaration(
-        unit_uuid="eb6b860e-611c-45c8-8d3e-b9396ed6c751", sip_directory=""
-    )
+    DeclarePIDs(mcp_job).pid_declaration(unit_uuid=str(uuid.uuid4()), sip_directory="")
     assert "No identifiers.json file found" in mcp_job.get_stderr().strip(), (
         "Expecting no identifiers.json file, but got something else"
     )

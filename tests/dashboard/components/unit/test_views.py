@@ -24,7 +24,7 @@ def test_transfer_list_returns_rpc_summaries(
     mcp_client_cls, dashboard_uuid, admin_client
 ):
     summary = {
-        "uuid": "59402c61-3aba-4af7-966a-996073c0601d",
+        "uuid": str(uuid.uuid4()),
         "directory": "transfer",
         "timestamp": 1.0,
         "started_at": 1.0,

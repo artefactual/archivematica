@@ -200,7 +200,7 @@ def test_change_object_names(
         currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/evelyn_s_photo.jpg"
     )
     event = Event.objects.get(
-        file_uuid="47813453-6872-442b-9d65-6515be3c5aa1",
+        file_uuid=unicode_transfer_files[0],
         event_type="filename change",
     )
 
@@ -215,7 +215,7 @@ def test_change_object_names(
         currentlocation=b"%transferDirectory%objects/no_name_change/needed_here/lion.svg"
     )
     assert not Event.objects.filter(
-        file_uuid="60e5c61b-14ef-4e92-89ec-9b9201e68adb",
+        file_uuid=unicode_transfer_files[1],
         event_type="filename change",
     ).exists()
 
@@ -233,7 +233,7 @@ def test_change_object_names(
         currentlocation=b"%transferDirectory%objects/takusan_directories/need_name_change/checking_here/lionXie_Zhen_.svg"
     )
     assert Event.objects.filter(
-        file_uuid="791e07ea-ad44-4315-b55b-44ec771e95cf",
+        file_uuid=unicode_transfer_files[2],
         event_type="filename change",
     ).exists()
 
@@ -244,7 +244,7 @@ def test_change_object_names(
         currentlocation=b"%transferDirectory%objects/has_space/lion.svg"
     )
     assert Event.objects.filter(
-        file_uuid="8a1f0b59-cf94-47ef-8078-647b77c8a147",
+        file_uuid=unicode_transfer_files[3],
         event_type="filename change",
     ).exists()
 

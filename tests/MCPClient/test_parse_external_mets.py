@@ -1,5 +1,6 @@
 import os
 import shutil
+import uuid
 
 import pytest
 
@@ -7,6 +8,9 @@ from archivematica.dashboard.main import models
 from archivematica.MCPClient.clientScripts import parse_external_mets
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# UUID of the SIP whose METS the transfer directory fixture holds.
+SIP_UUID = str(uuid.uuid4())
 
 
 @pytest.fixture
@@ -16,23 +20,17 @@ def transfer_directory_path(transfer_directory_path):
 
     shutil.copy(
         os.path.join(THIS_DIR, "fixtures", "mets_sip_dc.xml"),
-        str(
-            transfer_directory_path
-            / "metadata/METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml"
-        ),
+        str(transfer_directory_path / f"metadata/METS.{SIP_UUID}.xml"),
     )
 
     return transfer_directory_path
 
 
 def test_mets_not_found(mcp_job, transfer_directory_path):
-    (
-        transfer_directory_path
-        / "metadata/METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml"
-    ).unlink()
+    (transfer_directory_path / f"metadata/METS.{SIP_UUID}.xml").unlink()
 
     exit_code = parse_external_mets.main(
-        mcp_job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_directory_path)
+        mcp_job, SIP_UUID, str(transfer_directory_path)
     )
     error = mcp_job.error
 
@@ -44,13 +42,10 @@ def test_mets_not_found(mcp_job, transfer_directory_path):
 
 
 def test_mets_cannot_parse(mcp_job, transfer_directory_path):
-    (
-        transfer_directory_path
-        / "metadata/METS.a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3.xml"
-    ).write_text("!!! no xml")
+    (transfer_directory_path / f"metadata/METS.{SIP_UUID}.xml").write_text("!!! no xml")
 
     exit_code = parse_external_mets.main(
-        mcp_job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_directory_path)
+        mcp_job, SIP_UUID, str(transfer_directory_path)
     )
     error = str(mcp_job.output)
 
@@ -65,11 +60,11 @@ def test_mets_is_parsed(db, mcp_job, transfer_directory_path):
         pk="3e48343d-e2d2-4956-aaa3-b54d26eb9761", description="SIP"
     )
     exit_code = parse_external_mets.main(
-        mcp_job, "a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3", str(transfer_directory_path)
+        mcp_job, SIP_UUID, str(transfer_directory_path)
     )
 
     dc_items = models.DublinCore.objects.filter(
-        metadataappliestoidentifier="a2f1f249-7bd4-4f52-8f1a-84319cb1b6d3",
+        metadataappliestoidentifier=SIP_UUID,
         metadataappliestotype_id=models.MetadataAppliesToType.SIP_TYPE,
     )
 

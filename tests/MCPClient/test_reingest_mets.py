@@ -29,17 +29,17 @@ REMOVE_BLANK_PARSER = etree.XMLParser(remove_blank_text=True)
 SIP_UUID = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
 
 # UUID of a SIP that has no metadata in the database.
-SIP_UUID_NONE = "dnedne7c-5bd2-4249-84a1-2f00f725b981"
+SIP_UUID_NONE = str(uuid.uuid4())
 
 # UUIDs of the SIPs with Dublin Core metadata of the dublincore fixture.
-DC_SIP_UUID_ORIGINAL = "8b891d7c-5bd2-4249-84a1-2f00f725b981"
-DC_SIP_UUID_REINGEST = "87d30df4-63f5-434b-9da6-25aa995de6fe"
-DC_SIP_UUID_UPDATED = "5d78a2a5-57a6-430f-87b2-b89fb3ccb050"
+DC_SIP_UUID_ORIGINAL = str(uuid.uuid4())
+DC_SIP_UUID_REINGEST = str(uuid.uuid4())
+DC_SIP_UUID_UPDATED = str(uuid.uuid4())
 
 # UUIDs of the SIPs with rights statements of the rights_statements fixture.
-RIGHTS_SIP_UUID_ORIGINAL = "a4a5480c-9f51-4119-8dcb-d3f12e647c14"
-RIGHTS_SIP_UUID_REINGEST = "10d57d98-29e5-4b2c-9f9f-d163e632eb31"
-RIGHTS_SIP_UUID_UPDATED = "2941f14c-bd57-4f4a-a514-a3bf6ac5adf0"
+RIGHTS_SIP_UUID_ORIGINAL = str(uuid.uuid4())
+RIGHTS_SIP_UUID_REINGEST = str(uuid.uuid4())
+RIGHTS_SIP_UUID_UPDATED = str(uuid.uuid4())
 
 METADATA_CSV_SIP_DIR = os.path.join(FIXTURES_DIR, "metadata_csv_sip", "")
 
@@ -112,7 +112,6 @@ def metadata_csv_file(make_file: FileFactory, aip: models.SIP) -> models.File:
     return make_file(
         "objects/metadata/metadata.csv",
         sip=aip,
-        uuid=uuid.UUID("66370f14-2f64-4750-9d50-547614be40e8"),
         filegrpuse="metadata",
         origin="metadata/metadata.csv",
         checksum="e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c",
@@ -126,7 +125,6 @@ def metadata_text_file(make_file: FileFactory, aip: models.SIP) -> models.File:
     return make_file(
         "objects/metadata/foo/foo.txt",
         sip=aip,
-        uuid=uuid.UUID("950253b2-e5b1-4222-bb86-4eb436af5713"),
         filegrpuse="metadata",
         origin="metadata/foo/foo.txt",
         size=154,
@@ -286,20 +284,47 @@ def new_characterization(
     return result
 
 
+# The TIFF derivative of the original JPEG lives at this path of the AIP.
+PRESERVATION_DERIVATIVE_PATH = (
+    "objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif"
+)
+
+
+@pytest.fixture
+def normalization_event(
+    make_event: EventFactory,
+    original_file: models.File,
+    demo_organization_agent: models.Agent,
+    user_agent: models.Agent,
+) -> models.Event:
+    """The normalization of the original JPEG into its TIFF derivative."""
+    return make_event(
+        original_file,
+        "normalization",
+        agents=[demo_organization_agent, user_agent],
+        event_detail=(
+            'ArchivematicaFPRCommandID="a34ddc9b-c922-4bb6-8037-bbe713332175"; '
+            'program="convert"; version="Version: ImageMagick 6.7.7-10 2014-03-06 '
+            'Q16 http://www.imagemagick.org"\n'
+        ),
+        event_outcome_detail=f"%SIPDirectory%{PRESERVATION_DERIVATIVE_PATH}",
+    )
+
+
 @pytest.fixture
 def new_preservation_derivative(
     make_file: FileFactory,
     make_event: EventFactory,
     aip: models.SIP,
     original_file: models.File,
+    normalization_event: models.Event,
     demo_organization_agent: models.Agent,
     user_agent: models.Agent,
 ) -> models.File:
     """A TIFF derivative of the original JPEG, normalized during the reingest."""
-    path = "objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif"
     agents = [demo_organization_agent, user_agent]
     result = make_file(
-        path,
+        PRESERVATION_DERIVATIVE_PATH,
         sip=aip,
         uuid=uuid.UUID("d8cc7af7-284a-42f5-b7f4-e181a0efc35f"),
         filegrpuse="preservation",
@@ -308,20 +333,8 @@ def new_preservation_derivative(
         size=1446772,
     )
     models.FileID.objects.create(file=result, format_name="TIFF")
-    normalization = make_event(
-        original_file,
-        "normalization",
-        agents=agents,
-        event_id=uuid.UUID("291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"),
-        event_detail=(
-            'ArchivematicaFPRCommandID="a34ddc9b-c922-4bb6-8037-bbe713332175"; '
-            'program="convert"; version="Version: ImageMagick 6.7.7-10 2014-03-06 '
-            'Q16 http://www.imagemagick.org"\n'
-        ),
-        event_outcome_detail=f"%SIPDirectory%{path}",
-    )
     models.Derivation.objects.create(
-        source_file=original_file, derived_file=result, event=normalization
+        source_file=original_file, derived_file=result, event=normalization_event
     )
     for event_type, event_detail, event_outcome, event_outcome_detail in [
         ("creation", "", "", ""),
@@ -822,6 +835,7 @@ def test_update_preservation_derivative(
     mcp_job: Job,
     reingest_events: list[models.Event],
     new_preservation_derivative: models.File,
+    normalization_event: models.Event,
 ) -> None:
     """It should add a new techMD with the new relationship."""
     # Verify METS state
@@ -877,10 +891,9 @@ def test_update_preservation_derivative(
         new_techmd.findtext(".//premis:relatedObjectIdentifierValue", namespaces=NSMAP)
         == "d8cc7af7-284a-42f5-b7f4-e181a0efc35f"
     )
-    assert (
-        new_techmd.findtext(".//premis:relatedEventIdentifierValue", namespaces=NSMAP)
-        == "291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"
-    )
+    assert new_techmd.findtext(
+        ".//premis:relatedEventIdentifierValue", namespaces=NSMAP
+    ) == str(normalization_event.event_id)
     # Verify rest of new techMD was created
     assert new_techmd.find(".//premis:formatName", namespaces=NSMAP) is not None
     assert (
@@ -905,6 +918,7 @@ def test_update_all(
     new_file_id: models.FileID,
     new_characterization: list[models.FPCommandOutput],
     new_preservation_derivative: models.File,
+    normalization_event: models.Event,
 ) -> None:
     """
     It should add new updated object and mark the old one as superseded.
@@ -993,10 +1007,9 @@ def test_update_all(
         new_techmd.findtext(".//premis:relatedObjectIdentifierValue", namespaces=NSMAP)
         == "d8cc7af7-284a-42f5-b7f4-e181a0efc35f"
     )
-    assert (
-        new_techmd.findtext(".//premis:relatedEventIdentifierValue", namespaces=NSMAP)
-        == "291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"
-    )
+    assert new_techmd.findtext(
+        ".//premis:relatedEventIdentifierValue", namespaces=NSMAP
+    ) == str(normalization_event.event_id)
 
 
 @pytest.mark.xfail(raises=NotImplementedError, reason="not implemented", strict=True)
@@ -1969,6 +1982,7 @@ def test_no_new_files(
 def test_add_metadata_csv(
     mcp_job: Job,
     aip_files: list[models.File],
+    metadata_csv_file: models.File,
     new_preservation_derivative: models.File,
 ) -> None:
     """
@@ -1998,7 +2012,7 @@ def test_add_metadata_csv(
         mcp_job, mets, SIP_UUID, sip_dir
     )
 
-    file_uuid = "66370f14-2f64-4750-9d50-547614be40e8"
+    file_uuid = str(metadata_csv_file.uuid)
     root = mets.serialize()
     # Check structMap
     div = root.find(
@@ -2049,6 +2063,7 @@ def test_add_metadata_csv(
 def test_new_metadata_file_in_subdir(
     mcp_job: Job,
     aip_files: list[models.File],
+    metadata_text_file: models.File,
     new_preservation_derivative: models.File,
 ) -> None:
     """It should add the new subdirs to the structMap."""
@@ -2075,7 +2090,7 @@ def test_new_metadata_file_in_subdir(
         mcp_job, mets, SIP_UUID, sip_dir
     )
 
-    file_uuid = "950253b2-e5b1-4222-bb86-4eb436af5713"
+    file_uuid = str(metadata_text_file.uuid)
     root = mets.serialize()
     # Check structMap
     # Dir
@@ -2126,6 +2141,7 @@ def test_new_preservation_file(
     mcp_job: Job,
     aip_files: list[models.File],
     new_preservation_derivative: models.File,
+    normalization_event: models.Event,
 ) -> None:
     """
     It should add an amdSec for the new file.
@@ -2236,12 +2252,9 @@ def test_new_preservation_file(
         )
         == original_file_uuid
     )
-    assert (
-        premis_object.findtext(
-            ".//premis:relatedEventIdentifierValue", namespaces=NSMAP
-        )
-        == "291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"
-    )
+    assert premis_object.findtext(
+        ".//premis:relatedEventIdentifierValue", namespaces=NSMAP
+    ) == str(normalization_event.event_id)
     # Events: creation, message digest calculation, fixity check
     assert (
         amdsec.xpath('.//premis:eventType[text()="creation"]', namespaces=NSMAP) != []

@@ -703,21 +703,26 @@ def test_get_event_files(params):
     printfn.assert_not_called()
 
 
+# Identifier that the patched uuid4 returns for an event identifier that is not
+# a UUID.
+NEW_EVENT_ID = uuid.uuid4()
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     "params",
     [
-        {"event_id": "7e3330fe-0d7c-4c11-8a42-05964192425a", "message_logged": None},
+        {"event_id": str(uuid.uuid4()), "message_logged": None},
         {
             "event_id": "foobar",
-            "message_logged": "Changed event identifier from foobar to f4eea76b-1921-4152-b1b4-a93dbbfeaaef",
+            "message_logged": f"Changed event identifier from foobar to {NEW_EVENT_ID}",
         },
     ],
 )
 @mock.patch("uuid.uuid4")
 def test_ensure_event_id_is_uuid(uuid4, params):
     if params["message_logged"]:
-        uuid4.return_value = uuid.UUID("f4eea76b-1921-4152-b1b4-a93dbbfeaaef")
+        uuid4.return_value = NEW_EVENT_ID
     printfn = mock.Mock()
     result = load_premis_events_from_xml.ensure_event_id_is_uuid(
         params["event_id"], printfn
@@ -799,12 +804,14 @@ def test_save_events(transfer, transfer_file):
     # check there are no events initially
     assert not Event.objects.count()
 
+    event_id = str(uuid.uuid4())
+
     # set up valid events
     valid_events = [
         {
             "event": {
-                "identifier": ("e", "f4eea76b-1921-4152-b1b4-a93dbbfeaa11"),
-                "event_id": "f4eea76b-1921-4152-b1b4-a93dbbfeaa11",
+                "identifier": ("e", event_id),
+                "event_id": event_id,
                 "event_type": "ingestion",
                 "event_datetime": load_premis_events_from_xml.parse_datetime(
                     "2019-09-28T00:50"
@@ -842,7 +849,7 @@ def test_save_events(transfer, transfer_file):
     load_premis_events_from_xml.save_events(valid_events, file_queryset, printfn)
 
     printfn.assert_called_once_with(
-        "Imported PREMIS ingestion event and assigned identifier f4eea76b-1921-4152-b1b4-a93dbbfeaa11"
+        f"Imported PREMIS ingestion event and assigned identifier {event_id}"
     )
 
     # a new agent was also created
@@ -850,9 +857,7 @@ def test_save_events(transfer, transfer_file):
 
     # check the saved event
     assert Event.objects.count() == 1
-    event = Event.objects.get(
-        event_id="f4eea76b-1921-4152-b1b4-a93dbbfeaa11", file_uuid=transfer_file
-    )
+    event = Event.objects.get(event_id=event_id, file_uuid=transfer_file)
     assert event.event_type == "ingestion"
     assert event.event_detail == "the event detail"
     assert event.event_outcome == "the event outcome"

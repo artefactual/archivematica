@@ -15,7 +15,7 @@ from archivematica.dashboard.main.models import TransferMetadataFieldValue
 from tests.factories import TransferFactory
 
 # UUID of the transfer of the transfer fixture.
-TRANSFER_UUID = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
+TRANSFER_UUID = str(uuid.uuid4())
 
 
 @pytest.fixture
@@ -78,7 +78,7 @@ def test_metadata_edit(
 @pytest.mark.django_db
 def test_component_get(admin_client, dashboard_uuid):
     # This TransferMetadataSet is going to be created in the view.
-    transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
+    transfer_uuid = str(uuid.uuid4())
     TransferMetadataField.objects.create(fieldlabel="Image fixity")
     TransferMetadataField.objects.create(fieldlabel="Media number")
     TransferMetadataField.objects.create(fieldlabel="Serial number")
@@ -97,7 +97,7 @@ def test_component_get(admin_client, dashboard_uuid):
 # @pytest.mark.django_db
 def test_component_post(admin_client, dashboard_uuid):
     # This TransferMetadataSet is going to be created in the view.
-    transfer_uuid = "43965fdb-37f3-4ec8-aa67-b49b2733f88a"
+    transfer_uuid = str(uuid.uuid4())
     taxonomy = Taxonomy.objects.create(name="Disk media formats")
     TaxonomyTerm.objects.create(term='3.5" floppy', taxonomy=taxonomy)
     TransferMetadataField.objects.create(

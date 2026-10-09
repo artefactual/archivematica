@@ -13,10 +13,10 @@ from tests.MCPClient.factories import MCPJobFactory
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
-# UUIDs of the first two files of the transfer_files and unicode_transfer_files
-# fixtures, the files referenced by the rights CSV fixtures.
-FILE_1_UUID = "47813453-6872-442b-9d65-6515be3c5aa1"
-FILE_2_UUID = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"
+# UUIDs of the two files of the transfer_files fixture, the files referenced by
+# the rights CSV fixtures.
+FILE_1_UUID = str(uuid.uuid4())
+FILE_2_UUID = str(uuid.uuid4())
 
 
 @pytest.fixture
@@ -557,7 +557,9 @@ def test_rows_processed_and_database_content_with_unicode_filepath(
     # Test row 1
     row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
     assert row_1_rights_statement.metadataappliestotype == file_type
-    assert row_1_rights_statement.metadataappliestoidentifier == FILE_1_UUID
+    assert row_1_rights_statement.metadataappliestoidentifier == str(
+        unicode_transfer_files[0].uuid
+    )
     assert row_1_rights_statement.status == "ORIGINAL"
     assert row_1_rights_statement.rightsbasis == "Copyright"
 

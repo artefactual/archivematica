@@ -1,4 +1,5 @@
 import os
+import uuid
 from typing import TypedDict
 from unittest import mock
 
@@ -111,7 +112,7 @@ def test_parse_dc_none_found(
     mcp_job: Job, metadata_applies_to_types: dict[str, models.MetadataAppliesToType]
 ) -> None:
     """It should parse no DC if none is found."""
-    sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
+    sip_uuid = str(uuid.uuid4())
     root = etree.parse(os.path.join(FIXTURES_DIR, "mets_no_metadata.xml"))
     dc = parse_mets_to_db.parse_dc(mcp_job, sip_uuid, root)
     assert dc is None
@@ -253,7 +254,7 @@ def test_parse_rights_none_found(
     mcp_job: Job, metadata_applies_to_types: dict[str, models.MetadataAppliesToType]
 ) -> None:
     """It should parse no rights if none found."""
-    sip_uuid = "d481580e-53b9-4a52-96db-baa969e78adc"
+    sip_uuid = str(uuid.uuid4())
     root = etree.parse(os.path.join(FIXTURES_DIR, "mets_no_metadata.xml"))
     rights = parse_mets_to_db.parse_rights(mcp_job, sip_uuid, root)
     assert rights == []

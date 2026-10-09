@@ -32,11 +32,11 @@ THIS_DIR = pathlib.Path(__file__).parent
 FIXTURES_DIR = THIS_DIR / "fixtures"
 
 # UUID of the SIP with Dublin Core metadata of the dublincore fixture.
-SIP_UUID = "8b891d7c-5bd2-4249-84a1-2f00f725b981"
+SIP_UUID = str(uuid.uuid4())
 # UUID of the SIP metadata type.
 SIP_TYPE_UUID = MetadataAppliesToType.SIP_TYPE
 # UUID of a SIP without Dublin Core metadata.
-BAD_SIP_UUID = "dnednedn-5bd2-4249-84a1-2f00f725b981"
+BAD_SIP_UUID = str(uuid.uuid4())
 
 # Transfer with custom structMaps, the SIP created from it and its objects
 # directory.
@@ -141,7 +141,7 @@ def rights_statement(make_rights_statement: RightsStatementFactory) -> RightsSta
     """A copyright statement of a SIP that grants an open-ended dissemination."""
     result = make_rights_statement(
         "sip",
-        "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+        uuid.uuid4(),
         rightsbasis="Copyright",
         status="ORIGINAL",
     )

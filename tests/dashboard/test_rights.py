@@ -11,10 +11,15 @@ from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Transfer
 
+# Identifier values of the rights statements and of their documentation in the
+# form data below.
+RIGHTS_STATEMENT_IDENTIFIER_VALUE = str(uuid.uuid4())
+DOCUMENTATION_IDENTIFIER_VALUE = str(uuid.uuid4())
+
 RIGHTS_STATEMENT_IDENTIFIER = (
     "rights_statement_identifier",
     ("rights_statement_identifier_type", "UUID"),
-    ("rights_statement_identifier_value", "3a9838ac-ebe9-4ecb-ba46-c31ee1d6e7c2"),
+    ("rights_statement_identifier_value", RIGHTS_STATEMENT_IDENTIFIER_VALUE),
 )
 
 RIGHTS_STATEMENT_COPYRIGHT = (
@@ -30,7 +35,7 @@ RIGHTS_STATEMENT_COPYRIGHT = (
             ("copyright_documentation_identifier_type", "UUID"),
             (
                 "copyright_documentation_identifier_value",
-                "a59b5006-23c4-4195-bc1e-7d1855d555cc",
+                DOCUMENTATION_IDENTIFIER_VALUE,
             ),
             ("copyright_documentation_identifier_role", "role"),
         ),
@@ -47,7 +52,7 @@ RIGHTS_STATEMENT_LICENSE = (
             ("license_documentation_identifier_type", "UUID"),
             (
                 "license_documentation_identifier_value",
-                "a59b5006-23c4-4195-bc1e-7d1855d555cc",
+                DOCUMENTATION_IDENTIFIER_VALUE,
             ),
             ("license_documentation_identifier_role", "role"),
         ),
@@ -70,7 +75,7 @@ RIGHTS_STATEMENT_STATUTE = (
             ("statute_information_documentation_identifier_type", "UUID"),
             (
                 "statute_information_documentation_identifier_value",
-                "a59b5006-23c4-4195-bc1e-7d1855d555cc",
+                DOCUMENTATION_IDENTIFIER_VALUE,
             ),
             ("statute_information_documentation_identifier_role", "role"),
         ),
@@ -87,7 +92,7 @@ RIGHTS_STATEMENT_OTHER = (
             ("other_rights_documentation_identifier_type", "UUID"),
             (
                 "other_rights_documentation_identifier_value",
-                "a59b5006-23c4-4195-bc1e-7d1855d555cc",
+                DOCUMENTATION_IDENTIFIER_VALUE,
             ),
             ("other_rights_documentation_identifier_role", "role"),
         ),
@@ -116,7 +121,7 @@ RIGHTS_STATEMENT_GRANTED_2 = (
 RIGHTS_STATEMENT_LINKING_OBJECT_IDENTIFIER = (
     "linking_object_identifier",
     ("linking_object_identifier_type", "UUID"),
-    ("linking_object_identifier_value", "c09903c4-bc29-4db4-92da-47355eec752f"),
+    ("linking_object_identifier_value", str(uuid.uuid4())),
 )
 
 
@@ -211,7 +216,7 @@ def test_load_rights(
     assert stmt.metadataappliestotype.description == "File"
     assert stmt.metadataappliestoidentifier == file.uuid
     assert stmt.rightsstatementidentifiertype == "UUID"
-    assert stmt.rightsstatementidentifiervalue == "3a9838ac-ebe9-4ecb-ba46-c31ee1d6e7c2"
+    assert stmt.rightsstatementidentifiervalue == RIGHTS_STATEMENT_IDENTIFIER_VALUE
 
     rights_granted = stmt.rightsstatementrightsgranted_set.all()
     assert len(rights_granted) == 2
@@ -258,7 +263,7 @@ def test_load_rights_with_basis_copyright(
         copyrights[0]
         .rightsstatementcopyrightdocumentationidentifier_set.all()[0]
         .copyrightdocumentationidentifiervalue
-        == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
+        == DOCUMENTATION_IDENTIFIER_VALUE
     )
     assert (
         copyrights[0]
@@ -291,7 +296,7 @@ def test_load_rights_with_basis_license(
         license[0]
         .rightsstatementlicensedocumentationidentifier_set.all()[0]
         .licensedocumentationidentifiervalue
-        == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
+        == DOCUMENTATION_IDENTIFIER_VALUE
     )
     assert (
         license[0]
@@ -327,7 +332,7 @@ def test_load_rights_with_basis_statute(
         statute[0]
         .rightsstatementstatutedocumentationidentifier_set.all()[0]
         .statutedocumentationidentifiervalue
-        == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
+        == DOCUMENTATION_IDENTIFIER_VALUE
     )
     assert (
         statute[0]
@@ -363,7 +368,7 @@ def test_load_rights_with_basis_other(
         otherrights[0]
         .rightsstatementotherrightsdocumentationidentifier_set.all()[0]
         .otherrightsdocumentationidentifiervalue
-        == "a59b5006-23c4-4195-bc1e-7d1855d555cc"
+        == DOCUMENTATION_IDENTIFIER_VALUE
     )
     assert (
         otherrights[0]

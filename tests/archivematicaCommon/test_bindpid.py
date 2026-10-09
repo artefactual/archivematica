@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from archivematica.archivematicaCommon import bindpid
@@ -5,7 +7,7 @@ from archivematica.archivematicaCommon import bindpid
 VALID_ARG_DICT = {
     "entity_type": "file",
     "resolve_url_template_file": "https://access.my.org/access/{{ naming_authority }}/{{ pid }}",
-    "desired_pid": "3d6383a3-eafb-410e-b00f-77c33eb0b31b",
+    "desired_pid": str(uuid.uuid4()),
     "naming_authority": "12345",
     "pid_web_service_endpoint": "https://my.pid.endpoint.org/secure",
     "pid_web_service_key": "https://my.pid.endpoint.org/secure",
@@ -37,7 +39,7 @@ VALID_ARG_DICT = {
 # Bind PID params with for a file lacking a key for resolve_url_template_file
 INVALID_ET_REQUIRED_ARG_DICT = {
     "entity_type": "file",
-    "desired_pid": "3d6383a3-eafb-410e-b00f-77c33eb0b31b",
+    "desired_pid": str(uuid.uuid4()),
     "naming_authority": "12345",
     "pid_web_service_endpoint": "https://my.pid.endpoint.org/secure",
     "pid_web_service_key": "https://my.pid.endpoint.org/secure",
@@ -69,7 +71,7 @@ INVALID_ET_REQUIRED_ARG_DICT = {
 # Invalid bind PID params: entity_type is wrong
 INVALID_ARG_DICT = {
     "entity_type": "godzilla",
-    "desired_pid": "3d6383a3-eafb-410e-b00f-77c33eb0b31b",
+    "desired_pid": str(uuid.uuid4()),
     "naming_authority": "12345",
     "pid_web_service_endpoint": "https://my.pid.endpoint.org/secure",
     "pid_web_service_key": "https://my.pid.endpoint.org/secure",

@@ -46,7 +46,7 @@ def test_create_scanner(backend_setting, expected_scanner_class, settings):
 
 
 args = OrderedDict()
-args["file_uuid"] = "ec26199f-72a4-4fd8-a94a-29144b02ddd8"
+args["file_uuid"] = str(uuid.uuid4())
 args["path"] = "/path"
 args["date"] = "2019-12-01"
 
