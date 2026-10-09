@@ -10,9 +10,11 @@ from archivematica.MCPServer.server import workflow
 from tests.factories import TransferFactory
 
 
-@pytest.fixture
-def wf():
-    """Load the installed workflow used by MCPServer unit tests."""
+@pytest.fixture(scope="session")
+def wf() -> workflow.Workflow:
+    """The installed workflow, loaded once per session because its decoding
+    validates the whole document and nothing modifies it afterwards.
+    """
     resource = (
         importlib.resources.files("archivematica.MCPServer")
         / "assets"
