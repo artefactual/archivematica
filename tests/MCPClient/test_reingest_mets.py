@@ -150,17 +150,6 @@ def aip_files(
 
 
 @pytest.fixture
-def unrelated_agent() -> models.Agent:
-    """An organization agent that is not linked to any event."""
-    return models.Agent.objects.create(
-        agenttype="organization",
-        identifiertype="repository code",
-        identifiervalue="Unrelated Agent",
-        name="Unrelated Agent",
-    )
-
-
-@pytest.fixture
 def reingest_events(
     make_event: EventFactory,
     original_file: models.File,

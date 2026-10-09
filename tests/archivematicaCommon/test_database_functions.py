@@ -403,7 +403,7 @@ def test_insert_events_rejects_invalid_batch_size() -> None:
 
 
 @pytest.fixture
-def sip(sip: SIP) -> SIP:
+def sip_with_identifier(sip: SIP) -> SIP:
     """The SIP with an identifier."""
     sip.identifiers.add(Identifier.objects.create(value="sip_identifier"))
 
@@ -411,9 +411,9 @@ def sip(sip: SIP) -> SIP:
 
 
 @pytest.fixture
-def directories(sip: SIP) -> None:
+def directories(sip_with_identifier: SIP) -> None:
     # Two directories are created but only one is associated with the SIP
-    dir1 = Directory.objects.create(sip=sip)
+    dir1 = Directory.objects.create(sip=sip_with_identifier)
     dir1.identifiers.add(Identifier.objects.create(value="dir1"))
     dir2 = Directory.objects.create()
     dir2.identifiers.add(Identifier.objects.create(value="dir2"))
@@ -421,7 +421,7 @@ def directories(sip: SIP) -> None:
 
 @pytest.mark.django_db
 def test_get_sip_identifiers_returns_sip_and_directory_identifiers(
-    sip: SIP, directories: None
+    sip_with_identifier: SIP, directories: None
 ) -> None:
-    result = databaseFunctions.get_sip_identifiers(sip.uuid)
+    result = databaseFunctions.get_sip_identifiers(sip_with_identifier.uuid)
     assert sorted(result) == ["dir1", "sip_identifier"]

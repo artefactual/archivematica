@@ -214,6 +214,17 @@ def demo_organization_agent(organization_agent: models.Agent) -> models.Agent:
     return organization_agent
 
 
+@pytest.fixture
+def unrelated_agent() -> models.Agent:
+    """An organization agent that no event links to."""
+    return models.Agent.objects.create(
+        agenttype="organization",
+        identifiertype="repository code",
+        identifiervalue="Unrelated Agent",
+        name="Unrelated Agent",
+    )
+
+
 # Factories
 
 

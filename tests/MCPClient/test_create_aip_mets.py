@@ -805,6 +805,7 @@ def test_parse_metadata_csv_blank_rows(
 
 
 @pytest.mark.django_db
+@pytest.mark.usefixtures("unrelated_agent")
 def test_creates_events(
     original_file: File, transfer_events: list[Event], user_agent: Agent
 ) -> None:
