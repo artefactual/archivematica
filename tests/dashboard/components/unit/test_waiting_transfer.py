@@ -5,16 +5,20 @@ from archivematica.dashboard.main import models
 
 
 @pytest.fixture
-def waiting_transfer(db):
-    transfer = models.Transfer.objects.create(
-        currentlocation="%sharedPath%watchedDirectories/standardTransfer/Waiting/",
-        type="standard",
-        status=models.PACKAGE_STATUS_PROCESSING,
+def waiting_transfer(transfer: models.Transfer) -> models.Transfer:
+    """The transfer waiting in a watched directory, before its first job."""
+    transfer.currentlocation = (
+        "%sharedPath%watchedDirectories/standardTransfer/Waiting/"
     )
+    transfer.type = "standard"
+    transfer.status = models.PACKAGE_STATUS_PROCESSING
+    transfer.save()
     assert not models.Job.objects.filter(sipuuid=transfer.pk).exists()
+
     return transfer
 
 
+@pytest.mark.django_db
 def test_waiting_transfer_supports_detail_and_metadata_navigation_without_jobs(
     dashboard_uuid, admin_client, metadata_applies_to_types, waiting_transfer
 ):
@@ -54,6 +58,7 @@ def test_waiting_transfer_supports_detail_and_metadata_navigation_without_jobs(
     assert not models.Job.objects.filter(sipuuid=waiting_transfer.pk).exists()
 
 
+@pytest.mark.django_db
 def test_waiting_transfer_cannot_be_removed_before_its_first_job(
     dashboard_uuid, admin_client, waiting_transfer
 ):

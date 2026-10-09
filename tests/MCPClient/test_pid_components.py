@@ -7,6 +7,7 @@ also limited unit testing in create_mets_v2 (AIP METS generation).
 """
 
 import os
+import uuid
 from itertools import chain
 from unittest import mock
 
@@ -17,11 +18,13 @@ from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DashboardSetting
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import File
+from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.clientScripts import bind_pid
 from archivematica.MCPClient.clientScripts import bind_pids
 from archivematica.MCPClient.clientScripts import create_mets_v2
 from archivematica.MCPClient.clientScripts.pid_declaration import DeclarePIDs
 from archivematica.MCPClient.clientScripts.pid_declaration import DeclarePIDsException
+from tests.factories import FileFactory
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,7 +39,7 @@ DECLARED_IDENTIFIER_TYPES = (PID_EXID, PID_ULID)
 
 
 @pytest.fixture
-def settings(db):
+def settings():
     settings = [
         DashboardSetting(scope="handle", name=name, value=value)
         for name, value in (
@@ -70,7 +73,7 @@ def settings(db):
             ),
             (
                 "pid_web_service_key",
-                "84214c59-8694-48d5-89b5-d40a88cd7768",
+                str(uuid.uuid4()),
             ),
             (
                 "handle_archive_pid_source",
@@ -98,73 +101,60 @@ def settings(db):
 
 
 @pytest.fixture
-def files(transfer, sip):
-    return File.objects.bulk_create(
-        [
-            File(
-                uuid="06da9555-dc5b-425c-b967-6f30a740f1c3",
-                checksum="012661d0de5ed60973e5cb0f123df74e95118734345b2bdf35432ac7442dd8c8",
-                checksumtype="sha256",
-                currentlocation=b"%SIPDirectory%objects/metadata/transfers/pid_tests-29460c83-957e-481f-9ca2-873bca42229a/directory_tree.txt",
-                enteredsystem="2019-05-02T11:16:08.195Z",
-                filegrpuse="metadata",
-                modificationtime="2019-05-02T11:16:08.195Z",
-                originallocation=b"%SIPDirectory%objects/metadata/transfers/pid_tests-29460c83-957e-481f-9ca2-873bca42229a/directory_tree.txt",
-                sip=sip,
-                size=233,
-            ),
-            File(
-                uuid="52e4900a-b096-4815-856a-81b3cbe0952d",
-                checksum="cd2b6311b1552b32c9bed90209bb219ab8216fd777b12dd36ad06aba959cba6e",
-                checksumtype="sha256",
-                currentlocation=b"%SIPDirectory%objects/images/image_001.jpg",
-                enteredsystem="2019-05-02T11:15:31.856Z",
-                filegrpuse="original",
-                modificationtime="2019-04-23T12:25:01Z",
-                originallocation=b"%transferDirectory%objects/images/image_001.jpg",
-                sip=sip,
-                size=11,
-                transfer=transfer,
-            ),
-            File(
-                uuid="697c407f-7a43-43d2-b7e2-fefc956ea5fd",
-                checksum="cd2b6311b1552b32c9bed90209bb219ab8216fd777b12dd36ad06aba959cba6e",
-                checksumtype="sha256",
-                currentlocation=b"%SIPDirectory%objects/documents/Document001.doc",
-                enteredsystem="2019-05-02T11:15:31.869Z",
-                filegrpuse="original",
-                modificationtime="2019-04-23T12:26:18Z",
-                originallocation=b"%transferDirectory%objects/documents/Document001.doc",
-                sip=sip,
-                size=11,
-                transfer=transfer,
-            ),
-            File(
-                uuid="c91d7725-f363-4e8a-bde1-0f5416b4f7f8",
-                checksum="e4bdbed4732746727a013431d87126a43e99ee7350c4d7ba27eb4927d8d06f15",
-                checksumtype="sha256",
-                currentlocation=b"%SIPDirectory%objects/submissionDocumentation/transfer-pid_tests-29460c83-957e-481f-9ca2-873bca42229a/METS.xml",
-                enteredsystem="2019-05-02T11:16:00.917Z",
-                filegrpuse="submissionDocumentation",
-                modificationtime="2019-05-02T11:16:00.917Z",
-                originallocation=b"%SIPDirectory%objects/submissionDocumentation/transfer-pid_tests-29460c83-957e-481f-9ca2-873bca42229a/METS.xml",
-                sip=sip,
-                size=37119,
-            ),
-            File(
-                uuid="d94dbb6b-1082-4747-9d4c-4ddea8ce85b8",
-                checksum="28045d295e79a3666bd4c9a09536e2b6c65e2f917972e15c46c6eb2cad1e5700",
-                checksumtype="sha256",
-                currentlocation=b"%SIPDirectory%objects/metadata/transfers/pid_tests-29460c83-957e-481f-9ca2-873bca42229a/identifiers.json",
-                enteredsystem="2019-05-02T11:16:08.217Z",
-                filegrpuse="metadata",
-                modificationtime="2019-05-02T11:16:08.217Z",
-                originallocation=b"%SIPDirectory%objects/metadata/transfers/pid_tests-29460c83-957e-481f-9ca2-873bca42229a/identifiers.json",
-                sip=sip,
-                size=1768,
-            ),
-        ]
-    )
+def files(make_file: FileFactory, transfer: Transfer, sip: SIP) -> list[File]:
+    transfer_name = f"pid_tests-{uuid.uuid4()}"
+    return [
+        make_file(
+            f"objects/metadata/transfers/{transfer_name}/directory_tree.txt",
+            sip=sip,
+            checksum="012661d0de5ed60973e5cb0f123df74e95118734345b2bdf35432ac7442dd8c8",
+            checksumtype="sha256",
+            enteredsystem="2019-05-02T11:16:08.195Z",
+            filegrpuse="metadata",
+            modificationtime="2019-05-02T11:16:08.195Z",
+            size=233,
+        ),
+        make_file(
+            "objects/images/image_001.jpg",
+            transfer=transfer,
+            sip=sip,
+            checksum="cd2b6311b1552b32c9bed90209bb219ab8216fd777b12dd36ad06aba959cba6e",
+            checksumtype="sha256",
+            enteredsystem="2019-05-02T11:15:31.856Z",
+            modificationtime="2019-04-23T12:25:01Z",
+            size=11,
+        ),
+        make_file(
+            "objects/documents/Document001.doc",
+            transfer=transfer,
+            sip=sip,
+            checksum="cd2b6311b1552b32c9bed90209bb219ab8216fd777b12dd36ad06aba959cba6e",
+            checksumtype="sha256",
+            enteredsystem="2019-05-02T11:15:31.869Z",
+            modificationtime="2019-04-23T12:26:18Z",
+            size=11,
+        ),
+        make_file(
+            f"objects/submissionDocumentation/transfer-{transfer_name}/METS.xml",
+            sip=sip,
+            checksum="e4bdbed4732746727a013431d87126a43e99ee7350c4d7ba27eb4927d8d06f15",
+            checksumtype="sha256",
+            enteredsystem="2019-05-02T11:16:00.917Z",
+            filegrpuse="submissionDocumentation",
+            modificationtime="2019-05-02T11:16:00.917Z",
+            size=37119,
+        ),
+        make_file(
+            f"objects/metadata/transfers/{transfer_name}/identifiers.json",
+            sip=sip,
+            checksum="28045d295e79a3666bd4c9a09536e2b6c65e2f917972e15c46c6eb2cad1e5700",
+            checksumtype="sha256",
+            enteredsystem="2019-05-02T11:16:08.217Z",
+            filegrpuse="metadata",
+            modificationtime="2019-05-02T11:16:08.217Z",
+            size=1768,
+        ),
+    ]
 
 
 @pytest.fixture
@@ -172,21 +162,18 @@ def directories(transfer, sip):
     return Directory.objects.bulk_create(
         [
             Directory(
-                uuid="3cc124e1-4e5c-433b-8f15-a7831d70145a",
                 originallocation=b"%transferDirectory%metadata/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%metadata/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="41b3fcfd-36ed-4cf7-b5af-56127238b362",
                 originallocation=b"%transferDirectory%logs/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%logs/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="966755bd-0ae3-4f85-b4ec-b359fefeff33",
                 sip=sip,
                 originallocation=b"%transferDirectory%objects/images/",
                 transfer=transfer,
@@ -194,7 +181,6 @@ def directories(transfer, sip):
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="d298dd3f-c5d1-4445-99fe-09123fba8b30",
                 sip=sip,
                 originallocation=b"%transferDirectory%objects/documents/",
                 transfer=transfer,
@@ -202,14 +188,12 @@ def directories(transfer, sip):
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="e7ae9b01-4c07-4915-a7a0-1833b1078a5b",
                 originallocation=b"%transferDirectory%logs/fileMeta/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%logs/fileMeta/",
                 enteredsystem="2019-04-23T12:45:34.925Z",
             ),
             Directory(
-                uuid="f9e8c91a-bfbc-48f0-8ff0-eed210ff6fde",
                 originallocation=b"%transferDirectory%metadata/submissionDocumentation/",
                 transfer=transfer,
                 currentlocation=b"%transferDirectory%metadata/submissionDocumentation/",
@@ -517,9 +501,7 @@ def test_pid_declaration_exceptions(
     """
     # Test behavior when there isn't an identifiers.json file, e.g. we
     # simulate this by passing an incorrect Unit UUID.
-    DeclarePIDs(mcp_job).pid_declaration(
-        unit_uuid="eb6b860e-611c-45c8-8d3e-b9396ed6c751", sip_directory=""
-    )
+    DeclarePIDs(mcp_job).pid_declaration(unit_uuid=str(uuid.uuid4()), sip_directory="")
     assert "No identifiers.json file found" in mcp_job.get_stderr().strip(), (
         "Expecting no identifiers.json file, but got something else"
     )

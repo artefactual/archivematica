@@ -79,6 +79,7 @@ def test_delete_pairs(filter_mock):
     queryset_mock.delete.assert_called_once()
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "uri",
     ["http://some/uri/", "http://some/uri"],
@@ -86,9 +87,7 @@ def test_delete_pairs(filter_mock):
 )
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
-def test_upload_to_archivesspace_adds_trailing_slash_to_uri(
-    get_pairs, mest_file, db, uri
-):
+def test_upload_to_archivesspace_adds_trailing_slash_to_uri(get_pairs, mest_file, uri):
     file_uuid = str(uuid.uuid4())
     dip_uuid = str(uuid.uuid4())
     client_mock = mock.Mock()
@@ -168,12 +167,11 @@ def test_upload_to_archivesspace_gets_mets_if_needed(
     )
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.logger")
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
-def test_upload_to_archivesspace_logs_files_with_no_pairs(
-    mets_file, logger, get_pairs, db
-):
+def test_upload_to_archivesspace_logs_files_with_no_pairs(mets_file, logger, get_pairs):
     file1_uuid = uuid.uuid4()
     file2_uuid = uuid.uuid4()
     file3_uuid = uuid.uuid4()
@@ -197,10 +195,11 @@ def test_upload_to_archivesspace_logs_files_with_no_pairs(
     assert not success
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_pairs")
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.logger")
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.mets_file")
-def test_upload_to_archivesspace_when_upload_fails(mets_file, logger, get_pairs, db):
+def test_upload_to_archivesspace_when_upload_fails(mets_file, logger, get_pairs):
     file1_uuid = uuid.uuid4()
     file2_uuid = uuid.uuid4()
     file3_uuid = uuid.uuid4()
@@ -232,6 +231,7 @@ def test_upload_to_archivesspace_when_upload_fails(mets_file, logger, get_pairs,
     assert not success
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.MCPClient.clientScripts.upload_archivesspace.get_parser",
     return_value=mock.Mock(
@@ -273,7 +273,6 @@ def test_call(
     get_files_from_dip_mock,
     client_factory_mock,
     get_parser,
-    db,
 ):
     client_mock = mock.Mock()
     client_factory_mock.return_value = client_mock
@@ -302,6 +301,7 @@ def test_call(
     job.set_status.assert_called_once_with(0)
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "params",
     [
@@ -325,7 +325,6 @@ def test_call_when_files_from_dip_cant_be_retrieved(
     get_files_from_dip,
     client_factory,
     get_parser,
-    db,
     params,
 ):
     get_files_from_dip.side_effect = params["exception"]
@@ -337,6 +336,7 @@ def test_call_when_files_from_dip_cant_be_retrieved(
     upload_to_archivesspace.assert_not_called()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.MCPClient.clientScripts.upload_archivesspace.get_parser")
 @mock.patch(
     "archivematica.MCPClient.clientScripts.upload_archivesspace.ArchivesSpaceClient"
@@ -349,7 +349,7 @@ def test_call_when_files_from_dip_cant_be_retrieved(
     return_value=False,
 )
 def test_call_when_not_all_files_can_be_paired(
-    upload_to_archivesspace, get_files_from_dip, client_factory, get_parser, db
+    upload_to_archivesspace, get_files_from_dip, client_factory, get_parser
 ):
     job = mock.Mock(args=[])
     job.JobContext = mock.MagicMock()

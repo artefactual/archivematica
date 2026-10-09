@@ -22,6 +22,8 @@ from archivematica.MCPClient.clientScripts.antivirus import create_scanner
 from archivematica.MCPClient.clientScripts.antivirus import get_size
 from archivematica.MCPClient.clientScripts.antivirus import load_file_data
 from archivematica.MCPClient.clientScripts.antivirus import scan_file
+from tests.factories import EventFactory
+from tests.factories import FileFactory
 
 
 @pytest.mark.parametrize(
@@ -44,7 +46,7 @@ def test_create_scanner(backend_setting, expected_scanner_class, settings):
 
 
 args = OrderedDict()
-args["file_uuid"] = "ec26199f-72a4-4fd8-a94a-29144b02ddd8"
+args["file_uuid"] = str(uuid.uuid4())
 args["path"] = "/path"
 args["date"] = "2019-12-01"
 
@@ -194,24 +196,25 @@ def test_scan_file(
         )
 
 
+@pytest.fixture
+def scanned_file(
+    make_file: FileFactory, make_event: EventFactory, transfer: models.Transfer
+) -> models.File:
+    """A file of the transfer with a virus check event."""
+    result = make_file("objects/scanned", transfer=transfer, size=42)
+    make_event(result, "virus check")
+
+    return result
+
+
 @pytest.mark.django_db
 def test_load_file_data_batches_queries(
+    scanned_file: models.File,
     transfer: models.Transfer,
+    make_file: FileFactory,
     django_assert_num_queries: pytest_django.fixtures.DjangoAssertNumQueries,
 ) -> None:
-    scanned_file = models.File.objects.create(
-        transfer=transfer,
-        originallocation=b"objects/scanned",
-        currentlocation=b"objects/scanned",
-        size=42,
-    )
-    unscanned_file = models.File.objects.create(
-        transfer=transfer,
-        originallocation=b"objects/unscanned",
-        currentlocation=b"objects/unscanned",
-        size=84,
-    )
-    models.Event.objects.create(file_uuid=scanned_file, event_type="virus check")
+    unscanned_file = make_file("objects/unscanned", transfer=transfer, size=84)
     jobs = [
         mock.Mock(args=["antivirus", str(scanned_file.uuid)]),
         mock.Mock(args=["antivirus", str(unscanned_file.uuid).upper()]),
@@ -295,39 +298,18 @@ def test_call_reuses_scanner_and_batch_data(
     assert [event.file_uuid for event in event_queue] == file_uuids
 
 
-@pytest.fixture
-def organization_agent() -> models.Agent:
-    agent, _ = models.Agent.objects.get_or_create(
-        pk=models.Agent.objects.DEFAULT_ORGANIZATION_AGENT_PK,
-        defaults={
-            "agenttype": "organization",
-            "identifiervalue": "ORG",
-            "name": "Your Organization Name Here",
-            "identifiertype": "repository code",
-        },
-    )
-    return agent
-
-
 @pytest.mark.django_db
 @mock.patch("archivematica.MCPClient.clientScripts.antivirus.create_scanner")
 def test_call_preserves_scan_and_event_behavior(
     create_scanner: mock.Mock,
     organization_agent: models.Agent,
-    transfer: models.Transfer,
+    scanned_file: models.File,
     transfer_file: models.File,
     user: User,
     settings: pytest_django.Settings,
 ) -> None:
     transfer_file.size = 42
     transfer_file.save(update_fields=["size"])
-    scanned_file = models.File.objects.create(
-        transfer=transfer,
-        originallocation=b"objects/scanned",
-        currentlocation=b"objects/scanned",
-        size=42,
-    )
-    models.Event.objects.create(file_uuid=scanned_file, event_type="virus check")
     paths = ["/path/scanned", "/path/unscanned"]
     jobs = [
         mock.Mock(

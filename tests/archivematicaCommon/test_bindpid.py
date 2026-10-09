@@ -1,12 +1,13 @@
+import uuid
+
 import pytest
-from django.test import TestCase
 
 from archivematica.archivematicaCommon import bindpid
 
 VALID_ARG_DICT = {
     "entity_type": "file",
     "resolve_url_template_file": "https://access.my.org/access/{{ naming_authority }}/{{ pid }}",
-    "desired_pid": "3d6383a3-eafb-410e-b00f-77c33eb0b31b",
+    "desired_pid": str(uuid.uuid4()),
     "naming_authority": "12345",
     "pid_web_service_endpoint": "https://my.pid.endpoint.org/secure",
     "pid_web_service_key": "https://my.pid.endpoint.org/secure",
@@ -38,7 +39,7 @@ VALID_ARG_DICT = {
 # Bind PID params with for a file lacking a key for resolve_url_template_file
 INVALID_ET_REQUIRED_ARG_DICT = {
     "entity_type": "file",
-    "desired_pid": "3d6383a3-eafb-410e-b00f-77c33eb0b31b",
+    "desired_pid": str(uuid.uuid4()),
     "naming_authority": "12345",
     "pid_web_service_endpoint": "https://my.pid.endpoint.org/secure",
     "pid_web_service_key": "https://my.pid.endpoint.org/secure",
@@ -70,7 +71,7 @@ INVALID_ET_REQUIRED_ARG_DICT = {
 # Invalid bind PID params: entity_type is wrong
 INVALID_ARG_DICT = {
     "entity_type": "godzilla",
-    "desired_pid": "3d6383a3-eafb-410e-b00f-77c33eb0b31b",
+    "desired_pid": str(uuid.uuid4()),
     "naming_authority": "12345",
     "pid_web_service_endpoint": "https://my.pid.endpoint.org/secure",
     "pid_web_service_key": "https://my.pid.endpoint.org/secure",
@@ -100,21 +101,24 @@ INVALID_ARG_DICT = {
 }
 
 
-class TestBindPID(TestCase):
-    def test__validate(self):
-        """Test the _validate function"""
-
-        with pytest.raises(bindpid.BindPIDException) as excinfo:
-            bindpid._validate(INVALID_ET_REQUIRED_ARG_DICT)
-        assert (
+def test_validate_requires_resolve_url_template_file_for_files() -> None:
+    with pytest.raises(
+        bindpid.BindPIDException,
+        match=(
             "To request a PID for a file, you must also supply a value for"
-            " resolve_url_template_file" in str(excinfo.value)
-        )
+            " resolve_url_template_file"
+        ),
+    ):
+        bindpid._validate(INVALID_ET_REQUIRED_ARG_DICT)
 
-        with pytest.raises(bindpid.BindPIDException) as excinfo:
-            bindpid._validate(INVALID_ARG_DICT)
-        assert "The value for parameter entity_type must be one of" in str(
-            excinfo.value
-        )
 
-        assert bindpid._validate(VALID_ARG_DICT) is None
+def test_validate_rejects_unknown_entity_type() -> None:
+    with pytest.raises(
+        bindpid.BindPIDException,
+        match="The value for parameter entity_type must be one of",
+    ):
+        bindpid._validate(INVALID_ARG_DICT)
+
+
+def test_validate_accepts_valid_params() -> None:
+    assert bindpid._validate(VALID_ARG_DICT) is None

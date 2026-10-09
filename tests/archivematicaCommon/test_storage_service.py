@@ -4,6 +4,7 @@ Tests for the Archivematica Common Storage Service helpers.
 """
 
 import json
+import uuid
 from unittest import mock
 
 import pytest
@@ -60,7 +61,7 @@ def test_location_desc_from_slug(
     "slug,return_value,expected_result",
     [
         (
-            "/api/v2/location/3e796bef-0d56-4471-8700-eeb256859811/",
+            f"/api/v2/location/{uuid.uuid4()}/",
             {"description": "a description"},
             "a description",
         ),
@@ -70,16 +71,23 @@ def test_location_desc_from_slug(
             "/path/one/",
         ),
         (
-            "/api/v2/location/e0a9558c-ae00-4e39-886d-2a38bba98c72/",
+            f"/api/v2/location/{uuid.uuid4()}/",
             {"path": "/path/two"},
             "/path/two",
         ),
         (
-            "/api/v2/location/e0a9558c-ae00-4e39-886d-2a38bba98c72/",
+            f"/api/v2/location/{uuid.uuid4()}/",
             {"description": "a description", "path": "/path/three"},
             "a description",
         ),
-        ("/api/v2/location/fd46760b-567f-4c17-a2f4-a05e79074932/", {}, ""),
+        (f"/api/v2/location/{uuid.uuid4()}/", {}, ""),
+    ],
+    ids=[
+        "description",
+        "default_location_path",
+        "path",
+        "description_and_path",
+        "empty",
     ],
 )
 @mock.patch(
@@ -120,7 +128,7 @@ def test_request_file_deletion_handles_non_json_response(
     _storage_api_session.return_value = session
 
     result = request_file_deletion(
-        "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        str(uuid.uuid4()),
         0,
         "archivematica@example.com",
         "testing",

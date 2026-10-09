@@ -1,5 +1,6 @@
 import json
 import pathlib
+import uuid
 
 import pytest
 from django.core.management import call_command
@@ -181,7 +182,7 @@ def test_command_ignores_semantically_identical_entries_with_different_uuids(
                 "replaces": None,
                 "enabled": True,
                 "lastmodified": "2026-07-13T23:50:32.719Z",
-                "uuid": "8c128693-56c7-4798-90a8-bd939e86fb95",
+                "uuid": str(uuid.uuid4()),
                 "purpose": "validation",
                 "command": "09a14b6b-3f4c-49d8-9a62-0c7212aca83c",
                 "format": "6ad6b8e1-0fc5-46ac-8531-28dbf5fe33c4",
@@ -199,7 +200,7 @@ def test_command_ignores_semantically_identical_entries_with_different_uuids(
                 "replaces": None,
                 "enabled": True,
                 "lastmodified": "2026-07-14T15:03:17.188Z",
-                "uuid": "6b8af700-b1a1-449a-81b0-2112307a3dae",
+                "uuid": str(uuid.uuid4()),
                 "purpose": "validation",
                 "command": "09a14b6b-3f4c-49d8-9a62-0c7212aca83c",
                 "format": "6ad6b8e1-0fc5-46ac-8531-28dbf5fe33c4",
@@ -226,8 +227,8 @@ def test_command_ignores_semantically_identical_entries_with_different_uuids(
 def test_command_rejects_new_entries_referencing_a_drifted_uuid(
     tmp_path: pathlib.Path,
 ) -> None:
-    old_group_uuid = "49918a30-5db7-40f0-ac11-b56610365257"
-    new_group_uuid = "27cb2790-d577-4411-9bcc-d78a27da1d01"
+    old_group_uuid = str(uuid.uuid4())
+    new_group_uuid = str(uuid.uuid4())
     old_json = [
         {
             "model": "fpr.formatgroup",
@@ -253,7 +254,7 @@ def test_command_rejects_new_entries_referencing_a_drifted_uuid(
             "model": "fpr.format",
             "pk": 1640,
             "fields": {
-                "uuid": "86e2094e-8e1c-4c73-8c39-c341cb01a602",
+                "uuid": str(uuid.uuid4()),
                 "description": "New text format",
                 "group": new_group_uuid,
                 "slug": "new-text-format",
@@ -287,7 +288,7 @@ def test_command_omits_primary_keys_from_output(tmp_path: pathlib.Path) -> None:
         "model": "fpr.formatgroup",
         "pk": 36,
         "fields": {
-            "uuid": "35f8e190-b66e-4b90-92f1-15844d2211ea",
+            "uuid": str(uuid.uuid4()),
             "description": "New format group",
             "slug": "new-format-group",
         },

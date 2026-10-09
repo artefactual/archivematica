@@ -2,18 +2,18 @@ import pytest
 
 from archivematica.archivematicaCommon.namespaces import NSMAP
 from archivematica.dashboard.main import models
+from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSRights
 from archivematica.MCPClient.clientScripts.create_mets_v2 import MetsState
 from archivematica.MCPClient.clientScripts.create_mets_v2 import getAMDSec
+from tests.factories import RightsStatementFactory
 
 
 @pytest.fixture()
-def rights_statement(metadata_applies_to_types, sip_file):
-    statement = models.RightsStatement.objects.create(
-        metadataappliestotype=metadata_applies_to_types["file"],
-        metadataappliestoidentifier=sip_file.uuid,
-        rightsbasis="Copyright",
-    )
+def rights_statement(
+    make_rights_statement: RightsStatementFactory, sip_file: models.File
+) -> models.RightsStatement:
+    statement = make_rights_statement("file", sip_file.uuid, rightsbasis="Copyright")
     models.RightsStatementCopyright.objects.create(
         rightsstatement=statement,
         copyrightjurisdiction="Québec",
@@ -21,8 +21,8 @@ def rights_statement(metadata_applies_to_types, sip_file):
     return statement
 
 
+@pytest.mark.django_db
 def test_archivematicaGetRights_with_non_ascii_copyright_jurisdiction(
-    db,
     mcp_job,
     sip_file,
     rights_statement,
@@ -44,20 +44,16 @@ def test_archivematicaGetRights_with_non_ascii_copyright_jurisdiction(
     )
 
 
+@pytest.mark.django_db
 def test_getAMDSec_combines_file_and_transfer_rights_for_original_file(
-    db,
-    mcp_job,
-    metadata_applies_to_types,
-    rights_statement,
-    sip,
-    sip_file,
-    transfer,
-):
-    statement = models.RightsStatement.objects.create(
-        metadataappliestotype=metadata_applies_to_types["transfer"],
-        metadataappliestoidentifier=transfer.uuid,
-        rightsbasis="License",
-    )
+    mcp_job: Job,
+    make_rights_statement: RightsStatementFactory,
+    rights_statement: models.RightsStatement,
+    sip: models.SIP,
+    sip_file: models.File,
+    transfer: models.Transfer,
+) -> None:
+    statement = make_rights_statement("transfer", transfer.uuid, rightsbasis="License")
     models.RightsStatementLicense.objects.create(
         rightsstatement=statement,
         licenseterms="CC-BY",

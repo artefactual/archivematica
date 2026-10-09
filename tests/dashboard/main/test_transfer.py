@@ -5,6 +5,7 @@ import pytest
 from archivematica.dashboard.main import models
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "in_transfer, transfer_type, in_sip, expected_output",
     [

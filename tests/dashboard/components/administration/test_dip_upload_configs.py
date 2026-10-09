@@ -1,8 +1,7 @@
-import pathlib
-
 import pytest
-from django.test import TestCase
+from django.test import Client
 from django.urls import reverse
+from pytest_django.asserts import assertTemplateUsed
 
 from archivematica.dashboard.components.administration.views_dip_upload import (
     _AS_DICTNAME,
@@ -12,155 +11,121 @@ from archivematica.dashboard.components.administration.views_dip_upload import (
 )
 from archivematica.dashboard.main.models import DashboardSetting
 
-TEST_USER_FIXTURE = (
-    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
-)
+pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 
 
-class TestDipUploadAsConfig(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
-
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
-
-    def setUp(self):
-        self.client.login(username="test", password="test")
-        self.url = reverse("administration:dips_as")
-
-    def test_get(self):
-        response = self.client.get(self.url)
-
-        self.assertEqual(response.request.get("PATH_INFO"), "/administration/dips/as/")
-        self.assertTemplateUsed(response, "administration/dips_as_edit.html")
-        self.assertFalse(response.context["form"].is_valid())
-
-    def test_post_minimum_required(self):
-        response = self.client.post(
-            self.url,
-            {
-                "base_url": "http://aspace.test.org:8089",
-                "user": "admin",
-                "xlink_show": "embed",
-                "xlink_actuate": "none",
-                "uri_prefix": "http://example.com",
-                "repository": 2,
-                "restrictions": "yes",
-            },
-        )
-        form = response.context["form"]
-        messages = list(response.context["messages"])
-        config = DashboardSetting.objects.get_dict(_AS_DICTNAME)
-
-        self.assertTrue(form.is_valid())
-        self.assertFalse(form.errors)
-
-        self.assertTrue(messages)
-        self.assertEqual(messages[0].message, "Saved.")
-        self.assertEqual(messages[0].tags, "info")
-
-        self.assertIsInstance(config, dict)
-        self.assertEqual(config["base_url"], "http://aspace.test.org:8089")
-        self.assertEqual(config["repository"], "2")
-        self.assertEqual(len(list(config.keys())), len(form.fields))
-
-    def test_post_missing_fields(self):
-        response = self.client.post(
-            self.url, {"base_url": "http://aspace.test.org:8089"}
-        )
-        form = response.context["form"]
-        config = DashboardSetting.objects.get_dict(_AS_DICTNAME)
-
-        self.assertFalse(form.is_valid())
-        self.assertTrue(form.errors)
-
-        self.assertFormError(
-            response.context["form"], "user", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "xlink_show", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "xlink_actuate", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "uri_prefix", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "repository", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "restrictions", "This field is required."
-        )
-
-        self.assertIsInstance(config, dict)
+# ArchivesSpace DIP upload configuration
 
 
-class TestDipUploadAtomConfig(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
+@pytest.mark.django_db
+def test_dips_as_get(admin_client: Client) -> None:
+    response = admin_client.get(reverse("administration:dips_as"))
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
+    assert response.request["PATH_INFO"] == "/administration/dips/as/"
+    assertTemplateUsed(response, "administration/dips_as_edit.html")
+    assert not response.context["form"].is_valid()
 
-    def setUp(self):
-        self.client.login(username="test", password="test")
-        self.url = reverse("administration:dips_atom_index")
 
-    def test_get(self):
-        response = self.client.get(self.url)
+@pytest.mark.django_db
+def test_dips_as_post_minimum_required(admin_client: Client) -> None:
+    response = admin_client.post(
+        reverse("administration:dips_as"),
+        {
+            "base_url": "http://aspace.test.org:8089",
+            "user": "admin",
+            "xlink_show": "embed",
+            "xlink_actuate": "none",
+            "uri_prefix": "http://example.com",
+            "repository": 2,
+            "restrictions": "yes",
+        },
+    )
+    form = response.context["form"]
+    config = DashboardSetting.objects.get_dict(_AS_DICTNAME)
 
-        self.assertEqual(
-            response.request.get("PATH_INFO"), "/administration/dips/atom/"
-        )
-        self.assertTemplateUsed(response, "administration/dips_atom_edit.html")
-        self.assertFalse(response.context["form"].is_valid())
+    assert form.is_valid()
+    assert not form.errors
+    assert [
+        (message.message, message.tags) for message in response.context["messages"]
+    ] == [("Saved.", "info")]
+    assert isinstance(config, dict)
+    assert config["base_url"] == "http://aspace.test.org:8089"
+    assert config["repository"] == "2"
+    assert len(config) == len(form.fields)
 
-    def test_post_minimum_required(self):
-        response = self.client.post(
-            self.url,
-            {
-                "url": "https://search.efimm.org",
-                "email": "demo@example.com",
-                "password": "demo",
-                "version": 2,
-            },
-        )
-        form = response.context["form"]
-        messages = list(response.context["messages"])
-        config = DashboardSetting.objects.get_dict(_ATOM_DICTNAME)
 
-        self.assertTrue(form.is_valid())
-        self.assertFalse(form.errors)
+@pytest.mark.django_db
+def test_dips_as_post_missing_fields(admin_client: Client) -> None:
+    response = admin_client.post(
+        reverse("administration:dips_as"), {"base_url": "http://aspace.test.org:8089"}
+    )
+    form = response.context["form"]
+    config = DashboardSetting.objects.get_dict(_AS_DICTNAME)
 
-        self.assertTrue(messages)
-        self.assertEqual(messages[0].message, "Saved.")
-        self.assertEqual(messages[0].tags, "info")
+    assert not form.is_valid()
+    assert form.errors == {
+        "user": ["This field is required."],
+        "xlink_show": ["This field is required."],
+        "xlink_actuate": ["This field is required."],
+        "uri_prefix": ["This field is required."],
+        "repository": ["This field is required."],
+        "restrictions": ["This field is required."],
+    }
+    assert isinstance(config, dict)
 
-        self.assertIsInstance(config, dict)
-        self.assertEqual(config["url"], "https://search.efimm.org")
-        self.assertEqual(config["email"], "demo@example.com")
-        self.assertEqual(config["password"], "demo")
-        self.assertEqual(config["version"], "2")
-        self.assertEqual(config["key"], "")
-        self.assertEqual(len(list(config.keys())), len(form.fields))
 
-    def test_post_missing_fields(self):
-        response = self.client.post(self.url, {"url": "https://search.efimm.org"})
-        form = response.context["form"]
-        config = DashboardSetting.objects.get_dict(_ATOM_DICTNAME)
+# AtoM DIP upload configuration
 
-        self.assertFalse(form.is_valid())
-        self.assertTrue(form.errors)
 
-        self.assertFormError(
-            response.context["form"], "email", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "password", "This field is required."
-        )
-        self.assertFormError(
-            response.context["form"], "version", "This field is required."
-        )
+@pytest.mark.django_db
+def test_dips_atom_get(admin_client: Client) -> None:
+    response = admin_client.get(reverse("administration:dips_atom_index"))
 
-        self.assertIsInstance(config, dict)
+    assert response.request["PATH_INFO"] == "/administration/dips/atom/"
+    assertTemplateUsed(response, "administration/dips_atom_edit.html")
+    assert not response.context["form"].is_valid()
+
+
+@pytest.mark.django_db
+def test_dips_atom_post_minimum_required(admin_client: Client) -> None:
+    response = admin_client.post(
+        reverse("administration:dips_atom_index"),
+        {
+            "url": "https://search.efimm.org",
+            "email": "demo@example.com",
+            "password": "demo",
+            "version": 2,
+        },
+    )
+    form = response.context["form"]
+    config = DashboardSetting.objects.get_dict(_ATOM_DICTNAME)
+
+    assert form.is_valid()
+    assert not form.errors
+    assert [
+        (message.message, message.tags) for message in response.context["messages"]
+    ] == [("Saved.", "info")]
+    assert isinstance(config, dict)
+    assert config["url"] == "https://search.efimm.org"
+    assert config["email"] == "demo@example.com"
+    assert config["password"] == "demo"
+    assert config["version"] == "2"
+    assert config["key"] == ""
+    assert len(config) == len(form.fields)
+
+
+@pytest.mark.django_db
+def test_dips_atom_post_missing_fields(admin_client: Client) -> None:
+    response = admin_client.post(
+        reverse("administration:dips_atom_index"), {"url": "https://search.efimm.org"}
+    )
+    form = response.context["form"]
+    config = DashboardSetting.objects.get_dict(_ATOM_DICTNAME)
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "email": ["This field is required."],
+        "password": ["This field is required."],
+        "version": ["This field is required."],
+    }
+    assert isinstance(config, dict)

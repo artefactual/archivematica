@@ -1,69 +1,86 @@
-import pathlib
 import uuid
 from unittest import mock
 
 import pytest
-from django.test import TestCase
+from django.contrib.auth.models import User
 
 from archivematica.dashboard.main import models
+from tests.factories import TransferFactory
 
-TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
 
+@pytest.mark.django_db
+def test_transfer_update_active_agent(
+    admin_user: User, make_transfer: TransferFactory
+) -> None:
+    transfer = make_transfer()
 
-class TestActiveAgent(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
+    transfer.update_active_agent(admin_user.id)
 
-    def test_transfer_update_active_agent(self):
-        user = models.User.objects.get(id=1)
-        transfer = models.Transfer.objects.create()
-        transfer.update_active_agent(user.id)
-        assert models.UnitVariable.objects.get(
+    assert (
+        models.UnitVariable.objects.filter(
             unittype="Transfer",
             unituuid=transfer.uuid,
             variable="activeAgent",
-            variablevalue=user.userprofile.agent_id,
-        )
+            variablevalue=admin_user.userprofile.agent_id,
+        ).count()
+        == 1
+    )
 
-    def test_sip_update_active_agent(self):
-        user = models.User.objects.get(id=1)
-        sip = models.SIP.objects.create()
-        sip.update_active_agent(user.id)
-        assert models.UnitVariable.objects.get(
+
+@pytest.mark.django_db
+def test_sip_update_active_agent(admin_user: User, sip: models.SIP) -> None:
+    sip.update_active_agent(admin_user.id)
+
+    assert (
+        models.UnitVariable.objects.filter(
             unittype="SIP",
             unituuid=sip.uuid,
             variable="activeAgent",
-            variablevalue=user.userprofile.agent_id,
-        )
+            variablevalue=admin_user.userprofile.agent_id,
+        ).count()
+        == 1
+    )
 
-    def test_unitvariable_update_variable(self):
-        link_id = uuid.uuid4()
-        UNIT_ID = uuid.uuid4()
-        obj, created = models.UnitVariable.objects.update_variable(
-            "UNIT_TYPE", UNIT_ID, "VARIABLE", "VALUE", link_id
-        )
-        assert created is True
-        assert isinstance(obj, models.UnitVariable)
-        models.UnitVariable.objects.get(
+
+@pytest.mark.django_db
+def test_unitvariable_update_variable() -> None:
+    unit_uuid = uuid.uuid4()
+    link_id = uuid.uuid4()
+
+    obj, created = models.UnitVariable.objects.update_variable(
+        "UNIT_TYPE", unit_uuid, "VARIABLE", "VALUE", link_id
+    )
+
+    assert created is True
+    assert isinstance(obj, models.UnitVariable)
+    assert (
+        models.UnitVariable.objects.filter(
             unittype="UNIT_TYPE",
-            unituuid=UNIT_ID,
+            unituuid=unit_uuid,
             variable="VARIABLE",
             variablevalue="VALUE",
             microservicechainlink=link_id,
-        )
+        ).count()
+        == 1
+    )
 
-        new_link_id = uuid.uuid4()
-        obj, created = models.UnitVariable.objects.update_variable(
-            "UNIT_TYPE", UNIT_ID, "VARIABLE", "NEW_VALUE", new_link_id
-        )
-        assert created is False
-        assert isinstance(obj, models.UnitVariable)
-        models.UnitVariable.objects.get(
+    new_link_id = uuid.uuid4()
+    obj, created = models.UnitVariable.objects.update_variable(
+        "UNIT_TYPE", unit_uuid, "VARIABLE", "NEW_VALUE", new_link_id
+    )
+
+    assert created is False
+    assert isinstance(obj, models.UnitVariable)
+    assert (
+        models.UnitVariable.objects.filter(
             unittype="UNIT_TYPE",
-            unituuid=UNIT_ID,
+            unituuid=unit_uuid,
             variable="VARIABLE",
             variablevalue="NEW_VALUE",
             microservicechainlink=new_link_id,
-        )
+        ).count()
+        == 1
+    )
 
 
 @mock.patch("archivematica.dashboard.main.models.Agent")
@@ -84,73 +101,54 @@ def test_create_user_agent(agent_mock):
     )
 
 
-class TestJobModel:
-    """Tests for the Job model."""
+# UUID of the unit of the job whose directory name is parsed.
+SIP_UUID = uuid.uuid4()
 
-    @pytest.mark.parametrize(
-        "sip_uuid, input_path, expected_package_name",
-        [
-            # No directory - returns UUID.
-            (
-                "11111111-1111-1111-1111-111111111111",
-                "",
-                "11111111-1111-1111-1111-111111111111",
-            ),
-            # First pattern - simulates the directory of a transfer
-            # in-progress with no trailing slash.
-            (
-                "22222222-2222-2222-2222-222222222222",
-                "/directory-1/directory-1/transfer-name-22222222-2222-2222-2222-222222222222",
-                "transfer-name",
-            ),
-            # Second pattern - simulates the directory of a transfer
-            # in-progress with trailing slash.
-            (
-                "33333333-3333-3333-3333-333333333333",
-                "/directory-1/directory-1/transfer-name-33333333-3333-3333-3333-333333333333/",
-                "transfer-name",
-            ),
-            # Third pattern - simulates a new transfer with arbitrary
-            # path with no trailing slash.
-            (
-                "44444444-4444-4444-4444-444444444444",
-                "%sharedPath%currentlyProcessing/path-1",
-                "path-1",
-            ),
-            # Fourth pattern - simulates a new transfer with arbitrary
-            # path with trailing slash.
-            (
-                "55555555-5555-5555-5555-555555555555",
-                "%sharedPath%currentlyProcessing/path-2/",
-                "path-2",
-            ),
-            # Fifth pattern - will fail all conditions but we ensure the
-            # Job doesn't return None and we retrieve the UUID at least.
-            (
-                "66666666-6666-6666-6666-666666666666",
-                "%sharedPath%currentlyProcessingpath-2",
-                "66666666-6666-6666-6666-666666666666",
-            ),
-            # Sixth pattern - should not happen within the Archivematica
-            # workflow as the slashes would be terminated or single, but
-            # will simulate all group matching failing.
-            (
-                "77777777-7777-7777-7777-777777777777",
-                "/directory-1/directory-1/transfer-name-77777777-7777-7777-7777-777777777777//",
-                "77777777-7777-7777-7777-777777777777",
-            ),
-            # Seventh pattern - should not happen within the
-            # Archivematica workflow as the slashes would be terminated
-            # or single, but will simulate all group matching failing.
-            (
-                "88888888-8888-8888-8888-888888888888",
-                "%sharedPath%currentlyProcessing/path-2//",
-                "88888888-8888-8888-8888-888888888888",
-            ),
-        ],
-    )
-    def test_get_directory_name(self, sip_uuid, input_path, expected_package_name):
-        job = models.Job()
-        job.sipuuid = sip_uuid
-        job.directory = input_path
-        assert job.get_directory_name() == expected_package_name
+
+@pytest.mark.parametrize(
+    "input_path, expected_package_name",
+    [
+        # No directory - returns UUID.
+        ("", SIP_UUID),
+        # First pattern - simulates the directory of a transfer
+        # in-progress with no trailing slash.
+        (f"/directory-1/directory-1/transfer-name-{SIP_UUID}", "transfer-name"),
+        # Second pattern - simulates the directory of a transfer
+        # in-progress with trailing slash.
+        (f"/directory-1/directory-1/transfer-name-{SIP_UUID}/", "transfer-name"),
+        # Third pattern - simulates a new transfer with arbitrary
+        # path with no trailing slash.
+        ("%sharedPath%currentlyProcessing/path-1", "path-1"),
+        # Fourth pattern - simulates a new transfer with arbitrary
+        # path with trailing slash.
+        ("%sharedPath%currentlyProcessing/path-2/", "path-2"),
+        # Fifth pattern - will fail all conditions but we ensure the
+        # Job doesn't return None and we retrieve the UUID at least.
+        ("%sharedPath%currentlyProcessingpath-2", SIP_UUID),
+        # Sixth pattern - should not happen within the Archivematica
+        # workflow as the slashes would be terminated or single, but
+        # will simulate all group matching failing.
+        (f"/directory-1/directory-1/transfer-name-{SIP_UUID}//", SIP_UUID),
+        # Seventh pattern - should not happen within the
+        # Archivematica workflow as the slashes would be terminated
+        # or single, but will simulate all group matching failing.
+        ("%sharedPath%currentlyProcessing/path-2//", SIP_UUID),
+    ],
+    ids=[
+        "no_directory",
+        "transfer_without_slash",
+        "transfer_with_slash",
+        "path_without_slash",
+        "path_with_slash",
+        "no_match",
+        "transfer_double_slash",
+        "path_double_slash",
+    ],
+)
+def test_job_get_directory_name(
+    input_path: str, expected_package_name: str | uuid.UUID
+) -> None:
+    job = models.Job()
+    job.sipuuid = SIP_UUID
+    job.directory = input_path
+    assert job.get_directory_name() == expected_package_name

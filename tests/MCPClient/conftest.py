@@ -1,14 +1,13 @@
 import importlib.resources
-import pathlib
+import uuid
 
 import pytest
-import pytest_django
-from django.contrib.auth.models import User
-from django.utils import timezone
 
-from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
+from tests.factories import FileFactory
+from tests.factories import TransferFactory
+from tests.MCPClient.factories import MCPJobFactory
 
 
 @pytest.fixture(autouse=True)
@@ -25,267 +24,64 @@ def set_xml_catalog_files(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
-@pytest.fixture()
-def mcp_job() -> Job:
-    return Job("stub", "stub", [])
+@pytest.fixture
+def make_mcp_job() -> MCPJobFactory:
+    return MCPJobFactory()
 
 
-@pytest.fixture()
-def metadata_applies_to_types(
-    db: None,
-) -> dict[str, models.MetadataAppliesToType]:
-    file_type, _ = models.MetadataAppliesToType.objects.get_or_create(
-        pk=models.MetadataAppliesToType.FILE_TYPE,
-        description="File",
-    )
-    transfer_type, _ = models.MetadataAppliesToType.objects.get_or_create(
-        pk=models.MetadataAppliesToType.TRANSFER_TYPE,
-        description="Transfer",
-    )
-
-    return {"file": file_type, "transfer": transfer_type}
+@pytest.fixture
+def mcp_job(make_mcp_job: MCPJobFactory) -> Job:
+    return make_mcp_job()
 
 
-@pytest.fixture()
-def user() -> User:
-    return User.objects.create(
-        id=1,
-        username="kmindelan",
-        first_name="Keladry",
-        last_name="Mindelan",
-        is_active=True,
-        is_superuser=True,
-        is_staff=True,
-        email="keladry@mindelan.com",
+@pytest.fixture
+def unicode_transfer(make_transfer: TransferFactory) -> models.Transfer:
+    """A standard transfer whose directory name has non-ASCII characters."""
+    transfer_uuid = uuid.uuid4()
+
+    return make_transfer(
+        uuid=transfer_uuid,
+        type="Standard",
+        currentlocation=f"%sharedPath%currentlyProcessing/ユニコード-{transfer_uuid}/",
     )
 
 
 @pytest.fixture
-def job() -> models.Job:
-    return models.Job.objects.create(createdtime=timezone.now())
-
-
-@pytest.fixture
-def task(job: models.Job) -> models.Task:
-    return models.Task.objects.create(job=job, createdtime=timezone.now())
-
-
-@pytest.fixture
-def transfer(user: User) -> models.Transfer:
-    result = models.Transfer.objects.create(
-        currentlocation=r"%transferDirectory%",
-        access_system_id="atom-description-id",
-        diruuids=True,
-    )
-    result.update_active_agent(user.id)
-
-    return result
-
-
-@pytest.fixture
-def sip() -> models.SIP:
-    return models.SIP.objects.create(currentpath=r"%SIPDirectory%", diruuids=True)
-
-
-@pytest.fixture
-def format_group() -> fprmodels.FormatGroup:
-    return fprmodels.FormatGroup.objects.create()
-
-
-@pytest.fixture
-def format(format_group: fprmodels.FormatGroup) -> fprmodels.Format:
-    return fprmodels.Format.objects.create(group=format_group)
-
-
-@pytest.fixture
-def format_version(format: fprmodels.Format) -> fprmodels.FormatVersion:
-    return fprmodels.FormatVersion.objects.create(format=format)
-
-
-@pytest.fixture
-def fptool() -> fprmodels.FPTool:
-    return fprmodels.FPTool.objects.create()
-
-
-@pytest.fixture
-def idtool() -> fprmodels.IDTool:
-    return fprmodels.IDTool.objects.create()
-
-
-@pytest.fixture
-def fpcommand(fptool: fprmodels.FPTool) -> fprmodels.FPCommand:
-    return fprmodels.FPCommand.objects.create(tool=fptool)
-
-
-@pytest.fixture
-def idcommand(idtool: fprmodels.IDTool) -> fprmodels.IDCommand:
-    return fprmodels.IDCommand.objects.create(tool=idtool, config="PUID")
-
-
-@pytest.fixture
-def fprule(
-    fpcommand: fprmodels.FPCommand, format_version: fprmodels.FormatVersion
-) -> fprmodels.FPRule:
-    return fprmodels.FPRule.objects.create(command=fpcommand, format=format_version)
-
-
-@pytest.fixture
-def idrule(
-    idcommand: fprmodels.IDCommand, format_version: fprmodels.FormatVersion
-) -> fprmodels.IDRule:
-    return fprmodels.IDRule.objects.create(command=idcommand, format=format_version)
-
-
-@pytest.fixture()
-def fprule_characterization(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.CHARACTERIZATION
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_extraction(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.EXTRACTION
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_validation(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.VALIDATION
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_transcription(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.TRANSCRIPTION
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_preservation(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.PRESERVATION
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_policy_check(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.POLICY
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_thumbnail(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.THUMBNAIL
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def fprule_access(fprule: fprmodels.FPRule) -> fprmodels.FPRule:
-    fprule.purpose = fprmodels.FPRule.ACCESS
-    fprule.save()
-
-    return fprule
-
-
-@pytest.fixture
-def transfer_file(transfer: models.Transfer) -> models.File:
-    location = b"%transferDirectory%objects/file.mp3"
-    return models.File.objects.create(
-        transfer=transfer,
-        filegrpuse="original",
-        originallocation=location,
-        currentlocation=location,
-    )
-
-
-@pytest.fixture
-def sip_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
-    location = "objects/file.mp3"
-    return models.File.objects.create(
-        transfer=transfer,
-        sip=sip,
-        filegrpuse="original",
-        originallocation=f"%transferDirectory%{location}".encode(),
-        currentlocation=f"%SIPDirectory%{location}".encode(),
-    )
-
-
-@pytest.fixture
-def preservation_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
-    location = b"%SIPDirectory%objects/file.wav"
-    return models.File.objects.create(
-        transfer=transfer,
-        sip=sip,
-        filegrpuse="preservation",
-        originallocation=location,
-        currentlocation=location,
-    )
-
-
-@pytest.fixture
-def transfer_file_format_version(
-    transfer_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=transfer_file, format_version=format_version
-    )
-
-
-@pytest.fixture
-def sip_file_format_version(
-    sip_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=sip_file, format_version=format_version
-    )
-
-
-@pytest.fixture
-def shared_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
-    result = tmp_path / "sharedDirectory"
-    result.mkdir()
-
-    for directory in ["currentlyProcessing", "tmp"]:
-        (result / directory).mkdir()
-
-    return result
-
-
-@pytest.fixture
-def transfer_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
-    result = tmp_path / "transfer"
-    result.mkdir()
-
-    return result
-
-
-@pytest.fixture
-def sip_directory_path(tmp_path: pathlib.Path) -> pathlib.Path:
-    result = tmp_path / "sip"
-    result.mkdir()
-
-    return result
-
-
-@pytest.fixture
-def settings(
-    settings: pytest_django.Settings,
-    shared_directory_path: pathlib.Path,
-) -> pytest_django.Settings:
-    settings.SHARED_DIRECTORY = f"{shared_directory_path}/"
-    settings.PROCESSING_DIRECTORY = f"{shared_directory_path / 'currentlyProcessing'}/"
-
-    return settings
+def unicode_transfer_files(
+    make_file: FileFactory, unicode_transfer: models.Transfer
+) -> list[models.File]:
+    """The original files of the unicode transfer, some with non-ASCII paths."""
+    photo_checksum = "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92"
+    lion_checksum = "f78615cd834f7fb84832177e73f13e3479f5b5b22ae7a9506c7fa0a14fd9df9e"
+
+    return [
+        make_file(
+            f"objects/{path}",
+            transfer=unicode_transfer,
+            size=size,
+            checksum=checksum,
+            checksumtype="sha256",
+        )
+        for path, size, checksum in [
+            (
+                "たくさん directories/need name change/checking here/evélyn's photo.jpg",
+                158131,
+                photo_checksum,
+            ),
+            (
+                "no_name_change/needed_here/lion.svg",
+                18324,
+                lion_checksum,
+            ),
+            (
+                "たくさん directories/need name change/checking here/lion写真.svg",
+                18324,
+                lion_checksum,
+            ),
+            (
+                "has space/lion.svg",
+                18324,
+                lion_checksum,
+            ),
+        ]
+    ]

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import uuid as uuid
+from typing import TypeVar
 
 from autoslug import AutoSlugField
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -26,16 +27,16 @@ logger = logging.getLogger(__name__)
 # ########### MANAGERS ############
 
 
-class Enabled(models.Manager):
+_ModelT = TypeVar("_ModelT", bound=models.Model)
+
+
+class Enabled(models.Manager[_ModelT]):
     """Manager to only return enabled objects.
 
     Filters by enabled=True."""
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[_ModelT]:
         return super().get_queryset().filter(enabled=True)
-
-    def get_query_set(self):
-        return super().get_query_set().filter(enabled=True)
 
 
 # ########### MIXINS ############
@@ -76,8 +77,8 @@ class VersionedModel(models.Model):
 # ########### FORMATS ############
 
 
-class FormatManager(models.Manager):
-    def get_full_list(self):
+class FormatManager(models.Manager["Format"]):
+    def get_full_list(self) -> list[Format]:
         """Detailed list of formats including PRONOM IDs.
 
         This is used by ``views.format_list`` so we can return the full list of
@@ -157,7 +158,7 @@ class Format(models.Model):
     )
     slug = AutoSlugField(_("slug"), populate_from="description", unique=True)
 
-    objects: models.Manager[Format] = FormatManager()
+    objects = FormatManager()
 
     class Meta:
         verbose_name = _("Format")

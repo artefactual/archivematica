@@ -1,143 +1,155 @@
-import pathlib
+import uuid
 from unittest import mock
 
 import pytest
-from django.test import TestCase
+from django.test import Client
 
-TEST_USER_FIXTURE = (
-    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
+pytestmark = pytest.mark.usefixtures("dashboard_uuid")
+
+
+@pytest.fixture
+def locations() -> list[dict[str, object]]:
+    """Locations of the pipeline as returned by the Storage Service API."""
+    pipeline = f"/api/v2/pipeline/{uuid.uuid4()}/"
+    space = f"/api/v2/space/{uuid.uuid4()}/"
+    processing_uuid = str(uuid.uuid4())
+    transfer_source_uuid = str(uuid.uuid4())
+    disabled_transfer_source_uuid = str(uuid.uuid4())
+    aip_storage_uuid = str(uuid.uuid4())
+    dip_storage_uuid = str(uuid.uuid4())
+    aip_recovery_uuid = str(uuid.uuid4())
+    return [
+        {
+            "uuid": processing_uuid,
+            "pipeline": [pipeline],
+            "used": "0",
+            "description": None,
+            "space": space,
+            "enabled": True,
+            "quota": None,
+            "relative_path": "var/archivematica/sharedDirectory/",
+            "purpose": "CP",
+            "path": "/var/archivematica/sharedDirectory",
+            "resource_uri": f"/api/v2/location/{processing_uuid}/",
+        },
+        {
+            "uuid": transfer_source_uuid,
+            "pipeline": [pipeline],
+            "used": "0",
+            "description": "",
+            "space": space,
+            "enabled": True,
+            "quota": None,
+            "relative_path": "home",
+            "purpose": "TS",
+            "path": "/home",
+            "resource_uri": f"/api/v2/location/{transfer_source_uuid}/",
+        },
+        {
+            "uuid": disabled_transfer_source_uuid,
+            "pipeline": [pipeline],
+            "used": "0",
+            "description": "",
+            "space": space,
+            "enabled": False,
+            "quota": None,
+            "relative_path": "home",
+            "purpose": "TS",
+            "path": "/home",
+            "resource_uri": f"/api/v2/location/{disabled_transfer_source_uuid}/",
+        },
+        {
+            "uuid": aip_storage_uuid,
+            "pipeline": [pipeline],
+            "used": "5368709120",
+            "description": "Store AIP in standard Archivematica Directory",
+            "space": space,
+            "enabled": True,
+            "quota": "10737418240",
+            "relative_path": "var/archivematica/sharedDirectory/www/AIPsStore",
+            "purpose": "AS",
+            "path": "/var/archivematica/sharedDirectory/www/AIPsStore",
+            "resource_uri": f"/api/v2/location/{aip_storage_uuid}/",
+        },
+        {
+            "uuid": dip_storage_uuid,
+            "pipeline": [pipeline],
+            "used": "0",
+            "description": "Store DIP in standard Archivematica Directory",
+            "space": space,
+            "enabled": True,
+            "quota": None,
+            "relative_path": "var/archivematica/sharedDirectory/www/DIPsStore",
+            "purpose": "DS",
+            "path": "/var/archivematica/sharedDirectory/www/DIPsStore",
+            "resource_uri": f"/api/v2/location/{dip_storage_uuid}/",
+        },
+        {
+            "uuid": aip_recovery_uuid,
+            "pipeline": [pipeline],
+            "used": "0",
+            "description": "Default AIP recovery",
+            "space": space,
+            "enabled": True,
+            "quota": None,
+            "relative_path": "var/archivematica/storage_service/recover",
+            "purpose": "AR",
+            "path": "/var/archivematica/storage_service/recover",
+            "resource_uri": f"/api/v2/location/{aip_recovery_uuid}/",
+        },
+    ]
+
+
+@pytest.mark.django_db
+@mock.patch(
+    "archivematica.dashboard.components.administration.views.storage_service.get_location",
+    side_effect=Exception(),
 )
+def test_ss_connection_fail(get_location: mock.MagicMock, admin_client: Client) -> None:
+    response = admin_client.get("/administration/storage/")
+
+    assert "Error retrieving locations" in response.content.decode("utf8")
 
 
-class TestStorage(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
+@pytest.mark.django_db
+@mock.patch(
+    "archivematica.dashboard.components.administration.views.storage_service.get_location"
+)
+def test_success(
+    get_location: mock.MagicMock,
+    admin_client: Client,
+    locations: list[dict[str, object]],
+) -> None:
+    get_location.return_value = locations
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
+    response = admin_client.get("/administration/storage/")
 
-    def setUp(self):
-        self.client.login(username="test", password="test")
-        self.url = "/administration/storage/"
-
-    @mock.patch(
-        "archivematica.dashboard.components.administration.views.storage_service.get_location",
-        side_effect=Exception(),
-    )
-    def test_ss_connection_fail(self, mock_get_location):
-        response = self.client.get(self.url)
-        self.assertIn("Error retrieving locations", response.content.decode("utf8"))
-
-    @mock.patch(
-        "archivematica.dashboard.components.administration.views.storage_service.get_location"
-    )
-    def test_success(self, mock_get_location):
-        mock_get_location.return_value = [
-            {
-                "uuid": "821d8b48-8b19-42ae-9956-df1d749c21a2",
-                "pipeline": ["/api/v2/pipeline/fe263021-f1d7-4a25-b691-df80da5ee048/"],
-                "used": "0",
-                "description": None,
-                "space": "/api/v2/space/85a6a5af-8b99-4e04-83da-4d1d712f1115/",
-                "enabled": True,
-                "quota": None,
-                "relative_path": "var/archivematica/sharedDirectory/",
-                "purpose": "CP",
-                "path": "/var/archivematica/sharedDirectory",
-                "resource_uri": "/api/v2/location/821d8b48-8b19-42ae-9956-df1d749c21a2/",
-            },
-            {
-                "uuid": "bad1cfd5-a67a-4791-b4a9-43590727d25f",
-                "pipeline": ["/api/v2/pipeline/fe263021-f1d7-4a25-b691-df80da5ee048/"],
-                "used": "0",
-                "description": "",
-                "space": "/api/v2/space/85a6a5af-8b99-4e04-83da-4d1d712f1115/",
-                "enabled": True,
-                "quota": None,
-                "relative_path": "home",
-                "purpose": "TS",
-                "path": "/home",
-                "resource_uri": "/api/v2/location/bad1cfd5-a67a-4791-b4a9-43590727d25f/",
-            },
-            {
-                "uuid": "1232e1d5-a67a-4791-b4a9-4359072747bf",
-                "pipeline": ["/api/v2/pipeline/fe263021-f1d7-4a25-b691-df80da5ee048/"],
-                "used": "0",
-                "description": "",
-                "space": "/api/v2/space/85a6a5af-8b99-4e04-83da-4d1d712f1115/",
-                "enabled": False,
-                "quota": None,
-                "relative_path": "home",
-                "purpose": "TS",
-                "path": "/home",
-                "resource_uri": "/api/v2/location/1232e1d5-a67a-4791-b4a9-4359072747bf/",
-            },
-            {
-                "uuid": "817f9ef7-dcf7-450d-bfeb-7dba00abedd5",
-                "pipeline": ["/api/v2/pipeline/fe263021-f1d7-4a25-b691-df80da5ee048/"],
-                "used": "5368709120",
-                "description": "Store AIP in standard Archivematica Directory",
-                "space": "/api/v2/space/85a6a5af-8b99-4e04-83da-4d1d712f1115/",
-                "enabled": True,
-                "quota": "10737418240",
-                "relative_path": "var/archivematica/sharedDirectory/www/AIPsStore",
-                "purpose": "AS",
-                "path": "/var/archivematica/sharedDirectory/www/AIPsStore",
-                "resource_uri": "/api/v2/location/817f9ef7-dcf7-450d-bfeb-7dba00abedd5/",
-            },
-            {
-                "uuid": "6e4cf229-e614-436d-9055-839dfe3145a6",
-                "pipeline": ["/api/v2/pipeline/fe263021-f1d7-4a25-b691-df80da5ee048/"],
-                "used": "0",
-                "description": "Store DIP in standard Archivematica Directory",
-                "space": "/api/v2/space/85a6a5af-8b99-4e04-83da-4d1d712f1115/",
-                "enabled": True,
-                "quota": None,
-                "relative_path": "var/archivematica/sharedDirectory/www/DIPsStore",
-                "purpose": "DS",
-                "path": "/var/archivematica/sharedDirectory/www/DIPsStore",
-                "resource_uri": "/api/v2/location/6e4cf229-e614-436d-9055-839dfe3145a6/",
-            },
-            {
-                "uuid": "b3333b2a-5f3d-4c32-86b4-d334ff80c111",
-                "pipeline": ["/api/v2/pipeline/fe263021-f1d7-4a25-b691-df80da5ee048/"],
-                "used": "0",
-                "description": "Default AIP recovery",
-                "space": "/api/v2/space/85a6a5af-8b99-4e04-83da-4d1d712f1115/",
-                "enabled": True,
-                "quota": None,
-                "relative_path": "var/archivematica/storage_service/recover",
-                "purpose": "AR",
-                "path": "/var/archivematica/storage_service/recover",
-                "resource_uri": "/api/v2/location/b3333b2a-5f3d-4c32-86b4-d334ff80c111/",
-            },
-        ]
-        response = self.client.get(self.url)
-        locations = response.context["locations"]
-        # The currently processing and AIP recovery locations are removed
-        self.assertFalse([loc for loc in locations if loc["purpose"] == "CP"])
-        self.assertFalse([loc for loc in locations if loc["purpose"] == "AR"])
-        # Disabled location is removed
-        self.assertFalse(
-            [
-                loc
-                for loc in locations
-                if loc["uuid"] == "1232e1d5-a67a-4791-b4a9-4359072747bf"
-            ]
+    # The currently processing, AIP recovery and disabled locations are not
+    # listed. Only the AIP and DIP storage locations show their usage, with
+    # the quota formatted as a file size or as unlimited when it is not set.
+    assert [
+        (
+            location["uuid"],
+            location["purpose"],
+            location["show_usage"],
+            location["quota"],
+            location["used"],
         )
-        # Only two locations show usage
-        self.assertEqual(len([loc for loc in locations if loc["show_usage"]]), 2)
-        # One of them has an unlimited quota set
-        self.assertEqual(
-            len([loc for loc in locations if loc["quota"] == "unlimited"]), 1
-        )
-        # The other, 5 of 10 GB used (formated and in unicode)
-        used_loc = [
-            loc
-            for loc in locations
-            if loc["uuid"] == "817f9ef7-dcf7-450d-bfeb-7dba00abedd5"
-        ]
-        self.assertEqual(used_loc[0]["quota"], "10.0\xa0GB")
-        self.assertEqual(used_loc[0]["used"], "5.0\xa0GB")
-        # Purpose is formatted
-        self.assertEqual(used_loc[0]["purpose"], "AIP Storage")
+        for location in response.context["locations"]
+    ] == [
+        (
+            locations[3]["uuid"],
+            "AIP Storage",
+            True,
+            "10.0\xa0GB",
+            "5.0\xa0GB",
+        ),
+        (
+            locations[4]["uuid"],
+            "DIP Storage",
+            True,
+            "unlimited",
+            "0\xa0bytes",
+        ),
+        (locations[1]["uuid"], "Transfer Source", False, None, "0"),
+    ]

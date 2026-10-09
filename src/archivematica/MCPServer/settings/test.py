@@ -29,3 +29,7 @@ DATABASES = {
         "PORT": "",
     }
 }
+
+# The default password hasher is slow by design, and nothing in the test
+# suites depends on the hashing algorithm.
+PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

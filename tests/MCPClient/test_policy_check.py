@@ -9,6 +9,8 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import policy_check
+from tests.factories import EventFactory
+from tests.factories import FileFactory
 
 
 def _decode_path(value: bytes | memoryview | None) -> str:
@@ -25,64 +27,20 @@ def sip(sip: models.SIP) -> models.SIP:
     return sip
 
 
-@pytest.fixture()
-def preservation_file(preservation_file: models.File) -> models.File:
-    preservation_file.filegrpuse = "preservation"
-    preservation_file.save()
-    return preservation_file
-
-
 @pytest.fixture
-def event(sip_file: models.File) -> models.Event:
-    return models.Event.objects.create(file_uuid=sip_file, event_type="normalization")
+def event(make_event: EventFactory, sip_file: models.File) -> models.Event:
+    return make_event(sip_file, "normalization")
 
 
 @pytest.fixture
 def derivation_for_preservation(
-    sip_file: models.File, preservation_file: models.File, event: models.Event
+    preservation_derivation: models.Derivation, event: models.Event
 ) -> models.Derivation:
-    return models.Derivation.objects.create(
-        source_file=sip_file, derived_file=preservation_file, event=event
-    )
+    """The preservation derivation with the normalization event of the SIP file."""
+    preservation_derivation.event = event
+    preservation_derivation.save()
 
-
-@pytest.fixture
-def preservation_file_format_version(
-    preservation_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=preservation_file, format_version=format_version
-    )
-
-
-@pytest.fixture
-def access_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
-    location = b"%SIPDirectory%objects/file.wav"
-    return models.File.objects.create(
-        transfer=transfer,
-        sip=sip,
-        filegrpuse="access",
-        originallocation=location,
-        currentlocation=location,
-    )
-
-
-@pytest.fixture
-def derivation_for_access(
-    sip_file: models.File, access_file: models.File
-) -> models.Derivation:
-    return models.Derivation.objects.create(
-        source_file=sip_file, derived_file=access_file
-    )
-
-
-@pytest.fixture
-def access_file_format_version(
-    access_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=access_file, format_version=format_version
-    )
+    return preservation_derivation
 
 
 @pytest.mark.django_db
@@ -410,7 +368,7 @@ def test_policy_checker_fails_if_file_is_not_preservation_derivative(
 @mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_verifies_file_type_is_access(
     execute_or_run: mock.Mock,
-    derivation_for_access: models.Derivation,
+    access_derivation: models.Derivation,
     access_file: models.File,
     sip: models.SIP,
     fprule_policy_check: fprmodels.FPRule,
@@ -609,6 +567,7 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
 @mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_checks_manually_normalized_access_derivative_file(
     execute_or_run: mock.Mock,
+    make_file: FileFactory,
     transfer: models.Transfer,
     sip_file: models.File,
     sip: models.SIP,
@@ -623,11 +582,11 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
 
     execute_or_run.return_value = (0, expected_stdout, "")
     sip_file_name = pathlib.Path(_decode_path(sip_file.currentlocation)).name
-    manually_access_derivative_file = models.File.objects.create(
+    manually_access_derivative_file = make_file(
+        f"objects/manualNormalization/access/{sip_file_name}",
         transfer=transfer,
         sip=sip,
-        filegrpuse="original",
-        originallocation=f"%transferDirectory%objects/manualNormalization/access/{sip_file_name}".encode(),
+        currentlocation=None,
     )
     models.FileFormatVersion.objects.create(
         file_uuid=manually_access_derivative_file, format_version=format_version

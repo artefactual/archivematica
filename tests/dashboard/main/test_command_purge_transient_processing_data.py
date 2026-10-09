@@ -1,6 +1,5 @@
 import uuid
 from datetime import timedelta
-from unittest import mock
 
 import pytest
 from django.core.management import call_command
@@ -9,8 +8,8 @@ from django.utils.dateparse import parse_duration
 
 import archivematica.search.constants
 from archivematica.dashboard.main import models
-from archivematica.search.service import SearchService
 from archivematica.search.service import SearchServiceError
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
@@ -23,6 +22,19 @@ def search_enabled(settings):
     settings.SEARCH_ENABLED = [
         archivematica.search.constants.AIPS_INDEX,
     ]
+
+
+@pytest.fixture
+def expired_idempotency_record() -> models.IdempotencyRecord:
+    """The record of a package creation request whose idempotency key expired."""
+    return models.IdempotencyRecord.objects.create(
+        user_id=1,
+        operation="package.create",
+        key_hash="a" * 64,
+        request_fingerprint="b" * 64,
+        result={"id": str(uuid.uuid4())},
+        expires_at=timezone.now() - timedelta(seconds=1),
+    )
 
 
 @pytest.fixture()
@@ -39,16 +51,6 @@ def old_sip(sip):
     sip.save()
 
     return sip
-
-
-@pytest.fixture
-def mock_search_service():
-    with mock.patch(
-        "archivematica.dashboard.main.management.commands.purge_transient_processing_data.setup_search_service_from_conf"
-    ) as mock_setup_search_service:
-        mock_search_service = mock.Mock(spec=SearchService)
-        mock_setup_search_service.return_value = mock_search_service
-        yield mock_search_service
 
 
 @pytest.mark.django_db
@@ -141,13 +143,13 @@ def test_purge_command_keeps_search_documents(
 
 @pytest.mark.django_db
 def test_purge_command_skips_active_packages(
-    search_disabled, old_transfer, old_sip, capsys
-):
-    models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
-        currentlocation=r"%transferDirectory%",
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
+    search_disabled: None,
+    old_transfer: models.Transfer,
+    old_sip: models.SIP,
+    capsys: pytest.CaptureFixture[str],
+    make_transfer: TransferFactory,
+) -> None:
+    make_transfer(status=models.PACKAGE_STATUS_PROCESSING)
 
     call_command("purge_transient_processing_data")
 
@@ -166,15 +168,9 @@ def test_purge_command_output(search_disabled, old_transfer, old_sip, capsys):
 
 
 @pytest.mark.django_db
-def test_purge_command_removes_only_expired_idempotency_records(search_disabled):
-    expired = models.IdempotencyRecord.objects.create(
-        user_id=1,
-        operation="package.create",
-        key_hash="a" * 64,
-        request_fingerprint="b" * 64,
-        result={"id": str(uuid.uuid4())},
-        expires_at=timezone.now() - timedelta(seconds=1),
-    )
+def test_purge_command_removes_only_expired_idempotency_records(
+    search_disabled: None, expired_idempotency_record: models.IdempotencyRecord
+) -> None:
     active = models.IdempotencyRecord.objects.create(
         user_id=1,
         operation="package.create",
@@ -186,21 +182,18 @@ def test_purge_command_removes_only_expired_idempotency_records(search_disabled)
 
     call_command("purge_transient_processing_data", "--keep-failed")
 
-    assert not models.IdempotencyRecord.objects.filter(pk=expired.pk).exists()
+    assert not models.IdempotencyRecord.objects.filter(
+        pk=expired_idempotency_record.pk
+    ).exists()
     assert models.IdempotencyRecord.objects.filter(pk=active.pk).exists()
 
 
 @pytest.mark.django_db
-def test_purge_command_dry_run_keeps_expired_idempotency_records(search_disabled):
-    record = models.IdempotencyRecord.objects.create(
-        user_id=1,
-        operation="package.create",
-        key_hash="a" * 64,
-        request_fingerprint="b" * 64,
-        result={"id": str(uuid.uuid4())},
-        expires_at=timezone.now() - timedelta(seconds=1),
-    )
-
+def test_purge_command_dry_run_keeps_expired_idempotency_records(
+    search_disabled: None, expired_idempotency_record: models.IdempotencyRecord
+) -> None:
     call_command("purge_transient_processing_data", "--dry-run")
 
-    assert models.IdempotencyRecord.objects.filter(pk=record.pk).exists()
+    assert models.IdempotencyRecord.objects.filter(
+        pk=expired_idempotency_record.pk
+    ).exists()

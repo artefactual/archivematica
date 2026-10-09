@@ -1,172 +1,194 @@
-import pathlib
+import uuid
+from collections.abc import Iterator
 
 import pytest
+import pytest_django
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.test import Client
 from django.test import override_settings
-from django.test.client import Client
 from django.urls import reverse
+from pytest_django.asserts import assertRedirects
 
 from archivematica.dashboard.installer.middleware import _load_exempt_urls
 from archivematica.dashboard.middleware.common import (
     CustomShibbolethRemoteUserMiddleware,
 )
 
-TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+AUDIT_LOG_MIDDLEWARE = "archivematica.dashboard.middleware.common.AuditLogMiddleware"
+OIDC_CAPTURE_QUERY_PARAM_MIDDLEWARE = (
+    "archivematica.dashboard.middleware.common.OidcCaptureQueryParamMiddleware"
+)
 
 
-class InstallerConfigurationCheckMiddlewareTestCase(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
-
-    def setUp(self):
-        self.client = Client()
-
-    def test_user_is_sent_to_installer(self):
-        response = self.client.get("/")
-
-        self.assertRedirects(response, reverse("installer:welcome"))
-
-    def test_installer(self):
-        response = self.client.get(reverse("installer:welcome"))
-
-        self.assertEqual(response.status_code, 200)
+# ConfigurationCheckMiddleware of the installer
 
 
-class ConfigurationCheckMiddlewareTestCase(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
+@pytest.mark.django_db
+@pytest.mark.usefixtures("admin_user")
+def test_user_is_sent_to_installer(client: Client) -> None:
+    response = client.get("/")
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
+    assertRedirects(response, reverse("installer:welcome"))
 
-    def setUp(self):
-        self.client = Client()
 
-    def test_unauthenticated_user_can_access_exempt_url(self):
-        with self.settings(LOGIN_EXEMPT_URLS=[r"^foobar"]):
-            _load_exempt_urls()
-            response = self.client.get("foobar")
+@pytest.mark.django_db
+@pytest.mark.usefixtures("admin_user")
+def test_installer(client: Client) -> None:
+    response = client.get(reverse("installer:welcome"))
 
-        self.assertEqual(response.status_code, 404)
+    assert response.status_code == 200
 
-        # installer.middleware.EXEMPT_URLS is a global *list*
-        # that has been mutated in this test, this restores it back
+
+@pytest.fixture
+def exempt_url() -> Iterator[str]:
+    """A path that unauthenticated users can access."""
+    with override_settings(LOGIN_EXEMPT_URLS=[r"^foobar"]):
         _load_exempt_urls()
-
-    def test_unauthenticated_user_is_sent_to_login_page(self):
-        response = self.client.get(reverse("main:main_index"))
-
-        if not settings.CAS_AUTHENTICATION:
-            self.assertRedirects(response, settings.LOGIN_URL)
-
-    def test_authenticated_user_passes(self):
-        self.client.login(username="test", password="test")
-
-        response = self.client.get(reverse("transfer:transfer_index"))
-
-        self.assertEqual(response.status_code, 200)
+        yield "foobar"
+    # The installer middleware keeps the exempt URLs in a module-level list
+    # built from the settings, so rebuild it from the restored settings.
+    _load_exempt_urls()
 
 
-class AuditLogMiddlewareTestCase(TestCase):
-    def setUp(self):
-        self.client = Client()
-        User = get_user_model()
-        self.user = User.objects.create_user(username="testclient", password="test")
-        self.client.force_login(self.user)
+@pytest.mark.django_db
+def test_unauthenticated_user_can_access_exempt_url(
+    client: Client, dashboard_uuid: uuid.UUID, exempt_url: str
+) -> None:
+    response = client.get(exempt_url)
 
-    def test_audit_log_middleware_adds_username(self):
-        """Test that X-Username is added for authenticated users."""
-        with self.modify_settings(
-            MIDDLEWARE={
-                "append": "archivematica.dashboard.middleware.common.AuditLogMiddleware"
-            }
-        ):
-            response = self.client.get("/transfer/", follow=True)
-            self.assertTrue(response.has_header("X-Username"))
-            self.assertEqual(response["X-Username"], self.user.username)
-
-    def test_audit_log_middleware_unauthenticated(self):
-        """Test absence of X-Username header for unauthenticated users.
-
-        First we logout the authenticated user, and then we check that
-        X-Username is not present in the response for a new request by
-        an unauthenticated user.
-        """
-        with self.modify_settings(
-            MIDDLEWARE={
-                "append": "archivematica.dashboard.middleware.common.AuditLogMiddleware"
-            }
-        ):
-            self.client.logout()
-
-            response = self.client.get(settings.LOGIN_URL, follow=True)
-            self.assertFalse(response.has_header("X-Username"))
+    assert response.status_code == 404
 
 
-class OidcCaptureQueryParamMiddlewareTestCase(TestCase):
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
+@pytest.mark.django_db
+@pytest.mark.skipif(
+    settings.CAS_AUTHENTICATION,
+    reason="CAS authentication sends unauthenticated users to the CAS server",
+)
+def test_unauthenticated_user_is_sent_to_login_page(
+    client: Client, dashboard_uuid: uuid.UUID
+) -> None:
+    response = client.get(reverse("main:main_index"))
 
-    def setUp(self):
-        self.client = Client()
+    assertRedirects(response, settings.LOGIN_URL)
 
-    @override_settings(
-        OIDC_PROVIDERS={"MYPROVIDER": {}},
-        OIDC_PROVIDER_QUERY_PARAM_NAME="myparameter",
+
+@pytest.mark.django_db
+def test_authenticated_user_passes(
+    admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
+    response = admin_client.get(reverse("transfer:transfer_index"))
+
+    assert response.status_code == 200
+
+
+# AuditLogMiddleware
+
+
+@pytest.mark.django_db
+def test_audit_log_middleware_adds_username(
+    settings: pytest_django.Settings, client: Client, django_user_model: type[User]
+) -> None:
+    """Test that X-Username is added for authenticated users."""
+    settings.MIDDLEWARE = [*settings.MIDDLEWARE, AUDIT_LOG_MIDDLEWARE]
+    user = django_user_model.objects.create_user(username="testclient", password="test")
+    client.force_login(user)
+
+    response = client.get("/transfer/", follow=True)
+
+    assert response.has_header("X-Username")
+    assert response["X-Username"] == user.username
+
+
+@pytest.mark.django_db
+def test_audit_log_middleware_unauthenticated(
+    settings: pytest_django.Settings, client: Client, user: User
+) -> None:
+    """Test absence of X-Username header once the user has logged out."""
+    settings.MIDDLEWARE = [*settings.MIDDLEWARE, AUDIT_LOG_MIDDLEWARE]
+    client.force_login(user)
+    client.logout()
+
+    response = client.get(settings.LOGIN_URL, follow=True)
+
+    assert not response.has_header("X-Username")
+
+
+# OidcCaptureQueryParamMiddleware
+
+
+@pytest.mark.django_db
+def test_middleware_stores_provider_name_in_session(
+    settings: pytest_django.Settings, client: Client, dashboard_uuid: uuid.UUID
+) -> None:
+    settings.OIDC_PROVIDERS = {"MYPROVIDER": {}}
+    settings.OIDC_PROVIDER_QUERY_PARAM_NAME = "myparameter"
+    settings.MIDDLEWARE = [*settings.MIDDLEWARE, OIDC_CAPTURE_QUERY_PARAM_MIDDLEWARE]
+
+    # The middleware class converts the provider name to uppercase.
+    response = client.get(settings.LOGIN_URL, {"myparameter": "myprovider"})
+
+    assert response.status_code == 200
+    assert client.session["providername"] == "MYPROVIDER"
+
+
+# CustomShibbolethRemoteUserMiddleware
+
+
+@pytest.fixture
+def shibboleth_middleware(
+    settings: pytest_django.Settings,
+) -> CustomShibbolethRemoteUserMiddleware:
+    settings.SHIBBOLETH_ADMIN_ENTITLEMENT = "preservation-admin"
+
+    return CustomShibbolethRemoteUserMiddleware(lambda request: HttpResponse())
+
+
+@pytest.fixture
+def shibboleth_user(django_user_model: type[User]) -> User:
+    return django_user_model.objects.create(username="demo@example.com")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "entitlement, is_superuser",
+    [
+        pytest.param("preservation-admin", True, id="admin-entitlement"),
+        pytest.param(
+            "preservation-user;preservation-admin;preservation-manager",
+            True,
+            id="admin-entitlement-among-others",
+        ),
+        pytest.param(
+            "preservation-user;preservation-manager", False, id="other-entitlements"
+        ),
+        pytest.param("preservation-administrator", False, id="partial-match"),
+    ],
+)
+def test_make_profile_maps_admin_entitlement_to_superuser(
+    shibboleth_middleware: CustomShibbolethRemoteUserMiddleware,
+    shibboleth_user: User,
+    entitlement: str,
+    is_superuser: bool,
+) -> None:
+    shibboleth_middleware.make_profile(shibboleth_user, {"entitlement": entitlement})
+
+    shibboleth_user.refresh_from_db()
+    assert shibboleth_user.is_superuser is is_superuser
+
+
+@pytest.mark.django_db
+def test_make_profile_revokes_superuser_without_admin_entitlement(
+    shibboleth_middleware: CustomShibbolethRemoteUserMiddleware,
+    shibboleth_user: User,
+) -> None:
+    shibboleth_user.is_superuser = True
+    shibboleth_user.save()
+
+    shibboleth_middleware.make_profile(
+        shibboleth_user, {"entitlement": "preservation-user"}
     )
-    def test_middleware_stores_provider_name_in_session(self):
-        with self.modify_settings(
-            MIDDLEWARE={
-                "append": "archivematica.dashboard.middleware.common.OidcCaptureQueryParamMiddleware"
-            },
-        ):
-            # The middleware class converts the provider name to uppercase.
-            response = self.client.get(
-                settings.LOGIN_URL, {"myparameter": "myprovider"}
-            )
-            assert response.status_code == 200
 
-            assert self.client.session["providername"] == "MYPROVIDER"
-
-
-@override_settings(SHIBBOLETH_ADMIN_ENTITLEMENT="preservation-admin")
-class CustomShibbolethRemoteUserMiddlewareTestCase(TestCase):
-    """make_profile maps the entitlement attribute to the superuser flag."""
-
-    def setUp(self):
-        self.middleware = CustomShibbolethRemoteUserMiddleware(lambda request: None)
-        self.user = get_user_model().objects.create(username="demo@example.com")
-
-    def make_profile(self, entitlement):
-        self.middleware.make_profile(self.user, {"entitlement": entitlement})
-        self.user.refresh_from_db()
-
-    def test_admin_entitlement_grants_superuser(self):
-        self.make_profile("preservation-admin")
-
-        self.assertTrue(self.user.is_superuser)
-
-    def test_admin_entitlement_is_found_among_others(self):
-        self.make_profile("preservation-user;preservation-admin;preservation-manager")
-
-        self.assertTrue(self.user.is_superuser)
-
-    def test_other_entitlements_do_not_grant_superuser(self):
-        self.make_profile("preservation-user;preservation-manager")
-
-        self.assertFalse(self.user.is_superuser)
-
-    def test_missing_admin_entitlement_revokes_superuser(self):
-        self.user.is_superuser = True
-        self.user.save()
-
-        self.make_profile("preservation-user")
-
-        self.assertFalse(self.user.is_superuser)
-
-    def test_entitlement_is_matched_whole(self):
-        self.make_profile("preservation-administrator")
-
-        self.assertFalse(self.user.is_superuser)
+    shibboleth_user.refresh_from_db()
+    assert not shibboleth_user.is_superuser

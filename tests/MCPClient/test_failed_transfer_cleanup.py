@@ -1,28 +1,31 @@
 """Regression tests for cleanup before transfer content is materialized."""
 
+import pathlib
 from unittest import mock
 
 import pytest
 
-from archivematica.dashboard.main import models
-from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import failed_transfer_cleanup
+from tests.factories import TransferFactory
+from tests.MCPClient.factories import MCPJobFactory
 
 
 @pytest.mark.django_db
-def test_call_tolerates_missing_transfer_path_when_requested(tmp_path):
+def test_call_tolerates_missing_transfer_path_when_requested(
+    tmp_path: pathlib.Path, make_transfer: TransferFactory, make_mcp_job: MCPJobFactory
+) -> None:
     """The retrieval-only flag lets failure routing finish without a path."""
-    transfer = models.Transfer.objects.create(type="standard")
+    transfer = make_transfer(type="standard")
     missing_path = tmp_path / "missing-transfer"
-    job = Job(
-        "failedtransfercleanup",
-        "task-uuid",
+    job = make_mcp_job(
         [
             failed_transfer_cleanup.FAILED,
             str(transfer.uuid),
             str(missing_path),
             "--allow-missing-path",
         ],
+        name="failedtransfercleanup",
+        uuid="task-uuid",
     )
 
     with mock.patch.object(

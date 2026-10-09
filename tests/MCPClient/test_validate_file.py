@@ -11,6 +11,7 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import validate_file
+from tests.factories import EventFactory
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -44,25 +45,16 @@ def sip_logs_directory(
 
 
 @pytest.fixture
-def preservation_file_format_version(
-    preservation_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=preservation_file, format_version=format_version
-    )
-
-
-@pytest.fixture
 def preservation_derivation(
-    sip_file: models.File, preservation_file: models.File
+    make_event: EventFactory,
+    preservation_derivation: models.Derivation,
+    preservation_file: models.File,
 ) -> models.Derivation:
-    return models.Derivation.objects.create(
-        source_file=sip_file,
-        derived_file=preservation_file,
-        event=models.Event.objects.create(
-            file_uuid=preservation_file, event_type="normalization"
-        ),
-    )
+    """The derivation with the normalization event of the preservation file."""
+    preservation_derivation.event = make_event(preservation_file, "normalization")
+    preservation_derivation.save()
+
+    return preservation_derivation
 
 
 @pytest.mark.django_db

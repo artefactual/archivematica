@@ -1,18 +1,58 @@
 import os
 import pathlib
+import uuid
 
 import pytest
-from django.test import TestCase
 
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import rights_from_csv
+from tests.factories import FileFactory
+from tests.MCPClient.factories import MCPJobFactory
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
 
-# This uses the same name as the pytest fixture in conftest and it can be
-# removed when these TestCase subclasses are converted into pytest tests.
-mcp_job = Job("stub", "stub", [])
+# UUIDs of the two files of the transfer_files fixture, the files referenced by
+# the rights CSV fixtures.
+FILE_1_UUID = str(uuid.uuid4())
+FILE_2_UUID = str(uuid.uuid4())
+
+
+@pytest.fixture
+def transfer_files(
+    make_file: FileFactory, unicode_transfer: models.Transfer
+) -> list[models.File]:
+    """The original files of the transfer referenced by the rights CSV fixture."""
+    return [
+        make_file(
+            f"objects/{path}",
+            transfer=unicode_transfer,
+            uuid=uuid.UUID(file_uuid),
+            size=size,
+        )
+        for file_uuid, path, size in [
+            (FILE_1_UUID, "G31DS.TIF", 125968),
+            (FILE_2_UUID, "lion.svg", 18324),
+        ]
+    ]
+
+
+def license_statement(statement: models.RightsStatement) -> dict[str, object]:
+    """The fields of a license rights statement set by the CSV import."""
+    license_info = statement.rightsstatementlicense_set.get()
+    grant = statement.rightsstatementrightsgranted_set.get()
+
+    return {
+        "applies_to": statement.metadataappliestotype,
+        "identifier": statement.metadataappliestoidentifier,
+        "basis": statement.rightsbasis,
+        "status": statement.status,
+        "terms": license_info.licenseterms,
+        "note": license_info.rightsstatementlicensenote_set.get().licensenote,
+        "act": grant.act,
+        "restriction": grant.restrictions.get().restriction,
+    }
 
 
 @pytest.fixture(params=["objects/", "objects"])
@@ -29,386 +69,307 @@ def mixed_scope_rights_csv(
     return result
 
 
-class TestRightsImportFromCsvBase(TestCase):
-    transfer_uuid = "e95ab50f-9c84-45d5-a3ca-1b0b3f58d9b6"  # UUID of transfer created by transfer.json
-    file_1_uuid = "47813453-6872-442b-9d65-6515be3c5aa1"  # UUID of first file created by files-transfer.json fixture
-    file_2_uuid = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"  # UUID of second file created by files-transfer.json fixture
+@pytest.mark.django_db
+def test_rows_processed_and_database_content(
+    mcp_job: Job,
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    unicode_transfer: models.Transfer,
+    transfer_files: list[models.File],
+) -> None:
+    """Test CSV import using the RightsReader class.
 
-    def get_metadata_applies_to_type_for_file(self):
-        """Get MetadataAppliesToType instance that allies to files."""
-        return models.MetadataAppliesToType.objects.filter(description="File").first()
+    It should process valid rows of the CSV file.
+    It should skip the third row data as basis/act is duplicate of earlier row.
+    It should populate the rights-related models using data from the CSV file.
+    """
+    file_type = metadata_applies_to_types["file"]
+    rights_csv_filepath = os.path.join(FIXTURES_DIR, "rights.csv")
+    parser = rights_from_csv.RightCsvReader(
+        mcp_job, str(unicode_transfer.uuid), rights_csv_filepath
+    )
+    rows_processed = parser.parse()
 
-    def get_metadata_applies_to_type_for_transfer(self):
-        """Get MetadataAppliesToType instance that applies to transfers."""
-        return models.MetadataAppliesToType.objects.filter(
-            description="Transfer"
-        ).first()
+    # Test rows processed and model intance counts
+    assert rows_processed == 9
+    assert (
+        models.RightsStatement.objects.count() == 8
+    )  # One row in fixture CSV skipped due to duplicate basis/act combination
+    assert models.RightsStatementLicense.objects.count() == 1
+    assert models.RightsStatementCopyright.objects.count() == 2
+    assert models.RightsStatementStatuteInformation.objects.count() == 1
+    assert models.RightsStatementOtherRightsInformation.objects.count() == 4
+    assert models.RightsStatementCopyrightDocumentationIdentifier.objects.count() == 2
+    assert models.RightsStatementCopyrightNote.objects.count() == 2
+    assert models.RightsStatementLicenseDocumentationIdentifier.objects.count() == 1
+    assert models.RightsStatementLicenseNote.objects.count() == 1
+    assert models.RightsStatementStatuteDocumentationIdentifier.objects.count() == 1
+    assert models.RightsStatementStatuteInformationNote.objects.count() == 1
+    assert (
+        models.RightsStatementOtherRightsDocumentationIdentifier.objects.count() == 0
+    )  # Not created as all related columns are blank
+    assert models.RightsStatementOtherRightsInformationNote.objects.count() == 1
+    assert models.RightsStatementRightsGranted.objects.count() == 7
+    assert models.RightsStatementRightsGrantedRestriction.objects.count() == 5
+    assert models.RightsStatementRightsGrantedNote.objects.count() == 3
 
+    # Test row 1
+    row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
+    assert row_1_rights_statement.metadataappliestotype == file_type
+    assert row_1_rights_statement.metadataappliestoidentifier == FILE_1_UUID
+    assert row_1_rights_statement.status == "ORIGINAL"
+    assert row_1_rights_statement.rightsbasis == "Copyright"
 
-class TestRightsImportFromCsv(TestRightsImportFromCsvBase):
-    """Test rights importing from CSV files."""
+    row_1_copyright_info = models.RightsStatementCopyright.objects.order_by("pk")[0]
+    assert row_1_copyright_info.rightsstatement == row_1_rights_statement
+    assert row_1_copyright_info.copyrightstatus == "cop status"
+    assert row_1_copyright_info.copyrightjurisdiction == "cop juris"
+    assert row_1_copyright_info.copyrightstatusdeterminationdate == "2001-01-01"
+    assert row_1_copyright_info.copyrightapplicablestartdate == "2002-02-02"
+    assert row_1_copyright_info.copyrightenddateopen is False
+    assert row_1_copyright_info.copyrightapplicableenddate == "2003-03-03"
 
-    fixture_files = [
-        "metadata_applies_to_type.json",
-        "transfer.json",
-        "files-transfer.json",
-    ]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+    row_1_copyright_identifier = (
+        models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by("pk")[0]
+    )
+    assert row_1_copyright_identifier.copyrightdocumentationidentifiertype == "cop type"
+    assert row_1_copyright_identifier.copyrightdocumentationidentifierrole == "cop role"
 
-    def test_rows_processed_and_database_content(self):
-        """Test CSV import using the RightsReader class.
+    row_1_copyright_note = models.RightsStatementCopyrightNote.objects.order_by("pk")[0]
+    assert row_1_copyright_note.rightscopyright == row_1_copyright_info
+    assert row_1_copyright_note.copyrightnote == "cop note"
 
-        It should process valid rows of the CSV file.
-        It should skip the third row data as basis/act is duplicate of earlier row.
-        It should populate the rights-related models using data from the CSV file.
-        """
-        rights_csv_filepath = os.path.join(THIS_DIR, "fixtures/rights.csv")
-        parser = rights_from_csv.RightCsvReader(
-            mcp_job, self.transfer_uuid, rights_csv_filepath
-        )
-        rows_processed = parser.parse()
+    row_1_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[0]
+    assert row_1_grant.rightsstatement == row_1_rights_statement
+    assert row_1_grant.act == "cop act"
+    assert row_1_grant.startdate == "2004-04-04"
+    assert row_1_grant.enddateopen is False
+    assert row_1_grant.enddate == "2005-05-05"
 
-        # Test rows processed and model intance counts
-        assert rows_processed == 9
-        assert (
-            models.RightsStatement.objects.count() == 8
-        )  # One row in fixture CSV skipped due to duplicate basis/act combination
-        assert models.RightsStatementLicense.objects.count() == 1
-        assert models.RightsStatementCopyright.objects.count() == 2
-        assert models.RightsStatementStatuteInformation.objects.count() == 1
-        assert models.RightsStatementOtherRightsInformation.objects.count() == 4
-        assert (
-            models.RightsStatementCopyrightDocumentationIdentifier.objects.count() == 2
-        )
-        assert models.RightsStatementCopyrightNote.objects.count() == 2
-        assert models.RightsStatementLicenseDocumentationIdentifier.objects.count() == 1
-        assert models.RightsStatementLicenseNote.objects.count() == 1
-        assert models.RightsStatementStatuteDocumentationIdentifier.objects.count() == 1
-        assert models.RightsStatementStatuteInformationNote.objects.count() == 1
-        assert (
-            models.RightsStatementOtherRightsDocumentationIdentifier.objects.count()
-            == 0
-        )  # Not created as all related columns are blank
-        assert models.RightsStatementOtherRightsInformationNote.objects.count() == 1
-        assert models.RightsStatementRightsGranted.objects.count() == 7
-        assert models.RightsStatementRightsGrantedRestriction.objects.count() == 5
-        assert models.RightsStatementRightsGrantedNote.objects.count() == 3
+    row_1_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
+        "pk"
+    )[0]
+    assert row_1_restriction.rightsgranted == row_1_grant
+    assert row_1_restriction.restriction == "Allow"
 
-        # Test row 1
-        row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
-        assert (
-            row_1_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_1_rights_statement.metadataappliestoidentifier == self.file_1_uuid
-        assert row_1_rights_statement.status == "ORIGINAL"
-        assert row_1_rights_statement.rightsbasis == "Copyright"
+    row_1_grant_note = models.RightsStatementRightsGrantedNote.objects.order_by("pk")[0]
+    assert row_1_grant_note.rightsgranted == row_1_grant
+    assert row_1_grant_note.rightsgrantednote == "cop grant note"
 
-        row_1_copyright_info = models.RightsStatementCopyright.objects.order_by("pk")[0]
-        assert row_1_copyright_info.rightsstatement == row_1_rights_statement
-        assert row_1_copyright_info.copyrightstatus == "cop status"
-        assert row_1_copyright_info.copyrightjurisdiction == "cop juris"
-        assert row_1_copyright_info.copyrightstatusdeterminationdate == "2001-01-01"
-        assert row_1_copyright_info.copyrightapplicablestartdate == "2002-02-02"
-        assert row_1_copyright_info.copyrightenddateopen is False
-        assert row_1_copyright_info.copyrightapplicableenddate == "2003-03-03"
+    # Test row 3 (row 2 is skipped as it has the same act and basis as a previous right for the file)
+    row_3_rights_statement = models.RightsStatement.objects.order_by("pk")[1]
+    assert row_3_rights_statement.metadataappliestotype == file_type
+    assert row_3_rights_statement.metadataappliestoidentifier == FILE_1_UUID
+    assert row_3_rights_statement.status == "ORIGINAL"
+    assert row_3_rights_statement.rightsbasis == "Copyright"
 
-        row_1_copyright_identifier = (
-            models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
-                "pk"
-            )[0]
-        )
-        assert (
-            row_1_copyright_identifier.copyrightdocumentationidentifiertype
-            == "cop type"
-        )
-        assert (
-            row_1_copyright_identifier.copyrightdocumentationidentifierrole
-            == "cop role"
-        )
+    row_3_copyright_info = models.RightsStatementCopyright.objects.order_by("pk")[1]
+    assert row_3_copyright_info.rightsstatement == row_3_rights_statement
+    assert row_3_copyright_info.copyrightstatus == "cop status3"
+    assert row_3_copyright_info.copyrightjurisdiction == "cop juris3"
+    assert row_3_copyright_info.copyrightstatusdeterminationdate == "2001-01-01"
+    assert row_3_copyright_info.copyrightapplicablestartdate == "2002-02-02"
+    assert row_3_copyright_info.copyrightenddateopen is False
+    assert row_3_copyright_info.copyrightapplicableenddate == "2003-03-03"
 
-        row_1_copyright_note = models.RightsStatementCopyrightNote.objects.order_by(
-            "pk"
-        )[0]
-        assert row_1_copyright_note.rightscopyright == row_1_copyright_info
-        assert row_1_copyright_note.copyrightnote == "cop note"
+    row_3_copyright_identifier = (
+        models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by("pk")[1]
+    )
+    assert (
+        row_3_copyright_identifier.copyrightdocumentationidentifiertype == "cop type3"
+    )
+    assert row_3_copyright_identifier.copyrightdocumentationidentifierrole is None
 
-        row_1_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[0]
-        assert row_1_grant.rightsstatement == row_1_rights_statement
-        assert row_1_grant.act == "cop act"
-        assert row_1_grant.startdate == "2004-04-04"
-        assert row_1_grant.enddateopen is False
-        assert row_1_grant.enddate == "2005-05-05"
+    row_3_copyright_note = models.RightsStatementCopyrightNote.objects.order_by("pk")[1]
+    assert row_3_copyright_note.rightscopyright == row_3_copyright_info
+    assert row_3_copyright_note.copyrightnote == "cop note 3"
 
-        row_1_restriction = (
-            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[0]
-        )
-        assert row_1_restriction.rightsgranted == row_1_grant
-        assert row_1_restriction.restriction == "Allow"
+    row_3_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[1]
+    assert row_3_grant.rightsstatement == row_3_rights_statement
+    assert row_3_grant.act == "cop act2"
+    assert row_3_grant.startdate == "2004-04-04"
+    assert row_3_grant.enddateopen is False
+    assert row_3_grant.enddate == "2005-05-05"
 
-        row_1_grant_note = models.RightsStatementRightsGrantedNote.objects.order_by(
-            "pk"
-        )[0]
-        assert row_1_grant_note.rightsgranted == row_1_grant
-        assert row_1_grant_note.rightsgrantednote == "cop grant note"
+    row_3_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
+        "pk"
+    )[1]
+    assert row_3_restriction.rightsgranted == row_3_grant
+    assert row_3_restriction.restriction == "Allow"
 
-        # Test row 3 (row 2 is skipped as it has the same act and basis as a previous right for the file)
-        row_3_rights_statement = models.RightsStatement.objects.order_by("pk")[1]
-        assert (
-            row_3_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_3_rights_statement.metadataappliestoidentifier == self.file_1_uuid
-        assert row_3_rights_statement.status == "ORIGINAL"
-        assert row_3_rights_statement.rightsbasis == "Copyright"
+    row_3_grant_note = models.RightsStatementRightsGrantedNote.objects.order_by("pk")[1]
+    assert row_3_grant_note.rightsgranted == row_3_grant
+    assert row_3_grant_note.rightsgrantednote == "cop grant note3"
 
-        row_3_copyright_info = models.RightsStatementCopyright.objects.order_by("pk")[1]
-        assert row_3_copyright_info.rightsstatement == row_3_rights_statement
-        assert row_3_copyright_info.copyrightstatus == "cop status3"
-        assert row_3_copyright_info.copyrightjurisdiction == "cop juris3"
-        assert row_3_copyright_info.copyrightstatusdeterminationdate == "2001-01-01"
-        assert row_3_copyright_info.copyrightapplicablestartdate == "2002-02-02"
-        assert row_3_copyright_info.copyrightenddateopen is False
-        assert row_3_copyright_info.copyrightapplicableenddate == "2003-03-03"
+    # Test row 4
+    row_4_rights_statement = models.RightsStatement.objects.order_by("pk")[2]
+    assert row_4_rights_statement.metadataappliestotype == file_type
+    assert row_4_rights_statement.metadataappliestoidentifier == FILE_1_UUID
+    assert row_4_rights_statement.status == "ORIGINAL"
+    assert row_4_rights_statement.rightsbasis == "License"
 
-        row_3_copyright_identifier = (
-            models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
-                "pk"
-            )[1]
-        )
-        assert (
-            row_3_copyright_identifier.copyrightdocumentationidentifiertype
-            == "cop type3"
-        )
-        assert row_3_copyright_identifier.copyrightdocumentationidentifierrole is None
+    row_4_license_info = models.RightsStatementLicense.objects.order_by("pk")[0]
+    assert row_4_license_info.rightsstatement == row_4_rights_statement
+    assert row_4_license_info.licenseterms == "lic terms"
+    assert row_4_license_info.licenseapplicablestartdate == "1982-01-01"
+    assert row_4_license_info.licenseenddateopen is False
+    assert row_4_license_info.licenseapplicableenddate == "1983-02-02"
 
-        row_3_copyright_note = models.RightsStatementCopyrightNote.objects.order_by(
-            "pk"
-        )[1]
-        assert row_3_copyright_note.rightscopyright == row_3_copyright_info
-        assert row_3_copyright_note.copyrightnote == "cop note 3"
+    row_4_license_identifier = (
+        models.RightsStatementLicenseDocumentationIdentifier.objects.order_by("pk")[0]
+    )
+    assert row_4_license_identifier.licensedocumentationidentifiertype == "license type"
+    assert (
+        row_4_license_identifier.licensedocumentationidentifiervalue == "license value"
+    )
+    assert row_4_license_identifier.licensedocumentationidentifierrole is None
 
-        row_3_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[1]
-        assert row_3_grant.rightsstatement == row_3_rights_statement
-        assert row_3_grant.act == "cop act2"
-        assert row_3_grant.startdate == "2004-04-04"
-        assert row_3_grant.enddateopen is False
-        assert row_3_grant.enddate == "2005-05-05"
+    row_4_license_note = models.RightsStatementLicenseNote.objects.order_by("pk")[0]
+    assert row_4_license_note.rightsstatementlicense == row_4_license_info
+    assert row_4_license_note.licensenote == "lic note"
 
-        row_3_restriction = (
-            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[1]
-        )
-        assert row_3_restriction.rightsgranted == row_3_grant
-        assert row_3_restriction.restriction == "Allow"
+    row_4_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[2]
+    assert row_4_grant.rightsstatement == row_4_rights_statement
+    assert row_4_grant.act == "lic act"
+    assert row_4_grant.startdate is None
+    assert row_4_grant.enddateopen is False
+    assert row_4_grant.enddate is None
 
-        row_3_grant_note = models.RightsStatementRightsGrantedNote.objects.order_by(
-            "pk"
-        )[1]
-        assert row_3_grant_note.rightsgranted == row_3_grant
-        assert row_3_grant_note.rightsgrantednote == "cop grant note3"
+    row_4_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
+        "pk"
+    )[2]
+    assert row_4_restriction.rightsgranted == row_4_grant
+    assert row_4_restriction.restriction == "Allow"
 
-        # Test row 4
-        row_4_rights_statement = models.RightsStatement.objects.order_by("pk")[2]
-        assert (
-            row_4_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_4_rights_statement.metadataappliestoidentifier == self.file_1_uuid
-        assert row_4_rights_statement.status == "ORIGINAL"
-        assert row_4_rights_statement.rightsbasis == "License"
+    # Test row 5
+    row_5_rights_statement = models.RightsStatement.objects.order_by("pk")[3]
+    assert row_5_rights_statement.metadataappliestotype == file_type
+    assert row_5_rights_statement.metadataappliestoidentifier == FILE_1_UUID
+    assert row_5_rights_statement.status == "ORIGINAL"
+    assert row_5_rights_statement.rightsbasis == "Statute"
 
-        row_4_license_info = models.RightsStatementLicense.objects.order_by("pk")[0]
-        assert row_4_license_info.rightsstatement == row_4_rights_statement
-        assert row_4_license_info.licenseterms == "lic terms"
-        assert row_4_license_info.licenseapplicablestartdate == "1982-01-01"
-        assert row_4_license_info.licenseenddateopen is False
-        assert row_4_license_info.licenseapplicableenddate == "1983-02-02"
+    row_5_statute_info = models.RightsStatementStatuteInformation.objects.order_by(
+        "pk"
+    )[0]
+    assert row_5_statute_info.rightsstatement == row_5_rights_statement
+    assert row_5_statute_info.statutejurisdiction == "stat juris"
+    assert row_5_statute_info.statutedeterminationdate == "1972-02-02"
+    assert row_5_statute_info.statutecitation == "stat cit"
+    assert row_5_statute_info.statuteapplicablestartdate == "1966-01-01"
+    assert row_5_statute_info.statuteenddateopen is True
+    assert row_5_statute_info.statuteapplicableenddate is None
 
-        row_4_license_identifier = (
-            models.RightsStatementLicenseDocumentationIdentifier.objects.order_by("pk")[
-                0
-            ]
-        )
-        assert (
-            row_4_license_identifier.licensedocumentationidentifiertype
-            == "license type"
-        )
-        assert (
-            row_4_license_identifier.licensedocumentationidentifiervalue
-            == "license value"
-        )
-        assert row_4_license_identifier.licensedocumentationidentifierrole is None
+    row_5_statute_identifier = (
+        models.RightsStatementStatuteDocumentationIdentifier.objects.order_by("pk")[0]
+    )
+    assert row_5_statute_identifier.statutedocumentationidentifiertype == "statute type"
+    assert (
+        row_5_statute_identifier.statutedocumentationidentifiervalue == "statute value"
+    )
+    assert row_5_statute_identifier.statutedocumentationidentifierrole == "statute role"
 
-        row_4_license_note = models.RightsStatementLicenseNote.objects.order_by("pk")[0]
-        assert row_4_license_note.rightsstatementlicense == row_4_license_info
-        assert row_4_license_note.licensenote == "lic note"
+    row_5_statute_note = models.RightsStatementStatuteInformationNote.objects.order_by(
+        "pk"
+    )[0]
+    assert row_5_statute_note.rightsstatementstatute == row_5_statute_info
+    assert row_5_statute_note.statutenote == "statute note"
 
-        row_4_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[2]
-        assert row_4_grant.rightsstatement == row_4_rights_statement
-        assert row_4_grant.act == "lic act"
-        assert row_4_grant.startdate is None
-        assert row_4_grant.enddateopen is False
-        assert row_4_grant.enddate is None
+    row_5_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[3]
+    assert row_5_grant.rightsstatement == row_5_rights_statement
+    assert row_5_grant.act == "stat act"
+    assert row_5_grant.startdate is None
+    assert row_5_grant.enddateopen is False
+    assert row_5_grant.enddate is None
 
-        row_4_restriction = (
-            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[2]
-        )
-        assert row_4_restriction.rightsgranted == row_4_grant
-        assert row_4_restriction.restriction == "Allow"
+    row_5_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
+        "pk"
+    )[3]
+    assert row_5_restriction.rightsgranted == row_5_grant
+    assert row_5_restriction.restriction == "Allow"
 
-        # Test row 5
-        row_5_rights_statement = models.RightsStatement.objects.order_by("pk")[3]
-        assert (
-            row_5_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_5_rights_statement.metadataappliestoidentifier == self.file_1_uuid
-        assert row_5_rights_statement.status == "ORIGINAL"
-        assert row_5_rights_statement.rightsbasis == "Statute"
+    # Test row 6
+    row_6_rights_statement = models.RightsStatement.objects.order_by("pk")[4]
+    assert row_6_rights_statement.metadataappliestotype == file_type
+    assert row_6_rights_statement.metadataappliestoidentifier == FILE_1_UUID
+    assert row_6_rights_statement.status == "ORIGINAL"
+    assert row_6_rights_statement.rightsbasis == "Other"
 
-        row_5_statute_info = models.RightsStatementStatuteInformation.objects.order_by(
-            "pk"
-        )[0]
-        assert row_5_statute_info.rightsstatement == row_5_rights_statement
-        assert row_5_statute_info.statutejurisdiction == "stat juris"
-        assert row_5_statute_info.statutedeterminationdate == "1972-02-02"
-        assert row_5_statute_info.statutecitation == "stat cit"
-        assert row_5_statute_info.statuteapplicablestartdate == "1966-01-01"
-        assert row_5_statute_info.statuteenddateopen is True
-        assert row_5_statute_info.statuteapplicableenddate is None
+    row_6_other_info = models.RightsStatementOtherRightsInformation.objects.order_by(
+        "pk"
+    )[0]
+    assert row_6_other_info.rightsstatement == row_6_rights_statement
+    assert row_6_other_info.otherrightsbasis == "Other"
+    assert row_6_other_info.otherrightsapplicablestartdate == "1945-01-01"
+    assert row_6_other_info.otherrightsenddateopen is False
+    assert row_6_other_info.otherrightsapplicableenddate == "1950-05-05"
 
-        row_5_statute_identifier = (
-            models.RightsStatementStatuteDocumentationIdentifier.objects.order_by("pk")[
-                0
-            ]
-        )
-        assert (
-            row_5_statute_identifier.statutedocumentationidentifiertype
-            == "statute type"
-        )
-        assert (
-            row_5_statute_identifier.statutedocumentationidentifiervalue
-            == "statute value"
-        )
-        assert (
-            row_5_statute_identifier.statutedocumentationidentifierrole
-            == "statute role"
-        )
+    row_6_other_note = (
+        models.RightsStatementOtherRightsInformationNote.objects.order_by("pk")[0]
+    )
+    assert row_6_other_note.rightsstatementotherrights == row_6_other_info
+    assert row_6_other_note.otherrightsnote == "other note"
 
-        row_5_statute_note = (
-            models.RightsStatementStatuteInformationNote.objects.order_by("pk")[0]
-        )
-        assert row_5_statute_note.rightsstatementstatute == row_5_statute_info
-        assert row_5_statute_note.statutenote == "statute note"
+    row_6_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[4]
+    assert row_6_grant.rightsstatement == row_6_rights_statement
+    assert row_6_grant.act == "other act"
+    assert row_6_grant.startdate == "1920-01-01"
+    assert row_6_grant.enddateopen is False
+    assert row_6_grant.enddate == "1921-01-01"
 
-        row_5_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[3]
-        assert row_5_grant.rightsstatement == row_5_rights_statement
-        assert row_5_grant.act == "stat act"
-        assert row_5_grant.startdate is None
-        assert row_5_grant.enddateopen is False
-        assert row_5_grant.enddate is None
+    row_6_restriction = models.RightsStatementRightsGrantedRestriction.objects.order_by(
+        "pk"
+    )[4]
+    assert row_6_restriction.rightsgranted == row_6_grant
+    assert row_6_restriction.restriction == "Allow"
 
-        row_5_restriction = (
-            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[3]
-        )
-        assert row_5_restriction.rightsgranted == row_5_grant
-        assert row_5_restriction.restriction == "Allow"
+    row_6_grant_note = models.RightsStatementRightsGrantedNote.objects.order_by("pk")[2]
+    assert row_6_grant_note.rightsgranted == row_6_grant
+    assert row_6_grant_note.rightsgrantednote == "other grant note"
 
-        # Test row 6
-        row_6_rights_statement = models.RightsStatement.objects.order_by("pk")[4]
-        assert (
-            row_6_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_6_rights_statement.metadataappliestoidentifier == self.file_1_uuid
-        assert row_6_rights_statement.status == "ORIGINAL"
-        assert row_6_rights_statement.rightsbasis == "Other"
+    # Test row 7
+    row_7_rights_statement = models.RightsStatement.objects.order_by("pk")[5]
+    assert row_7_rights_statement.metadataappliestotype == file_type
+    assert row_7_rights_statement.metadataappliestoidentifier == FILE_2_UUID
+    assert row_7_rights_statement.status == "ORIGINAL"
+    assert row_7_rights_statement.rightsbasis == "Donor"
 
-        row_6_other_info = (
-            models.RightsStatementOtherRightsInformation.objects.order_by("pk")[0]
-        )
-        assert row_6_other_info.rightsstatement == row_6_rights_statement
-        assert row_6_other_info.otherrightsbasis == "Other"
-        assert row_6_other_info.otherrightsapplicablestartdate == "1945-01-01"
-        assert row_6_other_info.otherrightsenddateopen is False
-        assert row_6_other_info.otherrightsapplicableenddate == "1950-05-05"
+    row_7_other_info = models.RightsStatementOtherRightsInformation.objects.order_by(
+        "pk"
+    )[1]
+    assert row_7_other_info.rightsstatement == row_7_rights_statement
+    assert row_7_other_info.otherrightsbasis == "Donor"
+    assert row_7_other_info.otherrightsapplicablestartdate is None
+    assert row_7_other_info.otherrightsenddateopen is False
+    assert row_7_other_info.otherrightsapplicableenddate is None
 
-        row_6_other_note = (
-            models.RightsStatementOtherRightsInformationNote.objects.order_by("pk")[0]
-        )
-        assert row_6_other_note.rightsstatementotherrights == row_6_other_info
-        assert row_6_other_note.otherrightsnote == "other note"
+    row_7_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[5]
+    assert row_7_grant.rightsstatement == row_7_rights_statement
+    assert row_7_grant.act == "donor act"
+    assert row_7_grant.startdate is None
+    assert row_7_grant.enddateopen is False
+    assert row_7_grant.enddate is None
 
-        row_6_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[4]
-        assert row_6_grant.rightsstatement == row_6_rights_statement
-        assert row_6_grant.act == "other act"
-        assert row_6_grant.startdate == "1920-01-01"
-        assert row_6_grant.enddateopen is False
-        assert row_6_grant.enddate == "1921-01-01"
+    # Test row 8
+    row_8_rights_statement = models.RightsStatement.objects.order_by("pk")[6]
+    assert row_8_rights_statement.metadataappliestotype == file_type
+    assert row_8_rights_statement.metadataappliestoidentifier == FILE_2_UUID
+    assert row_8_rights_statement.status == "ORIGINAL"
+    assert row_8_rights_statement.rightsbasis == "Policy"
 
-        row_6_restriction = (
-            models.RightsStatementRightsGrantedRestriction.objects.order_by("pk")[4]
-        )
-        assert row_6_restriction.rightsgranted == row_6_grant
-        assert row_6_restriction.restriction == "Allow"
+    row_8_other_info = models.RightsStatementOtherRightsInformation.objects.order_by(
+        "pk"
+    )[2]
+    assert row_8_other_info.rightsstatement == row_8_rights_statement
+    assert row_8_other_info.otherrightsbasis == "Policy"
+    assert row_8_other_info.otherrightsapplicablestartdate is None
+    assert row_8_other_info.otherrightsenddateopen is False
+    assert row_8_other_info.otherrightsapplicableenddate is None
 
-        row_6_grant_note = models.RightsStatementRightsGrantedNote.objects.order_by(
-            "pk"
-        )[2]
-        assert row_6_grant_note.rightsgranted == row_6_grant
-        assert row_6_grant_note.rightsgrantednote == "other grant note"
-
-        # Test row 7
-        row_7_rights_statement = models.RightsStatement.objects.order_by("pk")[5]
-        assert (
-            row_7_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_7_rights_statement.metadataappliestoidentifier == self.file_2_uuid
-        assert row_7_rights_statement.status == "ORIGINAL"
-        assert row_7_rights_statement.rightsbasis == "Donor"
-
-        row_7_other_info = (
-            models.RightsStatementOtherRightsInformation.objects.order_by("pk")[1]
-        )
-        assert row_7_other_info.rightsstatement == row_7_rights_statement
-        assert row_7_other_info.otherrightsbasis == "Donor"
-        assert row_7_other_info.otherrightsapplicablestartdate is None
-        assert row_7_other_info.otherrightsenddateopen is False
-        assert row_7_other_info.otherrightsapplicableenddate is None
-
-        row_7_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[5]
-        assert row_7_grant.rightsstatement == row_7_rights_statement
-        assert row_7_grant.act == "donor act"
-        assert row_7_grant.startdate is None
-        assert row_7_grant.enddateopen is False
-        assert row_7_grant.enddate is None
-
-        # Test row 8
-        row_8_rights_statement = models.RightsStatement.objects.order_by("pk")[6]
-        assert (
-            row_8_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_8_rights_statement.metadataappliestoidentifier == self.file_2_uuid
-        assert row_8_rights_statement.status == "ORIGINAL"
-        assert row_8_rights_statement.rightsbasis == "Policy"
-
-        row_8_other_info = (
-            models.RightsStatementOtherRightsInformation.objects.order_by("pk")[2]
-        )
-        assert row_8_other_info.rightsstatement == row_8_rights_statement
-        assert row_8_other_info.otherrightsbasis == "Policy"
-        assert row_8_other_info.otherrightsapplicablestartdate is None
-        assert row_8_other_info.otherrightsenddateopen is False
-        assert row_8_other_info.otherrightsapplicableenddate is None
-
-        row_8_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[6]
-        assert row_8_grant.rightsstatement == row_8_rights_statement
-        assert row_8_grant.act == "policy act"
-        assert row_8_grant.startdate is None
-        assert row_8_grant.enddateopen is False
-        assert row_8_grant.enddate is None
+    row_8_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[6]
+    assert row_8_grant.rightsstatement == row_8_rights_statement
+    assert row_8_grant.act == "policy act"
+    assert row_8_grant.startdate is None
+    assert row_8_grant.enddateopen is False
+    assert row_8_grant.enddate is None
 
 
 @pytest.mark.django_db
@@ -427,30 +388,31 @@ def test_mixed_scope_rows_create_independent_rights_statements(
 
     assert parser.parse() == 2
 
-    transfer_statement = models.RightsStatement.objects.get(
-        metadataappliestotype=metadata_applies_to_types["transfer"]
-    )
-    file_statement = models.RightsStatement.objects.get(
-        metadataappliestotype=metadata_applies_to_types["file"]
-    )
-
-    assert transfer_statement.metadataappliestoidentifier == str(transfer.uuid)
-    assert file_statement.metadataappliestoidentifier == str(transfer_file.uuid)
-
-    for statement, terms, note in (
-        (transfer_statement, "Transfer terms", "Transfer note"),
-        (file_statement, "File terms", "File note"),
-    ):
-        assert statement.rightsbasis == "License"
-        assert statement.status == "ORIGINAL"
-
-        license_info = statement.rightsstatementlicense_set.get()
-        assert license_info.licenseterms == terms
-        assert license_info.rightsstatementlicensenote_set.get().licensenote == note
-
-        grant = statement.rightsstatementrightsgranted_set.get()
-        assert grant.act == "use"
-        assert grant.restrictions.get().restriction == "Allow"
+    assert [
+        license_statement(statement)
+        for statement in models.RightsStatement.objects.order_by("pk")
+    ] == [
+        {
+            "applies_to": metadata_applies_to_types["transfer"],
+            "identifier": str(transfer.uuid),
+            "basis": "License",
+            "status": "ORIGINAL",
+            "terms": "Transfer terms",
+            "note": "Transfer note",
+            "act": "use",
+            "restriction": "Allow",
+        },
+        {
+            "applies_to": metadata_applies_to_types["file"],
+            "identifier": str(transfer_file.uuid),
+            "basis": "License",
+            "status": "ORIGINAL",
+            "terms": "File terms",
+            "note": "File note",
+            "act": "use",
+            "restriction": "Allow",
+        },
+    ]
 
 
 @pytest.mark.django_db
@@ -505,14 +467,23 @@ def test_transfer_target_aliases_preserve_distinct_basis_act_combinations(
 
     assert parser.parse() == 2
 
-    statements = models.RightsStatement.objects.order_by("pk")
     assert [
-        (statement.rightsbasis, statement.rightsstatementrightsgranted_set.get().act)
-        for statement in statements
-    ] == [("License", "use"), (basis.capitalize(), grant_act)]
-    for statement in statements:
-        assert statement.metadataappliestotype == metadata_applies_to_types["transfer"]
-        assert statement.metadataappliestoidentifier == str(transfer.uuid)
+        (
+            statement.metadataappliestotype,
+            statement.metadataappliestoidentifier,
+            statement.rightsbasis,
+            statement.rightsstatementrightsgranted_set.get().act,
+        )
+        for statement in models.RightsStatement.objects.order_by("pk")
+    ] == [
+        (metadata_applies_to_types["transfer"], str(transfer.uuid), "License", "use"),
+        (
+            metadata_applies_to_types["transfer"],
+            str(transfer.uuid),
+            basis.capitalize(),
+            grant_act,
+        ),
+    ]
 
 
 @pytest.mark.django_db
@@ -539,16 +510,17 @@ def test_unmatched_path_reports_row_and_path(
 
 @pytest.mark.django_db
 def test_unmatched_path_fails_job_without_processing_later_rows(
-    metadata_applies_to_types,
-    transfer,
-    transfer_file,
-    tmp_path,
-):
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    transfer: models.Transfer,
+    transfer_file: models.File,
+    tmp_path: pathlib.Path,
+    make_mcp_job: MCPJobFactory,
+) -> None:
     rights_csv = tmp_path / "rights.csv"
     rights_csv.write_text(
         "file,basis\nobjects/typo.txt,license\nobjects/file.mp3,license\n"
     )
-    job = Job("rights_from_csv", "stub", [str(transfer.uuid), str(rights_csv)])
+    job = make_mcp_job([str(transfer.uuid), str(rights_csv)], name="rights_from_csv")
 
     rights_from_csv.call([job])
 
@@ -561,74 +533,58 @@ def test_unmatched_path_fails_job_without_processing_later_rows(
     assert not models.RightsStatement.objects.exists()
 
 
-class TestRightsImportFromCsvWithUnicode(TestRightsImportFromCsvBase):
-    fixture_files = [
-        "metadata_applies_to_type.json",
-        "transfer.json",
-        "files-transfer-unicode.json",
-    ]
-    fixtures = [os.path.join(THIS_DIR, "fixtures", p) for p in fixture_files]
+@pytest.mark.django_db
+def test_rows_processed_and_database_content_with_unicode_filepath(
+    mcp_job: Job,
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    unicode_transfer: models.Transfer,
+    unicode_transfer_files: list[models.File],
+) -> None:
+    """Test CSV import using the RightsReader class when file paths have unicode characters in them.
 
-    def test_rows_processed_and_database_content_with_unicode_filepath(self):
-        """Test CSV import using the RightsReader class when file paths have unicode characters in them.
+    It should process all rows of the CSV file even if file paths have unicode characters in them.
+    It should populate the rights-related models using data from the CSV file.
+    """
+    file_type = metadata_applies_to_types["file"]
+    rights_csv_filepath = os.path.join(FIXTURES_DIR, "rights-unicode-filepath.csv")
+    parser = rights_from_csv.RightCsvReader(
+        mcp_job, str(unicode_transfer.uuid), rights_csv_filepath
+    )
+    rows_processed = parser.parse()
 
-        It should process all rows of the CSV file even if file paths have unicode characters in them.
-        It should populate the rights-related models using data from the CSV file.
-        """
-        models.File.objects.get(pk="47813453-6872-442b-9d65-6515be3c5aa1")
+    assert rows_processed == 1
 
-        rights_csv_filepath = os.path.join(
-            THIS_DIR, "fixtures/rights-unicode-filepath.csv"
-        )
-        parser = rights_from_csv.RightCsvReader(
-            mcp_job, self.transfer_uuid, "%s" % rights_csv_filepath
-        )
-        rows_processed = parser.parse()
+    # Test row 1
+    row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
+    assert row_1_rights_statement.metadataappliestotype == file_type
+    assert row_1_rights_statement.metadataappliestoidentifier == str(
+        unicode_transfer_files[0].uuid
+    )
+    assert row_1_rights_statement.status == "ORIGINAL"
+    assert row_1_rights_statement.rightsbasis == "Copyright"
 
-        assert rows_processed == 1
+    row_1_copyright_info = models.RightsStatementCopyright.objects.order_by("pk")[0]
+    assert row_1_copyright_info.rightsstatement == row_1_rights_statement
+    assert row_1_copyright_info.copyrightstatus == "cop status"
+    assert row_1_copyright_info.copyrightjurisdiction == "cop juris"
+    assert row_1_copyright_info.copyrightstatusdeterminationdate == "2001-01-01"
+    assert row_1_copyright_info.copyrightapplicablestartdate == "2002-02-02"
+    assert row_1_copyright_info.copyrightenddateopen is False
+    assert row_1_copyright_info.copyrightapplicableenddate == "2003-03-03"
 
-        # Test row 1
-        row_1_rights_statement = models.RightsStatement.objects.order_by("pk")[0]
-        assert (
-            row_1_rights_statement.metadataappliestotype
-            == self.get_metadata_applies_to_type_for_file()
-        )
-        assert row_1_rights_statement.metadataappliestoidentifier == self.file_1_uuid
-        assert row_1_rights_statement.status == "ORIGINAL"
-        assert row_1_rights_statement.rightsbasis == "Copyright"
+    row_1_copyright_identifier = (
+        models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by("pk")[0]
+    )
+    assert row_1_copyright_identifier.copyrightdocumentationidentifiertype == "cop type"
+    assert row_1_copyright_identifier.copyrightdocumentationidentifierrole == "cop role"
 
-        row_1_copyright_info = models.RightsStatementCopyright.objects.order_by("pk")[0]
-        assert row_1_copyright_info.rightsstatement == row_1_rights_statement
-        assert row_1_copyright_info.copyrightstatus == "cop status"
-        assert row_1_copyright_info.copyrightjurisdiction == "cop juris"
-        assert row_1_copyright_info.copyrightstatusdeterminationdate == "2001-01-01"
-        assert row_1_copyright_info.copyrightapplicablestartdate == "2002-02-02"
-        assert row_1_copyright_info.copyrightenddateopen is False
-        assert row_1_copyright_info.copyrightapplicableenddate == "2003-03-03"
+    row_1_copyright_note = models.RightsStatementCopyrightNote.objects.order_by("pk")[0]
+    assert row_1_copyright_note.rightscopyright == row_1_copyright_info
+    assert row_1_copyright_note.copyrightnote == "cop note"
 
-        row_1_copyright_identifier = (
-            models.RightsStatementCopyrightDocumentationIdentifier.objects.order_by(
-                "pk"
-            )[0]
-        )
-        assert (
-            row_1_copyright_identifier.copyrightdocumentationidentifiertype
-            == "cop type"
-        )
-        assert (
-            row_1_copyright_identifier.copyrightdocumentationidentifierrole
-            == "cop role"
-        )
-
-        row_1_copyright_note = models.RightsStatementCopyrightNote.objects.order_by(
-            "pk"
-        )[0]
-        assert row_1_copyright_note.rightscopyright == row_1_copyright_info
-        assert row_1_copyright_note.copyrightnote == "cop note"
-
-        row_1_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[0]
-        assert row_1_grant.rightsstatement == row_1_rights_statement
-        assert row_1_grant.act == "cop act"
-        assert row_1_grant.startdate == "2004-04-04"
-        assert row_1_grant.enddateopen is False
-        assert row_1_grant.enddate == "2005-05-05"
+    row_1_grant = models.RightsStatementRightsGranted.objects.order_by("pk")[0]
+    assert row_1_grant.rightsstatement == row_1_rights_statement
+    assert row_1_grant.act == "cop act"
+    assert row_1_grant.startdate == "2004-04-04"
+    assert row_1_grant.enddateopen is False
+    assert row_1_grant.enddate == "2005-05-05"

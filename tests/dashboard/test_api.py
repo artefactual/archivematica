@@ -1,10 +1,13 @@
 import datetime
 import json
+import pathlib
 import uuid
+from collections.abc import Callable
 from unittest import mock
 
 import pytest
-from django.core.management import call_command
+import pytest_django
+from django.test import Client
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from lxml import etree
@@ -20,72 +23,51 @@ from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import DublinCore
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Job
-from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
 from archivematica.dashboard.main.models import Task
 from archivematica.dashboard.main.models import Transfer
-
-
-def load_fixture(fixtures):
-    call_command("loaddata", *fixtures, **{"verbosity": 0})
-
-
-@pytest.fixture
-def transfer(db):
-    return Transfer.objects.create()
+from tests.factories import DublinCoreFactory
+from tests.factories import JobFactory
+from tests.factories import RightsStatementFactory
+from tests.factories import SIPFactory
+from tests.factories import TaskFactory
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
-def sip(db):
-    return SIP.objects.create()
-
-
-@pytest.fixture
-def files(db, transfer, sip):
-    return [File.objects.create(transfer=transfer, sip=sip)]
-
-
-@pytest.fixture
-def jobs_processing(db, transfer):
+def jobs_processing(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="ee3b39f6-2d57-431d-bdd6-6d38f50de371",
+        make_job(
+            transfer,
             microservicegroup="Examine contents",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T22:50:56Z",
-            unittype="unitTransfer",
             jobtype="Examine contents?",
         ),
-        Job.objects.create(
-            jobuuid="3ed5ec03-ee7d-4ddc-bdfc-3b1e07170c2b",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T22:50:57Z",
-            unittype="unitTransfer",
             jobtype="Load options to create SIPs",
         ),
-        Job.objects.create(
-            jobuuid="7bd82bc3-0694-4182-8f72-48fb13f0e8e8",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_EXECUTING_COMMANDS,
             createdtime="2016-10-04T22:50:57Z",
-            unittype="unitTransfer",
             jobtype="Check transfer directory for objects",
         ),
     ]
 
 
 @pytest.fixture
-def retrieval_job(transfer):
+def retrieval_job(make_job: JobFactory, transfer: Transfer) -> Callable[[int], Job]:
     """Create a retrieval job in the requested lifecycle state."""
 
-    def make(status):
-        return Job.objects.create(
-            sipuuid=transfer.uuid,
-            unittype="unitTransfer",
+    def make(status: int) -> Job:
+        return make_job(
+            transfer,
             jobtype="Retrieve transfer source",
             microservicegroup="Retrieve transfer source",
             microservicechainlink=views.TRANSFER_SOURCE_RETRIEVAL_LINK_ID,
@@ -97,125 +79,130 @@ def retrieval_job(transfer):
 
 
 @pytest.fixture
-def jobs_user_input(db, transfer):
+def jobs_user_input(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="b9390fbf-8c00-434c-ab4b-eb501ed2f490",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_AWAITING_DECISION,
-            createdtime="2016-10-04T22:50:57Z",
-            unittype="unitTransfer",
+            createdtime="2016-10-04T22:50:58Z",
             jobtype="Create SIP(s)",
         )
     ]
 
 
 @pytest.fixture
-def jobs_failed(db, transfer):
+def jobs_failed(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="7d9ba893-08f1-4678-9fe9-294fdc729c55",
+        make_job(
+            transfer,
             microservicegroup="Failed transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-05T00:10:54Z",
-            unittype="unitTransfer",
             jobtype="Move to the failed directory",
         )
     ]
 
 
 @pytest.fixture
-def jobs_rejected(db, transfer):
+def jobs_rejected(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="b7902aae-ec5f-4290-a3d7-c47f844e8774",
+        make_job(
+            transfer,
             microservicegroup="Reject transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:48:27Z",
-            unittype="unitTransfer",
             jobtype="Move to the rejected directory",
         )
     ]
 
 
 @pytest.fixture
-def jobs_transfer_complete(db, transfer):
+def jobs_transfer_complete(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="d51f6915-ae7f-4c23-8a02-fcec49941168",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:05:55Z",
-            unittype="unitTransfer",
             jobtype="Create SIP from transfer objects",
         ),
-        Job.objects.create(
-            jobuuid="e7775bc2-613f-4fb7-abba-738dfa799c99",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:05:56Z",
-            unittype="unitTransfer",
             jobtype="Move to SIP creation directory for completed transfers",
         ),
     ]
 
 
 @pytest.fixture
-def jobs_transfer_backlog(db, transfer):
+def jobs_transfer_backlog(make_job: JobFactory, transfer: Transfer) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="a39d74e4-c42e-404b-8c29-dde873ca48ad",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:40:12Z",
-            unittype="unitTransfer",
             jobtype="Move transfer to backlog",
         ),
-        Job.objects.create(
-            jobuuid="bac0675d-44fe-4047-9713-f9ba9fe46eff",
+        make_job(
+            transfer,
             microservicegroup="Create SIP from Transfer",
-            sipuuid=transfer.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:40:14Z",
-            unittype="unitTransfer",
             jobtype="Create placement in backlog PREMIS events",
         ),
     ]
 
 
 @pytest.fixture
-def jobs_sip_complete(db, sip):
+def jobs_sip_complete(make_job: JobFactory, sip: SIP) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="299c727c-e72b-4070-ae0a-a78a5aa0cfd3",
+        make_job(
+            sip,
             microservicegroup="Store AIP",
-            sipuuid=sip.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:18:46Z",
-            unittype="unitSIP",
             jobtype="Remove the processing directory",
         )
     ]
 
 
 @pytest.fixture
-def jobs_sip_complete_cleanup_last(db, sip):
+def jobs_sip_complete_cleanup_last(make_job: JobFactory, sip: SIP) -> list[Job]:
     return [
-        Job.objects.create(
-            jobuuid="c3e2f1de-5cd2-4543-89de-e49a75a54dc4",
+        make_job(
+            sip,
             microservicegroup="Store AIP",
-            sipuuid=sip.uuid,
             currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime="2016-10-04T23:18:47Z",
-            unittype="unitSIP",
             jobtype="Clean up after storing AIP",
         )
+    ]
+
+
+@pytest.fixture
+def jobs_awaiting_approval(
+    make_job: JobFactory, transfer: Transfer, sip: SIP
+) -> list[Job]:
+    """The pending approval of the transfer and the completed storage of the SIP."""
+    return [
+        make_job(
+            transfer,
+            jobtype="Approve standard transfer",
+            currentstep=Job.STATUS_AWAITING_DECISION,
+            directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
+            createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
+        ),
+        make_job(
+            sip,
+            jobtype="Store AIP",
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
+            createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
+        ),
     ]
 
 
@@ -277,8 +264,12 @@ def test_get_unit_status_rejected(jobs_processing, jobs_rejected, transfer):
 
 @pytest.mark.django_db
 def test_get_unit_status_completed_transfer(
-    jobs_processing, jobs_transfer_complete, transfer, sip, files
-):
+    jobs_processing: list[Job],
+    jobs_transfer_complete: list[Job],
+    transfer: Transfer,
+    sip: SIP,
+    sip_file: File,
+) -> None:
     """It should return COMPLETE and the new SIP UUID."""
     status = views.get_unit_status(transfer.uuid, "unitTransfer")
     assert len(status) == 3
@@ -309,8 +300,13 @@ def test_get_unit_status_backlog(jobs_processing, jobs_transfer_backlog, transfe
 
 @pytest.mark.django_db
 def test_get_unit_status_completed_sip(
-    transfer, sip, jobs_processing, jobs_transfer_complete, jobs_sip_complete, files
-):
+    transfer: Transfer,
+    sip: SIP,
+    jobs_processing: list[Job],
+    jobs_transfer_complete: list[Job],
+    jobs_sip_complete: list[Job],
+    sip_file: File,
+) -> None:
     """It should return COMPLETE."""
     status = views.get_unit_status(sip.uuid, "unitSIP")
     assert len(status) == 2
@@ -325,14 +321,14 @@ def test_get_unit_status_completed_sip(
 
 @pytest.mark.django_db
 def test_get_unit_status_completed_sip_issue_262_workaround(
-    transfer,
-    sip,
-    jobs_processing,
-    jobs_transfer_complete,
-    jobs_sip_complete,
-    jobs_sip_complete_cleanup_last,
-    files,
-):
+    transfer: Transfer,
+    sip: SIP,
+    jobs_processing: list[Job],
+    jobs_transfer_complete: list[Job],
+    jobs_sip_complete: list[Job],
+    jobs_sip_complete_cleanup_last: list[Job],
+    sip_file: File,
+) -> None:
     """Test get unit status for a completed SIP when the job with the latest
     created time is not the last in the microservice chain
     (i.e, job with jobtype 'Remove the processing directory' is not the one with
@@ -351,8 +347,13 @@ def test_get_unit_status_completed_sip_issue_262_workaround(
 
 @pytest.mark.django_db
 def test_status(
-    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
-):
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    sip: SIP,
+    jobs_transfer_complete: list[Job],
+    sip_file: File,
+) -> None:
     resp = admin_client.get(
         reverse("api:transfer_status", args=[transfer.uuid]),
     )
@@ -460,38 +461,51 @@ def test_status_ingest_not_found(admin_client, dashboard_uuid):
 
 
 @pytest.mark.django_db
-def test_status_with_bogus_unit(admin_client, dashboard_uuid):
+def test_status_with_bogus_unit(
+    admin_client: Client, dashboard_uuid: uuid.UUID, transfer: Transfer
+) -> None:
     """It should return a 400 error as the status cannot be determined."""
-    bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
-    Transfer.objects.create(uuid=bogus_transfer_id)
-    resp = admin_client.get(reverse("api:transfer_status", args=[bogus_transfer_id]))
+    resp = admin_client.get(reverse("api:transfer_status", args=[transfer.uuid]))
     assert resp.status_code == 400
     payload = json.loads(resp.content.decode("utf8"))
     assert payload["error"] is True
     assert (
         payload["message"]
-        == f"Unable to determine the status of the unit {bogus_transfer_id}"
+        == f"Unable to determine the status of the unit {transfer.uuid}"
     )
 
 
 @pytest.mark.django_db
-def test_completed_units(transfer, sip, jobs_transfer_complete, files):
+def test_completed_units(
+    transfer: Transfer, sip: SIP, jobs_transfer_complete: list[Job], sip_file: File
+) -> None:
     completed = views._completed_units()
     assert completed == [str(transfer.uuid)]
 
 
 @pytest.mark.django_db
-def test_completed_units_with_bogus_unit(transfer, sip, jobs_transfer_complete, files):
+def test_completed_units_with_bogus_unit(
+    transfer: Transfer,
+    sip: SIP,
+    jobs_transfer_complete: list[Job],
+    sip_file: File,
+    make_transfer: TransferFactory,
+) -> None:
     """Bogus units should be excluded and handled gracefully."""
-    Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+    make_transfer()
     completed = views._completed_units()
     assert completed == [str(transfer.uuid)]
 
 
 @pytest.mark.django_db
 def test_completed_transfers(
-    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
-):
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    sip: SIP,
+    jobs_transfer_complete: list[Job],
+    sip_file: File,
+) -> None:
     resp = admin_client.get(reverse("api:completed_transfers"))
     assert resp.status_code == 200
     payload = json.loads(resp.content.decode("utf8"))
@@ -503,10 +517,16 @@ def test_completed_transfers(
 
 @pytest.mark.django_db
 def test_completed_transfers_with_bogus_transfer(
-    admin_client, dashboard_uuid, transfer, sip, jobs_transfer_complete, files
-):
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    sip: SIP,
+    jobs_transfer_complete: list[Job],
+    sip_file: File,
+    make_transfer: TransferFactory,
+) -> None:
     """Bogus transfers should be excluded and handled gracefully."""
-    Transfer.objects.create(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+    make_transfer()
     resp = admin_client.get(reverse("api:completed_transfers"))
     assert resp.status_code == 200
     payload = json.loads(resp.content.decode("utf8"))
@@ -529,10 +549,14 @@ def test_completed_ingests(admin_client, dashboard_uuid, sip, jobs_sip_complete)
 
 @pytest.mark.django_db
 def test_completed_ingests_with_bogus_sip(
-    admin_client, dashboard_uuid, sip, jobs_sip_complete
-):
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    sip: SIP,
+    jobs_sip_complete: list[Job],
+    make_sip: SIPFactory,
+) -> None:
     """Bogus ingests should be excluded and handled gracefully."""
-    SIP.objects.create(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
+    make_sip()
     resp = admin_client.get(reverse("api:completed_ingests"))
     assert resp.status_code == 200
     payload = json.loads(resp.content.decode("utf8"))
@@ -544,7 +568,7 @@ def test_completed_ingests_with_bogus_sip(
 
 @pytest.mark.django_db
 def test_unit_jobs_with_bogus_unit_uuid(admin_client, dashboard_uuid):
-    bogus_unit_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+    bogus_unit_uuid = str(uuid.uuid4())
     resp = admin_client.get(reverse("api:v2beta_jobs", args=[bogus_unit_uuid]))
     assert resp.status_code == 400
     payload = json.loads(resp.content.decode("utf8"))
@@ -553,13 +577,19 @@ def test_unit_jobs_with_bogus_unit_uuid(admin_client, dashboard_uuid):
 
 
 @pytest.mark.django_db
-def test_unit_jobs(admin_client, dashboard_uuid, transfer, jobs_transfer_complete):
+def test_unit_jobs(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    jobs_transfer_complete: list[Job],
+    make_task: TaskFactory,
+) -> None:
     # Add a task to an existing job
     task_uuid = uuid.uuid4()
     job_index = 1
-    Task.objects.create(
+    make_task(
+        jobs_transfer_complete[job_index],
         taskuuid=task_uuid,
-        job=jobs_transfer_complete[job_index],
         createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
         starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
         endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
@@ -630,7 +660,7 @@ def test_unit_jobs_searching_for_microservice_with_prefix(
     payload = json.loads(resp.content.decode("utf8"))
     assert len(payload) == 1
     job = payload[0]
-    assert job["uuid"] == jobs_rejected[0].jobuuid
+    assert job["uuid"] == str(jobs_rejected[0].jobuuid)
 
 
 @pytest.mark.django_db
@@ -694,18 +724,22 @@ def test_unit_jobs_searching_for_name_with_prefix(
     payload = json.loads(resp.content.decode("utf8"))
     assert len(payload) == 1
     job = payload[0]
-    assert job["uuid"] == jobs_rejected[0].jobuuid
+    assert job["uuid"] == str(jobs_rejected[0].jobuuid)
 
 
 @pytest.mark.django_db
 def test_unit_jobs_with_detailed_task_output(
-    admin_client, dashboard_uuid, transfer, jobs_rejected
-):
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    jobs_rejected: list[Job],
+    make_task: TaskFactory,
+) -> None:
     # Add a task to an existing job
     task_uuid = uuid.uuid4()
-    Task.objects.create(
+    make_task(
+        jobs_rejected[0],
         taskuuid=task_uuid,
-        job=jobs_rejected[0],
         createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
         starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0)),
         endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 10)),
@@ -747,7 +781,7 @@ def test_unit_jobs_with_detailed_task_output(
 
 @pytest.mark.django_db
 def test_task_with_bogus_task_uuid(admin_client, dashboard_uuid):
-    bogus_task_uuid = "00000000-dfac-430d-93f4-f0453b18ad2f"
+    bogus_task_uuid = str(uuid.uuid4())
     resp = admin_client.get(reverse("api:v2beta_task", args=[bogus_task_uuid]))
     assert resp.status_code == 400
     payload = json.loads(resp.content.decode("utf8"))
@@ -756,13 +790,18 @@ def test_task_with_bogus_task_uuid(admin_client, dashboard_uuid):
 
 
 @pytest.mark.django_db
-def test_task(admin_client, dashboard_uuid, jobs_transfer_complete):
+def test_task(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    jobs_transfer_complete: list[Job],
+    make_task: TaskFactory,
+) -> None:
     stored_job = jobs_transfer_complete[1]
     # fixtures don't have any tasks
     task_uuid = uuid.uuid4()
-    Task.objects.create(
+    make_task(
+        stored_job,
         taskuuid=task_uuid,
-        job=stored_job,
         createdtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
         starttime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 0)),
         endtime=make_aware(datetime.datetime(2019, 6, 18, 0, 0, 5)),
@@ -783,22 +822,22 @@ def test_task(admin_client, dashboard_uuid, jobs_transfer_complete):
 
 
 @pytest.fixture
-def shared_dir(tmp_path, settings):
-    shared_dir = tmp_path / "shared_dir"
-    shared_dir.mkdir()
-
-    (shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs").mkdir(
-        parents=True
-    )
-
-    settings.SHARED_DIRECTORY = shared_dir.as_posix()
+def builtin_processing_configurations(
+    processing_configurations_path: pathlib.Path,
+) -> pathlib.Path:
+    """The processing configurations directory with the built-in configurations."""
     install_builtin_config("default")
     install_builtin_config("automated")
 
-    return shared_dir
+    return processing_configurations_path
 
 
-def test_list_processing_configs(admin_client, dashboard_uuid, shared_dir):
+@pytest.mark.django_db
+def test_list_processing_configs(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    builtin_processing_configurations: pathlib.Path,
+) -> None:
     expected_names = sorted(["default", "automated"])
     response = admin_client.get(reverse("api:processing_configuration_list"))
     assert response.status_code == 200
@@ -810,7 +849,12 @@ def test_list_processing_configs(admin_client, dashboard_uuid, shared_dir):
     )
 
 
-def test_get_existing_processing_config(admin_client, dashboard_uuid, shared_dir):
+@pytest.mark.django_db
+def test_get_existing_processing_config(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    builtin_processing_configurations: pathlib.Path,
+) -> None:
     response = admin_client.get(
         reverse("api:processing_configuration", args=["default"]),
         HTTP_ACCEPT="xml",
@@ -819,10 +863,13 @@ def test_get_existing_processing_config(admin_client, dashboard_uuid, shared_dir
     assert etree.fromstring(response.content).xpath(".//preconfiguredChoice")
 
 
-def test_delete_and_regenerate(admin_client, dashboard_uuid, shared_dir):
-    processing_configs = (
-        shared_dir / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs"
-    )
+@pytest.mark.django_db
+def test_delete_and_regenerate(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    builtin_processing_configurations: pathlib.Path,
+) -> None:
+    processing_configs = builtin_processing_configurations
 
     response = admin_client.delete(
         reverse("api:processing_configuration", args=["default"])
@@ -839,7 +886,12 @@ def test_delete_and_regenerate(admin_client, dashboard_uuid, shared_dir):
     assert (processing_configs / "defaultProcessingMCP.xml").exists()
 
 
-def test_404_for_non_existent_config(admin_client, dashboard_uuid, shared_dir):
+@pytest.mark.django_db
+def test_404_for_non_existent_config(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    builtin_processing_configurations: pathlib.Path,
+) -> None:
     response = admin_client.get(
         reverse("api:processing_configuration", args=["nonexistent"]),
         HTTP_ACCEPT="xml",
@@ -847,7 +899,12 @@ def test_404_for_non_existent_config(admin_client, dashboard_uuid, shared_dir):
     assert response.status_code == 404
 
 
-def test_404_for_delete_non_existent_config(admin_client, dashboard_uuid, shared_dir):
+@pytest.mark.django_db
+def test_404_for_delete_non_existent_config(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    builtin_processing_configurations: pathlib.Path,
+) -> None:
     response = admin_client.delete(
         reverse("api:processing_configuration", args=["nonexistent"])
     )
@@ -856,12 +913,13 @@ def test_404_for_delete_non_existent_config(admin_client, dashboard_uuid, shared
 
 @pytest.mark.django_db
 def test_get_unit_status_multiple(
-    jobs_failed,
-    jobs_transfer_complete,
-    jobs_rejected,
-    jobs_user_input,
-    jobs_transfer_backlog,
-):
+    jobs_failed: list[Job],
+    jobs_transfer_complete: list[Job],
+    jobs_rejected: list[Job],
+    jobs_user_input: list[Job],
+    jobs_transfer_backlog: list[Job],
+    make_transfer: TransferFactory,
+) -> None:
     """When the database contains 5 units of the following types:
     1. a failed transfer
     2. a completed transfer
@@ -871,27 +929,27 @@ def test_get_unit_status_multiple(
     then ``completed_units_efficient`` should return 3: the failed,
     the completed, and the in-backlog transfer.
     """
-    failed_transfer = Transfer.objects.create()
+    failed_transfer = make_transfer()
     for job in jobs_failed:
         job.sipuuid = failed_transfer.uuid
         job.save()
 
-    complete_transfer = Transfer.objects.create()
+    complete_transfer = make_transfer()
     for job in jobs_transfer_complete:
         job.sipuuid = complete_transfer.uuid
         job.save()
 
-    rejected_transfer = Transfer.objects.create()
+    rejected_transfer = make_transfer()
     for job in jobs_rejected:
         job.sipuuid = rejected_transfer.uuid
         job.save()
 
-    awaiting_transfer = Transfer.objects.create()
+    awaiting_transfer = make_transfer()
     for job in jobs_user_input:
         job.sipuuid = awaiting_transfer.uuid
         job.save()
 
-    backlog_transfer = Transfer.objects.create()
+    backlog_transfer = make_transfer()
     for job in jobs_transfer_backlog:
         job.sipuuid = backlog_transfer.uuid
         job.save()
@@ -916,10 +974,14 @@ def test_get_unit_status_multiple(
     "archivematica.dashboard.components.filesystem_ajax.views._copy_from_transfer_sources",
     return_value=(None, ""),
 )
-def test_copy_metadata_files_api(_copy_from_transfer_sources, authenticate_request):
+def test_copy_metadata_files_api(
+    _copy_from_transfer_sources: mock.Mock,
+    authenticate_request: mock.Mock,
+    make_sip: SIPFactory,
+) -> None:
     # Create a SIP
     sip_uuid = str(uuid.uuid4())
-    SIP.objects.create(
+    make_sip(
         uuid=sip_uuid,
         currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )
@@ -945,6 +1007,7 @@ def test_copy_metadata_files_api(_copy_from_transfer_sources, authenticate_reque
     }
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.filesystem_ajax.views.start_transfer",
     return_value={},
@@ -968,6 +1031,7 @@ def test_start_transfer_api_decodes_paths(
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE",
 )
@@ -996,26 +1060,12 @@ def test_reingest_approve(gearman_client, job_complete, admin_client, dashboard_
 
 
 @pytest.mark.django_db
-def test_unapproved_transfers(admin_client, dashboard_uuid):
-    # Create a couple of jobs with one awaiting for decision, i.e. unapproved.
-    approve_transfer_uuid = uuid.uuid4()
-    Job.objects.create(
-        jobtype="Approve standard transfer",
-        currentstep=Job.STATUS_AWAITING_DECISION,
-        directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
-        unittype="unitTransfer",
-        sipuuid=approve_transfer_uuid,
-    )
-    Job.objects.create(
-        jobtype="Store AIP",
-        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
-        directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
-        unittype="unitSIP",
-        sipuuid=uuid.UUID("520327f1-cd4e-47fe-9d8a-d9c02fded504"),
-    )
-
+def test_unapproved_transfers(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    jobs_awaiting_approval: list[Job],
+) -> None:
     response = admin_client.get(reverse("api:unapproved_transfers"))
     assert response.status_code == 200
 
@@ -1027,12 +1077,13 @@ def test_unapproved_transfers(admin_client, dashboard_uuid):
             {
                 "directory": "test-2",
                 "type": "standard",
-                "uuid": str(approve_transfer_uuid),
+                "uuid": str(transfer.uuid),
             }
         ],
     }
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "post_data,expected_error",
     [
@@ -1064,6 +1115,7 @@ def test_approve_transfer_failures(
     assert payload == {"error": True, "message": expected_error}
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE")
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_approve_transfer(gearman_client, job_complete, admin_client, dashboard_uuid):
@@ -1090,26 +1142,12 @@ def test_approve_transfer(gearman_client, job_complete, admin_client, dashboard_
 
 
 @pytest.mark.django_db
-def test_waiting_for_user_input(admin_client, dashboard_uuid):
-    # Create a couple of jobs with one awaiting for decision.
-    approve_transfer_uuid = uuid.uuid4()
-    Job.objects.create(
-        jobtype="Approve standard transfer",
-        currentstep=Job.STATUS_AWAITING_DECISION,
-        directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
-        unittype="unitTransfer",
-        sipuuid=approve_transfer_uuid,
-    )
-    Job.objects.create(
-        jobtype="Store AIP",
-        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
-        directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
-        unittype="unitSIP",
-        sipuuid=uuid.uuid4(),
-    )
-
+def test_waiting_for_user_input(
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    jobs_awaiting_approval: list[Job],
+) -> None:
     response = admin_client.get(reverse("api:waiting_for_user_input"))
     assert response.status_code == 200
 
@@ -1122,12 +1160,13 @@ def test_waiting_for_user_input(admin_client, dashboard_uuid):
                 "microservice": "Approve standard transfer",
                 "sip_directory": "test-2",
                 "sip_name": "test-2",
-                "sip_uuid": str(approve_transfer_uuid),
+                "sip_uuid": str(transfer.uuid),
             }
         ],
     }
 
 
+@pytest.mark.django_db
 def test_reingest_fails_with_missing_parameters(admin_client, dashboard_uuid):
     response = admin_client.post(
         reverse("api:transfer_reingest", kwargs={"target": "transfer"}), {}
@@ -1139,54 +1178,48 @@ def test_reingest_fails_with_missing_parameters(admin_client, dashboard_uuid):
 
 
 @pytest.fixture
-def sip_path(tmp_path):
-    shared_dir = tmp_path / "dir"
-    shared_dir.mkdir()
+def sip_path(
+    settings: pytest_django.Settings, shared_directory_path: pathlib.Path
+) -> pathlib.Path:
+    """A transfer in the temporary directory of the shared directory, which has
+    the watched directories of a reingest.
+    """
+    for directory in [
+        ("watchedDirectories", "activeTransfers", "standardTransfer"),
+        ("watchedDirectories", "system", "reingestAIP"),
+    ]:
+        shared_directory_path.joinpath(*directory).mkdir(parents=True)
 
-    (shared_dir / "watchedDirectories" / "activeTransfers" / "standardTransfer").mkdir(
-        parents=True
-    )
-    (shared_dir / "watchedDirectories" / "system" / "reingestAIP").mkdir(parents=True)
+    result = shared_directory_path / "tmp" / f"mytransfer-{uuid.uuid4()}"
+    result.mkdir()
+    (result / "myfile.txt").write_text("my file")
 
-    tmp_dir = shared_dir / "tmp"
-    tmp_dir.mkdir()
-
-    sip_dir = tmp_dir / f"mytransfer-{uuid.uuid4()}"
-    sip_dir.mkdir()
-    (sip_dir / "myfile.txt").write_text("my file")
-
-    return sip_dir
+    return result
 
 
 @pytest.mark.django_db
 def test_reingest_deletes_existing_models_related_to_sip(
-    sip_path, settings, admin_client, dashboard_uuid
-):
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
-    shared_directory = sip_path.parent.parent
+    sip_path: pathlib.Path,
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    make_transfer: TransferFactory,
+    make_sip: SIPFactory,
+    make_job: JobFactory,
+    make_task: TaskFactory,
+    make_rights_statement: RightsStatementFactory,
+    make_dublincore: DublinCoreFactory,
+) -> None:
     transfer_uuid = sip_path.name[-36:]
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # Create a Transfer and related models.
-    transfer = Transfer.objects.create(uuid=transfer_uuid)
-    job = Job.objects.create(
-        sipuuid=transfer.uuid,
-        createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30)),
+    transfer = make_transfer(uuid=transfer_uuid)
+    job = make_job(
+        transfer, createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30))
     )
-    Task.objects.create(
-        job=job,
-        createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30)),
-    )
-    SIP.objects.create(uuid=transfer.uuid)
-    metadata_applies_to_type = MetadataAppliesToType.objects.create()
-    RightsStatement.objects.create(
-        metadataappliestoidentifier=transfer.uuid,
-        metadataappliestotype=metadata_applies_to_type,
-    )
-    DublinCore.objects.create(
-        metadataappliestoidentifier=transfer.uuid,
-        metadataappliestotype=metadata_applies_to_type,
-    )
+    make_task(job, createdtime=make_aware(datetime.datetime(2023, 11, 15, 8, 30)))
+    make_sip(uuid=transfer.uuid)
+    make_rights_statement("transfer", transfer.uuid)
+    make_dublincore("transfer", transfer.uuid)
 
     response = admin_client.post(
         reverse("api:transfer_reingest", kwargs={"target": "transfer"}),
@@ -1203,13 +1236,13 @@ def test_reingest_deletes_existing_models_related_to_sip(
 
 
 @pytest.mark.django_db
-def test_reingest_full(sip_path, settings, admin_client, dashboard_uuid):
+def test_reingest_full(
+    sip_path: pathlib.Path, admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
     # Fake UUID generation from the endpoint for a new Transfer.
     transfer_uuid = uuid.uuid4()
 
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
     shared_directory = sip_path.parent.parent
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # There are no existing Transfers initially.
     assert Transfer.objects.count() == 0
@@ -1231,7 +1264,7 @@ def test_reingest_full(sip_path, settings, admin_client, dashboard_uuid):
     # Verify a Transfer model was created.
     assert (
         Transfer.objects.filter(
-            currentlocation=f"%sharedPath%/watchedDirectories/activeTransfers/standardTransfer/mytransfer-{transfer_uuid}/",
+            currentlocation=f"%sharedPath%watchedDirectories/activeTransfers/standardTransfer/mytransfer-{transfer_uuid}/",
             type=Transfer.ARCHIVEMATICA_AIP,
         ).count()
         == 1
@@ -1251,14 +1284,12 @@ def test_reingest_full(sip_path, settings, admin_client, dashboard_uuid):
 
 @pytest.mark.django_db
 def test_reingest_full_fails_if_target_directory_already_exists(
-    sip_path, settings, admin_client, dashboard_uuid
-):
+    sip_path: pathlib.Path, admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
     # Fake UUID generation from the endpoint for a new Transfer.
     transfer_uuid = uuid.uuid4()
 
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
     shared_directory = sip_path.parent.parent
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # Create a directory with the same transfer name under active transfers.
     active_transfers_path = (
@@ -1281,10 +1312,10 @@ def test_reingest_full_fails_if_target_directory_already_exists(
 
 
 @pytest.mark.django_db
-def test_reingest_partial(sip_path, settings, admin_client, dashboard_uuid):
-    # Set the SHARED_DIRECTORY setting based on the sip_path fixture.
+def test_reingest_partial(
+    sip_path: pathlib.Path, admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
     shared_directory = sip_path.parent.parent
-    settings.SHARED_DIRECTORY = shared_directory.as_posix()
 
     # A partial reingest reuses the SIP UUID in the response.
     reingest_uuid = sip_path.name[-36:]

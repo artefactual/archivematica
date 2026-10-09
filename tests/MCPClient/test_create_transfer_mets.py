@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import pathlib
 import uuid
 
 import metsrw
@@ -10,7 +11,6 @@ from metsrw.plugins.premisrw import PREMIS_3_0_NAMESPACES
 
 from archivematica.archivematicaCommon.version import get_preservation_system_identifier
 from archivematica.dashboard.main.models import Agent
-from archivematica.dashboard.main.models import DashboardSetting
 from archivematica.dashboard.main.models import Directory
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
@@ -42,6 +42,7 @@ from archivematica.dashboard.main.models import (
 )
 from archivematica.dashboard.main.models import RightsStatementStatuteInformation
 from archivematica.dashboard.main.models import RightsStatementStatuteInformationNote
+from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.clientScripts.create_transfer_mets import FSEntriesTree
 from archivematica.MCPClient.clientScripts.create_transfer_mets import agent_to_premis
 from archivematica.MCPClient.clientScripts.create_transfer_mets import dir_obj_to_premis
@@ -51,6 +52,9 @@ from archivematica.MCPClient.clientScripts.create_transfer_mets import (
 )
 from archivematica.MCPClient.clientScripts.create_transfer_mets import rights_to_premis
 from archivematica.MCPClient.clientScripts.create_transfer_mets import write_mets
+from tests.factories import EventFactory
+from tests.factories import FileFactory
+from tests.factories import RightsStatementFactory
 
 PREMIS_NAMESPACES = PREMIS_3_0_NAMESPACES
 
@@ -88,15 +92,15 @@ def file_path2(subdir_path):
 
 
 @pytest.fixture()
-def file_obj(db, transfer, tmp_path, file_path):
-    file_obj_path = "".join(
-        [transfer.currentlocation, str(file_path.relative_to(tmp_path))]
-    )
-    file_obj = File.objects.create(
-        uuid=uuid.uuid4(),
+def file_obj(
+    make_file: FileFactory,
+    transfer: Transfer,
+    tmp_path: pathlib.Path,
+    file_path: pathlib.Path,
+) -> File:
+    file_obj = make_file(
+        str(file_path.relative_to(tmp_path)),
         transfer=transfer,
-        originallocation=file_obj_path.encode(),
-        currentlocation=file_obj_path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -108,15 +112,15 @@ def file_obj(db, transfer, tmp_path, file_path):
 
 
 @pytest.fixture()
-def file_obj2(db, transfer, tmp_path, file_path2):
-    file_obj_path = "".join(
-        [transfer.currentlocation, str(file_path2.relative_to(tmp_path))]
-    )
-    return File.objects.create(
-        uuid=uuid.uuid4(),
+def file_obj2(
+    make_file: FileFactory,
+    transfer: Transfer,
+    tmp_path: pathlib.Path,
+    file_path2: pathlib.Path,
+) -> File:
+    return make_file(
+        str(file_path2.relative_to(tmp_path)),
         transfer=transfer,
-        originallocation=file_obj_path.encode(),
-        currentlocation=file_obj_path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -125,7 +129,7 @@ def file_obj2(db, transfer, tmp_path, file_path2):
 
 
 @pytest.fixture()
-def dir_obj(db, transfer, tmp_path, subdir_path):
+def dir_obj(transfer, tmp_path, subdir_path):
     dir_obj_path = "".join(
         [transfer.currentlocation, str(subdir_path.relative_to(tmp_path)), os.path.sep]
     )
@@ -141,18 +145,18 @@ def dir_obj(db, transfer, tmp_path, subdir_path):
 
 
 @pytest.fixture()
-def event(request, db, file_obj):
-    return Event.objects.create(
+def event(make_event: EventFactory, file_obj: File) -> Event:
+    return make_event(
+        file_obj,
+        "message digest calculation",
         event_id=uuid.uuid4(),
-        file_uuid=file_obj,
-        event_type="message digest calculation",
         event_detail='program="python"; module="hashlib.sha256()"',
         event_outcome_detail="d10bbb2cddc343cd50a304c21e67cb9d5937a93bcff5e717de2df65e0a6309d6",
     )
 
 
 @pytest.fixture()
-def fpcommand_output(db, fprule_characterization, file_obj):
+def fpcommand_output(fprule_characterization, file_obj):
     return FPCommandOutput.objects.create(
         file=file_obj,
         rule=fprule_characterization,
@@ -161,28 +165,34 @@ def fpcommand_output(db, fprule_characterization, file_obj):
 
 
 @pytest.fixture()
-def basic_rights_statement(db, file_obj, metadata_applies_to_types):
-    rights = RightsStatement.objects.create(
-        metadataappliestotype=metadata_applies_to_types["file"],
-        metadataappliestoidentifier=file_obj.uuid,
+def basic_rights_statement(
+    make_rights_statement: RightsStatementFactory, file_obj: File
+) -> RightsStatement:
+    rights = make_rights_statement(
+        "file",
+        file_obj.uuid,
         rightsstatementidentifiertype="UUID",
         rightsstatementidentifiervalue=str(uuid.uuid4()),
     )
-    rights_granted = rights.rightsstatementrightsgranted_set.create(
-        act="Disseminate", startdate="2001-01-01", enddateopen=True
+    make_rights_statement.grant(
+        rights,
+        "Disseminate",
+        startdate="2001-01-01",
+        enddateopen=True,
+        restriction="Allow",
+        notes=["A grant note", "Another grant note"],
     )
-    rights_granted.restrictions.create(restriction="Allow")
-    rights_granted.notes.create(rightsgrantednote="A grant note")
-    rights_granted.notes.create(rightsgrantednote="Another grant note")
 
     return rights
 
 
 @pytest.fixture()
-def transfer_rights_statement(db, transfer, metadata_applies_to_types):
-    rights = RightsStatement.objects.create(
-        metadataappliestotype=metadata_applies_to_types["transfer"],
-        metadataappliestoidentifier=transfer.uuid,
+def transfer_rights_statement(
+    make_rights_statement: RightsStatementFactory, transfer: Transfer
+) -> RightsStatement:
+    rights = make_rights_statement(
+        "transfer",
+        transfer.uuid,
         rightsstatementidentifiertype="UUID",
         rightsstatementidentifiervalue=str(uuid.uuid4()),
         rightsbasis="License",
@@ -193,7 +203,7 @@ def transfer_rights_statement(db, transfer, metadata_applies_to_types):
 
 
 @pytest.fixture()
-def copyright_rights(db, basic_rights_statement):
+def copyright_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "Copyright"
     basic_rights_statement.save()
 
@@ -220,7 +230,7 @@ def copyright_rights(db, basic_rights_statement):
 
 
 @pytest.fixture()
-def license_rights(db, basic_rights_statement):
+def license_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "License"
     basic_rights_statement.save()
 
@@ -242,7 +252,7 @@ def license_rights(db, basic_rights_statement):
 
 
 @pytest.fixture()
-def statute_rights(db, basic_rights_statement):
+def statute_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "Statute"
     basic_rights_statement.save()
 
@@ -266,7 +276,7 @@ def statute_rights(db, basic_rights_statement):
 
 
 @pytest.fixture()
-def other_rights(db, basic_rights_statement):
+def other_rights(basic_rights_statement):
     basic_rights_statement.rightsbasis = "Other"
     basic_rights_statement.save()
 
@@ -287,14 +297,6 @@ def other_rights(db, basic_rights_statement):
     )
 
     return basic_rights_statement
-
-
-@pytest.fixture()
-def dashboard_uuid(db):
-    setting, _ = DashboardSetting.objects.get_or_create(
-        name="dashboard_uuid", defaults={"value": str(uuid.uuid4())}
-    )
-    return setting.value
 
 
 @pytest.mark.django_db
@@ -389,7 +391,12 @@ def test_transfer_mets_accession_id(tmp_path, transfer):
 
 
 @pytest.mark.django_db
-def test_transfer_mets_header(tmp_path, transfer, file_obj, dashboard_uuid):
+def test_transfer_mets_header(
+    tmp_path: pathlib.Path,
+    transfer: Transfer,
+    file_obj: File,
+    dashboard_uuid: uuid.UUID,
+) -> None:
     mets_path = tmp_path / "METS.xml"
     write_mets(str(mets_path), str(tmp_path), "transferDirectory", transfer.uuid)
     mets_doc = metsrw.METSDocument.fromfile(str(mets_path))
@@ -403,7 +410,7 @@ def test_transfer_mets_header(tmp_path, transfer, file_obj, dashboard_uuid):
     assert agent.get("ROLE") == "CREATOR"
     assert agent.get("TYPE") == "OTHER"
     assert agent.get("OTHERTYPE") == "SOFTWARE"
-    assert agent_name.text == dashboard_uuid
+    assert agent_name.text == str(dashboard_uuid)
     assert agent_note.text == "Archivematica dashboard UUID"
 
 
@@ -1016,7 +1023,7 @@ def test_agent_to_premis_with_blank_fields():
 
 
 @pytest.fixture
-def empty_rights_statement(db):
+def empty_rights_statement():
     return RightsStatement.objects.create(
         metadataappliestotype=MetadataAppliesToType.objects.create()
     )

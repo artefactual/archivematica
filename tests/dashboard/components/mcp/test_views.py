@@ -1,3 +1,4 @@
+import uuid
 from unittest import mock
 
 import gearman
@@ -8,14 +9,18 @@ from lxml import etree
 from archivematica.archivematicaCommon.externals import xmltodict
 from archivematica.dashboard.components.mcp import views
 
-FILE_FORMAT_IDENTIFICATION_CHOICES = """
+# UUIDs of the job awaiting a decision and of its transfer in the reply below.
+JOB_UUID = uuid.uuid4()
+TRANSFER_UUID = uuid.uuid4()
+
+FILE_FORMAT_IDENTIFICATION_CHOICES = f"""
 <choicesAvailableForUnit>
-  <UUID>b8d5dcca-b60e-40fd-b160-32447abbf7f8</UUID>
+  <UUID>{JOB_UUID}</UUID>
   <unit>
     <type>Transfer</type>
     <unitXML>
-      <UUID>b2b51b27-62e3-4781-bc77-4e7a73b5f0d4</UUID>
-      <currentPath>%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/bar-b2b51b27-62e3-4781-bc77-4e7a73b5f0d4/</currentPath>
+      <UUID>{TRANSFER_UUID}</UUID>
+      <currentPath>%sharedPath%watchedDirectories/workFlowDecisions/selectFormatIDToolTransfer/bar-{TRANSFER_UUID}/</currentPath>
     </unitXML>
   </unit>
   <choices>
@@ -41,6 +46,7 @@ MCPSERVER_JOBS_AWAITING_APPROVAL_RESULT = f"""
 """
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 @mock.patch(
     "archivematica.dashboard.contrib.mcp.client.gearman.JOB_COMPLETE",
@@ -75,6 +81,7 @@ def test_list(job_complete, gearman_client, rf, admin_user):
     assert response_unit_dict == FILE_FORMAT_IDENTIFICATION_CHOICES_DICT
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_execute_returns_plaintext_after_approval(
     gearman_client, admin_client, dashboard_uuid
@@ -93,6 +100,7 @@ def test_execute_returns_plaintext_after_approval(
     gearman_client.return_value.shutdown.assert_called_once_with()
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "state,payload",
     [
@@ -119,6 +127,7 @@ def test_execute_returns_unavailable_for_unsuccessful_approval(
     gearman_client.return_value.shutdown.assert_called_once_with()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_execute_returns_unavailable_for_transport_error(
     gearman_client, admin_client, dashboard_uuid
@@ -135,6 +144,7 @@ def test_execute_returns_unavailable_for_transport_error(
     gearman_client.return_value.shutdown.assert_called_once_with()
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.contrib.mcp.client.GearmanClient")
 def test_execute_without_uuid_preserves_empty_response(
     gearman_client, admin_client, dashboard_uuid

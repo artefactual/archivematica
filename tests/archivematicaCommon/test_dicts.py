@@ -5,12 +5,12 @@ import pytest
 from archivematica.archivematicaCommon.dicts import ReplacementDict
 from archivematica.archivematicaCommon.dicts import setup as setup_dicts
 from archivematica.dashboard.main import models
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
-def TRANSFER(db):
-    return models.Transfer.objects.create(
-        uuid="fb0aa04d-8547-46fc-bb7f-288ea5827d2c",
+def TRANSFER(make_transfer: TransferFactory) -> models.Transfer:
+    return make_transfer(
         currentlocation="%sharedDirectory%foo",
         type="Standard",
         accessionid="accession1",
@@ -21,16 +21,14 @@ def TRANSFER(db):
 @pytest.fixture
 def SIP():
     return models.SIP(
-        uuid="c58794fd-4fb8-42a0-b9be-e75191696ab8",
         currentpath="%sharedDirectory%bar",
         hidden=True,
     )
 
 
 @pytest.fixture
-def FILE(db, TRANSFER):
+def FILE(TRANSFER):
     return models.File.objects.create(
-        uuid="ee61d09b-2790-4980-827a-135346657eec",
         transfer=TRANSFER,
         originallocation=b"%sharedDirectory%orig",
         currentlocation=b"%sharedDirectory%new",
@@ -53,11 +51,12 @@ def test_replacementdict_replace():
     assert d.replace("%PREFIX%/bin/") == ["/usr/local/bin/"]
 
 
+@pytest.mark.django_db
 def test_replacementdict_model_constructor_transfer(TRANSFER, FILE):
     rd = ReplacementDict.frommodel(sip=TRANSFER, file_=FILE, type_="transfer")
 
     # Transfer-specific variables
-    assert rd["%SIPUUID%"] == TRANSFER.uuid
+    assert rd["%SIPUUID%"] == str(TRANSFER.uuid)
     assert rd["%relativeLocation%"] == TRANSFER.currentlocation
     assert rd["%currentPath%"] == TRANSFER.currentlocation
     assert rd["%SIPDirectory%"] == TRANSFER.currentlocation
@@ -71,17 +70,18 @@ def test_replacementdict_model_constructor_transfer(TRANSFER, FILE):
     assert rd["%relativeLocation%"] == TRANSFER.currentlocation
 
     # File-specific variables
-    assert rd["%fileUUID%"] == FILE.uuid
+    assert rd["%fileUUID%"] == str(FILE.uuid)
     assert rd["%originalLocation%"] == FILE.originallocation.decode()
     assert rd["%currentLocation%"] == FILE.currentlocation.decode()
     assert rd["%fileGrpUse%"] == FILE.filegrpuse
 
 
+@pytest.mark.django_db
 def test_replacementdict_model_constructor_sip(SIP, FILE):
     rd = ReplacementDict.frommodel(sip=SIP, file_=FILE, type_="sip")
 
     # SIP-specific variables
-    assert rd["%SIPUUID%"] == SIP.uuid
+    assert rd["%SIPUUID%"] == str(SIP.uuid)
     assert rd["%relativeLocation%"] == SIP.currentpath
     assert rd["%currentPath%"] == SIP.currentpath
     assert rd["%SIPDirectory%"] == SIP.currentpath
@@ -92,16 +92,17 @@ def test_replacementdict_model_constructor_sip(SIP, FILE):
     assert rd["%relativeLocation%"] == SIP.currentpath
 
     # File-specific variables
-    assert rd["%fileUUID%"] == FILE.uuid
+    assert rd["%fileUUID%"] == str(FILE.uuid)
     assert rd["%originalLocation%"] == FILE.originallocation.decode()
     assert rd["%currentLocation%"] == FILE.currentlocation.decode()
     assert rd["%fileGrpUse%"] == FILE.filegrpuse
 
 
+@pytest.mark.django_db
 def test_replacementdict_model_constructor_file_only(FILE):
     rd = ReplacementDict.frommodel(file_=FILE, type_="file")
 
-    assert rd["%fileUUID%"] == FILE.uuid
+    assert rd["%fileUUID%"] == str(FILE.uuid)
     assert rd["%originalLocation%"] == FILE.originallocation.decode()
     assert rd["%currentLocation%"] == FILE.currentlocation.decode()
     assert rd["%relativeLocation%"] == FILE.currentlocation.decode()

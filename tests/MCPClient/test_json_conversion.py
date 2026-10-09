@@ -1,8 +1,9 @@
 import json
 import os
+import pathlib
 
-from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import json_metadata_to_csv
+from tests.MCPClient.factories import MCPJobFactory
 
 JSON = '[{"dc.title": "This is a test item", "filename": "objects/test.txt"}]'
 CSV = "filename,dc.title\nobjects/test.txt,This is a test item\n"
@@ -80,12 +81,14 @@ CSV_KEYS_VALS_VARY = "".join(
 )
 
 
-def test_json_csv_conversion(tmpdir):
-    json_path = os.path.join(str(tmpdir), "metadata.json")
-    csv_path = os.path.join(str(tmpdir), "metadata.csv")
+def test_json_csv_conversion(
+    tmp_path: pathlib.Path, make_mcp_job: MCPJobFactory
+) -> None:
+    json_path = os.path.join(str(tmp_path), "metadata.json")
+    csv_path = os.path.join(str(tmp_path), "metadata.csv")
     with open(json_path, "w") as jsonfile:
         jsonfile.write(JSON)
-    job = Job("stub", "stub", ["", json_path])
+    job = make_mcp_job(["", json_path])
     json_metadata_to_csv.call([job])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()
@@ -93,24 +96,28 @@ def test_json_csv_conversion(tmpdir):
     assert csvdata == CSV
 
 
-def test_json_csv_conversion_with_int_val(tmpdir):
-    json_path = os.path.join(str(tmpdir), "metadata.json")
-    csv_path = os.path.join(str(tmpdir), "metadata.csv")
+def test_json_csv_conversion_with_int_val(
+    tmp_path: pathlib.Path, make_mcp_job: MCPJobFactory
+) -> None:
+    json_path = os.path.join(str(tmp_path), "metadata.json")
+    csv_path = os.path.join(str(tmp_path), "metadata.csv")
     with open(json_path, "w") as jsonfile:
         jsonfile.write(JSON_INT_VAL)
-    job = Job("stub", "stub", ["", json_path])
+    job = make_mcp_job(["", json_path])
     json_metadata_to_csv.call([job])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()
     assert csvdata == CSV_INT_VAL
 
 
-def test_json_csv_conversion_with_repeated_columns(tmpdir):
-    json_path = os.path.join(str(tmpdir), "metadata.json")
-    csv_path = os.path.join(str(tmpdir), "metadata.csv")
+def test_json_csv_conversion_with_repeated_columns(
+    tmp_path: pathlib.Path, make_mcp_job: MCPJobFactory
+) -> None:
+    json_path = os.path.join(str(tmp_path), "metadata.json")
+    csv_path = os.path.join(str(tmp_path), "metadata.csv")
     with open(json_path, "w") as jsonfile:
         jsonfile.write(JSON_MULTICOLUMN)
-    job = Job("stub", "stub", ["", json_path])
+    job = make_mcp_job(["", json_path])
     json_metadata_to_csv.call([job])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()
@@ -118,12 +125,14 @@ def test_json_csv_conversion_with_repeated_columns(tmpdir):
     assert csvdata == CSV_MULTICOLUMN
 
 
-def test_json_csv_with_null_data(tmpdir):
-    json_path = os.path.join(str(tmpdir), "metadata.json")
-    csv_path = os.path.join(str(tmpdir), "metadata.csv")
+def test_json_csv_with_null_data(
+    tmp_path: pathlib.Path, make_mcp_job: MCPJobFactory
+) -> None:
+    json_path = os.path.join(str(tmp_path), "metadata.json")
+    csv_path = os.path.join(str(tmp_path), "metadata.csv")
     with open(json_path, "w") as jsonfile:
         jsonfile.write(JSON_NULL)
-    job = Job("stub", "stub", ["", json_path])
+    job = make_mcp_job(["", json_path])
     json_metadata_to_csv.call([job])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()
@@ -131,12 +140,14 @@ def test_json_csv_with_null_data(tmpdir):
     assert csvdata == CSV_NULL
 
 
-def test_json_csv_with_nested_null_data(tmpdir):
-    json_path = os.path.join(str(tmpdir), "metadata.json")
-    csv_path = os.path.join(str(tmpdir), "metadata.csv")
+def test_json_csv_with_nested_null_data(
+    tmp_path: pathlib.Path, make_mcp_job: MCPJobFactory
+) -> None:
+    json_path = os.path.join(str(tmp_path), "metadata.json")
+    csv_path = os.path.join(str(tmp_path), "metadata.csv")
     with open(json_path, "w") as jsonfile:
         jsonfile.write(JSON_NESTED_NULL)
-    job = Job("stub", "stub", ["", json_path])
+    job = make_mcp_job(["", json_path])
     json_metadata_to_csv.call([job])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()
@@ -144,7 +155,9 @@ def test_json_csv_with_nested_null_data(tmpdir):
     assert csvdata == CSV_NESTED_NULL
 
 
-def test_json_csv_keys_vals_vary(tmpdir):
+def test_json_csv_keys_vals_vary(
+    tmp_path: pathlib.Path, make_mcp_job: MCPJobFactory
+) -> None:
     """Test that a JSON array of objects with varying keys and varying value
     types works as expected, i.e.:
 
@@ -162,11 +175,11 @@ def test_json_csv_keys_vals_vary(tmpdir):
     assert first_row == KEYS_VALS_VARY_FIRST_ROW
     second_row = json_metadata_to_csv.object_to_row(second_json_obj, headers)
     assert second_row == KEYS_VALS_VARY_SECOND_ROW
-    json_path = os.path.join(str(tmpdir), "metadata.json")
-    csv_path = os.path.join(str(tmpdir), "metadata.csv")
+    json_path = os.path.join(str(tmp_path), "metadata.json")
+    csv_path = os.path.join(str(tmp_path), "metadata.csv")
     with open(json_path, "w") as jsonfile:
         jsonfile.write(JSON_KEYS_VALS_VARY)
-    job = Job("stub", "stub", ["", json_path])
+    job = make_mcp_job(["", json_path])
     json_metadata_to_csv.call([job])
     with open(csv_path) as csvfile:
         csvdata = csvfile.read()

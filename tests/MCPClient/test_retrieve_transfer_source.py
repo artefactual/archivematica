@@ -1,9 +1,11 @@
 """Tests for the MCPClient transfer-source retrieval task boundary."""
 
 import uuid
+from collections.abc import Callable
 from unittest import mock
 
 import pytest
+import pytest_django
 
 from archivematica.archivematicaCommon.transfer_source_retrieval import (
     TransferSourceRetrievalError,
@@ -14,16 +16,17 @@ from archivematica.archivematicaCommon.transfer_source_retrieval import (
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import retrieve_transfer_source
+from tests.MCPClient.factories import MCPJobFactory
 
 
 @pytest.fixture
-def retrieval_job(settings):
+def retrieval_job(
+    make_mcp_job: MCPJobFactory, settings: pytest_django.Settings
+) -> Callable[[uuid.UUID | str], Job]:
     """Build a client Job with the arguments emitted by workflow.json."""
 
-    def make(transfer_uuid):
-        return Job(
-            "retrievetransfersource_v0.0",
-            "task-uuid",
+    def make(transfer_uuid: uuid.UUID | str) -> Job:
+        return make_mcp_job(
             [
                 str(transfer_uuid),
                 "source-loc:/transfer/source/path/.",
@@ -32,6 +35,8 @@ def retrieval_job(settings):
                 settings.PROCESSING_DIRECTORY,
                 settings.SHARED_DIRECTORY,
             ],
+            name="retrievetransfersource_v0.0",
+            uuid="task-uuid",
         )
 
     return make

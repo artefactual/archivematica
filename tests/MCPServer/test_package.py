@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 import pytest
+import pytest_django
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -23,6 +24,7 @@ from archivematica.MCPServer.server.packages import PACKAGE_TYPE_STARTING_POINTS
 from archivematica.MCPServer.server.packages import RETRIEVE_TRANSFER_SOURCE_CHAIN_ID
 from archivematica.MCPServer.server.packages import SIP
 from archivematica.MCPServer.server.packages import Package
+from archivematica.MCPServer.server.packages import StartingPoint
 from archivematica.MCPServer.server.packages import Transfer
 from archivematica.MCPServer.server.packages import _capture_transfer_failure
 from archivematica.MCPServer.server.packages import _determine_transfer_paths
@@ -35,9 +37,14 @@ from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.queues import PackageQueue
 from archivematica.MCPServer.server.tasks import Task as WorkflowTask
 from archivematica.MCPServer.server.workflow import Workflow
+from tests.factories import JobFactory
+from tests.factories import TaskFactory
 
 # Static workflow contract asserted by package bootstrap tests.
 RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
+
+# UUID of the transfer source location of the paths that the tests plan.
+TRANSFER_SOURCE_LOCATION_UUID = uuid.uuid4()
 
 
 @pytest.mark.parametrize(
@@ -45,7 +52,7 @@ RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
     [
         (
             "TransferName",
-            "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/archive.zip",
+            f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/archive.zip",
             "/tmp/tmp.WXA9V7LCy1",
             (
                 # copy_to
@@ -53,12 +60,12 @@ RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
                 # final_location
                 "/tmp/tmp.WXA9V7LCy1/archive.zip",
                 # copy_from
-                "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/archive.zip",
+                f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/archive.zip",
             ),
         ),
         (
             "TransferName",
-            "a00a29b6-7530-4f09-b3df-fd88d9e478b2:home/username/dir",
+            f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/dir",
             "/tmp/tmp.WXA9V7LCy2",
             (
                 # copy_to
@@ -66,10 +73,11 @@ RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
                 # final_location
                 "/tmp/tmp.WXA9V7LCy2/TransferName",
                 # copy_from
-                "a00a29b6-7530-4f09-b3df-fd88d9e478b2:home/username/dir/.",
+                f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/dir/.",
             ),
         ),
     ],
+    ids=["archive", "directory"],
 )
 @pytest.mark.django_db
 def test__determine_transfer_paths(name, path, tmpdir, expected):
@@ -339,11 +347,10 @@ def test_package_files_materializes_database_rows_in_batches(monkeypatch):
         def reload(self):
             raise NotImplementedError
 
-    file_objs = [
-        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000001")),
-        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000002")),
-        SimpleNamespace(uuid=uuid.UUID("00000000-0000-0000-0000-000000000003")),
-    ]
+    file_objs = sorted(
+        (SimpleNamespace(uuid=uuid.uuid4()) for _ in range(3)),
+        key=lambda file_obj: file_obj.uuid,
+    )
     queryset = FakeQuerySet(file_objs)
 
     monkeypatch.setattr(packages, "auto_close_old_connections", nullcontext)
@@ -402,9 +409,22 @@ def test_package_files_with_non_ascii_names(tmp_path):
     assert result[0]["%fileGrpUse%"] == kwargs["filegrpuse"]
 
 
-@pytest.fixture
-def transfer():
-    return models.Transfer.objects.create()
+@pytest.mark.parametrize(
+    "shared_directory",
+    ["/var/archivematica/sharedDirectory/", "/var/archivematica/sharedDirectory"],
+    ids=["trailing separator", "no trailing separator"],
+)
+def test_shared_path_location_replaces_the_shared_directory(
+    settings: pytest_django.Settings, shared_directory: str
+) -> None:
+    settings.SHARED_DIRECTORY = shared_directory
+
+    assert (
+        packages._shared_path_location(
+            "/var/archivematica/sharedDirectory/tmp/transfer"
+        )
+        == "%sharedPath%tmp/transfer"
+    )
 
 
 @pytest.fixture
@@ -415,29 +435,30 @@ def processing_dir(tmp_path):
 
 
 @pytest.mark.django_db(transaction=True)
-class TestMoveToInternalSharedDir:
-    def test_move_dir(self, tmp_path, processing_dir, transfer):
-        filepath = tmp_path / "transfer"
-        filepath.mkdir()
+def test_move_dir(tmp_path, processing_dir, transfer):
+    filepath = tmp_path / "transfer"
+    filepath.mkdir()
 
-        _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
+    _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
 
-        transfer.refresh_from_db()
-        dest_path = processing_dir / "transfer"
-        assert dest_path.is_dir()
-        assert Path(transfer.currentlocation) == dest_path
+    transfer.refresh_from_db()
+    dest_path = processing_dir / "transfer"
+    assert dest_path.is_dir()
+    assert Path(transfer.currentlocation) == dest_path
 
-    def test_move_file(self, tmp_path, processing_dir, transfer):
-        filepath = tmp_path / "transfer.zip"
-        filepath.touch()
 
-        _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
+@pytest.mark.django_db(transaction=True)
+def test_move_file(tmp_path, processing_dir, transfer):
+    filepath = tmp_path / "transfer.zip"
+    filepath.touch()
 
-        dest_path = processing_dir / "transfer.zip"
-        assert dest_path.is_file()
+    _move_to_internal_shared_dir(str(filepath), str(processing_dir), transfer)
 
-        transfer.refresh_from_db()
-        assert Path(transfer.currentlocation) == dest_path
+    dest_path = processing_dir / "transfer.zip"
+    assert dest_path.is_file()
+
+    transfer.refresh_from_db()
+    assert Path(transfer.currentlocation) == dest_path
 
 
 @pytest.mark.parametrize(
@@ -870,12 +891,15 @@ def test_concurrent_idempotent_submission_is_not_replayed_before_handoff(
 )
 @pytest.mark.django_db(transaction=True)
 def test_auto_approved_package_schedules_retrieval_workflow(
-    starting_point, wf, retrieval_directories
-):
+    settings: pytest_django.Settings,
+    starting_point: StartingPoint,
+    wf: Workflow,
+    retrieval_directories: SimpleNamespace,
+    transfer: models.Transfer,
+) -> None:
     """Every supported transfer type records its post-retrieval continuation."""
-    transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
     package_queue = mock.Mock(spec=PackageQueue)
-    source_path = "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/transfer"
+    source_path = f"{TRANSFER_SOURCE_LOCATION_UUID}:home/username/transfer"
 
     _start_package_transfer_with_auto_approval(
         transfer,
@@ -908,21 +932,22 @@ def test_auto_approved_package_schedules_retrieval_workflow(
         f"{source_path}/."
     )
     assert scheduled_job.job_chain.context[r"%transferSourceDestination%"] == (
-        "/tmp/tmp123/TransferName"
+        "tmp/tmp123/TransferName"
     )
     assert (
         scheduled_job.job_chain.context[r"%transferSourceCopiedPath%"]
         == expected_copied_path
     )
-    assert scheduled_job.job_chain.context[r"%sharedPath%"] == str(
-        retrieval_directories.shared
-    )
+    assert scheduled_job.job_chain.context[r"%sharedPath%"] == settings.SHARED_DIRECTORY
 
 
 @pytest.mark.django_db(transaction=True)
-def test_auto_approved_package_does_not_copy_before_workflow(wf, retrieval_directories):
+def test_auto_approved_package_does_not_copy_before_workflow(
+    wf: Workflow,
+    retrieval_directories: SimpleNamespace,
+    transfer: models.Transfer,
+) -> None:
     """MCPServer only plans retrieval; it performs no Storage Service I/O."""
-    transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
     package_queue = mock.Mock(spec=PackageQueue)
 
     with (
@@ -949,9 +974,8 @@ def test_auto_approved_package_does_not_copy_before_workflow(wf, retrieval_direc
 
 @pytest.mark.django_db(transaction=True)
 def test_non_auto_approved_package_still_uses_watched_directory_copy(
-    retrieval_directories,
-):
-    transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
+    retrieval_directories: SimpleNamespace, transfer: models.Transfer
+) -> None:
     starting_point = PACKAGE_TYPE_STARTING_POINTS["standard"]
 
     with (
@@ -972,7 +996,7 @@ def test_non_auto_approved_package_still_uses_watched_directory_copy(
 
     copy_from_transfer_sources.assert_called_once_with(
         ["home/username/transfer/."],
-        "/tmp/tmp123/TransferName",
+        "tmp/tmp123/TransferName",
     )
     move_to_internal_shared_dir.assert_called_once_with(
         str(retrieval_directories.staging / "tmp123" / "TransferName"),
@@ -981,27 +1005,30 @@ def test_non_auto_approved_package_still_uses_watched_directory_copy(
     )
 
 
-def test_capture_transfer_failure_propagates_transfer_does_not_exist():
+@pytest.mark.django_db
+def test_capture_transfer_failure_propagates_transfer_does_not_exist() -> None:
     @_capture_transfer_failure
-    def fn():
+    def fn() -> None:
         raise models.Transfer.DoesNotExist
 
     with pytest.raises(models.Transfer.DoesNotExist):
         fn()
 
 
-def test_capture_transfer_failure_propagates_validation_error():
+@pytest.mark.django_db
+def test_capture_transfer_failure_propagates_validation_error() -> None:
     @_capture_transfer_failure
-    def fn():
+    def fn() -> None:
         raise ValidationError("invalid argument")
 
     with pytest.raises(ValidationError):
         fn()
 
 
-def test_capture_transfer_failure_logs_other_exceptions():
+@pytest.mark.django_db
+def test_capture_transfer_failure_logs_other_exceptions() -> None:
     @_capture_transfer_failure
-    def fn():
+    def fn() -> None:
         raise RuntimeError("something went wrong")
 
     with mock.patch("archivematica.MCPServer.server.packages.logger") as mock_logger:
@@ -1033,28 +1060,24 @@ def test_capture_transfer_failure_closes_old_executor_connections():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_capture_transfer_failure_marks_transfer_failed():
-    transfer = models.Transfer.objects.create(
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
-
+def test_capture_transfer_failure_marks_transfer_failed(
+    processing_transfer: models.Transfer,
+) -> None:
     @_capture_transfer_failure(mark_transfer_failed=True)
     def fn(transfer):
         raise RuntimeError("workflow scheduling failed")
 
-    fn(transfer)
+    fn(processing_transfer)
 
-    transfer.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_FAILED
-    assert transfer.completed_at is not None
+    processing_transfer.refresh_from_db()
+    assert processing_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert processing_transfer.completed_at is not None
 
 
 @pytest.mark.django_db(transaction=True)
-def test_capture_transfer_failure_preserves_old_transfer_status_by_default():
-    transfer = models.Transfer.objects.create(
-        status=models.PACKAGE_STATUS_UNKNOWN,
-    )
-
+def test_capture_transfer_failure_preserves_old_transfer_status_by_default(
+    transfer: models.Transfer,
+) -> None:
     @_capture_transfer_failure
     def fn(transfer):
         raise RuntimeError("watched-directory copy failed")
@@ -1067,50 +1090,40 @@ def test_capture_transfer_failure_preserves_old_transfer_status_by_default():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_startup_cleanup_fails_queued_transfer_retrieval():
-    transfer = models.Transfer.objects.create(
-        status=models.PACKAGE_STATUS_PROCESSING,
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-    )
-
-    assert not models.Job.objects.filter(sipuuid=transfer.uuid).exists()
+def test_startup_cleanup_fails_queued_transfer_retrieval(
+    processing_transfer: models.Transfer,
+) -> None:
+    assert not models.Job.objects.filter(sipuuid=processing_transfer.uuid).exists()
 
     Package.cleanup_old_db_entries()
 
-    transfer.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_FAILED
-    assert transfer.completed_at is not None
+    processing_transfer.refresh_from_db()
+    assert processing_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert processing_transfer.completed_at is not None
 
 
 @pytest.mark.django_db(transaction=True)
-def test_startup_cleanup_fails_executing_transfer_retrieval():
-    transfer = models.Transfer.objects.create(
-        status=models.PACKAGE_STATUS_PROCESSING,
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-    )
-    retrieval_job = models.Job.objects.create(
-        sipuuid=transfer.uuid,
-        unittype="unitTransfer",
+def test_startup_cleanup_fails_executing_transfer_retrieval(
+    processing_transfer: models.Transfer, make_job: JobFactory, make_task: TaskFactory
+) -> None:
+    retrieval_job = make_job(
+        processing_transfer,
         jobtype="Retrieve transfer source",
         microservicegroup="Retrieve transfer source",
         microservicechainlink="b3843201-3c52-4124-a7ee-16faaccf24b9",
         currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
-        createdtime=timezone.now(),
     )
-    retrieval_task = models.Task.objects.create(
-        job=retrieval_job,
-        createdtime=timezone.now(),
-    )
+    retrieval_task = make_task(retrieval_job)
 
     Package.cleanup_old_db_entries()
     WorkflowJob.cleanup_old_db_entries()
     WorkflowTask.cleanup_old_db_entries()
 
-    transfer.refresh_from_db()
+    processing_transfer.refresh_from_db()
     retrieval_job.refresh_from_db()
     retrieval_task.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_FAILED
-    assert transfer.completed_at is not None
+    assert processing_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert processing_transfer.completed_at is not None
     assert retrieval_job.currentstep == models.Job.STATUS_FAILED
     assert retrieval_task.exitcode == -1
     assert retrieval_task.stderror == "MCP shut down while processing."

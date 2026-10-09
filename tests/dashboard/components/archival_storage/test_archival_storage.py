@@ -30,24 +30,18 @@ from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 from django.http import StreamingHttpResponse
 from django.template.defaultfilters import filesizeformat
-from django.test import TestCase
-from django.test.client import Client
+from django.test import Client
 from django.urls import reverse
 
 from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.archival_storage import atom
 from archivematica.dashboard.components.archival_storage import views
 from archivematica.search.service import AIPNotFoundError
-from archivematica.search.service import SearchService
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
 CONTENT_TYPE = "Content-Type"
 JSON_MIME = "application/json"
-
-TEST_USER_FIXTURE = (
-    pathlib.Path(__file__).parent.parent.parent / "fixtures" / "test_user.json"
-)
 
 
 @pytest.fixture
@@ -89,15 +83,6 @@ def test_load_premis(mets_document):
     }
 
 
-@pytest.fixture
-def mets_hdr():
-    return """<?xml version='1.0' encoding='UTF-8'?>
-    <mets:mets xmlns:mets="http://www.loc.gov/METS/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/version1121/mets.xsd">
-        <mets:metsHdr CREATEDATE="2020-01-20T15:22:15"/>
-    </mets:mets>
-    """
-
-
 def get_streaming_response(streaming_content):
     response_text = ""
     for response_char in streaming_content:
@@ -105,29 +90,21 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
-@pytest.fixture
-def mock_search_service():
-    with mock.patch(
-        "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf"
-    ) as mock_setup_search_service:
-        mock_search_service = mock.Mock(spec=SearchService)
-        mock_setup_search_service.return_value = mock_search_service
-        yield mock_search_service
-
-
+@pytest.mark.django_db
 def test_get_mets_unknown_mets(mock_search_service, dashboard_uuid, admin_client):
     mock_search_service.get_aip_data.side_effect = AIPNotFoundError("error")
     response = admin_client.get(
-        "/archival-storage/download/aip/11111111-1111-1111-1111-111111111111/mets_download/"
+        f"/archival-storage/download/aip/{uuid.uuid4()}/mets_download/"
     )
     assert isinstance(response, HttpResponseNotFound)
 
 
+@pytest.mark.django_db
 def test_send_thumbnail_allows_missing(
     mock_search_service, dashboard_uuid, admin_client
 ):
-    file_uuid = "11111111-1111-1111-1111-111111111111"
-    aip_uuid = "22222222-2222-2222-2222-222222222222"
+    file_uuid = str(uuid.uuid4())
+    aip_uuid = str(uuid.uuid4())
     mock_search_service.get_aipfile_data.return_value = {
         "_source": {"AIPUUID": aip_uuid}
     }
@@ -149,11 +126,12 @@ def test_send_thumbnail_allows_missing(
     mock_send_file.assert_called_once_with(mock.ANY, expected_path, allow_missing=True)
 
 
+@pytest.mark.django_db
 def test_send_thumbnail_existing_file(
     mock_search_service, dashboard_uuid, admin_client, settings, tmp_path
 ):
-    file_uuid = "33333333-3333-3333-3333-333333333333"
-    aip_uuid = "44444444-4444-4444-4444-444444444444"
+    file_uuid = str(uuid.uuid4())
+    aip_uuid = str(uuid.uuid4())
     mock_search_service.get_aipfile_data.return_value = {
         "_source": {"AIPUUID": aip_uuid}
     }
@@ -170,6 +148,7 @@ def test_send_thumbnail_existing_file(
     assert response["Content-Length"] == str(len(b"thumbnail-bytes"))
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_mets_from_storage_service"
 )
@@ -180,7 +159,7 @@ def test_get_mets_known_mets(
     admin_client,
     mets_hdr,
 ):
-    sip_uuid = "22222222-2222-2222-2222-222222222222"
+    sip_uuid = str(uuid.uuid4())
 
     mock_search_service.get_aip_data.return_value = {
         "_source": {"name": f"transfer-{sip_uuid}"}
@@ -200,6 +179,7 @@ def test_get_mets_known_mets(
     assert response.get(CONTENT_DISPOSITION) == mock_content_disposition
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.archivematicaCommon.storageService.pointer_file_url")
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
@@ -211,7 +191,7 @@ def test_get_pointer_unknown_pointer(
     dashboard_uuid,
     admin_client,
 ):
-    sip_uuid = "33333333-3333-3333-3333-333333333331"
+    sip_uuid = str(uuid.uuid4())
     pointer_url = (
         f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
@@ -228,6 +208,7 @@ def test_get_pointer_unknown_pointer(
     assert json.loads(response.content) == mock_error_message
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.archivematicaCommon.storageService.pointer_file_url")
 @mock.patch(
     "archivematica.dashboard.components.helpers.stream_file_from_storage_service"
@@ -239,7 +220,7 @@ def test_get_pointer_known_pointer(
     admin_client,
     mets_hdr,
 ):
-    sip_uuid = "44444444-4444-4444-4444-444444444444"
+    sip_uuid = str(uuid.uuid4())
     pointer_url = (
         f"http://archivematica-storage-service:8000/api/v2/file/{sip_uuid}/pointer_file"
     )
@@ -260,6 +241,7 @@ def test_get_pointer_known_pointer(
     assert response.get(CONTENT_DISPOSITION) == content_disposition
 
 
+@pytest.mark.django_db
 def test_search_rejects_unsupported_file_mime(dashboard_uuid, admin_client):
     params = {"requestFile": "true", "file_mime": "application/json"}
     response = admin_client.get(
@@ -311,6 +293,13 @@ def test_total_size_of_aips_includes_aips_pending_deletion(mock_search_service):
     get_file_info.assert_not_called()
 
 
+# UUIDs of the AIC and the AIP that the search results of test_search_as_csv
+# describe.
+CSV_AIC_UUID = str(uuid.uuid4())
+CSV_AIP_UUID = str(uuid.uuid4())
+
+
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.search_augment_aip_results",
     return_value=[
@@ -320,7 +309,7 @@ def test_total_size_of_aips_includes_aips_pending_deletion(mock_search_service):
             "AICID": "AIC#2040",
             "countAIPsinAIC": 2,
             "accessionids": [],
-            "uuid": "a341dbc0-9715-4806-8477-fb407b105a5e",
+            "uuid": CSV_AIC_UUID,
             "name": "tz",
             "created": 1594938100,
             "file_count": 2,
@@ -336,7 +325,7 @@ def test_total_size_of_aips_includes_aips_pending_deletion(mock_search_service):
             "AICID": None,
             "countAIPsinAIC": None,
             "accessionids": ["Àà", "Éé", "Îî", "Ôô", "Ùù"],
-            "uuid": "22423d5c-f992-4979-9390-1cb61c87da14",
+            "uuid": CSV_AIP_UUID,
             "name": "tz",
             "created": 1594938200,
             "file_count": 2,
@@ -366,8 +355,8 @@ def test_search_as_csv(
         "aggregations": {
             "aip_uuids": {
                 "buckets": [
-                    {"key": "a341dbc0-9715-4806-8477-fb407b105a5e", "doc_count": 2},
-                    {"key": "22423d5c-f992-4979-9390-1cb61c87da14", "doc_count": 2},
+                    {"key": CSV_AIC_UUID, "doc_count": 2},
+                    {"key": CSV_AIP_UUID, "doc_count": 2},
                 ]
             }
         }
@@ -377,14 +366,14 @@ def test_search_as_csv(
             "hits": [
                 {
                     "_source": {
-                        "uuid": "a341dbc0-9715-4806-8477-fb407b105a5e",
+                        "uuid": CSV_AIC_UUID,
                         "name": "tz",
                         "size": 0.1910095214843750,  # Size in MB
                     }
                 },
                 {
                     "_source": {
-                        "uuid": "22423d5c-f992-4979-9390-1cb61c87da14",
+                        "uuid": CSV_AIP_UUID,
                         "name": "tz",
                         "size": 0.14501953125000000,  # Size in MB
                     }
@@ -418,11 +407,12 @@ def test_search_as_csv(
 
     assert csv_file.read() == (
         '"Name","UUID","AICID","Count AIPs in AIC","Bytes","Size","File count","Accession IDs","Created date (UTC)","Status","Type","Encrypted","Location"\n'
-        '"tz","a341dbc0-9715-4806-8477-fb407b105a5e","AIC#2040","2","200100","200.1 KB","2","","2020-07-16 22:21:40+00:00","Stored","AIC","False","/var/archivematica/AIPStore"\n'
-        '"tz","22423d5c-f992-4979-9390-1cb61c87da14","","","152100","152.1 KB","2","Àà; Éé; Îî; Ôô; Ùù","2020-07-16 22:23:20+00:00","Stored","AIP","True","thé cloud"\n'
+        f'"tz","{CSV_AIC_UUID}","AIC#2040","2","200100","200.1 KB","2","","2020-07-16 22:21:40+00:00","Stored","AIC","False","/var/archivematica/AIPStore"\n'
+        f'"tz","{CSV_AIP_UUID}","","","152100","152.1 KB","2","Àà; Éé; Îî; Ôô; Ùù","2020-07-16 22:23:20+00:00","Stored","AIP","True","thé cloud"\n'
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.search_augment_aip_results"
 )
@@ -470,51 +460,52 @@ def test_search_as_csv_invalid_route(
     assert json.loads(response.content) == expected_result
 
 
-class TestArchivalStorageDataTableState(TestCase):
-    fixtures = [TEST_USER_FIXTURE]
-
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
-
-    def setUp(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
-        self.data = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
-
-    def test_save_datatable_state(self):
-        """Test ability to save DataTable state"""
-        response = self.client.post(
-            "/archival-storage/save_state/aips/", self.data, content_type=JSON_MIME
-        )
-        assert response.status_code == 200
-        saved_state = helpers.get_setting("aips_datatable_state")
-        assert json.dumps(self.data) == saved_state
-
-    def test_load_datatable_state(self):
-        """Test ability to load DataTable state"""
-        helpers.set_setting("aips_datatable_state", json.dumps(self.data))
-        # Retrieve data from view
-        response = self.client.get(
-            reverse("archival_storage:load_state", args=["aips"])
-        )
-        assert response.status_code == 200
-        payload = json.loads(response.content.decode("utf8"))
-        assert payload["time"] == 1588609847900
-        assert payload["columns"][0]["visible"] is True
-        assert payload["columns"][2]["visible"] is False
-
-    def test_load_datatable_state_404(self):
-        """Non-existent settings should return a 404"""
-        response = self.client.get(
-            reverse("archival_storage:load_state", args=["nonexistent"])
-        )
-        assert response.status_code == 404
-        payload = json.loads(response.content.decode("utf8"))
-        assert payload["error"] is True
-        assert payload["message"] == "Setting not found"
+# Saved state of the AIPs DataTable, as sent by the browser.
+DATATABLE_STATE = '{"time":1588609847900,"columns":[{"visible":true},{"visible":true},{"visible":false},{"visible":true},{"visible":false},{"visible":false},{"visible":true},{"visible":true},{"visible":false},{"visible":true}]}'
 
 
+@pytest.mark.django_db
+def test_save_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
+    """Test ability to save DataTable state"""
+    response = admin_client.post(
+        "/archival-storage/save_state/aips/", DATATABLE_STATE, content_type=JSON_MIME
+    )
+
+    assert response.status_code == 200
+    assert helpers.get_setting("aips_datatable_state") == json.dumps(DATATABLE_STATE)
+
+
+@pytest.mark.django_db
+def test_load_datatable_state(admin_client: Client, dashboard_uuid: uuid.UUID) -> None:
+    """Test ability to load DataTable state"""
+    helpers.set_setting("aips_datatable_state", json.dumps(DATATABLE_STATE))
+
+    # Retrieve data from view
+    response = admin_client.get(reverse("archival_storage:load_state", args=["aips"]))
+
+    assert response.status_code == 200
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["time"] == 1588609847900
+    assert payload["columns"][0]["visible"] is True
+    assert payload["columns"][2]["visible"] is False
+
+
+@pytest.mark.django_db
+def test_load_datatable_state_404(
+    admin_client: Client, dashboard_uuid: uuid.UUID
+) -> None:
+    """Non-existent settings should return a 404"""
+    response = admin_client.get(
+        reverse("archival_storage:load_state", args=["nonexistent"])
+    )
+
+    assert response.status_code == 404
+    payload = json.loads(response.content.decode("utf8"))
+    assert payload["error"] is True
+    assert payload["message"] == "Setting not found"
+
+
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
 @mock.patch("archivematica.dashboard.components.archival_storage.forms.get_atom_client")
 def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
@@ -555,6 +546,7 @@ def test_view_aip_metadata_only_dip_upload_with_missing_description_slug(
     )
 
 
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf"
 )
@@ -584,13 +576,18 @@ def test_create_aic_fails_if_query_is_not_passed(
     assert "Unable to create AIC: No AIPs selected" in response.content.decode()
 
 
+# UUIDs of the AIPs that test_create_aic_creates_temporary_files finds, and the
+# UUID of the AIC it creates, which the view gets from the patched uuid4.
+AIC_MEMBER_UUIDS = [str(uuid.uuid4()) for _ in range(2)]
+NEW_AIC_UUID = uuid.uuid4()
+
+
+@pytest.mark.django_db
 @mock.patch(
     "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf"
 )
 @mock.patch("archivematica.archivematicaCommon.databaseFunctions.createSIP")
-@mock.patch(
-    "uuid.uuid4", return_value=uuid.UUID("1e23e6e2-02d7-4b2d-a648-caffa3b489f3")
-)
+@mock.patch("uuid.uuid4", return_value=NEW_AIC_UUID)
 def test_create_aic_creates_temporary_files(
     uuid4,
     creat_sip,
@@ -610,8 +607,8 @@ def test_create_aic_creates_temporary_files(
         "aggregations": {
             "aip_uuids": {
                 "buckets": [
-                    {"key": "a79e23a1-fd5d-4e54-bc02-b88521f9f35b", "doc_count": 15},
-                    {"key": "786e25a5-fa60-48ab-9ff7-baabc52a9591", "doc_count": 15},
+                    {"key": AIC_MEMBER_UUIDS[0], "doc_count": 15},
+                    {"key": AIC_MEMBER_UUIDS[1], "doc_count": 15},
                 ]
             }
         }
@@ -635,7 +632,7 @@ def test_create_aic_creates_temporary_files(
                         "name": "artefactual",
                         "size": 4.80488395690918,
                         "status": "UPLOADED",
-                        "uuid": "a79e23a1-fd5d-4e54-bc02-b88521f9f35b",
+                        "uuid": AIC_MEMBER_UUIDS[0],
                     },
                     "_type": "_doc",
                     "sort": ["artefactual"],
@@ -655,7 +652,7 @@ def test_create_aic_creates_temporary_files(
                         "name": "bunny_1",
                         "size": 4.805169105529785,
                         "status": "UPLOADED",
-                        "uuid": "786e25a5-fa60-48ab-9ff7-baabc52a9591",
+                        "uuid": AIC_MEMBER_UUIDS[1],
                     },
                     "_type": "_doc",
                     "sort": ["bunny_1"],
@@ -685,19 +682,21 @@ def test_create_aic_creates_temporary_files(
 
     assert response.status_code == 302
     expected_file_contents = {
-        ("a79e23a1-fd5d-4e54-bc02-b88521f9f35b", "artefactual"),
-        ("786e25a5-fa60-48ab-9ff7-baabc52a9591", "bunny_1"),
+        (AIC_MEMBER_UUIDS[0], "artefactual"),
+        (AIC_MEMBER_UUIDS[1], "bunny_1"),
     }
     temporary_files = set()
-    for path in (d / "tmp" / "1e23e6e2-02d7-4b2d-a648-caffa3b489f3").iterdir():
+    for path in (d / "tmp" / str(NEW_AIC_UUID)).iterdir():
         temporary_files.add((path.name, path.read_text().strip()))
     assert expected_file_contents == temporary_files
 
 
 @pytest.fixture
-def processing_configurations_dir(tmp_path):
-    result = tmp_path / "sharedMicroServiceTasksConfigs" / "processingMCPConfigs"
-    result.mkdir(parents=True)
+def processing_configurations_dir(
+    processing_configurations_path: pathlib.Path,
+) -> pathlib.Path:
+    """The processing configurations directory with three configurations."""
+    result = processing_configurations_path
 
     (result / "defaultProcessingMCP.xml").touch()
     (result / "automatedProcessingMCP.xml").touch()
@@ -706,6 +705,7 @@ def processing_configurations_dir(tmp_path):
     return result
 
 
+@pytest.mark.django_db
 @mock.patch("archivematica.dashboard.components.helpers.processing_config_path")
 def test_view_aip_reingest_form_displays_processing_configurations_choices(
     processing_config_path,
@@ -739,6 +739,7 @@ def test_view_aip_reingest_form_displays_processing_configurations_choices(
     )
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "error,message", [(False, "success!"), (True, "error!")], ids=["success", "error"]
 )

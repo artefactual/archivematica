@@ -29,18 +29,6 @@ def sip(sip: models.SIP) -> models.SIP:
 
 
 @pytest.fixture
-def create_sip_file(sip_directory_path: pathlib.Path, sip_file: models.File) -> None:
-    file_path = pathlib.Path(
-        _decode_binary_path(sip_file.currentlocation).replace("%SIPDirectory%", "")
-    )
-
-    file_dir = sip_directory_path / file_path.parent
-    file_dir.mkdir(parents=True)
-
-    (file_dir / file_path.name).touch()
-
-
-@pytest.fixture
 def fpcommand(
     fpcommand: fprmodels.FPCommand, sip_file: models.File
 ) -> fprmodels.FPCommand:
@@ -48,24 +36,6 @@ def fpcommand(
     fpcommand.save()
 
     return fpcommand
-
-
-@pytest.fixture
-def derivation(
-    sip_file: models.File, preservation_file: models.File
-) -> models.Derivation:
-    return models.Derivation.objects.create(
-        source_file=sip_file, derived_file=preservation_file
-    )
-
-
-@pytest.fixture
-def preservation_file_format_version(
-    preservation_file: models.File, format_version: fprmodels.FormatVersion
-) -> models.FileFormatVersion:
-    return models.FileFormatVersion.objects.create(
-        file_uuid=preservation_file, format_version=format_version
-    )
 
 
 @pytest.mark.django_db
@@ -81,7 +51,7 @@ def test_main(
     sip_file_format_version: models.FileFormatVersion,
     settings: pytest_django.Settings,
     sip_directory_path: pathlib.Path,
-    create_sip_file: None,
+    sip_file_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(spec=Job)
     settings.SHARED_DIRECTORY = f"{sip_directory_path}/"
@@ -173,12 +143,12 @@ def test_main_if_no_rules_exist(
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
-    derivation: models.Derivation,
+    preservation_derivation: models.Derivation,
     fprule_transcription: fprmodels.FPRule,
     sip_file_format_version: models.FileFormatVersion,
 ) -> None:
     file, rules = transcribe_file.fetch_rules_for_derivatives(
-        file_=derivation.source_file
+        file_=preservation_derivation.source_file
     )
 
     assert file is None
@@ -187,12 +157,12 @@ def test_fetch_rules_for_derivatives_if_rules_are_absent_for_derivates(
 
 @pytest.mark.django_db
 def test_fetch_rules_for_derivatives(
-    derivation: models.Derivation,
+    preservation_derivation: models.Derivation,
     fprule_transcription: fprmodels.FPRule,
     preservation_file_format_version: models.FileFormatVersion,
 ) -> None:
     derived_file, rules_of_derived_file = transcribe_file.fetch_rules_for_derivatives(
-        file_=derivation.source_file
+        file_=preservation_derivation.source_file
     )
     assert derived_file is not None
 
@@ -202,7 +172,7 @@ def test_fetch_rules_for_derivatives(
         models.Derivation.objects.filter(
             derived_file__filegrpuse="preservation",
             derived_file_id=derived_file.uuid,
-            source_file_id=derivation.source_file.uuid,
+            source_file_id=preservation_derivation.source_file.uuid,
         ).count()
         == 1
     )

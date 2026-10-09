@@ -2,17 +2,25 @@ import uuid
 
 import pytest
 from django.db import connection
+from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
 from archivematica.dashboard.components.unit.views import JOB_HISTORY_PAGE_SIZE
 from archivematica.dashboard.main import models
+from tests.factories import JobFactory
+from tests.factories import TaskFactory
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
-def transfer(db):
-    return models.Transfer.objects.create(status=models.PACKAGE_STATUS_DONE)
+def transfer(transfer: models.Transfer) -> models.Transfer:
+    """The transfer once its processing is done."""
+    transfer.status = models.PACKAGE_STATUS_DONE
+    transfer.save()
+
+    return transfer
 
 
 @pytest.fixture
@@ -31,20 +39,21 @@ def history_url(unit, link_uuid, unit_type="transfer"):
     )
 
 
-def create_job(unit, link_uuid, **kwargs):
-    fields = {
-        "sipuuid": unit.pk,
-        "unittype": "unitTransfer",
+def create_job(
+    unit: models.Transfer | models.SIP, link_uuid: uuid.UUID, **fields: object
+) -> models.Job:
+    """A completed job of the unit at the link, in the job history."""
+    defaults: dict[str, object] = {
         "microservicechainlink": link_uuid,
-        "createdtime": timezone.now(),
         "currentstep": models.Job.STATUS_COMPLETED_SUCCESSFULLY,
         "jobtype": "Normalize for preservation",
         "directory": "/shared/Example/",
     }
-    fields.update(kwargs)
-    return models.Job.objects.create(**fields)
+
+    return JobFactory()(unit, **{**defaults, **fields})
 
 
+@pytest.mark.django_db
 def test_history_requires_a_dashboard_session(
     dashboard_uuid, client, transfer, link_uuid
 ):
@@ -53,6 +62,7 @@ def test_history_requires_a_dashboard_session(
     assert response.status_code == 302
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("method", ["post", "put", "patch", "delete"])
 def test_history_only_accepts_get(
     dashboard_uuid, admin_client, transfer, link_uuid, method
@@ -63,6 +73,7 @@ def test_history_only_accepts_get(
     assert response.headers["Allow"] == "GET"
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("missing", ["unit", "link", "hidden", "wrong_type"])
 def test_history_rejects_inaccessible_scope(
     dashboard_uuid, admin_client, transfer, link_uuid, missing
@@ -84,6 +95,7 @@ def test_history_rejects_inaccessible_scope(
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("segment", ["unit", "link"])
 def test_history_rejects_malformed_uuids(
     dashboard_uuid, admin_client, transfer, link_uuid, segment
@@ -96,9 +108,15 @@ def test_history_rejects_malformed_uuids(
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 def test_history_exposes_tasks_from_every_attempt_and_status(
-    dashboard_uuid, admin_client, transfer, link_uuid
-):
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    transfer: models.Transfer,
+    link_uuid: uuid.UUID,
+    make_task: TaskFactory,
+    make_transfer: TransferFactory,
+) -> None:
     jobs = [
         create_job(transfer, link_uuid, currentstep=status)
         for status in (
@@ -109,13 +127,9 @@ def test_history_exposes_tasks_from_every_attempt_and_status(
         )
     ]
     for index, job in enumerate(jobs):
-        models.Task.objects.create(
-            job=job,
-            createdtime=timezone.now(),
-            stdout=f"Output from attempt {index}",
-        )
+        make_task(job, stdout=f"Output from attempt {index}")
     other_link_job = create_job(transfer, uuid.uuid4())
-    other_unit_job = create_job(models.Transfer.objects.create(), link_uuid)
+    other_unit_job = create_job(make_transfer(), link_uuid)
     wrong_type_job = create_job(transfer, link_uuid, unittype="unitSIP")
 
     response = admin_client.get(history_url(transfer, link_uuid))
@@ -136,10 +150,13 @@ def test_history_exposes_tasks_from_every_attempt_and_status(
     assert "Output from attempt" not in content
 
 
+@pytest.mark.django_db
 def test_ingest_history_includes_sip_and_dip_jobs(
-    dashboard_uuid, admin_client, db, link_uuid
-):
-    sip = models.SIP.objects.create()
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    sip: models.SIP,
+    link_uuid: uuid.UUID,
+) -> None:
     sip_job = create_job(sip, link_uuid, unittype="unitSIP")
     dip_job = create_job(sip, link_uuid, unittype="unitDIP")
     create_job(sip, link_uuid, unittype="unitTransfer")
@@ -151,23 +168,24 @@ def test_ingest_history_includes_sip_and_dip_jobs(
     assert "No tasks" in response.content.decode()
 
 
+@pytest.mark.django_db
 def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
-    dashboard_uuid, admin_client, transfer, link_uuid
-):
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    transfer: models.Transfer,
+    link_uuid: uuid.UUID,
+) -> None:
     timestamp = timezone.now()
-    jobs = models.Job.objects.bulk_create(
-        [
-            models.Job(
-                jobuuid=uuid.UUID(int=index + 1),
-                sipuuid=transfer.pk,
-                unittype="unitTransfer",
-                microservicechainlink=link_uuid,
-                createdtime=timestamp,
-                jobtype="Repeated job",
-            )
-            for index in range(JOB_HISTORY_PAGE_SIZE + 3)
-        ]
-    )
+    jobs = [
+        create_job(
+            transfer,
+            link_uuid,
+            jobuuid=uuid.UUID(int=index + 1),
+            createdtime=timestamp,
+            jobtype="Repeated job",
+        )
+        for index in range(JOB_HISTORY_PAGE_SIZE + 3)
+    ]
     url = history_url(transfer, link_uuid)
 
     with CaptureQueriesContext(connection) as captured:
@@ -194,6 +212,7 @@ def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
     assert 'href="?page=1"' in response.content.decode()
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("page_number", ["invalid", "0", "999"])
 def test_history_handles_invalid_page_numbers(
     dashboard_uuid, admin_client, transfer, link_uuid, page_number

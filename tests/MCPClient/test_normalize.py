@@ -13,6 +13,7 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import normalize
+from tests.factories import FileFactory
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -117,53 +118,6 @@ def test_normalization_skips_file_if_group_use_does_not_match(
     ]
 
 
-@pytest.fixture
-def manual_preservation_file(preservation_file: models.File) -> models.File:
-    preservation_file.originallocation = (
-        b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
-    )
-    preservation_file.currentlocation = (
-        b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
-    )
-    preservation_file.save()
-
-    return preservation_file
-
-
-@pytest.fixture
-def normalization_csv(
-    sip_directory_path: pathlib.Path,
-    sip_file: models.File,
-    manual_preservation_file: models.File,
-) -> pathlib.Path:
-    manual_normalization_directory = (
-        sip_directory_path / "objects" / "manualNormalization"
-    )
-    manual_normalization_directory.mkdir(parents=True)
-
-    original_file_path = pathlib.Path(
-        _decode_binary_path(sip_file.currentlocation)
-    ).name
-    preservation_file_path = str(
-        pathlib.Path(
-            _decode_binary_path(manual_preservation_file.originallocation)
-        ).relative_to("%SIPDirectory%objects")
-    )
-
-    result = manual_normalization_directory / "normalization.csv"
-    result.write_text(
-        "\n".join(
-            [
-                "# original, access, preservation",
-                "",
-                f"{original_file_path},,{preservation_file_path}",
-            ]
-        )
-    )
-
-    return result
-
-
 @pytest.mark.django_db
 def test_manual_normalization_creates_event_and_derivation(
     sip: models.SIP,
@@ -226,21 +180,6 @@ def test_manual_normalization_creates_event_and_derivation(
         ).count()
         == 1
     )
-
-
-@pytest.fixture
-def invalid_normalization_csv(normalization_csv: pathlib.Path) -> pathlib.Path:
-    normalization_csv.write_text(
-        "\n".join(
-            [
-                "# original, access, preservation",
-                "",
-                'this,should,fail,because,",too,many,columns',
-            ]
-        )
-    )
-
-    return normalization_csv
 
 
 @pytest.mark.django_db
@@ -333,11 +272,10 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
 
 
 @pytest.fixture
-def secondary_manual_preservation_file(sip: models.SIP) -> models.File:
-    location = b"%SIPDirectory%objects/manualNormalization/preservation/file_1.wav"
-    return models.File.objects.create(
-        sip=sip, currentlocation=location, originallocation=location
-    )
+def secondary_manual_preservation_file(
+    make_file: FileFactory, sip: models.SIP
+) -> models.File:
+    return make_file("objects/manualNormalization/preservation/file_1.wav", sip=sip)
 
 
 @pytest.mark.django_db

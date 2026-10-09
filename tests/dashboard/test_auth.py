@@ -1,92 +1,93 @@
 import json
-import pathlib
 
 import pytest
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.test.client import Client
+from django.contrib.auth.models import User
+from django.test import Client
 from django.urls import reverse
+from pytest_django.asserts import assertRedirects
 from tastypie.models import ApiKey
 
 from archivematica.dashboard.components.helpers import generate_api_key
 
-TEST_USER_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "test_user.json"
+pytestmark = pytest.mark.usefixtures("dashboard_uuid")
 
 
-class TestAuth(TestCase):
-    """Authentication sanity checks."""
+API_URL_NAMES = ["api:completed_transfers", "api:completed_ingests"]
 
-    fixtures = [TEST_USER_FIXTURE]
 
-    API_URLS = (
-        reverse("api:completed_transfers"),
-        reverse("api:completed_ingests"),
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "url",
+    [
+        reverse("transfer:transfer_index"),
+        reverse("ingest:ingest_index"),
+        reverse("administration:api"),
+        reverse("administration:general"),
+        reverse("administration:premis_agent"),
+        # Verify that exempted URLs cannot be used to access other areas
+        # that are restricted.
+        "{}/{}".format(settings.LOGIN_URL.rstrip("/"), "transfer/"),
+        "{}/{}".format(settings.LOGIN_URL.rstrip("/"), "abcdefgh/api/"),
+        "{}/{}".format(settings.LOGIN_URL.rstrip("/"), "version"),
+    ],
+)
+def test_site_requires_auth(client: Client, url: str) -> None:
+    response = client.get(url)
+
+    assertRedirects(response, settings.LOGIN_URL)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "url_name",
+    ["transfer:transfer_index", "ingest:ingest_index", "administration:api"],
+)
+def test_site_performs_session_auth(
+    client: Client, admin_user: User, url_name: str
+) -> None:
+    assert client.login(username=admin_user.username, password="password")
+
+    response = client.get(reverse(url_name), follow=False)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("url_name", API_URL_NAMES)
+def test_api_requires_auth(client: Client, url_name: str) -> None:
+    response = client.get(reverse(url_name))
+
+    assert response.status_code == 403
+    assert response.content.decode("utf8") == json.dumps(
+        {"message": "API key not valid.", "error": True}
     )
 
-    @pytest.fixture(autouse=True)
-    def dashboard_uuid(self, dashboard_uuid):
-        return dashboard_uuid
 
-    def authenticate(self):
-        self.client = Client()
-        self.client.login(username="test", password="test")
+@pytest.mark.django_db
+@pytest.mark.parametrize("url_name", API_URL_NAMES)
+def test_api_authenticates_via_key(
+    client: Client, admin_user: User, url_name: str
+) -> None:
+    generate_api_key(admin_user)
+    key = ApiKey.objects.get(user=admin_user).key
 
-    def test_site_requires_auth(self):
-        for url in [
-            reverse("transfer:transfer_index"),
-            reverse("ingest:ingest_index"),
-            reverse("administration:api"),
-            reverse("administration:general"),
-            reverse("administration:premis_agent"),
-            # Verify that exempted URLs cannot be used to access other areas
-            # that are restricted.
-            "{}/{}".format(settings.LOGIN_URL.rstrip("/"), "transfer/"),
-            "{}/{}".format(settings.LOGIN_URL.rstrip("/"), "abcdefgh/api/"),
-            "{}/{}".format(settings.LOGIN_URL.rstrip("/"), "version"),
-        ]:
-            response = self.client.get(url)
+    response = client.get(
+        reverse(url_name),
+        headers={"authorization": f"ApiKey {admin_user.username}:{key}"},
+        follow=False,
+    )
 
-            self.assertRedirects(response, settings.LOGIN_URL)
+    assert response.status_code == 200
 
-    def test_site_performs_session_auth(self):
-        self.authenticate()
 
-        for url in [
-            reverse("transfer:transfer_index"),
-            reverse("ingest:ingest_index"),
-            reverse("administration:api"),
-        ]:
-            response = self.client.get(url, follow=False)
+@pytest.mark.django_db
+@pytest.mark.parametrize("url_name", API_URL_NAMES)
+def test_api_authenticates_via_session(
+    client: Client, admin_user: User, url_name: str
+) -> None:
+    assert client.login(username=admin_user.username, password="password")
 
-            self.assertEqual(response.status_code, 200)
+    response = client.get(reverse(url_name), follow=False)
 
-    def test_api_requires_auth(self):
-        for url in self.API_URLS:
-            response = self.client.get(url)
-
-            self.assertEqual(response.status_code, 403)
-            self.assertEqual(
-                response.content.decode("utf8"),
-                json.dumps({"message": "API key not valid.", "error": True}),
-            )
-
-    def test_api_authenticates_via_key(self):
-        user = get_user_model().objects.get(pk=1)
-        generate_api_key(user)
-        key = ApiKey.objects.get(user=user).key
-
-        for url in self.API_URLS:
-            response = self.client.get(
-                url, headers={"authorization": f"ApiKey test:{key}"}, follow=False
-            )
-
-            self.assertEqual(response.status_code, 200)
-
-    def test_api_authenticates_via_session(self):
-        self.authenticate()
-
-        for url in self.API_URLS:
-            response = self.client.get(url, follow=False)
-
-            self.assertEqual(response.status_code, 200)
+    assert response.status_code == 200

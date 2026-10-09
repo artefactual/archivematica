@@ -25,6 +25,8 @@ import logging
 import os
 import re
 import uuid
+from collections.abc import Iterable
+from collections.abc import Iterator
 from datetime import datetime
 from typing import Any
 from typing import TypeVar
@@ -36,6 +38,7 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from django_stubs_ext import StrPromise
 
 from archivematica.archivematicaCommon.version import get_preservation_system_identifier
 
@@ -113,7 +116,7 @@ def create_user_agent(sender, instance, **kwargs):
 # MODELS
 
 
-class DashboardSettingManager(models.Manager):
+class DashboardSettingManager(models.Manager["DashboardSetting"]):
     """
     Table-level dictionary behaviour for DashboardSetting.
 
@@ -125,7 +128,7 @@ class DashboardSettingManager(models.Manager):
 
     use_in_migrations = True  # Serialize manager into migration
 
-    def get_dict(self, scope):
+    def get_dict(self, scope: str) -> dict[str, str]:
         """
         Retrieve a dictionary given its scope. The returned dict will be empty
         if the scope cannot not be found.
@@ -138,7 +141,7 @@ class DashboardSettingManager(models.Manager):
             self.get_queryset().filter(scope=scope).values_list("name", "value")
         )
 
-    def set_dict(self, scope, items):
+    def set_dict(self, scope: str, items: dict[str, object]) -> bool | None:
         """
         Store key: value pairs in a given scope. Each item in the dict will
         be mapped into a table tuple. Existing pairs will be deleted. Django
@@ -161,8 +164,9 @@ class DashboardSettingManager(models.Manager):
                     for name, value in items.items()
                 ]
             )
+        return None
 
-    def unset_dict(self, scope):
+    def unset_dict(self, scope: str) -> tuple[int, dict[str, int]]:
         return self.get_queryset().filter(scope=scope).delete()
 
 
@@ -858,8 +862,8 @@ class FileFormatVersion(models.Model):
         )
 
 
-class JobQuerySet(models.QuerySet):
-    def get_directory_name(self):
+class JobQuerySet(models.QuerySet["Job"]):
+    def get_directory_name(self) -> str | uuid.UUID | StrPromise:
         """Return the directory name of a unit.
 
         This is a convenience manager method to obtain the directory name of a
@@ -955,7 +959,7 @@ class Job(models.Model):
         except AttributeError:
             return
 
-    def get_directory_name(self):
+    def get_directory_name(self) -> str | uuid.UUID:
         if not self.directory:
             return self.sipuuid
         transfer_name = self._match_directory_patterns(self.directory)
@@ -994,25 +998,29 @@ class Task(models.Model):
         db_table = "Tasks"
 
 
-class AgentManager(models.Manager):
+class AgentManager(models.Manager["Agent"]):
     # Objects with static identifiers. Item with ID 1 was abandoned.
     DEFAULT_ORGANIZATION_AGENT_PK = 2
 
-    def default_organization_agent(self):
+    _preservation_system_agent: Agent
+
+    def default_organization_agent(self) -> Agent:
         return self.get(pk=self.DEFAULT_ORGANIZATION_AGENT_PK)
 
-    def default_agents_query_keywords(self):
+    def default_agents_query_keywords(self) -> models.Q:
         """Returns QuerySet keyword arguments for the default agents."""
         return models.Q(pk=(self.DEFAULT_ORGANIZATION_AGENT_PK))
 
-    def extend_queryset_with_preservation_system(self, agent_queryset):
+    def extend_queryset_with_preservation_system(
+        self, agent_queryset: Iterable[Agent]
+    ) -> Iterator[Agent]:
         """Returns iterator wrapping the QuerySet with the preservation system agent."""
         return itertools.chain(
             (self.get_preservation_system_agent(),),
             agent_queryset,
         )
 
-    def get_preservation_system_agent(self):
+    def get_preservation_system_agent(self) -> Agent:
         """Returns synthetic agent describing the preservation system."""
         try:
             agent = self._preservation_system_agent
@@ -1557,32 +1565,43 @@ class RightsStatementOtherRightsInformationNote(models.Model):
         verbose_name = _("Rights: Other: Note")
 
 
-class UnitVariableManager(models.Manager):
-    def update_variable(self, unit_type, unit_uuid, variable, value, link_id=None):
+class UnitVariableManager(models.Manager["UnitVariable"]):
+    def update_variable(
+        self,
+        unit_type: str,
+        unit_uuid: str | uuid.UUID,
+        variable: str,
+        value: str | int,
+        link_id: str | uuid.UUID | None = None,
+    ) -> tuple[UnitVariable, bool]:
         """Persist unit variable."""
         defaults = {"variablevalue": value, "microservicechainlink": link_id}
         return self.get_queryset().update_or_create(
             unittype=unit_type, unituuid=unit_uuid, variable=variable, defaults=defaults
         )
 
-    def set_partial_reingest(self, unit_id):
+    def set_partial_reingest(self, unit_id: str | uuid.UUID) -> None:
         self.update_variable("SIP", unit_id, "isPartialReingest", "true")
 
-    def is_partial_reingest(self, unit_id):
+    def is_partial_reingest(self, unit_id: str | uuid.UUID) -> bool:
         return (
             self.get_queryset()
             .filter(unittype="SIP", unituuid=unit_id, variable="isPartialReingest")
             .exists()
         )
 
-    def unset_partial_reingest(self, unit_id):
+    def unset_partial_reingest(
+        self, unit_id: str | uuid.UUID
+    ) -> tuple[int, dict[str, int]]:
         return (
             self.get_queryset()
             .filter(unittype="SIP", unituuid=unit_id, variable="isPartialReingest")
             .delete()
         )
 
-    def update_active_agent(self, unit_type, unit_id, user_id):
+    def update_active_agent(
+        self, unit_type: str, unit_id: str | uuid.UUID, user_id: int
+    ) -> tuple[UnitVariable, bool]:
         """Persist active agent given the user ID."""
         agent_id = (
             User.objects.select_related("userprofile")
@@ -1592,8 +1611,8 @@ class UnitVariableManager(models.Manager):
         return self.update_variable(unit_type, unit_id, "activeAgent", agent_id)
 
     def update_processing_configuration(
-        self, unit_type, unit_uuid, processing_configuration
-    ):
+        self, unit_type: str, unit_uuid: str | uuid.UUID, processing_configuration: str
+    ) -> tuple[UnitVariable, bool]:
         return self.update_variable(
             unit_type,
             unit_uuid,

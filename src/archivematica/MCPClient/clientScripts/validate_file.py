@@ -169,11 +169,13 @@ class Validator:
     def _get_rules(self) -> QuerySet[FPRule]:
         """Return all FPR rules that apply to files of this type."""
         try:
-            fmt = FormatVersion.active.get(fileformatversion__file_uuid=self.file_uuid)
+            fmt = FormatVersion.active.get(
+                fileformatversion__file_uuid__pk=self.file_uuid
+            )
         except (FormatVersion.DoesNotExist, ValidationError):
             rules = fmt = None
         if fmt:
-            rules = FPRule.active.filter(format=fmt.uuid, purpose=self.purpose)
+            rules = FPRule.active.filter(format=fmt, purpose=self.purpose)
         # Check default rules.
         if not rules:
             rules = FPRule.active.filter(purpose=f"default_{self.purpose}")

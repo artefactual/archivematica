@@ -1,41 +1,54 @@
-import pathlib
+import uuid
 
-from django.test import TestCase
+import pytest
 
 from archivematica.dashboard.main import models
-
-METADATA_TYPE_FIXTURE = (
-    pathlib.Path(__file__).parent / "fixtures" / "metadata_type.json"
-)
-RIGHTS_FIXTURE = pathlib.Path(__file__).parent / "fixtures" / "rights.json"
+from tests.factories import RightsStatementFactory
 
 
-class TestSignals(TestCase):
-    fixtures = [METADATA_TYPE_FIXTURE, RIGHTS_FIXTURE]
+@pytest.fixture
+def rights_statement(
+    make_rights_statement: RightsStatementFactory,
+) -> models.RightsStatement:
+    """A copyright statement of a SIP with two rights granted."""
+    result = make_rights_statement("sip", uuid.uuid4(), rightsbasis="Copyright")
+    make_rights_statement.grant(
+        result, "Disseminate", startdate="2000", enddateopen=True
+    )
+    make_rights_statement.grant(result, "Access", startdate="2016", enddate="")
 
-    def test_delete_rights_statement(self):
-        """It should delete all children."""
-        # Verify exist
-        assert models.RightsStatement.objects.count() == 1
-        assert models.RightsStatementRightsGranted.objects.count() == 2
-        # Delete
-        models.RightsStatement.objects.filter(pk=1).delete()
-        # Verify children deleted
-        assert models.RightsStatement.objects.count() == 0
-        assert models.RightsStatementRightsGranted.objects.count() == 0
+    return result
 
-    def test_delete_rights_granted(self):
-        """It should delete RightsStatements with no RightsGranted."""
-        # Verify exist
-        assert models.RightsStatement.objects.count() == 1
-        assert models.RightsStatementRightsGranted.objects.count() == 2
-        # Delete RightsGranted
-        models.RightsStatementRightsGranted.objects.filter(pk=1).delete()
-        # Verify Statement still exists
-        assert models.RightsStatement.objects.count() == 1
-        assert models.RightsStatementRightsGranted.objects.count() == 1
-        # Delete last RightsGranted
-        models.RightsStatementRightsGranted.objects.filter(pk=2).delete()
-        # Verify statement deleted
-        assert models.RightsStatement.objects.count() == 0
-        assert models.RightsStatementRightsGranted.objects.count() == 0
+
+@pytest.mark.django_db
+def test_delete_rights_statement(rights_statement: models.RightsStatement) -> None:
+    """It should delete all children."""
+    assert models.RightsStatement.objects.count() == 1
+    assert models.RightsStatementRightsGranted.objects.count() == 2
+
+    models.RightsStatement.objects.filter(pk=rights_statement.pk).delete()
+
+    assert models.RightsStatement.objects.count() == 0
+    assert models.RightsStatementRightsGranted.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_delete_rights_granted(rights_statement: models.RightsStatement) -> None:
+    """It should delete RightsStatements with no RightsGranted."""
+    assert models.RightsStatement.objects.count() == 1
+    assert models.RightsStatementRightsGranted.objects.count() == 2
+    first, last = rights_statement.rightsstatementrightsgranted_set.order_by("pk")
+
+    # Delete the first RightsGranted
+    first.delete()
+
+    # The statement still exists
+    assert models.RightsStatement.objects.count() == 1
+    assert models.RightsStatementRightsGranted.objects.count() == 1
+
+    # Delete the last RightsGranted
+    last.delete()
+
+    # The statement is deleted too
+    assert models.RightsStatement.objects.count() == 0
+    assert models.RightsStatementRightsGranted.objects.count() == 0

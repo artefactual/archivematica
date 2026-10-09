@@ -7,6 +7,8 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import has_packages
+from tests.factories import EventFactory
+from tests.factories import FileFactory
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -17,6 +19,7 @@ def _decode_binary_path(value: bytes | memoryview | None) -> str:
 
 @pytest.fixture
 def compressed_file(
+    make_file: FileFactory,
     transfer: models.Transfer,
     transfer_directory_path: pathlib.Path,
     format_version: fprmodels.FormatVersion,
@@ -30,18 +33,8 @@ def compressed_file(
     f.touch()
 
     # Create File models for the compressed and extracted files.
-    d_location = (
-        f"{transfer.currentlocation}{d.relative_to(transfer_directory_path)}".encode()
-    )
-    f_location = (
-        f"{transfer.currentlocation}{f.relative_to(transfer_directory_path)}".encode()
-    )
-    result = models.File.objects.create(
-        transfer=transfer, originallocation=d_location, currentlocation=d_location
-    )
-    models.File.objects.create(
-        transfer=transfer, originallocation=f_location, currentlocation=f_location
-    )
+    result = make_file(str(d.relative_to(transfer_directory_path)), transfer=transfer)
+    make_file(str(f.relative_to(transfer_directory_path)), transfer=transfer)
 
     # Create a file format version for the compressed file.
     models.FileFormatVersion.objects.create(
@@ -81,6 +74,7 @@ def test_main_detects_file_is_extractable_based_on_extract_fpr_rule(
     ids=["unpacking_event", "not_unpacking_event"],
 )
 def test_main_detects_file_was_already_extracted_from_unpacking_event(
+    make_event: EventFactory,
     transfer: models.Transfer,
     compressed_file: models.File,
     format_version: fprmodels.FormatVersion,
@@ -96,9 +90,9 @@ def test_main_detects_file_was_already_extracted_from_unpacking_event(
         ),
         currentlocation__endswith="file.txt",
     )
-    models.Event.objects.create(
-        file_uuid=extracted_file,
-        event_type=event_type,
+    make_event(
+        extracted_file,
+        event_type,
         event_detail=f"Unpacked from: {_decode_binary_path(extracted_file.currentlocation)} ({compressed_file.uuid})",
     )
 
