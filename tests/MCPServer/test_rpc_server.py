@@ -15,6 +15,10 @@ from archivematica.dashboard.main import models
 from archivematica.MCPServer.server import rpc_server
 from archivematica.MCPServer.server.jobs.chain import get_job_class_for_link
 from archivematica.MCPServer.server.queues import PackageQueue
+from archivematica.MCPServer.server.workflow import Workflow
+from tests.factories import JobFactory
+from tests.factories import SIPFactory
+from tests.factories import TransferFactory
 
 TASK_PRODUCING_LINK_ID = "002716a1-ae29-4f36-98ab-0d97192669c4"
 FAILED_TRANSFER_TERMINAL_LINK_ID = "377f8ebb-7989-4a68-9361-658079ff8138"
@@ -39,9 +43,10 @@ def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
 
 
 @pytest.mark.django_db
-def test_unit_status_handler_returns_empty_jobs_before_retrieval_starts(wf):
-    transfer = models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
+def test_unit_status_handler_returns_empty_jobs_before_retrieval_starts(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
+    transfer = make_transfer(
         currentlocation="/shared/tmp/tmp123/TransferName",
         status=models.PACKAGE_STATUS_PROCESSING,
     )
@@ -181,12 +186,13 @@ def test_package_create_handler_returns_structured_in_progress_error(
 
 
 @pytest.mark.django_db
-def test_approve_partial_reingest_handler(wf):
-    sip = models.SIP.objects.create(uuid=str(uuid.uuid4()))
-    models.Job.objects.create(
-        sipuuid=sip.pk,
+def test_approve_partial_reingest_handler(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
+    sip = make_sip()
+    make_job(
+        sip,
         microservicegroup="Reingest AIP",
-        createdtime=timezone.now(),
         currentstep=models.Job.STATUS_AWAITING_DECISION,
     )
     package_queue = mock.MagicMock()
@@ -200,17 +206,17 @@ def test_approve_partial_reingest_handler(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_sets_produces_tasks_from_job_class(wf):
+def test_units_statuses_handler_sets_produces_tasks_from_job_class(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
     task_producing_link = wf.get_link(TASK_PRODUCING_LINK_ID)
     assert get_job_class_for_link(task_producing_link).produces_tasks is True
 
-    sip = models.SIP.objects.create(uuid=str(uuid.uuid4()))
-    models.Job.objects.create(
-        sipuuid=sip.pk,
-        unittype="unitSIP",
+    sip = make_sip()
+    make_job(
+        sip,
         microservicegroup="Test group",
         microservicechainlink=task_producing_link.id,
-        createdtime=timezone.now(),
         currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
     )
 
@@ -228,24 +234,24 @@ def test_units_statuses_handler_sets_produces_tasks_from_job_class(wf):
 
 
 @pytest.mark.django_db
-def test_units_summary_handler_includes_dip_jobs(wf):
+def test_units_summary_handler_includes_dip_jobs(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
     sip_uuid = str(uuid.uuid4())
-    sip = models.SIP.objects.create(uuid=sip_uuid)
+    sip = make_sip(uuid=sip_uuid)
     oldest_at = timezone.now() - timedelta(minutes=2)
     started_at = timezone.now() - timedelta(minutes=1)
     latest_at = timezone.now()
-    models.Job.objects.create(
-        sipuuid=sip.pk,
-        unittype="unitSIP",
+    make_job(
+        sip,
         jobtype="Move to processing directory",
         directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
         microservicechainlink=TASK_PRODUCING_LINK_ID,
         createdtime=oldest_at,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
     )
-    models.Job.objects.create(
-        sipuuid=sip.pk,
-        unittype="unitSIP",
+    make_job(
+        sip,
         jobtype="Assign file UUIDs to objects",
         microservicegroup=rpc_server.INGEST_START_TIME_MARKER_GROUP,
         directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
@@ -253,8 +259,8 @@ def test_units_summary_handler_includes_dip_jobs(wf):
         createdtime=started_at,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
     )
-    latest_job = models.Job.objects.create(
-        sipuuid=sip.pk,
+    latest_job = make_job(
+        sip,
         unittype="unitDIP",
         directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
         microservicechainlink=TASK_PRODUCING_LINK_ID,
@@ -302,8 +308,15 @@ def test_units_summary_handler_includes_dip_jobs(wf):
 )
 @pytest.mark.parametrize("unit_count", [1, 12])
 def test_units_summary_batches_current_decision_identities(
-    wf, unit_type, model, job_types, other_job_type, query_count, unit_count
-):
+    wf: Workflow,
+    make_job: JobFactory,
+    unit_type: str,
+    model: type[models.Transfer] | type[models.SIP],
+    job_types: list[str],
+    other_job_type: str,
+    query_count: int,
+    unit_count: int,
+) -> None:
     created_at = timezone.now()
     expected = {}
     for index in range(unit_count):
@@ -316,9 +329,9 @@ def test_units_summary_batches_current_decision_identities(
             (2, job_types[0], models.Job.STATUS_COMPLETED_SUCCESSFULLY),
             (99, other_job_type, models.Job.STATUS_AWAITING_DECISION),
         ]:
-            job = models.Job.objects.create(
+            job = make_job(
+                unit,
                 jobuuid=uuid.UUID(int=index * 100 + offset),
-                sipuuid=unit.pk,
                 unittype=job_type,
                 microservicechainlink=TASK_PRODUCING_LINK_ID,
                 createdtime=created_at,
@@ -329,8 +342,8 @@ def test_units_summary_batches_current_decision_identities(
         expected[str(unit.pk)] = sorted(pending)
 
     hidden = model.objects.create(uuid=uuid.uuid4(), hidden=True)
-    models.Job.objects.create(
-        sipuuid=hidden.pk,
+    make_job(
+        hidden,
         unittype=job_types[0],
         microservicechainlink=TASK_PRODUCING_LINK_ID,
         createdtime=created_at,
@@ -357,7 +370,7 @@ def test_units_summary_batches_current_decision_identities(
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY
     )
     replacement_id = uuid.UUID(int=uuid.UUID(old_job_id).int + 3)
-    models.Job.objects.create(
+    make_job(
         jobuuid=replacement_id,
         sipuuid=unit_id,
         unittype=job_types[0],
@@ -374,10 +387,12 @@ def test_units_summary_batches_current_decision_identities(
 
 
 @pytest.mark.django_db
-def test_units_summary_handler_returns_queued_transfer_without_jobs(wf):
+def test_units_summary_handler_returns_queued_transfer_without_jobs(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
     transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now()
-    models.Transfer.objects.create(
+    make_transfer(
         uuid=transfer_uuid,
         currentlocation=f"%sharedPath%tmp/{transfer_uuid}/QueuedTransfer",
         status=models.PACKAGE_STATUS_PROCESSING,
@@ -416,11 +431,13 @@ def test_units_summary_handler_returns_queued_transfer_without_jobs(wf):
 
 
 @pytest.mark.django_db
-def test_units_summary_handler_returns_failed_transfer_without_jobs(wf):
+def test_units_summary_handler_returns_failed_transfer_without_jobs(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
     transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now() - timedelta(minutes=1)
     completed_at = timezone.now()
-    models.Transfer.objects.create(
+    make_transfer(
         uuid=transfer_uuid,
         currentlocation=f"%sharedPath%tmp/{transfer_uuid}/FailedTransfer",
         status=models.PACKAGE_STATUS_FAILED,
@@ -483,16 +500,21 @@ def test_units_summary_handler_returns_failed_transfer_without_jobs(wf):
 )
 @pytest.mark.django_db
 def test_units_summary_handler_returns_declared_failure_status(
-    wf, unit_type, model_class, job_unit_type, failure_link_id
-):
+    wf: Workflow,
+    make_job: JobFactory,
+    unit_type: str,
+    model_class: type[models.Transfer] | type[models.SIP],
+    job_unit_type: str,
+    failure_link_id: str,
+) -> None:
     unit_uuid = str(uuid.uuid4())
     unit = model_class.objects.create(
         uuid=unit_uuid,
         status=models.PACKAGE_STATUS_DONE,
     )
     latest_at = timezone.now()
-    models.Job.objects.create(
-        sipuuid=unit.pk,
+    make_job(
+        unit,
         unittype=job_unit_type,
         directory=f"/shared/failed/{unit_uuid}/FailedPackage/",
         microservicechainlink=failure_link_id,
@@ -522,9 +544,11 @@ def test_units_summary_handler_returns_declared_failure_status(
 
 
 @pytest.mark.django_db
-def test_unit_job_groups_handler_aggregates_repeated_jobs(wf):
+def test_unit_job_groups_handler_aggregates_repeated_jobs(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
     sip_uuid = str(uuid.uuid4())
-    sip = models.SIP.objects.create(uuid=sip_uuid)
+    sip = make_sip(uuid=sip_uuid)
     started_at = timezone.now() - timedelta(minutes=2)
     jobs = []
     for job_id, offset, unit_type in (
@@ -533,9 +557,9 @@ def test_unit_job_groups_handler_aggregates_repeated_jobs(wf):
         (2, 2, "unitDIP"),
     ):
         jobs.append(
-            models.Job.objects.create(
+            make_job(
+                sip,
                 jobuuid=uuid.UUID(int=job_id),
-                sipuuid=sip.pk,
                 unittype=unit_type,
                 microservicechainlink=TASK_PRODUCING_LINK_ID,
                 createdtime=started_at + timedelta(seconds=offset),
@@ -591,17 +615,18 @@ def test_unit_job_groups_handler_aggregates_repeated_jobs(wf):
 
 
 @pytest.mark.django_db
-def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(wf):
-    sip = models.SIP.objects.create(uuid=uuid.uuid4())
-    other_sip = models.SIP.objects.create(uuid=uuid.uuid4())
+def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
+    sip = make_sip()
+    other_sip = make_sip()
     started_at = timezone.now() - timedelta(minutes=2)
     jobs_by_status = {}
     for offset, status in enumerate(
         (models.Job.STATUS_COMPLETED_SUCCESSFULLY, models.Job.STATUS_FAILED)
     ):
-        jobs_by_status[status] = models.Job.objects.create(
-            sipuuid=sip.pk,
-            unittype="unitSIP",
+        jobs_by_status[status] = make_job(
+            sip,
             microservicechainlink=TASK_PRODUCING_LINK_ID,
             createdtime=started_at + timedelta(seconds=offset),
             currentstep=status,
@@ -610,7 +635,7 @@ def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(wf):
         (other_sip.pk, "unitSIP"),
         (sip.pk, "unitTransfer"),
     ):
-        models.Job.objects.create(
+        make_job(
             sipuuid=unit_id,
             unittype=unit_type,
             microservicechainlink=TASK_PRODUCING_LINK_ID,
@@ -638,14 +663,15 @@ def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(wf):
 
 
 @pytest.mark.django_db
-def test_unit_job_groups_handler_includes_dip_decisions(wf):
+def test_unit_job_groups_handler_includes_dip_decisions(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
     sip_uuid = str(uuid.uuid4())
-    sip = models.SIP.objects.create(uuid=sip_uuid)
-    waiting_job = models.Job.objects.create(
-        sipuuid=sip.pk,
+    sip = make_sip(uuid=sip_uuid)
+    waiting_job = make_job(
+        sip,
         unittype="unitDIP",
         microservicechainlink=TASK_PRODUCING_LINK_ID,
-        createdtime=timezone.now(),
         currentstep=models.Job.STATUS_AWAITING_DECISION,
     )
     choice = mock.Mock()
@@ -672,13 +698,13 @@ def test_unit_job_groups_handler_includes_dip_decisions(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_returns_transfers(wf):
+def test_units_statuses_handler_returns_transfers(
+    wf: Workflow, make_transfer: TransferFactory, make_job: JobFactory
+) -> None:
     transfer_uuid = str(uuid.uuid4())
-    transfer = models.Transfer.objects.create(uuid=transfer_uuid)
-    models.Job.objects.create(
-        sipuuid=transfer.pk,
-        unittype="unitTransfer",
-        createdtime=timezone.now(),
+    transfer = make_transfer(uuid=transfer_uuid)
+    make_job(
+        transfer,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
         microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
     )
@@ -697,10 +723,12 @@ def test_units_statuses_handler_returns_transfers(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_returns_processing_transfer_without_jobs(wf):
+def test_units_statuses_handler_returns_processing_transfer_without_jobs(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
     transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now()
-    models.Transfer.objects.create(
+    make_transfer(
         uuid=transfer_uuid,
         currentlocation="%sharedPath%tmp/tmp123/TransferName",
         status=models.PACKAGE_STATUS_PROCESSING,
@@ -739,11 +767,13 @@ def test_units_statuses_handler_returns_processing_transfer_without_jobs(wf):
 
 
 @pytest.mark.django_db
-def test_processing_transfer_timestamp_uses_earliest_processing_config(wf):
+def test_processing_transfer_timestamp_uses_earliest_processing_config(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
     transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now()
     updated_at = processing_started_at + timedelta(seconds=60)
-    models.Transfer.objects.create(
+    make_transfer(
         uuid=transfer_uuid,
         currentlocation="%sharedPath%tmp/tmp123/TransferName",
         status=models.PACKAGE_STATUS_PROCESSING,
@@ -780,7 +810,9 @@ def test_processing_transfer_timestamp_uses_earliest_processing_config(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(wf):
+def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
     now = timezone.now()
     transfer_times = [
         ("oldest", now - timedelta(seconds=120)),
@@ -791,7 +823,7 @@ def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(wf):
     for name, createdtime in transfer_times:
         transfer_uuid = str(uuid.uuid4())
         transfer_uuids[name] = transfer_uuid
-        models.Transfer.objects.create(
+        make_transfer(
             uuid=transfer_uuid,
             currentlocation=f"%sharedPath%tmp/tmp123/{name}",
             status=models.PACKAGE_STATUS_PROCESSING,
@@ -820,9 +852,10 @@ def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs(wf):
-    models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
+def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
+    make_transfer(
         currentlocation="%sharedPath%tmp/tmp123/TransferName",
         status=models.PACKAGE_STATUS_PROCESSING,
         hidden=True,
@@ -841,9 +874,10 @@ def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(wf):
-    models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
+def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(
+    wf: Workflow, make_transfer: TransferFactory
+) -> None:
+    make_transfer(
         currentlocation="%sharedPath%tmp/tmp123/TransferName",
         status=models.PACKAGE_STATUS_UNKNOWN,
     )
@@ -861,13 +895,13 @@ def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_returns_sips(wf):
+def test_units_statuses_handler_returns_sips(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
     sip_uuid = str(uuid.uuid4())
-    sip = models.SIP.objects.create(uuid=sip_uuid)
-    models.Job.objects.create(
-        sipuuid=sip.pk,
-        unittype="unitSIP",
-        createdtime=timezone.now(),
+    sip = make_sip(uuid=sip_uuid)
+    make_job(
+        sip,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
         microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
     )
@@ -884,29 +918,19 @@ def test_units_statuses_handler_returns_sips(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_excludes_hidden_transfers(wf):
+def test_units_statuses_handler_excludes_hidden_transfers(
+    wf: Workflow, make_transfer: TransferFactory, make_job: JobFactory
+) -> None:
     visible_transfer_uuid = str(uuid.uuid4())
     hidden_transfer_uuid = str(uuid.uuid4())
-    visible_transfer = models.Transfer.objects.create(
-        uuid=visible_transfer_uuid, hidden=False
-    )
-    hidden_transfer = models.Transfer.objects.create(
-        uuid=hidden_transfer_uuid, hidden=True
-    )
-    models.Job.objects.create(
-        sipuuid=visible_transfer.pk,
-        unittype="unitTransfer",
-        createdtime=timezone.now(),
-        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
-    )
-    models.Job.objects.create(
-        sipuuid=hidden_transfer.pk,
-        unittype="unitTransfer",
-        createdtime=timezone.now(),
-        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
-    )
+    visible_transfer = make_transfer(uuid=visible_transfer_uuid, hidden=False)
+    hidden_transfer = make_transfer(uuid=hidden_transfer_uuid, hidden=True)
+    for transfer in [visible_transfer, hidden_transfer]:
+        make_job(
+            transfer,
+            currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+            microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
+        )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
     shutdown_event = threading.Event()
@@ -922,25 +946,19 @@ def test_units_statuses_handler_excludes_hidden_transfers(wf):
 
 
 @pytest.mark.django_db
-def test_units_statuses_handler_excludes_hidden_sips(wf):
+def test_units_statuses_handler_excludes_hidden_sips(
+    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+) -> None:
     visible_sip_uuid = str(uuid.uuid4())
     hidden_sip_uuid = str(uuid.uuid4())
-    visible_sip = models.SIP.objects.create(uuid=visible_sip_uuid, hidden=False)
-    hidden_sip = models.SIP.objects.create(uuid=hidden_sip_uuid, hidden=True)
-    models.Job.objects.create(
-        sipuuid=visible_sip.pk,
-        unittype="unitSIP",
-        createdtime=timezone.now(),
-        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
-    )
-    models.Job.objects.create(
-        sipuuid=hidden_sip.pk,
-        unittype="unitSIP",
-        createdtime=timezone.now(),
-        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
-    )
+    visible_sip = make_sip(uuid=visible_sip_uuid, hidden=False)
+    hidden_sip = make_sip(uuid=hidden_sip_uuid, hidden=True)
+    for sip in [visible_sip, hidden_sip]:
+        make_job(
+            sip,
+            currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
+            microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
+        )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
     shutdown_event = threading.Event()

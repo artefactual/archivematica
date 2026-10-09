@@ -7,25 +7,13 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import identify_file_format
+from tests.factories import EventFactory
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
     assert isinstance(value, bytes)
 
     return value.decode()
-
-
-@pytest.fixture
-def sip_file_path(
-    sip_directory_path: pathlib.Path, sip_file: models.File
-) -> pathlib.Path:
-    result = sip_directory_path / pathlib.Path(
-        _decode_binary_path(sip_file.currentlocation).replace("%SIPDirectory%", "")
-    )
-    result.parent.mkdir(parents=True)
-    result.touch()
-
-    return result
 
 
 @pytest.fixture
@@ -55,12 +43,13 @@ def test_job_skips_format_identification_explicitly(job: mock.Mock) -> None:
 
 @pytest.mark.django_db
 def test_job_skips_format_identification_if_file_has_format_identification_events(
+    make_event: EventFactory,
     job: mock.Mock,
     sip_file: models.File,
     sip_file_path: pathlib.Path,
     idcommand: fprmodels.IDCommand,
 ) -> None:
-    models.Event.objects.create(file_uuid=sip_file, event_type="format identification")
+    make_event(sip_file, "format identification")
 
     identify_file_format.call([job])
 

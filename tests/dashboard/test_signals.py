@@ -1,25 +1,21 @@
 import pytest
 
 from archivematica.dashboard.main import models
+from tests.factories import RightsStatementFactory
 
 
 @pytest.fixture
 def rights_statement(
-    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    make_rights_statement: RightsStatementFactory,
 ) -> models.RightsStatement:
     """A copyright statement of a SIP with two rights granted."""
-    result = models.RightsStatement.objects.create(
-        metadataappliestotype=metadata_applies_to_types["sip"],
-        metadataappliestoidentifier="d64b0f43-f6d3-42ac-9821-c559dca13786",
-        rightsbasis="Copyright",
-        status="ORIGINAL",
+    result = make_rights_statement(
+        "sip", "d64b0f43-f6d3-42ac-9821-c559dca13786", rightsbasis="Copyright"
     )
-    models.RightsStatementRightsGranted.objects.create(
-        rightsstatement=result, act="Disseminate", startdate="2000", enddateopen=True
+    make_rights_statement.grant(
+        result, "Disseminate", startdate="2000", enddateopen=True
     )
-    models.RightsStatementRightsGranted.objects.create(
-        rightsstatement=result, act="Access", startdate="2016", enddate=""
-    )
+    make_rights_statement.grant(result, "Access", startdate="2016", enddate="")
 
     return result
 

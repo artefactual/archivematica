@@ -5,10 +5,14 @@ import pytest
 from django.contrib.auth.models import User
 
 from archivematica.dashboard.main import models
+from tests.factories import SIPFactory
+from tests.factories import TransferFactory
 
 
-def test_transfer_update_active_agent(admin_user: User) -> None:
-    transfer = models.Transfer.objects.create()
+def test_transfer_update_active_agent(
+    admin_user: User, make_transfer: TransferFactory
+) -> None:
+    transfer = make_transfer()
 
     transfer.update_active_agent(admin_user.id)
 
@@ -23,8 +27,8 @@ def test_transfer_update_active_agent(admin_user: User) -> None:
     )
 
 
-def test_sip_update_active_agent(admin_user: User) -> None:
-    sip = models.SIP.objects.create()
+def test_sip_update_active_agent(admin_user: User, make_sip: SIPFactory) -> None:
+    sip = make_sip()
 
     sip.update_active_agent(admin_user.id)
 

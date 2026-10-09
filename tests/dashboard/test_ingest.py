@@ -1,10 +1,12 @@
 import datetime
 import json
 import logging
+import pathlib
 import uuid
 from unittest import mock
 
 import pytest
+import pytest_django
 from agentarchives.archivesspace import ArchivesSpaceError
 from django.test import Client
 from django.urls import reverse
@@ -17,15 +19,20 @@ from archivematica.dashboard.main import models
 from archivematica.dashboard.main.models import Access
 from archivematica.dashboard.main.models import ArchivesSpaceDIPObjectResourcePairing
 from archivematica.dashboard.main.models import DashboardSetting
+from tests.factories import FileFactory
+from tests.factories import JobFactory
+from tests.factories import SIPFactory
 
 # UUID of the SIP of the sip fixture.
 SIP_UUID = "4060ee97-9c3f-4822-afaf-ebdf838284c3"
 
 
 @pytest.fixture
-def sip(db: None) -> models.SIP:
-    """A SIP named "test" waiting for the metadata reminder decision."""
-    return models.SIP.objects.create(
+def sip(make_sip: SIPFactory) -> models.SIP:
+    """A SIP named "test" waiting for the metadata reminder decision, which
+    replaces the shared SIP for the whole module.
+    """
+    return make_sip(
         uuid=uuid.UUID(SIP_UUID),
         sip_type="AIP",
         currentpath=(
@@ -36,7 +43,7 @@ def sip(db: None) -> models.SIP:
 
 
 @pytest.fixture
-def completed_sip(sip: models.SIP) -> models.SIP:
+def completed_sip(make_job: JobFactory, sip: models.SIP) -> models.SIP:
     """The SIP with the jobs of its completed ingest, which name it "test"."""
     started = datetime.datetime(2016, 10, 4, 23, 5, 56, tzinfo=datetime.timezone.utc)
     for seconds, microservicegroup, jobtype, directory in [
@@ -65,9 +72,8 @@ def completed_sip(sip: models.SIP) -> models.SIP:
             f"%sharedPath%currentlyProcessing/test-{SIP_UUID}/",
         ),
     ]:
-        models.Job.objects.create(
-            sipuuid=sip.uuid,
-            unittype="unitSIP",
+        make_job(
+            sip,
             currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
             createdtime=started + datetime.timedelta(seconds=seconds),
             microservicegroup=microservicegroup,
@@ -291,7 +297,12 @@ def test_ingest_upload_as_match_shows_deleted_rows(
 
 
 @pytest.mark.django_db
-def test_ingest_upload_atk_get_dip_object_paths_uuid_strings(tmp_path, settings):
+def test_ingest_upload_atk_get_dip_object_paths_uuid_strings(
+    tmp_path: pathlib.Path,
+    settings: pytest_django.Settings,
+    make_sip: SIPFactory,
+    make_file: FileFactory,
+) -> None:
     settings.WATCH_DIRECTORY = str(tmp_path)
     sip_uuid = uuid.uuid4()
     sip_uuid_str = str(sip_uuid)
@@ -319,20 +330,12 @@ def test_ingest_upload_atk_get_dip_object_paths_uuid_strings(tmp_path, settings)
         encoding="utf-8",
     )
 
-    sip = models.SIP.objects.create(
+    sip = make_sip(
         uuid=sip_uuid,
         currentpath=f"{settings.WATCH_DIRECTORY}/uploadDIP/{dip_dir_name}/",
     )
-    file_beta = models.File.objects.create(
-        sip=sip,
-        originallocation=b"origin-beta",
-        currentlocation=f"%SIPDirectory%{object_paths[0]}".encode(),
-    )
-    file_alpha = models.File.objects.create(
-        sip=sip,
-        originallocation=b"origin-alpha",
-        currentlocation=f"%SIPDirectory%{object_paths[1]}".encode(),
-    )
+    file_beta = make_file(object_paths[0], sip=sip, originallocation=b"origin-beta")
+    file_alpha = make_file(object_paths[1], sip=sip, originallocation=b"origin-alpha")
 
     result = ingest_upload_atk_get_dip_object_paths(sip_uuid_str)
 

@@ -37,7 +37,6 @@ from archivematica.dashboard.components import helpers
 from archivematica.dashboard.components.archival_storage import atom
 from archivematica.dashboard.components.archival_storage import views
 from archivematica.search.service import AIPNotFoundError
-from archivematica.search.service import SearchService
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DISPOSITION = "Content-Disposition"
@@ -89,16 +88,6 @@ def get_streaming_response(streaming_content):
     for response_char in streaming_content:
         response_text = "{}{}".format(response_text, response_char.decode("utf8"))
     return response_text
-
-
-@pytest.fixture
-def mock_search_service():
-    with mock.patch(
-        "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf"
-    ) as mock_setup_search_service:
-        mock_search_service = mock.Mock(spec=SearchService)
-        mock_setup_search_service.return_value = mock_search_service
-        yield mock_search_service
 
 
 def test_get_mets_unknown_mets(mock_search_service, dashboard_uuid, admin_client):

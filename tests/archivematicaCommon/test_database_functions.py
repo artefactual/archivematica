@@ -13,6 +13,8 @@ from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Identifier
 from archivematica.dashboard.main.models import Transfer
 from archivematica.dashboard.main.models import UnitVariable
+from tests.factories import FileFactory
+from tests.factories import SIPFactory
 
 # Current path of a file set during the extract contents microservice (the file
 # name contains underscores from normalization) and the original location of the
@@ -69,45 +71,46 @@ def set_active_agent(unit: SIP | Transfer, agent: Agent) -> None:
 
 
 @pytest.fixture
-def file_with_sip_agent(sip_agent: Agent) -> File:
+def file_with_sip_agent(make_file: FileFactory, sip: SIP, sip_agent: Agent) -> File:
     """A file of a SIP whose active agent is the SIP agent."""
-    sip = SIP.objects.create(currentpath="%path%")
     set_active_agent(sip, sip_agent)
 
-    return File.objects.create(sip=sip, currentlocation=b"file_with_sip_agent")
+    return make_file("objects/file.txt", sip=sip)
 
 
 @pytest.fixture
-def file_with_transfer_agent(transfer_agent: Agent) -> File:
+def file_with_transfer_agent(
+    make_file: FileFactory, transfer: Transfer, transfer_agent: Agent
+) -> File:
     """A file of a transfer whose active agent is the transfer agent."""
-    transfer = Transfer.objects.create(currentlocation="%path%")
     set_active_agent(transfer, transfer_agent)
 
-    return File.objects.create(
-        transfer=transfer, currentlocation=b"file_with_transfer_agent"
-    )
+    return make_file("objects/file.txt", transfer=transfer)
 
 
 @pytest.fixture
-def file_with_sip_and_transfer_agents(sip_agent: Agent, transfer_agent: Agent) -> File:
+def file_with_sip_and_transfer_agents(
+    make_file: FileFactory,
+    sip: SIP,
+    transfer: Transfer,
+    sip_agent: Agent,
+    transfer_agent: Agent,
+) -> File:
     """A file of a SIP and a transfer with different active agents."""
-    sip = SIP.objects.create(currentpath="%path%")
     set_active_agent(sip, sip_agent)
-    transfer = Transfer.objects.create(currentlocation="%path%")
     set_active_agent(transfer, transfer_agent)
 
-    return File.objects.create(
-        sip=sip, transfer=transfer, currentlocation=b"file_with_sip_agent"
-    )
+    return make_file("objects/file.txt", sip=sip, transfer=transfer)
 
 
 @pytest.fixture
-def file_without_active_agent(db: None) -> File:
-    """A file of a SIP without an active agent."""
-    return File.objects.create(
-        sip=SIP.objects.create(currentpath="%path%"),
-        currentlocation=b"file_with_no_unit_var",
-    )
+def file_without_active_agent(make_file: FileFactory, make_sip: SIPFactory) -> File:
+    """A file of a SIP without an active agent.
+
+    The SIP is its own, so that the fixtures that record an active agent on
+    the shared SIP never affect this one.
+    """
+    return make_file("objects/file.txt", sip=make_sip())
 
 
 # insertIntoFiles

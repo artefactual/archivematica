@@ -1,6 +1,5 @@
 import uuid
 from datetime import timedelta
-from unittest import mock
 
 import pytest
 from django.core.management import call_command
@@ -9,8 +8,8 @@ from django.utils.dateparse import parse_duration
 
 import archivematica.search.constants
 from archivematica.dashboard.main import models
-from archivematica.search.service import SearchService
 from archivematica.search.service import SearchServiceError
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
@@ -39,16 +38,6 @@ def old_sip(sip):
     sip.save()
 
     return sip
-
-
-@pytest.fixture
-def mock_search_service():
-    with mock.patch(
-        "archivematica.dashboard.main.management.commands.purge_transient_processing_data.setup_search_service_from_conf"
-    ) as mock_setup_search_service:
-        mock_search_service = mock.Mock(spec=SearchService)
-        mock_setup_search_service.return_value = mock_search_service
-        yield mock_search_service
 
 
 @pytest.mark.django_db
@@ -141,13 +130,13 @@ def test_purge_command_keeps_search_documents(
 
 @pytest.mark.django_db
 def test_purge_command_skips_active_packages(
-    search_disabled, old_transfer, old_sip, capsys
-):
-    models.Transfer.objects.create(
-        uuid=uuid.uuid4(),
-        currentlocation=r"%transferDirectory%",
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
+    search_disabled: None,
+    old_transfer: models.Transfer,
+    old_sip: models.SIP,
+    capsys: pytest.CaptureFixture[str],
+    make_transfer: TransferFactory,
+) -> None:
+    make_transfer(status=models.PACKAGE_STATUS_PROCESSING)
 
     call_command("purge_transient_processing_data")
 

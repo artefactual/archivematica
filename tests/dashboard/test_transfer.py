@@ -12,15 +12,16 @@ from archivematica.dashboard.main.models import TaxonomyTerm
 from archivematica.dashboard.main.models import Transfer
 from archivematica.dashboard.main.models import TransferMetadataField
 from archivematica.dashboard.main.models import TransferMetadataFieldValue
+from tests.factories import TransferFactory
 
 # UUID of the transfer of the transfer fixture.
 TRANSFER_UUID = "3e1e56ed-923b-4b53-84fe-c5c1c0b0cf8e"
 
 
 @pytest.fixture
-def transfer(db: None) -> Transfer:
+def transfer(make_transfer: TransferFactory) -> Transfer:
     """A completed standard transfer named "test"."""
-    return Transfer.objects.create(
+    return make_transfer(
         uuid=uuid.UUID(TRANSFER_UUID),
         type="Standard",
         currentlocation=(

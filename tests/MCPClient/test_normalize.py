@@ -13,6 +13,7 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import normalize
+from tests.factories import FileFactory
 
 
 def _decode_binary_path(value: bytes | memoryview | None) -> str:
@@ -271,11 +272,10 @@ def test_manual_normalization_matches_by_filename_instead_of_normalization_csv(
 
 
 @pytest.fixture
-def secondary_manual_preservation_file(sip: models.SIP) -> models.File:
-    location = b"%SIPDirectory%objects/manualNormalization/preservation/file_1.wav"
-    return models.File.objects.create(
-        sip=sip, currentlocation=location, originallocation=location
-    )
+def secondary_manual_preservation_file(
+    make_file: FileFactory, sip: models.SIP
+) -> models.File:
+    return make_file("objects/manualNormalization/preservation/file_1.wav", sip=sip)
 
 
 @pytest.mark.django_db

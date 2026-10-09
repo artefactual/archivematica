@@ -1,11 +1,13 @@
+import uuid
 from unittest import mock
 
 import pytest
+from django.test import Client
 from django.urls import reverse
-from django.utils import timezone
 
 from archivematica.dashboard.contrib.mcp.client import RPCServerError
 from archivematica.dashboard.main import models
+from tests.factories import JobFactory
 
 
 @pytest.fixture()
@@ -267,13 +269,14 @@ def test_mark_completed_hidden_ignores_active_packages(
 
 
 def test_mark_completed_hidden_hides_done_packages(
-    dashboard_uuid, admin_client, transfer
-):
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    transfer: models.Transfer,
+    make_job: JobFactory,
+) -> None:
     # mark_completed_hidden still relies on job objects.
-    models.Job.objects.create(
-        sipuuid=transfer.pk,
-        unittype="unitTransfer",
-        createdtime=timezone.now(),
+    make_job(
+        transfer,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
         jobtype="Create SIP from transfer objects",
     )
@@ -286,13 +289,14 @@ def test_mark_completed_hidden_hides_done_packages(
 
 
 def test_mark_completed_hidden_hides_failed_packages(
-    dashboard_uuid, admin_client, transfer
-):
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    transfer: models.Transfer,
+    make_job: JobFactory,
+) -> None:
     # mark_completed_hidden still relies on job objects.
-    models.Job.objects.create(
-        sipuuid=transfer.pk,
-        unittype="unitTransfer",
-        createdtime=timezone.now(),
+    make_job(
+        transfer,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
         jobtype="Remove the processing directory",
     )

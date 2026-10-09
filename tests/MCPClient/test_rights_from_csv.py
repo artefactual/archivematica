@@ -7,6 +7,8 @@ import pytest
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import rights_from_csv
+from tests.factories import FileFactory
+from tests.MCPClient.factories import MCPJobFactory
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
@@ -18,26 +20,22 @@ FILE_2_UUID = "60e5c61b-14ef-4e92-89ec-9b9201e68adb"
 
 
 @pytest.fixture
-def transfer_files(unicode_transfer: models.Transfer) -> list[models.File]:
+def transfer_files(
+    make_file: FileFactory, unicode_transfer: models.Transfer
+) -> list[models.File]:
     """The original files of the transfer referenced by the rights CSV fixture."""
-    result = []
-    for file_uuid, path, size in [
-        (FILE_1_UUID, "G31DS.TIF", 125968),
-        (FILE_2_UUID, "lion.svg", 18324),
-    ]:
-        location = f"%transferDirectory%objects/{path}".encode()
-        result.append(
-            models.File.objects.create(
-                uuid=uuid.UUID(file_uuid),
-                transfer=unicode_transfer,
-                filegrpuse="original",
-                originallocation=location,
-                currentlocation=location,
-                size=size,
-            )
+    return [
+        make_file(
+            f"objects/{path}",
+            transfer=unicode_transfer,
+            uuid=uuid.UUID(file_uuid),
+            size=size,
         )
-
-    return result
+        for file_uuid, path, size in [
+            (FILE_1_UUID, "G31DS.TIF", 125968),
+            (FILE_2_UUID, "lion.svg", 18324),
+        ]
+    ]
 
 
 def license_statement(statement: models.RightsStatement) -> dict[str, object]:
@@ -512,16 +510,17 @@ def test_unmatched_path_reports_row_and_path(
 
 @pytest.mark.django_db
 def test_unmatched_path_fails_job_without_processing_later_rows(
-    metadata_applies_to_types,
-    transfer,
-    transfer_file,
-    tmp_path,
-):
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    transfer: models.Transfer,
+    transfer_file: models.File,
+    tmp_path: pathlib.Path,
+    make_mcp_job: MCPJobFactory,
+) -> None:
     rights_csv = tmp_path / "rights.csv"
     rights_csv.write_text(
         "file,basis\nobjects/typo.txt,license\nobjects/file.mp3,license\n"
     )
-    job = Job("rights_from_csv", "stub", [str(transfer.uuid), str(rights_csv)])
+    job = make_mcp_job([str(transfer.uuid), str(rights_csv)], name="rights_from_csv")
 
     rights_from_csv.call([job])
 

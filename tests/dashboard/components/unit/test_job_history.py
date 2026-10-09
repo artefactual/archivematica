@@ -2,12 +2,17 @@ import uuid
 
 import pytest
 from django.db import connection
+from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
 from archivematica.dashboard.components.unit.views import JOB_HISTORY_PAGE_SIZE
 from archivematica.dashboard.main import models
+from tests.factories import JobFactory
+from tests.factories import SIPFactory
+from tests.factories import TaskFactory
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
@@ -35,18 +40,18 @@ def history_url(unit, link_uuid, unit_type="transfer"):
     )
 
 
-def create_job(unit, link_uuid, **kwargs):
-    fields = {
-        "sipuuid": unit.pk,
-        "unittype": "unitTransfer",
+def create_job(
+    unit: models.Transfer | models.SIP, link_uuid: uuid.UUID, **fields: object
+) -> models.Job:
+    """A completed job of the unit at the link, in the job history."""
+    defaults: dict[str, object] = {
         "microservicechainlink": link_uuid,
-        "createdtime": timezone.now(),
         "currentstep": models.Job.STATUS_COMPLETED_SUCCESSFULLY,
         "jobtype": "Normalize for preservation",
         "directory": "/shared/Example/",
     }
-    fields.update(kwargs)
-    return models.Job.objects.create(**fields)
+
+    return JobFactory()(unit, **{**defaults, **fields})
 
 
 def test_history_requires_a_dashboard_session(
@@ -101,8 +106,13 @@ def test_history_rejects_malformed_uuids(
 
 
 def test_history_exposes_tasks_from_every_attempt_and_status(
-    dashboard_uuid, admin_client, transfer, link_uuid
-):
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    transfer: models.Transfer,
+    link_uuid: uuid.UUID,
+    make_task: TaskFactory,
+    make_transfer: TransferFactory,
+) -> None:
     jobs = [
         create_job(transfer, link_uuid, currentstep=status)
         for status in (
@@ -113,13 +123,9 @@ def test_history_exposes_tasks_from_every_attempt_and_status(
         )
     ]
     for index, job in enumerate(jobs):
-        models.Task.objects.create(
-            job=job,
-            createdtime=timezone.now(),
-            stdout=f"Output from attempt {index}",
-        )
+        make_task(job, stdout=f"Output from attempt {index}")
     other_link_job = create_job(transfer, uuid.uuid4())
-    other_unit_job = create_job(models.Transfer.objects.create(), link_uuid)
+    other_unit_job = create_job(make_transfer(), link_uuid)
     wrong_type_job = create_job(transfer, link_uuid, unittype="unitSIP")
 
     response = admin_client.get(history_url(transfer, link_uuid))
@@ -141,9 +147,12 @@ def test_history_exposes_tasks_from_every_attempt_and_status(
 
 
 def test_ingest_history_includes_sip_and_dip_jobs(
-    dashboard_uuid, admin_client, db, link_uuid
-):
-    sip = models.SIP.objects.create()
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    make_sip: SIPFactory,
+    link_uuid: uuid.UUID,
+) -> None:
+    sip = make_sip()
     sip_job = create_job(sip, link_uuid, unittype="unitSIP")
     dip_job = create_job(sip, link_uuid, unittype="unitDIP")
     create_job(sip, link_uuid, unittype="unitTransfer")
@@ -156,22 +165,23 @@ def test_ingest_history_includes_sip_and_dip_jobs(
 
 
 def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
-    dashboard_uuid, admin_client, transfer, link_uuid
-):
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    transfer: models.Transfer,
+    link_uuid: uuid.UUID,
+    make_job: JobFactory,
+) -> None:
     timestamp = timezone.now()
-    jobs = models.Job.objects.bulk_create(
-        [
-            models.Job(
-                jobuuid=uuid.UUID(int=index + 1),
-                sipuuid=transfer.pk,
-                unittype="unitTransfer",
-                microservicechainlink=link_uuid,
-                createdtime=timestamp,
-                jobtype="Repeated job",
-            )
-            for index in range(JOB_HISTORY_PAGE_SIZE + 3)
-        ]
-    )
+    jobs = [
+        make_job(
+            transfer,
+            jobuuid=uuid.UUID(int=index + 1),
+            microservicechainlink=link_uuid,
+            createdtime=timestamp,
+            jobtype="Repeated job",
+        )
+        for index in range(JOB_HISTORY_PAGE_SIZE + 3)
+    ]
     url = history_url(transfer, link_uuid)
 
     with CaptureQueriesContext(connection) as captured:

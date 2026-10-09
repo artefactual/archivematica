@@ -1,4 +1,9 @@
+from collections.abc import Iterator
+from unittest import mock
+
 import pytest
+
+from archivematica.search.service import SearchService
 
 
 @pytest.fixture
@@ -19,6 +24,23 @@ def migrate_apps(transactional_db):
     executor = MigrationExecutor(connection)
     executor.loader.build_graph()
     executor.migrate(executor.loader.graph.leaf_nodes())
+
+
+@pytest.fixture
+def mock_search_service() -> Iterator[mock.Mock]:
+    """The search service as set up by the views and commands that use it."""
+    service = mock.Mock(spec=SearchService)
+    with (
+        mock.patch(
+            "archivematica.dashboard.components.archival_storage.views.setup_search_service_from_conf",
+            return_value=service,
+        ),
+        mock.patch(
+            "archivematica.dashboard.main.management.commands.purge_transient_processing_data.setup_search_service_from_conf",
+            return_value=service,
+        ),
+    ):
+        yield service
 
 
 @pytest.fixture

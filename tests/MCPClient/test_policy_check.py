@@ -9,6 +9,8 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import policy_check
+from tests.factories import EventFactory
+from tests.factories import FileFactory
 
 
 def _decode_path(value: bytes | memoryview | None) -> str:
@@ -26,8 +28,8 @@ def sip(sip: models.SIP) -> models.SIP:
 
 
 @pytest.fixture
-def event(sip_file: models.File) -> models.Event:
-    return models.Event.objects.create(file_uuid=sip_file, event_type="normalization")
+def event(make_event: EventFactory, sip_file: models.File) -> models.Event:
+    return make_event(sip_file, "normalization")
 
 
 @pytest.fixture
@@ -565,6 +567,7 @@ def test_policy_checker_saves_policy_check_result_into_submission_documentation_
 @mock.patch("archivematica.MCPClient.clientScripts.policy_check.executeOrRun")
 def test_policy_checker_checks_manually_normalized_access_derivative_file(
     execute_or_run: mock.Mock,
+    make_file: FileFactory,
     transfer: models.Transfer,
     sip_file: models.File,
     sip: models.SIP,
@@ -579,11 +582,11 @@ def test_policy_checker_checks_manually_normalized_access_derivative_file(
 
     execute_or_run.return_value = (0, expected_stdout, "")
     sip_file_name = pathlib.Path(_decode_path(sip_file.currentlocation)).name
-    manually_access_derivative_file = models.File.objects.create(
+    manually_access_derivative_file = make_file(
+        f"objects/manualNormalization/access/{sip_file_name}",
         transfer=transfer,
         sip=sip,
-        filegrpuse="original",
-        originallocation=f"%transferDirectory%objects/manualNormalization/access/{sip_file_name}".encode(),
+        currentlocation=None,
     )
     models.FileFormatVersion.objects.create(
         file_uuid=manually_access_derivative_file, format_version=format_version

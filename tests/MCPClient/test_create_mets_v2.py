@@ -1,5 +1,4 @@
 import pathlib
-import uuid
 from contextlib import ExitStack as does_not_raise
 from unittest import mock
 
@@ -17,6 +16,7 @@ from archivematica.MCPClient.clientScripts.create_mets_v2 import (
     createDMDIDsFromCSVMetadata,
 )
 from archivematica.MCPClient.clientScripts.create_mets_v2 import main
+from tests.factories import FileFactory
 
 
 @mock.patch(
@@ -66,30 +66,25 @@ def empty_dir_path(objects_path: pathlib.Path) -> pathlib.Path:
 
 @pytest.fixture()
 def metadata_csv(
-    sip: SIP, sip_directory_path: pathlib.Path, objects_path: pathlib.Path
+    make_file: FileFactory,
+    sip: SIP,
+    sip_directory_path: pathlib.Path,
+    objects_path: pathlib.Path,
 ) -> File:
     (objects_path / "metadata").mkdir()
     metadata_csv = objects_path / "metadata" / "metadata.csv"
     metadata_csv.write_text("Filename,dc.title\nobjects/file1,File 1")
+    path = str(metadata_csv.relative_to(sip_directory_path))
 
-    originallocation = "".join(
-        [r"%transferDirectory%", str(metadata_csv.relative_to(sip_directory_path))],
-    )
-    currentlocation = "".join(
-        [r"%SIPDirectory%", str(metadata_csv.relative_to(sip_directory_path))],
-    )
-    file_obj = File.objects.create(
-        uuid=uuid.uuid4(),
+    return make_file(
+        path,
         sip=sip,
-        originallocation=originallocation.encode(),
-        currentlocation=currentlocation.encode(),
-        size=1024,
         filegrpuse="metadata",
+        originallocation=f"%transferDirectory%{path}".encode(),
+        size=1024,
         checksum="f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b",
         checksumtype="sha256",
     )
-
-    return file_obj
 
 
 @pytest.fixture()
@@ -403,11 +398,14 @@ def transfer_metadata_xml_path(
 
 @pytest.fixture()
 def transfer_metadata_xml(
-    sip: SIP, sip_directory_path: pathlib.Path, transfer_metadata_xml_path: pathlib.Path
+    make_file: FileFactory,
+    sip: SIP,
+    sip_directory_path: pathlib.Path,
+    transfer_metadata_xml_path: pathlib.Path,
 ) -> File:
-    return File.objects.create(
+    return make_file(
+        str(transfer_metadata_xml_path.relative_to(sip_directory_path)),
         sip=sip,
-        currentlocation=f"%SIPDirectory%{transfer_metadata_xml_path.relative_to(sip_directory_path)}".encode(),
         filegrpuse="metadata",
     )
 
@@ -461,11 +459,14 @@ def source_metadata_xml_path(
 
 @pytest.fixture()
 def source_metadata_xml(
-    sip: SIP, sip_directory_path: pathlib.Path, source_metadata_xml_path: pathlib.Path
+    make_file: FileFactory,
+    sip: SIP,
+    sip_directory_path: pathlib.Path,
+    source_metadata_xml_path: pathlib.Path,
 ) -> File:
-    return File.objects.create(
+    return make_file(
+        str(source_metadata_xml_path.relative_to(sip_directory_path)),
         sip=sip,
-        currentlocation=f"%SIPDirectory%{source_metadata_xml_path.relative_to(sip_directory_path)}".encode(),
         filegrpuse="metadata",
     )
 

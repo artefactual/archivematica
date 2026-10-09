@@ -14,6 +14,11 @@ from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSReingest
+from tests.factories import DublinCoreFactory
+from tests.factories import EventFactory
+from tests.factories import FileFactory
+from tests.factories import RightsStatementFactory
+from tests.factories import SIPFactory
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURES_DIR = os.path.join(THIS_DIR, "fixtures")
@@ -49,9 +54,9 @@ def user_agent(user_agent: models.Agent) -> models.Agent:
 
 
 @pytest.fixture
-def aip(db: None) -> models.SIP:
+def aip(make_sip: SIPFactory) -> models.SIP:
     """The reingested AIP described by the METS fixtures."""
-    return models.SIP.objects.create(
+    return make_sip(
         uuid=uuid.UUID(SIP_UUID),
         sip_type="AIP-REIN",
         currentpath=(
@@ -62,77 +67,68 @@ def aip(db: None) -> models.SIP:
 
 
 @pytest.fixture
-def original_file(aip: models.SIP) -> models.File:
+def original_file(make_file: FileFactory, aip: models.SIP) -> models.File:
     """The original JPEG of the AIP, renamed during its transfer."""
-    return models.File.objects.create(
-        uuid=uuid.UUID("ae8d4290-fe52-4954-b72a-0f591bee2e2f"),
+    return make_file(
+        "objects/evelyn_s_photo.jpg",
         sip=aip,
-        filegrpuse="original",
-        originallocation=b"%SIPDirectory%objects/evelyn's photo.jpg",
-        currentlocation=b"%SIPDirectory%objects/evelyn_s_photo.jpg",
+        uuid=uuid.UUID("ae8d4290-fe52-4954-b72a-0f591bee2e2f"),
+        origin="objects/evelyn's photo.jpg",
         checksum="d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
         size=158131,
     )
 
 
 @pytest.fixture
-def preservation_derivative(aip: models.SIP) -> models.File:
+def preservation_derivative(make_file: FileFactory, aip: models.SIP) -> models.File:
     """The TIFF derivative of the original JPEG."""
-    location = (
-        b"%SIPDirectory%objects/evelyn_s_photo-8140ebe5-295c-490b-a34a-83955b7c844e.tif"
-    )
-    return models.File.objects.create(
-        uuid=uuid.UUID("8140ebe5-295c-490b-a34a-83955b7c844e"),
+    return make_file(
+        "objects/evelyn_s_photo-8140ebe5-295c-490b-a34a-83955b7c844e.tif",
         sip=aip,
+        uuid=uuid.UUID("8140ebe5-295c-490b-a34a-83955b7c844e"),
         filegrpuse="preservation",
-        originallocation=location,
-        currentlocation=location,
         checksum="d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
         size=1446772,
     )
 
 
 @pytest.fixture
-def transfer_mets_file(aip: models.SIP) -> models.File:
+def transfer_mets_file(make_file: FileFactory, aip: models.SIP) -> models.File:
     """The METS file of the transfer, kept as submission documentation."""
-    location = (
-        b"%SIPDirectory%objects/submissionDocumentation/"
-        b"transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml"
-    )
-    return models.File.objects.create(
-        uuid=uuid.UUID("590bd882-7521-498c-8f89-0958218f779d"),
+    return make_file(
+        "objects/submissionDocumentation/"
+        "transfer-no-metadata-46260807-ece1-4a0e-b70a-9814c701146b/METS.xml",
         sip=aip,
+        uuid=uuid.UUID("590bd882-7521-498c-8f89-0958218f779d"),
         filegrpuse="submissionDocumentation",
-        originallocation=location,
-        currentlocation=location,
         checksum="51132e5ce1b5d2c2c363f05495f447ea924ab29c2cda2c11037b5fca2119e45a",
         size=12222,
     )
 
 
 @pytest.fixture
-def metadata_csv_file(aip: models.SIP) -> models.File:
+def metadata_csv_file(make_file: FileFactory, aip: models.SIP) -> models.File:
     """The metadata.csv file added to the AIP during the reingest."""
-    return models.File.objects.create(
-        uuid=uuid.UUID("66370f14-2f64-4750-9d50-547614be40e8"),
+    return make_file(
+        "objects/metadata/metadata.csv",
         sip=aip,
+        uuid=uuid.UUID("66370f14-2f64-4750-9d50-547614be40e8"),
         filegrpuse="metadata",
-        originallocation=b"%SIPDirectory%metadata/metadata.csv",
-        currentlocation=b"%SIPDirectory%objects/metadata/metadata.csv",
+        origin="metadata/metadata.csv",
         checksum="e8121d8a660e2992872f0b67923d2d08dde9a1ba72dfd58e5a31e68fbac3633c",
         size=154,
     )
 
 
 @pytest.fixture
-def metadata_text_file(aip: models.SIP) -> models.File:
+def metadata_text_file(make_file: FileFactory, aip: models.SIP) -> models.File:
     """A metadata file in a subdirectory, added to the AIP during the reingest."""
-    return models.File.objects.create(
-        uuid=uuid.UUID("950253b2-e5b1-4222-bb86-4eb436af5713"),
+    return make_file(
+        "objects/metadata/foo/foo.txt",
         sip=aip,
+        uuid=uuid.UUID("950253b2-e5b1-4222-bb86-4eb436af5713"),
         filegrpuse="metadata",
-        originallocation=b"%SIPDirectory%metadata/foo/foo.txt",
-        currentlocation=b"%SIPDirectory%objects/metadata/foo/foo.txt",
+        origin="metadata/foo/foo.txt",
         size=154,
     )
 
@@ -168,6 +164,7 @@ def unrelated_agent(db: None) -> models.Agent:
 
 @pytest.fixture
 def reingest_events(
+    make_event: EventFactory,
     original_file: models.File,
     preservation_derivative: models.File,
     transfer_mets_file: models.File,
@@ -177,35 +174,34 @@ def reingest_events(
     """The events of the reingest: the files of the METS are reingested, the
     preservation derivative is deleted and the fixity of the original is checked.
     """
-    result = []
-    for file_, event_type, event_detail, event_outcome, event_outcome_detail in [
-        (original_file, "reingestion", "", "", ""),
-        (transfer_mets_file, "reingestion", "", "", ""),
-        (preservation_derivative, "reingestion", "", "", ""),
-        (preservation_derivative, "deletion", "", "", ""),
-        (
-            original_file,
-            "fixity check",
-            'program="python"; module="hashlib.sha256()"',
-            "Pass",
-            "91a5ddca3637590c2ddb50da5feb73ff0b8a98cd09a98afb79adc2cf70bc6220 verified",
-        ),
-    ]:
-        event = models.Event.objects.create(
-            file_uuid=file_,
-            event_type=event_type,
+    return [
+        make_event(
+            file_,
+            event_type,
+            agents=[demo_organization_agent, user_agent],
             event_detail=event_detail,
             event_outcome=event_outcome,
             event_outcome_detail=event_outcome_detail,
         )
-        event.agents.add(demo_organization_agent, user_agent)
-        result.append(event)
-
-    return result
+        for file_, event_type, event_detail, event_outcome, event_outcome_detail in [
+            (original_file, "reingestion", "", "", ""),
+            (transfer_mets_file, "reingestion", "", "", ""),
+            (preservation_derivative, "reingestion", "", "", ""),
+            (preservation_derivative, "deletion", "", "", ""),
+            (
+                original_file,
+                "fixity check",
+                'program="python"; module="hashlib.sha256()"',
+                "Pass",
+                "91a5ddca3637590c2ddb50da5feb73ff0b8a98cd09a98afb79adc2cf70bc6220 verified",
+            ),
+        ]
+    ]
 
 
 @pytest.fixture
 def recalculated_checksum(
+    make_event: EventFactory,
     original_file: models.File,
     demo_organization_agent: models.Agent,
     user_agent: models.Agent,
@@ -214,32 +210,32 @@ def recalculated_checksum(
     original_file.checksum = "ac63a92ba5a94c337e740d6f189200d0"
     original_file.checksumtype = "md5"
     original_file.save()
-    result = models.Event.objects.create(
-        file_uuid=original_file,
-        event_type="message digest calculation",
+
+    return make_event(
+        original_file,
+        "message digest calculation",
+        agents=[demo_organization_agent, user_agent],
         event_detail='program="python"; module="hashlib.md5()"',
         event_outcome_detail="ac63a92ba5a94c337e740d6f189200d0",
     )
-    result.agents.add(demo_organization_agent, user_agent)
-
-    return result
 
 
 @pytest.fixture
 def new_file_id(
+    make_event: EventFactory,
     original_file: models.File,
     demo_organization_agent: models.Agent,
     user_agent: models.Agent,
 ) -> models.FileID:
     """The format of the original file, identified again during the reingest."""
-    event = models.Event.objects.create(
-        file_uuid=original_file,
-        event_type="format identification",
+    make_event(
+        original_file,
+        "format identification",
+        agents=[demo_organization_agent, user_agent],
         event_detail='program="Fido"; version="1.2"',
         event_outcome="Positive",
         event_outcome_detail="fmt/9000",
     )
-    event.agents.add(demo_organization_agent, user_agent)
 
     return models.FileID.objects.create(
         file=original_file,
@@ -292,41 +288,41 @@ def new_characterization(
 
 @pytest.fixture
 def new_preservation_derivative(
+    make_file: FileFactory,
+    make_event: EventFactory,
     aip: models.SIP,
     original_file: models.File,
     demo_organization_agent: models.Agent,
     user_agent: models.Agent,
 ) -> models.File:
     """A TIFF derivative of the original JPEG, normalized during the reingest."""
-    location = (
-        b"%SIPDirectory%objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif"
-    )
-    result = models.File.objects.create(
-        uuid=uuid.UUID("d8cc7af7-284a-42f5-b7f4-e181a0efc35f"),
+    path = "objects/evelyn_s_photo-d8cc7af7-284a-42f5-b7f4-e181a0efc35f.tif"
+    agents = [demo_organization_agent, user_agent]
+    result = make_file(
+        path,
         sip=aip,
+        uuid=uuid.UUID("d8cc7af7-284a-42f5-b7f4-e181a0efc35f"),
         filegrpuse="preservation",
-        originallocation=location,
-        currentlocation=location,
         checksum="d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9",
         checksumtype="sha256",
         size=1446772,
     )
     models.FileID.objects.create(file=result, format_name="TIFF")
-    normalization = models.Event.objects.create(
-        file_uuid=original_file,
+    normalization = make_event(
+        original_file,
+        "normalization",
+        agents=agents,
         event_id=uuid.UUID("291f9be4-d19a-4bcc-8e1c-d3f01e4a48b1"),
-        event_type="normalization",
         event_detail=(
             'ArchivematicaFPRCommandID="a34ddc9b-c922-4bb6-8037-bbe713332175"; '
             'program="convert"; version="Version: ImageMagick 6.7.7-10 2014-03-06 '
             'Q16 http://www.imagemagick.org"\n'
         ),
-        event_outcome_detail=location.decode(),
+        event_outcome_detail=f"%SIPDirectory%{path}",
     )
     models.Derivation.objects.create(
         source_file=original_file, derived_file=result, event=normalization
     )
-    events = [normalization]
     for event_type, event_detail, event_outcome, event_outcome_detail in [
         ("creation", "", "", ""),
         (
@@ -342,59 +338,35 @@ def new_preservation_derivative(
             "d82448f154b9185bc777ecb0a3602760eb76ba85dd3098f073b2c91a03f571e9 verified",
         ),
     ]:
-        events.append(
-            models.Event.objects.create(
-                file_uuid=result,
-                event_type=event_type,
-                event_detail=event_detail,
-                event_outcome=event_outcome,
-                event_outcome_detail=event_outcome_detail,
-            )
+        make_event(
+            result,
+            event_type,
+            agents=agents,
+            event_detail=event_detail,
+            event_outcome=event_outcome,
+            event_outcome_detail=event_outcome_detail,
         )
-    for event in events:
-        event.agents.add(demo_organization_agent, user_agent)
 
     return result
 
 
 @pytest.fixture
 def dublincore(
-    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    make_dublincore: DublinCoreFactory, dublincore_record: dict[str, str]
 ) -> list[models.DublinCore]:
     """The Dublin Core metadata of three SIPs: as ingested, as reingested without
     changes and as updated during the reingest.
     """
-    result = []
-    for sip_uuid, status in [
-        (DC_SIP_UUID_ORIGINAL, "ORIGINAL"),
-        (DC_SIP_UUID_REINGEST, "REINGEST"),
-    ]:
-        result.append(
-            models.DublinCore.objects.create(
-                metadataappliestotype=metadata_applies_to_types["sip"],
-                metadataappliestoidentifier=sip_uuid,
-                status=status,
-                title="Yamani Weapons",
-                creator="Keladry of Mindelan",
-                subject="Glaives",
-                description="Glaives are cool",
-                publisher="Tortall Press",
-                contributor="Yuki",
-                date="2015",
-                type="Archival Information Package",
-                format="parchement",
-                identifier="42/1",
-                source="Numair's library",
-                relation="None",
-                language="en",
-                rights="Public Domain",
-                is_part_of="AIC#42",
-            )
-        )
-    result.append(
-        models.DublinCore.objects.create(
-            metadataappliestotype=metadata_applies_to_types["sip"],
-            metadataappliestoidentifier=DC_SIP_UUID_UPDATED,
+    return [
+        make_dublincore(
+            "sip", DC_SIP_UUID_ORIGINAL, status="ORIGINAL", **dublincore_record
+        ),
+        make_dublincore(
+            "sip", DC_SIP_UUID_REINGEST, status="REINGEST", **dublincore_record
+        ),
+        make_dublincore(
+            "sip",
+            DC_SIP_UUID_UPDATED,
             status="UPDATED",
             title="Yamani Weapons",
             creator="Keladry of Mindelan",
@@ -408,38 +380,8 @@ def dublincore(
             language="en",
             coverage="Partial",
             rights="Public Domain",
-        )
-    )
-
-    return result
-
-
-def grant_rights(
-    statement: models.RightsStatement,
-    act: str,
-    startdate: str,
-    enddate: str,
-    enddateopen: bool,
-    restriction: str,
-    note: str | None = None,
-) -> models.RightsStatementRightsGranted:
-    """Add a rights granted with a restriction and an optional note to a statement."""
-    result = models.RightsStatementRightsGranted.objects.create(
-        rightsstatement=statement,
-        act=act,
-        startdate=startdate,
-        enddate=enddate,
-        enddateopen=enddateopen,
-    )
-    models.RightsStatementRightsGrantedRestriction.objects.create(
-        rightsgranted=result, restriction=restriction
-    )
-    if note is not None:
-        models.RightsStatementRightsGrantedNote.objects.create(
-            rightsgranted=result, rightsgrantednote=note
-        )
-
-    return result
+        ),
+    ]
 
 
 def add_copyright_information(statement: models.RightsStatement) -> None:
@@ -478,44 +420,40 @@ def add_statute_information(
 
 @pytest.fixture
 def rights_statements(
-    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+    make_rights_statement: RightsStatementFactory,
 ) -> list[models.RightsStatement]:
     """The rights statements of three SIPs: as ingested, as reingested without
     changes and as updated during the reingest.
     """
-
-    def create_statement(
-        sip_uuid: str, rightsbasis: str, status: str
-    ) -> models.RightsStatement:
-        return models.RightsStatement.objects.create(
-            metadataappliestotype=metadata_applies_to_types["sip"],
-            metadataappliestoidentifier=sip_uuid,
-            rightsbasis=rightsbasis,
-            status=status,
-        )
-
-    copyright_statement = create_statement(
-        RIGHTS_SIP_UUID_ORIGINAL, "Copyright", "ORIGINAL"
+    copyright_statement = make_rights_statement(
+        "sip", RIGHTS_SIP_UUID_ORIGINAL, rightsbasis="Copyright", status="ORIGINAL"
     )
     add_copyright_information(copyright_statement)
-    grant_rights(
+    make_rights_statement.grant(
         copyright_statement,
         "Disseminate",
-        "2000",
-        "",
-        True,
-        "Allow",
-        "Attribution required",
+        startdate="2000",
+        enddate="",
+        enddateopen=True,
+        restriction="Allow",
+        notes=["Attribution required"],
     )
 
-    statute_statement = create_statement(
-        RIGHTS_SIP_UUID_ORIGINAL, "Statute", "ORIGINAL"
+    statute_statement = make_rights_statement(
+        "sip", RIGHTS_SIP_UUID_ORIGINAL, rightsbasis="Statute", status="ORIGINAL"
     )
     add_statute_information(statute_statement, "2094", "SIN & health numbers")
-    grant_rights(statute_statement, "Disseminate", "1994", "2094", False, "Disallow")
+    make_rights_statement.grant(
+        statute_statement,
+        "Disseminate",
+        startdate="1994",
+        enddate="2094",
+        enddateopen=False,
+        restriction="Disallow",
+    )
 
-    license_statement = create_statement(
-        RIGHTS_SIP_UUID_ORIGINAL, "License", "ORIGINAL"
+    license_statement = make_rights_statement(
+        "sip", RIGHTS_SIP_UUID_ORIGINAL, rightsbasis="License", status="ORIGINAL"
     )
     license_information = models.RightsStatementLicense.objects.create(
         rightsstatement=license_statement,
@@ -528,17 +466,19 @@ def rights_statements(
         rightsstatementlicense=license_information,
         licensenote="Creative Commons Attribution Share Alike",
     )
-    grant_rights(
+    make_rights_statement.grant(
         license_statement,
         "Disseminate",
-        "2015",
-        "",
-        True,
-        "Allow",
-        "Attribution Required",
+        startdate="2015",
+        enddate="",
+        enddateopen=True,
+        restriction="Allow",
+        notes=["Attribution Required"],
     )
 
-    donor_statement = create_statement(RIGHTS_SIP_UUID_ORIGINAL, "Donor", "ORIGINAL")
+    donor_statement = make_rights_statement(
+        "sip", RIGHTS_SIP_UUID_ORIGINAL, rightsbasis="Donor", status="ORIGINAL"
+    )
     other_rights_information = (
         models.RightsStatementOtherRightsInformation.objects.create(
             rightsstatement=donor_statement,
@@ -558,30 +498,40 @@ def rights_statements(
         rightsstatementotherrights=other_rights_information,
         otherrightsnote="Contact in 2010 for earlier release.",
     )
-    grant_rights(
-        donor_statement, "Publish", "2000-01-01", "2100-01-01", False, "Conditional"
+    make_rights_statement.grant(
+        donor_statement,
+        "Publish",
+        startdate="2000-01-01",
+        enddate="2100-01-01",
+        enddateopen=False,
+        restriction="Conditional",
     )
 
-    reingested_copyright_statement = create_statement(
-        RIGHTS_SIP_UUID_REINGEST, "Copyright", "REINGEST"
+    reingested_copyright_statement = make_rights_statement(
+        "sip", RIGHTS_SIP_UUID_REINGEST, rightsbasis="Copyright", status="REINGEST"
     )
     add_copyright_information(reingested_copyright_statement)
-    grant_rights(
+    make_rights_statement.grant(
         reingested_copyright_statement,
         "Disseminate",
-        "2000",
-        "",
-        True,
-        "Allow",
-        "Attribution required",
+        startdate="2000",
+        enddate="",
+        enddateopen=True,
+        restriction="Allow",
+        notes=["Attribution required"],
     )
 
-    updated_statute_statement = create_statement(
-        RIGHTS_SIP_UUID_UPDATED, "Statute", "UPDATED"
+    updated_statute_statement = make_rights_statement(
+        "sip", RIGHTS_SIP_UUID_UPDATED, rightsbasis="Statute", status="UPDATED"
     )
     add_statute_information(updated_statute_statement, "2054", "SIN")
-    grant_rights(
-        updated_statute_statement, "Disseminate", "1994", "2054", False, "Disallow"
+    make_rights_statement.grant(
+        updated_statute_statement,
+        "Disseminate",
+        startdate="1994",
+        enddate="2054",
+        enddateopen=False,
+        restriction="Disallow",
     )
 
     return [
@@ -592,7 +542,12 @@ def rights_statements(
         reingested_copyright_statement,
         updated_statute_statement,
         *(
-            create_statement(RIGHTS_SIP_UUID_UPDATED, rightsbasis, "REINGEST")
+            make_rights_statement(
+                "sip",
+                RIGHTS_SIP_UUID_UPDATED,
+                rightsbasis=rightsbasis,
+                status="REINGEST",
+            )
             for rightsbasis in ["Copyright", "License", "Donor", "Policy"]
         ),
     ]

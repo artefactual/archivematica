@@ -10,9 +10,11 @@ from archivematica.archivematicaCommon.fileOperations import (
 from archivematica.archivematicaCommon.fileOperations import addAccessionEvent
 from archivematica.archivematicaCommon.fileOperations import findFileInNormalizationCSV
 from archivematica.archivematicaCommon.fileOperations import get_extract_dir_name
+from archivematica.dashboard.main.models import SIP
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
-from archivematica.dashboard.main.models import Transfer
+from tests.factories import FileFactory
+from tests.factories import TransferFactory
 
 
 @pytest.mark.parametrize(
@@ -38,9 +40,12 @@ def test_get_extract_dir_name_raises_if_no_extension():
 
 
 @pytest.mark.django_db
-def test_addAccessionEvent_adds_registration_event_when_accessionid_is_set():
+def test_addAccessionEvent_adds_registration_event_when_accessionid_is_set(
+    make_transfer: TransferFactory,
+) -> None:
+    # The file belongs to no unit, so the event gets the default agents.
     f = File.objects.create()
-    t = Transfer.objects.create(accessionid="my-id")
+    t = make_transfer(accessionid="my-id")
     date = None
     query_filter = Q(
         file_uuid=f,
@@ -75,8 +80,8 @@ def test_findFileInNormalizationCSV_fails_if_original_file_does_not_exist(
 
 @pytest.mark.django_db
 def test_findFileInNormalizationCSV_finds_access_file(
-    normalization_csv, sip, sip_file, manual_access_file
-):
+    normalization_csv: pathlib.Path, sip: SIP, sip_file: File, manual_access_file: File
+) -> None:
     purpose = "access"
     target_file = pathlib.Path(
         manual_access_file.originallocation.decode()
@@ -96,8 +101,11 @@ def test_findFileInNormalizationCSV_finds_access_file(
 
 @pytest.mark.django_db
 def test_findFileInNormalizationCSV_finds_preservation_file(
-    normalization_csv, sip, sip_file, manual_preservation_file
-):
+    normalization_csv: pathlib.Path,
+    sip: SIP,
+    sip_file: File,
+    manual_preservation_file: File,
+) -> None:
     purpose = "preservation"
     target_file = pathlib.Path(
         manual_preservation_file.originallocation.decode()
@@ -117,8 +125,8 @@ def test_findFileInNormalizationCSV_finds_preservation_file(
 
 @pytest.mark.django_db
 def test_findFileInNormalizationCSV_returns_None_when_cannot_match_files(
-    normalization_csv, sip, manual_access_file
-):
+    normalization_csv: pathlib.Path, sip: SIP, manual_access_file: File
+) -> None:
     purpose = "preservation"
     target_file = pathlib.Path(
         manual_access_file.originallocation.decode()
@@ -136,8 +144,8 @@ def test_findFileInNormalizationCSV_returns_None_when_cannot_match_files(
 
 @pytest.mark.django_db
 def test_findFileInNormalizationCSV_fails_with_invalid_normalization_csv(
-    invalid_normalization_csv, sip, manual_access_file
-):
+    invalid_normalization_csv: pathlib.Path, sip: SIP, manual_access_file: File
+) -> None:
     purpose = "access"
     target_file = pathlib.Path(
         manual_access_file.originallocation.decode()
@@ -156,19 +164,22 @@ def test_findFileInNormalizationCSV_fails_with_invalid_normalization_csv(
 
 
 @pytest.fixture
-def second_access_file(manual_access_file: File) -> File:
+def second_access_file(make_file: FileFactory, manual_access_file: File) -> File:
     """Another file at the location of the manual access file."""
-    return File.objects.create(
+    return make_file(
+        "objects/manualNormalization/access/file.mp3",
         sip=manual_access_file.sip,
-        currentlocation=manual_access_file.currentlocation,
-        originallocation=manual_access_file.originallocation,
+        filegrpuse="access",
     )
 
 
 @pytest.mark.django_db
 def test_findFileInNormalizationCSV_fails_if_multiple_target_files_exist(
-    invalid_normalization_csv, sip, manual_access_file, second_access_file
-):
+    invalid_normalization_csv: pathlib.Path,
+    sip: SIP,
+    manual_access_file: File,
+    second_access_file: File,
+) -> None:
     purpose = "access"
     target_file = pathlib.Path(
         manual_access_file.originallocation.decode()

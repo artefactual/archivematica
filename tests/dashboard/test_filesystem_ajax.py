@@ -4,11 +4,12 @@ import uuid
 from unittest import mock
 
 import pytest
+from django.test import RequestFactory
 from django.urls import reverse
 
 from archivematica.archivematicaCommon.archivematicaFunctions import b64encode_string
 from archivematica.dashboard.components.filesystem_ajax import views
-from archivematica.dashboard.main import models
+from tests.factories import SIPFactory
 
 
 @pytest.mark.django_db
@@ -25,14 +26,15 @@ from archivematica.dashboard.main import models
     return_value=(None, ""),
 )
 def test_copy_metadata_files(
-    _copy_from_transfer_sources_mock,
-    rf,
-    set_partial_reingest_flag,
-    expected_metadata_dir,
-):
+    _copy_from_transfer_sources_mock: mock.Mock,
+    rf: RequestFactory,
+    set_partial_reingest_flag: bool,
+    expected_metadata_dir: str,
+    make_sip: SIPFactory,
+) -> None:
     # Create a SIP
     sip_uuid = str(uuid.uuid4())
-    sip = models.SIP.objects.create(
+    sip = make_sip(
         uuid=sip_uuid,
         currentpath=f"%sharedPath%more/path/metadataReminder/mysip-{sip_uuid}/",
     )

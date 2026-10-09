@@ -97,11 +97,10 @@ def test_audit_log_middleware_adds_username(
 
 @pytest.mark.django_db
 def test_audit_log_middleware_unauthenticated(
-    settings: pytest_django.Settings, client: Client, django_user_model: type[User]
+    settings: pytest_django.Settings, client: Client, user: User
 ) -> None:
     """Test absence of X-Username header once the user has logged out."""
     settings.MIDDLEWARE = [*settings.MIDDLEWARE, AUDIT_LOG_MIDDLEWARE]
-    user = django_user_model.objects.create_user(username="testclient", password="test")
     client.force_login(user)
     client.logout()
 

@@ -4,7 +4,6 @@ from unittest import mock
 
 import gearman
 import pytest
-from django.utils import timezone
 
 from archivematica.dashboard.main import models
 from archivematica.MCPServer.server import metrics
@@ -19,6 +18,8 @@ from archivematica.MCPServer.server.tasks.backends import reset_task_backend
 from archivematica.MCPServer.server.tasks.backends.gearman_backend import (
     GearmanTaskBatch,
 )
+from tests.factories import JobFactory
+from tests.factories import TaskFactory
 
 
 class MockJob(Job):
@@ -197,14 +198,13 @@ def test_gearman_task_result_error(
 
 
 @pytest.mark.django_db(transaction=True)
-def test_bulk_mark_failed_persists_task_failure(simple_task):
-    job = models.Job.objects.create(
-        createdtime=timezone.now(),
-        currentstep=models.Job.STATUS_FAILED,
-    )
-    models.Task.objects.create(
+def test_bulk_mark_failed_persists_task_failure(
+    simple_task: Task, make_job: JobFactory, make_task: TaskFactory
+) -> None:
+    job = make_job(currentstep=models.Job.STATUS_FAILED)
+    make_task(
+        job,
         taskuuid=str(simple_task.uuid),
-        job=job,
         createdtime=simple_task.start_timestamp,
         filename="testfile",
         execution="retrievetransfersource_v0.0",

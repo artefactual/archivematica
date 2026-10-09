@@ -6,6 +6,7 @@ import pytest
 from archivematica.dashboard.main import models
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import extract_contents
+from tests.factories import EventFactory
 
 
 @pytest.mark.django_db
@@ -116,11 +117,11 @@ def unpacked_file(transfer, transfer_file):
 
 
 @pytest.fixture
-def unpacking_event(unpacked_file):
-    return models.Event.objects.create(
-        file_uuid=unpacked_file,
-        event_type="unpacking",
-        event_detail=unpacked_file.currentlocation.decode(),
+def unpacking_event(
+    make_event: EventFactory, unpacked_file: models.File
+) -> models.Event:
+    return make_event(
+        unpacked_file, "unpacking", event_detail=unpacked_file.currentlocation.decode()
     )
 
 
@@ -172,20 +173,6 @@ def test_job_fails_if_file_has_been_extracted_already(
     # This uses any_order because we do not control the order in which the
     # job iterates the files in the transfer.
     job.pyprint.assert_has_calls(expected_pyprint_calls, any_order=True)
-
-
-@pytest.fixture
-def transfer_file_path(transfer_directory_path, transfer_file):
-    transfer_file_relative_path = pathlib.Path(
-        transfer_file.currentlocation.decode().replace(
-            extract_contents.TRANSFER_DIRECTORY, ""
-        )
-    )
-    result = transfer_directory_path / transfer_file_relative_path
-    (result.parent).mkdir(parents=True)
-    result.touch()
-
-    return result
 
 
 @pytest.mark.django_db

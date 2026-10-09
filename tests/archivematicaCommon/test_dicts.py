@@ -5,11 +5,12 @@ import pytest
 from archivematica.archivematicaCommon.dicts import ReplacementDict
 from archivematica.archivematicaCommon.dicts import setup as setup_dicts
 from archivematica.dashboard.main import models
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
-def TRANSFER(db):
-    return models.Transfer.objects.create(
+def TRANSFER(make_transfer: TransferFactory) -> models.Transfer:
+    return make_transfer(
         uuid="fb0aa04d-8547-46fc-bb7f-288ea5827d2c",
         currentlocation="%sharedDirectory%foo",
         type="Standard",

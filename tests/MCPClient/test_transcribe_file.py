@@ -29,18 +29,6 @@ def sip(sip: models.SIP) -> models.SIP:
 
 
 @pytest.fixture
-def create_sip_file(sip_directory_path: pathlib.Path, sip_file: models.File) -> None:
-    file_path = pathlib.Path(
-        _decode_binary_path(sip_file.currentlocation).replace("%SIPDirectory%", "")
-    )
-
-    file_dir = sip_directory_path / file_path.parent
-    file_dir.mkdir(parents=True)
-
-    (file_dir / file_path.name).touch()
-
-
-@pytest.fixture
 def fpcommand(
     fpcommand: fprmodels.FPCommand, sip_file: models.File
 ) -> fprmodels.FPCommand:
@@ -63,7 +51,7 @@ def test_main(
     sip_file_format_version: models.FileFormatVersion,
     settings: pytest_django.Settings,
     sip_directory_path: pathlib.Path,
-    create_sip_file: None,
+    sip_file_path: pathlib.Path,
 ) -> None:
     job = mock.Mock(spec=Job)
     settings.SHARED_DIRECTORY = f"{sip_directory_path}/"

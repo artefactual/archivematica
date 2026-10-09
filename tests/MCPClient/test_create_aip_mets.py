@@ -18,13 +18,15 @@ from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import MetadataAppliesToType
 from archivematica.dashboard.main.models import RightsStatement
-from archivematica.dashboard.main.models import RightsStatementRightsGranted
-from archivematica.dashboard.main.models import RightsStatementRightsGrantedNote
-from archivematica.dashboard.main.models import RightsStatementRightsGrantedRestriction
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSMetadataCSV
 from archivematica.MCPClient.clientScripts import archivematicaCreateMETSRights
 from archivematica.MCPClient.clientScripts import create_mets_v2
+from tests.factories import DublinCoreFactory
+from tests.factories import EventFactory
+from tests.factories import FileFactory
+from tests.factories import RightsStatementFactory
+from tests.factories import SIPFactory
 
 THIS_DIR = pathlib.Path(__file__).parent
 FIXTURES_DIR = THIS_DIR / "fixtures"
@@ -62,39 +64,19 @@ METS_XSD_PATH = (
 
 @pytest.fixture
 def dublincore(
-    metadata_applies_to_types: dict[str, MetadataAppliesToType],
+    make_dublincore: DublinCoreFactory, dublincore_record: dict[str, str]
 ) -> DublinCore:
     """The Dublin Core metadata of the SIP."""
-    return DublinCore.objects.create(
-        metadataappliestotype=metadata_applies_to_types["sip"],
-        metadataappliestoidentifier=SIP_UUID,
-        status="ORIGINAL",
-        title="Yamani Weapons",
-        creator="Keladry of Mindelan",
-        subject="Glaives",
-        description="Glaives are cool",
-        publisher="Tortall Press",
-        contributor="Yuki",
-        date="2015",
-        type="Archival Information Package",
-        format="parchement",
-        identifier="42/1",
-        source="Numair's library",
-        relation="None",
-        language="en",
-        rights="Public Domain",
-        is_part_of="AIC#42",
-    )
+    return make_dublincore("sip", SIP_UUID, status="ORIGINAL", **dublincore_record)
 
 
 @pytest.fixture
-def original_file(sip: SIP) -> File:
+def original_file(make_file: FileFactory, sip: SIP) -> File:
     """An original JPEG of the SIP, renamed during its transfer."""
-    return File.objects.create(
+    return make_file(
+        "objects/evelyn_s_photo.jpg",
         sip=sip,
-        filegrpuse="original",
-        originallocation=b"%SIPDirectory%objects/evelyn's photo.jpg",
-        currentlocation=b"%SIPDirectory%objects/evelyn_s_photo.jpg",
+        origin="objects/evelyn's photo.jpg",
         checksum="d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
         checksumtype="sha256",
         size=158131,
@@ -103,83 +85,83 @@ def original_file(sip: SIP) -> File:
 
 @pytest.fixture
 def transfer_events(
-    original_file: File, demo_organization_agent: Agent, user_agent: Agent
+    make_event: EventFactory,
+    original_file: File,
+    demo_organization_agent: Agent,
+    user_agent: Agent,
 ) -> list[Event]:
     """The events of the original file during its transfer."""
-    result = []
-    for event_type, event_detail, event_outcome, event_outcome_detail in [
-        ("ingestion", "", "", ""),
-        (
-            "message digest calculation",
-            'program="python"; module="hashlib.sha256()"',
-            "",
-            "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
-        ),
-        (
-            "virus check",
-            'program="Clam AV"; version="ClamAV 0.98.7"; virusDefinitions="21117/Mon Nov 30 09:32:13 2015\n"',
-            "Pass",
-            "",
-        ),
-        (
-            "filename change",
-            'prohibited characters removed:program="changeNames"; version="1.10.9529a554732f6b96a561fd0adcf2711bb233166b"',
-            "",
-            'Original name="%transferDirectory%objects/evelyn\'s photo.jpg"; new name="%transferDirectory%objects/evelyn_s_photo.jpg"',
-        ),
-        ("format identification", 'program="Fido"; version="1"', "Positive", "fmt/44"),
-        (
-            "validation",
-            'program="JHOVE"; version="1.6"',
-            "pass",
-            'format="JPEG"; version="1.02"; result="Well-Formed and valid"',
-        ),
-    ]:
-        event = Event.objects.create(
-            file_uuid=original_file,
-            event_type=event_type,
+    return [
+        make_event(
+            original_file,
+            event_type,
+            agents=[demo_organization_agent, user_agent],
             event_detail=event_detail,
             event_outcome=event_outcome,
             event_outcome_detail=event_outcome_detail,
         )
-        event.agents.add(demo_organization_agent, user_agent)
-        result.append(event)
-
-    return result
+        for event_type, event_detail, event_outcome, event_outcome_detail in [
+            ("ingestion", "", "", ""),
+            (
+                "message digest calculation",
+                'program="python"; module="hashlib.sha256()"',
+                "",
+                "d2bed92b73c7090bb30a0b30016882e7069c437488e1513e9deaacbe29d38d92",
+            ),
+            (
+                "virus check",
+                'program="Clam AV"; version="ClamAV 0.98.7"; virusDefinitions="21117/Mon Nov 30 09:32:13 2015\n"',
+                "Pass",
+                "",
+            ),
+            (
+                "filename change",
+                'prohibited characters removed:program="changeNames"; version="1.10.9529a554732f6b96a561fd0adcf2711bb233166b"',
+                "",
+                'Original name="%transferDirectory%objects/evelyn\'s photo.jpg"; new name="%transferDirectory%objects/evelyn_s_photo.jpg"',
+            ),
+            (
+                "format identification",
+                'program="Fido"; version="1"',
+                "Positive",
+                "fmt/44",
+            ),
+            (
+                "validation",
+                'program="JHOVE"; version="1.6"',
+                "pass",
+                'format="JPEG"; version="1.02"; result="Well-Formed and valid"',
+            ),
+        ]
+    ]
 
 
 @pytest.fixture
-def rights_statement(
-    metadata_applies_to_types: dict[str, MetadataAppliesToType],
-) -> RightsStatement:
+def rights_statement(make_rights_statement: RightsStatementFactory) -> RightsStatement:
     """A copyright statement of a SIP that grants an open-ended dissemination."""
-    result = RightsStatement.objects.create(
-        metadataappliestotype=metadata_applies_to_types["sip"],
-        metadataappliestoidentifier="a4a5480c-9f51-4119-8dcb-d3f12e647c14",
+    result = make_rights_statement(
+        "sip",
+        "a4a5480c-9f51-4119-8dcb-d3f12e647c14",
         rightsbasis="Copyright",
         status="ORIGINAL",
     )
-    rights_granted = RightsStatementRightsGranted.objects.create(
-        rightsstatement=result,
-        act="Disseminate",
+    make_rights_statement.grant(
+        result,
+        "Disseminate",
         startdate="2000",
         enddate="",
         enddateopen=True,
-    )
-    RightsStatementRightsGrantedRestriction.objects.create(
-        rightsgranted=rights_granted, restriction="Allow"
-    )
-    RightsStatementRightsGrantedNote.objects.create(
-        rightsgranted=rights_granted, rightsgrantednote="Attribution required"
+        restriction="Allow",
+        notes=["Attribution required"],
     )
 
     return result
 
 
 @pytest.fixture
-def custom_structmap_sip(db: None) -> SIP:
+def custom_structmap_sip(make_sip: SIPFactory) -> SIP:
     """The SIP created from the transfer with custom structMaps."""
-    return SIP.objects.create(
+    return make_sip(
         uuid=uuid.UUID(CUSTOM_STRUCTMAP_SIP_UUID),
         sip_type="AIP",
         currentpath=(
@@ -190,7 +172,9 @@ def custom_structmap_sip(db: None) -> SIP:
 
 
 @pytest.fixture
-def custom_structmap_files(custom_structmap_sip: SIP) -> list[File]:
+def custom_structmap_files(
+    make_file: FileFactory, custom_structmap_sip: SIP
+) -> list[File]:
     """A file of the SIP for each object of the transfer with custom structMaps."""
     structmaps_dir = (
         "metadata/transfers/custom-structmap-41ab1f1a-34d0-4a83-a2a3-0ad1b1ee1c51"
@@ -221,22 +205,17 @@ def custom_structmap_files(custom_structmap_sip: SIP) -> list[File]:
         "empty_filenames.xml",
         "missing_contentid.xml",
     ]
-    result = []
-    for filegrpuse, path in [("original", path) for path in originals] + [
-        ("metadata", f"{structmaps_dir}/{path}") for path in structmaps
-    ]:
-        location = f"%SIPDirectory%objects/{path}".encode()
-        result.append(
-            File.objects.create(
-                sip=custom_structmap_sip,
-                filegrpuse=filegrpuse,
-                originallocation=location,
-                currentlocation=location,
-                size=2600,
-            )
-        )
 
-    return result
+    return [
+        make_file(
+            f"objects/{path}",
+            sip=custom_structmap_sip,
+            filegrpuse=filegrpuse,
+            size=2600,
+        )
+        for filegrpuse, path in [("original", path) for path in originals]
+        + [("metadata", f"{structmaps_dir}/{path}") for path in structmaps]
+    ]
 
 
 @pytest.fixture

@@ -10,10 +10,17 @@ import uuid
 import pytest
 import pytest_django
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
+from tests.factories import DublinCoreFactory
+from tests.factories import EventFactory
+from tests.factories import FileFactory
+from tests.factories import JobFactory
+from tests.factories import RightsStatementFactory
+from tests.factories import SIPFactory
+from tests.factories import TaskFactory
+from tests.factories import TransferFactory
 
 # Directories
 
@@ -209,108 +216,156 @@ def demo_organization_agent(organization_agent: models.Agent) -> models.Agent:
     return organization_agent
 
 
+# Factories
+
+
+@pytest.fixture
+def make_transfer(db: None) -> TransferFactory:
+    return TransferFactory()
+
+
+@pytest.fixture
+def make_sip(db: None) -> SIPFactory:
+    return SIPFactory()
+
+
+@pytest.fixture
+def make_file(db: None) -> FileFactory:
+    return FileFactory()
+
+
+@pytest.fixture
+def make_job(db: None) -> JobFactory:
+    return JobFactory()
+
+
+@pytest.fixture
+def make_task(db: None) -> TaskFactory:
+    return TaskFactory()
+
+
+@pytest.fixture
+def make_event(db: None) -> EventFactory:
+    return EventFactory()
+
+
+@pytest.fixture
+def make_rights_statement(
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+) -> RightsStatementFactory:
+    return RightsStatementFactory(metadata_applies_to_types)
+
+
+@pytest.fixture
+def make_dublincore(
+    metadata_applies_to_types: dict[str, models.MetadataAppliesToType],
+) -> DublinCoreFactory:
+    return DublinCoreFactory(metadata_applies_to_types)
+
+
+@pytest.fixture
+def dublincore_record() -> dict[str, str]:
+    """The Dublin Core metadata of the SIP of the METS fixtures."""
+    return {
+        "title": "Yamani Weapons",
+        "creator": "Keladry of Mindelan",
+        "subject": "Glaives",
+        "description": "Glaives are cool",
+        "publisher": "Tortall Press",
+        "contributor": "Yuki",
+        "date": "2015",
+        "type": "Archival Information Package",
+        "format": "parchement",
+        "identifier": "42/1",
+        "source": "Numair's library",
+        "relation": "None",
+        "language": "en",
+        "rights": "Public Domain",
+        "is_part_of": "AIC#42",
+    }
+
+
 # Units, jobs and files
 
 
 @pytest.fixture
-def job(db: None) -> models.Job:
-    return models.Job.objects.create(createdtime=timezone.now())
+def job(make_job: JobFactory) -> models.Job:
+    return make_job()
 
 
 @pytest.fixture
-def task(job: models.Job) -> models.Task:
-    return models.Task.objects.create(job=job, createdtime=timezone.now())
+def task(make_task: TaskFactory, job: models.Job) -> models.Task:
+    return make_task(job)
 
 
 @pytest.fixture
-def transfer(user: User) -> models.Transfer:
+def transfer(make_transfer: TransferFactory, user: User) -> models.Transfer:
     """A transfer being processed by the user."""
-    result = models.Transfer.objects.create(
-        currentlocation=r"%transferDirectory%",
-        access_system_id="atom-description-id",
-        diruuids=True,
-    )
+    result = make_transfer(access_system_id="atom-description-id", diruuids=True)
     result.update_active_agent(user.id)
 
     return result
 
 
 @pytest.fixture
-def sip(db: None) -> models.SIP:
-    return models.SIP.objects.create(currentpath=r"%SIPDirectory%", diruuids=True)
+def sip(make_sip: SIPFactory) -> models.SIP:
+    return make_sip(diruuids=True)
 
 
 @pytest.fixture
-def transfer_file(transfer: models.Transfer) -> models.File:
-    location = b"%transferDirectory%objects/file.mp3"
-    return models.File.objects.create(
-        transfer=transfer,
-        filegrpuse="original",
-        originallocation=location,
-        currentlocation=location,
-    )
+def transfer_file(make_file: FileFactory, transfer: models.Transfer) -> models.File:
+    return make_file("objects/file.mp3", transfer=transfer)
 
 
 @pytest.fixture
-def sip_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
+def sip_file(
+    make_file: FileFactory, sip: models.SIP, transfer: models.Transfer
+) -> models.File:
     """An original file of the transfer, now in the SIP."""
-    location = "objects/file.mp3"
-    return models.File.objects.create(
-        transfer=transfer,
-        sip=sip,
-        filegrpuse="original",
-        originallocation=f"%transferDirectory%{location}".encode(),
-        currentlocation=f"%SIPDirectory%{location}".encode(),
+    return make_file("objects/file.mp3", transfer=transfer, sip=sip)
+
+
+@pytest.fixture
+def preservation_file(
+    make_file: FileFactory, sip: models.SIP, transfer: models.Transfer
+) -> models.File:
+    return make_file(
+        "objects/file.wav", transfer=transfer, sip=sip, filegrpuse="preservation"
     )
 
 
 @pytest.fixture
-def preservation_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
-    location = b"%SIPDirectory%objects/file.wav"
-    return models.File.objects.create(
-        transfer=transfer,
-        sip=sip,
-        filegrpuse="preservation",
-        originallocation=location,
-        currentlocation=location,
+def access_file(
+    make_file: FileFactory, sip: models.SIP, transfer: models.Transfer
+) -> models.File:
+    return make_file(
+        "objects/file.wav", transfer=transfer, sip=sip, filegrpuse="access"
     )
 
 
 @pytest.fixture
-def access_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
-    location = b"%SIPDirectory%objects/file.wav"
-    return models.File.objects.create(
-        transfer=transfer,
-        sip=sip,
-        filegrpuse="access",
-        originallocation=location,
-        currentlocation=location,
-    )
-
-
-@pytest.fixture
-def manual_preservation_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
+def manual_preservation_file(
+    make_file: FileFactory, sip: models.SIP, transfer: models.Transfer
+) -> models.File:
     """A preservation derivative of the SIP file, normalized manually."""
-    location = b"%SIPDirectory%objects/manualNormalization/preservation/file.wav"
-    return models.File.objects.create(
+    return make_file(
+        "objects/manualNormalization/preservation/file.wav",
         transfer=transfer,
         sip=sip,
         filegrpuse="preservation",
-        originallocation=location,
-        currentlocation=location,
     )
 
 
 @pytest.fixture
-def manual_access_file(sip: models.SIP, transfer: models.Transfer) -> models.File:
+def manual_access_file(
+    make_file: FileFactory, sip: models.SIP, transfer: models.Transfer
+) -> models.File:
     """An access derivative of the SIP file, normalized manually."""
-    location = b"%SIPDirectory%objects/manualNormalization/access/file.mp3"
-    return models.File.objects.create(
+    return make_file(
+        "objects/manualNormalization/access/file.mp3",
         transfer=transfer,
         sip=sip,
         filegrpuse="access",
-        originallocation=location,
-        currentlocation=location,
     )
 
 
@@ -372,6 +427,36 @@ def _decode_location(location: bytes | memoryview | None) -> str:
     assert isinstance(location, bytes)
 
     return location.decode()
+
+
+def _materialize(unit_directory_path: pathlib.Path, file: models.File) -> pathlib.Path:
+    """Create an empty file at the current location of the file in the unit
+    directory and return its path.
+    """
+    location = _decode_location(file.currentlocation)
+    for prefix in [r"%SIPDirectory%", r"%transferDirectory%"]:
+        location = location.removeprefix(prefix)
+    result = unit_directory_path / location
+    result.parent.mkdir(parents=True, exist_ok=True)
+    result.touch()
+
+    return result
+
+
+@pytest.fixture
+def transfer_file_path(
+    transfer_directory_path: pathlib.Path, transfer_file: models.File
+) -> pathlib.Path:
+    """The transfer file, created in the transfer directory."""
+    return _materialize(transfer_directory_path, transfer_file)
+
+
+@pytest.fixture
+def sip_file_path(
+    sip_directory_path: pathlib.Path, sip_file: models.File
+) -> pathlib.Path:
+    """The SIP file, created in the SIP directory."""
+    return _materialize(sip_directory_path, sip_file)
 
 
 @pytest.fixture

@@ -24,6 +24,7 @@ from archivematica.MCPServer.server.packages import PACKAGE_TYPE_STARTING_POINTS
 from archivematica.MCPServer.server.packages import RETRIEVE_TRANSFER_SOURCE_CHAIN_ID
 from archivematica.MCPServer.server.packages import SIP
 from archivematica.MCPServer.server.packages import Package
+from archivematica.MCPServer.server.packages import StartingPoint
 from archivematica.MCPServer.server.packages import Transfer
 from archivematica.MCPServer.server.packages import _capture_transfer_failure
 from archivematica.MCPServer.server.packages import _determine_transfer_paths
@@ -36,6 +37,9 @@ from archivematica.MCPServer.server.packages import create_package
 from archivematica.MCPServer.server.queues import PackageQueue
 from archivematica.MCPServer.server.tasks import Task as WorkflowTask
 from archivematica.MCPServer.server.workflow import Workflow
+from tests.factories import JobFactory
+from tests.factories import TaskFactory
+from tests.factories import TransferFactory
 
 # Static workflow contract asserted by package bootstrap tests.
 RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
@@ -885,10 +889,14 @@ def test_concurrent_idempotent_submission_is_not_replayed_before_handoff(
 )
 @pytest.mark.django_db(transaction=True)
 def test_auto_approved_package_schedules_retrieval_workflow(
-    settings, starting_point, wf, retrieval_directories
-):
+    settings: pytest_django.Settings,
+    starting_point: StartingPoint,
+    wf: Workflow,
+    retrieval_directories: SimpleNamespace,
+    make_transfer: TransferFactory,
+) -> None:
     """Every supported transfer type records its post-retrieval continuation."""
-    transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
+    transfer = make_transfer()
     package_queue = mock.Mock(spec=PackageQueue)
     source_path = "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/transfer"
 
@@ -933,9 +941,13 @@ def test_auto_approved_package_schedules_retrieval_workflow(
 
 
 @pytest.mark.django_db(transaction=True)
-def test_auto_approved_package_does_not_copy_before_workflow(wf, retrieval_directories):
+def test_auto_approved_package_does_not_copy_before_workflow(
+    wf: Workflow,
+    retrieval_directories: SimpleNamespace,
+    make_transfer: TransferFactory,
+) -> None:
     """MCPServer only plans retrieval; it performs no Storage Service I/O."""
-    transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
+    transfer = make_transfer()
     package_queue = mock.Mock(spec=PackageQueue)
 
     with (
@@ -962,9 +974,9 @@ def test_auto_approved_package_does_not_copy_before_workflow(wf, retrieval_direc
 
 @pytest.mark.django_db(transaction=True)
 def test_non_auto_approved_package_still_uses_watched_directory_copy(
-    retrieval_directories,
-):
-    transfer = models.Transfer.objects.create(uuid=uuid.uuid4())
+    retrieval_directories: SimpleNamespace, make_transfer: TransferFactory
+) -> None:
+    transfer = make_transfer()
     starting_point = PACKAGE_TYPE_STARTING_POINTS["standard"]
 
     with (
@@ -1046,10 +1058,10 @@ def test_capture_transfer_failure_closes_old_executor_connections():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_capture_transfer_failure_marks_transfer_failed():
-    transfer = models.Transfer.objects.create(
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
+def test_capture_transfer_failure_marks_transfer_failed(
+    make_transfer: TransferFactory,
+) -> None:
+    transfer = make_transfer(status=models.PACKAGE_STATUS_PROCESSING)
 
     @_capture_transfer_failure(mark_transfer_failed=True)
     def fn(transfer):
@@ -1063,10 +1075,10 @@ def test_capture_transfer_failure_marks_transfer_failed():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_capture_transfer_failure_preserves_old_transfer_status_by_default():
-    transfer = models.Transfer.objects.create(
-        status=models.PACKAGE_STATUS_UNKNOWN,
-    )
+def test_capture_transfer_failure_preserves_old_transfer_status_by_default(
+    make_transfer: TransferFactory,
+) -> None:
+    transfer = make_transfer(status=models.PACKAGE_STATUS_UNKNOWN)
 
     @_capture_transfer_failure
     def fn(transfer):
@@ -1080,8 +1092,10 @@ def test_capture_transfer_failure_preserves_old_transfer_status_by_default():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_startup_cleanup_fails_queued_transfer_retrieval():
-    transfer = models.Transfer.objects.create(
+def test_startup_cleanup_fails_queued_transfer_retrieval(
+    make_transfer: TransferFactory,
+) -> None:
+    transfer = make_transfer(
         status=models.PACKAGE_STATUS_PROCESSING,
         currentlocation="%sharedPath%tmp/tmp123/TransferName",
     )
@@ -1096,24 +1110,21 @@ def test_startup_cleanup_fails_queued_transfer_retrieval():
 
 
 @pytest.mark.django_db(transaction=True)
-def test_startup_cleanup_fails_executing_transfer_retrieval():
-    transfer = models.Transfer.objects.create(
+def test_startup_cleanup_fails_executing_transfer_retrieval(
+    make_transfer: TransferFactory, make_job: JobFactory, make_task: TaskFactory
+) -> None:
+    transfer = make_transfer(
         status=models.PACKAGE_STATUS_PROCESSING,
         currentlocation="%sharedPath%tmp/tmp123/TransferName",
     )
-    retrieval_job = models.Job.objects.create(
-        sipuuid=transfer.uuid,
-        unittype="unitTransfer",
+    retrieval_job = make_job(
+        transfer,
         jobtype="Retrieve transfer source",
         microservicegroup="Retrieve transfer source",
         microservicechainlink="b3843201-3c52-4124-a7ee-16faaccf24b9",
         currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
-        createdtime=timezone.now(),
     )
-    retrieval_task = models.Task.objects.create(
-        job=retrieval_job,
-        createdtime=timezone.now(),
-    )
+    retrieval_task = make_task(retrieval_job)
 
     Package.cleanup_old_db_entries()
     WorkflowJob.cleanup_old_db_entries()

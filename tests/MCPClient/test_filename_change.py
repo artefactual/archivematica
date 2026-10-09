@@ -15,6 +15,7 @@ from archivematica.dashboard.main.models import Transfer
 from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts import change_names
 from archivematica.MCPClient.clientScripts import change_object_names
+from tests.factories import FileFactory
 
 
 @pytest.fixture()
@@ -64,21 +65,15 @@ def sip_dir_obj(db, sip, tmp_path, subdir_path):
 
 
 @pytest.fixture()
-def sip_file_obj(db, sip, tmp_path, subdir_path):
+def sip_file_obj(
+    make_file: FileFactory, sip: SIP, tmp_path: pathlib.Path, subdir_path: pathlib.Path
+) -> File:
     file_path = subdir_path / "filé1"
     file_path.write_text("Hello world")
-    relative_path = "".join(
-        [
-            sip.currentpath,
-            file_path.relative_to(tmp_path).as_posix(),
-        ]
-    )
 
-    return File.objects.create(
-        uuid=uuid.uuid4(),
+    return make_file(
+        file_path.relative_to(tmp_path).as_posix(),
         sip=sip,
-        originallocation=relative_path.encode(),
-        currentlocation=relative_path.encode(),
         removedtime=None,
         size=113318,
         checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
@@ -96,31 +91,23 @@ def multiple_file_paths(subdir_path):
 
 
 @pytest.fixture()
-def multiple_transfer_file_objs(db, transfer, tmp_path, multiple_file_paths):
-    relative_paths = [
-        "".join(
-            [
-                transfer.currentlocation,
-                path.relative_to(tmp_path).as_posix(),
-            ]
-        )
-        for path in multiple_file_paths
-    ]
-
-    file_objs = [
-        File(
-            uuid=uuid.uuid4(),
+def multiple_transfer_file_objs(
+    make_file: FileFactory,
+    transfer: Transfer,
+    tmp_path: pathlib.Path,
+    multiple_file_paths: list[pathlib.Path],
+) -> list[File]:
+    return [
+        make_file(
+            path.relative_to(tmp_path).as_posix(),
             transfer=transfer,
-            originallocation=relative_path.encode(),
-            currentlocation=relative_path.encode(),
             removedtime=None,
             size=113318,
             checksum="35e0cc683d75704fc5b04fc3633f6c654e10cd3af57471271f370309c7ff9dba",
             checksumtype="sha256",
         )
-        for relative_path in relative_paths
+        for path in multiple_file_paths
     ]
-    return File.objects.bulk_create(file_objs)
 
 
 def is_uuid(uuid_):

@@ -32,7 +32,6 @@ from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.dashboard.main.models import Transfer
-from archivematica.MCPClient.client.job import Job
 from archivematica.MCPClient.clientScripts.verify_checksum import Hashsum
 from archivematica.MCPClient.clientScripts.verify_checksum import NoHashCommandAvailable
 from archivematica.MCPClient.clientScripts.verify_checksum import PREMISFailure
@@ -40,6 +39,7 @@ from archivematica.MCPClient.clientScripts.verify_checksum import get_file_query
 from archivematica.MCPClient.clientScripts.verify_checksum import (
     write_premis_event_per_file,
 )
+from tests.MCPClient.factories import MCPJobFactory
 
 ASSERT_EXCEPTION_STRING = "Hashsum exception string returned is incorrect"
 ASSERT_RETURN_VALUE = "Hashsum comparison returned something other than 1: {}"
@@ -83,13 +83,13 @@ def test_valid_initialisation(fixture):
             )
 
 
-def test_provenance_string():
+def test_provenance_string(make_mcp_job: MCPJobFactory) -> None:
     """Test to ensure that the string output to the PREMIS event for this
     microservice Job is consistent with what we're expecting. Provenance
     string includes the command called, plus the utility's version string.
     """
     hash_file = "metadata/checksum.md5"
-    hashsum = Hashsum(hash_file, Job("stub", "stub", ["", ""]))
+    hashsum = Hashsum(hash_file, make_mcp_job(["", ""]))
     version_string = [
         "md5sum (GNU coreutils) 8.28",
         "Copyright (C) 2017 Free Software Foundation, Inc.",
@@ -111,23 +111,23 @@ def test_provenance_string():
             )
 
 
-def test_provenance_string_no_command():
+def test_provenance_string_no_command(make_mcp_job: MCPJobFactory) -> None:
     """When nothing has happened, e.g. the checksums haven't been validated
     then it should be practically impossible to write to the database and
     generate some form of false-positive.
     """
     hash_file = "metadata/checksum.sha1"
-    hashsum = Hashsum(hash_file, Job("stub", "stub", ["", ""]))
+    hashsum = Hashsum(hash_file, make_mcp_job(["", ""]))
     try:
         hashsum.get_command_detail()
     except PREMISFailure:
         pass
 
 
-def test_compare_hashes_failed():
+def test_compare_hashes_failed(make_mcp_job: MCPJobFactory) -> None:
     """Ensure we get consistent output when the checksum comparison fails."""
     hash_file = "metadata/checksum.sha256"
-    job = Job("stub", "stub", ["", ""])
+    job = make_mcp_job(["", ""])
     hashsum = Hashsum(hash_file, job)
     toolname = "sha256sum"
     objects_dir = "objects"
@@ -159,12 +159,12 @@ def test_compare_hashes_failed():
         assert job.get_stderr().strip() == exception_string, ASSERT_EXCEPTION_STRING
 
 
-def test_compare_hashes_with_bad_files():
+def test_compare_hashes_with_bad_files(make_mcp_job: MCPJobFactory) -> None:
     """Ensure that the formatting of errors is consistent if improperly
     formatted files are provided to hashsum.
     """
     hash_file = "metadata/checksum.sha1"
-    job = Job("stub", "stub", ["", ""])
+    job = make_mcp_job(["", ""])
     hashsum = Hashsum(hash_file, job)
     toolname = "sha1sum"
     objects_dir = "objects"
@@ -215,12 +215,12 @@ def test_compare_hashes_with_bad_files():
             assert ret == 1, ASSERT_RETURN_VALUE.format(ret)
 
 
-def test_line_comparison_fail():
+def test_line_comparison_fail(make_mcp_job: MCPJobFactory) -> None:
     """If the checksum line and object comparison function fails then
     we want to return early and _call shouldn't be called.
     """
     hash_file = "metadata/checksum.sha1"
-    hashsum = Hashsum(hash_file, Job("stub", "stub", ["", ""]))
+    hashsum = Hashsum(hash_file, make_mcp_job(["", ""]))
     toolname = "sha1sum"
     with (
         mock.patch.object(hashsum, "_call", return_value=None) as mock_call,

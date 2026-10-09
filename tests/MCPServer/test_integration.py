@@ -28,6 +28,7 @@ from archivematica.MCPServer.server.queues import PackageQueue
 from archivematica.MCPServer.server.tasks import Task
 from archivematica.MCPServer.server.tasks import TaskBackend
 from archivematica.MCPServer.server.workflow import load as load_workflow
+from tests.factories import TransferFactory
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 INTEGRATION_TEST_PATH = os.path.join(FIXTURES_DIR, "workflow-integration-test.json")
@@ -141,9 +142,8 @@ def package_queue():
 
 
 @pytest.fixture
-def transfer(db):
-    transfer_obj = models.Transfer.objects.create(uuid=uuid.uuid4())
-    return Transfer("transfer_path", transfer_obj.uuid)
+def transfer(make_transfer: TransferFactory) -> Transfer:
+    return Transfer("transfer_path", make_transfer().uuid)
 
 
 @pytest.fixture

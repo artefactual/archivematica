@@ -1,7 +1,4 @@
-import importlib.resources
 from unittest import mock
-
-import pytest
 
 from archivematica.MCPServer.server.processing_config import ChainChoicesField
 from archivematica.MCPServer.server.processing_config import ReplaceDictField
@@ -12,24 +9,14 @@ from archivematica.MCPServer.server.processing_config import (
     processing_configuration_file_exists,
 )
 from archivematica.MCPServer.server.processing_config import processing_fields
-from archivematica.MCPServer.server.workflow import load
-
-
-@pytest.fixture
-def _workflow():
-    with open(
-        importlib.resources.files("archivematica.MCPServer")
-        / "assets"
-        / "workflow.json"
-    ) as fp:
-        return load(fp)
+from archivematica.MCPServer.server.workflow import Workflow
 
 
 @mock.patch(
     "archivematica.archivematicaCommon.storageService.get_location", return_value=[]
 )
-def test_get_processing_fields(_workflow):
-    fields = get_processing_fields(_workflow)
+def test_get_processing_fields(get_location: mock.MagicMock, wf: Workflow) -> None:
+    fields = get_processing_fields(wf)
 
     assert len(fields) == len(processing_fields)
 
@@ -50,7 +37,7 @@ def test_get_processing_fields(_workflow):
     ],
 )
 @mock.patch("archivematica.archivematicaCommon.storageService.get_location")
-def test_storage_location_field(get_location, _workflow):
+def test_storage_location_field(get_location: mock.Mock, wf: Workflow) -> None:
     def mocked_get_location(purpose):
         return [
             {
@@ -62,7 +49,7 @@ def test_storage_location_field(get_location, _workflow):
 
     get_location.side_effect = mocked_get_location
 
-    assert get_processing_fields(_workflow) == [
+    assert get_processing_fields(wf) == [
         {
             "choices": [
                 {
@@ -136,8 +123,8 @@ def test_storage_location_field(get_location, _workflow):
         ),
     ],
 )
-def test_replace_dict_field(_workflow):
-    assert get_processing_fields(_workflow) == [
+def test_replace_dict_field(wf: Workflow) -> None:
+    assert get_processing_fields(wf) == [
         {
             "choices": [
                 {
@@ -213,8 +200,8 @@ def test_replace_dict_field(_workflow):
         ),
     ],
 )
-def test_chain_choices_field(_workflow):
-    assert get_processing_fields(_workflow) == [
+def test_chain_choices_field(wf: Workflow) -> None:
+    assert get_processing_fields(wf) == [
         {
             "choices": [
                 {
@@ -334,8 +321,8 @@ def test_chain_choices_field(_workflow):
         )
     ],
 )
-def test_shared_choices_field(_workflow):
-    assert get_processing_fields(_workflow) == [
+def test_shared_choices_field(wf: Workflow) -> None:
+    assert get_processing_fields(wf) == [
         {
             "id": "856d2d65-cd25-49fa-8da9-cabb78292894",
             "label": "Do you want to scan for viruses in metadata?",

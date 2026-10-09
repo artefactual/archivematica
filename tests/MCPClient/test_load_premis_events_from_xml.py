@@ -11,6 +11,7 @@ from archivematica.dashboard.main.models import Agent
 from archivematica.dashboard.main.models import Event
 from archivematica.dashboard.main.models import File
 from archivematica.MCPClient.clientScripts import load_premis_events_from_xml
+from tests.factories import EventFactory
 
 THIS_DIR = pathlib.Path(__file__).parent
 
@@ -731,9 +732,8 @@ def test_ensure_event_id_is_uuid(uuid4, params):
 
 
 @pytest.fixture()
-def existent_event_id(transfer_file):
-    event = Event.objects.create(event_type="ingest", file_uuid=transfer_file)
-    return str(event.event_id)
+def existent_event_id(make_event: EventFactory, transfer_file: File) -> str:
+    return str(make_event(transfer_file, "ingest").event_id)
 
 
 @pytest.mark.django_db

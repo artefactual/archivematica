@@ -1,4 +1,5 @@
 import concurrent.futures
+import pathlib
 import queue as Queue
 import threading
 import uuid
@@ -19,6 +20,9 @@ from archivematica.MCPServer.server.queues import TASK_EXCEPTION_MESSAGE
 from archivematica.MCPServer.server.queues import PackageQueue
 from archivematica.MCPServer.server.workflow import TERMINAL_PACKAGE_STATUS_FAILED
 from archivematica.MCPServer.server.workflow import Link
+from tests.factories import JobFactory
+from tests.factories import TaskFactory
+from tests.factories import TransferFactory
 
 
 def _process_one_job(queue):
@@ -343,13 +347,13 @@ def test_all_scheduled_jobs_are_processed(
 
 @pytest.mark.django_db(transaction=True)
 def test_failed_terminal_link_marks_package_failed(
-    package_queue, tmp_path, workflow_link
-):
+    package_queue: PackageQueue,
+    tmp_path: pathlib.Path,
+    workflow_link: Link,
+    make_transfer: TransferFactory,
+) -> None:
     package_id = uuid.uuid4()
-    models.Transfer.objects.create(
-        uuid=package_id,
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
+    make_transfer(uuid=package_id, status=models.PACKAGE_STATUS_PROCESSING)
     workflow_link._src["end"] = True
     workflow_link._src["package_status"] = TERMINAL_PACKAGE_STATUS_FAILED
     transfer = Transfer(str(tmp_path), package_id)
@@ -367,13 +371,13 @@ def test_failed_terminal_link_marks_package_failed(
 
 @pytest.mark.django_db(transaction=True)
 def test_legacy_failed_terminal_link_marks_package_failed(
-    package_queue, tmp_path, workflow_link
-):
+    package_queue: PackageQueue,
+    tmp_path: pathlib.Path,
+    workflow_link: Link,
+    make_transfer: TransferFactory,
+) -> None:
     package_id = uuid.uuid4()
-    models.Transfer.objects.create(
-        uuid=package_id,
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
+    make_transfer(uuid=package_id, status=models.PACKAGE_STATUS_PROCESSING)
     workflow_link.id = next(iter(FAILED_PACKAGE_TERMINAL_LINK_IDS))
     workflow_link._src["end"] = True
     workflow_link._src.pop("package_status", None)
@@ -392,31 +396,28 @@ def test_legacy_failed_terminal_link_marks_package_failed(
 
 @pytest.mark.django_db(transaction=True)
 def test_job_exception_fails_records_and_releases_next_package(
-    package_queue, tmp_path, workflow_link, sip, caplog
-):
+    package_queue: PackageQueue,
+    tmp_path: pathlib.Path,
+    workflow_link: Link,
+    sip: SIP,
+    caplog: pytest.LogCaptureFixture,
+    make_transfer: TransferFactory,
+    make_job: JobFactory,
+    make_task: TaskFactory,
+) -> None:
     package_id = uuid.uuid4()
-    models.Transfer.objects.create(
-        uuid=package_id,
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
+    make_transfer(uuid=package_id, status=models.PACKAGE_STATUS_PROCESSING)
     transfer = Transfer(str(tmp_path), package_id)
     failed_job = FailingJob(mock.Mock(), workflow_link, transfer)
     queued_job = MockJob(mock.Mock(), workflow_link, sip)
-    job_model = models.Job.objects.create(
-        jobuuid=failed_job.uuid,
-        createdtime=timezone.now(),
-        currentstep=models.Job.STATUS_EXECUTING_COMMANDS,
+    job_model = make_job(
+        jobuuid=failed_job.uuid, currentstep=models.Job.STATUS_EXECUTING_COMMANDS
     )
-    unfinished_task = models.Task.objects.create(
-        taskuuid=uuid.uuid4(),
-        job=job_model,
-        createdtime=timezone.now(),
-    )
+    unfinished_task = make_task(job_model, taskuuid=uuid.uuid4())
     completed_at = timezone.now()
-    completed_task = models.Task.objects.create(
+    completed_task = make_task(
+        job_model,
         taskuuid=uuid.uuid4(),
-        job=job_model,
-        createdtime=timezone.now(),
         endtime=completed_at,
         exitcode=0,
         stderror="completed",
