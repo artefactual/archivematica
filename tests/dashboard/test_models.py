@@ -5,7 +5,6 @@ import pytest
 from django.contrib.auth.models import User
 
 from archivematica.dashboard.main import models
-from tests.factories import SIPFactory
 from tests.factories import TransferFactory
 
 
@@ -27,9 +26,7 @@ def test_transfer_update_active_agent(
     )
 
 
-def test_sip_update_active_agent(admin_user: User, make_sip: SIPFactory) -> None:
-    sip = make_sip()
-
+def test_sip_update_active_agent(admin_user: User, sip: models.SIP) -> None:
     sip.update_active_agent(admin_user.id)
 
     assert (

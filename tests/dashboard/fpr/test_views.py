@@ -136,24 +136,15 @@ def test_fpcommand_edit(
     dashboard_uuid: uuid.UUID,
     admin_client: Client,
     fptool: models.FPTool,
+    fpcommand: models.FPCommand,
     format_version: models.FormatVersion,
 ) -> None:
     verification_command = models.FPCommand.objects.create(
         command_usage="verification", tool=fptool
     )
-    command = models.FPCommand.objects.create(
-        description="Copying file to access directory",
-        enabled=True,
-        command_usage="normalization",
-        tool=fptool,
-        output_format=format_version,
-    )
-
-    fpcommand_id = str(command.uuid)
+    assert fpcommand.enabled
+    fpcommand_id = str(fpcommand.uuid)
     url = reverse("fpr:fpcommand_edit", args=[fpcommand_id])
-
-    fpcommand = models.FPCommand.active.get(uuid=fpcommand_id)
-    assert fpcommand.description == "Copying file to access directory"
 
     form_data = {
         "verification_command": [str(verification_command.uuid)],
@@ -187,19 +178,9 @@ def test_fpcommand_edit(
 
 @pytest.mark.django_db
 def test_fpcommand_delete(
-    dashboard_uuid: uuid.UUID,
-    admin_client: Client,
-    fptool: models.FPTool,
-    format_version: models.FormatVersion,
+    dashboard_uuid: uuid.UUID, admin_client: Client, fpcommand: models.FPCommand
 ) -> None:
-    command = models.FPCommand.objects.create(
-        enabled=True,
-        command_usage="normalization",
-        tool=fptool,
-        output_format=format_version,
-    )
-
-    fpcommand_id = str(command.uuid)
+    fpcommand_id = str(fpcommand.uuid)
     url = reverse("fpr:fpcommand_delete", args=[fpcommand_id])
 
     assert models.FPCommand.active.filter(uuid=fpcommand_id).exists()

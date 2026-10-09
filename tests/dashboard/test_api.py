@@ -195,6 +195,29 @@ def jobs_sip_complete_cleanup_last(make_job: JobFactory, sip: SIP) -> list[Job]:
     ]
 
 
+@pytest.fixture
+def jobs_awaiting_approval(
+    make_job: JobFactory, transfer: Transfer, sip: SIP
+) -> list[Job]:
+    """The pending approval of the transfer and the completed storage of the SIP."""
+    return [
+        make_job(
+            transfer,
+            jobtype="Approve standard transfer",
+            currentstep=Job.STATUS_AWAITING_DECISION,
+            directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
+            createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
+        ),
+        make_job(
+            sip,
+            jobtype="Store AIP",
+            currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
+            directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
+            createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
+        ),
+    ]
+
+
 @pytest.mark.django_db
 def test_get_unit_status_processing(jobs_processing, transfer):
     """It should return PROCESSING."""
@@ -451,18 +474,16 @@ def test_status_ingest_not_found(admin_client, dashboard_uuid):
 
 @pytest.mark.django_db
 def test_status_with_bogus_unit(
-    admin_client: Client, dashboard_uuid: uuid.UUID, make_transfer: TransferFactory
+    admin_client: Client, dashboard_uuid: uuid.UUID, transfer: Transfer
 ) -> None:
     """It should return a 400 error as the status cannot be determined."""
-    bogus_transfer_id = "1642cbe0-b72d-432d-8fc9-94dad3a0e9dd"
-    make_transfer(uuid=bogus_transfer_id)
-    resp = admin_client.get(reverse("api:transfer_status", args=[bogus_transfer_id]))
+    resp = admin_client.get(reverse("api:transfer_status", args=[transfer.uuid]))
     assert resp.status_code == 400
     payload = json.loads(resp.content.decode("utf8"))
     assert payload["error"] is True
     assert (
         payload["message"]
-        == f"Unable to determine the status of the unit {bogus_transfer_id}"
+        == f"Unable to determine the status of the unit {transfer.uuid}"
     )
 
 
@@ -483,7 +504,7 @@ def test_completed_units_with_bogus_unit(
     make_transfer: TransferFactory,
 ) -> None:
     """Bogus units should be excluded and handled gracefully."""
-    make_transfer(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+    make_transfer()
     completed = views._completed_units()
     assert completed == [str(transfer.uuid)]
 
@@ -517,7 +538,7 @@ def test_completed_transfers_with_bogus_transfer(
     make_transfer: TransferFactory,
 ) -> None:
     """Bogus transfers should be excluded and handled gracefully."""
-    make_transfer(uuid="1642cbe0-b72d-432d-8fc9-94dad3a0e9dd")
+    make_transfer()
     resp = admin_client.get(reverse("api:completed_transfers"))
     assert resp.status_code == 200
     payload = json.loads(resp.content.decode("utf8"))
@@ -547,7 +568,7 @@ def test_completed_ingests_with_bogus_sip(
     make_sip: SIPFactory,
 ) -> None:
     """Bogus ingests should be excluded and handled gracefully."""
-    make_sip(uuid="de702ef5-dfac-430d-93f4-f0453b18ad2f")
+    make_sip()
     resp = admin_client.get(reverse("api:completed_ingests"))
     assert resp.status_code == 200
     payload = json.loads(resp.content.decode("utf8"))
@@ -1045,27 +1066,11 @@ def test_reingest_approve(gearman_client, job_complete, admin_client, dashboard_
 
 @pytest.mark.django_db
 def test_unapproved_transfers(
-    admin_client: Client, dashboard_uuid: uuid.UUID, make_job: JobFactory
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    jobs_awaiting_approval: list[Job],
 ) -> None:
-    # Create a couple of jobs with one awaiting for decision, i.e. unapproved.
-    approve_transfer_uuid = uuid.uuid4()
-    make_job(
-        jobtype="Approve standard transfer",
-        currentstep=Job.STATUS_AWAITING_DECISION,
-        directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
-        unittype="unitTransfer",
-        sipuuid=approve_transfer_uuid,
-    )
-    make_job(
-        jobtype="Store AIP",
-        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
-        directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
-        unittype="unitSIP",
-        sipuuid=uuid.UUID("520327f1-cd4e-47fe-9d8a-d9c02fded504"),
-    )
-
     response = admin_client.get(reverse("api:unapproved_transfers"))
     assert response.status_code == 200
 
@@ -1077,7 +1082,7 @@ def test_unapproved_transfers(
             {
                 "directory": "test-2",
                 "type": "standard",
-                "uuid": str(approve_transfer_uuid),
+                "uuid": str(transfer.uuid),
             }
         ],
     }
@@ -1141,27 +1146,11 @@ def test_approve_transfer(gearman_client, job_complete, admin_client, dashboard_
 
 @pytest.mark.django_db
 def test_waiting_for_user_input(
-    admin_client: Client, dashboard_uuid: uuid.UUID, make_job: JobFactory
+    admin_client: Client,
+    dashboard_uuid: uuid.UUID,
+    transfer: Transfer,
+    jobs_awaiting_approval: list[Job],
 ) -> None:
-    # Create a couple of jobs with one awaiting for decision.
-    approve_transfer_uuid = uuid.uuid4()
-    make_job(
-        jobtype="Approve standard transfer",
-        currentstep=Job.STATUS_AWAITING_DECISION,
-        directory="%sharedPath%watchedDirectories/activeTransfers/standardTransfer/test-2/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 14, 9, 20)),
-        unittype="unitTransfer",
-        sipuuid=approve_transfer_uuid,
-    )
-    make_job(
-        jobtype="Store AIP",
-        currentstep=Job.STATUS_COMPLETED_SUCCESSFULLY,
-        directory="%sharedPath%watchedDirectories/storeAIP/test-1/",
-        createdtime=make_aware(datetime.datetime(2023, 11, 13, 0, 0)),
-        unittype="unitSIP",
-        sipuuid=uuid.uuid4(),
-    )
-
     response = admin_client.get(reverse("api:waiting_for_user_input"))
     assert response.status_code == 200
 
@@ -1174,7 +1163,7 @@ def test_waiting_for_user_input(
                 "microservice": "Approve standard transfer",
                 "sip_directory": "test-2",
                 "sip_name": "test-2",
-                "sip_uuid": str(approve_transfer_uuid),
+                "sip_uuid": str(transfer.uuid),
             }
         ],
     }

@@ -24,10 +24,16 @@ def test_admin_set_language(dashboard_uuid: uuid.UUID, admin_client: Client) -> 
     )
 
 
-@pytest.mark.django_db
-def test_failure_report_delete(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
-    report = Report.objects.create(content="my report")
+@pytest.fixture
+def report(db: None) -> Report:
+    """A failure report."""
+    return Report.objects.create(content="my report")
 
+
+@pytest.mark.django_db
+def test_failure_report_delete(
+    dashboard_uuid: uuid.UUID, admin_client: Client, report: Report
+) -> None:
     response = admin_client.post(
         reverse("administration:failure_report_delete", args=[report.pk]),
         {"__confirm__": "1"},
@@ -40,9 +46,9 @@ def test_failure_report_delete(dashboard_uuid: uuid.UUID, admin_client: Client) 
 
 
 @pytest.mark.django_db
-def test_failure_report(dashboard_uuid: uuid.UUID, admin_client: Client) -> None:
-    report = Report.objects.create(content="my report")
-
+def test_failure_report(
+    dashboard_uuid: uuid.UUID, admin_client: Client, report: Report
+) -> None:
     response = admin_client.get(reverse("administration:reports_failures_index"))
     assert response.status_code == 200
 

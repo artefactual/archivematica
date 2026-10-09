@@ -268,38 +268,24 @@ def test_mark_completed_hidden_ignores_active_packages(
     assert resp.json() == {"removed": []}
 
 
-def test_mark_completed_hidden_hides_done_packages(
+@pytest.mark.parametrize(
+    "last_job",
+    [
+        {"jobtype": "Create SIP from transfer objects"},
+        {"jobtype": "Remove the processing directory"},
+        {"microservicegroup": "Failed transfer"},
+    ],
+    ids=["sip_created", "processing_directory_removed", "failed"],
+)
+def test_mark_completed_hidden_hides_completed_packages(
     dashboard_uuid: uuid.UUID,
     admin_client: Client,
     transfer: models.Transfer,
     make_job: JobFactory,
+    last_job: dict[str, str],
 ) -> None:
     # mark_completed_hidden still relies on job objects.
-    make_job(
-        transfer,
-        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        jobtype="Create SIP from transfer objects",
-    )
-
-    url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
-    resp = admin_client.delete(url)
-
-    assert resp.status_code == 200
-    assert resp.json() == {"removed": [str(transfer.pk)]}
-
-
-def test_mark_completed_hidden_hides_failed_packages(
-    dashboard_uuid: uuid.UUID,
-    admin_client: Client,
-    transfer: models.Transfer,
-    make_job: JobFactory,
-) -> None:
-    # mark_completed_hidden still relies on job objects.
-    make_job(
-        transfer,
-        currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        jobtype="Remove the processing directory",
-    )
+    make_job(transfer, currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY, **last_job)
 
     url = reverse("unit:mark_all_hidden", kwargs={"unit_type": "transfer"})
     resp = admin_client.delete(url)

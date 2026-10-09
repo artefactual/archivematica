@@ -24,6 +24,19 @@ def search_enabled(settings):
     ]
 
 
+@pytest.fixture
+def expired_idempotency_record(db: None) -> models.IdempotencyRecord:
+    """The record of a package creation request whose idempotency key expired."""
+    return models.IdempotencyRecord.objects.create(
+        user_id=1,
+        operation="package.create",
+        key_hash="a" * 64,
+        request_fingerprint="b" * 64,
+        result={"id": str(uuid.uuid4())},
+        expires_at=timezone.now() - timedelta(seconds=1),
+    )
+
+
 @pytest.fixture()
 def old_transfer(transfer):
     transfer.completed_at = timezone.now() - parse_duration("0 12:00:00")
@@ -155,15 +168,9 @@ def test_purge_command_output(search_disabled, old_transfer, old_sip, capsys):
 
 
 @pytest.mark.django_db
-def test_purge_command_removes_only_expired_idempotency_records(search_disabled):
-    expired = models.IdempotencyRecord.objects.create(
-        user_id=1,
-        operation="package.create",
-        key_hash="a" * 64,
-        request_fingerprint="b" * 64,
-        result={"id": str(uuid.uuid4())},
-        expires_at=timezone.now() - timedelta(seconds=1),
-    )
+def test_purge_command_removes_only_expired_idempotency_records(
+    search_disabled: None, expired_idempotency_record: models.IdempotencyRecord
+) -> None:
     active = models.IdempotencyRecord.objects.create(
         user_id=1,
         operation="package.create",
@@ -175,21 +182,18 @@ def test_purge_command_removes_only_expired_idempotency_records(search_disabled)
 
     call_command("purge_transient_processing_data", "--keep-failed")
 
-    assert not models.IdempotencyRecord.objects.filter(pk=expired.pk).exists()
+    assert not models.IdempotencyRecord.objects.filter(
+        pk=expired_idempotency_record.pk
+    ).exists()
     assert models.IdempotencyRecord.objects.filter(pk=active.pk).exists()
 
 
 @pytest.mark.django_db
-def test_purge_command_dry_run_keeps_expired_idempotency_records(search_disabled):
-    record = models.IdempotencyRecord.objects.create(
-        user_id=1,
-        operation="package.create",
-        key_hash="a" * 64,
-        request_fingerprint="b" * 64,
-        result={"id": str(uuid.uuid4())},
-        expires_at=timezone.now() - timedelta(seconds=1),
-    )
-
+def test_purge_command_dry_run_keeps_expired_idempotency_records(
+    search_disabled: None, expired_idempotency_record: models.IdempotencyRecord
+) -> None:
     call_command("purge_transient_processing_data", "--dry-run")
 
-    assert models.IdempotencyRecord.objects.filter(pk=record.pk).exists()
+    assert models.IdempotencyRecord.objects.filter(
+        pk=expired_idempotency_record.pk
+    ).exists()

@@ -26,6 +26,12 @@ def file_by_extension_command() -> IDCommand:
     return result
 
 
+@pytest.fixture()
+def format_group(db: None) -> FormatGroup:
+    """The format group named after the PRONOM classification of the formats."""
+    return FormatGroup.objects.create(description="My format group")
+
+
 @pytest.mark.django_db
 def test_command_fails_if_xml_file_does_not_exist(
     tmp_path: pathlib.Path,
@@ -118,6 +124,7 @@ def test_command_sets_format_group_from_pronom_classifications(
     settings: pytest_django.Settings,
     unknown_format_group: FormatGroup,
     file_by_extension_command: IDCommand,
+    format_group: FormatGroup,
 ) -> None:
     # Enable connection.queries used in the command.
     settings.DEBUG = True
@@ -125,9 +132,6 @@ def test_command_sets_format_group_from_pronom_classifications(
     format_uuid = uuid.uuid4()
     format_version_uuid = uuid.uuid4()
     idrule_uuid = uuid.uuid4()
-
-    format_group_description = "My format group"
-    format_group = FormatGroup.objects.create(description=format_group_description)
 
     xml_format_puid = "fmt/8888888"
     xml_format_name = "My other format"
@@ -199,6 +203,7 @@ def test_command_sets_unknown_format_group_if_multiple_pronom_classifications_ex
     settings: pytest_django.Settings,
     unknown_format_group: FormatGroup,
     file_by_extension_command: IDCommand,
+    format_group: FormatGroup,
 ) -> None:
     # Enable connection.queries used in the command.
     settings.DEBUG = True
@@ -206,9 +211,6 @@ def test_command_sets_unknown_format_group_if_multiple_pronom_classifications_ex
     format_uuid = uuid.uuid4()
     format_version_uuid = uuid.uuid4()
     idrule_uuid = uuid.uuid4()
-
-    format_group_description = "My format group"
-    format_group = FormatGroup.objects.create(description=format_group_description)
 
     another_format_group_description = "Another format group"
     another_format_group = FormatGroup.objects.create(

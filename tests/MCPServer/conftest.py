@@ -5,7 +5,9 @@ from types import SimpleNamespace
 import pytest
 import pytest_django
 
+from archivematica.dashboard.main import models
 from archivematica.MCPServer.server import workflow
+from tests.factories import TransferFactory
 
 
 @pytest.fixture
@@ -30,4 +32,15 @@ def retrieval_directories(
         shared=shared_directory_path,
         staging=shared_directory_path / "tmp",
         processing=shared_directory_path / "currentlyProcessing",
+    )
+
+
+@pytest.fixture
+def processing_transfer(make_transfer: TransferFactory) -> models.Transfer:
+    """A transfer in processing status at its retrieval staging location, before
+    its first job runs.
+    """
+    return make_transfer(
+        currentlocation="%sharedPath%tmp/tmp123/TransferName",
+        status=models.PACKAGE_STATUS_PROCESSING,
     )

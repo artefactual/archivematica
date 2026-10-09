@@ -25,6 +25,20 @@ FAILED_TRANSFER_TERMINAL_LINK_ID = "377f8ebb-7989-4a68-9361-658079ff8138"
 FAILED_SIP_TERMINAL_LINK_ID = "828528c2-2eb9-4514-b5ca-dfd1f7cb5b8c"
 
 
+@pytest.fixture
+def processing_configuration(
+    processing_transfer: models.Transfer,
+) -> models.UnitVariable:
+    """The processing configuration marker of the processing transfer, which
+    records when its processing started.
+    """
+    return models.UnitVariable.objects.create(
+        unittype="Transfer",
+        unituuid=processing_transfer.uuid,
+        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
+    )
+
+
 def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
     value = datetime(
         2026,
@@ -44,12 +58,8 @@ def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
 
 @pytest.mark.django_db
 def test_unit_status_handler_returns_empty_jobs_before_retrieval_starts(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow, processing_transfer: models.Transfer
 ) -> None:
-    transfer = make_transfer(
-        currentlocation="/shared/tmp/tmp123/TransferName",
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
     package_queue = mock.Mock(spec=PackageQueue)
     executor = mock.Mock(spec=ThreadPoolExecutor)
     shutdown_event = threading.Event()
@@ -59,7 +69,7 @@ def test_unit_status_handler_returns_empty_jobs_before_retrieval_starts(
     result = server._unit_status_handler(
         None,
         None,
-        {"id": str(transfer.uuid), "lang": "en"},
+        {"id": str(processing_transfer.uuid), "lang": "en"},
     )
 
     assert result == {"name": "(Unnamed)", "jobs": []}
@@ -187,9 +197,8 @@ def test_package_create_handler_returns_structured_in_progress_error(
 
 @pytest.mark.django_db
 def test_approve_partial_reingest_handler(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
-    sip = make_sip()
     make_job(
         sip,
         microservicegroup="Reingest AIP",
@@ -207,12 +216,11 @@ def test_approve_partial_reingest_handler(
 
 @pytest.mark.django_db
 def test_units_statuses_handler_sets_produces_tasks_from_job_class(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
     task_producing_link = wf.get_link(TASK_PRODUCING_LINK_ID)
     assert get_job_class_for_link(task_producing_link).produces_tasks is True
 
-    sip = make_sip()
     make_job(
         sip,
         microservicegroup="Test group",
@@ -235,17 +243,16 @@ def test_units_statuses_handler_sets_produces_tasks_from_job_class(
 
 @pytest.mark.django_db
 def test_units_summary_handler_includes_dip_jobs(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
-    sip_uuid = str(uuid.uuid4())
-    sip = make_sip(uuid=sip_uuid)
+    directory = f"/shared/currentlyProcessing/summary-{sip.uuid}/"
     oldest_at = timezone.now() - timedelta(minutes=2)
     started_at = timezone.now() - timedelta(minutes=1)
     latest_at = timezone.now()
     make_job(
         sip,
         jobtype="Move to processing directory",
-        directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
+        directory=directory,
         microservicechainlink=TASK_PRODUCING_LINK_ID,
         createdtime=oldest_at,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
@@ -254,7 +261,7 @@ def test_units_summary_handler_includes_dip_jobs(
         sip,
         jobtype="Assign file UUIDs to objects",
         microservicegroup=rpc_server.INGEST_START_TIME_MARKER_GROUP,
-        directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
+        directory=directory,
         microservicechainlink=TASK_PRODUCING_LINK_ID,
         createdtime=started_at,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
@@ -262,7 +269,7 @@ def test_units_summary_handler_includes_dip_jobs(
     latest_job = make_job(
         sip,
         unittype="unitDIP",
-        directory=f"/shared/currentlyProcessing/summary-{sip_uuid}/",
+        directory=directory,
         microservicechainlink=TASK_PRODUCING_LINK_ID,
         createdtime=latest_at,
         currentstep=models.Job.STATUS_AWAITING_DECISION,
@@ -278,7 +285,7 @@ def test_units_summary_handler_includes_dip_jobs(
 
     assert response == [
         {
-            "uuid": sip_uuid,
+            "uuid": str(sip.uuid),
             "directory": "summary",
             "timestamp": pytest.approx(latest_at.timestamp()),
             "started_at": pytest.approx(started_at.timestamp()),
@@ -388,21 +395,12 @@ def test_units_summary_batches_current_decision_identities(
 
 @pytest.mark.django_db
 def test_units_summary_handler_returns_queued_transfer_without_jobs(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow,
+    processing_transfer: models.Transfer,
+    processing_configuration: models.UnitVariable,
 ) -> None:
-    transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now()
-    make_transfer(
-        uuid=transfer_uuid,
-        currentlocation=f"%sharedPath%tmp/{transfer_uuid}/QueuedTransfer",
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
-    marker = models.UnitVariable.objects.create(
-        unittype="Transfer",
-        unituuid=transfer_uuid,
-        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
-    )
-    models.UnitVariable.objects.filter(pk=marker.pk).update(
+    models.UnitVariable.objects.filter(pk=processing_configuration.pk).update(
         createdtime=processing_started_at
     )
     package_queue = mock.MagicMock()
@@ -417,8 +415,8 @@ def test_units_summary_handler_returns_queued_transfer_without_jobs(
 
     assert response == [
         {
-            "uuid": transfer_uuid,
-            "directory": "QueuedTransfer",
+            "uuid": str(processing_transfer.uuid),
+            "directory": "TransferName",
             "timestamp": pytest.approx(processing_started_at.timestamp()),
             "started_at": pytest.approx(processing_started_at.timestamp()),
             "active": True,
@@ -432,23 +430,16 @@ def test_units_summary_handler_returns_queued_transfer_without_jobs(
 
 @pytest.mark.django_db
 def test_units_summary_handler_returns_failed_transfer_without_jobs(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow,
+    processing_transfer: models.Transfer,
+    processing_configuration: models.UnitVariable,
 ) -> None:
-    transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now() - timedelta(minutes=1)
     completed_at = timezone.now()
-    make_transfer(
-        uuid=transfer_uuid,
-        currentlocation=f"%sharedPath%tmp/{transfer_uuid}/FailedTransfer",
-        status=models.PACKAGE_STATUS_FAILED,
-        completed_at=completed_at,
-    )
-    marker = models.UnitVariable.objects.create(
-        unittype="Transfer",
-        unituuid=transfer_uuid,
-        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
-    )
-    models.UnitVariable.objects.filter(pk=marker.pk).update(
+    processing_transfer.status = models.PACKAGE_STATUS_FAILED
+    processing_transfer.completed_at = completed_at
+    processing_transfer.save()
+    models.UnitVariable.objects.filter(pk=processing_configuration.pk).update(
         createdtime=processing_started_at
     )
     package_queue = mock.MagicMock()
@@ -470,8 +461,8 @@ def test_units_summary_handler_returns_failed_transfer_without_jobs(
 
     assert response == [
         {
-            "uuid": transfer_uuid,
-            "directory": "FailedTransfer",
+            "uuid": str(processing_transfer.uuid),
+            "directory": "TransferName",
             "timestamp": pytest.approx(completed_at.timestamp()),
             "started_at": pytest.approx(processing_started_at.timestamp()),
             "active": False,
@@ -545,10 +536,8 @@ def test_units_summary_handler_returns_declared_failure_status(
 
 @pytest.mark.django_db
 def test_unit_job_groups_handler_aggregates_repeated_jobs(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
-    sip_uuid = str(uuid.uuid4())
-    sip = make_sip(uuid=sip_uuid)
     started_at = timezone.now() - timedelta(minutes=2)
     jobs = []
     for job_id, offset, unit_type in (
@@ -577,7 +566,7 @@ def test_unit_job_groups_handler_aggregates_repeated_jobs(
         response = server._unit_job_groups_handler(
             None,
             None,
-            {"type": "SIP", "id": sip_uuid, "lang": "en"},
+            {"type": "SIP", "id": str(sip.uuid), "lang": "en"},
         )
 
     # Correct results and query counts cannot catch a representative subquery
@@ -616,9 +605,8 @@ def test_unit_job_groups_handler_aggregates_repeated_jobs(
 
 @pytest.mark.django_db
 def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_sip: SIPFactory, make_job: JobFactory
 ) -> None:
-    sip = make_sip()
     other_sip = make_sip()
     started_at = timezone.now() - timedelta(minutes=2)
     jobs_by_status = {}
@@ -664,10 +652,8 @@ def test_unit_job_groups_handler_scopes_representatives_by_unit_and_status(
 
 @pytest.mark.django_db
 def test_unit_job_groups_handler_includes_dip_decisions(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
-    sip_uuid = str(uuid.uuid4())
-    sip = make_sip(uuid=sip_uuid)
     waiting_job = make_job(
         sip,
         unittype="unitDIP",
@@ -687,7 +673,7 @@ def test_unit_job_groups_handler_includes_dip_decisions(
     response = server._unit_job_groups_handler(
         None,
         None,
-        {"type": "SIP", "id": sip_uuid, "lang": "en"},
+        {"type": "SIP", "id": str(sip.uuid), "lang": "en"},
     )
 
     row = response[0]["jobs"][0]
@@ -699,14 +685,12 @@ def test_unit_job_groups_handler_includes_dip_decisions(
 
 @pytest.mark.django_db
 def test_units_statuses_handler_returns_transfers(
-    wf: Workflow, make_transfer: TransferFactory, make_job: JobFactory
+    wf: Workflow, transfer: models.Transfer, make_job: JobFactory
 ) -> None:
-    transfer_uuid = str(uuid.uuid4())
-    transfer = make_transfer(uuid=transfer_uuid)
     make_job(
         transfer,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
     )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
@@ -719,26 +703,17 @@ def test_units_statuses_handler_returns_transfers(
     )
 
     assert len(result) == 1
-    assert result[0]["uuid"] == transfer_uuid
+    assert result[0]["uuid"] == str(transfer.uuid)
 
 
 @pytest.mark.django_db
 def test_units_statuses_handler_returns_processing_transfer_without_jobs(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow,
+    processing_transfer: models.Transfer,
+    processing_configuration: models.UnitVariable,
 ) -> None:
-    transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now()
-    make_transfer(
-        uuid=transfer_uuid,
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
-    unit_variable = models.UnitVariable.objects.create(
-        unittype="Transfer",
-        unituuid=transfer_uuid,
-        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
-    )
-    models.UnitVariable.objects.filter(pk=unit_variable.pk).update(
+    models.UnitVariable.objects.filter(pk=processing_configuration.pk).update(
         createdtime=processing_started_at
     )
     package_queue = mock.MagicMock()
@@ -753,8 +728,8 @@ def test_units_statuses_handler_returns_processing_transfer_without_jobs(
 
     assert result == [
         {
-            "id": transfer_uuid,
-            "uuid": transfer_uuid,
+            "id": str(processing_transfer.uuid),
+            "uuid": str(processing_transfer.uuid),
             "timestamp": pytest.approx(
                 rpc_server._datetime_to_unix_timestamp(processing_started_at)
             ),
@@ -768,27 +743,18 @@ def test_units_statuses_handler_returns_processing_transfer_without_jobs(
 
 @pytest.mark.django_db
 def test_processing_transfer_timestamp_uses_earliest_processing_config(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow,
+    processing_transfer: models.Transfer,
+    processing_configuration: models.UnitVariable,
 ) -> None:
-    transfer_uuid = str(uuid.uuid4())
     processing_started_at = timezone.now()
     updated_at = processing_started_at + timedelta(seconds=60)
-    make_transfer(
-        uuid=transfer_uuid,
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-        status=models.PACKAGE_STATUS_PROCESSING,
-    )
-    first_marker = models.UnitVariable.objects.create(
-        unittype="Transfer",
-        unituuid=transfer_uuid,
-        variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
-    )
     second_marker = models.UnitVariable.objects.create(
         unittype="Transfer",
-        unituuid=transfer_uuid,
+        unituuid=processing_transfer.uuid,
         variable=models.UNIT_VARIABLE_PROCESSING_CONFIGURATION,
     )
-    models.UnitVariable.objects.filter(pk=first_marker.pk).update(
+    models.UnitVariable.objects.filter(pk=processing_configuration.pk).update(
         createdtime=processing_started_at
     )
     models.UnitVariable.objects.filter(pk=second_marker.pk).update(
@@ -853,13 +819,10 @@ def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(
 
 @pytest.mark.django_db
 def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow, processing_transfer: models.Transfer
 ) -> None:
-    make_transfer(
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-        status=models.PACKAGE_STATUS_PROCESSING,
-        hidden=True,
-    )
+    processing_transfer.hidden = True
+    processing_transfer.save()
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
     shutdown_event = threading.Event()
@@ -875,12 +838,8 @@ def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs
 
 @pytest.mark.django_db
 def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(
-    wf: Workflow, make_transfer: TransferFactory
+    wf: Workflow, transfer: models.Transfer
 ) -> None:
-    make_transfer(
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-        status=models.PACKAGE_STATUS_UNKNOWN,
-    )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
     shutdown_event = threading.Event()
@@ -896,14 +855,12 @@ def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(
 
 @pytest.mark.django_db
 def test_units_statuses_handler_returns_sips(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
-    sip_uuid = str(uuid.uuid4())
-    sip = make_sip(uuid=sip_uuid)
     make_job(
         sip,
         currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-        microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
+        microservicechainlink=TASK_PRODUCING_LINK_ID,
     )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
@@ -914,22 +871,21 @@ def test_units_statuses_handler_returns_sips(
     result = server._units_statuses_handler(None, wf, {"type": "SIP", "lang": "en"})
 
     assert len(result) == 1
-    assert result[0]["uuid"] == sip_uuid
+    assert result[0]["uuid"] == str(sip.uuid)
 
 
 @pytest.mark.django_db
 def test_units_statuses_handler_excludes_hidden_transfers(
-    wf: Workflow, make_transfer: TransferFactory, make_job: JobFactory
+    wf: Workflow,
+    transfer: models.Transfer,
+    make_transfer: TransferFactory,
+    make_job: JobFactory,
 ) -> None:
-    visible_transfer_uuid = str(uuid.uuid4())
-    hidden_transfer_uuid = str(uuid.uuid4())
-    visible_transfer = make_transfer(uuid=visible_transfer_uuid, hidden=False)
-    hidden_transfer = make_transfer(uuid=hidden_transfer_uuid, hidden=True)
-    for transfer in [visible_transfer, hidden_transfer]:
+    for unit in [transfer, make_transfer(hidden=True)]:
         make_job(
-            transfer,
+            unit,
             currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-            microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
+            microservicechainlink=TASK_PRODUCING_LINK_ID,
         )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
@@ -942,22 +898,18 @@ def test_units_statuses_handler_excludes_hidden_transfers(
     )
 
     assert len(result) == 1
-    assert result[0]["uuid"] == visible_transfer_uuid
+    assert result[0]["uuid"] == str(transfer.uuid)
 
 
 @pytest.mark.django_db
 def test_units_statuses_handler_excludes_hidden_sips(
-    wf: Workflow, make_sip: SIPFactory, make_job: JobFactory
+    wf: Workflow, sip: models.SIP, make_sip: SIPFactory, make_job: JobFactory
 ) -> None:
-    visible_sip_uuid = str(uuid.uuid4())
-    hidden_sip_uuid = str(uuid.uuid4())
-    visible_sip = make_sip(uuid=visible_sip_uuid, hidden=False)
-    hidden_sip = make_sip(uuid=hidden_sip_uuid, hidden=True)
-    for sip in [visible_sip, hidden_sip]:
+    for unit in [sip, make_sip(hidden=True)]:
         make_job(
-            sip,
+            unit,
             currentstep=models.Job.STATUS_COMPLETED_SUCCESSFULLY,
-            microservicechainlink="7d728c39-395f-4892-8193-92f086c0546f",
+            microservicechainlink=TASK_PRODUCING_LINK_ID,
         )
     package_queue = mock.MagicMock()
     package_queue.jobs_awaiting_decisions.return_value = {}
@@ -968,7 +920,7 @@ def test_units_statuses_handler_excludes_hidden_sips(
     result = server._units_statuses_handler(None, wf, {"type": "SIP", "lang": "en"})
 
     assert len(result) == 1
-    assert result[0]["uuid"] == visible_sip_uuid
+    assert result[0]["uuid"] == str(sip.uuid)
 
 
 @pytest.mark.django_db

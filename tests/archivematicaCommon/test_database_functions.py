@@ -80,27 +80,29 @@ def file_with_sip_agent(make_file: FileFactory, sip: SIP, sip_agent: Agent) -> F
 
 @pytest.fixture
 def file_with_transfer_agent(
-    make_file: FileFactory, transfer: Transfer, transfer_agent: Agent
+    transfer: Transfer, transfer_file: File, transfer_agent: Agent
 ) -> File:
-    """A file of a transfer whose active agent is the transfer agent."""
+    """The transfer file, once the transfer agent is the active agent of the
+    transfer.
+    """
     set_active_agent(transfer, transfer_agent)
 
-    return make_file("objects/file.txt", transfer=transfer)
+    return transfer_file
 
 
 @pytest.fixture
 def file_with_sip_and_transfer_agents(
-    make_file: FileFactory,
     sip: SIP,
     transfer: Transfer,
+    sip_file: File,
     sip_agent: Agent,
     transfer_agent: Agent,
 ) -> File:
-    """A file of a SIP and a transfer with different active agents."""
+    """The SIP file, once its SIP and its transfer have different active agents."""
     set_active_agent(sip, sip_agent)
     set_active_agent(transfer, transfer_agent)
 
-    return make_file("objects/file.txt", sip=sip, transfer=transfer)
+    return sip_file
 
 
 @pytest.fixture

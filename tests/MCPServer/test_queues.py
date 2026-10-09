@@ -1,5 +1,4 @@
 import concurrent.futures
-import pathlib
 import queue as Queue
 import threading
 import uuid
@@ -158,6 +157,14 @@ def dip(request, tmp_path):
 
 dip_1 = dip
 dip_2 = dip
+
+
+@pytest.fixture
+def transfer_model(
+    transfer: Transfer, make_transfer: TransferFactory
+) -> models.Transfer:
+    """The database row of the transfer package, in processing status."""
+    return make_transfer(uuid=transfer.uuid, status=models.PACKAGE_STATUS_PROCESSING)
 
 
 def test_schedule_job(package_queue, transfer, workflow_link):
@@ -348,22 +355,19 @@ def test_all_scheduled_jobs_are_processed(
 @pytest.mark.django_db(transaction=True)
 def test_failed_terminal_link_marks_package_failed(
     package_queue: PackageQueue,
-    tmp_path: pathlib.Path,
     workflow_link: Link,
-    make_transfer: TransferFactory,
+    transfer: Transfer,
+    transfer_model: models.Transfer,
 ) -> None:
-    package_id = uuid.uuid4()
-    make_transfer(uuid=package_id, status=models.PACKAGE_STATUS_PROCESSING)
     workflow_link._src["end"] = True
     workflow_link._src["package_status"] = TERMINAL_PACKAGE_STATUS_FAILED
-    transfer = Transfer(str(tmp_path), package_id)
     test_job = MockJob(mock.Mock(), workflow_link, transfer)
 
     package_queue.schedule_job(test_job)
     _process_one_job(package_queue)
     test_job.job_ran.wait(1.0)
 
-    transfer_model = models.Transfer.objects.get(pk=package_id)
+    transfer_model.refresh_from_db()
     assert transfer_model.status == models.PACKAGE_STATUS_FAILED
     assert transfer_model.completed_at is not None
     assert transfer.uuid not in package_queue.active_packages
@@ -372,23 +376,20 @@ def test_failed_terminal_link_marks_package_failed(
 @pytest.mark.django_db(transaction=True)
 def test_legacy_failed_terminal_link_marks_package_failed(
     package_queue: PackageQueue,
-    tmp_path: pathlib.Path,
     workflow_link: Link,
-    make_transfer: TransferFactory,
+    transfer: Transfer,
+    transfer_model: models.Transfer,
 ) -> None:
-    package_id = uuid.uuid4()
-    make_transfer(uuid=package_id, status=models.PACKAGE_STATUS_PROCESSING)
     workflow_link.id = next(iter(FAILED_PACKAGE_TERMINAL_LINK_IDS))
     workflow_link._src["end"] = True
     workflow_link._src.pop("package_status", None)
-    transfer = Transfer(str(tmp_path), package_id)
     test_job = MockJob(mock.Mock(), workflow_link, transfer)
 
     package_queue.schedule_job(test_job)
     _process_one_job(package_queue)
     test_job.job_ran.wait(1.0)
 
-    transfer_model = models.Transfer.objects.get(pk=package_id)
+    transfer_model.refresh_from_db()
     assert transfer_model.status == models.PACKAGE_STATUS_FAILED
     assert transfer_model.completed_at is not None
     assert transfer.uuid not in package_queue.active_packages
@@ -397,17 +398,14 @@ def test_legacy_failed_terminal_link_marks_package_failed(
 @pytest.mark.django_db(transaction=True)
 def test_job_exception_fails_records_and_releases_next_package(
     package_queue: PackageQueue,
-    tmp_path: pathlib.Path,
     workflow_link: Link,
+    transfer: Transfer,
+    transfer_model: models.Transfer,
     sip: SIP,
     caplog: pytest.LogCaptureFixture,
-    make_transfer: TransferFactory,
     make_job: JobFactory,
     make_task: TaskFactory,
 ) -> None:
-    package_id = uuid.uuid4()
-    make_transfer(uuid=package_id, status=models.PACKAGE_STATUS_PROCESSING)
-    transfer = Transfer(str(tmp_path), package_id)
     failed_job = FailingJob(mock.Mock(), workflow_link, transfer)
     queued_job = MockJob(mock.Mock(), workflow_link, sip)
     job_model = make_job(
@@ -429,7 +427,7 @@ def test_job_exception_fails_records_and_releases_next_package(
     with mock.patch.object(metrics.job_exception_counter, "inc") as counter_inc:
         _process_one_failed_job(package_queue, KeyError)
 
-    transfer_model = models.Transfer.objects.get(pk=package_id)
+    transfer_model.refresh_from_db()
     job_model.refresh_from_db()
     unfinished_task.refresh_from_db()
     completed_task.refresh_from_db()

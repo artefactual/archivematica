@@ -10,7 +10,6 @@ from django.utils import timezone
 from archivematica.dashboard.components.unit.views import JOB_HISTORY_PAGE_SIZE
 from archivematica.dashboard.main import models
 from tests.factories import JobFactory
-from tests.factories import SIPFactory
 from tests.factories import TaskFactory
 from tests.factories import TransferFactory
 
@@ -149,10 +148,9 @@ def test_history_exposes_tasks_from_every_attempt_and_status(
 def test_ingest_history_includes_sip_and_dip_jobs(
     dashboard_uuid: uuid.UUID,
     admin_client: Client,
-    make_sip: SIPFactory,
+    sip: models.SIP,
     link_uuid: uuid.UUID,
 ) -> None:
-    sip = make_sip()
     sip_job = create_job(sip, link_uuid, unittype="unitSIP")
     dip_job = create_job(sip, link_uuid, unittype="unitDIP")
     create_job(sip, link_uuid, unittype="unitTransfer")
@@ -169,14 +167,13 @@ def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
     admin_client: Client,
     transfer: models.Transfer,
     link_uuid: uuid.UUID,
-    make_job: JobFactory,
 ) -> None:
     timestamp = timezone.now()
     jobs = [
-        make_job(
+        create_job(
             transfer,
+            link_uuid,
             jobuuid=uuid.UUID(int=index + 1),
-            microservicechainlink=link_uuid,
             createdtime=timestamp,
             jobtype="Repeated job",
         )

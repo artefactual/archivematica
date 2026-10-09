@@ -39,7 +39,6 @@ from archivematica.MCPServer.server.tasks import Task as WorkflowTask
 from archivematica.MCPServer.server.workflow import Workflow
 from tests.factories import JobFactory
 from tests.factories import TaskFactory
-from tests.factories import TransferFactory
 
 # Static workflow contract asserted by package bootstrap tests.
 RETRIEVAL_LINK_ID = "b3843201-3c52-4124-a7ee-16faaccf24b9"
@@ -893,10 +892,9 @@ def test_auto_approved_package_schedules_retrieval_workflow(
     starting_point: StartingPoint,
     wf: Workflow,
     retrieval_directories: SimpleNamespace,
-    make_transfer: TransferFactory,
+    transfer: models.Transfer,
 ) -> None:
     """Every supported transfer type records its post-retrieval continuation."""
-    transfer = make_transfer()
     package_queue = mock.Mock(spec=PackageQueue)
     source_path = "a00a29b6-7530-4f09-b3df-fd88d9e478b1:home/username/transfer"
 
@@ -944,10 +942,9 @@ def test_auto_approved_package_schedules_retrieval_workflow(
 def test_auto_approved_package_does_not_copy_before_workflow(
     wf: Workflow,
     retrieval_directories: SimpleNamespace,
-    make_transfer: TransferFactory,
+    transfer: models.Transfer,
 ) -> None:
     """MCPServer only plans retrieval; it performs no Storage Service I/O."""
-    transfer = make_transfer()
     package_queue = mock.Mock(spec=PackageQueue)
 
     with (
@@ -974,9 +971,8 @@ def test_auto_approved_package_does_not_copy_before_workflow(
 
 @pytest.mark.django_db(transaction=True)
 def test_non_auto_approved_package_still_uses_watched_directory_copy(
-    retrieval_directories: SimpleNamespace, make_transfer: TransferFactory
+    retrieval_directories: SimpleNamespace, transfer: models.Transfer
 ) -> None:
-    transfer = make_transfer()
     starting_point = PACKAGE_TYPE_STARTING_POINTS["standard"]
 
     with (
@@ -1059,27 +1055,23 @@ def test_capture_transfer_failure_closes_old_executor_connections():
 
 @pytest.mark.django_db(transaction=True)
 def test_capture_transfer_failure_marks_transfer_failed(
-    make_transfer: TransferFactory,
+    processing_transfer: models.Transfer,
 ) -> None:
-    transfer = make_transfer(status=models.PACKAGE_STATUS_PROCESSING)
-
     @_capture_transfer_failure(mark_transfer_failed=True)
     def fn(transfer):
         raise RuntimeError("workflow scheduling failed")
 
-    fn(transfer)
+    fn(processing_transfer)
 
-    transfer.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_FAILED
-    assert transfer.completed_at is not None
+    processing_transfer.refresh_from_db()
+    assert processing_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert processing_transfer.completed_at is not None
 
 
 @pytest.mark.django_db(transaction=True)
 def test_capture_transfer_failure_preserves_old_transfer_status_by_default(
-    make_transfer: TransferFactory,
+    transfer: models.Transfer,
 ) -> None:
-    transfer = make_transfer(status=models.PACKAGE_STATUS_UNKNOWN)
-
     @_capture_transfer_failure
     def fn(transfer):
         raise RuntimeError("watched-directory copy failed")
@@ -1093,32 +1085,23 @@ def test_capture_transfer_failure_preserves_old_transfer_status_by_default(
 
 @pytest.mark.django_db(transaction=True)
 def test_startup_cleanup_fails_queued_transfer_retrieval(
-    make_transfer: TransferFactory,
+    processing_transfer: models.Transfer,
 ) -> None:
-    transfer = make_transfer(
-        status=models.PACKAGE_STATUS_PROCESSING,
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-    )
-
-    assert not models.Job.objects.filter(sipuuid=transfer.uuid).exists()
+    assert not models.Job.objects.filter(sipuuid=processing_transfer.uuid).exists()
 
     Package.cleanup_old_db_entries()
 
-    transfer.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_FAILED
-    assert transfer.completed_at is not None
+    processing_transfer.refresh_from_db()
+    assert processing_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert processing_transfer.completed_at is not None
 
 
 @pytest.mark.django_db(transaction=True)
 def test_startup_cleanup_fails_executing_transfer_retrieval(
-    make_transfer: TransferFactory, make_job: JobFactory, make_task: TaskFactory
+    processing_transfer: models.Transfer, make_job: JobFactory, make_task: TaskFactory
 ) -> None:
-    transfer = make_transfer(
-        status=models.PACKAGE_STATUS_PROCESSING,
-        currentlocation="%sharedPath%tmp/tmp123/TransferName",
-    )
     retrieval_job = make_job(
-        transfer,
+        processing_transfer,
         jobtype="Retrieve transfer source",
         microservicegroup="Retrieve transfer source",
         microservicechainlink="b3843201-3c52-4124-a7ee-16faaccf24b9",
@@ -1130,11 +1113,11 @@ def test_startup_cleanup_fails_executing_transfer_retrieval(
     WorkflowJob.cleanup_old_db_entries()
     WorkflowTask.cleanup_old_db_entries()
 
-    transfer.refresh_from_db()
+    processing_transfer.refresh_from_db()
     retrieval_job.refresh_from_db()
     retrieval_task.refresh_from_db()
-    assert transfer.status == models.PACKAGE_STATUS_FAILED
-    assert transfer.completed_at is not None
+    assert processing_transfer.status == models.PACKAGE_STATUS_FAILED
+    assert processing_transfer.completed_at is not None
     assert retrieval_job.currentstep == models.Job.STATUS_FAILED
     assert retrieval_task.exitcode == -1
     assert retrieval_task.stderror == "MCP shut down while processing."
