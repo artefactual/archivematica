@@ -137,7 +137,7 @@ def test_simple_mets(
         includeAmdSec=False,
         createNormativeStructmap=False,
     )
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     amdsecs = mets_xml.xpath(
         ".//mets:amdSec",
         namespaces=NSMAP,
@@ -175,7 +175,7 @@ def test_aip_mets_includes_dublincore(
         includeAmdSec=True,
         createNormativeStructmap=True,
     )
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     objects_div = mets_xml.xpath(
         ".//mets:div[@LABEL='objects']",
         namespaces=NSMAP,
@@ -214,7 +214,7 @@ def test_aip_mets_includes_dublincore_via_metadata_csv(
         includeAmdSec=True,
         createNormativeStructmap=True,
     )
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     file_div = mets_xml.xpath(
         ".//mets:div[@LABEL='file1']",
         namespaces=NSMAP,
@@ -250,7 +250,7 @@ def test_aip_mets_normative_directory_structure(
         includeAmdSec=True,
         createNormativeStructmap=True,
     )
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     normative_structmap = mets_xml.xpath(
         ".//mets:structMap[@LABEL='Normative Directory Structure']", namespaces=NSMAP
     )
@@ -375,7 +375,7 @@ def test_bag_metadata_is_recorded_in_a_amdsec(
         createNormativeStructmap=False,
     )
 
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     transfer_metadata = mets_xml.xpath(
         ".//mets:amdSec//transfer_metadata/*",
         namespaces=NSMAP,
@@ -434,7 +434,7 @@ def test_transfer_metadata_xml_is_recorded_in_a_amdsec(
         createNormativeStructmap=False,
     )
 
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     transfer_metadata = mets_xml.xpath(
         ".//mets:amdSec//mets:xmlData/*",
         namespaces=NSMAP,
@@ -492,7 +492,7 @@ def test_source_metadata_xml_is_recorded_in_a_amdsec(
         createNormativeStructmap=False,
     )
 
-    mets_xml = etree.parse(mets_path.open())
+    mets_xml = etree.parse(mets_path)
     transfer_metadata = mets_xml.xpath(
         ".//mets:amdSec//mets:mdRef",
         namespaces=NSMAP,
