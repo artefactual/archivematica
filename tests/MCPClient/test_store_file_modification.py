@@ -40,9 +40,7 @@ def test_store_file_modification_dates(
     )
 
     # Assert files have expected modification times
-    expected_time = datetime.datetime(
-        2003, 4, 6, 2, 59, 30, tzinfo=datetime.timezone.utc
-    )
+    expected_time = datetime.datetime(2003, 4, 6, 2, 59, 30, tzinfo=datetime.UTC)
     assert list(
         models.File.objects.filter(transfer=unicode_transfer).values_list(
             "modificationtime", flat=True

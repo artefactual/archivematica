@@ -2,7 +2,6 @@ import importlib
 import warnings
 from configparser import RawConfigParser
 from types import ModuleType
-from typing import Optional
 
 
 def get_supported_modules(modules_file_path: str) -> dict[str, str]:
@@ -20,7 +19,7 @@ def get_supported_modules(modules_file_path: str) -> dict[str, str]:
     return supported_modules
 
 
-def load_module(module_name: str) -> Optional[ModuleType]:
+def load_module(module_name: str) -> ModuleType | None:
     # No need to cache here as imports are already cached.
     try:
         return importlib.import_module(
@@ -42,10 +41,14 @@ def get_module_concurrency(module: ModuleType) -> int:
         return 1
 
 
-def load_job_modules(modules_file_path: str) -> dict[str, Optional[ModuleType]]:
+def load_job_modules(modules_file_path: str) -> dict[str, ModuleType | None]:
     """Return a dict of {client script name: module}."""
     supported_modules = get_supported_modules(modules_file_path)
 
     return dict(
-        zip(supported_modules.keys(), map(load_module, supported_modules.values()))
+        zip(
+            supported_modules.keys(),
+            map(load_module, supported_modules.values()),
+            strict=True,
+        )
     )

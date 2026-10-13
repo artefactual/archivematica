@@ -3,7 +3,6 @@ import pathlib
 import uuid
 from collections.abc import Mapping
 from collections.abc import Sequence
-from typing import Optional
 from unittest import mock
 
 import pytest
@@ -540,8 +539,8 @@ def test_normalization_copies_generated_thumbnail_to_shared_thumbnails_directory
         text: str,
         stdIn: str = "",
         printing: bool = True,
-        arguments: Optional[Sequence[str]] = None,
-        env_updates: Optional[Mapping[str, str]] = None,
+        arguments: Sequence[str] | None = None,
+        env_updates: Mapping[str, str] | None = None,
         capture_output: bool = True,
     ) -> tuple[int, str, str]:
         """Mock thumbnail generation by creating a new temporary file."""
@@ -669,8 +668,8 @@ def test_normalization_fallbacks_to_default_thumbnail_rule_if_initial_command_fa
         text: str,
         stdIn: str = "",
         printing: bool = True,
-        arguments: Optional[Sequence[str]] = None,
-        env_updates: Optional[Mapping[str, str]] = None,
+        arguments: Sequence[str] | None = None,
+        env_updates: Mapping[str, str] | None = None,
         capture_output: bool = True,
     ) -> tuple[int, str, str]:
         """Mock a complex normalization command that initially fails and then

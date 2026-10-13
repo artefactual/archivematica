@@ -4,7 +4,6 @@ import dataclasses
 import multiprocessing
 import os
 import uuid
-from typing import Optional
 
 import django
 
@@ -106,7 +105,7 @@ def fetch_rules_for(file_: File) -> QuerySet[FPRule]:
         return FPRule.objects.none()
 
 
-def fetch_rules_for_derivatives(file_: File) -> tuple[Optional[File], QuerySet[FPRule]]:
+def fetch_rules_for_derivatives(file_: File) -> tuple[File | None, QuerySet[FPRule]]:
     derivs = Derivation.objects.filter(source_file=file_)
     for deriv in derivs:
         derived_file = deriv.derived_file

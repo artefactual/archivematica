@@ -274,7 +274,7 @@ def test_call_reuses_scanner_and_batch_data(
             args=["antivirus", file_uuid, path, args["date"]],
             JobContext=mock.MagicMock(),
         )
-        for file_uuid, path in zip(file_uuids, paths)
+        for file_uuid, path in zip(file_uuids, paths, strict=True)
     ]
     scanner = ScannerMock(passed=True)
     scanner.scan = mock.Mock(wraps=scanner.scan)
@@ -317,7 +317,7 @@ def test_call_preserves_scan_and_event_behavior(
             args=["antivirus", str(file.uuid), path, args["date"]],
             JobContext=mock.Mock(return_value=nullcontext()),
         )
-        for file, path in zip([scanned_file, transfer_file], paths)
+        for file, path in zip([scanned_file, transfer_file], paths, strict=True)
     ]
     scanner = ScannerMock(passed=True)
     scanner.scan = mock.Mock(wraps=scanner.scan)

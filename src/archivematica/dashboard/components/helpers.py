@@ -56,7 +56,10 @@ def pr(object):
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
     desc = cursor.description
-    return [dict(list(zip([col[0] for col in desc], row))) for row in cursor.fetchall()]
+    return [
+        dict(list(zip([col[0] for col in desc], row, strict=True)))
+        for row in cursor.fetchall()
+    ]
 
 
 def _is_numeric(v):

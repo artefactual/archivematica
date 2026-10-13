@@ -15,7 +15,7 @@ import os
 import re
 import time
 from collections import OrderedDict
-from datetime import timezone as datetime_timezone
+from datetime import UTC
 from io import StringIO
 from socket import gethostname
 from typing import Literal
@@ -96,7 +96,7 @@ def _datetime_to_unix_timestamp(value) -> float:
     treated as UTC to match the existing MySQL/UNIX_TIMESTAMP monitor behavior.
     """
     if value.utcoffset() is not None:
-        value = value.astimezone(datetime_timezone.utc)
+        value = value.astimezone(UTC)
     return calendar.timegm(value.timetuple()) + (value.microsecond / 1000000)
 
 

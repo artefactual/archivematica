@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name="archivematica"
 description="Web- and standards-based, open-source application which allows your institution to preserve long-term access to trustworthy, authentic and reliable digital content."
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
   {name = "Artefactual Systems Inc.", email = "info@artefactual.com"},
 ]
@@ -110,9 +110,6 @@ omit = [
     "**/manage.py",
 ]
 branch = true
-
-[tool.ruff]
-target-version = "py39"
 
 [tool.ruff.lint]
 # Rule reference: https://docs.astral.sh/ruff/rules/

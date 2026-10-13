@@ -297,7 +297,7 @@ def test_bind_pids(
         )
         id_types = [item.text for item in id_type]
         id_values = [item.text for item in id_value]
-        identifiers_dict = dict(list(zip(id_types, id_values)))
+        identifiers_dict = dict(list(zip(id_types, id_values, strict=True)))
         for key in identifiers_dict.keys():
             assert key in chain(TRADITIONAL_IDENTIFIERS, BOUND_IDENTIFIER_TYPES)
         assert bound_hdl in list(identifiers_dict.values())
@@ -363,7 +363,7 @@ def test_bind_pid(
         )
         id_types = [item.text for item in id_type]
         id_values = [item.text for item in id_value]
-        identifiers_dict = dict(list(zip(id_types, id_values)))
+        identifiers_dict = dict(list(zip(id_types, id_values, strict=True)))
         for key in identifiers_dict.keys():
             assert key in chain(TRADITIONAL_IDENTIFIERS, BOUND_IDENTIFIER_TYPES), (
                 "Identifier type not in expected schemes list"
@@ -464,7 +464,7 @@ def test_pid_declaration(
         assert len(id_value) == len(all_identifier_types), (
             "Identifier value count is incorrect"
         )
-        for key, value in dict(list(zip(id_type, id_value))).items():
+        for key, value in dict(list(zip(id_type, id_value, strict=True))).items():
             if key == PID_EXID:
                 assert example_uri in value, "Example URI not preserved"
             if key == PID_ULID:
@@ -485,7 +485,7 @@ def test_pid_declaration(
         assert len(id_value) == len(all_identifier_types), (
             "Identifier value count is incorrect"
         )
-        for key, value in dict(list(zip(id_type, id_value))).items():
+        for key, value in dict(list(zip(id_type, id_value, strict=True))).items():
             if key == PID_EXID:
                 assert example_uri in value, "Example URI not preserved"
             if key == PID_ULID:

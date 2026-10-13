@@ -1,9 +1,9 @@
 import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone as datetime_timezone
 from unittest import mock
 
 import pytest
@@ -48,7 +48,7 @@ def test_datetime_to_unix_timestamp_preserves_utc_microseconds():
         30,
         15,
         123456,
-        tzinfo=datetime_timezone.utc,
+        tzinfo=UTC,
     )
 
     assert rpc_server._datetime_to_unix_timestamp(value) == pytest.approx(

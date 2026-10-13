@@ -241,7 +241,7 @@ def test_workflow_integration(
         assert isinstance(job, FilesClientScriptJob)
         assert job.exit_code == 0
         assert len(tasks) == len(dummy_file_replacements)
-        for task, replacement in zip(tasks, dummy_file_replacements):
+        for task, replacement in zip(tasks, dummy_file_replacements, strict=True):
             assert task.arguments == '"{}"'.format(replacement[r"%fileUUID%"])
 
         # Next job in chain should be queued

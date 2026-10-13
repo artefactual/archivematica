@@ -17,13 +17,12 @@
 # along with Archivematica.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
-from typing import Optional
 
 from lxml import etree
 
 from archivematica.archivematicaCommon import namespaces as ns
 
-VERSION_MAP: dict[Optional[str], int] = {
+VERSION_MAP: dict[str | None, int] = {
     # Only change exit code if AIP format changes. If unknown, default to latest
     # version. Currently, all AIPs are the same format so no special cases
     # required.

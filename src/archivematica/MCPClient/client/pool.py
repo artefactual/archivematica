@@ -21,7 +21,6 @@ import time
 from multiprocessing.process import BaseProcess
 from multiprocessing.synchronize import Event
 from types import ModuleType
-from typing import Optional
 from typing import Protocol
 from typing import TypeVar
 
@@ -84,7 +83,7 @@ def run_gearman_worker(
     log_queue: LogQueue,
     metrics_queue: MetricQueue,
     client_scripts: list[str],
-    shutdown_event: Optional[Event] = None,
+    shutdown_event: Event | None = None,
 ) -> None:
     """Target function executed by child processes in the pool."""
     # Set up logging, as we're in a new process now.
@@ -133,9 +132,9 @@ class WorkerPool:
         self.pool_size = min(settings.WORKERS, max(workers_required.values()))
         self._worker_init_args = self._get_worker_init_args(workers_required)
 
-        self.pool_maintainance_thread: Optional[threading.Thread] = None
-        self.logging_listener: Optional[logging.handlers.QueueListener] = None
-        self.metrics_listener: Optional[metrics.EventListener] = None
+        self.pool_maintainance_thread: threading.Thread | None = None
+        self.logging_listener: logging.handlers.QueueListener | None = None
+        self.metrics_listener: metrics.EventListener | None = None
 
     def start(self) -> None:
         self.metrics_listener = metrics.EventListener(self.metrics_queue)
@@ -176,7 +175,7 @@ class WorkerPool:
             self.metrics_listener.stop()
 
     def _get_script_workers_required(
-        self, job_modules: dict[str, Optional[ModuleType]]
+        self, job_modules: dict[str, ModuleType | None]
     ) -> dict[str, int]:
         workers_required = {}
         for client_script, module in job_modules.items():

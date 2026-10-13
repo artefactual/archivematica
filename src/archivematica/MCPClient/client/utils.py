@@ -12,7 +12,9 @@ def parse_command_line(s: str) -> list[str]:
 # character.  Shlex doesn't do this but bash unescaping does, and we
 # want to remain compatible.
 def _shlex_unescape(s: str) -> str:
-    return "".join(c1 for c1, c2 in zip(s, s[1:] + ".") if (c1, c2) != ("\\", "`"))
+    return "".join(
+        c1 for c1, c2 in zip(s, s[1:] + ".", strict=False) if (c1, c2) != ("\\", "`")
+    )
 
 
 def replace_task_arguments(

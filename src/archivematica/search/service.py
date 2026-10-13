@@ -8,7 +8,6 @@ from typing import Any
 from typing import Literal
 from typing import Optional
 from typing import TypedDict
-from typing import Union
 
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
@@ -48,8 +47,8 @@ class SearchBackendInfo:
 
     name: str
     version: str
-    cluster_name: Optional[str] = None
-    raw_info: Optional[dict[str, Any]] = None
+    cluster_name: str | None = None
+    raw_info: dict[str, Any] | None = None
 
 
 @dataclass
@@ -173,7 +172,7 @@ class SearchService(ABC):
 
     @abstractmethod
     def get_aip_data(
-        self, uuid: str, fields: Optional[list[str]] = None
+        self, uuid: str, fields: list[str] | None = None
     ) -> dict[str, Any]:
         """Get AIP data by UUID.
 
@@ -185,7 +184,7 @@ class SearchService(ABC):
 
     @abstractmethod
     def get_aipfile_data(
-        self, uuid: str, fields: Optional[list[str]] = None
+        self, uuid: str, fields: list[str] | None = None
     ) -> dict[str, Any]:
         """Get AIP file data by file UUID.
 
@@ -209,10 +208,10 @@ class SearchService(ABC):
     def search_aips(
         self,
         query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
+        size: int | None = None,
+        from_: int | None = None,
+        sort: SortSpec | None = None,
+        fields: list[str] | None = None,
     ) -> dict[str, Any]:
         """Search AIPs with optional parameters.
 
@@ -229,10 +228,10 @@ class SearchService(ABC):
     def search_aip_files(
         self,
         query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
+        size: int | None = None,
+        from_: int | None = None,
+        sort: SortSpec | None = None,
+        fields: list[str] | None = None,
     ) -> dict[str, Any]:
         """Search AIP files with optional parameters.
 
@@ -274,7 +273,7 @@ class SearchService(ABC):
         am_version: str,
         indexed_at: str,
         identifiers: list[dict[str, str]],
-        aips_in_aic: Optional[int] = None,
+        aips_in_aic: int | None = None,
         encrypted: bool = False,
         location: str = "",
         dashboard_uuid: str = "",
@@ -308,7 +307,7 @@ class TermsQuery(TypedDict):
 
 class ScriptDict(TypedDict):
     source: str
-    params: dict[str, Union[str, bool, list[str]]]
+    params: dict[str, str | bool | list[str]]
 
 
 class ElasticsearchSearchService(SearchService):
@@ -341,9 +340,7 @@ class ElasticsearchSearchService(SearchService):
         """
         return str(value).replace("/", "\\/")
 
-    def _delete_by_field(
-        self, index: str, field: str, value: Union[str, set[str]]
-    ) -> None:
+    def _delete_by_field(self, index: str, field: str, value: str | set[str]) -> None:
         """Delete documents from Elasticsearch index by field value(s).
 
         :param str index: Elasticsearch index name
@@ -368,7 +365,7 @@ class ElasticsearchSearchService(SearchService):
         field: str,
         value: str,
         update_field: str,
-        update_value: Union[str, bool, list[str]],
+        update_value: str | bool | list[str],
         refresh: bool = False,
     ) -> None:
         """Update documents in Elasticsearch index by field value.
@@ -391,7 +388,7 @@ class ElasticsearchSearchService(SearchService):
         query_field: str,
         query_value: str,
         update_field: str,
-        update_value: Union[str, bool, list[str]],
+        update_value: str | bool | list[str],
     ) -> dict[str, Any]:
         """Build an update_by_query body for Elasticsearch.
 
@@ -416,7 +413,7 @@ class ElasticsearchSearchService(SearchService):
         package_uuid_field: str,
         package_uuid: str,
         field: str,
-        value: Union[str, bool],
+        value: str | bool,
         refresh: bool = False,
     ) -> None:
         """Update field for a package and its related files using bulk operations.
@@ -697,8 +694,8 @@ class ElasticsearchSearchService(SearchService):
         index: str,
         field: str,
         value: str,
-        fields: Optional[list[str]] = None,
-        size: Optional[int] = None,
+        fields: list[str] | None = None,
+        size: int | None = None,
     ) -> dict[str, Any]:
         """Execute a term search query.
 
@@ -717,7 +714,7 @@ class ElasticsearchSearchService(SearchService):
         index: str,
         field: str,
         value: str,
-        fields: Optional[list[str]] = None,
+        fields: list[str] | None = None,
         not_found_exception_class: type[SearchServiceError] = SearchServiceError,
         error_context: str = "document",
     ) -> dict[str, Any]:
@@ -747,7 +744,7 @@ class ElasticsearchSearchService(SearchService):
         return dict(results["hits"]["hits"][0])
 
     def get_aip_data(
-        self, uuid: str, fields: Optional[list[str]] = None
+        self, uuid: str, fields: list[str] | None = None
     ) -> dict[str, Any]:
         """Get AIP data by UUID.
 
@@ -767,7 +764,7 @@ class ElasticsearchSearchService(SearchService):
         )
 
     def get_aipfile_data(
-        self, uuid: str, fields: Optional[list[str]] = None
+        self, uuid: str, fields: list[str] | None = None
     ) -> dict[str, Any]:
         """Get AIP file data by file UUID.
 
@@ -804,10 +801,10 @@ class ElasticsearchSearchService(SearchService):
         self,
         index: str,
         query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
+        size: int | None = None,
+        from_: int | None = None,
+        sort: SortSpec | None = None,
+        fields: list[str] | None = None,
     ) -> dict[str, Any]:
         """Search an index with optional parameters.
 
@@ -844,10 +841,10 @@ class ElasticsearchSearchService(SearchService):
     def search_aips(
         self,
         query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
+        size: int | None = None,
+        from_: int | None = None,
+        sort: SortSpec | None = None,
+        fields: list[str] | None = None,
     ) -> dict[str, Any]:
         """Search AIPs with optional parameters.
 
@@ -865,10 +862,10 @@ class ElasticsearchSearchService(SearchService):
     def search_aip_files(
         self,
         query: dict[str, Any],
-        size: Optional[int] = None,
-        from_: Optional[int] = None,
-        sort: Optional[SortSpec] = None,
-        fields: Optional[list[str]] = None,
+        size: int | None = None,
+        from_: int | None = None,
+        sort: SortSpec | None = None,
+        fields: list[str] | None = None,
     ) -> dict[str, Any]:
         """Search AIP files with optional parameters.
 
@@ -922,7 +919,7 @@ class ElasticsearchSearchService(SearchService):
         :param int wait_between_tries: Seconds to wait between health checks
         :param int max_tries: Maximum number of tries before giving up
         """
-        status: Optional[str] = None
+        status: str | None = None
         tries = 0
 
         while status != "yellow" and status != "green" and tries < max_tries:
@@ -1047,7 +1044,7 @@ class ElasticsearchSearchService(SearchService):
         am_version: str,
         indexed_at: str,
         identifiers: list[dict[str, str]],
-        aips_in_aic: Optional[int] = None,
+        aips_in_aic: int | None = None,
         encrypted: bool = False,
         location: str = "",
         dashboard_uuid: str = "",
@@ -1111,7 +1108,7 @@ class ElasticsearchSearchService(SearchService):
 
 
 def _create_elasticsearch_client(
-    hosts: Union[str, list[str], tuple[str, ...]], timeout: int = DEFAULT_TIMEOUT
+    hosts: str | list[str] | tuple[str, ...], timeout: int = DEFAULT_TIMEOUT
 ) -> Elasticsearch:
     """Create configured Elasticsearch client.
 
@@ -1128,7 +1125,7 @@ def _create_elasticsearch_client(
 
 
 def setup_search_service(
-    hosts: Union[str, list[str], tuple[str, ...]],
+    hosts: str | list[str] | tuple[str, ...],
     timeout: int = DEFAULT_TIMEOUT,
     enabled: tuple[str, ...] = (AIPS_INDEX,),
 ) -> SearchService:

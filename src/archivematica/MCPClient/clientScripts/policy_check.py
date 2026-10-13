@@ -14,7 +14,6 @@ Arguments::
 import json
 import os
 import uuid
-from typing import Optional
 from typing import cast
 
 import django
@@ -80,7 +79,7 @@ class PolicyChecker:
         self,
         job: Job,
         file_path: str,
-        file_uuid: Optional[str],
+        file_uuid: str | None,
         sip_uuid: str,
         shared_path: str,
         file_type: str,
@@ -96,9 +95,9 @@ class PolicyChecker:
         self.is_manually_normalized_access_derivative = (
             self._get_is_manually_normalized_access_derivative()
         )
-        self._sip_logs_dir: Optional[str] = None
-        self._sip_subm_doc_dir: Optional[str] = None
-        self._sip_policy_checks_dir: Optional[str] = None
+        self._sip_logs_dir: str | None = None
+        self._sip_subm_doc_dir: str | None = None
+        self._sip_policy_checks_dir: str | None = None
 
     def check(self) -> int:
         """Check the file identified by ``self.file_uuid`` against any
@@ -216,7 +215,7 @@ class PolicyChecker:
 
     def _get_manually_normalized_access_derivative_file_uuid(
         self,
-    ) -> Optional[uuid.UUID]:
+    ) -> uuid.UUID | None:
         """If the file-to-be-policy-checked is a manually normalized access
         derivative it will have no file UUID in the database. We therefore have
         to retrieve the UUID of the original file that was format-identified,
@@ -395,7 +394,7 @@ class PolicyChecker:
                     fileo.write(policy)
 
     @property
-    def sip_logs_dir(self) -> Optional[str]:
+    def sip_logs_dir(self) -> str | None:
         """Return the absolute path the logs/ directory of the SIP (or
         Transfer) that the target file is a part of.
         """
@@ -444,7 +443,7 @@ class PolicyChecker:
             return None
 
     @property
-    def sip_subm_doc_dir(self) -> Optional[str]:
+    def sip_subm_doc_dir(self) -> str | None:
         """Return the absolute path the metadata/submissionDocumentation/
         directory of the SIP that the target file is a part of.
         """
@@ -480,7 +479,7 @@ class PolicyChecker:
             return None
 
     @property
-    def sip_policy_checks_dir(self) -> Optional[str]:
+    def sip_policy_checks_dir(self) -> str | None:
         if self._sip_policy_checks_dir:
             return self._sip_policy_checks_dir
         if self.sip_logs_dir:

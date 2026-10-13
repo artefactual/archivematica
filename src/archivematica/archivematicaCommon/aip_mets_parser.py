@@ -5,7 +5,6 @@ import re
 import time
 from collections.abc import Generator
 from typing import Any
-from typing import Optional
 
 from lxml import etree
 
@@ -18,11 +17,11 @@ class AIPMETSParser:
     def __init__(self, mets_path: str) -> None:
         self.mets_path = mets_path
         self.mets = self.parse()
-        self.dublincore: Optional[etree._Element] = ns.xml_find_premis(
+        self.dublincore: etree._Element | None = ns.xml_find_premis(
             self.mets, "mets:dmdSec/mets:mdWrap/mets:xmlData/dcterms:dublincore"
         )
-        self.aic_identifier: Optional[str] = None
-        self.is_part_of: Optional[str] = None
+        self.aic_identifier: str | None = None
+        self.is_part_of: str | None = None
         if self.dublincore is not None:
             aip_type = ns.xml_findtext_premis(
                 self.dublincore, "dc:type"
@@ -191,7 +190,7 @@ class AIPMETSParser:
         # otherwise parse it out of the file ID.
         # 'Original' files have ADMIDs, 'Metadata' files do not.
         admID = file_.attrib.get("ADMID", None)
-        fileUUID: Optional[str] = None
+        fileUUID: str | None = None
         if admID is None:
             # Parse UUID from the file ID.
             uuix_regex = r"\w{8}-?\w{4}-?\w{4}-?\w{4}-?\w{12}"
@@ -263,7 +262,7 @@ class AIPMETSParser:
 
         return indexData, accession_ids
 
-    def _get_amdSec(self, admID: str) -> Optional[etree._Element]:
+    def _get_amdSec(self, admID: str) -> etree._Element | None:
         """Get amdSec with given admID.
 
         :param admID: admID.
@@ -272,7 +271,7 @@ class AIPMETSParser:
         """
         return ns.xml_find_premis(self.mets, f"mets:amdSec[@ID='{admID}']")
 
-    def _get_file_uuid(self, amdSec: Optional[etree._Element]) -> Optional[str]:
+    def _get_file_uuid(self, amdSec: etree._Element | None) -> str | None:
         """Get UUID of a file from amdSec.
 
         :param amdSec: amdSec.
@@ -284,7 +283,7 @@ class AIPMETSParser:
         )
         return uuid if isinstance(uuid, str) else None
 
-    def _get_accession_number(self, amdSec: Optional[etree._Element]) -> Optional[str]:
+    def _get_accession_number(self, amdSec: etree._Element | None) -> str | None:
         """Get accession number associated with a file from amdSec.
 
         Look for a <premis:event> entry within file's amdSec that has a
@@ -366,7 +365,7 @@ class AIPMETSParser:
         final_dmd_secs: list[etree._Element] = []
         for _, secs in dmd_secs.items():
             latest_date = ""
-            latest_sec: Optional[etree._Element] = None
+            latest_sec: etree._Element | None = None
             for sec in secs:
                 date = sec.attrib.get("CREATED", "")
                 if not latest_date or date > latest_date:
@@ -438,7 +437,7 @@ class AIPMETSParser:
                 new[key] = value
         return new
 
-    def _get_file_identifiers(self, uuid: Optional[str]) -> list[str]:
+    def _get_file_identifiers(self, uuid: str | None) -> list[str]:
         return list(
             Identifier.objects.filter(file=uuid).values_list("value", flat=True)
         )
