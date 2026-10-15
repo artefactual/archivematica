@@ -22,7 +22,6 @@ import uuid
 from dataclasses import dataclass
 from pprint import pformat
 from typing import Any
-from typing import Optional
 
 import django
 
@@ -57,7 +56,7 @@ def main(
     file_path: str,
     file_uuid: str,
     sip_uuid: str,
-    shared_path: Optional[str],
+    shared_path: str | None,
     file_type: str,
 ) -> int:
     setup_dicts(mcpclient_settings)
@@ -78,9 +77,9 @@ class ValidationResult:
     if the file validation was successful, partially successful, or failed.
     """
 
-    event_outcome_information: Optional[str]
-    event_outcome_detail_note: Optional[str]
-    stdout: Optional[str]
+    event_outcome_information: str | None
+    event_outcome_detail_note: str | None
+    stdout: str | None
 
     @staticmethod
     def _parse_stdout(stdout: str) -> dict[str, Any]:
@@ -130,7 +129,7 @@ class Validator:
         file_path: str,
         file_uuid: str,
         sip_uuid: str,
-        shared_path: Optional[str],
+        shared_path: str | None,
         file_type: str,
     ):
         self.job = job
@@ -140,8 +139,8 @@ class Validator:
         self.shared_path = shared_path if shared_path else ""
         self.file_type = file_type
         self.purpose = "validation"
-        self._sip_logs_dir: Optional[str] = None
-        self._sip_pres_val_dir: Optional[str] = None
+        self._sip_logs_dir: str | None = None
+        self._sip_pres_val_dir: str | None = None
 
     def validate(self) -> int:
         """Validate the file identified by ``self.file_uuid``, using all rules
@@ -254,7 +253,7 @@ class Validator:
         )
         return result
 
-    def _save_stdout_to_logs_dir(self, stdout: Optional[str]) -> None:
+    def _save_stdout_to_logs_dir(self, stdout: str | None) -> None:
         """Save the validation command's output from validating the file to a
         file at logs/implementationChecks/<input_filename>.xml in the SIP.
         """
@@ -311,7 +310,7 @@ class Validator:
         return "is not an access derivative"
 
     @property
-    def sip_logs_dir(self) -> Optional[str]:
+    def sip_logs_dir(self) -> str | None:
         """Return the absolute path the logs/ directory of the SIP that the
         target file is a part of.
         """
@@ -344,7 +343,7 @@ class Validator:
             return None
 
     @property
-    def sip_pres_val_dir(self) -> Optional[str]:
+    def sip_pres_val_dir(self) -> str | None:
         """Return the full path to the directory within the SIP where stdout
         from perservation derivative validation output should be written to
         disk.
@@ -370,7 +369,7 @@ class Validator:
         return self._sip_pres_val_dir
 
 
-def _get_shared_path(argv: list[str]) -> Optional[str]:
+def _get_shared_path(argv: list[str]) -> str | None:
     try:
         return argv[4]
     except IndexError:

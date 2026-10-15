@@ -80,7 +80,7 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
             180399,
             "1d2323c179066fc7c5d1cfbfa7271f77f7633a63838615708a9b704e38e8b85e",
-            datetime.datetime(2015, 11, 5, 22, 6, 49, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2015, 11, 5, 22, 6, 49, tzinfo=datetime.UTC),
         ),
         (
             "Weather_data/Weather_datacitation-ris.ris",
@@ -143,7 +143,7 @@ def dataverse_files(dataverse_transfer: models.Transfer) -> list[models.File]:
             None,
             563285,
             weather_checksum,
-            datetime.datetime(2019, 1, 15, 23, 13, tzinfo=datetime.timezone.utc),
+            datetime.datetime(2019, 1, 15, 23, 13, tzinfo=datetime.UTC),
         ),
     ]:
         result.append(

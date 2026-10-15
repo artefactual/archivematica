@@ -1,3 +1,4 @@
+from datetime import UTC
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
@@ -17,15 +18,15 @@ def test_0088_backfills_createdtime_microseconds(migrate_apps):
     Job = apps.get_model("main", "Job")
 
     job_a = Job.objects.create(
-        createdtime=datetime(2020, 1, 1, 10, 0, 0),
+        createdtime=datetime(2020, 1, 1, 10, 0, 0, tzinfo=UTC),
         createdtimedec=Decimal("0.123456"),
     )
     job_b = Job.objects.create(
-        createdtime=datetime(2020, 1, 1, 10, 0, 0),
+        createdtime=datetime(2020, 1, 1, 10, 0, 0, tzinfo=UTC),
         createdtimedec=Decimal("0"),
     )
     job_c = Job.objects.create(
-        createdtime=datetime(2020, 1, 1, 10, 0, 0, 654321),
+        createdtime=datetime(2020, 1, 1, 10, 0, 0, 654321, tzinfo=UTC),
         createdtimedec=Decimal("0.123456"),
     )
 
@@ -70,12 +71,12 @@ def test_0088_preserves_timestamp_ordering(migrate_apps):
 
     job_a = Job.objects.create(
         jobuuid=UUID("00000000-0000-0000-0000-000000000002"),
-        createdtime=datetime(2020, 1, 1, 10, 0, 0),
+        createdtime=datetime(2020, 1, 1, 10, 0, 0, tzinfo=UTC),
         createdtimedec=Decimal("0.100000"),
     )
     job_b = Job.objects.create(
         jobuuid=UUID("00000000-0000-0000-0000-000000000001"),
-        createdtime=datetime(2020, 1, 1, 10, 0, 0),
+        createdtime=datetime(2020, 1, 1, 10, 0, 0, tzinfo=UTC),
         createdtimedec=Decimal("0.200000"),
     )
 

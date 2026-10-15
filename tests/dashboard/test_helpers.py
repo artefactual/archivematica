@@ -1,3 +1,4 @@
+import io
 import json
 import uuid
 from unittest import mock
@@ -39,10 +40,8 @@ def get_streaming_response(streaming_content):
     return response_text
 
 
-def mets_stream(tmpdir, mets_hdr):
-    mets_stream = tmpdir.join("mets_file")
-    mets_stream.write(mets_hdr)
-    return mets_stream.open()
+def mets_stream(mets_hdr: str) -> io.BytesIO:
+    return io.BytesIO(mets_hdr.encode())
 
 
 @mock.patch(
@@ -89,13 +88,13 @@ def test_stream_mets_from_storage_no_file(extract_file, get_setting, tmp_path):
     return_value="http://storage-service-url/",
 )
 @mock.patch("amclient.AMClient.extract_file")
-def test_stream_mets_from_storage_success(extract_file, get_setting, mets_hdr, tmpdir):
+def test_stream_mets_from_storage_success(extract_file, get_setting, mets_hdr):
     sip_uuid = str(uuid.uuid4())
     mets_file = f"METS.{sip_uuid}.xml"
     mock_response = requests.Response()
     mock_response.headers = {CONTENT_DISPOSITION: f"attachment; filename={mets_file};"}
     mock_response.status_code = RESPONSE_200
-    mock_response.raw = mets_stream(tmpdir, mets_hdr)
+    mock_response.raw = mets_stream(mets_hdr)
     extract_file.return_value = mock_response
     response = helpers.stream_mets_from_storage_service(
         transfer_name="mets_transfer", sip_uuid=sip_uuid
@@ -124,7 +123,7 @@ def test_stream_pointer_from_storage_unsuccessful(get):
 
 
 @mock.patch("requests.get")
-def test_stream_pointer_from_storage_successful(get, tmpdir, mets_hdr):
+def test_stream_pointer_from_storage_successful(get, mets_hdr):
     sip_uuid = str(uuid.uuid4())
     mock_response = requests.Response()
     pointer_url, pointer_file, content_disposition = setup_ptr_info(sip_uuid)
@@ -133,7 +132,7 @@ def test_stream_pointer_from_storage_successful(get, tmpdir, mets_hdr):
         CONTENT_DISPOSITION: content_disposition,
     }
     mock_response.status_code = RESPONSE_200
-    mock_response.raw = mets_stream(tmpdir, mets_hdr)
+    mock_response.raw = mets_stream(mets_hdr)
     get.return_value = mock_response
     response = helpers.stream_file_from_storage_service(pointer_url)
     assert response.status_code == RESPONSE_200
@@ -144,7 +143,7 @@ def test_stream_pointer_from_storage_successful(get, tmpdir, mets_hdr):
     # Create a new mock response object (the stream hasn't been consumed).
     mock_response = requests.Response()
     mock_response.status_code = RESPONSE_200
-    mock_response.raw = mets_stream(tmpdir, mets_hdr)
+    mock_response.raw = mets_stream(mets_hdr)
     get.return_value = mock_response
     # Make the request again, but ask to view in the browser, i.e. inline.
     response = helpers.stream_file_from_storage_service(pointer_url, preview_file=True)
@@ -154,13 +153,13 @@ def test_stream_pointer_from_storage_successful(get, tmpdir, mets_hdr):
 
 
 @mock.patch("requests.get")
-def test_stream_pointer_from_storage_no_content_type(get, tmpdir, mets_hdr):
+def test_stream_pointer_from_storage_no_content_type(get, mets_hdr):
     sip_uuid = str(uuid.uuid4())
     mock_response = requests.Response()
     pointer_url, pointer_file, content_disposition = setup_ptr_info(sip_uuid)
     mock_response.headers = {CONTENT_DISPOSITION: content_disposition}
     mock_response.status_code = RESPONSE_200
-    mock_response.raw = mets_stream(tmpdir, mets_hdr)
+    mock_response.raw = mets_stream(mets_hdr)
     get.return_value = mock_response
     response = helpers.stream_file_from_storage_service(pointer_url)
     assert response.status_code == RESPONSE_200

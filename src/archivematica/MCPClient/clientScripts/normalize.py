@@ -8,8 +8,7 @@ import os
 import shutil
 import traceback
 import uuid
-from typing import Callable
-from typing import Optional
+from collections.abc import Callable
 
 import django
 from django.utils import timezone
@@ -50,7 +49,7 @@ class NormalizeArgs:
     thumbnail_mode: str
 
 
-def get_replacement_dict(job: Job, opts: NormalizeArgs) -> Optional[ReplacementDict]:
+def get_replacement_dict(job: Job, opts: NormalizeArgs) -> ReplacementDict | None:
     """Generates values for all knows %var% replacement variables."""
     prefix = ""
     postfix = ""
@@ -102,7 +101,7 @@ def _decode_binary_path(value: bytes | memoryview | None) -> str:
     return value.decode()
 
 
-def check_manual_normalization(job: Job, opts: NormalizeArgs) -> Optional[File]:
+def check_manual_normalization(job: Job, opts: NormalizeArgs) -> File | None:
     """Checks for manually normalized file, returns that path or None.
 
     Checks by looking for access/preservation files for a give original file.
@@ -341,8 +340,8 @@ def insert_derivation_event(
     output_uuid: str,
     derivation_uuid: str,
     event_detail_output: str,
-    outcome_detail_note: Optional[str],
-    today: Optional[datetime.datetime] = None,
+    outcome_detail_note: str | None,
+    today: datetime.datetime | None = None,
 ) -> None:
     """Add the derivation link for preservation files and the event."""
     if today is None:

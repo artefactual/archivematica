@@ -275,7 +275,7 @@ class GearmanTaskBatch:
             for task in self.tasks:
                 task.exit_code = 1
                 task.stderr = message
-                task.finished_timestamp = datetime.datetime.now(datetime.timezone.utc)
+                task.finished_timestamp = datetime.datetime.now(datetime.UTC)
                 task.done = True
             Task.bulk_mark_failed(self.tasks, message)
             yield from self.tasks

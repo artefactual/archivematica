@@ -4,8 +4,6 @@ import multiprocessing
 from datetime import datetime
 from multiprocessing.synchronize import Event
 from types import TracebackType
-from typing import Optional
-from typing import Union
 
 import gearman
 from django.conf import settings
@@ -31,7 +29,7 @@ from archivematica.MCPClient.client.worker import run_task
 #     },
 #     ...
 # }
-TaskData = dict[str, Union[str, bool]]
+TaskData = dict[str, str | bool]
 GearmanJobTasks = dict[str, TaskData]
 
 # This is how `results` looks in the `_format_job_results` method below:
@@ -46,7 +44,7 @@ GearmanJobTasks = dict[str, TaskData]
 #     },
 #     ...
 # }
-JobData = dict[str, Union[int, Optional[datetime], str]]
+JobData = dict[str, int | datetime | None | str]
 JobResults = dict[str, JobData]
 
 logger = logging.getLogger("archivematica.mcp.client.gearman")
@@ -59,8 +57,8 @@ class MCPGearmanWorker(gearman.GearmanWorker):
         self,
         hosts: list[str],
         client_scripts: list[str],
-        shutdown_event: Optional[Event] = None,
-        max_jobs_to_process: Optional[int] = None,
+        shutdown_event: Event | None = None,
+        max_jobs_to_process: int | None = None,
     ) -> None:
         super().__init__(hosts)
 

@@ -75,7 +75,7 @@ on:
       - "uv.lock"
 env:
   UBUNTU_VERSION: "26.04"
-  PYTHON_VERSION: "3.10"
+  PYTHON_VERSION: "3.11"
 jobs:
   select_matrix:
     name: "Select the authentication provider matrix"

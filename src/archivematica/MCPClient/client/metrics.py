@@ -14,12 +14,11 @@ import logging
 import queue
 import threading
 import time
+from collections.abc import Callable
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
-from typing import Callable
 from typing import NamedTuple
-from typing import Optional
 from typing import Protocol
 from typing import TypeVar
 from typing import cast
@@ -58,7 +57,7 @@ class MetricQueue(Protocol):
     reads while running and non-blocking reads during shutdown drain.
     """
 
-    def get(self, block: bool = True, timeout: Optional[float] = None) -> Any: ...
+    def get(self, block: bool = True, timeout: float | None = None) -> Any: ...
     def get_nowait(self) -> Any: ...
     def put_nowait(self, item: Any) -> None: ...
 
@@ -80,7 +79,7 @@ class MetricEvent(NamedTuple):
 # Dedicated registry served by MCPClient's /metrics endpoint. It intentionally
 # excludes prometheus_client's default runtime/process collectors.
 REGISTRY = CollectorRegistry()
-_EVENT_QUEUE: Optional[MetricQueue] = None
+_EVENT_QUEUE: MetricQueue | None = None
 _EVENT_QUEUE_LOCK = threading.RLock()
 _GAUGE_MAX_VALUES: dict[tuple[str, tuple[tuple[str, str], ...]], float] = {}
 _GAUGE_MAX_VALUES_LOCK = threading.RLock()
@@ -339,10 +338,10 @@ T = TypeVar("T")
 
 
 def skip_if_prometheus_disabled(
-    func: Callable[..., Optional[T]],
-) -> Callable[..., Optional[T]]:
+    func: Callable[..., T | None],
+) -> Callable[..., T | None]:
     @functools.wraps(func)
-    def wrapper(*args: object, **kwds: object) -> Optional[T]:
+    def wrapper(*args: object, **kwds: object) -> T | None:
         if settings.PROMETHEUS_ENABLED:
             return func(*args, **kwds)
         return None
@@ -350,7 +349,7 @@ def skip_if_prometheus_disabled(
     return wrapper
 
 
-def configure_event_queue(event_queue: Optional[MetricQueue]) -> None:
+def configure_event_queue(event_queue: MetricQueue | None) -> None:
     """Route metric updates through a queue.
 
     MCPClient workers call this with the parent-owned queue before processing
@@ -395,7 +394,7 @@ class EventListener:
     def __init__(self, event_queue: MetricQueue) -> None:
         self.event_queue = event_queue
         self._stop = threading.Event()
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
 
     def start(self) -> None:
         self._thread = threading.Thread(
@@ -461,7 +460,7 @@ def _log_queue_write_failure_once(event: MetricEvent) -> None:
 def _record_event(
     collector: str,
     action: str,
-    labels: Optional[dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
     value: float = 1.0,
 ) -> None:
     event = MetricEvent(
@@ -487,7 +486,7 @@ def _record_event(
 
 def _inc(
     collector: str,
-    labels: Optional[dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
     amount: float = 1.0,
 ) -> None:
     _record_event(collector, "inc", labels, amount)
@@ -495,7 +494,7 @@ def _inc(
 
 def _set(
     collector: str,
-    labels: Optional[dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
     value: float = 0.0,
 ) -> None:
     _record_event(collector, "set", labels, value)
@@ -503,7 +502,7 @@ def _set(
 
 def _set_max(
     collector: str,
-    labels: Optional[dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
     value: float = 0.0,
 ) -> None:
     _record_event(collector, "set_max", labels, value)
@@ -511,14 +510,14 @@ def _set_max(
 
 def _set_to_current_time(
     collector: str,
-    labels: Optional[dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
 ) -> None:
     _set_max(collector, labels, time.time())
 
 
 def _observe(
     collector: str,
-    labels: Optional[dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
     value: float = 0.0,
 ) -> None:
     _record_event(collector, "observe", labels, value)

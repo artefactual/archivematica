@@ -4,7 +4,6 @@ import dataclasses
 import json
 import multiprocessing
 import uuid
-from typing import Optional
 
 import django
 
@@ -68,7 +67,7 @@ def _save_id_preference(file_: File, value: bool) -> None:
 def write_identification_event(
     file_uuid: str,
     command: IDCommand,
-    format: Optional[str] = None,
+    format: str | None = None,
     success: bool = True,
 ) -> None:
     event_detail_text = ""

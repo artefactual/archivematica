@@ -31,7 +31,6 @@ import re
 from collections.abc import Iterable
 from itertools import zip_longest
 from pathlib import Path
-from typing import Union
 from uuid import uuid4
 
 from amclient import AMClient
@@ -534,7 +533,7 @@ def chunk_iterable(iterable, chunk_size=10, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 
-ProviderConfig = dict[str, Union[str, bool]]
+ProviderConfig = dict[str, str | bool]
 
 
 def get_oidc_secondary_providers(

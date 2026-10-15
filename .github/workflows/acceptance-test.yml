@@ -42,7 +42,7 @@ jobs:
         run: |
           make -C hack/ build
         env:
-          PYTHON_VERSION: "3.10"
+          PYTHON_VERSION: "3.11"
       - name: "Start services"
         run: |
           docker compose up -d

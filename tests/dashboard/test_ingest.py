@@ -45,7 +45,7 @@ def sip(make_sip: SIPFactory) -> models.SIP:
 @pytest.fixture
 def completed_sip(make_job: JobFactory, sip: models.SIP) -> models.SIP:
     """The SIP with the jobs of its completed ingest, which name it "test"."""
-    started = datetime.datetime(2016, 10, 4, 23, 5, 56, tzinfo=datetime.timezone.utc)
+    started = datetime.datetime(2016, 10, 4, 23, 5, 56, tzinfo=datetime.UTC)
     for seconds, microservicegroup, jobtype, directory in [
         (
             0,

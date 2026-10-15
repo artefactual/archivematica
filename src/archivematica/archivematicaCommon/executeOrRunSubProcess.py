@@ -21,15 +21,13 @@ import shlex
 import subprocess
 import sys
 import tempfile
-from typing import Optional
-from typing import Union
 
 from archivematica.archivematicaCommon.archivematicaFunctions import escape
 
 Arguments = list[str]
-Input = Union[str, bytes, io.IOBase]
+Input = str | bytes | io.IOBase
 Environment = dict[str, str]
-Command = Union[str, list[str]]
+Command = str | list[str]
 Result = tuple[int, str, str]
 
 
@@ -37,8 +35,8 @@ def launchSubProcess(
     command: Command,
     stdIn: Input = "",
     printing: bool = True,
-    arguments: Optional[Arguments] = None,
-    env_updates: Optional[Environment] = None,
+    arguments: Arguments | None = None,
+    env_updates: Environment | None = None,
     capture_output: bool = False,
 ) -> Result:
     """
@@ -152,8 +150,8 @@ def createAndRunScript(
     text: Command,
     stdIn: Input = "",
     printing: bool = True,
-    arguments: Optional[Arguments] = None,
-    env_updates: Optional[Environment] = None,
+    arguments: Arguments | None = None,
+    env_updates: Environment | None = None,
     capture_output: bool = True,
 ) -> Result:
     if arguments is None:
@@ -190,8 +188,8 @@ def executeOrRun(
     text: Command,
     stdIn: Input = "",
     printing: bool = True,
-    arguments: Optional[Arguments] = None,
-    env_updates: Optional[Environment] = None,
+    arguments: Arguments | None = None,
+    env_updates: Environment | None = None,
     capture_output: bool = True,
 ) -> Result:
     """

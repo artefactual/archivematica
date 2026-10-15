@@ -36,6 +36,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 import archivematica.dashboard.main.models as models
+from archivematica.MCPClient.client.job import Job
 
 logger = get_script_logger("archivematica.upload.qubit")
 
@@ -68,7 +69,7 @@ def error(job, message, code=1):
     return 1
 
 
-def start(job, data):
+def start(job: Job, data: optparse.Values) -> int:
     # Make sure we are working with an existing SIP record
     if not models.SIP.objects.filter(pk=data.uuid).exists():
         return error(job, "UUID not recognized")
@@ -153,16 +154,19 @@ def start(job, data):
 
         # Call Rsync
         process = subprocess.Popen(command, stdout=pipe_output, stderr=pipe_output)
+        # rsync inherited the descriptor, so this process no longer needs it.
+        os.close(pipe_output)
 
         # poll() returns None while the process is still running
         while process.poll() is None:
             time.sleep(1)
-            last_line = open(file_name).readlines()
+            with open(file_name) as rsync_output:
+                output_lines = rsync_output.readlines()
 
             # It's possible that it hasn't output yet, so continue
-            if len(last_line) == 0:
+            if len(output_lines) == 0:
                 continue
-            last_line = last_line[-1]
+            last_line = output_lines[-1]
 
             # Matching to "[bytes downloaded]  number%  [speed] number:number:number"
             match = re.match(".* ([0-9]*)%.* ([0-9]*:[0-9]*:[0-9]*).*", last_line)

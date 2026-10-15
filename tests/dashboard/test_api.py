@@ -845,7 +845,8 @@ def test_list_processing_configs(
     shared_dir = payload["processing_configurations"]
     assert len(shared_dir) == 2
     assert all(
-        actual == expected for actual, expected in zip(shared_dir, expected_names)
+        actual == expected
+        for actual, expected in zip(shared_dir, expected_names, strict=True)
     )
 
 

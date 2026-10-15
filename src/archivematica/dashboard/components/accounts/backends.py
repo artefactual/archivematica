@@ -1,5 +1,4 @@
 from typing import Any
-from typing import Optional
 
 import jwt
 from django.conf import settings
@@ -168,7 +167,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
 
         return info
 
-    def create_user(self, user_info: dict[str, Any]) -> Optional[User]:
+    def create_user(self, user_info: dict[str, Any]) -> User | None:
         role = self.get_user_role(user_info)
         if role is None:
             return None
@@ -180,7 +179,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         generate_api_key(user)
         return user
 
-    def update_user(self, user: User, user_info: dict[str, Any]) -> Optional[User]:
+    def update_user(self, user: User, user_info: dict[str, Any]) -> User | None:
         """
         Updates the user's role only if the setting allows roles to be set from OIDC claims.
         If the setting is False roles are being managed by an admin so do not update the role.
@@ -198,7 +197,7 @@ class CustomOIDCBackend(OIDCAuthenticationBackend):
         user.is_superuser = role == self.USER_ROLE_ADMIN
         user.save()
 
-    def get_user_role(self, user_info: dict[str, Any]) -> Optional[str]:
+    def get_user_role(self, user_info: dict[str, Any]) -> str | None:
         """
         Returns the highest-permission valid role found in the OIDC token claims.
         Returns the default user role if the setting is False.

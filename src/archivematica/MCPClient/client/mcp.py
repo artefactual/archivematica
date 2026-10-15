@@ -7,7 +7,6 @@ import logging
 import os
 import signal
 from types import FrameType
-from typing import Optional
 
 from archivematica.MCPClient.client import metrics
 from archivematica.MCPClient.client.pool import WorkerPool
@@ -33,7 +32,7 @@ def main() -> None:
     pool = WorkerPool()
     pool.start()
 
-    def signal_handler(signal: int, frame: Optional[FrameType]) -> None:
+    def signal_handler(signal: int, frame: FrameType | None) -> None:
         """Used to handle the stop/kill command signals (SIGINT, SIGKILL)."""
         logger.info("Received termination signal (%s)", signal)
         pool.stop()

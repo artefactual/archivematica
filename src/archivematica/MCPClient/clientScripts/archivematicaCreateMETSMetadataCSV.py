@@ -112,7 +112,9 @@ def parseMetadataCSV(job, metadataCSVFilePath):
             filename = row[0].rstrip("/")
             # Strip file/dir name from metadata columns
             row = row[1:]
-            values = IgnoreEmptyStringValuesOrderedListsDict(zip(header, row))
+            values = IgnoreEmptyStringValuesOrderedListsDict(
+                zip(header, row, strict=False)
+            )
 
             if filename in metadata and metadata[filename] != values:
                 job.pyprint(

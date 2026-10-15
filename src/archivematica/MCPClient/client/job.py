@@ -13,9 +13,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from logging.handlers import BufferingHandler
 from typing import Any
-from typing import Optional
 from typing import TypeVar
-from typing import Union
 
 from django.conf import settings
 from django.utils import timezone
@@ -25,7 +23,7 @@ from archivematica.dashboard.main.models import Task
 logger = logging.getLogger("archivematica.mcp.client.job")
 
 SelfJob = TypeVar("SelfJob", bound="Job")
-TaskData = dict[str, Union[int, Optional[datetime.datetime], str]]
+TaskData = dict[str, int | datetime.datetime | None | str]
 
 
 class Job:
@@ -53,8 +51,8 @@ class Job:
         self.output = ""
         self.error = ""
 
-        self.start_time: Optional[datetime.datetime] = None
-        self.end_time: Optional[datetime.datetime] = None
+        self.start_time: datetime.datetime | None = None
+        self.end_time: datetime.datetime | None = None
 
     @classmethod
     def bulk_set_start_times(cls, jobs: list[SelfJob]) -> None:
@@ -157,7 +155,7 @@ class Job:
 
     @contextmanager
     def JobContext(
-        self, logger: Optional[logging.Logger] = None
+        self, logger: logging.Logger | None = None
     ) -> Generator[None, None, None]:
         if logger:
             handler = JobLogHandler(100, self)
