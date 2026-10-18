@@ -7,6 +7,7 @@ the MCPServer settings install neither Tastypie nor the accounts application.
 import pathlib
 import uuid
 from collections.abc import Callable
+from collections.abc import Iterable
 
 import pytest
 import pytest_django
@@ -43,27 +44,57 @@ MARKER_SKIP_REASONS: dict[str, Callable[[pytest.Mark], str | None]] = {
 }
 
 
-def skip_reason(item: pytest.Item) -> str | None:
-    """Return the skip reason of the first of the item's markers that has one,
-    or None when the item can run.
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Add --require, which turns the skips of the given markers into failures."""
+    parser.addoption(
+        "--require",
+        action="append",
+        default=[],
+        choices=list(MARKER_SKIP_REASONS),
+        metavar="MARKER",
+        help="fail, instead of skipping, the tests that MARKER would skip",
+    )
+
+
+def skip_reason(item: pytest.Item, names: Iterable[str]) -> str | None:
+    """Return the skip reason of the first of the item's markers named in
+    names that has one, or None when the item can run.
     """
-    for name, marker_skip_reason in MARKER_SKIP_REASONS.items():
+    for name in names:
         for marker in item.iter_markers(name):
-            reason = marker_skip_reason(marker)
+            reason = MARKER_SKIP_REASONS[name](marker)
             if reason is not None:
                 return reason
     return None
 
 
-def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
-    """Skip the tests that cannot run according to MARKER_SKIP_REASONS.
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Skip the tests that cannot run according to MARKER_SKIP_REASONS, except
+    for the markers given to --require. A test that cannot run according to
+    one of those is not skipped at all, so that pytest_runtest_setup fails it.
 
     The skips are added as markers so pytest reports each one at its test.
     """
+    required = config.getoption("require")
+    names = [name for name in MARKER_SKIP_REASONS if name not in required]
     for item in items:
-        reason = skip_reason(item)
+        if skip_reason(item, required) is not None:
+            continue
+        reason = skip_reason(item, names)
         if reason is not None:
             item.add_marker(pytest.mark.skip(reason=reason))
+
+
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    """Fail the tests that cannot run according to the markers given to
+    --require.
+    """
+    for name in item.config.getoption("require"):
+        reason = skip_reason(item, [name])
+        if reason is not None:
+            pytest.fail(f"{reason} (--require={name})", pytrace=False)
 
 
 # Directories
