@@ -5,6 +5,7 @@ the MCPServer settings install neither Tastypie nor the accounts application.
 """
 
 import pathlib
+import shutil
 import uuid
 from collections.abc import Callable
 from collections.abc import Iterable
@@ -37,10 +38,21 @@ def mysql_skip_reason(marker: pytest.Mark) -> str | None:
     return "needs a MySQL database"
 
 
+def tool_skip_reason(marker: pytest.Mark) -> str | None:
+    """Return why a test marked as tool cannot run, or None when all the
+    marker's commands are on the PATH.
+    """
+    missing = [name for name in marker.args if shutil.which(name) is None]
+    if not missing:
+        return None
+    return f"needs {', '.join(missing)}"
+
+
 # The markers that skip their tests when a requirement is missing, each with the
 # function that returns the skip reason. They are registered in pyproject.toml.
 MARKER_SKIP_REASONS: dict[str, Callable[[pytest.Mark], str | None]] = {
     "mysql": mysql_skip_reason,
+    "tool": tool_skip_reason,
 }
 
 

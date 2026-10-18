@@ -385,6 +385,10 @@ test-all: start-mysql  ## Run all tests.
 	$(call run_toxenv,$(__TOXENVS_STORAGE_SERVICE),archivematica.storage_service.storage_service.settings.testmysql)
 
 __TOXENVS_ARCHIVEMATICA = archivematica
+# The tests run in the image, which has the MCPClient tools, against the mysql
+# service: fail the tests marked tool or mysql instead of skipping them, also
+# when PYTEST_ADDOPTS is given on the make command line.
+test-archivematica: override PYTEST_ADDOPTS += --require=mysql --require=tool
 test-archivematica: start-mysql  ## Run Archivematica tests in a single run.
 	$(call grant_all_on_dbs,$(__TEST_DBS_ARCHIVEMATICA))
 	$(call run_toxenv,$(__TOXENVS_ARCHIVEMATICA),archivematica.settings.testmysql)

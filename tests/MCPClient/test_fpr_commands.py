@@ -21,7 +21,7 @@ class EventDetailResult(TypedDict):
 @pytest.mark.parametrize(
     "expected_programs,expected_version_pattern,cmd,filters",
     [
-        (
+        pytest.param(
             ["7z"],
             # The event detail command extracts different lines depending on the 7z version.
             # Older versions report the version on a line starting with "p7zip Version"
@@ -32,8 +32,9 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "Get event detail text for 7z extraction",
             },
+            marks=pytest.mark.tool("7z"),
         ),
-        (
+        pytest.param(
             ["convert"],
             "^Version: ImageMagick",
             'echo program=\\"convert\\"\\; version=\\"`convert -version | grep Version:`\\"',
@@ -41,8 +42,9 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "convert event detail",
             },
+            marks=pytest.mark.tool("convert"),
         ),
-        (
+        pytest.param(
             ["ffmpeg"],
             r"^ffmpeg version",
             'echo program=\\"ffmpeg\\"\\; version=\\"`ffmpeg 2>&1 | grep --ignore-case "FFmpeg version"`\\"',
@@ -50,8 +52,9 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "Get event detail text for ffmpeg extraction",
             },
+            marks=pytest.mark.tool("ffmpeg"),
         ),
-        (
+        pytest.param(
             ["ps2pdf", "Ghostscript"],
             r"^\d+\.\d+\.\d+",
             'echo program=\\"ps2pdf\\"\\; program=\\"Ghostscript\\"\\; version=\\"`gs --version`\\" ',
@@ -59,8 +62,9 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "ps2pdf event detail",
             },
+            marks=pytest.mark.tool("gs"),
         ),
-        (
+        pytest.param(
             ["Ghostscript"],
             r"^\d+\.\d+\.\d+",
             'echo program=\\"Ghostscript\\"\\; version=\\"`gs --version`\\" ',
@@ -68,8 +72,9 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "Ghostscript event detail",
             },
+            marks=pytest.mark.tool("gs"),
         ),
-        (
+        pytest.param(
             ["inkscape"],
             r"^Inkscape",
             'echo program=\\"inkscape\\"\\; version=\\"`inkscape -V`\\" ',
@@ -77,6 +82,7 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "inkscape event detail",
             },
+            marks=pytest.mark.tool("inkscape"),
         ),
         pytest.param(
             ["unrar-nonfree"],
@@ -90,7 +96,7 @@ class EventDetailResult(TypedDict):
                 reason="Skipping because unrar-nonfree is not installed by default in Archivematica"
             ),
         ),
-        (
+        pytest.param(
             ["readpst"],
             r"^ReadPST / LibPST",
             'echo program=\\"readpst\\"\\; version=\\"`readpst -V`\\"',
@@ -98,6 +104,7 @@ class EventDetailResult(TypedDict):
                 "command_usage": "event_detail",
                 "description": "readpst event detail",
             },
+            marks=pytest.mark.tool("readpst"),
         ),
     ],
     ids=[
