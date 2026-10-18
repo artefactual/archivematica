@@ -99,6 +99,15 @@ def idrule(idrule: models.IDRule) -> models.IDRule:
     return idrule
 
 
+@pytest.fixture
+def other_format_versions_disabled(format_version: models.FormatVersion) -> None:
+    """Disable the other format versions, such as the ones of the data
+    migrations, so the format dropdowns of the forms only offer the test's.
+    SQLite cannot run the query for the whole registry.
+    """
+    models.FormatVersion.objects.exclude(pk=format_version.pk).update(enabled=False)
+
+
 @pytest.mark.django_db
 def test_idcommand_create(
     dashboard_uuid: uuid.UUID, admin_client: Client, idtool: models.IDTool
@@ -117,7 +126,10 @@ def test_idcommand_create(
 
 @pytest.mark.django_db
 def test_fpcommand_create(
-    dashboard_uuid: uuid.UUID, admin_client: Client, fptool: models.FPTool
+    dashboard_uuid: uuid.UUID,
+    admin_client: Client,
+    fptool: models.FPTool,
+    other_format_versions_disabled: None,
 ) -> None:
     url = reverse("fpr:fpcommand_create")
 
@@ -289,6 +301,7 @@ def test_idrule_create(
     admin_client: Client,
     format_version: models.FormatVersion,
     idcommand: models.IDCommand,
+    other_format_versions_disabled: None,
 ) -> None:
     url = reverse("fpr:idrule_create")
 
@@ -324,6 +337,7 @@ def test_fprule_create(
     admin_client: Client,
     format_version: models.FormatVersion,
     fpcommand: models.FPCommand,
+    other_format_versions_disabled: None,
 ) -> None:
     url = reverse("fpr:fprule_create")
 
