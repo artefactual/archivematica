@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from datetime import UTC
 from datetime import datetime
 from decimal import Decimal
@@ -5,15 +6,15 @@ from uuid import UUID
 
 import pytest
 from django.core.exceptions import FieldDoesNotExist
+from django.db import connection
+from django.db.migrations.state import StateApps
 
 
 @pytest.mark.django_db(transaction=True)
-def test_0088_backfills_createdtime_microseconds(migrate_apps):
-    from django.db import connection
-
-    if connection.vendor != "mysql":
-        pytest.skip("MySQL-specific migration")
-
+@pytest.mark.mysql
+def test_0088_backfills_createdtime_microseconds(
+    migrate_apps: Callable[[tuple[str, str]], StateApps],
+) -> None:
     apps = migrate_apps(("main", "0086_remove_appraisal"))
     Job = apps.get_model("main", "Job")
 
@@ -60,12 +61,10 @@ def test_0088_backfills_createdtime_microseconds(migrate_apps):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_0088_preserves_timestamp_ordering(migrate_apps):
-    from django.db import connection
-
-    if connection.vendor != "mysql":
-        pytest.skip("MySQL-specific migration")
-
+@pytest.mark.mysql
+def test_0088_preserves_timestamp_ordering(
+    migrate_apps: Callable[[tuple[str, str]], StateApps],
+) -> None:
     apps = migrate_apps(("main", "0086_remove_appraisal"))
     Job = apps.get_model("main", "Job")
 
