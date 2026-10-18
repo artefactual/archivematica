@@ -194,10 +194,11 @@ def test_history_paginates_before_loading_jobs_with_stable_tie_ordering(
     page = response.context["page"]
     assert page.paginator.count == JOB_HISTORY_PAGE_SIZE + 3
     assert [job.pk for job in page] == [job.pk for job in reversed(jobs[3:])]
+    jobs_table = connection.ops.quote_name("Jobs")
     job_queries = [
         query["sql"]
         for query in captured.captured_queries
-        if "FROM `Jobs`" in query["sql"] and "COUNT(" not in query["sql"]
+        if f"FROM {jobs_table}" in query["sql"] and "COUNT(" not in query["sql"]
     ]
     assert len(job_queries) == 1
     assert f"LIMIT {JOB_HISTORY_PAGE_SIZE}" in job_queries[0]
