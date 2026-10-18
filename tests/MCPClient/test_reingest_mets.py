@@ -1001,15 +1001,6 @@ def test_update_all(
     ) == str(normalization_event.event_id)
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="not implemented", strict=True)
-def test_update_reingest_object() -> None:
-    """
-    It should add new updated object and mark all the old ones as superseded.
-    It should add after the last techMD.
-    """
-    raise NotImplementedError()
-
-
 @pytest.mark.parametrize("techmd_id", ["techMD_1", "techMD_2", "techMD_3"])
 def test__update_premis_object(techmd_id: str) -> None:
     mets = metsrw.METSDocument.fromfile(
