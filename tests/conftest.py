@@ -1,15 +1,19 @@
-"""Fixtures shared by every test suite.
+"""Fixtures and hooks shared by every test suite.
 
 The modules imported here must be importable under the settings of every suite:
 the MCPServer settings install neither Tastypie nor the accounts application.
 """
 
 import pathlib
+import shutil
 import uuid
+from collections.abc import Callable
+from collections.abc import Iterable
 
 import pytest
 import pytest_django
 from django.contrib.auth.models import User
+from django.db import connection
 
 from archivematica.dashboard.fpr import models as fprmodels
 from archivematica.dashboard.main import models
@@ -21,6 +25,89 @@ from tests.factories import RightsStatementFactory
 from tests.factories import SIPFactory
 from tests.factories import TaskFactory
 from tests.factories import TransferFactory
+
+# Markers
+
+
+def mysql_skip_reason(marker: pytest.Mark) -> str | None:
+    """Return why a test marked as mysql cannot run, or None when the database
+    is MySQL.
+    """
+    if connection.vendor == "mysql":
+        return None
+    return "needs a MySQL database"
+
+
+def tool_skip_reason(marker: pytest.Mark) -> str | None:
+    """Return why a test marked as tool cannot run, or None when all the
+    marker's commands are on the PATH.
+    """
+    missing = [name for name in marker.args if shutil.which(name) is None]
+    if not missing:
+        return None
+    return f"needs {', '.join(missing)}"
+
+
+# The markers that skip their tests when a requirement is missing, each with the
+# function that returns the skip reason. They are registered in pyproject.toml.
+MARKER_SKIP_REASONS: dict[str, Callable[[pytest.Mark], str | None]] = {
+    "mysql": mysql_skip_reason,
+    "tool": tool_skip_reason,
+}
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    """Add --require, which turns the skips of the given markers into failures."""
+    parser.addoption(
+        "--require",
+        action="append",
+        default=[],
+        choices=list(MARKER_SKIP_REASONS),
+        metavar="MARKER",
+        help="fail, instead of skipping, the tests that MARKER would skip",
+    )
+
+
+def skip_reason(item: pytest.Item, names: Iterable[str]) -> str | None:
+    """Return the skip reason of the first of the item's markers named in
+    names that has one, or None when the item can run.
+    """
+    for name in names:
+        for marker in item.iter_markers(name):
+            reason = MARKER_SKIP_REASONS[name](marker)
+            if reason is not None:
+                return reason
+    return None
+
+
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Skip the tests that cannot run according to MARKER_SKIP_REASONS, except
+    for the markers given to --require. A test that cannot run according to
+    one of those is not skipped at all, so that pytest_runtest_setup fails it.
+
+    The skips are added as markers so pytest reports each one at its test.
+    """
+    required = config.getoption("require")
+    names = [name for name in MARKER_SKIP_REASONS if name not in required]
+    for item in items:
+        if skip_reason(item, required) is not None:
+            continue
+        reason = skip_reason(item, names)
+        if reason is not None:
+            item.add_marker(pytest.mark.skip(reason=reason))
+
+
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    """Fail the tests that cannot run according to the markers given to
+    --require.
+    """
+    for name in item.config.getoption("require"):
+        reason = skip_reason(item, [name])
+        if reason is not None:
+            pytest.fail(f"{reason} (--require={name})", pytrace=False)
+
 
 # Directories
 

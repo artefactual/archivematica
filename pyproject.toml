@@ -93,8 +93,15 @@ version = {attr = "archivematica.archivematicaCommon.version.get_full_version"}
 
 [tool.pytest.ini_options]
 addopts = "--reuse-db -p no:cacheprovider"
-DJANGO_SETTINGS_MODULE="settings.test"
+DJANGO_SETTINGS_MODULE="archivematica.settings.test"
+markers = [
+    "mysql: the test needs a MySQL database and is skipped on other backends",
+    "tool(*names): the test runs the named commands and is skipped when one is not on the PATH",
+]
 norecursedirs = ".svn _build tmp* node_modules bower_components share .tox .venv"
+testpaths = [
+    "tests",
+]
 
 [tool.coverage.run]
 # The source path is resolved against the current directory. tox runs pytest
@@ -133,7 +140,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "src/archivematica/**/settings/*" = ["F403"]
 "src/archivematica/dashboard/settings/*" = ["F405"]
-"src/archivematica/settings/testmysql.py" = ["I001"]
+"src/archivematica/settings/test*.py" = ["I001"]
 
 [tool.ruff.lint.isort]
 force-single-line = true
@@ -234,7 +241,7 @@ legacy_tox_ini = """
     setenv =
         # General
         LOGNAME = user
-        DJANGO_SETTINGS_MODULE = {env:DJANGO_SETTINGS_MODULE:settings.test}
+        DJANGO_SETTINGS_MODULE = {env:DJANGO_SETTINGS_MODULE:archivematica.settings.test}
         PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:}
         UV_CACHE_DIR = {temp_dir}/uv-cache
         # Coverage: pytest runs from the tests directories (see changedir), so

@@ -18,7 +18,7 @@ def test_store_file_modification_dates(
     unicode_transfer_files: list[models.File],
 ) -> None:
     """It should store file modification dates."""
-    settings.TIME_ZONE = "US/Eastern"
+    settings.TIME_ZONE = "America/New_York"
     shared_path = os.path.join(tmp_path, "")
     transfer_path = unicode_transfer.currentlocation.replace(
         "%sharedPath%", shared_path

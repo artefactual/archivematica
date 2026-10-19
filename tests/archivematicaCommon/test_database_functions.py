@@ -369,7 +369,8 @@ def test_insert_events_generates_defaults(
     }
 
 
-@pytest.mark.django_db
+# SQLite checks foreign keys only on commit.
+@pytest.mark.django_db(transaction=True)
 def test_insert_events_is_atomic(
     file_without_active_agent: File, software_agent: Agent
 ) -> None:

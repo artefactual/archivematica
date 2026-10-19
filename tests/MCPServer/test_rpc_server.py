@@ -215,6 +215,7 @@ def test_approve_partial_reingest_handler(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_sets_produces_tasks_from_job_class(
     wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
@@ -242,6 +243,7 @@ def test_units_statuses_handler_sets_produces_tasks_from_job_class(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_summary_handler_includes_dip_jobs(
     wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
@@ -306,6 +308,7 @@ def test_units_summary_handler_includes_dip_jobs(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 @pytest.mark.parametrize(
     ("unit_type", "model", "job_types", "other_job_type", "query_count"),
     [
@@ -394,6 +397,7 @@ def test_units_summary_batches_current_decision_identities(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_summary_handler_returns_queued_transfer_without_jobs(
     wf: Workflow,
     processing_transfer: models.Transfer,
@@ -429,6 +433,7 @@ def test_units_summary_handler_returns_queued_transfer_without_jobs(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_summary_handler_returns_failed_transfer_without_jobs(
     wf: Workflow,
     processing_transfer: models.Transfer,
@@ -490,6 +495,7 @@ def test_units_summary_handler_returns_failed_transfer_without_jobs(
     ),
 )
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_summary_handler_returns_declared_failure_status(
     wf: Workflow,
     make_job: JobFactory,
@@ -684,6 +690,7 @@ def test_unit_job_groups_handler_includes_dip_decisions(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_returns_transfers(
     wf: Workflow, transfer: models.Transfer, make_job: JobFactory
 ) -> None:
@@ -707,6 +714,7 @@ def test_units_statuses_handler_returns_transfers(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_returns_processing_transfer_without_jobs(
     wf: Workflow,
     processing_transfer: models.Transfer,
@@ -742,6 +750,7 @@ def test_units_statuses_handler_returns_processing_transfer_without_jobs(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_processing_transfer_timestamp_uses_earliest_processing_config(
     wf: Workflow,
     processing_transfer: models.Transfer,
@@ -776,6 +785,7 @@ def test_processing_transfer_timestamp_uses_earliest_processing_config(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(
     wf: Workflow, make_transfer: TransferFactory
 ) -> None:
@@ -818,6 +828,7 @@ def test_units_statuses_handler_sorts_transfers_by_timestamp_desc(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs(
     wf: Workflow, processing_transfer: models.Transfer
 ) -> None:
@@ -837,6 +848,7 @@ def test_units_statuses_handler_excludes_hidden_processing_transfer_without_jobs
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(
     wf: Workflow, transfer: models.Transfer
 ) -> None:
@@ -854,6 +866,7 @@ def test_units_statuses_handler_excludes_unknown_transfer_without_jobs(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_returns_sips(
     wf: Workflow, sip: models.SIP, make_job: JobFactory
 ) -> None:
@@ -875,6 +888,7 @@ def test_units_statuses_handler_returns_sips(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_excludes_hidden_transfers(
     wf: Workflow,
     transfer: models.Transfer,
@@ -902,6 +916,7 @@ def test_units_statuses_handler_excludes_hidden_transfers(
 
 
 @pytest.mark.django_db
+@pytest.mark.mysql
 def test_units_statuses_handler_excludes_hidden_sips(
     wf: Workflow, sip: models.SIP, make_sip: SIPFactory, make_job: JobFactory
 ) -> None:

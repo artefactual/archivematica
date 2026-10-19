@@ -436,13 +436,6 @@ def test_create_dc_dmdsec_no_dc_no_transfers(
     assert dmdsec_elem is None
 
 
-@pytest.mark.xfail(raises=NotImplementedError, reason="not implemented", strict=True)
-def test_create_dc_dmdsec_no_dc_transfer_dc_xml() -> None:
-    # FIXME What is the expected behaviour of this? What should the fixture have?
-    # transfers_sip = os.path.join(THIS_DIR, 'fixtures', 'transfer_dc')
-    raise NotImplementedError()
-
-
 def test_dmdsec_from_csv_parsed_metadata_dc_only(mcp_job: Job) -> None:
     """It should only create a DC dmdSec from parsed metadata."""
     data = collections.OrderedDict(

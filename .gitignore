@@ -23,6 +23,9 @@
 .tox/
 .venv/
 
+# SQLite DBs
+archivematica-test.db*
+
 # frontend builds
 src/archivematica/dashboard/static/
 
