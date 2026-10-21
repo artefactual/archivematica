@@ -21,6 +21,7 @@
 import csv
 from importlib.metadata import version
 from pathlib import Path
+from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
@@ -52,7 +53,14 @@ def process_xml_metadata(mets, sip_dir, sip_uuid, sip_type, xml_validation):
             if not xml_path:
                 fsentry.delete_dmdsec("OTHER", xml_type)
                 continue
-            tree = etree.parse(str(xml_path))
+            try:
+                tree = etree.parse(str(xml_path))
+            except Exception as err:
+                xml_metadata_errors += [
+                    f"Could not parse metadata file: {xml_path}",
+                    err,
+                ]
+                continue
             try:
                 schema_uri = _get_schema_uri(tree, xml_validation)
             except ValueError as err:
@@ -189,7 +197,9 @@ class Resolver(etree.Resolver):
         url_scheme = urlparse(url).scheme
         if url_scheme in ("http", "https"):
             try:
-                response = requests.get(url)
+                # timeout to prevent indefinite hangs, see
+                # https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts
+                response = requests.get(url, timeout=10)
             except requests.RequestException:
                 return super().resolve(url, id, context)
             else:
@@ -228,7 +238,7 @@ def _validate_xml(tree, schema_uri):
                 schema = etree.RelaxNG(schema_contents)
             else:
                 return False, [f"Unknown XML validation schema type: {schema_type}"]
-    except etree.LxmlError as err:
+    except (etree.LxmlError, URLError) as err:
         return False, [f"Could not parse schema file: {schema_uri}", err]
     if not schema.validate(tree):
         return False, schema.error_log
