@@ -78,6 +78,14 @@ RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
 		uv sync --locked --no-install-project; \
 	fi
 
+# The uv-managed interpreter ships with pip, but nothing in the image runs it:
+# the project virtual environment has no pip. Remove it and the pip wheel
+# bundled for ensurepip so their vendored packages are not part of the image.
+RUN set -ex \
+	&& BASE_PREFIX=$(python -c 'import sys; print(sys.base_prefix)') \
+	&& uv pip uninstall --python "${BASE_PREFIX}/bin/python3" --break-system-packages pip \
+	&& rm -f "${BASE_PREFIX}"/lib/python3.*/ensurepip/_bundled/pip-*.whl
+
 # -----------------------------------------------------------------------------
 
 FROM base-builder AS browsers-builder
