@@ -1,0 +1,600 @@
+---
+# Second pipeline
+# ===============
+#
+# Use this overlay to run a second, independent Archivematica pipeline next to
+# the standard one, registered with the same Storage Service and storing AIPs
+# in the same AIP storage location, so that behaviour involving several
+# pipelines can be tested. Bootstrap the first pipeline and the Storage Service
+# as usual, then enable the overlay for every docker compose and make
+# invocation and start it:
+#
+#   echo 'COMPOSE_FILE=docker-compose.yml:docker-compose.pipeline2.yml' >> .env
+#   docker compose up -d
+#
+# (or pass "-f docker-compose.yml -f docker-compose.pipeline2.yml" each time).
+# Everything else is done by the two one-shot setup services described below.
+# Remove the COMPOSE_FILE line from .env to go back to a single pipeline.
+#
+# Layout
+# ------
+#
+# Services carry a "-2" suffix. The second dashboard is published on
+# http://127.0.0.1:62082 (no nginx in front), its Elasticsearch on
+# 127.0.0.1:62012 and its gearmand on 127.0.0.1:62014. Login and API key are
+# the ones of the first pipeline (test/test). The second pipeline uses the
+# "MCP2" database on the shared MySQL server and shares ClamAV and the Storage
+# Service with the first pipeline. The dashboard "install" command gives it a
+# UUID; the setup service prints it, and it can be read back at any time:
+#
+#   docker compose logs archivematica-pipeline2-setup | grep 'second pipeline UUID'
+#   docker compose exec -T archivematica-dashboard-2 \
+#     /src/src/archivematica/dashboard/manage.py shell -v 0 -c \
+#       "from archivematica.dashboard.components import helpers; print(helpers.get_setting('dashboard_uuid'))"
+#
+# Its shared directory is a subdirectory of the first pipeline's volume,
+# /var/archivematica/sharedDirectory/pipeline2/ in the containers, that is
+# ~/.am/am-pipeline-data/pipeline2 on the host. Every pipeline needs a shared
+# directory of its own, because its MCPServer watches watchedDirectories/ and
+# its dashboard writes processing configurations there, and the pipeline and
+# the Storage Service must see that directory at the same absolute path:
+# store_aip.py makes the AIP path relative to the processing location as the
+# Storage Service reports it, so with different paths the Storage Service
+# receives an absolute path it cannot find and answers 500. A subdirectory of
+# the volume the Storage Service already mounts satisfies both requirements,
+# and "make create-volumes" and "make flush-shared-dir" cover it.
+#
+# Setup services
+# --------------
+#
+# Two one-shot services run on every "docker compose up" before the second
+# pipeline's services start; both are safe to run again:
+#
+# - archivematica-pipeline2-setup runs in the dashboard image. It waits for
+#   MySQL, creates the MCP2 database and migrates it. When the database is
+#   new it also waits for the Storage Service and runs the dashboard "install"
+#   command, which creates the test user, assigns the pipeline UUID and
+#   registers the pipeline with the Storage Service, linking it to the default
+#   transfer source, AIP storage, DIP storage, backlog and recovery locations
+#   of the first pipeline. On later runs it leaves the installed dashboard
+#   alone, whatever the state of the pipeline in the Storage Service.
+#
+# - archivematica-pipeline2-storage-service-setup runs in the Storage Service
+#   image afterwards. It reads the pipeline UUID from the MCP2 database and
+#   registers the pipeline if the Storage Service does not know it. Then,
+#   because the Storage Service links a new pipeline to the existing
+#   currently-processing location whatever shared path it is given, it creates
+#   a currently-processing location for the second pipeline at
+#   var/archivematica/sharedDirectory/pipeline2/, removes the link to the first
+#   pipeline's one and names the pipeline "second pipeline". It never changes
+#   whether the pipeline is enabled.
+#
+# Their output is in "docker compose logs archivematica-pipeline2-setup" and
+# "docker compose logs archivematica-pipeline2-storage-service-setup". The
+# scripts are Compose configs with inline content, listed in the configs
+# section at the end of this file, that Compose copies into the containers
+# each time it starts them.
+#
+# Checking the result
+# -------------------
+#
+#   docker compose ps -a                        # setup services Exited (0), five "-2" services Up
+#   curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:62082/administration/accounts/login/
+#   curl -s -H 'Authorization: ApiKey test:test' 'http://127.0.0.1:62081/api/v2/pipeline/?format=json'
+#
+# Ingest a transfer on the second pipeline (dashboard or API on port 62082).
+# Its AIP must land in ~/.am/am-pipeline-data/www/AIPsStore and be indexed only
+# in the second pipeline's Elasticsearch (127.0.0.1:62012).
+#
+# Indexing the second pipeline's AIPs in the first pipeline
+# ---------------------------------------------------------
+#
+#   PIPELINE2=$(docker compose exec -T archivematica-dashboard-2 \
+#     /src/src/archivematica/dashboard/manage.py shell -v 0 -c \
+#       "from archivematica.dashboard.components import helpers; print(helpers.get_setting('dashboard_uuid'))")
+#   docker compose exec archivematica-dashboard \
+#     /src/src/archivematica/dashboard/manage.py \
+#       rebuild_aip_index_from_storage_service --pipeline "$PIPELINE2"
+#
+# Do not add --delete-all, which first removes the first pipeline's own AIPs
+# from its index. The reindexed documents get the first pipeline's UUID in the
+# "origin" field and an empty "identifiers" field, since both come from the
+# local database.
+#
+# Management commands on the second pipeline
+# ------------------------------------------
+#
+# "make manage-dashboard" always targets the first pipeline. Use:
+#
+#   docker compose exec archivematica-dashboard-2 \
+#     /src/src/archivematica/dashboard/manage.py <command>
+#
+# Removing only the second pipeline
+# ---------------------------------
+#
+# The first pipeline and the Storage Service keep running. First decide what
+# happens in the Storage Service to the AIPs the second pipeline stored, which
+# live in the shared AIP store:
+#
+# - To keep them, as after decommissioning a real pipeline, disable the
+#   pipeline (Administration > Pipelines in the Storage Service UI, or the
+#   command below) and leave its records alone. Deleting the pipeline would
+#   delete its package records, since they reference it. Its
+#   currently-processing location can go, stored AIPs no longer reference it,
+#   but a location still holding packages, such as a backlog, must stay.
+#
+#     docker compose exec -T archivematica-storage-service \
+#       /src/src/archivematica/storage_service/manage.py shell -v 0 -c \
+#         "from archivematica.storage_service.locations.models import Pipeline; print(Pipeline.objects.filter(remote_name='http://archivematica-dashboard-2:8000').update(enabled=False))"
+#
+# - To remove them as well, delete each AIP from storage, then the pipeline
+#   (its location links and request history go with it) and its
+#   currently-processing location. This deletes the AIP and pointer files:
+#
+#     docker compose exec -T archivematica-storage-service \
+#       /src/src/archivematica/storage_service/manage.py shell -v 0 -c "
+#     from archivematica.storage_service.locations.models import Location, Package, Pipeline
+#     pipeline = Pipeline.objects.get(remote_name='http://archivematica-dashboard-2:8000')
+#     for package in Package.objects.filter(origin_pipeline=pipeline).exclude(status=Package.DELETED):
+#         print(package.uuid, package.delete_from_storage())
+#     print(pipeline.delete())
+#     print(Location.objects.filter(purpose=Location.CURRENTLY_PROCESSING, relative_path='var/archivematica/sharedDirectory/pipeline2/').delete())
+#     "
+#
+#   If those AIPs were indexed in the first pipeline, rebuild its index from
+#   the Storage Service so they disappear from its Archival Storage tab:
+#
+#     docker compose exec archivematica-dashboard \
+#       /src/src/archivematica/dashboard/manage.py rebuild_aip_index_from_storage_service --delete-all
+#
+# Then remove the second pipeline's containers, Elasticsearch data, database
+# and shared directory, and detach the overlay:
+#
+#   docker compose rm -sf archivematica-dashboard-2 archivematica-mcp-client-2 \
+#     archivematica-mcp-server-2 elasticsearch-2 gearmand-2 \
+#     archivematica-pipeline2-setup archivematica-pipeline2-storage-service-setup
+#   docker volume rm am_elasticsearch_data_2
+#   docker compose exec -T mysql mysql -hlocalhost -uroot -p12345 -e 'DROP DATABASE `MCP2`'
+#   rm -rf ~/.am/am-pipeline-data/pipeline2
+#   sed -i '/^COMPOSE_FILE=/d' .env
+#
+# Tearing down everything
+# -----------------------
+#
+#   docker compose down --volumes     # containers, the MCP2 database (mysql_data)
+#                                     # and the second Elasticsearch data
+#   make flush-shared-dir             # ~/.am/am-pipeline-data/*, pipeline2/ included
+#
+# Gotchas
+# -------
+#
+# - A fresh Elasticsearch refuses to allocate shards when the host disk is
+#   above 90% use, and the dashboard then dies at boot with Elasticsearch read
+#   timeouts. Put ELASTICSEARCH_DISK_THRESHOLD_ENABLED=false in .env; it
+#   applies to both clusters.
+# - A Storage Service package row without origin pipeline makes
+#   GET /api/v2/file/ answer 400, and rebuild_aip_index_from_storage_service
+#   then fails with KeyError: 'objects'.
+
+x-pipeline2-dashboard-environment: &pipeline2-dashboard-environment
+  FORWARDED_ALLOW_IPS: "*"
+  AM_GUNICORN_ACCESSLOG: "/dev/null"
+  AM_GUNICORN_RELOAD: "${AM_GUNICORN_RELOAD:-false}"
+  DJANGO_SETTINGS_MODULE: "archivematica.dashboard.settings.local"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_GEARMAN_SERVER: "gearmand-2:4730"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_ELASTICSEARCH_SERVER: "http://elasticsearch-2:9200"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_SHARED_DIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_WATCH_DIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/watchedDirectories/"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_PROMETHEUS_ENABLED: "1"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_USER: "archivematica"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_PASSWORD: "demo"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_HOST: "mysql"
+  ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE: "MCP2"
+  ARCHIVEMATICA_DASHBOARD_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_SESSION_COOKIE_SECURE: "false"
+  ARCHIVEMATICA_DASHBOARD_DASHBOARD_CSRF_COOKIE_SECURE: "false"
+
+volumes:
+
+  elasticsearch_data_2:
+
+
+services:
+
+  archivematica-pipeline2-setup:
+    # One-shot service: database, migrations and the dashboard "install"
+    # command (see the pipeline2-setup config).
+    image: "am-archivematica-dashboard:latest"
+    entrypoint: ["python", "/etc/archivematica/pipeline2/setup_pipeline.py"]
+    environment:
+      <<: *pipeline2-dashboard-environment
+      MYSQL_ROOT_PASSWORD: "12345"
+      STORAGE_SERVICE_URL: "http://archivematica-storage-service:8000"
+      PIPELINE2_SITE_URL: "http://archivematica-dashboard-2:8000"
+    configs:
+      - source: pipeline2-setup
+        target: /etc/archivematica/pipeline2/setup_pipeline.py
+    volumes:
+      - "../:/src"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    depends_on:
+      mysql:
+        condition: service_started
+      archivematica-storage-service:
+        condition: service_started
+    restart: "no"
+
+  archivematica-pipeline2-storage-service-setup:
+    # One-shot service: gives the second pipeline its own currently-processing
+    # location in the Storage Service (see the pipeline2-storage-service-setup
+    # config).
+    image: "am-archivematica-storage-service:latest"
+    entrypoint: ["python", "/etc/archivematica/pipeline2/configure_storage_service.py"]
+    environment:
+      DJANGO_SETTINGS_MODULE: "archivematica.storage_service.storage_service.settings.local"
+      SS_DB_URL: "mysql://archivematica:demo@mysql/SS"
+      SS_GNUPG_HOME_PATH: "/var/archivematica/storage_service/.gnupg"
+      PIPELINE2_DB_HOST: "mysql"
+      PIPELINE2_DB_NAME: "MCP2"
+      PIPELINE2_DB_USER: "archivematica"
+      PIPELINE2_DB_PASSWORD: "demo"
+      PIPELINE2_REMOTE_NAME: "http://archivematica-dashboard-2:8000"
+      PIPELINE2_SHARED_DIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/"
+    configs:
+      - source: pipeline2-storage-service-setup
+        target: /etc/archivematica/pipeline2/configure_storage_service.py
+    volumes:
+      - "./submodules/archivematica-storage-service/:/src/"
+      - "archivematica_storage_service_staging_data:/var/archivematica/storage_service:rw"
+    depends_on:
+      archivematica-pipeline2-setup:
+        condition: service_completed_successfully
+    restart: "no"
+
+  elasticsearch-2:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.19.23"
+    environment:
+      - "cluster.name=am-cluster-2"
+      - "node.name=am-node-2"
+      - "network.host=0.0.0.0"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "cluster.routing.allocation.disk.threshold_enabled=${ELASTICSEARCH_DISK_THRESHOLD_ENABLED:-true}"
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "xpack.security.transport.ssl.enabled=false"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "curl -fsSL http://localhost:9200/_cat/health?h=status | grep -q -E 'green|yellow'",
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    volumes:
+      - "elasticsearch_data_2:/usr/share/elasticsearch/data"
+    ports:
+      - "127.0.0.1:62012:9200"
+
+  gearmand-2:
+    image: "artefactual/gearmand:2.1.0-alpine"
+    command: "--queue-type=builtin"
+    user: "gearman"
+    ports:
+      - "127.0.0.1:62014:4730"
+
+  archivematica-mcp-server-2:
+    image: "am-archivematica-mcp-server:latest"
+    environment:
+      DJANGO_SECRET_KEY: "12345"
+      DJANGO_SETTINGS_MODULE: "archivematica.MCPServer.settings.common"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_USER: "archivematica"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_PASSWORD: "demo"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_HOST: "mysql"
+      ARCHIVEMATICA_MCPSERVER_CLIENT_DATABASE: "MCP2"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_MCPARCHIVEMATICASERVER: "gearmand-2:4730"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_SHAREDDIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_WATCHDIRECTORYPATH: "/var/archivematica/sharedDirectory/pipeline2/watchedDirectories/"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROCESSINGDIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/currentlyProcessing/"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_REJECTEDDIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/rejected/"
+      ARCHIVEMATICA_MCPSERVER_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT: "7999"
+      ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+    volumes:
+      - "../:/src"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    depends_on:
+      archivematica-pipeline2-storage-service-setup:
+        condition: service_completed_successfully
+    links:
+      - "mysql"
+      - "gearmand-2"
+
+  archivematica-mcp-client-2:
+    image: "am-archivematica-mcp-client:latest"
+    environment:
+      DJANGO_SECRET_KEY: "12345"
+      DJANGO_SETTINGS_MODULE: "archivematica.MCPClient.settings.common"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_USER: "archivematica"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_PASSWORD: "demo"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_HOST: "mysql"
+      ARCHIVEMATICA_MCPCLIENT_CLIENT_DATABASE: "MCP2"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_ELASTICSEARCHSERVER: "http://elasticsearch-2:9200"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_MCPARCHIVEMATICASERVER: "gearmand-2:4730"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SHAREDDIRECTORYMOUNTED: "/var/archivematica/sharedDirectory/pipeline2/"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_WATCHDIRECTORYPATH: "/var/archivematica/sharedDirectory/pipeline2/watchedDirectories/"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROCESSINGDIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/currentlyProcessing/"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_REJECTEDDIRECTORY: "/var/archivematica/sharedDirectory/pipeline2/rejected/"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_TEMP_DIR: "/var/archivematica/sharedDirectory/pipeline2/tmp"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CAPTURE_CLIENT_SCRIPT_OUTPUT: "${AM_CAPTURE_CLIENT_SCRIPT_OUTPUT:-true}"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_SERVER: "clamavd:3310"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_FILE_SIZE: "42"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_SCAN_SIZE: "42"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_MAX_STREAM_LENGTH: "100"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_BACKEND: "clamdscanner"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT: "7999"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+      ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_METADATA_XML_VALIDATION_ENABLED: "true"
+      METADATA_XML_VALIDATION_SETTINGS_FILE: "/src/hack/submodules/archivematica-sampledata/xml-validation/xml_validation.py"
+      XML_CATALOG_FILES: "/src/hack/submodules/archivematica-sampledata/xml-validation/catalog.xml"
+    volumes:
+      - "../:/src"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    depends_on:
+      archivematica-pipeline2-storage-service-setup:
+        condition: service_completed_successfully
+    links:
+      - "clamavd"
+      - "mysql"
+      - "gearmand-2"
+      - "elasticsearch-2"
+      - "archivematica-storage-service"
+
+  archivematica-dashboard-2:
+    image: "am-archivematica-dashboard:latest"
+    environment:
+      <<: *pipeline2-dashboard-environment
+    volumes:
+      - "../:/src"
+      - "archivematica_dashboard_frontend_node_modules:/src/src/archivematica/dashboard/frontend/node_modules"
+      - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"
+    ports:
+      - "127.0.0.1:62082:8000"
+    depends_on:
+      elasticsearch-2:
+        condition: service_healthy
+        restart: true
+      archivematica-pipeline2-storage-service-setup:
+        condition: service_completed_successfully
+    links:
+      - "mysql"
+      - "gearmand-2"
+      - "elasticsearch-2"
+      - "archivematica-storage-service"
+
+
+configs:
+
+  # Script of the archivematica-pipeline2-setup service.
+  pipeline2-setup:
+    content: |
+      """Create, migrate and install the second pipeline's dashboard database.
+
+      Runs in the dashboard image with the second pipeline's environment. Waits
+      for MySQL, creates the MCP2 database and applies the migrations. When the
+      database is new, it also waits for the Storage Service and runs the
+      "install" management command, which creates the test user, assigns the
+      pipeline UUID and registers the pipeline with the Storage Service. Every
+      step is safe to repeat.
+      """
+
+      import os
+      import sys
+      import time
+      import urllib.error
+      import urllib.request
+
+      import MySQLdb
+
+      MYSQL_HOST = os.environ["ARCHIVEMATICA_DASHBOARD_CLIENT_HOST"]
+      MYSQL_ROOT_PASSWORD = os.environ["MYSQL_ROOT_PASSWORD"]
+      DATABASE = os.environ["ARCHIVEMATICA_DASHBOARD_CLIENT_DATABASE"]
+      DATABASE_USER = os.environ["ARCHIVEMATICA_DASHBOARD_CLIENT_USER"]
+      STORAGE_SERVICE_URL = os.environ["STORAGE_SERVICE_URL"]
+      SITE_URL = os.environ["PIPELINE2_SITE_URL"]
+      ATTEMPTS = 60
+
+
+      def log(message: str) -> None:
+          print(f"[pipeline2-setup] {message}", flush=True)
+
+
+      def wait_for_mysql() -> MySQLdb.connections.Connection:
+          for attempt in range(1, ATTEMPTS + 1):
+              try:
+                  return MySQLdb.connect(
+                      host=MYSQL_HOST, user="root", passwd=MYSQL_ROOT_PASSWORD
+                  )
+              except MySQLdb.OperationalError as err:
+                  log(f"MySQL not ready ({err}), attempt {attempt}/{ATTEMPTS}")
+                  time.sleep(2)
+          sys.exit("MySQL did not become available")
+
+
+      def create_database() -> None:
+          connection = wait_for_mysql()
+          try:
+              cursor = connection.cursor()
+              cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{DATABASE}`")
+              cursor.execute(f"GRANT ALL ON `{DATABASE}`.* TO '{DATABASE_USER}'@'%'")
+              connection.commit()
+          finally:
+              connection.close()
+          log(f"database {DATABASE} ready")
+
+
+      def wait_for_storage_service() -> None:
+          request = urllib.request.Request(
+              f"{STORAGE_SERVICE_URL}/api/v2/pipeline/",
+              headers={"Authorization": "ApiKey test:test"},
+          )
+          for attempt in range(1, ATTEMPTS + 1):
+              try:
+                  with urllib.request.urlopen(request, timeout=5) as response:
+                      if response.status == 200:
+                          log("Storage Service ready")
+                          return
+              except (urllib.error.URLError, OSError) as err:
+                  log(f"Storage Service not ready ({err}), attempt {attempt}/{ATTEMPTS}")
+              time.sleep(2)
+          sys.exit("Storage Service did not become available")
+
+
+      def main() -> None:
+          create_database()
+
+          import django
+
+          django.setup()
+
+          from django.core.management import call_command
+
+          from archivematica.dashboard.components import helpers
+
+          log("applying migrations")
+          call_command("migrate", interactive=False, verbosity=0)
+
+          if helpers.get_setting("dashboard_uuid"):
+              log("dashboard already installed, skipping the install command")
+          else:
+              wait_for_storage_service()
+              log("running the install command")
+              call_command(
+                  "install",
+                  username="test",
+                  password="test",
+                  email="test@test.com",
+                  org_name="second",
+                  org_id="second",
+                  api_key="test",
+                  ss_url=STORAGE_SERVICE_URL,
+                  ss_user="test",
+                  ss_api_key="test",
+                  site_url=SITE_URL,
+              )
+          log(f"second pipeline UUID: {helpers.get_setting('dashboard_uuid')}")
+
+
+      if __name__ == "__main__":
+          main()
+
+  # Script of the archivematica-pipeline2-storage-service-setup service.
+  pipeline2-storage-service-setup:
+    content: |
+      """Register the second pipeline and give it its own processing location.
+
+      Runs in the Storage Service image. Reads the pipeline UUID from the second
+      pipeline's dashboard database, registers the pipeline with its default
+      locations when the Storage Service does not know it, then creates a
+      currently-processing location at the second pipeline's shared directory,
+      links the pipeline to it, removes the link to any other
+      currently-processing location and names the pipeline. It never changes
+      whether the pipeline is enabled. Safe to repeat.
+      """
+
+      import os
+      import sys
+
+      import django
+      import MySQLdb
+
+      django.setup()
+
+      from archivematica.storage_service.locations.models import Location
+      from archivematica.storage_service.locations.models import LocationPipeline
+      from archivematica.storage_service.locations.models import Pipeline
+      from archivematica.storage_service.locations.models import Space
+
+      REMOTE_NAME = os.environ["PIPELINE2_REMOTE_NAME"]
+      SHARED_DIRECTORY = os.environ["PIPELINE2_SHARED_DIRECTORY"]
+      DESCRIPTION = "second pipeline"
+
+
+      def log(message: str) -> None:
+          print(f"[pipeline2-storage-service-setup] {message}", flush=True)
+
+
+      def dashboard_uuid() -> str:
+          """Return the dashboard_uuid setting of the second pipeline's database."""
+          connection = MySQLdb.connect(
+              host=os.environ["PIPELINE2_DB_HOST"],
+              user=os.environ["PIPELINE2_DB_USER"],
+              passwd=os.environ["PIPELINE2_DB_PASSWORD"],
+              db=os.environ["PIPELINE2_DB_NAME"],
+          )
+          try:
+              cursor = connection.cursor()
+              cursor.execute(
+                  "SELECT value FROM DashboardSettings WHERE name = 'dashboard_uuid'"
+              )
+              row = cursor.fetchone()
+          finally:
+              connection.close()
+          if not row or not row[0]:
+              sys.exit("the second pipeline's dashboard database has no dashboard_uuid")
+          return row[0]
+
+
+      def main() -> None:
+          uuid = dashboard_uuid()
+          pipeline, created = Pipeline.objects.get_or_create(
+              uuid=uuid,
+              defaults={
+                  "description": DESCRIPTION,
+                  "remote_name": REMOTE_NAME,
+                  "api_username": "test",
+                  "api_key": "test",
+              },
+          )
+          if created:
+              pipeline.create_default_locations(SHARED_DIRECTORY)
+              log(f"registered pipeline {uuid} with the default locations")
+          elif pipeline.description != DESCRIPTION:
+              pipeline.description = DESCRIPTION
+              pipeline.save()
+          log(f"pipeline {pipeline.uuid} ({pipeline.description}), enabled={pipeline.enabled}")
+
+          space = Space.objects.get(access_protocol=Space.LOCAL_FILESYSTEM, path="/")
+          location, created = Location.objects.get_or_create(
+              space=space,
+              purpose=Location.CURRENTLY_PROCESSING,
+              relative_path=SHARED_DIRECTORY.strip("/") + "/",
+              defaults={"description": f"{DESCRIPTION} currently processing"},
+          )
+          log(f"currently-processing location {location.uuid} {'created' if created else 'exists'}")
+
+          removed, _ = (
+              LocationPipeline.objects.filter(
+                  pipeline=pipeline, location__purpose=Location.CURRENTLY_PROCESSING
+              )
+              .exclude(location=location)
+              .delete()
+          )
+          if removed:
+              log(f"removed {removed} link(s) to other currently-processing locations")
+          LocationPipeline.objects.get_or_create(pipeline=pipeline, location=location)
+
+          for link in LocationPipeline.objects.filter(pipeline=pipeline).order_by(
+              "location__purpose"
+          ):
+              log(f"  {link.location.purpose} {link.location.relative_path}")
+
+
+      if __name__ == "__main__":
+          main()
