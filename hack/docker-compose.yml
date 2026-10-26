@@ -75,7 +75,7 @@ services:
       - "127.0.0.1:62002:9200"
 
   gearmand:
-    image: "artefactual/gearmand:2.1.0-alpine"
+    image: "artefactual/gearmand:2.2.0-alpine"
     command: "--queue-type=builtin"
     user: "gearman"
     ports:
@@ -95,7 +95,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:ro"
 
   nginx:
-    image: "nginx:1.31.6"
+    image: "nginx:1.31.8"
     volumes:
       - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
       - "./etc/nginx/conf.d/archivematica.conf:/etc/nginx/conf.d/archivematica.conf:ro"
