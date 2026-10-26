@@ -23,14 +23,14 @@ services:
       - ./etc/mysql/pmm.cnf:/etc/my.cnf.d/pmm.cnf:ro
 
   pmm_server:
-    image: "percona/pmm-server:3.9.1"
+    image: "percona/pmm-server:3.10.0"
     volumes:
       - "pmm_data:/srv"
     ports:
       - "127.0.0.1:62007:8080"
 
   pmm_client:
-    image: "percona/pmm-client:3.9.1"
+    image: "percona/pmm-client:3.10.0"
     environment:
       PMM_AGENT_SERVER_ADDRESS: "pmm_server:8443"
       PMM_AGENT_SERVER_USERNAME: "admin"
