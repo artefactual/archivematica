@@ -310,13 +310,6 @@ variables or in the gunicorn configuration file.
   - **Type:** `float`
   - **Default:** `5`
 
-- **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_AGENTARCHIVES_CLIENT_TIMEOUT`**:
-  - **Description:** configures the agentarchives client to stop waiting for a
-    response after a given number of seconds.
-  - **Config file example:** `Dashboard.agentarchives_client_timeout`
-  - **Type:** `float`
-  - **Default:** `300`
-
 - **`ARCHIVEMATICA_DASHBOARD_DASHBOARD_POLLING_INTERVAL`**:
   - **Description:** describes the interval (in seconds) at which the
     dashboard client will request an update from the server, e.g. to refresh
