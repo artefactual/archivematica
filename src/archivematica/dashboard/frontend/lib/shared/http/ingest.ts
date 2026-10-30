@@ -71,17 +71,6 @@ export const setUploadTarget = async (
   })
 }
 
-export const checkUploadDestinationStatusCode = async (target: string): Promise<number> => {
-  const raw = await client.getText('/ingest/upload/url/check/', {
-    query: { target },
-  })
-  const statusCode = Number.parseInt(raw, 10)
-  if (Number.isNaN(statusCode)) {
-    throw new Error('Expected numeric HTTP status code response from /ingest/upload/url/check/.')
-  }
-  return statusCode
-}
-
 export const getIngestNormalizationReportUrl = (sipUuid: string): string => {
   return createUrl(`/ingest/normalization-report/${sipUuid}/`)
 }

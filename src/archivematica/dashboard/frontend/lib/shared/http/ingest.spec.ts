@@ -4,7 +4,6 @@ import {
   getIngestJobGroups,
   getUploadTarget,
   setUploadTarget,
-  checkUploadDestinationStatusCode,
   getIngestNormalizationReportUrl,
   getIngestUploadAsUrl,
   createArchivesSpacePair,
@@ -74,32 +73,6 @@ describe('ingest http', () => {
     expect(postInit?.method).toBe('POST')
     expect(postHeaders.get('X-CSRFToken')).toBe('test-csrf-token')
     expect(postBody.get('target')).toBe('demo-slug')
-  })
-
-  it('parses plain status code from upload destination check', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => '200',
-    })
-
-    const statusCode = await checkUploadDestinationStatusCode('target-slug')
-
-    expect(statusCode).toBe(200)
-    const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]
-    const parsed = new URL(url)
-    expect(parsed.pathname).toBe('/ingest/upload/url/check/')
-    expect(parsed.searchParams.get('target')).toBe('target-slug')
-  })
-
-  it('throws when upload destination check body is not numeric', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      text: async () => 'OK',
-    })
-
-    await expect(checkUploadDestinationStatusCode('target-slug')).rejects.toThrow(
-      'Expected numeric HTTP status code response',
-    )
   })
 
   it('builds ingest monitor URLs', () => {

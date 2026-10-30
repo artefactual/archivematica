@@ -149,7 +149,7 @@ describe('shared http client', () => {
     })
 
     const client = createHttpClient()
-    const result = await client.getText('/mcp/list/')
+    const result = await client.requestText('/mcp/list/', { method: 'GET' })
 
     expect(result).toBe('OK')
     const [url] = mockFetch.mock.calls[0] as [string, RequestInit?]

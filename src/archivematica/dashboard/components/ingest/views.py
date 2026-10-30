@@ -18,15 +18,12 @@ import logging
 import os
 import shutil
 import uuid
-from urllib.parse import urljoin
 
-import requests
 from django.conf import settings as django_settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.forms.models import modelformset_factory
 from django.http import Http404
-from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -272,22 +269,6 @@ def ingest_metadata_delete(request, uuid, id):
         return redirect("ingest:ingest_metadata_list", uuid)
     except Exception:
         raise Http404
-
-
-def ingest_upload_destination_url_check(request):
-    settings = models.DashboardSetting.objects.get_dict("upload-qubit_v0.0")
-    url = settings.get("url")
-
-    # add target to URL
-    url = urljoin(url, request.GET.get("target", ""))
-
-    # make request for URL
-    response = requests.request(
-        "GET", url, timeout=django_settings.AGENTARCHIVES_CLIENT_TIMEOUT
-    )
-
-    # return resulting status code from request
-    return HttpResponse(response.status_code)
 
 
 def ingest_upload(request, uuid):
