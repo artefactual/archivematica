@@ -268,15 +268,10 @@ export const createHttpClient = (options: HttpClientOptions = {}) => {
     return requestJsonIfChanged<T>(path, { ...requestOptions, method: 'GET' })
   }
 
-  const getText = async (path: string, requestOptions: RequestOptions = {}): Promise<string> => {
-    return requestText(path, { ...requestOptions, method: 'GET' })
-  }
-
   return {
     requestText,
     requestJson,
     requestJsonIfChanged,
-    getText,
     getJson,
     getJsonIfChanged,
   }
