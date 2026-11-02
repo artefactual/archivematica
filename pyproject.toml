@@ -40,7 +40,7 @@ dependencies = [
   "jsonschema",
   "lazy-paged-sequence",
   "lxml",
-  "metsrw",
+  "metsrw @ git+https://github.com/artefactual-labs/mets-reader-writer.git@c7395347b9bb17fdd0e8f01f2a5589abcefeaf3a",
   "orjson",
   "opf-fido @ git+https://github.com/artefactual-labs/fido.git@3e16f31492d72ae650b25fabc9b9f55a7c4259f2",
   "prometheus_client",
