@@ -469,10 +469,6 @@ textarea.command {
   padding-bottom: 0em;
 }
 
-#upload-dip-modal-spinner {
-  display: none;
-}
-
 .revisions_link {
   float: right;
   border: 1px solid #666;

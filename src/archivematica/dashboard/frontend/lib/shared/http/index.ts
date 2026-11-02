@@ -38,7 +38,6 @@ export {
   getIngestJobGroups,
   getUploadTarget,
   setUploadTarget,
-  checkUploadDestinationStatusCode,
   getIngestNormalizationReportUrl,
   getIngestUploadAsUrl,
   getIngestUploadAsMatchUrl,
