@@ -127,7 +127,7 @@ requires-dist = [
     { name = "jsonschema" },
     { name = "lazy-paged-sequence" },
     { name = "lxml" },
-    { name = "metsrw" },
+    { name = "metsrw", git = "https://github.com/artefactual-labs/mets-reader-writer.git?rev=ed38aa868d6a03d21a9a5b47cc55053108c45c56" },
     { name = "mozilla-django-oidc" },
     { name = "opf-fido", git = "https://github.com/artefactual-labs/fido.git?rev=3e16f31492d72ae650b25fabc9b9f55a7c4259f2" },
     { name = "orjson" },
@@ -1465,13 +1465,9 @@ wheels = [
 [[package]]
 name = "metsrw"
 version = "0.7.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/artefactual-labs/mets-reader-writer.git?rev=ed38aa868d6a03d21a9a5b47cc55053108c45c56#ed38aa868d6a03d21a9a5b47cc55053108c45c56" }
 dependencies = [
     { name = "lxml" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/3a/8c7cf141a4215bba644b4be4a5f0e5b464d65dbfa1465271cb08a780bfcf/metsrw-0.7.0.tar.gz", hash = "sha256:5aa79345d01983ab212926247a700977e325fb87e4f47ab659ea61c1275e49fd", size = 121457, upload-time = "2026-07-03T17:19:51.006Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bc/cf/d89c851bd05cd5f2b49fea4a6c1a25eae2bf18062708e217f57d0c554963/metsrw-0.7.0-py3-none-any.whl", hash = "sha256:a9cde54438a8cacb56bcf6f05b7526eae0f4d175441f0fcaddbfb3b33d6e3acb", size = 92729, upload-time = "2026-07-03T17:19:49.592Z" },
 ]
 
 [[package]]
