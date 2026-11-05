@@ -234,7 +234,7 @@ restart-am-services:  ## Restart Archivematica services: MCPServer, MCPClient, D
 	docker compose restart --no-deps archivematica-storage-service
 
 # Lock resolution needs the Python and Git tools included in this uv image.
-UV_IMAGE ?= ghcr.io/astral-sh/uv:0.13.4-python3.14-trixie@sha256:81ff59d597a2483d6dfa5a65bf4e021f6e9df8aa68dd6fa3ab5052d2d76fc97b
+UV_IMAGE ?= ghcr.io/astral-sh/uv:0.13.7-python3.14-trixie@sha256:9335539f5fb873b1d0b0aa1885dcd2ce3cea8473d9c47c5f24ce2e00fd3a158f
 
 define am_uv
 	docker run \
