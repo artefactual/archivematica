@@ -1,0 +1,3794 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-11 07:32+0100\n"
+"PO-Revision-Date: 2026-10-11 12:04+0100\n"
+"Last-Translator: cerob <abdurrahman.d@icloud.com>, 2026\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: components/accounts/forms.py:75
+msgid ""
+"The two password fields didn't match. Enter the same password as before, for"
+" verification."
+msgstr ""
+"İki şifre alanı eşleşmiyor. Doğrulama için önceki şifrenin aynısını girin."
+
+#: components/accounts/forms.py:78
+msgid "Your current password is required when setting a new password."
+msgstr "Yeni şifre belirlerken geçerli şifreniz gerekli."
+
+#: components/accounts/forms.py:80
+msgid "Your current password is incorrect."
+msgstr "Geçerli şifreniz yanlış."
+
+#: components/accounts/forms.py:86
+msgid "Your current password"
+msgstr "Geçerli şifreniz"
+
+#: components/accounts/forms.py:87
+msgid "Required when setting a new password."
+msgstr "Yeni şifre belirlenirken zorunludur."
+
+#: components/accounts/forms.py:92
+msgid "New password"
+msgstr "Yeni şifre"
+
+#: components/accounts/validators.py:16
+msgid ""
+"Your password must contain at least 3 of: uppercase characters, lowercase "
+"characters, numbers, and special characters (symbols or non-alphanumeric "
+"Unicode characters)."
+msgstr ""
+"Şifreniz şunlardan en az 3'ünü içermelidir: büyük harf, küçük harf, rakam ve"
+" özel karakter (simgeler veya alfasayısal olmayan Unicode karakterler)."
+
+#: components/accounts/views.py:67 components/accounts/views.py:169
+#: components/administration/views.py:371
+#: components/administration/views.py:386
+#: components/administration/views.py:398
+#: components/administration/views.py:425
+#: components/administration/views.py:472
+#: components/administration/views_dip_upload.py:23
+#: components/administration/views_dip_upload.py:37 fpr/views.py:115
+#: fpr/views.py:122 fpr/views.py:159 fpr/views.py:321 fpr/views.py:365
+#: fpr/views.py:464 fpr/views.py:563 fpr/views.py:571 fpr/views.py:642
+#: fpr/views.py:699
+msgid "Saved."
+msgstr "Kaydedildi."
+
+#: components/accounts/views.py:94
+#, python-format
+msgid "Your profile (%s)"
+msgstr "Profiliniz (%s)"
+
+#: components/administration/forms.py:66
+msgid "Web service endpoint"
+msgstr "Web servisi uç noktası"
+
+#: components/administration/forms.py:67
+msgid "The URL for (POST) requests to create and resolve PIDs."
+msgstr "PID oluşturmak ve çözümlemek için (POST) isteklerinin URL'si."
+
+#: components/administration/forms.py:72
+msgid "Web service key"
+msgstr "Web servisi anahtarı"
+
+#: components/administration/forms.py:74
+msgid ""
+"Web service key needed for authentication to make PID-binding requests to "
+"the PID web service endpoint."
+msgstr ""
+"PID web servisi uç noktasına PID bağlama istekleri göndermek için kimlik "
+"doğrulamada gereken web servisi anahtarı."
+
+#: components/administration/forms.py:81
+msgid "Naming authority"
+msgstr "Adlandırma otoritesi"
+
+#: components/administration/forms.py:82
+msgid "Handle naming authority (e.g., 12345)"
+msgstr "Handle adlandırma otoritesi (ör. 12345)"
+
+#: components/administration/forms.py:87
+msgid "Resolver URL"
+msgstr "Çözümleyici URL'si"
+
+#: components/administration/forms.py:89
+msgid ""
+"The URL to append generated PIDs to in order to create (potentially "
+"qualified) PURLs (persistent URLs) that resolve to the applicable resolve "
+"URL. Note the second \"r\" in \"resolver\"!"
+msgstr ""
+"Oluşturulan PID'lerin eklenerek ilgili çözüm URL'sine yönlenen (niteleyici "
+"içerebilen) PURL'lerin (kalıcı URL'ler) üretildiği adres. Dikkat: terim "
+"resolver'dır, resolve değil. İkinci r'ye dikkat edin."
+
+#: components/administration/forms.py:100
+msgid "AIP PID source"
+msgstr "AIP PID kaynağı"
+
+#: components/administration/forms.py:102
+msgid ""
+"The source of the AIP's persistent identifier. The UUID of the AIP is the "
+"default since it is virtually guaranteed to be unique. However, the "
+"accession number of the transfer may be used, assuming the user can "
+"guarantee a 1-to-1 relationship between the transfer and the AIP."
+msgstr ""
+"AIP'nin kalıcı tanımlayıcısının kaynağı. AIP UUID'si neredeyse kesin "
+"benzersiz olduğundan varsayılandır. Aktarım ile AIP arasında bire bir ilişki"
+" garanti edilebiliyorsa aktarımın edinim numarası da kullanılabilir."
+
+#: components/administration/forms.py:117
+msgid "Verify SSL certificates"
+msgstr "SSL sertifikalarını doğrula"
+
+#: components/administration/forms.py:118
+msgid "Verify SSL certificates when making requests to bind PIDs."
+msgstr "PID bağlama isteklerinde SSL sertifikalarını doğrula."
+
+#: components/administration/forms.py:123
+msgid "Archive resolve URL template"
+msgstr "Arşiv çözüm URL'si şablonu"
+
+#: components/administration/forms.py:125
+msgid ""
+"Template (Django or Jinja2) for the URL that a unit's PURL should resolve "
+"to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Bir birimin PURL'sinin çözümleneceği URL için şablon (Django veya Jinja2). "
+"\"pid\" ve \"naming_authority\" değişkenlerine erişir."
+
+#: components/administration/forms.py:133
+msgid "METS resolve URL template"
+msgstr "METS çözüm URL'si şablonu"
+
+#: components/administration/forms.py:135
+msgid ""
+"Template (Django or Jinja2) for the URL that a unit's PURL with the \"mets\""
+" qualifier should resolve to. Has access to \"pid\" and \"naming_authority\""
+" variables."
+msgstr ""
+"Bir birimin \"mets\" niteleyicili PURL'sinin çözümleneceği URL için şablon "
+"(Django veya Jinja2). \"pid\" ve \"naming_authority\" değişkenlerine erişir."
+
+#: components/administration/forms.py:143
+msgid "File resolve URL template"
+msgstr "Dosya çözüm URL'si şablonu"
+
+#: components/administration/forms.py:145
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL should resolve "
+"to. Has access to \"pid\" and \"naming_authority\" variables."
+msgstr ""
+"Bir dosyanın PURL'sinin çözümleneceği URL için şablon (Django veya Jinja2). "
+"\"pid\" ve \"naming_authority\" değişkenlerine erişir."
+
+#: components/administration/forms.py:153
+msgid "Access derivative resolve URL template"
+msgstr "Erişim türevi çözüm URL'si şablonu"
+
+#: components/administration/forms.py:155
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the "
+"\"access\" qualifier should resolve to. Has access to \"pid\" and "
+"\"naming_authority\" variables."
+msgstr ""
+"Bir dosyanın \"access\" niteleyicili PURL'sinin çözümleneceği URL için "
+"şablon (Django veya Jinja2). \"pid\" ve \"naming_authority\" değişkenlerine "
+"erişir."
+
+#: components/administration/forms.py:163
+msgid "Preservation derivative resolve URL template"
+msgstr "Koruma türevi çözüm URL'si şablonu"
+
+#: components/administration/forms.py:165
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the "
+"\"preservation\" qualifier should resolve to. Has access to \"pid\" and "
+"\"naming_authority\" variables."
+msgstr ""
+"Bir dosyanın \"preservation\" niteleyicili PURL'sinin çözümleneceği URL için"
+" şablon (Django veya Jinja2). \"pid\" ve \"naming_authority\" değişkenlerine"
+" erişir."
+
+#: components/administration/forms.py:174
+msgid "Original file resolve URL template"
+msgstr "Özgün dosya çözüm URL'si şablonu"
+
+#: components/administration/forms.py:176
+msgid ""
+"Template (Django or Jinja2) for the URL that a file's PURL with the "
+"\"original\" qualifier should resolve to. Has access to \"pid\" and "
+"\"naming_authority\" variables."
+msgstr ""
+"Bir dosyanın \"original\" niteleyicili PURL'sinin çözümleneceği URL için "
+"şablon (Django veya Jinja2). \"pid\" ve \"naming_authority\" değişkenlerine "
+"erişir."
+
+#: components/administration/forms.py:185
+msgid "PID/handle request request body template"
+msgstr "PID/handle istek gövdesi şablonu"
+
+#: components/administration/forms.py:187
+msgid ""
+"Template (Django or Jinja2) that constructs the HTTP request body using the "
+"rendered URL templates above. Has access to the following variables: "
+"\"pid\", \"naming_authority\", \"base_resolve_url\", and "
+"\"qualified_resolve_urls\", the last of which is a list of dicts with "
+"\"url\" and \"qualifier\" keys."
+msgstr ""
+"Yukarıdaki işlenmiş URL şablonlarıyla HTTP istek gövdesini kuran şablon "
+"(Django veya Jinja2). Şu değişkenlere erişir: \"pid\", \"naming_authority\","
+" \"base_resolve_url\" ve \"qualified_resolve_urls\". Sonuncusu, \"url\" ve "
+"\"qualifier\" anahtarlı sözlüklerin listesidir."
+
+#: components/administration/forms.py:220
+msgid "Storage Service URL"
+msgstr "Depolama Servisi URL'si"
+
+#: components/administration/forms.py:222
+msgid "Full URL of the storage service. E.g. https://192.168.168.192:8000"
+msgstr "Depolama servisinin tam URL'si. Örn. https://192.168.168.192:8000"
+
+#: components/administration/forms.py:226
+msgid "Storage Service User"
+msgstr "Depolama Servisi kullanıcısı"
+
+#: components/administration/forms.py:227
+msgid "User in the storage service to authenticate as. E.g. test"
+msgstr "Depolama servisinde kimlik doğrulaması yapılacak kullanıcı. Örn. test"
+
+#: components/administration/forms.py:230
+msgid "API key"
+msgstr "API anahtarı"
+
+#: components/administration/forms.py:232
+msgid ""
+"API key of the storage service user. E.g. "
+"45f7684483044809b2de045ba59dc876b11b9810"
+msgstr ""
+"Depolama servisi kullanıcısının API anahtarı. Örn. "
+"45f7684483044809b2de045ba59dc876b11b9810"
+
+#: components/administration/forms.py:240
+msgid "Use default configuration"
+msgstr "Varsayılan yapılandırmayı kullan"
+
+#: components/administration/forms.py:242
+msgid ""
+"You have to manually set up a custom configuration if the default "
+"configuration is not selected."
+msgstr ""
+"Varsayılan yapılandırma seçilmezse özel yapılandırmayı elle kurmanız "
+"gerekir."
+
+#: components/administration/forms.py:261
+msgid "Select algorithm"
+msgstr "Algoritma seç"
+
+#: components/administration/forms.py:281
+#: components/administration/forms_dip_upload.py:7
+#: components/administration/forms_dip_upload.py:16
+#: components/ingest/pair_matcher.py:54
+#: fpr/templates/fpr/fpcommand/detail.html:32
+#: fpr/templates/fpr/fpcommand/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:47
+msgid "None"
+msgstr "Yok"
+
+#: components/administration/forms.py:286
+msgid "Scan for viruses?"
+msgstr "Virüs taraması yapılsın mı?"
+
+#: components/administration/forms.py:288
+msgid "Perform file format identification (Transfer)"
+msgstr "Dosya biçimi tanımlaması yap (Aktarım)"
+
+#: components/administration/forms.py:291
+msgid "Perform file format identification (Ingest)"
+msgstr "Dosya biçimi tanımlaması yap (İçeri alma)"
+
+#: components/administration/forms.py:294
+msgid ""
+"Perform file format identification (Submission documentation & metadata)"
+msgstr "Dosya biçimi tanımlaması yap (Gönderim belgeleri ve üst verisi)"
+
+#: components/administration/forms.py:307
+msgid ""
+"The name can contain only alphanumeric characters and the underscore "
+"character (_)."
+msgstr "Ad yalnızca alfasayısal karakterler ve alt çizgi (_) içerebilir."
+
+#: components/administration/forms_dip_upload.py:4
+#: components/administration/forms_dip_upload.py:123
+msgid "Yes"
+msgstr "Evet"
+
+#: components/administration/forms_dip_upload.py:4
+#: components/administration/forms_dip_upload.py:123
+msgid "No"
+msgstr "Hayır"
+
+#: components/administration/forms_dip_upload.py:4
+msgid "Base on PREMIS"
+msgstr "PREMIS'e dayandır"
+
+#: components/administration/forms_dip_upload.py:8
+msgid "onLoad"
+msgstr "Yüklendiğinde"
+
+#: components/administration/forms_dip_upload.py:9
+msgid "other"
+msgstr "Diğer"
+
+#: components/administration/forms_dip_upload.py:10
+msgid "onRequest"
+msgstr "İstendiğinde"
+
+#: components/administration/forms_dip_upload.py:14
+msgid "Embed"
+msgstr "Gömülü"
+
+#: components/administration/forms_dip_upload.py:15
+msgid "New"
+msgstr "Yeni"
+
+#: components/administration/forms_dip_upload.py:17 main/models.py:1073
+msgid "Other"
+msgstr "Diğer"
+
+#: components/administration/forms_dip_upload.py:18
+#: fpr/templates/fpr/format/version/detail.html:34
+#: fpr/templates/fpr/fpcommand/detail.html:55
+#: fpr/templates/fpr/fprule/detail.html:43
+#: fpr/templates/fpr/idcommand/detail.html:39
+#: fpr/templates/fpr/idrule/detail.html:35
+msgid "Replace"
+msgstr "Değiştir"
+
+#: components/administration/forms_dip_upload.py:24
+msgid "ArchivesSpace base URL"
+msgstr "ArchivesSpace temel URL'si"
+
+#: components/administration/forms_dip_upload.py:25
+msgid "Example: http://aspace.test.org:8089"
+msgstr "Örnek: http://aspace.test.org:8089"
+
+#: components/administration/forms_dip_upload.py:28
+msgid "ArchivesSpace administrative user"
+msgstr "ArchivesSpace yönetici kullanıcısı"
+
+#: components/administration/forms_dip_upload.py:28
+msgid "Example: admin"
+msgstr "Örnek: admin"
+
+#: components/administration/forms_dip_upload.py:32
+msgid "ArchivesSpace administrative user password"
+msgstr "ArchivesSpace yönetici kullanıcısı şifresi"
+
+#: components/administration/forms_dip_upload.py:34
+msgid ""
+"Password for user set above. Re-enter this password every time changes are "
+"made."
+msgstr ""
+"Yukarıda belirtilen kullanıcının şifresi. Her değişiklikte bu şifreyi "
+"yeniden girin."
+
+#: components/administration/forms_dip_upload.py:38
+msgid "Restrictions apply"
+msgstr "Kısıtlamalar uygulanır"
+
+#: components/administration/forms_dip_upload.py:41
+msgid "XLink Show"
+msgstr "XLink gösterimi"
+
+#: components/administration/forms_dip_upload.py:44
+msgid "XLink Actuate"
+msgstr "XLink tetikleme"
+
+#: components/administration/forms_dip_upload.py:48
+msgid "Object type"
+msgstr "Nesne türü"
+
+#: components/administration/forms_dip_upload.py:50
+msgid ""
+"Optional, must come from ArchivesSpace controlled list. Example: "
+"sound_recording"
+msgstr ""
+"İsteğe bağlıdır; kullanılırsa ArchivesSpace denetimli listesinden "
+"gelmelidir. Örnek: sound_recording"
+
+#: components/administration/forms_dip_upload.py:55
+msgid "Use statement"
+msgstr "Kullanım bildirimi"
+
+#: components/administration/forms_dip_upload.py:57
+msgid ""
+"Optional, but if present should come from ArchivesSpace controlled list. "
+"Example: image-master"
+msgstr ""
+"İsteğe bağlıdır; girilirse ArchivesSpace denetimli listesinden gelmelidir. "
+"Örnek: image-master"
+
+#: components/administration/forms_dip_upload.py:61
+msgid "URL prefix"
+msgstr "URL öneki"
+
+#: components/administration/forms_dip_upload.py:63
+msgid ""
+"URL of DIP object server as you wish to appear in ArchivesSpace record. "
+"Example: http://example.com"
+msgstr ""
+"ArchivesSpace kaydında görünmesini istediğiniz DIP nesne sunucusunun URL'si."
+" Örnek: http://example.com"
+
+#: components/administration/forms_dip_upload.py:68
+msgid "Conditions governing access"
+msgstr "Erişimi düzenleyen koşullar"
+
+#: components/administration/forms_dip_upload.py:69
+msgid "Populates Conditions governing access note"
+msgstr "Erişimi düzenleyen koşullar notunu doldurur"
+
+#: components/administration/forms_dip_upload.py:73
+msgid "Conditions governing use"
+msgstr "Kullanımı düzenleyen koşullar"
+
+#: components/administration/forms_dip_upload.py:74
+msgid "Populates Conditions governing use note"
+msgstr "Kullanımı düzenleyen koşullar notunu doldurur"
+
+#: components/administration/forms_dip_upload.py:77
+msgid "ArchivesSpace repository number"
+msgstr "ArchivesSpace depo numarası"
+
+#: components/administration/forms_dip_upload.py:78
+msgid "Default for single repository installation is 2"
+msgstr "Tek depolu kurulumda varsayılan değer 2'dir"
+
+#: components/administration/forms_dip_upload.py:83
+msgid "Inherit digital object notes from the parent component"
+msgstr "Sayısal nesne notlarını üst bileşenden devral"
+
+#: components/administration/forms_dip_upload.py:90
+msgid "Upload URL"
+msgstr "Yükleme URL'si"
+
+#: components/administration/forms_dip_upload.py:92
+msgid ""
+"URL where the AtoM index.php frontend lives, SWORD services path will be "
+"appended."
+msgstr ""
+"AtoM index.php arayüzünün bulunduğu URL. SWORD servis yolu buna eklenir."
+
+#: components/administration/forms_dip_upload.py:96
+msgid "Login email"
+msgstr "Giriş e-postası"
+
+#: components/administration/forms_dip_upload.py:97
+msgid "E-mail account used to log into AtoM."
+msgstr "AtoM'da oturum açmak için kullanılan e-posta hesabı."
+
+#: components/administration/forms_dip_upload.py:100
+msgid "Login password"
+msgstr "Giriş şifresi"
+
+#: components/administration/forms_dip_upload.py:100
+msgid "Password used to log into AtoM."
+msgstr "AtoM'da oturum açmak için kullanılan şifre."
+
+#: components/administration/forms_dip_upload.py:103
+msgid "AtoM version"
+msgstr "AtoM sürümü"
+
+#: components/administration/forms_dip_upload.py:107
+msgid "Rsync target"
+msgstr "Rsync hedefi"
+
+#: components/administration/forms_dip_upload.py:109
+msgid ""
+"The DIP can be sent with Rsync to a remote host before is deposited in AtoM."
+" This is the destination value passed to Rsync (see man 1 rsync). For "
+"example: foobar.com:~/dips/."
+msgstr ""
+"DIP, AtoM'a teslim edilmeden önce Rsync ile uzak bir ana bilgisayara "
+"gönderilebilir. Bu, Rsync'e iletilen hedef değerdir (bkz. man 1 rsync). "
+"Örnek: foobar.com:~/dips/."
+
+#: components/administration/forms_dip_upload.py:114
+msgid "Rsync command"
+msgstr "Rsync komutu"
+
+#: components/administration/forms_dip_upload.py:116
+msgid ""
+"If --rsync-target is used, you can use this argument to specify the remote "
+"shell manually. For example: ssh -p 22222 -l user."
+msgstr ""
+"--rsync-target kullanılıyorsa uzak kabuğu elle belirtmek için bu argümanı "
+"kullanabilirsiniz. Örnek: ssh -p 22222 -l user."
+
+#: components/administration/forms_dip_upload.py:121
+msgid "Debug mode"
+msgstr "Hata ayıklama kipi"
+
+#: components/administration/forms_dip_upload.py:122
+msgid "Show additional details."
+msgstr "Ek ayrıntıları göster."
+
+#: components/administration/forms_dip_upload.py:128
+msgid "REST API key"
+msgstr "REST API anahtarı"
+
+#: components/administration/forms_dip_upload.py:129
+msgid "Used in metadata-only DIP upload."
+msgstr "Yalnızca üst veri içeren DIP yüklemesinde kullanılır."
+
+#: components/administration/views.py:85 components/ingest/views.py:285
+#: fpr/views.py:277 main/views.py:306
+msgid "Deleted."
+msgstr "Silindi."
+
+#: components/administration/views.py:108
+msgid ""
+"Error retrieving locations: is the storage server running? Please contact an"
+" administrator."
+msgstr ""
+"Konumlar alınamadı: depolama sunucusu çalışıyor mu? Lütfen bir yöneticiyle "
+"iletişime geçin."
+
+#: components/administration/views.py:117
+msgid "AIP Storage"
+msgstr "AIP depolama"
+
+#: components/administration/views.py:118
+msgid "DIP Storage"
+msgstr "DIP depolama"
+
+#: components/administration/views.py:119
+msgid "FEDORA Deposits"
+msgstr "FEDORA teslimleri"
+
+#: components/administration/views.py:120
+msgid "Transfer Source"
+msgstr "Aktarım kaynağı"
+
+#: components/administration/views.py:121
+msgid "Replicator"
+msgstr "Çoğaltıcı"
+
+#: components/administration/views.py:138
+msgid "unlimited"
+msgstr "sınırsız"
+
+#: components/administration/views.py:321
+#, python-format
+msgid "Clear %(dir)s?"
+msgstr "%(dir)s temizlensin mi?"
+
+#: components/administration/views.py:323
+#: templates/administration/usage.html:103
+msgid "Clear"
+msgstr "Temizle"
+
+#: components/administration/views.py:348
+#, python-format
+msgid "Cleared: %(path)s"
+msgstr "Temizlendi: %(path)s"
+
+#: components/administration/views.py:351
+#, python-format
+msgid "No such file or directory: %(path)s"
+msgstr "Böyle bir dosya veya dizin yok: %(path)s"
+
+#: components/administration/views.py:488
+#, python-format
+msgid ""
+"Storage Service inaccessible. Please contact an administrator or update the "
+"Storage Sevice URL below.<hr />%(error)s"
+msgstr ""
+"Depolama Servisi'ne erişilemiyor. Lütfen bir yöneticiyle iletişime geçin "
+"veya aşağıdaki Depolama Servisi URL'sini güncelleyin.<hr />%(error)s"
+
+#: components/administration/views.py:505
+#, python-format
+msgid ""
+"Storage Service failed to create the pipeline. This can happen if the "
+"pipeline exists but it is disabled. Please contact an administrator.<hr "
+"/>%(error)s"
+msgstr ""
+"Depolama Servisi iş hattını oluşturamadı. İş hattı var ama devre dışıysa bu "
+"durum oluşabilir. Lütfen bir yöneticiyle iletişime geçin.<hr />%(error)s"
+
+#: components/administration/views.py:517
+msgid ""
+"Storage Service returned a 404 error. Has the pipeline been disabled or is "
+"it not registered yet? Submitting form will attempt to register the "
+"pipeline."
+msgstr ""
+"Depolama Servisi 404 hatası döndürdü. İş hattı devre dışı bırakılmış "
+"olabilir veya henüz kaydedilmemiş olabilir. Formu gönderirseniz iş hattı "
+"kaydedilmeye çalışılır."
+
+#: components/administration/views_processing.py:66
+msgid "Unable to load processing configuration page."
+msgstr "İşleme yapılandırması sayfası yüklenemedi."
+
+#: components/administration/views_processing.py:75
+msgid "Failed to save processing configuration."
+msgstr "İşleme yapılandırması kaydedilemedi."
+
+#: components/administration/views_processing.py:76
+msgid "Saved!"
+msgstr "Kaydedildi!"
+
+#: components/administration/views_processing.py:89
+msgid "Failed to load processing configuration."
+msgstr "İşleme yapılandırması yüklenemedi."
+
+#: components/archival_storage/forms.py:37
+msgid "Insert slug"
+msgstr "Kısa ad ekle"
+
+#: components/archival_storage/forms.py:38
+msgid "Only compatible with AtoM 2.4 or newer."
+msgstr "Yalnızca AtoM 2.4 ve üzeriyle uyumludur."
+
+#: components/archival_storage/forms.py:50
+msgid "Connection establishment failed: AtoM server cannot be reached."
+msgstr "Bağlantı kurulamadı: AtoM sunucusuna erişilemiyor."
+
+#: components/archival_storage/forms.py:56
+#, python-format
+msgid "Description with slug %(slug)s not found!"
+msgstr "%(slug)s kısa adlı betimleme bulunamadı!"
+
+#: components/archival_storage/forms.py:61
+#, python-format
+msgid "Unknown error: %(error)s"
+msgstr "Bilinmeyen hata: %(error)s"
+
+#: components/archival_storage/forms.py:84
+msgid "Metadata re-ingest"
+msgstr "Üst veri yeniden içeri alma"
+
+#: components/archival_storage/forms.py:85
+msgid "Partial re-ingest"
+msgstr "Kısmi yeniden içeri alma"
+
+#: components/archival_storage/forms.py:86
+msgid "Full re-ingest"
+msgstr "Tam yeniden içeri alma"
+
+#: components/archival_storage/forms.py:100
+msgid "Please type in the UUID to confirm"
+msgstr "Onaylamak için UUID'yi yazın"
+
+#: components/archival_storage/forms.py:102
+#: components/archival_storage/views.py:209
+#: fpr/templates/fpr/format/detail.html:18
+#: fpr/templates/fpr/format/version/detail.html:22
+#: fpr/templates/fpr/fpcommand/detail.html:21
+#: fpr/templates/fpr/fprule/detail.html:21
+#: fpr/templates/fpr/fptool/detail.html:18
+#: fpr/templates/fpr/idcommand/detail.html:21
+#: fpr/templates/fpr/idrule/detail.html:21
+#: fpr/templates/fpr/idtool/detail.html:18
+#: fpr/templates/fpr/revisions/list.html:23
+#: templates/administration/reports/failures.html:28
+#: templates/archival_storage/view.html:27
+msgid "UUID"
+msgstr "UUID"
+
+#: components/archival_storage/forms.py:105
+msgid "Reason for deletion"
+msgstr "Silme nedeni"
+
+#: components/archival_storage/forms.py:113
+msgid "uuid must be defined"
+msgstr "UUID tanımlanmalıdır"
+
+#: components/archival_storage/forms.py:119
+msgid "UUID mismatch"
+msgstr "UUID eşleşmiyor"
+
+#: components/archival_storage/views.py:62
+msgid "Stored"
+msgstr "Depolandı"
+
+#: components/archival_storage/views.py:63
+msgid "Deletion requested"
+msgstr "Silme istendi"
+
+#: components/archival_storage/views.py:208 templates/accounts/list.html:24
+#: templates/accounts/profile.html:32
+#: templates/administration/reports/failures.html:27
+msgid "Name"
+msgstr "Ad"
+
+#: components/archival_storage/views.py:210
+msgid "AICID"
+msgstr "AIC kimliği"
+
+#: components/archival_storage/views.py:211
+msgid "Count AIPs in AIC"
+msgstr "AIC içindeki AIP sayısı"
+
+#: components/archival_storage/views.py:212
+msgid "Bytes"
+msgstr "Bayt"
+
+#: components/archival_storage/views.py:213
+#: templates/administration/usage.html:90
+#: templates/archival_storage/view.html:31
+msgid "Size"
+msgstr "Boyut"
+
+#: components/archival_storage/views.py:214
+msgid "File count"
+msgstr "Dosya sayısı"
+
+#: components/archival_storage/views.py:215
+msgid "Accession IDs"
+msgstr "Edinim kimlikleri"
+
+#: components/archival_storage/views.py:216
+msgid "Created date (UTC)"
+msgstr "Oluşturulma tarihi (UTC)"
+
+#: components/archival_storage/views.py:217
+#: templates/archival_storage/view.html:39
+msgid "Status"
+msgstr "Durum"
+
+#: components/archival_storage/views.py:218 main/models.py:1062
+#: templates/administration/reports/failures.html:26
+#: templates/rights/rights_edit.html:98 templates/rights/rights_edit.html:144
+#: templates/rights/rights_edit.html:188 templates/rights/rights_edit.html:230
+msgid "Type"
+msgstr "Tür"
+
+#: components/archival_storage/views.py:219
+#: templates/archival_storage/view.html:43
+msgid "Encrypted"
+msgstr "Şifrelenmiş"
+
+#: components/archival_storage/views.py:220
+#: templates/archival_storage/view.html:47
+#: templates/ingest/normalization_report.html:28
+msgid "Location"
+msgstr "Konum"
+
+#: components/archival_storage/views.py:695
+msgid "The AIP package containing the requested METS cannot be found"
+msgstr "İstenen METS'i içeren AIP paketi bulunamadı"
+
+#: components/archival_storage/views.py:820
+msgid "Metadata-only DIP upload failed, check the logs for more details"
+msgstr ""
+"Yalnızca üst veri içeren DIP yüklemesi başarısız oldu. Ayrıntılar için "
+"günlüklere bakın."
+
+#: components/archival_storage/views.py:832
+#, python-format
+msgid ""
+"Metadata-only DIP upload has been completed successfully. New resource has "
+"slug: %(slug)s"
+msgstr ""
+"Yalnızca üst veri içeren DIP yüklemesi başarıyla tamamlandı. Yeni kaynağın "
+"kısa adı: %(slug)s"
+
+#: components/archival_storage/views.py:855
+#, python-format
+msgid "Error re-ingesting package: %(message)s"
+msgstr "Paket yeniden içeri alınırken hata oluştu: %(message)s"
+
+#: components/archival_storage/views.py:874
+msgid "An unknown error occurred."
+msgstr "Bilinmeyen bir hata oluştu."
+
+#: components/archival_storage/views.py:878
+msgid "Deletion request submitted."
+msgstr "Silme isteği gönderildi."
+
+#: components/filesystem_ajax/views.py:82
+#, python-format
+msgid "%(count)d object"
+msgid_plural "%(count)d objects"
+msgstr[0] "%(count)d nesne"
+msgstr[1] "%(count)d nesne"
+
+#: components/filesystem_ajax/views.py:85
+#, python-format
+msgid "%(count)s objects"
+msgstr "%(count)s nesne"
+
+#: components/filesystem_ajax/views.py:177
+msgid "Copy successful."
+msgstr "Kopyalama başarılı."
+
+#: components/filesystem_ajax/views.py:271
+msgid "Metadata files added successfully."
+msgstr "Üst veri dosyaları eklendi."
+
+#: components/filesystem_ajax/views.py:306
+#, python-format
+msgid "Location %(location)s is not associated with this pipeline"
+msgstr "%(location)s konumu bu iş hattıyla ilişkili değil"
+
+#: components/filesystem_ajax/views.py:343
+#, python-format
+msgid "The following errors occured: %(message)s"
+msgstr "Şu hatalar oluştu: %(message)s"
+
+#: components/filesystem_ajax/views.py:347
+msgid "Files added successfully."
+msgstr "Dosyalar eklendi."
+
+# Contextual help migrated from metadata templates to forms
+#: components/ingest/forms.py:29
+#, python-brace-format
+msgid "A name given to the resource. ({iso15836})"
+msgstr "Kaynağa verilen ad. ({iso15836})"
+
+#: components/ingest/forms.py:31
+#, python-brace-format
+msgid "An entity primarily responsible for making the resource. ({iso15836})"
+msgstr "Kaynağın oluşturulmasından esas olarak sorumlu varlık. ({iso15836})"
+
+#: components/ingest/forms.py:33
+#, python-brace-format
+msgid "The topic of the resource. ({iso15836})"
+msgstr "Kaynağın konusu. ({iso15836})"
+
+#: components/ingest/forms.py:34
+#, python-brace-format
+msgid "An account of the resource. ({iso15836})"
+msgstr "Kaynağın açıklaması. ({iso15836})"
+
+#: components/ingest/forms.py:36
+#, python-brace-format
+msgid "An entity responsible for making the resource available. ({iso15836})"
+msgstr "Kaynağı erişilebilir kılmaktan sorumlu varlık. ({iso15836})"
+
+#: components/ingest/forms.py:39
+#, python-brace-format
+msgid ""
+"An entity responsible for making contributions to the resource. ({iso15836})"
+msgstr "Kaynağa katkıda bulunmaktan sorumlu varlık. ({iso15836})"
+
+#: components/ingest/forms.py:43
+#, python-brace-format
+msgid ""
+"A point or period of time associated with an event in the lifecycle of the "
+"resource. ({iso15836})"
+msgstr ""
+"Kaynağın yaşam döngüsündeki bir olayla ilişkili zaman noktası veya aralığı. "
+"({iso15836})"
+
+#: components/ingest/forms.py:47
+#, python-brace-format
+msgid ""
+"The file format, physical medium, or dimensions of the resource. "
+"({iso15836}) Best practice is to use a controlled vocabulary such as the "
+"{mime_link}."
+msgstr ""
+"Kaynağın dosya biçimi, fiziksel ortamı veya boyutları. ({iso15836}) "
+"Denetimli bir sözlük kullanmak iyi uygulamadır; örneğin {mime_link}."
+
+#: components/ingest/forms.py:52
+#, python-brace-format
+msgid ""
+"An unambiguous reference to the resource within a given context. "
+"({iso15836})"
+msgstr "Belirli bir bağlamda kaynağa yapılan kesin başvuru. ({iso15836})"
+
+#: components/ingest/forms.py:56
+#, python-brace-format
+msgid ""
+"A related resource from which the described resource is derived. "
+"({iso15836})"
+msgstr "Tanımlanan kaynağın türetildiği ilişkili kaynak. ({iso15836})"
+
+#: components/ingest/forms.py:59
+#, python-brace-format
+msgid "A related resource. ({iso15836})"
+msgstr "İlişkili bir kaynak. ({iso15836})"
+
+#: components/ingest/forms.py:60
+#, python-brace-format
+msgid "A language of the resource. ({iso15836})"
+msgstr "Kaynağın dili. ({iso15836})"
+
+#: components/ingest/forms.py:62
+#, python-brace-format
+msgid ""
+"The spatial or temporal topic of the resource, the spatial applicability of "
+"the resource, or the jurisdiction under which the resource is relevant. "
+"({iso15836})"
+msgstr ""
+"Kaynağın uzamsal veya zamansal konusu, kaynağın uzamsal geçerliliği ya da "
+"kaynağın ilgili olduğu yetki alanı. ({iso15836})"
+
+#: components/ingest/forms.py:67
+#, python-brace-format
+msgid "Information about rights held in and over the resource. ({iso15836})"
+msgstr "Kaynak üzerindeki ve kaynakla ilgili haklara dair bilgi. ({iso15836})"
+
+#: components/ingest/forms.py:122
+msgid "Internet Media Types (MIME) registry"
+msgstr "İnternet Ortam Türleri (MIME) kaydı"
+
+#: components/ingest/pair_matcher.py:37
+msgid "Filter objects"
+msgstr "Nesneleri filtrele"
+
+#: components/ingest/pair_matcher.py:38
+msgid "Filter resources"
+msgstr "Kaynakları filtrele"
+
+#: components/ingest/pair_matcher.py:39
+msgid "Pair"
+msgstr "Eşleştir"
+
+#: components/ingest/pair_matcher.py:40
+msgid "Pair selected objects"
+msgstr "Seçili nesneleri eşleştir"
+
+#: components/ingest/pair_matcher.py:41
+#: templates/ingest/as/resource_component.html:37
+#: templates/ingest/as/resource_component.html:39
+#: templates/ingest/as/resource_detail.html:28
+#: templates/ingest/as/resource_detail.html:30
+#: templates/ingest/as/resource_list.html:25
+#: templates/ingest/as/resource_list.html:27
+#: templates/ingest/as/review_matches.html:16
+msgid "Restart matching"
+msgstr "Eşleştirmeyi yeniden başlat"
+
+#: components/ingest/pair_matcher.py:42
+#: templates/ingest/as/resource_component.html:41
+#: templates/ingest/as/resource_detail.html:33
+#: templates/ingest/as/resource_list.html:29
+#: templates/ingest/as/review_matches.html:5
+#: templates/ingest/as/review_matches.html:6
+msgid "Review matches"
+msgstr "Eşleşmeleri gözden geçir"
+
+#: components/ingest/pair_matcher.py:43
+msgid "Objects"
+msgstr "Nesneler"
+
+#: components/ingest/pair_matcher.py:44
+msgid "Resources"
+msgstr "Kaynaklar"
+
+#: components/ingest/pair_matcher.py:45
+msgid "Pairs"
+msgstr "Eşleştirmeler"
+
+#: components/ingest/pair_matcher.py:46
+msgid "Select all"
+msgstr "Tümünü seç"
+
+#: components/ingest/pair_matcher.py:47
+#: templates/ingest/as/review_matches.html:23
+msgid "File"
+msgstr "Dosya"
+
+#: components/ingest/pair_matcher.py:48
+#: templates/ingest/as/review_matches.html:24
+msgid "Level"
+msgstr "Düzey"
+
+#: components/ingest/pair_matcher.py:49
+#: templates/ingest/as/_search_form.html:4
+#: templates/ingest/as/resource_component.html:52
+#: templates/ingest/as/resource_detail.html:42
+#: templates/ingest/as/resource_list.html:34
+#: templates/ingest/as/review_matches.html:25
+msgid "Title"
+msgstr "Başlık"
+
+#: components/ingest/pair_matcher.py:50
+#: templates/ingest/as/_search_form.html:5
+#: templates/ingest/as/review_matches.html:26
+msgid "Identifier"
+msgstr "Tanımlayıcı"
+
+#: components/ingest/pair_matcher.py:51
+#: templates/ingest/as/resource_component.html:53
+#: templates/ingest/as/resource_detail.html:43
+#: templates/ingest/as/resource_list.html:35
+#: templates/ingest/as/review_matches.html:27
+msgid "Dates"
+msgstr "Tarihler"
+
+#: components/ingest/pair_matcher.py:52
+msgid "Selected resource"
+msgstr "Seçili kaynak"
+
+#: components/ingest/pair_matcher.py:53
+msgid "Target resource"
+msgstr "Hedef kaynak"
+
+#: components/ingest/pair_matcher.py:55
+msgid "Selected objects"
+msgstr "Seçili nesneler"
+
+#: components/ingest/pair_matcher.py:56
+msgid "Delete match"
+msgstr "Eşleşmeyi sil"
+
+#: components/ingest/pair_matcher.py:57
+msgid "No resource selected."
+msgstr "Kaynak seçilmedi."
+
+#: components/ingest/pair_matcher.py:58
+msgid "No objects selected."
+msgstr "Nesne seçilmedi."
+
+#: components/ingest/pair_matcher.py:59
+msgid "This object is already paired."
+msgstr "Bu nesne zaten eşleştirilmiş."
+
+#: components/ingest/pair_matcher.py:60
+msgid "Could not save pairing."
+msgstr "Eşleştirme kaydedilemedi."
+
+#: components/ingest/pair_matcher.py:61
+msgid "Could not delete pairing."
+msgstr "Eşleştirme silinemedi."
+
+#: components/ingest/pair_matcher.py:62
+msgid "No pairs yet."
+msgstr "Henüz eşleştirme yok."
+
+#: components/ingest/views.py:64
+msgid ""
+"Error retrieving source directory locations: is the storage server running? "
+"Please contact an administrator."
+msgstr ""
+"Kaynak dizin konumları alınamadı: depolama sunucusu çalışıyor mu? Lütfen bir"
+" yöneticiyle iletişime geçin."
+
+#: components/ingest/views.py:159
+msgid ""
+"Error retrieving source directories: is the storage server running? Please "
+"contact an administrator."
+msgstr ""
+"Kaynak dizinler alınamadı: depolama sunucusu çalışıyor mu? Lütfen bir "
+"yöneticiyle iletişime geçin."
+
+#: components/ingest/views.py:168
+msgid ""
+"No transfer source locations are available. Please contact an administrator."
+msgstr ""
+"Kullanılabilir aktarım kaynağı konumu yok. Lütfen bir yöneticiyle iletişime "
+"geçin."
+
+#: components/ingest/views.py:276
+msgid "Are you sure you want to delete this metadata?"
+msgstr "Bu üst veriyi silmek istediğinizden emin misiniz?"
+
+#: components/ingest/views.py:411
+msgid "Review normalization"
+msgstr "Normalleştirmeyi gözden geçir"
+
+#: components/ingest/views.py:414
+msgid "Review AIP"
+msgstr "AIP'yi gözden geçir"
+
+#: components/ingest/views.py:417
+msgid "Review DIP"
+msgstr "DIP'yi gözden geçir"
+
+#: components/ingest/views_as.py:309
+msgid ""
+"Operation failed, please try again later or contact your administrator."
+msgstr ""
+"İşlem başarısız oldu. Lütfen daha sonra yeniden deneyin veya yöneticinizle "
+"iletişime geçin."
+
+#: components/rights/forms.py:33
+msgid ""
+"Designation of the basis for the right or permission described in the rights"
+" statement identifier."
+msgstr ""
+"Hak bildirimi tanımlayıcısında açıklanan hak veya iznin dayanağını belirtir."
+
+#: components/rights/forms.py:55
+msgid ""
+"The action the preservation repository is allowed to take; eg replicate, "
+"migrate, modify, use, disseminate, delete"
+msgstr ""
+"Koruma deposunun yapmasına izin verilen işlem; örn. çoğaltma, göç, "
+"değiştirme, kullanma, dağıtma, silme"
+
+#: components/rights/forms.py:64
+msgid "The beginning date of the rights or restrictions granted"
+msgstr "Verilen hakların veya kısıtlamaların başlangıç tarihi"
+
+#: components/rights/forms.py:71
+msgid "The ending date of the rights or restrictions granted"
+msgstr "Verilen hakların veya kısıtlamaların bitiş tarihi"
+
+#: components/rights/forms.py:78
+msgid ""
+"Use \"OPEN\" for an open ended term of restriction. Omit end date if the "
+"ending date is unknown or the permission statement applies to many objects "
+"with different end dates."
+msgstr ""
+"Bitişi belirsiz bir kısıtlama süresi için \"OPEN\" kullanın. Bitiş tarihi "
+"bilinmiyorsa veya izin bildirimi farklı bitiş tarihlerine sahip birçok "
+"nesneye uygulanıyorsa bitiş tarihini boş bırakın."
+
+#: components/rights/forms.py:110
+msgid ""
+"A coded designation of the copyright status of the object at the time the "
+"rights statement is recorded. Available options: Copyrighted, Public Domain,"
+" Unknown"
+msgstr ""
+"Hak bildirimi kaydedildiği anda nesnenin telif hakkı durumunun kodlu "
+"karşılığı. Seçenekler: Telif haklı, Kamu malı, Bilinmiyor"
+
+#: components/rights/forms.py:117
+msgid "The country whose copyright laws apply [ISO 3166]"
+msgstr "Telif hakkı yasalarının uygulandığı ülke [ISO 3166]"
+
+#: components/rights/forms.py:124
+msgid ""
+"The date that the copyright status recorded in 'copyright status' was "
+"determined."
+msgstr "\"Telif hakkı durumu\" alanına kaydedilen durumun belirlendiği tarih."
+
+#: components/rights/forms.py:132
+msgid ""
+"The date when the particular copyright applies or is applied to the content."
+msgstr "Söz konusu telif hakkının içeriğe uygulanmaya başladığı tarih."
+
+#: components/rights/forms.py:140
+msgid ""
+"The date when the particular copyright no longer applies or is applied to "
+"the content."
+msgstr "Söz konusu telif hakkının içeriğe artık uygulanmadığı tarih."
+
+#: components/rights/forms.py:193
+msgid "The country or other political body enacting the statute."
+msgstr "Mevzuatı çıkaran ülke veya diğer siyasi otorite."
+
+#: components/rights/forms.py:200
+msgid "An identifying designation for the statute."
+msgstr "Mevzuat için tanımlayıcı bir işaret."
+
+#: components/rights/forms.py:207
+msgid ""
+"The date that the determination was made that the statue authorized the "
+"permission(s) noted."
+msgstr "Belirtilen izinleri mevzuatın verdiğinin belirlendiği tarih."
+
+#: components/rights/forms.py:215
+msgid ""
+"The date when the statute begins to apply or is applied to the content."
+msgstr "Mevzuatın içeriğe uygulanmaya başladığı tarih."
+
+#: components/rights/forms.py:223
+msgid ""
+"The date when the statute ceasees to apply or be applied to the content."
+msgstr "Mevzuatın içeriğe artık uygulanmadığı tarih."
+
+#: components/rights/forms.py:251
+msgid ""
+"The designation of the basis for the other right or permission described in "
+"the rights statement identifier."
+msgstr ""
+"Hak bildirimi tanımlayıcısında açıklanan diğer hak veya iznin dayanağını "
+"belirtir."
+
+#: components/rights/forms.py:259
+msgid "The date when the other right applies or is applied to the content."
+msgstr "Diğer hakkın içeriğe uygulanmaya başladığı tarih."
+
+#: components/rights/forms.py:267
+msgid ""
+"The date when the other right no longer applies or is applied to the "
+"content."
+msgstr "Diğer hakkın içeriğe artık uygulanmadığı tarih."
+
+#: components/rights/forms.py:288
+msgid ""
+"Text describing the license or agreement by which permission as granted."
+msgstr "İznin verildiği lisans veya sözleşmeyi açıklayan metin."
+
+#: components/rights/forms.py:296
+msgid ""
+"The date at which the license first applies or is applied to the content."
+msgstr "Lisansın içeriğe ilk kez uygulanmaya başladığı tarih."
+
+#: components/rights/forms.py:304
+msgid ""
+"The end date at which the license no longer applies or is applied to the "
+"content."
+msgstr "Lisansın içeriğe artık uygulanmadığı bitiş tarihi."
+
+#: components/rights/views.py:235 components/rights/views.py:271
+msgid "copyright"
+msgstr "telif hakkı"
+
+#: components/rights/views.py:305 components/rights/views.py:339
+msgid "license"
+msgstr "lisans"
+
+#: components/rights/views.py:351 components/rights/views.py:388
+#: components/rights/views.py:436 components/rights/views.py:467
+msgid "statute"
+msgstr "mevzuat"
+
+#: components/rights/views.py:453
+msgid "statue"
+msgstr "mevzuat"
+
+#: components/transfer/views.py:55
+msgid "Error retrieving source directories"
+msgstr "Kaynak dizinler alınamadı"
+
+#: components/transfer/views.py:202
+msgid "Updated path was not provided."
+msgstr "Güncellenmiş yol verilmedi."
+
+#: components/transfer/views.py:204
+msgid "Unable to update transfer metadata set, contact administrator:"
+msgstr "Aktarım üst veri kümesi güncellenemedi, yöneticiyle iletişime geçin:"
+
+#: fpr/forms.py:17 fpr/forms.py:114
+msgid "Create New"
+msgstr "Yeni oluştur"
+
+#: fpr/forms.py:61
+msgid "An ID tool with this description and version already exists"
+msgstr "Bu açıklama ve sürüme sahip bir tanımlama aracı zaten var"
+
+#: fpr/forms.py:141
+#, python-format
+msgid "An identical FP rule already exists. See rule %(uuid)s."
+msgstr "Aynı biçim ilkesi kuralı zaten var. %(uuid)s kuralına bakın."
+
+#: fpr/forms.py:150
+#, python-format
+msgid ""
+" Rule %(uuid)s is disabled and has been replaced by the following rule(s): "
+"%(repl_uuids)s"
+msgstr ""
+" %(uuid)s kuralı devre dışı ve şu kurallarla değiştirildi: %(repl_uuids)s"
+
+#: fpr/forms.py:158
+#, python-format
+msgid " Rule %(uuid)s is disabled."
+msgstr " %(uuid)s kuralı devre dışı."
+
+#: fpr/models.py:48
+msgid "the related model"
+msgstr "İlişkili model"
+
+#: fpr/models.py:51 fpr/models.py:395 fpr/models.py:612
+msgid "enabled"
+msgstr "Aktif"
+
+#: fpr/models.py:52
+msgid "last modified"
+msgstr "Son değişiklik"
+
+#: fpr/models.py:144 fpr/models.py:175 fpr/models.py:195 fpr/models.py:268
+#: fpr/models.py:330 fpr/models.py:389 fpr/models.py:424 fpr/models.py:529
+#: fpr/models.py:606
+msgid "Unique identifier"
+msgstr "Benzersiz tanımlayıcı"
+
+#: fpr/models.py:147 fpr/models.py:177 fpr/models.py:208 fpr/models.py:271
+#: fpr/models.py:392 fpr/models.py:540 fpr/models.py:609
+msgid "description"
+msgstr "Açıklama"
+
+#: fpr/models.py:147
+msgid "Common name of format"
+msgstr "Biçimin yaygın adı"
+
+#: fpr/models.py:153
+msgid "the related group"
+msgstr "İlişkili grup"
+
+#: fpr/models.py:156 fpr/models.py:178 fpr/models.py:397 fpr/models.py:613
+msgid "slug"
+msgstr "Kısa ad"
+
+#: fpr/models.py:161 fpr/templates/fpr/format/version/detail.html:26
+#: templates/ingest/normalization_report.html:29
+msgid "Format"
+msgstr "Biçim"
+
+#: fpr/models.py:181
+msgid "Format group"
+msgstr "Biçim grubu"
+
+#: fpr/models.py:202 fpr/models.py:341 fpr/models.py:485
+msgid "the related format"
+msgstr "İlişkili biçim"
+
+#: fpr/models.py:205 fpr/models.py:394 fpr/models.py:611
+#: fpr/templates/fpr/fprule/detail.html:28
+msgid "version"
+msgstr "Sürüm"
+
+#: fpr/models.py:206
+msgid "pronom id"
+msgstr "PRONOM kimliği"
+
+#: fpr/models.py:212
+msgid "Formal name to go in the METS file."
+msgstr "METS dosyasına yazılacak resmi ad."
+
+#: fpr/models.py:214
+msgid "access format"
+msgstr "Erişim biçimi"
+
+#: fpr/models.py:215
+msgid "preservation format"
+msgstr "Koruma biçimi"
+
+#: fpr/models.py:222 fpr/templates/fpr/fprule/detail.html:25
+#: fpr/templates/fpr/idrule/detail.html:23 fpr/views.py:767
+msgid "Format version"
+msgstr "Biçim sürümü"
+
+#: fpr/models.py:241
+msgid ""
+"Unable to save, an active Format Version  with this pronom id already "
+"exists."
+msgstr ""
+"Kaydedilemedi. Bu PRONOM kimliğine sahip aktif bir biçim sürümü zaten var."
+
+#: fpr/models.py:248
+#, python-format
+msgid "%(format)s: %(description)s (%(pronom_id)s)"
+msgstr "%(format)s: %(description)s (%(pronom_id)s)"
+
+#: fpr/models.py:271
+msgid "Name to identify script"
+msgstr "Betiği tanımlayan ad"
+
+#: fpr/models.py:274
+msgid "PUID"
+msgstr "PUID"
+
+#: fpr/models.py:275
+msgid "MIME type"
+msgstr "MIME türü"
+
+#: fpr/models.py:276
+msgid "File extension"
+msgstr "Dosya uzantısı"
+
+#: fpr/models.py:278
+msgid "configuration"
+msgstr "Yapılandırma"
+
+#: fpr/models.py:280
+msgid "script"
+msgstr "Betik"
+
+#: fpr/models.py:280
+msgid "Script to be executed."
+msgstr "Çalıştırılacak betik."
+
+#: fpr/models.py:282 fpr/models.py:543
+msgid "Bash script"
+msgstr "Bash betiği"
+
+#: fpr/models.py:283 fpr/models.py:544
+msgid "Python script"
+msgstr "Python betiği"
+
+#: fpr/models.py:284 fpr/models.py:545
+msgid "Command line"
+msgstr "Komut satırı"
+
+#: fpr/models.py:285 fpr/models.py:546
+msgid "No shebang needed"
+msgstr "Shebang gerekmez"
+
+#: fpr/models.py:288 fpr/models.py:549
+msgid "script type"
+msgstr "Betik türü"
+
+#: fpr/models.py:294 fpr/models.py:537
+msgid "the related tool"
+msgstr "İlişkili araç"
+
+#: fpr/models.py:299
+msgid "Format identification command"
+msgstr "Biçim tanımlama komutu"
+
+#: fpr/models.py:303
+#, python-format
+msgid "%(tool)s %(config)s runs %(command)s"
+msgstr "%(tool)s %(config)s, %(command)s komutunu çalıştırır"
+
+#: fpr/models.py:335 fpr/models.py:479
+msgid "the related command"
+msgstr "İlişkili komut"
+
+#: fpr/models.py:345
+msgid "command output"
+msgstr "Komut çıktısı"
+
+#: fpr/models.py:348
+msgid "Format identification rule"
+msgstr "Biçim tanımlama kuralı"
+
+#: fpr/models.py:365
+msgid ""
+"Unable to save, a rule with this output already exists for this command."
+msgstr "Kaydedilemedi. Bu komut için bu çıktıya sahip bir kural zaten var."
+
+#: fpr/models.py:372
+#, python-format
+msgid "Format identification rule %(uuid)s"
+msgstr "Biçim tanımlama kuralı %(uuid)s"
+
+#: fpr/models.py:375
+#, python-format
+msgid "%(command)s with %(output)s is %(format)s"
+msgstr "%(output)s çıktılı %(command)s, %(format)s biçimidir"
+
+#: fpr/models.py:392 fpr/models.py:609
+msgid "Name of tool"
+msgstr "Araç adı"
+
+#: fpr/models.py:401
+msgid "Format identification tool"
+msgstr "Biçim tanımlama aracı"
+
+#: fpr/models.py:407 fpr/models.py:620
+#, python-format
+msgid "%(description)s"
+msgstr "%(description)s"
+
+#: fpr/models.py:452 templates/layout.html:57 templates/main/access.html:4
+#: templates/main/access.html:5
+msgid "Access"
+msgstr "Erişim"
+
+#: fpr/models.py:453 fpr/models.py:561
+msgid "Characterization"
+msgstr "Karakterizasyon"
+
+#: fpr/models.py:454
+msgid "Extract"
+msgstr "Çıkarma"
+
+#: fpr/models.py:455 fpr/templates/fpr/format/version/detail.html:28
+msgid "Preservation"
+msgstr "Koruma"
+
+#: fpr/models.py:456
+msgid "Thumbnail"
+msgstr "Küçük resim"
+
+#: fpr/models.py:457 fpr/models.py:565
+msgid "Transcription"
+msgstr "Transkripsiyon"
+
+#: fpr/models.py:458 fpr/models.py:566
+msgid "Validation"
+msgstr "Doğrulama"
+
+#: fpr/models.py:459
+msgid "Validation against a policy"
+msgstr "İlkeye göre doğrulama"
+
+#: fpr/models.py:462
+msgid "Default access"
+msgstr "Varsayılan erişim"
+
+#: fpr/models.py:463
+msgid "Default characterization"
+msgstr "Varsayılan karakterizasyon"
+
+#: fpr/models.py:464
+msgid "Default thumbnail"
+msgstr "Varsayılan küçük resim"
+
+#: fpr/models.py:475
+msgid "purpose"
+msgstr "Amaç"
+
+#: fpr/models.py:489
+msgid "count attempts"
+msgstr "Deneme sayısı"
+
+#: fpr/models.py:490
+msgid "count okay"
+msgstr "Başarılı sayısı"
+
+#: fpr/models.py:491
+msgid "count not okay"
+msgstr "Başarısız sayısı"
+
+#: fpr/models.py:494 fpr/views.py:772
+msgid "Format policy rule"
+msgstr "Biçim ilkesi kuralı"
+
+#: fpr/models.py:514
+#, python-format
+msgid "Format policy rule %(uuid)s"
+msgstr "Biçim ilkesi kuralı %(uuid)s"
+
+#: fpr/models.py:517
+#, python-format
+msgid "Normalize %(format)s for %(purpose)s via %(command)s"
+msgstr "%(format)s biçimini %(purpose)s amacıyla %(command)s ile normalleştir"
+
+#: fpr/models.py:541
+msgid "command"
+msgstr "Komut"
+
+#: fpr/models.py:551
+msgid "output location"
+msgstr "Çıktı konumu"
+
+#: fpr/models.py:557
+msgid "the related output format"
+msgstr "İlişkili çıktı biçimi"
+
+#: fpr/models.py:562
+msgid "Event Detail"
+msgstr "Olay ayrıntısı"
+
+#: fpr/models.py:563
+msgid "Extraction"
+msgstr "Çıkarma"
+
+#: fpr/models.py:564
+msgid "Normalization"
+msgstr "Normalleştirme"
+
+#: fpr/models.py:567
+msgid "Verification"
+msgstr "Sağlama"
+
+#: fpr/models.py:570
+msgid "command usage"
+msgstr "Komut kullanımı"
+
+#: fpr/models.py:578
+msgid "the related verification command"
+msgstr "İlişkili sağlama komutu"
+
+#: fpr/models.py:587
+msgid "the related event detail command"
+msgstr "İlişkili olay ayrıntısı komutu"
+
+#: fpr/models.py:592 fpr/views.py:771
+msgid "Format policy command"
+msgstr "Biçim ilkesi komutu"
+
+#: fpr/models.py:617
+msgid "Normalization tool"
+msgstr "Normalleştirme aracı"
+
+#: fpr/templates/fpr/_sidebar.html:14 fpr/templates/fpr/app_layout.html:5
+msgid "Format Policy Registry"
+msgstr "Biçim ilkesi kaydı"
+
+#: fpr/templates/fpr/_sidebar.html:16 fpr/templates/fpr/format/detail.html:9
+#: fpr/templates/fpr/format/form.html:19
+#: fpr/templates/fpr/format/group/delete.html:9
+#: fpr/templates/fpr/format/group/form.html:10
+#: fpr/templates/fpr/format/group/form.html:32
+#: fpr/templates/fpr/format/group/list.html:9
+#: fpr/templates/fpr/format/list.html:4 fpr/templates/fpr/format/list.html:5
+#: fpr/templates/fpr/format/list.html:9
+#: fpr/templates/fpr/format/version/detail.html:10
+#: fpr/templates/fpr/format/version/form.html:10
+msgid "Formats"
+msgstr "Biçimler"
+
+#: fpr/templates/fpr/_sidebar.html:17
+#: fpr/templates/fpr/format/group/delete.html:10
+#: fpr/templates/fpr/format/group/form.html:11
+#: fpr/templates/fpr/format/group/list.html:10
+msgid "Groups"
+msgstr "Gruplar"
+
+#: fpr/templates/fpr/_sidebar.html:19
+msgid "Identification"
+msgstr "Tanımlama"
+
+#: fpr/templates/fpr/_sidebar.html:20 fpr/templates/fpr/_sidebar.html:25
+msgid "Tools"
+msgstr "Araçlar"
+
+#: fpr/templates/fpr/_sidebar.html:21 fpr/templates/fpr/_sidebar.html:31
+msgid "Rules"
+msgstr "Kurallar"
+
+#: fpr/templates/fpr/_sidebar.html:22 fpr/templates/fpr/_sidebar.html:32
+#: fpr/templates/fpr/idtool/detail.html:34
+msgid "Commands"
+msgstr "Komutlar"
+
+#: fpr/templates/fpr/_sidebar.html:24
+msgid "Format policy registry"
+msgstr "Biçim ilkesi kaydı"
+
+#: fpr/templates/fpr/disable.html:27
+#, python-format
+msgid "Disable %(object)s"
+msgstr "%(object)s devre dışı bırak"
+
+#: fpr/templates/fpr/disable.html:29
+#, python-format
+msgid "Enable %(object)s"
+msgstr "%(object)s aktifleştir"
+
+#: fpr/templates/fpr/disable.html:36
+#: fpr/templates/fpr/format/group/delete.html:20
+msgid "Are you sure?"
+msgstr "Emin misiniz?"
+
+#: fpr/templates/fpr/disable.html:39
+msgid "The following rules will also be disabled:"
+msgstr "Şu kurallar da devre dışı bırakılacak:"
+
+#: fpr/templates/fpr/disable.html:52
+#: fpr/templates/fpr/fpcommand/detail.html:56
+#: fpr/templates/fpr/fprule/detail.html:44
+#: fpr/templates/fpr/idcommand/detail.html:40
+#: fpr/templates/fpr/idrule/detail.html:36
+msgid "Disable,Enable"
+msgstr "Devre dışı bırak,Aktifleştir"
+
+#: fpr/templates/fpr/disable.html:53
+#: fpr/templates/fpr/format/group/delete.html:45
+#: templates/accounts/add.html:36 templates/accounts/edit.html:41
+#: templates/accounts/profile.html:46
+#: templates/administration/processing_edit.html:40
+#: templates/delete_request.html:20 templates/ingest/metadata_edit.html:46
+#: templates/rights/rights_edit.html:263 templates/rights/rights_edit.html:265
+#: templates/rights/rights_grants_edit.html:102
+#: templates/rights/rights_grants_edit.html:104
+#: templates/simple_confirm.html:11 templates/transfer/metadata_edit.html:45
+msgid "Cancel"
+msgstr "İptal"
+
+#: fpr/templates/fpr/format/detail.html:4
+#: fpr/templates/fpr/format/detail.html:5
+#, python-format
+msgid "Format %(description)s"
+msgstr "Biçim %(description)s"
+
+#: fpr/templates/fpr/format/detail.html:20
+#: fpr/templates/fpr/format/version/detail.html:23
+#: fpr/templates/fpr/fpcommand/detail.html:23
+#: fpr/templates/fpr/fptool/detail.html:20
+#: fpr/templates/fpr/idcommand/detail.html:25
+#: fpr/templates/fpr/idtool/detail.html:20
+#: templates/administration/locations.html:30
+#: templates/ingest/as/resource_component.html:16
+#: templates/ingest/as/resource_component.html:32
+msgid "Description"
+msgstr "Açıklama"
+
+#: fpr/templates/fpr/format/detail.html:22
+msgid "Group"
+msgstr "Grup"
+
+#: fpr/templates/fpr/format/detail.html:34
+#: fpr/templates/fpr/fptool/detail.html:28
+#: fpr/templates/fpr/idtool/detail.html:30 templates/accounts/list.html:41
+#: templates/administration/processing.html:27
+#: templates/ingest/metadata_edit.html:12 templates/rights/rights_edit.html:15
+#: templates/rights/rights_grants_edit.html:15
+#: templates/rights/rights_list.html:12 templates/rights/rights_list.html:54
+#: templates/rights/rights_list.html:57 templates/transfer/detail.html:50
+#: templates/transfer/metadata_edit.html:11
+msgid "Edit"
+msgstr "Düzenle"
+
+#: fpr/templates/fpr/format/detail.html:38
+msgid "Specific versions"
+msgstr "Belirli sürümler"
+
+#: fpr/templates/fpr/format/form.html:44
+#: fpr/templates/fpr/format/group/form.html:27
+#: fpr/templates/fpr/format/version/form.html:25
+#: fpr/templates/fpr/fpcommand/form.html:27
+#: fpr/templates/fpr/fprule/form.html:42 fpr/templates/fpr/fptool/form.html:25
+#: fpr/templates/fpr/idcommand/form.html:27
+#: fpr/templates/fpr/idrule/form.html:24 fpr/templates/fpr/idtool/form.html:25
+#: templates/accounts/edit.html:40 templates/accounts/profile.html:45
+#: templates/administration/api.html:37
+#: templates/administration/dips_as_edit.html:30
+#: templates/administration/dips_atom_edit.html:39
+#: templates/administration/general.html:61
+#: templates/administration/handle_config.html:25
+#: templates/administration/premis_agent.html:25
+#: templates/administration/processing_edit.html:39
+#: templates/administration/term_detail.html:35
+#: templates/ingest/metadata_edit.html:42
+#: templates/rights/rights_edit.html:258
+#: templates/rights/rights_grants_edit.html:97
+#: templates/transfer/component.html:55
+#: templates/transfer/metadata_edit.html:41
+msgid "Save"
+msgstr "Kaydet"
+
+#: fpr/templates/fpr/format/group/delete.html:4
+#: fpr/templates/fpr/format/group/delete.html:5
+#, python-format
+msgid "Delete format group %(description)s"
+msgstr "%(description)s biçim grubunu sil"
+
+#: fpr/templates/fpr/format/group/delete.html:12
+#: fpr/templates/fpr/format/group/delete.html:44
+#: templates/accounts/list.html:42 templates/administration/processing.html:33
+#: templates/administration/reports/failure_detail.html:31
+#: templates/administration/reports/failures.html:40
+#: templates/administration/term_detail.html:36
+#: templates/archival_storage/view.html:75
+#: templates/archival_storage/view.html:118 templates/main/access.html:25
+#: templates/rights/rights_list.html:55 templates/rights/rights_list.html:58
+msgid "Delete"
+msgstr "Sil"
+
+#: fpr/templates/fpr/format/group/delete.html:25
+#, python-format
+msgid ""
+"\n"
+"                %(count)s format(s) were found that are a member of this group.\n"
+"              "
+msgstr ""
+"\n"
+"                Bu grubun üyesi %(count)s biçim bulundu.\n"
+"              "
+
+#: fpr/templates/fpr/format/group/delete.html:32
+msgid ""
+"Substitute formats that are a member of this group with the following group:"
+msgstr "Bu grubun üyesi olan biçimleri şu grupla değiştir:"
+
+#: fpr/templates/fpr/format/group/list.html:4
+#: fpr/templates/fpr/format/group/list.html:5
+msgid "Format groups"
+msgstr "Biçim grupları"
+
+#: fpr/templates/fpr/format/group/list.html:11
+#: fpr/templates/fpr/format/list.html:10
+#: fpr/templates/fpr/fpcommand/list.html:10
+#: fpr/templates/fpr/fprule/list.html:10 fpr/templates/fpr/fptool/list.html:10
+#: fpr/templates/fpr/idcommand/list.html:10
+#: fpr/templates/fpr/idrule/list.html:10 fpr/templates/fpr/idtool/list.html:10
+#: fpr/templates/fpr/revisions/list.html:10 templates/ingest/detail.html:37
+#: templates/ingest/detail.html:42 templates/ingest/detail.html:48
+#: templates/transfer/detail.html:38 templates/transfer/detail.html:43
+#: templates/transfer/detail.html:56
+msgid "List"
+msgstr "Liste"
+
+#: fpr/templates/fpr/format/version/detail.html:5
+#, python-format
+msgid "Format version %(description)s"
+msgstr "Biçim sürümü %(description)s"
+
+#: fpr/templates/fpr/format/version/detail.html:6
+#, python-format
+msgid "Format version %(format)s"
+msgstr "Biçim sürümü %(format)s"
+
+#: fpr/templates/fpr/format/version/detail.html:24
+#: fpr/templates/fpr/idtool/detail.html:22
+#: templates/administration/sidebar.html:51
+#: templates/administration/version.html:5
+#: templates/administration/version.html:6
+#: templates/administration/version.html:23
+msgid "Version"
+msgstr "Sürüm"
+
+#: fpr/templates/fpr/format/version/detail.html:25
+msgid "Pronom"
+msgstr "PRONOM"
+
+#: fpr/templates/fpr/format/version/detail.html:27
+msgid "Access?"
+msgstr "Erişim?"
+
+#: fpr/templates/fpr/format/version/detail.html:27
+#: fpr/templates/fpr/format/version/detail.html:28
+#: fpr/templates/fpr/format/version/detail.html:29
+#: fpr/templates/fpr/fpcommand/detail.html:50
+#: fpr/templates/fpr/fprule/detail.html:38
+#: fpr/templates/fpr/fptool/detail.html:23
+#: fpr/templates/fpr/idcommand/detail.html:34
+#: fpr/templates/fpr/idrule/detail.html:30
+#: fpr/templates/fpr/idtool/detail.html:25
+#: templates/ingest/normalization_report.html:36
+#: templates/ingest/normalization_report.html:42
+#: templates/ingest/normalization_report.html:63
+#: templates/ingest/normalization_report.html:69
+#: templates/ingest/normalization_report.html:71
+#: templates/ingest/normalization_report.html:77
+#: templates/ingest/normalization_report.html:82
+msgid "Yes,No"
+msgstr "Evet,Hayır"
+
+#: fpr/templates/fpr/format/version/detail.html:29
+#: fpr/templates/fpr/fpcommand/detail.html:49
+#: fpr/templates/fpr/fprule/detail.html:37
+#: fpr/templates/fpr/fptool/detail.html:22
+#: fpr/templates/fpr/idcommand/detail.html:33
+#: fpr/templates/fpr/idrule/detail.html:29
+#: fpr/templates/fpr/idtool/detail.html:24
+msgid "Enabled"
+msgstr "Aktif"
+
+#: fpr/templates/fpr/fpcommand/detail.html:5
+#: fpr/templates/fpr/fpcommand/detail.html:6
+#: fpr/templates/fpr/fpcommand/detail.html:11
+#, python-format
+msgid "Command %(description)s"
+msgstr "Komut %(description)s"
+
+#: fpr/templates/fpr/fpcommand/detail.html:10
+#: fpr/templates/fpr/fpcommand/form.html:10
+#: fpr/templates/fpr/fpcommand/list.html:4
+#: fpr/templates/fpr/fpcommand/list.html:5
+#: fpr/templates/fpr/fpcommand/list.html:9 fpr/views.py:721
+msgid "Format policy commands"
+msgstr "Biçim ilkesi komutları"
+
+#: fpr/templates/fpr/fpcommand/detail.html:25
+#: fpr/templates/fpr/idcommand/detail.html:23
+msgid "Tool"
+msgstr "Araç"
+
+#: fpr/templates/fpr/fpcommand/detail.html:27
+#: fpr/templates/fpr/fprule/detail.html:31
+#: fpr/templates/fpr/idrule/detail.html:25
+msgid "Command"
+msgstr "Komut"
+
+#: fpr/templates/fpr/fpcommand/detail.html:29
+#: fpr/templates/fpr/idcommand/detail.html:31
+msgid "Script type"
+msgstr "Betik türü"
+
+#: fpr/templates/fpr/fpcommand/detail.html:31
+msgid "Output file format"
+msgstr "Çıktı dosyası biçimi"
+
+#: fpr/templates/fpr/fpcommand/detail.html:33
+msgid "Output location"
+msgstr "Çıktı konumu"
+
+#: fpr/templates/fpr/fpcommand/detail.html:35
+msgid "Command usage"
+msgstr "Komut kullanımı"
+
+#: fpr/templates/fpr/fpcommand/detail.html:37
+msgid "Verification command"
+msgstr "Sağlama komutu"
+
+#: fpr/templates/fpr/fpcommand/detail.html:43
+msgid "Event detail command"
+msgstr "Olay ayrıntısı komutu"
+
+#: fpr/templates/fpr/fprule/detail.html:5
+#: fpr/templates/fpr/fprule/detail.html:6
+#: fpr/templates/fpr/fprule/detail.html:11
+#, python-format
+msgid "Rule %(description)s"
+msgstr "Kural %(description)s"
+
+#: fpr/templates/fpr/fprule/detail.html:10
+#: fpr/templates/fpr/fprule/form.html:10 fpr/views.py:583
+msgid "Format policy rules"
+msgstr "Biçim ilkesi kuralları"
+
+#: fpr/templates/fpr/fprule/detail.html:23
+#: templates/administration/locations.html:29
+#: templates/administration/usage.html:89
+msgid "Purpose"
+msgstr "Amaç"
+
+#: fpr/templates/fpr/fprule/detail.html:33
+msgid "Stats"
+msgstr "İstatistik"
+
+#: fpr/templates/fpr/fprule/detail.html:34
+#, python-format
+msgid "Success: %(count)s"
+msgstr "Başarılı: %(count)s"
+
+#: fpr/templates/fpr/fprule/detail.html:35
+#, python-format
+msgid "Failure: %(count)s"
+msgstr "Başarısız: %(count)s"
+
+#: fpr/templates/fpr/fprule/detail.html:36
+#, python-format
+msgid "Total: %(count)s"
+msgstr "Toplam: %(count)s"
+
+#: fpr/templates/fpr/fprule/list.html:4 fpr/templates/fpr/fprule/list.html:5
+#: fpr/templates/fpr/fprule/list.html:9
+msgid "Format policy rules "
+msgstr "Biçim ilkesi kuralları "
+
+#: fpr/templates/fpr/fptool/detail.html:4
+#: fpr/templates/fpr/fptool/detail.html:5
+#, python-format
+msgid "Format policy registry tool %(description)s "
+msgstr "Biçim ilkesi kaydı aracı %(description)s "
+
+#: fpr/templates/fpr/fptool/detail.html:9
+#: fpr/templates/fpr/fptool/form.html:10 fpr/templates/fpr/fptool/list.html:4
+#: fpr/templates/fpr/fptool/list.html:5 fpr/templates/fpr/fptool/list.html:9
+msgid "Format policy registry tools"
+msgstr "Biçim ilkesi kaydı araçları"
+
+#: fpr/templates/fpr/fptool/detail.html:32
+msgid "Tool commands"
+msgstr "Araç komutları"
+
+#: fpr/templates/fpr/idcommand/detail.html:5
+#: fpr/templates/fpr/idcommand/detail.html:6
+#, python-format
+msgid "Identification command %(description)s"
+msgstr "Tanımlama komutu %(description)s"
+
+#: fpr/templates/fpr/idcommand/detail.html:10
+#: fpr/templates/fpr/idcommand/form.html:10
+#: fpr/templates/fpr/idcommand/list.html:4
+#: fpr/templates/fpr/idcommand/list.html:5
+#: fpr/templates/fpr/idcommand/list.html:9 fpr/views.py:476
+msgid "Identification commands"
+msgstr "Tanımlama komutları"
+
+#: fpr/templates/fpr/idcommand/detail.html:27
+msgid "Mode"
+msgstr "Kip"
+
+#: fpr/templates/fpr/idcommand/detail.html:29
+msgid "Script"
+msgstr "Betik"
+
+#: fpr/templates/fpr/idrule/detail.html:5
+#: fpr/templates/fpr/idrule/detail.html:6
+#: fpr/templates/fpr/idrule/detail.html:11
+#, python-format
+msgid "Identification rule %(uuid)s"
+msgstr "Tanımlama kuralı %(uuid)s"
+
+#: fpr/templates/fpr/idrule/detail.html:10
+#: fpr/templates/fpr/idrule/form.html:10 fpr/templates/fpr/idrule/list.html:4
+#: fpr/templates/fpr/idrule/list.html:5 fpr/templates/fpr/idrule/list.html:9
+#: fpr/views.py:377
+msgid "Identification rules"
+msgstr "Tanımlama kuralları"
+
+#: fpr/templates/fpr/idrule/detail.html:27
+msgid "Command output"
+msgstr "Komut çıktısı"
+
+#: fpr/templates/fpr/idtool/detail.html:4
+#: fpr/templates/fpr/idtool/detail.html:5
+#, python-format
+msgid "Identification tool %(description)s"
+msgstr "Tanımlama aracı %(description)s"
+
+#: fpr/templates/fpr/idtool/detail.html:9
+#: fpr/templates/fpr/idtool/form.html:10 fpr/templates/fpr/idtool/list.html:4
+#: fpr/templates/fpr/idtool/list.html:5 fpr/templates/fpr/idtool/list.html:9
+msgid "Identification tools"
+msgstr "Tanımlama araçları"
+
+#: fpr/templates/fpr/revisions/list.html:4
+#: fpr/templates/fpr/revisions/list.html:9
+msgid "Revisions"
+msgstr "Revizyonlar"
+
+#: fpr/templates/fpr/revisions/list.html:5
+#, python-format
+msgid "%(revision_type)s revision history"
+msgstr "%(revision_type)s revizyon geçmişi"
+
+#: fpr/templates/fpr/revisions/list.html:24
+msgid "Last modified"
+msgstr "Son değişiklik"
+
+#: fpr/templates/fpr/revisions/list.html:48
+msgid "No revisions exist."
+msgstr "Revizyon yok."
+
+#: fpr/templatetags/revisions_link.py:43
+msgid "Revision history"
+msgstr "Revizyon geçmişi"
+
+#: fpr/utils.py:80
+msgid ""
+"You are replacing the current revision with data from an older revision."
+msgstr ""
+"Geçerli revizyonu daha eski bir revizyonun verileriyle değiştiriyorsunuz."
+
+#: fpr/utils.py:87
+msgid "You are viewing a disabled revision."
+msgstr "Devre dışı bir revizyonu görüntülüyorsunuz."
+
+#: fpr/views.py:94
+#, python-format
+msgid "Edit format %(name)s"
+msgstr "%(name)s biçimini düzenle"
+
+#: fpr/views.py:96
+msgid "Create format"
+msgstr "Biçim oluştur"
+
+#: fpr/views.py:143
+#, python-format
+msgid "Replace format version %(name)s"
+msgstr "%(name)s biçim sürümünü değiştir"
+
+#: fpr/views.py:146
+msgid "Create format version"
+msgstr "Biçim sürümü oluştur"
+
+#: fpr/views.py:173
+msgid "Format versions"
+msgstr "Biçim sürümleri"
+
+#: fpr/views.py:182 fpr/views.py:383 fpr/views.py:485 fpr/views.py:590
+#: fpr/views.py:730
+msgid "Disabled."
+msgstr "Devre dışı."
+
+#: fpr/views.py:188 fpr/views.py:386 fpr/views.py:488 fpr/views.py:593
+#: fpr/views.py:736
+msgid "Enabled."
+msgstr "Aktif."
+
+#: fpr/views.py:201
+msgid "Enable/disable format version"
+msgstr "Biçim sürümünü aktifleştir/devre dışı bırak"
+
+#: fpr/views.py:222
+#, python-format
+msgid "Edit format group %(name)s"
+msgstr "%(name)s biçim grubunu düzenle"
+
+#: fpr/views.py:224
+msgid "Create format group"
+msgstr "Biçim grubu oluştur"
+
+#: fpr/views.py:265
+#, python-format
+msgid "%(count)d substitutions were performed."
+msgstr "%(count)d değiştirme yapıldı."
+
+#: fpr/views.py:272
+msgid "Please select a group to substitute for this group in member formats."
+msgstr "Üye biçimlerde bu grubun yerine geçecek bir grup seçin."
+
+#: fpr/views.py:313
+#, python-format
+msgid "Edit identification tool %(name)s"
+msgstr "%(name)s tanımlama aracını düzenle"
+
+#: fpr/views.py:316
+msgid "Create identification tool"
+msgstr "Tanımlama aracı oluştur"
+
+#: fpr/views.py:354
+#, python-format
+msgid "Replace identification rule %(uuid)s"
+msgstr "%(uuid)s tanımlama kuralını değiştir"
+
+#: fpr/views.py:357
+msgid "Create identification rule"
+msgstr "Tanımlama kuralı oluştur"
+
+#: fpr/views.py:397
+msgid "Enable/disable identification rule"
+msgstr "Tanımlama kuralını aktifleştir/devre dışı bırak"
+
+#: fpr/views.py:436
+#, python-format
+msgid "Replace identification command %(name)s"
+msgstr "%(name)s tanımlama komutunu değiştir"
+
+#: fpr/views.py:441
+msgid "Create identification command"
+msgstr "Tanımlama komutu oluştur"
+
+#: fpr/views.py:498
+msgid "Enable/disable identification command"
+msgstr "Tanımlama komutunu aktifleştir/devre dışı bırak"
+
+#: fpr/views.py:545
+#, python-format
+msgid "Replace format policy rule %(uuid)s"
+msgstr "%(uuid)s biçim ilkesi kuralını değiştir"
+
+#: fpr/views.py:549
+msgid "Create format policy rule"
+msgstr "Biçim ilkesi kuralı oluştur"
+
+#: fpr/views.py:604
+msgid "Enable/disable format policy registry rule"
+msgstr "Biçim ilkesi kaydı kuralını aktifleştir/devre dışı bırak"
+
+#: fpr/views.py:633
+#, python-format
+msgid "Replace format policy registry tool %(name)s"
+msgstr "%(name)s biçim ilkesi kaydı aracını değiştir"
+
+#: fpr/views.py:638
+msgid "Create format policy registry tool"
+msgstr "Biçim ilkesi kaydı aracı oluştur"
+
+#: fpr/views.py:681
+#, python-format
+msgid "Replace command %(name)s"
+msgstr "%(name)s komutunu değiştir"
+
+#: fpr/views.py:684
+msgid "Create format policy command"
+msgstr "Biçim ilkesi komutu oluştur"
+
+#: fpr/views.py:747
+msgid "Enable/disable format policy command"
+msgstr "Biçim ilkesi komutunu aktifleştir/devre dışı bırak"
+
+#: fpr/views.py:768
+msgid "Identification tool configuration"
+msgstr "Tanımlama aracı yapılandırması"
+
+#: fpr/views.py:769
+msgid "Identification rule"
+msgstr "Tanımlama kuralı"
+
+#: fpr/views.py:770
+msgid "Identification command"
+msgstr "Tanımlama komutu"
+
+#: fpr/views.py:831
+msgid "(no description)"
+msgstr "(açıklama yok)"
+
+#: fpr/views.py:837
+#, python-format
+msgid "%(description)s (%(suffix)s)"
+msgstr "%(description)s (%(suffix)s)"
+
+#: installer/forms.py:27
+msgid "Site URL"
+msgstr "Site URL'si"
+
+#: installer/forms.py:28
+msgid "This is the public URL of your Archivematica dashboard."
+msgstr "Archivematica panonuzun herkese açık URL'sidir."
+
+#: installer/forms.py:38 installer/forms.py:86
+msgid "Organization name"
+msgstr "Kuruluş adı"
+
+#: installer/forms.py:39 installer/forms.py:87
+msgid "PREMIS agent name"
+msgstr "PREMIS aktörü adı"
+
+#: installer/forms.py:44 installer/forms.py:92
+msgid "Organization identifier"
+msgstr "Kuruluş tanımlayıcısı"
+
+#: installer/forms.py:45 installer/forms.py:93
+msgid "PREMIS agent identifier"
+msgstr "PREMIS aktörü tanımlayıcısı"
+
+#: installer/views.py:101
+msgid ""
+"Error creating pipeline: is the storage server running? Please contact an "
+"administrator."
+msgstr ""
+"İş hattı oluşturulamadı: depolama sunucusu çalışıyor mu? Lütfen bir "
+"yöneticiyle iletişime geçin."
+
+#: main/models.py:241
+msgid "Part of AIC"
+msgstr "AIC parçası"
+
+#: main/models.py:242
+msgid "Optional: leave blank if unsure"
+msgstr "İsteğe bağlı: emin değilseniz boş bırakın"
+
+#: main/models.py:251
+msgid "Use ISO 8601 (YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD)"
+msgstr "ISO 8601 kullanın (YYYY-MM-DD veya YYYY-MM-DD/YYYY-MM-DD)"
+
+#: main/models.py:261
+msgid "Use ISO 639"
+msgstr "ISO 639 kullanın"
+
+#: main/models.py:279
+msgid "Untitled"
+msgstr "Adsız"
+
+#: main/models.py:337
+#, python-format
+msgid "%(type)s event on %(file_uuid)s (%(detail)s)"
+msgstr "%(file_uuid)s üzerinde %(type)s olayı (%(detail)s)"
+
+#: main/models.py:382
+#, python-format
+msgid "%(derived)s derived from %(src)s in %(event)s"
+msgstr "%(derived)s, %(event)s olayında %(src)s kaynağından türetildi"
+
+#: main/models.py:415 main/models.py:840
+msgid "Unknown"
+msgstr "Bilinmiyor"
+
+#: main/models.py:416
+msgid "Processing"
+msgstr "İşleniyor"
+
+#: main/models.py:417 templates/rights/rights_grants_edit.html:99
+msgid "Done"
+msgstr "Tamamlandı"
+
+#: main/models.py:418 main/models.py:842
+msgid "Completed successfully"
+msgstr "Başarıyla tamamlandı"
+
+#: main/models.py:419 main/models.py:844
+msgid "Failed"
+msgstr "Başarısız"
+
+#: main/models.py:433
+msgid "SIP"
+msgstr "SIP"
+
+#: main/models.py:434
+msgid "AIC"
+msgstr "AIC"
+
+#: main/models.py:435
+msgid "Reingested AIP"
+msgstr "Yeniden içeri alınmış AIP"
+
+#: main/models.py:436
+msgid "Reingested AIC"
+msgstr "Yeniden içeri alınmış AIC"
+
+#: main/models.py:457
+#, python-brace-format
+msgid "SIP: {path}"
+msgstr "SIP: {path}"
+
+#: main/models.py:609
+msgid "Identifier Type"
+msgstr "Tanımlayıcı türü"
+
+#: main/models.py:611
+msgid "Identifier Value"
+msgstr "Tanımlayıcı değeri"
+
+#: main/models.py:613
+msgid ""
+"Used for premis:objectIdentifierType and premis:objectIdentifierValue in the"
+" METS file."
+msgstr ""
+"METS dosyasındaki premis:objectIdentifierType ve "
+"premis:objectIdentifierValue için kullanılır."
+
+#: main/models.py:686
+#, python-format
+msgid "File %(uuid)s:%(originallocation)s now at %(currentlocation)s"
+msgstr ""
+"Dosya %(uuid)s: %(originallocation)s artık %(currentlocation)s konumunda"
+
+#: main/models.py:739
+#, python-format
+msgid "Directory %(uuid)s: %(originallocation)s now at %(currentlocation)s"
+msgstr ""
+"Dizin %(uuid)s: %(originallocation)s artık %(currentlocation)s konumunda"
+
+#: main/models.py:803
+#, python-format
+msgid "%(file)s is %(format)s"
+msgstr "%(file)s, %(format)s biçiminde"
+
+#: main/models.py:821
+msgid "(Unnamed)"
+msgstr "(Adsız)"
+
+#: main/models.py:841
+msgid "Awaiting decision"
+msgstr "Karar bekleniyor"
+
+#: main/models.py:843
+msgid "Executing command(s)"
+msgstr "Komutlar çalıştırılıyor"
+
+#: main/models.py:981
+msgid "Agent Identifier Type"
+msgstr "Aktör tanımlayıcı türü"
+
+#: main/models.py:986
+msgid "Agent Identifier Value"
+msgstr "Aktör tanımlayıcı değeri"
+
+#: main/models.py:988
+msgid ""
+"Used for premis:agentIdentifierValue and premis:linkingAgentIdentifierValue "
+"in the METS file."
+msgstr ""
+"METS dosyasındaki premis:agentIdentifierValue ve "
+"premis:linkingAgentIdentifierValue için kullanılır."
+
+#: main/models.py:995
+msgid "Agent Name"
+msgstr "Aktör adı"
+
+#: main/models.py:996
+msgid "Used for premis:agentName in the METS file."
+msgstr "METS dosyasındaki premis:agentName için kullanılır."
+
+#: main/models.py:1002
+msgid "Agent Type"
+msgstr "Aktör türü"
+
+#: main/models.py:1003
+msgid "Used for premis:agentType in the METS file."
+msgstr "METS dosyasındaki premis:agentType için kullanılır."
+
+#: main/models.py:1025
+msgid ""
+"If checked, this user will receive system emails, such as Transfer Fail and "
+"Normalization Reports."
+msgstr ""
+"İşaretlenirse bu kullanıcı, aktarım hatası ve normalleştirme raporları gibi "
+"sistem e-postalarını alır."
+
+#: main/models.py:1027
+msgid "Send system emails?"
+msgstr "Sistem e-postaları gönderilsin mi?"
+
+#: main/models.py:1065 templates/rights/rights_edit.html:102
+#: templates/rights/rights_edit.html:148 templates/rights/rights_edit.html:192
+#: templates/rights/rights_edit.html:234
+msgid "Value"
+msgstr "Değer"
+
+#: main/models.py:1068
+msgid "Copyright"
+msgstr "Telif hakkı"
+
+#: main/models.py:1069
+msgid "Statute"
+msgstr "Mevzuat"
+
+#: main/models.py:1070
+msgid "License"
+msgstr "Lisans"
+
+#: main/models.py:1071
+msgid "Donor"
+msgstr "Bağışçı"
+
+#: main/models.py:1072
+msgid "Policy"
+msgstr "İlke"
+
+#: main/models.py:1079 templates/rights/rights_list.html:34
+msgid "Basis"
+msgstr "Dayanak"
+
+#: main/models.py:1091
+msgid "Rights Statement"
+msgstr "Hak bildirimi"
+
+#: main/models.py:1095
+#, python-format
+msgid "%(basis)s for %(unit)s (%(id)s)"
+msgstr "%(unit)s için %(basis)s (%(id)s)"
+
+#: main/models.py:1110
+msgid "copyrighted"
+msgstr "Telif haklı"
+
+#: main/models.py:1111
+msgid "public domain"
+msgstr "Kamu malı"
+
+#: main/models.py:1112
+msgid "unknown"
+msgstr "Bilinmiyor"
+
+#: main/models.py:1117
+msgid "Copyright status"
+msgstr "Telif hakkı durumu"
+
+#: main/models.py:1122
+msgid "Copyright jurisdiction"
+msgstr "Telif hakkı yetki alanı"
+
+#: main/models.py:1128
+msgid "Copyright determination date"
+msgstr "Telif hakkı belirleme tarihi"
+
+#: main/models.py:1129 main/models.py:1136 main/models.py:1143
+#: main/models.py:1213 main/models.py:1220 main/models.py:1286
+#: main/models.py:1293 main/models.py:1355 main/models.py:1364
+#: main/models.py:1371 main/models.py:1443 main/models.py:1450
+msgid "Use ISO 8601 (YYYY-MM-DD)"
+msgstr "ISO 8601 kullanın (YYYY-MM-DD)"
+
+#: main/models.py:1135
+msgid "Copyright start date"
+msgstr "Telif hakkı başlangıç tarihi"
+
+#: main/models.py:1142
+msgid "Copyright end date"
+msgstr "Telif hakkı bitiş tarihi"
+
+#: main/models.py:1148 main/models.py:1225 main/models.py:1300
+#: main/models.py:1376 main/models.py:1455
+msgid "Open End Date"
+msgstr "Açık bitiş tarihi"
+
+#: main/models.py:1149 main/models.py:1226 main/models.py:1301
+#: main/models.py:1377 main/models.py:1456
+msgid "Indicate end date is open"
+msgstr "Bitiş tarihinin açık olduğunu belirt"
+
+#: main/models.py:1154
+msgid "Rights: Copyright"
+msgstr "Haklar: Telif hakkı"
+
+#: main/models.py:1166
+msgid "Copyright document identification type"
+msgstr "Telif hakkı belgesi tanımlama türü"
+
+#: main/models.py:1170
+msgid "Copyright document identification value"
+msgstr "Telif hakkı belgesi tanımlama değeri"
+
+#: main/models.py:1176
+msgid "Copyright document identification role"
+msgstr "Telif hakkı belgesi tanımlama rolü"
+
+#: main/models.py:1181
+msgid "Rights: Copyright: Docs ID"
+msgstr "Haklar: Telif hakkı: Belge kimliği"
+
+#: main/models.py:1192 templates/rights/rights_edit.html:113
+msgid "Copyright note"
+msgstr "Telif hakkı notu"
+
+#: main/models.py:1197
+msgid "Rights: Copyright: Note"
+msgstr "Haklar: Telif hakkı: Not"
+
+#: main/models.py:1206
+msgid "License terms"
+msgstr "Lisans koşulları"
+
+#: main/models.py:1212
+msgid "License start date"
+msgstr "Lisans başlangıç tarihi"
+
+#: main/models.py:1219
+msgid "License end date"
+msgstr "Lisans bitiş tarihi"
+
+#: main/models.py:1231
+msgid "Rights: License"
+msgstr "Haklar: Lisans"
+
+#: main/models.py:1243
+msgid "License documentation identification type"
+msgstr "Lisans belgesi tanımlama türü"
+
+#: main/models.py:1247
+msgid "License documentation identification value"
+msgstr "Lisans belgesi tanımlama değeri"
+
+#: main/models.py:1253
+msgid "License document identification role"
+msgstr "Lisans belgesi tanımlama rolü"
+
+#: main/models.py:1258
+msgid "Rights: License: Docs ID"
+msgstr "Haklar: Lisans: Belge kimliği"
+
+#: main/models.py:1269 templates/rights/rights_edit.html:203
+msgid "License note"
+msgstr "Lisans notu"
+
+#: main/models.py:1274
+msgid "Rights: License: Note"
+msgstr "Haklar: Lisans: Not"
+
+#: main/models.py:1285 templates/rights/rights_list.html:36
+msgid "Start"
+msgstr "Başlangıç"
+
+#: main/models.py:1292 templates/rights/rights_list.html:37
+msgid "End"
+msgstr "Bitiş"
+
+#: main/models.py:1306
+msgid "Rights: Granted"
+msgstr "Haklar: Verilen"
+
+#: main/models.py:1318
+msgid "Rights note"
+msgstr "Hak notu"
+
+#: main/models.py:1323
+msgid "Rights: Granted: Note"
+msgstr "Haklar: Verilen: Not"
+
+#: main/models.py:1338
+msgid "Rights: Granted: Restriction"
+msgstr "Haklar: Verilen: Kısıtlama"
+
+#: main/models.py:1347
+msgid "Statute jurisdiction"
+msgstr "Mevzuat yetki alanı"
+
+#: main/models.py:1350
+msgid "Statute citation"
+msgstr "Mevzuat atfı"
+
+#: main/models.py:1354
+msgid "Statute determination date"
+msgstr "Mevzuat belirleme tarihi"
+
+#: main/models.py:1363
+msgid "Statute start date"
+msgstr "Mevzuat başlangıç tarihi"
+
+#: main/models.py:1370
+msgid "Statute end date"
+msgstr "Mevzuat bitiş tarihi"
+
+#: main/models.py:1382
+msgid "Rights: Statute"
+msgstr "Haklar: Mevzuat"
+
+#: main/models.py:1393 templates/rights/rights_edit.html:159
+msgid "Statute note"
+msgstr "Mevzuat notu"
+
+#: main/models.py:1398
+msgid "Rights: Statute: Note"
+msgstr "Haklar: Mevzuat: Not"
+
+#: main/models.py:1410
+msgid "Statute document identification type"
+msgstr "Mevzuat belgesi tanımlama türü"
+
+#: main/models.py:1414
+msgid "Statute document identification value"
+msgstr "Mevzuat belgesi tanımlama değeri"
+
+#: main/models.py:1420
+msgid "Statute document identification role"
+msgstr "Mevzuat belgesi tanımlama rolü"
+
+#: main/models.py:1425
+msgid "Rights: Statute: Docs ID"
+msgstr "Haklar: Mevzuat: Belge kimliği"
+
+#: main/models.py:1435
+msgid "Other rights basis"
+msgstr "Diğer hak dayanağı"
+
+#: main/models.py:1442
+msgid "Other rights start date"
+msgstr "Diğer hak başlangıç tarihi"
+
+#: main/models.py:1449
+msgid "Other rights end date"
+msgstr "Diğer hak bitiş tarihi"
+
+#: main/models.py:1461
+msgid "Rights: Other"
+msgstr "Haklar: Diğer"
+
+#: main/models.py:1473
+msgid "Other rights document identification type"
+msgstr "Diğer hak belgesi tanımlama türü"
+
+#: main/models.py:1477
+msgid "Other right document identification value"
+msgstr "Diğer hak belgesi tanımlama değeri"
+
+#: main/models.py:1483
+msgid "Other rights document identification role"
+msgstr "Diğer hak belgesi tanımlama rolü"
+
+#: main/models.py:1488
+msgid "Rights: Other: Docs ID"
+msgstr "Haklar: Diğer: Belge kimliği"
+
+#: main/models.py:1499
+msgid "Other rights note"
+msgstr "Diğer hak notu"
+
+#: main/models.py:1504
+msgid "Rights: Other: Note"
+msgstr "Haklar: Diğer: Not"
+
+#: main/models.py:1557
+msgid "Semantically a foreign key to SIP or Transfer"
+msgstr "Anlam olarak bir SIP veya aktarım kaydına işaret eden yabancı anahtar"
+
+#: main/models.py:1593
+msgid "ASDIPObjectResourcePairing"
+msgstr "ASDIPObjectResourcePairing"
+
+#: main/models.py:1608
+msgid ""
+"Whether or not a SIP has been started using files in this digital object."
+msgstr "Bu sayısal nesnedeki dosyalarla bir SIP başlatılıp başlatılmadığı."
+
+#: main/models.py:1615
+msgid ""
+"ID in the remote ArchivesSpace system, after digital object has been "
+"created."
+msgstr ""
+"Sayısal nesne oluşturulduktan sonra uzak ArchivesSpace sistemindeki kimlik."
+
+#: main/templatetags/user.py:14
+msgid "<no API key generated>"
+msgstr "<API anahtarı oluşturulmadı>"
+
+#: main/views.py:298
+msgid "Added."
+msgstr "Eklendi."
+
+#: main/views.py:303
+msgid "Error: no delete ID supplied."
+msgstr "Hata: silme kimliği verilmedi."
+
+#: main/views.py:318
+msgid "Incorrect type."
+msgstr "Tür hatalı."
+
+#: settings/base.py:343
+msgid "English"
+msgstr "İngilizce"
+
+#: settings/base.py:344
+msgid "French"
+msgstr "Fransızca"
+
+#: settings/base.py:345
+msgid "Spanish"
+msgstr "İspanyolca"
+
+#: settings/base.py:346
+msgid "Japanese"
+msgstr "Japonca"
+
+#: settings/base.py:347
+msgid "Portuguese"
+msgstr "Portekizce"
+
+#: settings/base.py:348
+msgid "Brazilian Portuguese"
+msgstr "Brezilya Portekizcesi"
+
+#: settings/base.py:349
+msgid "Swedish"
+msgstr "İsveççe"
+
+#: settings/base.py:350
+msgid "Norwegian"
+msgstr "Norveççe"
+
+#: settings/base.py:570
+msgid ""
+"Select \"Approve transfer\" to begin processing or \"Reject transfer\" to "
+"start over again."
+msgstr ""
+"İşlemeye başlamak için \"Approve transfer\", baştan başlamak için \"Reject "
+"transfer\" seçin."
+
+#: settings/base.py:573
+msgid ""
+"Create a complete backup of the transfer in case transfer/ingest are "
+"interrupted or fail. The transfer will automatically be deleted once the AIP"
+" has been moved into storage."
+msgstr ""
+"Aktarım veya içeri alma kesilir ya da başarısız olursa diye aktarımın tam "
+"bir yedeğini oluşturun. AIP depoya taşındıktan sonra aktarım otomatik olarak"
+" silinir."
+
+#: settings/base.py:575
+msgid "Create a SIP from the transfer."
+msgstr "Aktarımdan bir SIP oluşturun."
+
+#: settings/base.py:577
+msgid ""
+"Once you have added files from the transfer to the SIP, select \"SIP "
+"creation complete\" to start ingest micro-services."
+msgstr ""
+"Aktarımdaki dosyaları SIP'ye ekledikten sonra içeri alma mikro servislerini "
+"başlatmak için \"SIP creation complete\" seçin."
+
+#: settings/base.py:580
+msgid ""
+"Create preservation and/or access copies of files if desired. Creating "
+"access copies will result in a DIP being generated for upload into an access"
+" system."
+msgstr ""
+"İsterseniz dosyaların koruma ve/veya erişim kopyalarını oluşturun. Erişim "
+"kopyaları oluşturulursa bir erişim sistemine yüklenmek üzere DIP üretilir."
+
+#: settings/base.py:583
+msgid ""
+"If desired, click \"review\" to view the normalized files. To see a report "
+"summarizing the normalization results, click on the report icon next to the "
+"Actions drop-down menu. If normalization has failed, click on \"Yes\" under "
+"\"Preservation normalization failed\" or \"Access normalization failed\" to "
+"view the tool output and error message."
+msgstr ""
+"İsterseniz normalleştirilmiş dosyaları görmek için \"review\" düğmesine "
+"tıklayın. Normalleştirme sonuçlarını özetleyen raporu görmek için İşlemler "
+"açılır menüsünün yanındaki rapor simgesine tıklayın. Normalleştirme "
+"başarısız olduysa araç çıktısını ve hata iletisini görmek için \"Koruma "
+"normalleştirmesi başarısız\" veya \"Erişim normalleştirmesi başarısız\" "
+"altındaki \"Evet\" seçeneğine tıklayın."
+
+#: settings/base.py:586
+msgid ""
+"If desired, click \"review\" to view AIP contents. Select \"Store AIP\" to "
+"move the AIP into archival storage."
+msgstr ""
+"İsterseniz AIP içeriğini görmek için \"review\" düğmesine tıklayın. AIP'yi "
+"arşiv deposuna taşımak için \"Store AIP\" seçin."
+
+#: settings/base.py:589
+msgid "If desired, select \"Upload DIP\" to upload the DIP to the access system."
+msgstr "İsterseniz DIP'yi erişim sistemine yüklemek için \"Upload DIP\" seçin."
+
+#: templates/404.html:6
+msgid "Page not found"
+msgstr "Sayfa bulunamadı"
+
+#: templates/404.html:9
+msgid "Sorry! The page that you are trying to view is not here."
+msgstr "Üzgünüz. Görüntülemeye çalıştığınız sayfa burada değil."
+
+#: templates/500.html:6
+msgid "Internal server error"
+msgstr "İç sunucu hatası"
+
+#: templates/500.html:9
+msgid ""
+"Sorry! Something wrong happened. Please, contact with your administrator."
+msgstr "Üzgünüz. Bir sorun oluştu. Lütfen yöneticinizle iletişime geçin."
+
+#: templates/_pager.html:9
+msgid "First"
+msgstr "İlk"
+
+#: templates/_pager.html:13 templates/ingest/normalization_report.html:112
+msgid "Previous"
+msgstr "Önceki"
+
+#: templates/_pager.html:35 templates/ingest/normalization_report.html:118
+#: templates/rights/rights_edit.html:260
+msgid "Next"
+msgstr "Sonraki"
+
+#: templates/_pager.html:39
+msgid "Last"
+msgstr "Son"
+
+#: templates/_pager.html:58
+msgid "Jump to"
+msgstr "Git"
+
+#: templates/_pager.html:64
+#, python-format
+msgid ""
+"\n"
+"      Found %(count)s entries. Showing %(start_index)s to %(end_index)s.\n"
+"    "
+msgstr ""
+"\n"
+"      %(count)s kayıt bulundu. %(start_index)s-%(end_index)s arası gösteriliyor.\n"
+"    "
+
+#: templates/accounts/add.html:5 templates/accounts/add.html:6
+msgid "Users - Add new"
+msgstr "Kullanıcılar - Yeni ekle"
+
+#: templates/accounts/add.html:20 templates/accounts/edit.html:22
+#: templates/accounts/list.html:4 templates/accounts/list.html:5
+#: templates/accounts/list.html:18 templates/administration/sidebar.html:44
+msgid "Users"
+msgstr "Kullanıcılar"
+
+#: templates/accounts/add.html:21
+msgid "Add new user"
+msgstr "Yeni kullanıcı ekle"
+
+#: templates/accounts/add.html:35 templates/ingest/metadata_edit.html:44
+#: templates/installer/welcome.html:50
+#: templates/transfer/metadata_edit.html:43
+msgid "Create"
+msgstr "Oluştur"
+
+#: templates/accounts/edit.html:6 templates/accounts/edit.html:7
+#, python-format
+msgid "Users - Edit %(user)s"
+msgstr "Kullanıcılar - %(user)s düzenle"
+
+#: templates/accounts/list.html:23 templates/accounts/profile.html:30
+msgid "Username"
+msgstr "Kullanıcı adı"
+
+#: templates/accounts/list.html:25 templates/accounts/profile.html:34
+msgid "E-mail"
+msgstr "E-posta"
+
+#: templates/accounts/list.html:26
+msgid "Administrator"
+msgstr "Yönetici"
+
+#: templates/accounts/list.html:27
+msgid "Active"
+msgstr "Aktif"
+
+#: templates/accounts/list.html:52
+msgid "Add new"
+msgstr "Yeni ekle"
+
+#: templates/accounts/logged_out.html:9
+msgid "You are logged out."
+msgstr "Oturumunuz kapatıldı."
+
+#: templates/accounts/logged_out.html:13
+msgid "Log in again"
+msgstr "Yeniden giriş yap"
+
+#: templates/accounts/login.html:25
+msgid "Forgot your password?"
+msgstr "Şifrenizi mi unuttunuz?"
+
+#: templates/accounts/login.html:26
+msgid "Log in"
+msgstr "Giriş yap"
+
+#: templates/accounts/profile.html:36
+msgid "Admin"
+msgstr "Yönetici"
+
+#: templates/accounts/user_api_key_alert.html:2
+msgid ""
+"Make sure to copy the API key now as you will not be able to see it again."
+msgstr "API anahtarını şimdi kopyalayın. Daha sonra yeniden göremezsiniz."
+
+#: templates/administration/api.html:5 templates/administration/api.html:6
+#: templates/administration/dips_as_edit.html:5
+#: templates/administration/dips_as_edit.html:6
+#: templates/administration/dips_atom_edit.html:5
+#: templates/administration/dips_atom_edit.html:6
+#: templates/administration/general.html:5
+#: templates/administration/general.html:6
+#: templates/administration/handle_config.html:5
+#: templates/administration/handle_config.html:6
+#: templates/administration/language.html:5
+#: templates/administration/language.html:6
+#: templates/administration/locations.html:5
+#: templates/administration/locations.html:6
+#: templates/administration/premis_agent.html:5
+#: templates/administration/premis_agent.html:6
+#: templates/administration/processing.html:4
+#: templates/administration/processing.html:5
+#: templates/administration/processing_edit.html:4
+#: templates/administration/processing_edit.html:5
+#: templates/administration/reports/failure_detail.html:5
+#: templates/administration/reports/failure_detail.html:6
+#: templates/administration/reports/failures.html:5
+#: templates/administration/reports/failures.html:6
+#: templates/administration/taxonomy.html:5
+#: templates/administration/taxonomy.html:6
+#: templates/administration/term_detail.html:5
+#: templates/administration/term_detail.html:6
+#: templates/administration/terms.html:5 templates/administration/terms.html:6
+#: templates/layout.html:58
+msgid "Administration"
+msgstr "Yönetim"
+
+#: templates/administration/api.html:25
+msgid "REST API configuration"
+msgstr "REST API yapılandırması"
+
+#: templates/administration/api.html:27
+msgid "IP allowlist"
+msgstr "IP izin listesi"
+
+#: templates/administration/api.html:29
+msgid ""
+"Enter a whitespace-separated list of IPs or hostnames permitted to use the "
+"API."
+msgstr ""
+"API'yi kullanmasına izin verilen IP'leri veya ana bilgisayar adlarını "
+"boşlukla ayırarak girin."
+
+#: templates/administration/api.html:30
+msgid "If the allowlist is left empty, all IPs and hostnames will be allowed."
+msgstr ""
+"İzin listesi boş bırakılırsa tüm IP'lere ve ana bilgisayar adlarına izin "
+"verilir."
+
+#: templates/administration/dips_as_edit.html:25
+msgid "ArchivesSpace DIP upload"
+msgstr "ArchivesSpace DIP yüklemesi"
+
+#: templates/administration/dips_atom_edit.html:32
+msgid "AtoM DIP upload"
+msgstr "AtoM DIP yüklemesi"
+
+#: templates/administration/dips_atom_edit.html:34
+msgid "The settings below configure DIP uploading to AtoM."
+msgstr "Aşağıdaki ayarlar AtoM'a DIP yüklemeyi yapılandırır."
+
+#: templates/administration/general.html:27
+#, python-format
+msgid ""
+"\n"
+"            <b>Dashboard UUID</b> %(uuid)s\n"
+"          "
+msgstr ""
+"\n"
+"            <b>Pano UUID'si</b> %(uuid)s\n"
+"          "
+
+#: templates/administration/general.html:33
+msgid "General configuration"
+msgstr "Genel yapılandırma"
+
+#: templates/administration/general.html:40
+msgid "Storage Service options"
+msgstr "Depolama Servisi seçenekleri"
+
+#: templates/administration/general.html:44
+msgid "Checksum algorithm"
+msgstr "Sağlama toplamı algoritması"
+
+#: templates/administration/general.html:48
+msgid "Elasticsearch Indexing"
+msgstr "Elasticsearch indeksleme"
+
+#: templates/administration/general.html:53
+msgid "AIPs related indexes enabled."
+msgstr "AIP ile ilgili indeksler aktif."
+
+#: templates/administration/general.html:55
+msgid "AIPs related indexes disabled."
+msgstr "AIP ile ilgili indeksler devre dışı."
+
+#: templates/administration/handle_config.html:19
+msgid "Handle Configuration for Persistent Identifier (PID) Binding"
+msgstr "Kalıcı tanımlayıcı (PID) bağlama için Handle yapılandırması"
+
+#: templates/administration/language.html:19
+#: templates/administration/sidebar.html:49
+msgid "Language"
+msgstr "Dil"
+
+#: templates/administration/language.html:30
+msgid "Select one of the following languages available:"
+msgstr "Kullanılabilir dillerden birini seçin:"
+
+#: templates/administration/language.html:44
+msgid ""
+"Your choice will be recorded in the internal session store which does not "
+"retain data forever."
+msgstr ""
+"Seçiminiz, verileri kalıcı olarak saklamayan iç oturum deposuna kaydedilir."
+
+#: templates/administration/language.html:50
+msgid "Change"
+msgstr "Değiştir"
+
+#: templates/administration/locations.html:19
+msgid "Available storage locations"
+msgstr "Kullanılabilir depolama konumları"
+
+#: templates/administration/locations.html:21
+msgid ""
+"Storage locations are configured by an administrative user in the "
+"Archivematica Storage Service."
+msgstr ""
+"Depolama konumlarını Archivematica Depolama Servisi'nde bir yönetici "
+"kullanıcı yapılandırır."
+
+#: templates/administration/locations.html:31
+msgid "Used / available"
+msgstr "Kullanılan / kullanılabilir"
+
+#: templates/administration/locations.html:32
+#: templates/administration/usage.html:91
+msgid "Path"
+msgstr "Yol"
+
+#: templates/administration/locations.html:44
+#: templates/ingest/normalization_report.html:57
+#: templates/ingest/normalization_report.html:97
+msgid "N/A"
+msgstr "Uygulanamaz"
+
+#: templates/administration/locations.html:53
+msgid "No available locations."
+msgstr "Kullanılabilir konum yok."
+
+#: templates/administration/premis_agent.html:19
+#: templates/administration/sidebar.html:39
+msgid "PREMIS agent"
+msgstr "PREMIS aktörü"
+
+#: templates/administration/processing.html:18
+#: templates/administration/processing_edit.html:18
+#: templates/administration/sidebar.html:21
+msgid "Processing configuration"
+msgstr "İşleme yapılandırması"
+
+#: templates/administration/processing.html:28
+#: templates/archival_storage/view.html:49
+msgid "Download"
+msgstr "İndir"
+
+#: templates/administration/processing.html:30
+msgid "Reset"
+msgstr "Sıfırla"
+
+#: templates/administration/processing.html:42
+msgid "No processing configuration file found (*ProcessingMCP.xml)."
+msgstr "İşleme yapılandırması dosyası bulunamadı (*ProcessingMCP.xml)."
+
+#: templates/administration/processing.html:49
+msgid ""
+"The following files are being ignored because they don't meet the "
+"requirements."
+msgstr "Şu dosyalar gereksinimleri karşılamadığı için yok sayılıyor."
+
+#: templates/administration/processing.html:59 templates/ingest/detail.html:43
+#: templates/ingest/detail.html:49 templates/ingest/metadata_edit.html:13
+#: templates/rights/rights_edit.html:16
+#: templates/rights/rights_grants_edit.html:16
+#: templates/rights/rights_list.html:13 templates/rights/rights_list.html:82
+#: templates/rights/rights_list.html:84 templates/transfer/detail.html:44
+#: templates/transfer/detail.html:57 templates/transfer/metadata_edit.html:12
+msgid "Add"
+msgstr "Ekle"
+
+#: templates/administration/reports/failure_detail.html:18
+#, python-format
+msgid ""
+"\n"
+"          Failure report: %(name)s\n"
+"        "
+msgstr ""
+"\n"
+"          Hata raporu: %(name)s\n"
+"        "
+
+#: templates/administration/reports/failures.html:19
+msgid "Failure report"
+msgstr "Hata raporu"
+
+#: templates/administration/reports/failures.html:25
+msgid "Date"
+msgstr "Tarih"
+
+#: templates/administration/reports/failures.html:49
+msgid "No reports found."
+msgstr "Rapor bulunamadı."
+
+#: templates/administration/sidebar.html:23
+msgid "General"
+msgstr "Genel"
+
+#: templates/administration/sidebar.html:25
+msgid "Failures"
+msgstr "Hatalar"
+
+#: templates/administration/sidebar.html:27
+msgid "Storage locations"
+msgstr "Depolama konumları"
+
+#: templates/administration/sidebar.html:29
+#: templates/administration/usage.html:19
+msgid "Processing storage usage"
+msgstr "İşleme deposu kullanımı"
+
+#: templates/administration/sidebar.html:32 templates/ingest/as/match.html:16
+#: templates/ingest/as/resource_component.html:13
+#: templates/ingest/as/resource_detail.html:13
+#: templates/ingest/as/resource_list.html:13
+msgid "DIP upload"
+msgstr "DIP yükleme"
+
+#: templates/administration/sidebar.html:34
+msgid "AtoM"
+msgstr "AtoM"
+
+#: templates/administration/sidebar.html:35
+msgid "ArchivesSpace"
+msgstr "ArchivesSpace"
+
+#: templates/administration/sidebar.html:41
+msgid "REST API"
+msgstr "REST API"
+
+#: templates/administration/sidebar.html:47
+msgid "Handle server config"
+msgstr "Handle sunucusu yapılandırması"
+
+#: templates/administration/taxonomy.html:19
+msgid "Taxonomies"
+msgstr "Taksonomiler"
+
+#: templates/administration/taxonomy.html:29
+#: templates/administration/terms.html:33 templates/main/_tasks_pager.html:5
+msgid "Previous page"
+msgstr "Önceki sayfa"
+
+#: templates/administration/taxonomy.html:35
+#: templates/administration/terms.html:39 templates/main/_tasks_pager.html:11
+msgid "Next page"
+msgstr "Sonraki sayfa"
+
+#: templates/administration/term_detail.html:20
+#: templates/administration/terms.html:20
+msgid "Taxonomy"
+msgstr "Taksonomi"
+
+#: templates/administration/usage.html:5 templates/administration/usage.html:6
+msgid "Usage"
+msgstr "Kullanım"
+
+#: templates/administration/usage.html:22
+msgid ""
+"The processing storage location is determined in the Archivematica pipeline "
+"with the shared directory configuration path and in the Storage Service with"
+" the currently processing location associated with this pipeline."
+msgstr ""
+"İşleme depolama konumu, Archivematica iş hattında paylaşılan dizin "
+"yapılandırma yoluyla ve Depolama Servisi'nde bu iş hattıyla ilişkili, "
+"işlemde olan konumla belirlenir."
+
+#: templates/administration/usage.html:34
+msgid ""
+"By clicking the button below, this page will be reloaded calculating the "
+"space and usage of the entire disk where the shared directory is located. "
+"This process may take a long time depending on the disk configuration and "
+"its usage."
+msgstr ""
+"Aşağıdaki düğmeye tıkladığınızda sayfa yeniden yüklenir ve paylaşılan "
+"dizinin bulunduğu diskin tamamı için alan ve kullanım hesaplanır. Bu işlem, "
+"disk yapılandırmasına ve kullanımına bağlı olarak uzun sürebilir."
+
+#: templates/administration/usage.html:42
+msgid "Calculate disk usage"
+msgstr "Disk kullanımını hesapla"
+
+#: templates/administration/usage.html:45
+msgid "General information:"
+msgstr "Genel bilgi:"
+
+#: templates/administration/usage.html:48
+msgid ""
+"This section displays the location where the disk is mounted on the system "
+"and its current usage and space alongside the shared directory path and "
+"size."
+msgstr ""
+"Bu bölüm, diskin sistemde bağlandığı konumu, güncel kullanımını ve alanını, "
+"paylaşılan dizinin yolu ve boyutuyla birlikte gösterir."
+
+#: templates/administration/usage.html:56
+msgid "Disk location"
+msgstr "Disk konumu"
+
+#: templates/administration/usage.html:60
+msgid "Disk usage"
+msgstr "Disk kullanımı"
+
+#: templates/administration/usage.html:65
+msgid "Shared directory"
+msgstr "Paylaşılan dizin"
+
+#: templates/administration/usage.html:69
+msgid "Shared directory size"
+msgstr "Paylaşılan dizin boyutu"
+
+#: templates/administration/usage.html:77
+msgid "Clearable directories:"
+msgstr "Temizlenebilir dizinler:"
+
+#: templates/administration/usage.html:80
+msgid ""
+"This table displays some directories within the shared directory that can be"
+" cleared manually."
+msgstr ""
+"Bu tablo, paylaşılan dizin içinde elle temizlenebilen bazı dizinleri "
+"gösterir."
+
+#: templates/administration/version.html:19
+msgid "About Archivematica"
+msgstr "Archivematica hakkında"
+
+#: templates/administration/version.html:27
+msgid "Agent code"
+msgstr "Aktör kodu"
+
+#: templates/archival_storage/archival_storage.html:6
+#: templates/archival_storage/archival_storage.html:19
+#: templates/archival_storage/view.html:6
+#: templates/archival_storage/view.html:7
+#: templates/archival_storage/view.html:14 templates/layout.html:54
+msgid "Archival storage"
+msgstr "Arşiv deposu"
+
+#: templates/archival_storage/archival_storage.html:20
+#: templates/ingest/as/_search_form.html:6
+msgid "Search"
+msgstr "Ara"
+
+#: templates/archival_storage/archival_storage.html:25
+msgid "Browse archival storage"
+msgstr "Arşiv deposuna göz at"
+
+#: templates/archival_storage/archival_storage.html:35
+msgid "Elasticsearch Indexing Disabled"
+msgstr "Elasticsearch indeksleme devre dışı"
+
+#: templates/archival_storage/archival_storage.html:36
+msgid ""
+"Sorry, Elasticsearch indexing has been disabled for the AIPs related indexes"
+" in this Archivematica installation. The archival storage tab is non-"
+"functional when indexing is turned off."
+msgstr ""
+"Bu Archivematica kurulumunda AIP ile ilgili indeksler için Elasticsearch "
+"indeksleme devre dışı. İndeksleme kapalıyken arşiv deposu sekmesi çalışmaz."
+
+#: templates/archival_storage/view.html:21
+msgid "Archival Information Package"
+msgstr "Arşiv Bilgi Paketi"
+
+#: templates/archival_storage/view.html:35
+msgid "Date stored"
+msgstr "Depolanma tarihi"
+
+#: templates/archival_storage/view.html:54
+msgid "METS file"
+msgstr "METS dosyası"
+
+#: templates/archival_storage/view.html:56
+#: templates/archival_storage/view.html:62
+msgid "View"
+msgstr "Görüntüle"
+
+#: templates/archival_storage/view.html:60
+msgid "Pointer file"
+msgstr "İşaretçi dosyası"
+
+#: templates/archival_storage/view.html:68 templates/main/access.html:16
+msgid "Actions"
+msgstr "İşlemler"
+
+#: templates/archival_storage/view.html:73
+msgid "Upload DIP"
+msgstr "DIP yükle"
+
+#: templates/archival_storage/view.html:74
+#: templates/archival_storage/view.html:103
+msgid "Re-ingest"
+msgstr "Yeniden içeri al"
+
+#: templates/archival_storage/view.html:85
+msgid "Metadata-only DIP upload to AtoM"
+msgstr "AtoM'a yalnızca üst veri DIP yüklemesi"
+
+#: templates/archival_storage/view.html:89
+msgid "Upload"
+msgstr "Yükle"
+
+#: templates/archival_storage/view.html:99
+msgid "Choose type of re-ingest"
+msgstr "Yeniden içeri alma türünü seçin"
+
+#: templates/archival_storage/view.html:113
+msgid "Are you sure that you want to delete this AIP"
+msgstr "Bu AIP'yi silmek istediğinizden emin misiniz?"
+
+#: templates/archival_storage/view.html:114 templates/delete_request.html:8
+msgid ""
+"Choosing to delete this package will send a request to your Archival Storage"
+" administrator. If the administrator approves the request, your package will"
+" be deleted from your Archival Storage and your index will be updated. If "
+"the administrator denies the request, the package will remain in storage and"
+" the administrator will contact you."
+msgstr ""
+"Bu paketi silmeyi seçerseniz Arşiv Deposu yöneticinize bir istek gönderilir."
+" Yönetici isteği onaylarsa paket arşiv deposundan silinir ve indeksiniz "
+"güncellenir. Yönetici isteği reddederse paket depoda kalır ve yönetici "
+"sizinle iletişime geçer."
+
+#: templates/delete_request.html:15
+msgid "Reason for deletion:"
+msgstr "Silme nedeni:"
+
+#: templates/forbidden.html:6
+msgid "Forbidden"
+msgstr "Yasak"
+
+#: templates/forbidden.html:9
+msgid "Sorry! You do not have enough access privileges for this operation."
+msgstr "Üzgünüz. Bu işlem için yeterli erişim yetkiniz yok."
+
+#: templates/ingest/aip_browse.html:6 templates/ingest/aip_browse.html:7
+#: templates/main/access.html:12
+msgid "AIP"
+msgstr "AIP"
+
+#: templates/ingest/aip_browse.html:27 templates/ingest/detail.html:10
+#: templates/ingest/metadata_add_files.html:15
+#: templates/ingest/metadata_edit.html:10
+#: templates/ingest/microservices.html:11 templates/ingest/monitor.html:5
+#: templates/ingest/monitor.html:6 templates/layout.html:52
+#: templates/rights/rights_edit.html:12
+#: templates/rights/rights_grants_edit.html:12
+#: templates/rights/rights_list.html:9
+msgid "Ingest"
+msgstr "İçeri alma"
+
+#: templates/ingest/as/match.html:6 templates/ingest/as/match.html:7
+#: templates/ingest/as/resource_component.html:5
+#: templates/ingest/as/resource_component.html:6
+#: templates/ingest/as/resource_list.html:5
+#: templates/ingest/as/resource_list.html:6
+msgid "Match"
+msgstr "Eşleştirme"
+
+#: templates/ingest/as/match.html:17
+#: templates/ingest/as/resource_component.html:15
+msgid "Parent record"
+msgstr "Üst kayıt"
+
+#: templates/ingest/as/match.html:18 templates/ingest/as/match.html:25
+msgid "Assign objects"
+msgstr "Nesneleri ata"
+
+#: templates/ingest/as/match.html:26
+msgid "Assign objects to descriptions"
+msgstr "Nesneleri betimlemelere ata"
+
+#: templates/ingest/as/resource_component.html:14
+#: templates/ingest/as/resource_detail.html:14
+msgid "Collection"
+msgstr "Koleksiyon"
+
+#: templates/ingest/as/resource_component.html:42
+msgid "Assign DIP objects to this level of description"
+msgstr "DIP nesnelerini bu tanımlama düzeyine ata"
+
+#: templates/ingest/as/resource_component.html:51
+#: templates/ingest/as/resource_detail.html:41
+msgid "Level of description"
+msgstr "Tanımlama düzeyi"
+
+#: templates/ingest/as/resource_component.html:69
+#: templates/ingest/as/resource_detail.html:59
+msgid "No child descriptions found."
+msgstr "Alt betimleme bulunamadı."
+
+#: templates/ingest/as/resource_detail.html:32
+msgid "Assign DIP objects to this resource"
+msgstr "DIP nesnelerini bu kaynağa ata"
+
+#: templates/ingest/as/resource_list.html:18
+msgid "Collections"
+msgstr "Koleksiyonlar"
+
+#: templates/ingest/as/review_matches.html:17
+msgid "Finish matching"
+msgstr "Eşleştirmeyi bitir"
+
+#: templates/ingest/detail.html:16
+msgid "Submission Information Package"
+msgstr "Gönderim Bilgi Paketi"
+
+#: templates/ingest/detail.html:21 templates/transfer/detail.html:22
+#, python-format
+msgid ""
+"\n"
+"          <strong>UUID:</strong> %(uuid)s\n"
+"        "
+msgstr ""
+"\n"
+"          <strong>UUID:</strong> %(uuid)s\n"
+"        "
+
+#: templates/ingest/detail.html:28
+msgid "There are micro-services awaiting user decisions."
+msgstr "Kullanıcı kararı bekleyen mikro servisler var."
+
+#: templates/ingest/detail.html:30
+msgid "View micro-services"
+msgstr "Mikro servisleri görüntüle"
+
+#: templates/ingest/detail.html:35 templates/ingest/microservices.html:12
+#: templates/transfer/detail.html:36 templates/transfer/microservices.html:11
+msgid "Microservices"
+msgstr "Mikro servisler"
+
+#: templates/ingest/detail.html:40 templates/rights/rights_edit.html:13
+#: templates/rights/rights_grants_edit.html:13
+#: templates/rights/rights_list.html:10 templates/transfer/detail.html:41
+msgid "Rights"
+msgstr "Haklar"
+
+#: templates/ingest/detail.html:46 templates/ingest/metadata_edit.html:11
+#: templates/transfer/detail.html:54 templates/transfer/metadata_edit.html:10
+msgid "Metadata"
+msgstr "Üst veri"
+
+#: templates/ingest/detail.html:50
+msgid "Manual normalization event detail"
+msgstr "Elle normalleştirme olay ayrıntısı"
+
+#: templates/ingest/detail.html:51 templates/ingest/metadata_add_files.html:16
+msgid "Add metadata files"
+msgstr "Üst veri dosyaları ekle"
+
+#: templates/ingest/normalization_report.html:11 templates/main/tasks.html:38
+msgid "File name"
+msgstr "Dosya adı"
+
+#: templates/ingest/normalization_report.html:12
+msgid "File format"
+msgstr "Dosya biçimi"
+
+#: templates/ingest/normalization_report.html:13
+msgid "Preservation normalization attempted"
+msgstr "Koruma normalleştirmesi denendi"
+
+#: templates/ingest/normalization_report.html:14
+msgid "Preservation normalization failed"
+msgstr "Koruma normalleştirmesi başarısız"
+
+#: templates/ingest/normalization_report.html:15
+msgid "Preservation conformance check"
+msgstr "Koruma uygunluk denetimi"
+
+#: templates/ingest/normalization_report.html:16
+msgid "Already in preservation format"
+msgstr "Zaten koruma biçiminde"
+
+#: templates/ingest/normalization_report.html:17
+msgid "Access normalization attempted"
+msgstr "Erişim normalleştirmesi denendi"
+
+#: templates/ingest/normalization_report.html:18
+msgid "Access normalization failed"
+msgstr "Erişim normalleştirmesi başarısız"
+
+#: templates/ingest/normalization_report.html:19
+msgid "Already in access format"
+msgstr "Zaten erişim biçiminde"
+
+#: templates/ingest/normalization_report.html:20
+msgid "Access conformance check"
+msgstr "Erişim uygunluk denetimi"
+
+#: templates/ingest/normalization_report.html:52
+#: templates/ingest/normalization_report.html:54
+#: templates/ingest/normalization_report.html:92
+#: templates/ingest/normalization_report.html:94
+msgid "Failed,Passed"
+msgstr "Başarısız,Geçti"
+
+#: templates/ingest/normalization_report.html:107
+#, python-format
+msgid ""
+"\n"
+"      Showing %(start_index)s-%(end_index)s of %(total_items)s\n"
+"    "
+msgstr ""
+"\n"
+"      %(total_items)s kayıttan %(start_index)s-%(end_index)s arası\n"
+"    "
+
+#: templates/installer/storagesetup.html:26
+msgid "Register this pipeline in the Storage Service"
+msgstr "Bu iş hattını Depolama Servisi'ne kaydet"
+
+#: templates/installer/storagesetup.html:31
+msgid "Dashboard UUID"
+msgstr "Pano UUID'si"
+
+#: templates/installer/storagesetup.html:40
+msgid "Register"
+msgstr "Kaydet"
+
+#: templates/installer/welcome.html:5 templates/installer/welcome.html:6
+msgid "Welcome"
+msgstr "Hoş geldiniz"
+
+#: templates/installer/welcome.html:40
+msgid "Welcome!"
+msgstr "Hoş geldiniz!"
+
+#: templates/installer/welcome.html:41
+msgid ""
+"Archivematica has been installed successfully. Please take a minute to enter"
+" some details into the system."
+msgstr ""
+"Archivematica başarıyla kuruldu. Lütfen sisteme bazı bilgileri girmek için "
+"bir dakikanızı ayırın."
+
+#: templates/layout.html:8
+msgid "Archivematica Dashboard"
+msgstr "Archivematica Panosu"
+
+#: templates/layout.html:51 templates/rights/rights_edit.html:14
+#: templates/rights/rights_grants_edit.html:14
+#: templates/rights/rights_list.html:11 templates/transfer/component.html:10
+#: templates/transfer/detail.html:9 templates/transfer/metadata_edit.html:9
+#: templates/transfer/microservices.html:10 templates/transfer/monitor.html:5
+#: templates/transfer/monitor.html:6
+msgid "Transfer"
+msgstr "Aktarım"
+
+#: templates/layout.html:56
+msgid "Preservation planning"
+msgstr "Koruma planlaması"
+
+#: templates/layout.html:66
+msgid "Your profile"
+msgstr "Profiliniz"
+
+#: templates/layout.html:71
+msgid "Log out"
+msgstr "Çıkış yap"
+
+#: templates/main/access.html:13
+msgid "DIP URL"
+msgstr "DIP URL'si"
+
+#: templates/main/access.html:14
+msgid "Upload date"
+msgstr "Yükleme tarihi"
+
+#: templates/main/access.html:15
+msgid "Upload status"
+msgstr "Yükleme durumu"
+
+#: templates/main/tasks.html:11
+#, python-format
+msgid "Transfer %(uuid)s"
+msgstr "Aktarım %(uuid)s"
+
+#: templates/main/tasks.html:13
+#, python-format
+msgid "DIP %(uuid)s"
+msgstr "DIP %(uuid)s"
+
+#: templates/main/tasks.html:15
+#, python-format
+msgid "SIP %(uuid)s"
+msgstr "SIP %(uuid)s"
+
+#: templates/main/tasks.html:18
+msgid "Tasks"
+msgstr "Görevler"
+
+#: templates/main/tasks.html:35
+msgid "File UUID"
+msgstr "Dosya UUID'si"
+
+#: templates/main/tasks.html:36
+msgid "Not applicable"
+msgstr "Uygulanamaz"
+
+#: templates/main/tasks.html:41
+msgid "Client"
+msgstr "İstemci"
+
+#: templates/main/tasks.html:44
+msgid "Exit code"
+msgstr "Çıkış kodu"
+
+#: templates/main/tasks.html:56
+msgid "Start time"
+msgstr "Başlangıç zamanı"
+
+#: templates/main/tasks.html:59
+msgid "End time"
+msgstr "Bitiş zamanı"
+
+#: templates/main/tasks.html:62
+msgid "Created time"
+msgstr "Oluşturulma zamanı"
+
+#: templates/main/tasks.html:65
+msgid "Duration"
+msgstr "Süre"
+
+#: templates/main/tasks.html:66
+#, python-format
+msgid "%(duration)s seconds(s)"
+msgstr "%(duration)s saniye"
+
+#: templates/main/tasks.html:74
+#, python-format
+msgid ""
+"\n"
+"                Module %(module)s\n"
+"              "
+msgstr ""
+"\n"
+"                Modül %(module)s\n"
+"              "
+
+#: templates/main/tasks.html:85
+msgid "Standard streams"
+msgstr "Standart akışlar"
+
+#: templates/main/tasks.html:91
+msgid "Standard output (stdout)"
+msgstr "Standart çıktı (stdout)"
+
+#: templates/main/tasks.html:102
+msgid "Errors and diagnostics (stderr)"
+msgstr "Hatalar ve tanı bilgileri (stderr)"
+
+#: templates/rights/rights_edit.html:43
+#: templates/rights/rights_grants_edit.html:42
+msgid "Saved"
+msgstr "Kaydedildi"
+
+#: templates/rights/rights_edit.html:47
+msgid "An error has occurred."
+msgstr "Bir hata oluştu."
+
+#: templates/rights/rights_edit.html:55
+msgid "New content added."
+msgstr "Yeni içerik eklendi."
+
+#: templates/rights/rights_edit.html:58
+#, python-format
+msgid ""
+"\n"
+"                  New content added: %(type)s.\n"
+"                "
+msgstr ""
+"\n"
+"                  Yeni içerik eklendi: %(type)s.\n"
+"                "
+
+#: templates/rights/rights_edit.html:93
+msgid "Copyright documentation identifier:"
+msgstr "Telif hakkı belgesi tanımlayıcısı:"
+
+#: templates/rights/rights_edit.html:106 templates/rights/rights_edit.html:152
+#: templates/rights/rights_edit.html:196 templates/rights/rights_edit.html:238
+msgid "Role"
+msgstr "Rol"
+
+#: templates/rights/rights_edit.html:138
+msgid "Statute documentation identifier:"
+msgstr "Mevzuat belgesi tanımlayıcısı:"
+
+#: templates/rights/rights_edit.html:182
+msgid "License documentation identifier:"
+msgstr "Lisans belgesi tanımlayıcısı:"
+
+#: templates/rights/rights_edit.html:224
+msgid "Documentation identifier"
+msgstr "Belge tanımlayıcısı"
+
+#: templates/rights/rights_edit.html:245
+msgid "Note"
+msgstr "Not"
+
+#: templates/rights/rights_grants_edit.html:49
+msgid ""
+"You may now add additional information such as document identifers and "
+"notes."
+msgstr ""
+"Artık belge tanımlayıcıları ve notlar gibi ek bilgiler ekleyebilirsiniz."
+
+#: templates/rights/rights_grants_edit.html:76
+msgid "Allow"
+msgstr "İzin ver"
+
+#: templates/rights/rights_grants_edit.html:77
+msgid "Disallow"
+msgstr "Engelle"
+
+#: templates/rights/rights_grants_edit.html:78
+msgid "Conditional"
+msgstr "Koşullu"
+
+#: templates/rights/rights_grants_edit.html:84
+msgid "Grant/restriction note"
+msgstr "İzin/kısıtlama notu"
+
+#: templates/rights/rights_list.html:33
+msgid "Act"
+msgstr "İşlem"
+
+#: templates/rights/rights_list.html:35
+msgid "Restriction(s)"
+msgstr "Kısıtlama"
+
+#: templates/search_service_error.html:6
+msgid "Search service error"
+msgstr "Arama servisi hatası"
+
+#: templates/search_service_error.html:9
+#, python-format
+msgid ""
+"\n"
+"        Exception type: %(exception_type)s\n"
+"    "
+msgstr ""
+"\n"
+"        İstisna türü: %(exception_type)s\n"
+"    "
+
+#: templates/search_service_error.html:15
+msgid "Sorry! The page that you are trying to view is not available."
+msgstr "Üzgünüz. Görüntülemeye çalıştığınız sayfa kullanılamıyor."
+
+#: templates/search_service_error.html:16
+msgid "Please contact an administrator."
+msgstr "Lütfen bir yöneticiyle iletişime geçin."
+
+#: templates/transfer/component.html:11
+msgid "Component metadata"
+msgstr "Bileşen üst verisi"
+
+#: templates/transfer/detail.html:29
+msgid "There are microservices awaiting user decisions."
+msgstr "Kullanıcı kararı bekleyen mikro servisler var."
+
+#: templates/transfer/detail.html:31
+msgid "View microservices"
+msgstr "Mikro servisleri görüntüle"
+
+#: templates/transfer/detail.html:48
+msgid "Transfer metadata"
+msgstr "Aktarım üst verisi"
+
+#: MCPServer/server/rpc_server.py
+msgid "Failed before processing started"
+msgstr "İşleme başlamadan önce başarısız oldu"
