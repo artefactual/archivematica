@@ -66,7 +66,7 @@ configs:
 services:
 
   mysql:
-    image: "percona/percona-server:8.4.11-11.1"
+    image: "percona/percona-server:8.4.11-12.1"
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci"
     environment:
       MYSQL_ROOT_PASSWORD: "root"
@@ -198,7 +198,7 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: "quay.io/keycloak/keycloak:26.8.2-1"
+    image: "quay.io/keycloak/keycloak:26.8.2-2"
     command: ["start-dev", "--import-realm"]
     restart: "unless-stopped"
     environment:
@@ -283,7 +283,7 @@ services:
     # Upstream publishes versioned tags, but may rebuild them to pick up
     # base-image security updates. Keep the version tag for readability and
     # pin the exact build by digest; Dependabot keeps both up to date.
-    image: "vegardit/openldap:2.6.10@sha256:982df355e2ba0478fed68aecb360fed6df64f872c53c87c6a86e713ce7724b47"
+    image: "vegardit/openldap:2.6.10@sha256:733da245adb11a43aa4282eb92d4d6e1cec286bac46aea2ef6c8614c8e9412db"
     environment:
       LDAP_INIT_ORG_DN: "dc=archivematica,dc=org"
       LDAP_INIT_ORG_NAME: "Archivematica integration tests"
