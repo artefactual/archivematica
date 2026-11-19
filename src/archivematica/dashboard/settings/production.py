@@ -22,3 +22,6 @@ from archivematica.dashboard.settings.base import config
 ALLOWED_HOSTS = config.get("allowed_hosts").split(",")
 
 SECRET_KEY = config.get("secret_key")
+
+# Remove warning about autocreated primary keys.
+SILENCED_SYSTEM_CHECKS = ["models.W042"]
